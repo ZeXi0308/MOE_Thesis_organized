@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Idea A 实验报告</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="pdf_style.css" />
+</head>
+<body>
+<h1 id="idea-a-实验报告">Idea A 实验报告</h1>
+<hr />
+<h2 id="实验来龙去脉">实验来龙去脉</h2>
+<p>最开始的想法是：MoE combine 阶段要把多个 expert output
+传回并加权求和，能不能不要所有 output 都用 BF16，而是按 gate/rank 给不同
+output 用不同精度。</p>
+<p><strong>如果 uniform FP8 已经很好用，那从 BF16 出发做复杂 rank-aware
+mixed precision 就不够有说服力</strong>。所以这次先补了 FP8 fake-quant
+baseline。结果发现，uniform FP8 确实很强：直接拿到 50% byte saving，而且
+KL/PPL 基本不变。</p>
+<p>因此当前主线改成更窄、更容易防守的问题：<strong>既然所有 combine
+output 先用 FP8 已经是合理默认，那么 FP8 之后还能不能安全再压一部分到
+INT4？</strong></p>
+<p>这里的两个信号分工如下：</p>
+<ul>
+<li><code>rank</code> 负责判断“能不能压”：哪些 expert output 的 gate
+小、贡献小，可以从 FP8 继续降到 INT4。</li>
+<li><code>receiver_group</code> 负责判断“先压哪里”：如果只能安全压一部分
+output，就优先压流量更集中的通信端，目标是降低最热端的字节数。</li>
+</ul>
+<hr />
+<h2 id="摘要">摘要</h2>
+<p>本报告围绕毕设方向 A（MoE Combine
+通信压缩）完成前置验证。核心发现链：</p>
+<ol type="1">
+<li><strong>top-k 内部不是平均分工</strong>：同一个 token 选中的多个
+experts 里，后几个 rank 的 gate/contribution 明显更小（3 模型 tail-rank
+share &lt;10%）。</li>
+<li><strong>rank 主要用来判断 INT4 能不能用</strong>：在 INT4 下，压
+tail 和压 head 的 KL 差 58×；在 FP8 下只差 2×。说明 FP8 已经稳，rank
+的价值是判断谁还能继续降到 INT4。</li>
+<li><strong>uniform FP8 是强 baseline</strong>：它直接带来 50% byte
+saving，且 KL=0.293、PPL 基本无损。论文不能讲“rank-aware 替代
+FP8”，而要讲“FP8 之后还能安全多压多少”。</li>
+<li><strong>INT4/drop 的风险来自误差逐层传递</strong>：FP8
+的误差小，多层叠加仍温和；INT4/drop
+误差大，会影响后续层输入，出现明显放大。</li>
+<li><strong>FP8 + tail-INT4 可以把 saving 推到 62.5%</strong>：只把低
+gate 的 tail ranks 从 FP8 降到 INT4，256 样本 PPL +0.30（约 1.4%
+relative）；同样 saving 下压 head/random 会崩（+6~7 PPL）。</li>
+<li><strong>rank 是便宜但够用的选择信号</strong>：按 rank 选 tail 与按
+<code>gate×||output||</code> oracle 选 tail 的 KL 只差 1.43×，但 rank
+在路由后就知道，oracle 要等 expert output 算完。</li>
+</ol>
+<p><strong>本文不再挑战 FP8，而是在 FP8 之后找额外可压缩空间。做法是默认
+combine output 全部 FP8；再只把低 gate 的 tail output 降到
+INT4；如果要接系统目标，就把这些“质量上安全”的 INT4 预算优先放到热点
+receiver/endpoint group。当前 receiver-aware
+只证明了最热端字节数下降，真实 TBT/P99 仍需 A100 实测。</strong></p>
+<h3 id="导览">导览</h3>
+<p>原方案的核心是
+<code>Profile-Guided Receiver-Aware Rank-LUT Partial Combine</code>：用离线
+profile 得到一张
+<code>LUT[layer, receiver_group, rank] -&gt; precision</code>，运行时只查表，不做在线优化。本次实验先补了
+FP8 fake-quant baseline。结果发现，uniform FP8 在 combine
+阶段已经能直接带来 50% byte saving，并且 KL/PPL 基本无损。</p>
+<p>因此后续实验改成验证一个更具体的问题：</p>
+<blockquote>
+<p><strong>在 uniform FP8 已经很好用之后，MoE combine 里有没有一部分
+output 可以继续降到 INT4 或直接 drop，而且不会明显伤质量？</strong></p>
+</blockquote>
+<p>围绕这个问题，后续实验追加了三组更具体的验证：</p>
+<ul>
+<li><strong>FP8 之后还能不能继续省</strong>：从 uniform FP8 出发，把
+tail rank 进一步降到 INT4，观察是否能从 50% saving 推到 62.5%。</li>
+<li><strong>为什么必须按 rank 选</strong>：在同样 62.5% saving 下加入
+tail/head/random 反例对照，验证 INT4 放在 tail 上温和，放在 head/random
+上会崩。</li>
+<li><strong>安全 INT4 预算应该压在哪里</strong>：加入 receiver-aware
+hot/roundrobin/random/cold 反例对照，验证同样总 saving 下，把 tail-INT4
+优先放到热点 receiver/endpoint group 更能降低 max-receiver
+bytes。这里仍是通信字节近似指标，不是实测 TBT。</li>
+</ul>
+<hr />
+<h2 id="一研究问题与方法">一、研究问题与方法</h2>
+<h3 id="问题定位">1.1 问题定位</h3>
+<p>MoE 通信优化集中在 dispatch 和 expert placement；combine
+阶段被忽视的独有自由度是——<strong>gate
+权重作为重要性信号，免费可得，且在 dispatch
+阶段结构上做不到</strong>。</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>t</mi></msub><mo>=</mo><munder><mo>∑</mo><mrow><mi>e</mi><mo>∈</mo><mi>S</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow></munder><msub><mi>g</mi><mrow><mi>t</mi><mo>,</mo><mi>e</mi></mrow></msub><mo>⋅</mo><msub><mi>o</mi><mrow><mi>t</mi><mo>,</mo><mi>e</mi></mrow></msub></mrow><annotation encoding="application/x-tex">y_t = \sum_{e \in S(t)} g_{t,e} \cdot o_{t,e}</annotation></semantics></math></p>
+<p>每个 (token, expert) 对应独立 output，gate 权重已知，按 gate
+区分传输精度天然规整。</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>阶段</th>
+<th>传输对象</th>
+<th>gate/rank 信号是否自然可用</th>
+<th>本文处理</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>dispatch</td>
+<td>同一个 token hidden state 被复制给 top-k experts</td>
+<td>rank 已知，但所有副本输入相同；按 rank
+做差分量化会破坏规整性，且误差会经过 expert MLP 非线性放大</td>
+<td>不作为主线</td>
+</tr>
+<tr>
+<td>combine</td>
+<td>每个 <code>(token, expert)</code> 返回独立 expert output</td>
+<td>gate/rank 已知，且最终线性加权聚合；tail output 的误差会被小 gate
+缩放</td>
+<td>主优化对象</td>
+</tr>
+</tbody>
+</table>
+<p><strong>文献背景：</strong> 真实 MoE serving 里，expert parallelism
+通常会引入两次 all-to-all：先 dispatch token hidden states 到 expert
+所在设备，再 combine expert outputs 回原 token 位置。<a
+href="https://www.usenix.org/conference/atc23/presentation/li-jiamin">Lina（USENIX
+ATC’23）</a>指出 distributed MoE
+训练和推理低效的主要原因是模型计算中穿插的 all-to-all，并在 A100 testbed
+上通过优化 all-to-all 将 P95 inference time 平均降低 1.63×。<a
+href="https://arxiv.org/abs/2603.13606">NCCL EP / DeepEP</a>
+一类系统工作也直接把 <code>dispatch</code> 和 <code>combine</code>
+做成一等通信 primitive，面向 decoding 的 low-latency 模式和 prefill 的
+high-throughput 模式分别优化。<a
+href="https://arxiv.org/abs/2601.08800">MixServe</a> 进一步把 MoE EP 的
+A2A 通信拆成 Dispatch 和 Combine，并给出同阶通信量
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mfrac><mrow><mi>b</mi><mi>s</mi></mrow><mi>d</mi></mfrac><mo>⋅</mo><mi>h</mi><mi>k</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\frac{bs}{d}\cdot hk)</annotation></semantics></math>；其
+DeepSeek-R1 / Qwen3 serving 实验通过优化 AR/A2A 通信获得 1.03–1.66× ITL
+加速和 5.2%–50.3% throughput 提升。</p>
+<p>因此本文的保守表述是：<strong>MoE all-to-all
+已经被系统论文证明会显著影响 serving latency / tail latency；combine
+是其中一条返回路径，而且它比 dispatch 更适合利用 gate/rank
+做差分精度。</strong></p>
+<h3 id="方法定位">1.2 方法定位</h3>
+<p>原方案（rank-aware mixed precision from BF16）在 ≤50% saving 被
+uniform FP8 主导。reframe 后：</p>
+<blockquote>
+<p><strong>不与 uniform FP8 竞争，在其之上叠加</strong>：所有 output
+先用 FP8 拿到 50% saving；然后只把低 gate 的 tail output 继续降到
+INT4，把 saving 推到 62.5%。rank 的作用不是微调 FP8，而是防止把 head
+output 错压成 INT4。</p>
+</blockquote>
+<p>drop 可以作为 aggressive upper bound 或 future
+work，但主线先采用更规整、更可部署的 FP8/INT4 差分量化。</p>
+<h3 id="运行时策略">1.3 运行时策略</h3>
+<p>静态查表：<code>LUT[layer, receiver_group, rank] -&gt; {BF16, FP8, INT4}</code>，runtime
+O(1)。</p>
+<hr />
+<h2 id="二实验环境">二、实验环境</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>项</th>
+<th>设置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>机器</td>
+<td>Mac M5 Pro / 48GB unified memory / CPU-only</td>
+</tr>
+<tr>
+<td>dtype</td>
+<td>bfloat16</td>
+</tr>
+<tr>
+<td>数据集</td>
+<td>WikiText-2 validation（PPL/KL）+ MMLU（下游任务）</td>
+</tr>
+<tr>
+<td>主模型</td>
+<td>OLMoE-1B-7B-0924（16 MoE layers, 64 experts, top-8）</td>
+</tr>
+<tr>
+<td>跨模型</td>
+<td>LLM-jp E32-k16（top-16）、Mixtral-TinyMistral（top-2）</td>
+</tr>
+<tr>
+<td>FP8 实现</td>
+<td>E4M3 fake quant，per-token
+scaling（<code>torch.float8_e4m3fn</code>），对齐 MegaScale/DeepSeek 的
+per-tensor scaled FP8</td>
+</tr>
+</tbody>
+</table>
+<h3 id="术语">2.1 术语</h3>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>术语</th>
+<th>本报告中的含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>rank</td>
+<td>某个 token 的 top-k experts 按 gate 从大到小排序后的位次。rank 1
+是最高 gate，tail rank 是较低 gate 的 expert。</td>
+</tr>
+<tr>
+<td>gate</td>
+<td>router 给 selected expert 的权重，combine 时用于 <code>Σ g·o</code>
+的线性加权。</td>
+</tr>
+<tr>
+<td>FP8 默认方案</td>
+<td>第一步不做复杂策略，所有 combine outputs 都用 FP8 传输，先稳定拿到
+50% byte saving。</td>
+</tr>
+<tr>
+<td>FP8→INT4 边界</td>
+<td>第二步才问：哪些 output 还能从 FP8 再降到 INT4。这个边界很危险，压错
+head 会崩。</td>
+</tr>
+<tr>
+<td>receiver_group</td>
+<td>当前实验里按通信目标/专家归属做的流量分组，用来近似“哪个接收端更热”。它是
+endpoint/receiver 近似分组，不是完整 serving 系统里的真实 request
+receiver。</td>
+</tr>
+<tr>
+<td>误差逐层传递</td>
+<td>前面 MoE
+层的量化误差会改变后面层的输入；如果误差太大，后面层会继续放大这个偏差。</td>
+</tr>
+<tr>
+<td>KL / PPL</td>
+<td>KL 衡量输出分布形状变化，PPL
+衡量语言模型困惑度；二者是诊断指标，最终仍需下游任务和真实
+latency。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="实验地图">2.2 实验地图</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>实验</th>
+<th>回答的问题</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>实验一</td>
+<td>top-k 内部是否真的有 rank 长尾？</td>
+<td>有，tail rank contribution share 在 3 个模型上都很小。</td>
+</tr>
+<tr>
+<td>实验二</td>
+<td>rank 在不同精度档位是否都重要？</td>
+<td>INT4 下 rank 决定生死，FP8 下 rank 差异很小。</td>
+</tr>
+<tr>
+<td>实验三</td>
+<td>uniform FP8 是否会打掉原方案？</td>
+<td>会，所以必须把 FP8 当默认第一步，而不是对手。</td>
+</tr>
+<tr>
+<td>实验四</td>
+<td>FP8 之后还能不能继续压？</td>
+<td>tail rank 从 FP8 降 INT4 可把 saving 推到 62.5%。</td>
+</tr>
+<tr>
+<td>实验五</td>
+<td>这个结论能否跨模型、能否接热点通信端？</td>
+<td>top-16 仍成立；receiver-aware 能降低最热端字节数。</td>
+</tr>
+<tr>
+<td>实验六</td>
+<td>PPL/KL 退化是否转化成任务退化？</td>
+<td>MMLU 小样本未观察到下降，但仍需生成式任务补充。</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="三实验一rank-长尾验证">三、实验一：Rank 长尾验证</h2>
+<p>对每个 token、每个 MoE layer、每个 selected expert rank，统计
+<code>contribution = gate_weight × ‖expert_output‖</code>，<code>share = contribution / sum(top-k)</code>。</p>
+<table>
+<colgroup>
+<col style="width: 13%" />
+<col style="width: 18%" />
+<col style="width: 18%" />
+<col style="width: 18%" />
+<col style="width: 18%" />
+<col style="width: 13%" />
+</colgroup>
+<thead>
+<tr>
+<th>模型</th>
+<th style="text-align: right;">top-k</th>
+<th style="text-align: right;">tail rank</th>
+<th style="text-align: right;">tail-rank median share</th>
+<th style="text-align: right;">rank1/tail ratio</th>
+<th>判定</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OLMoE</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">rank-8</td>
+<td style="text-align: right;"><strong>4.91%</strong></td>
+<td style="text-align: right;"><strong>5.43×</strong></td>
+<td>强成立</td>
+</tr>
+<tr>
+<td>Mixtral-TinyMistral</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">rank-2</td>
+<td style="text-align: right;"><strong>0.014%</strong></td>
+<td style="text-align: right;"><strong>14656×</strong></td>
+<td>极端成立</td>
+</tr>
+<tr>
+<td>LLM-jp E32-k16</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">rank-16</td>
+<td style="text-align: right;"><strong>2.05%</strong></td>
+<td style="text-align: right;"><strong>9.39×</strong></td>
+<td>强成立</td>
+</tr>
+</tbody>
+</table>
+<figure>
+<img src="figures/fig1_rank_contribution_longtail.png"
+alt="C1 rank 长尾验证" />
+<figcaption aria-hidden="true">C1 rank 长尾验证</figcaption>
+</figure>
+<p><strong>图 1</strong>：(a) OLMoE top-8 各 rank 的 median contribution
+share——rank-8 仅占约 4.9%，rank-1 占约 28%，长尾明显。(b)
+跨模型对比：三个模型的 tail-rank share 均远低于 10% 阈值。</p>
+<p>第一，top-k experts 不是平均贡献，rank 越靠后，gate-weighted
+contribution 越小；第二，这个现象不只出现在 OLMoE，一个 top-2、一个
+top-8、一个 top-16 模型都能看到 tail
+很小。它支撑后续的基本假设：<strong>tail output
+不是完全不能动，而是更适合先尝试低精度。</strong></p>
+<p>Mixtral 的 <code>14656×</code> 看起来非常大，主要是因为它是 top-2
+模型，而且 router/gate 很接近 one-hot：很多 token 上 rank1
+几乎拿走全部权重，rank2 的 median contribution 接近
+0。这个结果不应作为主论据夸大，只说明“在另一个 MoE 架构里也能看到 tail
+很小”。主证据仍然是 OLMoE top-8 和 LLM-jp top-16。</p>
+<blockquote>
+<p><strong>C1 成立</strong>：top-k 内部不是均匀的，rank
+可以作为低成本的重要性近似信号。</p>
+</blockquote>
+<hr />
+<h2 id="四实验二压-int4-时压-tail-和压-head-差多少">四、实验二：压 INT4
+时，压 tail 和压 head 差多少</h2>
+<p>做法很简单：每次只改一个 rank
+的精度，其他设置不变，然后看模型质量掉多少。</p>
+<p>这里还顺带做一个 FP8 对照：</p>
+<ul>
+<li>如果只是降到 <strong>FP8</strong>，rank1 和 rank8 的差别很小，说明
+FP8 本身已经比较稳。</li>
+<li>如果降到 <strong>INT4</strong>，压 rank1 会明显伤质量，压 rank8
+影响很小，说明 INT4 不能随便用。</li>
+</ul>
+<p>这组实验的结论是：<strong>FP8 可以作为默认方案；INT4 只能优先给低
+gate 的 tail output。</strong></p>
+<h3 id="int4-档内rank-差异巨大58">4.1 INT4 档内：rank
+差异巨大（58×）</h3>
+<p>这一步故意只压一个
+rank，目的是把“省了多少通信”固定住，只比较“压哪里”会不会影响质量。</p>
+<p>OLMoE 是 top-8，每个 token 会选 8 个 expert
+output。这里有两种对照：</p>
+<ul>
+<li>压 <strong>rank8</strong>：只把最低 gate 的那个 expert output 降到
+INT4。</li>
+<li>压 <strong>rank1</strong>：只把最高 gate 的那个 expert output 降到
+INT4。</li>
+</ul>
+<p>因为只压 8 个 rank 里的 1 个，而 BF16 降到 INT4 单个值省 75%
+字节，所以总 byte saving 是
+<code>1/8 × 75% = 9.375%</code>。这样设置后，rank8 和 rank1
+的通信收益完全一样，质量差异就主要来自“压的是不是重要 output”。</p>
+<p>这张表里的 strategy 只改变“哪个 rank 用 INT4”，其他设置保持一致：</p>
+<ul>
+<li><code>rank8_int4</code>：只把最低 gate 的 rank8 output 降到
+INT4，其他 rank 不动。</li>
+<li><code>rank1_int4</code>：只把最高 gate 的 rank1 output 降到
+INT4，其他 rank 不动。</li>
+<li><code>uniform_int4</code>：所有 rank 都用
+INT4，是一个极端低精度参考。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>strategy</th>
+<th style="text-align: right;">byte saving</th>
+<th style="text-align: right;">KL</th>
+<th style="text-align: right;">PPL Δ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>rank8_int4</code>（tail）</td>
+<td style="text-align: right;">9.375%</td>
+<td style="text-align: right;"><strong>0.361</strong></td>
+<td style="text-align: right;">-0.029</td>
+</tr>
+<tr>
+<td><code>rank1_int4</code>（head）</td>
+<td style="text-align: right;">9.375%</td>
+<td style="text-align: right;">20.989</td>
+<td style="text-align: right;">+4.488</td>
+</tr>
+<tr>
+<td><code>uniform_int4</code></td>
+<td style="text-align: right;">75%</td>
+<td style="text-align: right;">27.152</td>
+<td style="text-align: right;">+6.678</td>
+</tr>
+</tbody>
+</table>
+<p>跨模型一致：OLMoE 58×、Mixtral 41×、LLM-jp 108×。</p>
+<figure>
+<img src="figures/fig2_rank_sweep.png" alt="Rank sweep" />
+<figcaption aria-hidden="true">Rank sweep</figcaption>
+</figure>
+<p><strong>图 2</strong>：将 INT4 逐一施加到 rank 1–8 上（相同 byte
+saving 9.375%）。压 rank-8 的 KL 仅 0.36，压 rank-1 的 KL 高达 21.0——低
+58 倍。</p>
+<p>这张图的关键不是“INT4 总体好不好”，而是控制变量：每次只压一个
+rank，byte saving 完全相同。结果说明，同样省 9.375% 字节，压 tail 和压
+head 的质量代价完全不是一个量级。因此 rank 在 INT4
+场景下不是锦上添花，而是决定压缩是否安全的必要条件。</p>
+<figure>
+<img src="figures/fig4_cross_model.png" alt="Cross-model advantage" />
+<figcaption aria-hidden="true">Cross-model advantage</figcaption>
+</figure>
+<p><strong>图 3</strong>：跨模型验证——三个模型上 tail-rank INT4 的 KL
+均比 rank1 INT4 低一到两个数量级（41×–108×）。</p>
+<p>图 3 是对图 2 的防偶然验证。它说明“head 不能乱压、tail 相对安全”不是
+OLMoE 一个模型的巧合，而是在不同 top-k
+结构里都成立。这里的跨模型结果也防住了一个质疑：rank 长尾可能只是某个
+checkpoint 的 router 分布特例。</p>
+<h3 id="fp8-档内rank-差异消失2">4.2 FP8 档内：rank 差异消失（2×）</h3>
+<p>相同 byte saving（6.25%）下，FP8 rank sweep：</p>
+<table>
+<thead>
+<tr>
+<th>rank</th>
+<th style="text-align: right;">KL（rankN_fp8）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>rank1</td>
+<td style="text-align: right;">0.257</td>
+</tr>
+<tr>
+<td>rank8</td>
+<td style="text-align: right;">0.130</td>
+</tr>
+<tr>
+<td><strong>ratio</strong></td>
+<td style="text-align: right;"><strong>1.97×</strong></td>
+</tr>
+</tbody>
+</table>
+<p>这说明在 FP8 这个精度下，压最高 gate 的 rank1 和压最低 gate 的 rank8
+都没有造成明显质量问题，二者 KL 只差约 2 倍。换句话说，FP8
+已经比较稳，没必要为了“谁用 FP8”做复杂 rank 策略。</p>
+<h3 id="这说明什么">4.3 这说明什么</h3>
+<p>FP8 已经足够稳，所以在 FP8 里纠结“rank1 用 FP8 还是 rank8 用
+FP8”意义不大。真正危险的是 INT4：如果把高 gate 的 head output 降到
+INT4，误差会明显伤模型；如果只把低 gate 的 tail output 降到
+INT4，模型效果影响极小。</p>
+<p>所以这里的 rank 不是一个复杂调度器，而是一个简单规则：<strong>高 gate
+的 output 不动，低 gate 的 output 才考虑继续压到 INT4。</strong></p>
+<hr />
+<h2 id="五实验三fp8-默认方案与误差放大">五、实验三：FP8
+默认方案与误差放大</h2>
+<h3 id="uniform-fp8-主导-50-saving">5.1 uniform FP8 主导 ≤50%
+saving</h3>
+<table>
+<thead>
+<tr>
+<th>strategy</th>
+<th style="text-align: right;">byte saving</th>
+<th style="text-align: right;">KL</th>
+<th style="text-align: right;">PPL Δ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>uniform_fp8</code></td>
+<td style="text-align: right;">50%</td>
+<td style="text-align: right;"><strong>0.293</strong></td>
+<td style="text-align: right;"><strong>-0.054</strong></td>
+</tr>
+<tr>
+<td><code>uniform_int8</code></td>
+<td style="text-align: right;">50%</td>
+<td style="text-align: right;">5.859</td>
+<td style="text-align: right;">+1.281</td>
+</tr>
+<tr>
+<td><code>rank8_int4</code></td>
+<td style="text-align: right;">9.375%</td>
+<td style="text-align: right;">0.361</td>
+<td style="text-align: right;">-0.029</td>
+</tr>
+<tr>
+<td>MILP（旧, ε=0.1）</td>
+<td style="text-align: right;">55.8%</td>
+<td style="text-align: right;">9.414</td>
+<td style="text-align: right;">+1.442</td>
+</tr>
+</tbody>
+</table>
+<p>这个表的作用是判断“原来从 BF16
+出发做复杂混合精度”还有没有必要。这里要特别注意：<strong><code>rank8_int4</code>
+是旧策略，不是 <code>uniform_fp8 + rank8_int4</code>。</strong></p>
+<p>具体来说：</p>
+<ul>
+<li><p><code>rank8_int4</code> 表示：原本所有 rank 都按 BF16/full
+precision 传，只把最低的 rank8 单独降到 INT4。因此它只省 9.375%
+字节。</p></li>
+<li><p>后文的 <code>fp8_r8int4</code> 才表示：先所有 rank 都用 FP8，再把
+rank8 从 FP8 继续降到 INT4。因此它是在 50% saving 的基础上继续省，能到
+53.1%。</p></li>
+<li><p><code>uniform_fp8</code> 和 <code>uniform_int8</code> 都是 50%
+byte saving，但 FP8 的 KL 只有 0.293，INT8 的 KL 是
+5.859。也就是说，同样 1 byte 传输，FP8 比 INT8 更适合 expert
+output，因为浮点格式有动态范围。</p></li>
+<li><p><code>rank8_int4</code> 这个旧策略说明“压最低 rank
+是安全的”，但它太保守，saving 只有 9.375%。所以如果不先采用 uniform
+FP8，单独压一个 tail rank 的通信收益太弱。</p></li>
+<li><p>旧 MILP 虽然做到 55.8% saving，但 KL 到 9.414，PPL 也涨了
++1.442。说明原来的 BF16/FP8/INT4/drop 混合优化，即使多省 5.8pp
+字节，也付出了明显质量代价。</p></li>
+</ul>
+<p>因此这个表真正说明的是：<strong>旧的“从 BF16 出发，只挑少数 rank 降
+INT4”被 uniform FP8 打败了；但它不否定“uniform FP8 之后继续把 tail rank
+降到 INT4”。</strong>
+后面的实验四才是在验证新策略：<code>uniform_fp8 -&gt; fp8_r8int4 -&gt; fp8_r78int4 -&gt; fp8_r5678int4</code>。</p>
+<figure>
+<img src="figures/fig11_fp8_vs_int4_pareto.png"
+alt="FP8 vs INT4 Pareto" />
+<figcaption aria-hidden="true">FP8 vs INT4 Pareto</figcaption>
+</figure>
+<p><strong>图 4</strong>：FP8 frontier（蓝）vs INT4 reference（红 X）vs
+MILP（紫菱形）。Y 轴 log scale。FP8 frontier 完全主导 INT4/MILP
+策略空间。</p>
+<p>这张图是本报告转向 FP8-first 叙事的关键。读图时看 Pareto
+位置：越往右表示省字节越多，越往下表示 KL 越小；蓝色 FP8 曲线在相同
+saving 下 KL 更低，在相同 KL 下 saving 更高。也就是说，原来从 BF16
+出发设计复杂 mixed precision 的路线，在 50% saving 附近会被 uniform FP8
+直接压住，所以后续主线必须改成“先 FP8，再研究哪些 tail 可以继续
+INT4”。</p>
+<h3 id="为什么-int4drop-比-fp8-危险">5.2 为什么 INT4/drop 比 FP8
+危险</h3>
+<ul>
+<li><strong>FP8 良性叠加</strong>：16 层全 FP8，total KL=0.293（~1×
+线性）。</li>
+<li><strong>INT4 灾难放大</strong>：MILP 多层
+INT4/drop，actual/predicted KL = <strong>94×</strong>。</li>
+<li><strong>drift 拆解</strong>：FP8 的 drift fraction（59-73%）反高于
+INT4（48%），但绝对 drift 相近（0.176 vs 0.182）——FP8
+把数值误差压到极小，drift
+才在残差中占比上升。因绝对值小，多层叠加仍可控。</li>
+</ul>
+<p>直观理解：MoE 不是只量化一层。前面层的 output 一旦被 INT4/drop
+扰动，后面层看到的 hidden state 就变了，后面的 router/expert
+也可能跟着变。FP8 的误差太小，传到后面也不明显；INT4/drop
+的误差大，就可能一层层放大。</p>
+<p>当前方案不试图在线修复这种误差，而是避免在危险位置制造大误差：<strong>head
+rank 保 FP8，只让 tail rank 进 INT4。</strong></p>
+<hr />
+<h2 id="六实验四fp8tail-int4">六、实验四：FP8+tail-INT4</h2>
+<h3 id="方法">6.1 方法</h3>
+<p>从 uniform FP8 出发，把 tail rank 从 FP8 升级到 INT4。OLMoE top-8
+扫描：</p>
+<p>下面表格里，<code>fp8_r8int4</code> 表示“全 FP8 后只把 rank8 改成
+INT4”，<code>fp8_r78int4</code> 表示“全 FP8 后把 rank7、8 改成
+INT4”，以此类推。<code>INT4 ranks</code> 这一列表示有多少个 rank 从 FP8
+继续降到了 INT4。</p>
+<table>
+<thead>
+<tr>
+<th>strategy</th>
+<th style="text-align: right;">saving</th>
+<th style="text-align: right;">KL</th>
+<th style="text-align: right;">PPL Δ</th>
+<th style="text-align: right;">INT4 ranks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>uniform_fp8</code>（默认第一步）</td>
+<td style="text-align: right;">50.0%</td>
+<td style="text-align: right;">0.293</td>
+<td style="text-align: right;">-0.054</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><code>fp8_r8int4</code></td>
+<td style="text-align: right;">53.1%</td>
+<td style="text-align: right;">0.495</td>
+<td style="text-align: right;">+0.032</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td><code>fp8_r78int4</code></td>
+<td style="text-align: right;">56.25%</td>
+<td style="text-align: right;">0.831</td>
+<td style="text-align: right;">-0.022</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr>
+<td><strong><code>fp8_r5678int4</code></strong></td>
+<td style="text-align: right;"><strong>62.5%</strong></td>
+<td style="text-align: right;">2.005</td>
+<td style="text-align: right;"><strong>+0.010</strong></td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr>
+<td><code>fp8_r345678int4</code></td>
+<td style="text-align: right;">68.75%</td>
+<td style="text-align: right;">4.495</td>
+<td style="text-align: right;">+0.415</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr>
+<td><code>uniform_int4</code></td>
+<td style="text-align: right;">75.0%</td>
+<td style="text-align: right;">27.152</td>
+<td style="text-align: right;">+6.678</td>
+<td style="text-align: right;">8</td>
+</tr>
+</tbody>
+</table>
+<p>KL 平滑爬升（无突变），PPL 在 62.5% 前几乎不动。</p>
+<figure>
+<img src="figures/fig12_fp8_tail_int4_pareto.png"
+alt="FP8+tail-INT4 Pareto 与 rank 控制" />
+<figcaption aria-hidden="true">FP8+tail-INT4 Pareto 与 rank
+控制</figcaption>
+</figure>
+<p><strong>图 5</strong>：(a) FP8+tail-INT4 升级扫描——PPL 在 62.5%
+saving 前几乎不崩；(b) 同 62.5% saving 下 rank 选择造成 tail 无损 vs
+head/random 崩 +5~6 的巨大差距。</p>
+<p>图 5 是当前方法的主证据。左图回答“FP8 之后还能不能继续省”：随着更多
+tail rank 从 FP8 降到 INT4，saving 从 50% 往 62.5% 推进，PPL
+没有立即崩。右图回答“为什么必须按 rank 选”：同样 62.5% saving，如果 INT4
+放在 rank5-8，退化很小；如果放在 rank1-4 或随机 rank，PPL
+明显崩。换句话说，收益不是来自“多用了 INT4”本身，而是来自“只在低 gate 的
+tail 上用 INT4”。</p>
+<h3 id="rank-选择控制同-62.5-savingtail-vs-head-vs-random">6.2 Rank
+选择控制（同 62.5% saving，tail vs head vs random）</h3>
+<p>这张表固定总 saving 都是 62.5%，只改变“哪些 rank 被放到
+INT4”。所以它不是在比较省多少，而是在比较同样省这么多字节时，INT4
+放错位置会不会伤质量。</p>
+<table>
+<colgroup>
+<col style="width: 21%" />
+<col style="width: 28%" />
+<col style="width: 28%" />
+<col style="width: 21%" />
+</colgroup>
+<thead>
+<tr>
+<th>strategy</th>
+<th style="text-align: right;">KL</th>
+<th style="text-align: right;">PPL Δ</th>
+<th>INT4 放哪</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>fp8_r5678int4</code>（tail）</strong></td>
+<td style="text-align: right;"><strong>2.005</strong></td>
+<td style="text-align: right;"><strong>+0.010</strong></td>
+<td>rank5-8（rank-aware）</td>
+</tr>
+<tr>
+<td><code>fp8_r1357int4</code>（odd）</td>
+<td style="text-align: right;">23.510</td>
+<td style="text-align: right;">+4.984</td>
+<td>随机（无 rank 信号）</td>
+</tr>
+<tr>
+<td><code>fp8_r1234int4</code>（head）</td>
+<td style="text-align: right;">24.591</td>
+<td style="text-align: right;">+6.058</td>
+<td>rank1-4（反 rank-aware）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>同 saving 下，INT4 放哪里决定结果</strong>：tail PPL
++0.01，head/random +5~6。也就是说，额外 12.5pp saving 不是“随便挑一半
+output 降到 INT4”就能拿到，必须避开高 gate 的 head output。</p>
+<h3 id="扩样本收敛确认32128256">6.3 扩样本收敛确认（32→128→256）</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">样本数</th>
+<th style="text-align: right;">tail PPL Δ</th>
+<th style="text-align: right;">head PPL Δ</th>
+<th style="text-align: right;">tail 增长率</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">+0.010</td>
+<td style="text-align: right;">+6.058</td>
+<td style="text-align: right;">—</td>
+</tr>
+<tr>
+<td style="text-align: right;">128</td>
+<td style="text-align: right;">+0.198</td>
+<td style="text-align: right;">+5.355</td>
+<td style="text-align: right;">+0.188</td>
+</tr>
+<tr>
+<td style="text-align: right;"><strong>256</strong></td>
+<td style="text-align: right;"><strong>+0.296</strong></td>
+<td style="text-align: right;"><strong>+7.353</strong></td>
+<td style="text-align: right;"><strong>+0.098（减半）</strong></td>
+</tr>
+</tbody>
+</table>
+<p>PPL 收敛在 ~+0.30（1.4% relative），增长率减半。head 持续崩
++6~7。<strong>结论在 256 样本下稳定。</strong></p>
+<hr />
+<h2
+id="七实验五跨模型与选择信号验证">七、实验五：跨模型与选择信号验证</h2>
+<h3 id="llm-jp-top-16-跨模型确认">7.1 LLM-jp top-16 跨模型确认</h3>
+<table>
+<thead>
+<tr>
+<th>62.5% saving</th>
+<th style="text-align: right;">KL</th>
+<th style="text-align: right;">PPL Δ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>tail（rank-aware）</td>
+<td style="text-align: right;">1.296</td>
+<td style="text-align: right;">+0.350</td>
+</tr>
+<tr>
+<td>head（反 rank-aware）</td>
+<td style="text-align: right;">20.515</td>
+<td style="text-align: right;">+6.269</td>
+</tr>
+<tr>
+<td>odd（无 rank 信号）</td>
+<td style="text-align: right;">21.457</td>
+<td style="text-align: right;">+6.326</td>
+</tr>
+</tbody>
+</table>
+<p>top-16 上 tail 温和（+0.35），head/random 崩（+6.3），KL 差 15.8×（比
+OLMoE 的 8.7× 更强）。<strong>模式在 top-8 / top-16
+上一致，非偶然。</strong></p>
+<h3 id="为什么不用更精确的-contribution">7.2 为什么不用更精确的
+contribution</h3>
+<table>
+<thead>
+<tr>
+<th>选择信号</th>
+<th style="text-align: right;">KL</th>
+<th>运行时代价</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>rank-tail（按位置）</td>
+<td style="text-align: right;">2.005</td>
+<td><strong>免费</strong>（gate 排序，dispatch 前确定）</td>
+</tr>
+<tr>
+<td>contrib-tail（按 g×‖o‖）</td>
+<td style="text-align: right;">1.401</td>
+<td>需 ‖o‖（expert 算完才知道）</td>
+</tr>
+</tbody>
+</table>
+<p><code>contribution = gate × ||expert_output||</code>
+更精确，但它有一个部署问题：必须等 expert output 算完之后才能知道
+<code>||output||</code>。这时再决定压缩策略，会打断通信路径，也不适合静态查表。</p>
+<p>rank 虽然粗糙，但路由结束后立刻可得，而且效果和 contribution oracle
+同量级。因此这里说“rank 够用”的意思是：<strong>它不是最优
+oracle，但它足够接近，而且几乎没有运行时代价。</strong></p>
+<h3 id="receiver-aware把安全压缩预算放到热点通信端">7.3
+Receiver-aware：把安全压缩预算放到热点通信端</h3>
+<blockquote>
+<p><strong>rank 决定能不能压，receiver/endpoint group
+决定优先压哪里。</strong></p>
+</blockquote>
+<p>前面的实验只回答质量问题：哪些 output 降到 INT4
+不容易伤模型。系统上还要回答另一个问题：如果只能压一部分 tail
+output，应该优先压哪里？</p>
+<p>这里采用一个保守的通信近似指标：每层看哪个 receiver/endpoint group
+收到的 bytes 最多，认为它更可能是该层 combine
+通信的瓶颈。然后比较两类策略：</p>
+<ul>
+<li>hot：优先压热点 group 上的 tail output。</li>
+<li>cold/random/roundrobin：压冷点、随机压、均匀轮转压。</li>
+</ul>
+<p>下表里各 strategy 的含义：</p>
+<ul>
+<li><code>uniform_fp8</code>：所有 combine output 都用 FP8，是 50%
+saving 的默认第一步。</li>
+<li><code>fp8top4_rest_int4</code>：所有 group 都采用同一规则，top4
+ranks 保 FP8，其余 tail ranks 用 INT4。</li>
+<li><code>recv_aware_hot1</code>：只在每层最热的 1 个 receiver/endpoint
+group 上，把安全 tail output 从 FP8 降到 INT4；其他 group 保 FP8。</li>
+<li><code>recv_aware_hot2</code>：类似 hot1，但每层压最热的 2 个
+group。</li>
+</ul>
+<table>
+<colgroup>
+<col style="width: 11%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+</colgroup>
+<thead>
+<tr>
+<th>strategy</th>
+<th style="text-align: right;">total save</th>
+<th style="text-align: right;">max-recv save</th>
+<th style="text-align: right;">max-byte save</th>
+<th style="text-align: right;">imbalance</th>
+<th style="text-align: right;">PPL Δ</th>
+<th style="text-align: right;">KL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>uniform_fp8</code></td>
+<td style="text-align: right;">50.0%</td>
+<td style="text-align: right;">50.0%</td>
+<td style="text-align: right;">50.0%</td>
+<td style="text-align: right;">1.183</td>
+<td style="text-align: right;">-0.054</td>
+<td style="text-align: right;">0.293</td>
+</tr>
+<tr>
+<td><code>fp8top4_rest_int4</code></td>
+<td style="text-align: right;">62.5%</td>
+<td style="text-align: right;">62.8%</td>
+<td style="text-align: right;">62.7%</td>
+<td style="text-align: right;">1.175</td>
+<td style="text-align: right;">+0.010</td>
+<td style="text-align: right;">2.005</td>
+</tr>
+<tr>
+<td><strong><code>recv_aware_hot1</code></strong></td>
+<td style="text-align: right;">53.8%</td>
+<td style="text-align: right;"><strong>56.3%</strong></td>
+<td style="text-align: right;"><strong>56.3%</strong></td>
+<td style="text-align: right;"><strong>1.119</strong></td>
+<td style="text-align: right;"><strong>-0.017</strong></td>
+<td style="text-align: right;"><strong>0.780</strong></td>
+</tr>
+<tr>
+<td><code>recv_aware_hot2</code></td>
+<td style="text-align: right;">56.9%</td>
+<td style="text-align: right;">59.1%</td>
+<td style="text-align: right;">59.1%</td>
+<td style="text-align: right;">1.124</td>
+<td style="text-align: right;">-0.071</td>
+<td style="text-align: right;">1.087</td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键结果</strong>：</p>
+<ul>
+<li><strong>recv_aware_hot1 比 uniform_fp8 多降低 6.3pp 的 max-receiver
+bytes</strong>，且没有观察到 PPL 退化（-0.017 在 32
+样本噪声内）。它只压热点 group 的 tail rank，冷 group 仍保 FP8。</li>
+<li><strong>imbalance 从 1.183 降到 1.119</strong>：最热 group
+的流量被压下来，max/mean 差距变小。</li>
+<li><strong>它仍不是实测
+TBT</strong>：这里能证明的是“最热端字节数下降”，不是“真实 P99
+一定下降”。真实收益要看 pack/unpack、all-to-all kernel、batch
+size、拓扑和 overlap。</li>
+</ul>
+<h4 id="同-total-saving-下的-receiver-选择对照">同 total saving 下的
+receiver 选择对照</h4>
+<p>上表各策略 total saving 不同。为证明 receiver 选择（而非少压）驱动
+max-receiver 降低，固定每层压 1 个 group 的 tail-INT4（~53% total
+saving），比较选 hot vs uniform vs random vs cold：</p>
+<table>
+<colgroup>
+<col style="width: 15%" />
+<col style="width: 21%" />
+<col style="width: 21%" />
+<col style="width: 21%" />
+<col style="width: 21%" />
+</colgroup>
+<thead>
+<tr>
+<th>strategy</th>
+<th style="text-align: right;">total save</th>
+<th style="text-align: right;">max-recv bytes</th>
+<th style="text-align: right;">vs hot1</th>
+<th style="text-align: right;">imbalance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>hot1（receiver-aware）</strong></td>
+<td style="text-align: right;">53.8%</td>
+<td style="text-align: right;"><strong>1.64B</strong></td>
+<td style="text-align: right;"><strong>1.000×</strong></td>
+<td style="text-align: right;"><strong>1.119</strong></td>
+</tr>
+<tr>
+<td>roundrobin（均匀）</td>
+<td style="text-align: right;">53.3%</td>
+<td style="text-align: right;">1.82B</td>
+<td style="text-align: right;">1.110×</td>
+<td style="text-align: right;">1.228</td>
+</tr>
+<tr>
+<td>random</td>
+<td style="text-align: right;">53.4%</td>
+<td style="text-align: right;">1.81B</td>
+<td style="text-align: right;">1.100×</td>
+<td style="text-align: right;">1.218</td>
+</tr>
+<tr>
+<td>cold1（反 receiver-aware）</td>
+<td style="text-align: right;">52.7%</td>
+<td style="text-align: right;">1.88B</td>
+<td style="text-align: right;">1.145×</td>
+<td style="text-align: right;">1.251</td>
+</tr>
+</tbody>
+</table>
+<p><strong>同 total saving 下，hot1 的 max-receiver bytes 比其余策略低
+10-14.5%</strong>。这说明热点选择确实能降低“最堵通信端”的字节数，而不是因为
+hot1 总体压得更多或更少。</p>
+<blockquote>
+<p>这部分的防守边界：receiver-aware
+可以作为系统目标扩展，但目前还不是完整 latency
+结论。更稳的说法是：<code>rank</code>
+负责质量安全，<code>receiver_group</code>
+负责把安全压缩预算放到更像瓶颈的位置。</p>
+</blockquote>
+<hr />
+<h2 id="八实验六下游任务mmlu">八、实验六：下游任务（MMLU）</h2>
+<p>PPL/KL 退化是否转化为任务质量损失？MMLU 200 题（10 科目 × 20
+题，zero-shot log-likelihood）：</p>
+<table>
+<thead>
+<tr>
+<th>strategy</th>
+<th style="text-align: right;">saving</th>
+<th style="text-align: right;">MMLU accuracy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>full</td>
+<td style="text-align: right;">0%</td>
+<td style="text-align: right;"><strong>42.5%</strong></td>
+</tr>
+<tr>
+<td>uniform_fp8</td>
+<td style="text-align: right;">50%</td>
+<td style="text-align: right;">40.0%</td>
+</tr>
+<tr>
+<td><strong>fp8_r5678int4（tail）</strong></td>
+<td style="text-align: right;"><strong>62.5%</strong></td>
+<td style="text-align: right;"><strong>42.5%</strong></td>
+</tr>
+</tbody>
+</table>
+<p>tail-INT4 在 62.5% saving 下 MMLU 准确率 = full（42.5%），不低于
+uniform_fp8（40.0%）。<strong>+0.30 PPL
+退化没有转化为任务准确率损失</strong>——PPL/KL
+是诊断指标，不等于生成质量。</p>
+<hr />
+<h2 id="九结论">九、结论</h2>
+<p><strong>FP8
+已经是很强的默认方案。本文现在更适合讲一个更具体的问题：FP8 之后，哪些
+combine output 还能继续降到 INT4，以及这些安全的 INT4
+预算应该优先用在哪些热点通信端。</strong></p>
+<ol type="1">
+<li><p><strong>FP8 应该作为默认第一步，而不是被挑战的
+baseline。</strong><br />
+实验发现 uniform FP8 已经能直接拿到 50% byte saving，且 KL/PPL
+基本无损。因此论文不应该讲“rank-aware 替代 FP8”，而应该讲“FP8
+之后还能不能继续安全省一点”。</p></li>
+<li><p><strong>rank 的作用很具体：判断哪些 output 可以从 FP8 继续降到
+INT4。</strong><br />
+在 FP8 档内，压 rank1 和压 rank8 的差距只有约 2×，说明 FP8
+本身已经足够稳；但一旦进入 INT4，压 tail rank 和压 head rank 的 KL
+差距达到 58×。所以 rank
+不是一个泛泛的“重要性分数”，而是一条简单的安全规则：高 gate output
+不压，低 gate output 才考虑 INT4。</p></li>
+<li><p><strong>tail-INT4 有用，head/random-INT4 不安全。</strong><br />
+在同样 62.5% saving 下，tail 策略 PPL 基本不动，而 head/random 会带来 +5
+到 +7 的 PPL 崩溃。这说明额外的 12.5pp saving 不是随便把一部分数据降到
+INT4 就能拿到，必须用 rank 约束在 tail 上。</p></li>
+<li><p><strong>多层误差放大不是靠复杂补救解决，而是靠少碰危险位置。</strong><br />
+FP8 多层叠加仍然温和，但 INT4/drop
+会明显改变后续层输入。当前方案的处理方式很朴素：不在 head rank
+上制造大误差，只在贡献小的 tail rank 上用 INT4。</p></li>
+<li><p><strong>receiver-aware
+目前证明的是热点字节数下降，不是完整延迟收益。</strong><br />
+质量安全先由 rank 决定；在已经确定只能压 tail
+的前提下，receiver/endpoint group 决定这些安全压缩预算应该优先给谁。同
+total saving 下，压 hot group 的 max-receiver bytes 比 random/cold 低
+10-14.5%。这支持“热点优先压缩”的系统直觉，但真实 TBT/P99 还要在 A100
+serving 或 trace replay 里测。</p></li>
+<li><p><strong>最终方法是一个保守但可部署的两级策略。</strong><br />
+默认所有 combine output 用 FP8；然后用 <code>rank</code> 选出可以继续
+INT4 的 tail；再用 <code>receiver_group</code> 把有限 INT4
+预算放到热点通信端。运行时只是查
+<code>LUT[layer, receiver_group, rank] -&gt; precision</code>，不做在线优化。</p></li>
+</ol>
+<hr />
+<h2 id="十局限性与下一步">十、局限性与下一步</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>局限</th>
+<th>状态</th>
+<th>计划</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>无真实 serving latency</td>
+<td>目前只有最热端字节数近似指标；它能说明热点字节下降，但不能等价于真实
+TBT/P99</td>
+<td>补 8×A100 trace-replay combine benchmark，测 pack / all-to-all /
+unpack / P50-P99</td>
+</tr>
+<tr>
+<td>模型偏小</td>
+<td>OLMoE 1B / LLM-jp 920M</td>
+<td>补 Qwen top-4 / DeepSeek-V2-Lite top-6</td>
+</tr>
+</tbody>
+</table>
+<hr />
+</body>
+</html>

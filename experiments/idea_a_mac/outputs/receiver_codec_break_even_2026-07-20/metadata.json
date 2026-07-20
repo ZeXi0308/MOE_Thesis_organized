@@ -1,0 +1,62 @@
+{
+  "gpu": "NVIDIA GeForce RTX 5090",
+  "torch": "2.8.0+cu128",
+  "triton": "3.4.0",
+  "hidden_sizes": [
+    512,
+    2048
+  ],
+  "rows": [
+    32,
+    128,
+    512
+  ],
+  "refined_fraction": 0.5,
+  "link_gbps": [
+    100.0,
+    200.0,
+    400.0,
+    800.0
+  ],
+  "warmup": 20,
+  "repeats": 200,
+  "correctness": {
+    "rows32_hidden512": {
+      "uniform_int8_reconstruction_mse": 5.3639221732737496e-05,
+      "uniform_int4_reconstruction_mse": 0.016891341656446457,
+      "direct_mixed_50_reconstruction_mse": 0.008456401526927948,
+      "progressive_50_reconstruction_mse": 0.00847353134304285
+    },
+    "rows128_hidden512": {
+      "uniform_int8_reconstruction_mse": 5.6488424888812006e-05,
+      "uniform_int4_reconstruction_mse": 0.017705801874399185,
+      "direct_mixed_50_reconstruction_mse": 0.008647596463561058,
+      "progressive_50_reconstruction_mse": 0.008667083457112312
+    },
+    "rows512_hidden512": {
+      "uniform_int8_reconstruction_mse": 5.810426955576986e-05,
+      "uniform_int4_reconstruction_mse": 0.01822477951645851,
+      "direct_mixed_50_reconstruction_mse": 0.009081126190721989,
+      "progressive_50_reconstruction_mse": 0.009100805968046188
+    },
+    "rows32_hidden2048": {
+      "uniform_int8_reconstruction_mse": 6.830024358350784e-05,
+      "uniform_int4_reconstruction_mse": 0.021305572241544724,
+      "direct_mixed_50_reconstruction_mse": 0.010827390477061272,
+      "progressive_50_reconstruction_mse": 0.01084952149540186
+    },
+    "rows128_hidden2048": {
+      "uniform_int8_reconstruction_mse": 7.141139212762937e-05,
+      "uniform_int4_reconstruction_mse": 0.0221097394824028,
+      "direct_mixed_50_reconstruction_mse": 0.011229811236262321,
+      "progressive_50_reconstruction_mse": 0.011252646334469318
+    },
+    "rows512_hidden2048": {
+      "uniform_int8_reconstruction_mse": 7.29315506760031e-05,
+      "uniform_int4_reconstruction_mse": 0.022630976513028145,
+      "direct_mixed_50_reconstruction_mse": 0.011380689218640327,
+      "progressive_50_reconstruction_mse": 0.011404518038034439
+    }
+  },
+  "evidence_boundary": "single-GPU Triton codec plus pinned H2D; no RDMA, selection compaction, descriptors, receiver credits, or multi-node topology"
+}

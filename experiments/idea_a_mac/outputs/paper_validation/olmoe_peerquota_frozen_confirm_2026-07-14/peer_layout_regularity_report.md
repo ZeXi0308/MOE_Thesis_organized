@@ -1,0 +1,40 @@
+# Peer-Local Fixed-Quota Layout Regularity
+
+- routing trace: `experiments/idea_a_mac/outputs/paper_validation/olmoe_peerquota_frozen_confirm_2026-07-14/test_routes.csv`
+- group semantics: one local-origin replay, expert ids mapped to 8 synthetic owner groups by `contiguous`
+- expert count used for mapping: 64 (observed max + 1: 64)
+- calibrated gate threshold: 0.04467773
+- target low-bit fraction: 0.5000
+- fixed-quota tile: 64 routed pairs
+
+## Lane-count variability
+
+| level | units | pairs | threshold_low_fraction_weighted | threshold_low_fraction_p01 | threshold_low_fraction_p05 | threshold_low_fraction_p50 | threshold_low_fraction_p95 | threshold_low_fraction_p99 | mean_abs_lane_count_deviation | p95_abs_lane_count_deviation | any_lane_overflow_fraction | low_lane_overflow_fraction | high_lane_overflow_fraction |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| peer_tile_64 | 9208 | 524288 | 0.494341 | 0.125 | 0.203125 | 0.5 | 0.796875 | 0.89279 | 8.75934 | 20 | 0.962967 | 0.469592 | 0.493375 |
+| peer_message | 2048 | 524288 | 0.494341 | 0.191394 | 0.251096 | 0.495191 | 0.763994 | 0.831041 | 37.0732 | 85 | 0.995605 | 0.492676 | 0.50293 |
+
+`any_lane_overflow_fraction` is the fraction of units whose threshold-selected
+FP8/low-bit counts do not fit a preallocated exact-50% two-lane split.
+It is a layout regularity statistic, not a measured allocation or latency cost:
+a threshold implementation can recover exact sizes with scans/count exchange.
+
+## Metadata estimate
+
+| hidden_size | tile_pairs | membership_mask_bytes | mask_overhead_fraction_of_payload | optional_fp16_gate_bytes | gate_overhead_fraction_of_payload |
+|---|---|---|---|---|---|
+| 512 | 64 | 8 | 0.000325521 | 128 | 0.00520833 |
+| 2048 | 64 | 8 | 8.13802e-05 | 128 | 0.00130208 |
+
+The fixed quota still needs a membership mask because membership is dynamic; it
+only removes variable lane cardinality.  Contribution selection may also need a
+gate scalar at the expert owner if the dispatch protocol does not already carry
+one.  Quantization scales, headers, alignment, scans, pack/unpack, and collective
+startup are outside this estimate and require a real EP kernel benchmark.
+
+## Evidence boundary
+
+This trace is sufficient to test fixed-cardinality layout invariants and gate
+lane-count variability.  It does not contain real token-origin ranks, queues,
+RDMA/NVLink traffic, or timestamps, so it cannot establish TTFT, TPOT, TBT, P99,
+or topology-aware benefit.

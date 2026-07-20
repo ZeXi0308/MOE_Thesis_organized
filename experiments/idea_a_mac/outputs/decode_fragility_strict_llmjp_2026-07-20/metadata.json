@@ -1,0 +1,28 @@
+{
+  "model": "llm-jp/optimal-sparsity-math-d512-E32-k16-920M-A520M",
+  "model_key": "llmjp",
+  "dataset": "wikitext103_docs",
+  "split": "train",
+  "samples": 48,
+  "offset": 184,
+  "prompt_len": 64,
+  "decode_steps": 16,
+  "top_k": 16,
+  "num_experts": 32,
+  "actions": [
+    "fp8top8_rest_int4",
+    "rankk_drop_renorm",
+    "keep12_drop_renorm",
+    "keep8_drop_renorm"
+  ],
+  "load_seconds": 1.6344952583312988,
+  "evidence_boundary": "teacher-forced decode quality with real KV cache; drop policies mask outputs after expert computation and do not yet save latency",
+  "selected_groups": {
+    "fp8top8_rest_int4": "post_prefill_all",
+    "rankk_drop_renorm": "arrival_lexical",
+    "keep12_drop_renorm": "arrival_lexical",
+    "keep8_drop_renorm": "arrival_lexical"
+  },
+  "test_samples": 16,
+  "selection_rule": "feature group and ridge alpha selected on validation separately for each action; test opened after refit on train+validation"
+}
