@@ -1,0 +1,71 @@
+{
+  "results": {
+    "olmoe": {
+      "model": "olmoe",
+      "fitted_params": {
+        "alpha": 0.6,
+        "dwell_min": 1,
+        "high_quantile": 0.6,
+        "gap_ratio": 0.5,
+        "threshold_high": 1110.0,
+        "threshold_low": 555.0,
+        "mean_saving": 0.24900189088948252,
+        "lcb_saving": 0.14673678709726076,
+        "mean_saving_over_causal": 0.00706779004375907
+      },
+      "codec_lookup": {
+        "matched_hidden": 2048,
+        "matched_rows": 32,
+        "sender_pack_us": 26.12175941467285,
+        "receiver_unpack_us": 25.37951946258545,
+        "requested_hidden": 2048,
+        "requested_rows": 32
+      },
+      "mean_saving_controller": 0.2706468354203667,
+      "mean_saving_causal_no_hysteresis": 0.26686808651964067,
+      "mean_saving_calib_static": 0.09908970143558384,
+      "mean_saving_uniform_low": 0.2961857529680285,
+      "controller_minus_best_causal_ablation_mean": 0.003778748900725981,
+      "controller_minus_best_causal_ablation_ci_low": -0.00047343719577068314,
+      "controller_minus_best_causal_ablation_ci_high": 0.008517917126879783,
+      "go_no_go": false
+    },
+    "llmjp": {
+      "model": "llmjp",
+      "fitted_params": {
+        "alpha": 0.6,
+        "dwell_min": 1,
+        "high_quantile": 0.6,
+        "gap_ratio": 0.5,
+        "threshold_high": 2178.6,
+        "threshold_low": 1089.3,
+        "mean_saving": 0.17029535304400026,
+        "lcb_saving": 0.03570625049154491,
+        "mean_saving_over_causal": 0.004667403769955137
+      },
+      "codec_lookup": {
+        "matched_hidden": 512,
+        "matched_rows": 32,
+        "sender_pack_us": 17.097280025482178,
+        "receiver_unpack_us": 16.322879791259766,
+        "requested_hidden": 512,
+        "requested_rows": 32
+      },
+      "mean_saving_controller": 0.20543728720381824,
+      "mean_saving_causal_no_hysteresis": 0.196382685436514,
+      "mean_saving_calib_static": 0.009726257670898823,
+      "mean_saving_uniform_low": 0.22297791980779855,
+      "controller_minus_best_causal_ablation_mean": 0.009054601767304235,
+      "controller_minus_best_causal_ablation_ci_low": 0.0022694511962374916,
+      "controller_minus_best_causal_ablation_ci_high": 0.016227771003342276,
+      "go_no_go": true
+    }
+  },
+  "evidence_boundary": "Analytic byte-count + real Triton codec pack/unpack overhead replay. No real NCCL/RDMA, no queueing, no incast. Single global controller with pooled g-1 visibility (upper bound on decentralized deployment). Threshold/hysteresis fit on calibration docs only; quality cost of the low state is NOT modeled here (see uniform INT4 KL from prior rounds).",
+  "confounds": [
+    "codec overhead lookup uses a single (rows, hidden) tile per model; actual per-lane per-step row counts vary and are not re-measured",
+    "global vs per-rank visibility gap not modeled",
+    "calibration-test regime-mix mismatch not stress-tested here",
+    "downstream quality of the low state is an external fixed reference, not measured in this script"
+  ]
+}

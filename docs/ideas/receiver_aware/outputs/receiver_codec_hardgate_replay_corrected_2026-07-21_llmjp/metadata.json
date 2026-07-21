@@ -1,0 +1,33 @@
+{
+  "codec_unit": {
+    "pack_us": 23.328,
+    "unpack_us": 23.296,
+    "h2d_us": 11.232,
+    "lookup_rows": 128,
+    "lookup_hidden": 512,
+    "mode": "homo_int4"
+  },
+  "tile_rows": 32,
+  "steps_files": [
+    "outputs/receiver_task_quality_llmjp_cpu_batch64_n128_2026-07-21/controller_balanced_steps.csv",
+    "outputs/receiver_task_quality_llmjp_cpu_batch64_n128_2026-07-21/controller_hotspot_steps.csv",
+    "outputs/receiver_task_quality_llmjp_cpu_batch64_n128_2026-07-21/causal_no_hysteresis_balanced_steps.csv",
+    "outputs/receiver_task_quality_llmjp_cpu_batch64_n128_2026-07-21/causal_no_hysteresis_hotspot_steps.csv",
+    "outputs/receiver_task_quality_llmjp_cpu_batch64_n128_2026-07-21/calib_static_balanced_steps.csv",
+    "outputs/receiver_task_quality_llmjp_cpu_batch64_n128_2026-07-21/calib_static_hotspot_steps.csv",
+    "outputs/receiver_task_quality_llmjp_cpu_batch64_n128_2026-07-21/uniform_low_balanced_steps.csv",
+    "outputs/receiver_task_quality_llmjp_cpu_batch64_n128_2026-07-21/uniform_low_hotspot_steps.csv"
+  ],
+  "verdict": {
+    "mean_block_rate_once_per_step": 0.2548387096774194,
+    "mean_block_rate_serialized_scaled": 1.0,
+    "median_orig_net_p50_once_per_step": 106.18112,
+    "median_orig_net_p50_serialized_scaled": -16240.39424,
+    "unblocked_nonpositive_once_per_step": false,
+    "conclusion": "MIXED_FUSED: see per-file table; do not expand online controller yet",
+    "mean_block_rate_serialized": 1.0,
+    "unblocked_nonpositive_serialized": true
+  },
+  "accounting": "serialized_us = tiles * unit * (tile_rows / measured_rows); primary verdict = once_per_step; codec-mode default homo_int4",
+  "evidence_boundary": "offline replay of recorded policy action traces with Phase-A measured pack+unpack+h2d tax; analytic wire times from baseline/policy bottleneck bytes (FP8 high \u2192 INT4 low); not real NCCL/RDMA latency; H2D is a pessimistic host-staging bound"
+}

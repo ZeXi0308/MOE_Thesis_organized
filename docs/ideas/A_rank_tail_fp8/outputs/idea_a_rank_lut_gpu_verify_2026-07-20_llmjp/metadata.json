@@ -1,0 +1,51 @@
+{
+  "model": "llm-jp/optimal-sparsity-math-d512-E32-k16-920M-A520M",
+  "model_key": "llmjp",
+  "top_k": 16,
+  "policies": [
+    "full",
+    "uniform_fp8",
+    "uniform_int4",
+    "rank1_int4",
+    "rankk_int4",
+    "fp8top12_rest_int4",
+    "fp8top8_rest_int4",
+    "fp8top6_rest_int4",
+    "fp8top4_rest_int4"
+  ],
+  "byte_saving": {
+    "full": 0.0,
+    "uniform_fp8": 0.5,
+    "uniform_int4": 0.75,
+    "rank1_int4": 0.046875,
+    "rankk_int4": 0.046875,
+    "fp8top12_rest_int4": 0.5625,
+    "fp8top8_rest_int4": 0.625,
+    "fp8top6_rest_int4": 0.65625,
+    "fp8top4_rest_int4": 0.6875
+  },
+  "samples": 128,
+  "offset": 600,
+  "seq_len": 128,
+  "load_seconds": 1.833592176437378,
+  "evidence_boundary": "single-forward combine-output KL on the COMBINE axis only, real GPU, fresh document offset, document-level paired bootstrap CIs. No decode-loop, no real communication latency claim.",
+  "result": {
+    "n_documents": 128,
+    "claim1_tail_vs_head": {
+      "head_mean_kl": 0.20197792010983145,
+      "tail_mean_kl": 0.0017211608713360751,
+      "diff_mean": 0.20025675923849537,
+      "diff_ci_low": 0.19317734475918097,
+      "diff_ci_high": 0.20760245845546785,
+      "ratio_head_over_tail": 117.3498209688228,
+      "go_no_go": "GO"
+    },
+    "claim2_fp8_first_pareto": {
+      "monotone": true,
+      "uniform_int4_kl_ci_low": 0.19935423903108582,
+      "worst_fp8top_tail_kl_ci_high": 0.03447531633717045,
+      "safety_margin_x": 5.782520951552427,
+      "go_no_go": "GO"
+    }
+  }
+}

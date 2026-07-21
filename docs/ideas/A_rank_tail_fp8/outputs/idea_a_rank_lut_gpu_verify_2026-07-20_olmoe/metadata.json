@@ -1,0 +1,51 @@
+{
+  "model": "allenai/OLMoE-1B-7B-0924",
+  "model_key": "olmoe",
+  "top_k": 8,
+  "policies": [
+    "full",
+    "uniform_fp8",
+    "uniform_int4",
+    "rank1_int4",
+    "rankk_int4",
+    "fp8top6_rest_int4",
+    "fp8top4_rest_int4",
+    "fp8top3_rest_int4",
+    "fp8top2_rest_int4"
+  ],
+  "byte_saving": {
+    "full": 0.0,
+    "uniform_fp8": 0.5,
+    "uniform_int4": 0.75,
+    "rank1_int4": 0.09375,
+    "rankk_int4": 0.09375,
+    "fp8top6_rest_int4": 0.5625,
+    "fp8top4_rest_int4": 0.625,
+    "fp8top3_rest_int4": 0.65625,
+    "fp8top2_rest_int4": 0.6875
+  },
+  "samples": 128,
+  "offset": 600,
+  "seq_len": 128,
+  "load_seconds": 5.221994876861572,
+  "evidence_boundary": "single-forward combine-output KL on the COMBINE axis only, real GPU, fresh document offset, document-level paired bootstrap CIs. No decode-loop, no real communication latency claim.",
+  "result": {
+    "n_documents": 128,
+    "claim1_tail_vs_head": {
+      "head_mean_kl": 0.20814738874360333,
+      "tail_mean_kl": 0.004326059240994491,
+      "diff_mean": 0.20382132950260884,
+      "diff_ci_low": 0.19355554432346023,
+      "diff_ci_high": 0.2143688846746181,
+      "ratio_head_over_tail": 48.114780022234186,
+      "go_no_go": "GO"
+    },
+    "claim2_fp8_first_pareto": {
+      "monotone": true,
+      "uniform_int4_kl_ci_low": 0.2493734136722454,
+      "worst_fp8top_tail_kl_ci_high": 0.053606686625981656,
+      "safety_margin_x": 4.651908733179959,
+      "go_no_go": "NO-GO"
+    }
+  }
+}
