@@ -6,6 +6,7 @@ sealed outputs.  A successful invocation creates exactly one
 ``machine_protocol.json`` in a previously nonexistent output directory.
 """
 
+from __future__ import annotations
 
 # --- shared-lib bootstrap (auto) ---
 import sys
@@ -29,8 +30,6 @@ def _ensure_shared_on_path() -> None:
 _ensure_shared_on_path()
 del _ensure_shared_on_path, _Path
 # --- end bootstrap ---
-
-from __future__ import annotations
 
 import argparse
 import csv

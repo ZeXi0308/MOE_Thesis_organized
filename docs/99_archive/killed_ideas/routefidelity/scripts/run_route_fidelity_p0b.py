@@ -11,6 +11,7 @@ Evidence boundary: every cost is a teacher-forced logical C0/C1 record count.
 This file makes no backend-frame, NIC-byte, latency, TTFT, TPOT, or P99 claim.
 """
 
+from __future__ import annotations
 
 # --- shared-lib bootstrap (auto) ---
 import sys
@@ -34,8 +35,6 @@ def _ensure_shared_on_path() -> None:
 _ensure_shared_on_path()
 del _ensure_shared_on_path, _Path
 # --- end bootstrap ---
-
-from __future__ import annotations
 
 import argparse
 import csv

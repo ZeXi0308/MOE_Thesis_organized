@@ -1,0 +1,86 @@
+{
+  "protocol_version": "joulequeue-v1",
+  "phase": 3,
+  "scientific_result_eligible": false,
+  "models": {
+    "olmoe": "allenai/OLMoE-1B-7B-0924@6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "llmjp": "llm-jp/optimal-sparsity-math-d512-E32-k16-920M-A520M@1d5983076dfc67aee4a77ec06a27027f5bab6055"
+  },
+  "surface": {
+    "row_grid": [1, 2, 4, 8, 16, 32, 64, 128, 256],
+    "warmup_calls": 20,
+    "minimum_independent_trials": 10,
+    "minimum_window_s": 2.0,
+    "required_gpu_name_substring": "RTX 5090",
+    "native_activations_required": true
+  },
+  "policy": {
+    "fixed_timeout_grid_us": [0, 5, 10, 20, 50, 100, 200],
+    "row_threshold_grid": [8, 16, 32, 64, 128],
+    "fixed_timeout_us": 20,
+    "static_rows": 32,
+    "throughput_rows": 32,
+    "amoe_rows": 32,
+    "festina_rows": 32,
+    "causal_target_rows": 32,
+    "causal_min_saving_fraction": 0.10,
+    "max_age_us": 100,
+    "urgent_margin_us": 10
+  },
+  "accounting": {
+    "sampling_interval_ms": 5,
+    "formal_max_observed_gap_ms": 20,
+    "primary": "gpu_board_j_per_completed_output_token",
+    "counter_first": true,
+    "full_drain_required": true,
+    "idle_power_w_dev_only": 30.0
+  },
+  "slo": {
+    "calibration_multiplier_over_immediate_p99": 1.10,
+    "energy_improvement_lcb95_min": 0.10,
+    "p99_ratio_ucb95_max": 1.03,
+    "violation_delta_ucb95_max": 0.01,
+    "dev_slo_us": 1000000.0
+  },
+  "statistics": {
+    "bootstrap_replicates": 2000,
+    "bootstrap_seed": 2026072299,
+    "primary_seeds": [2026072201, 2026072202, 2026072203, 2026072204, 2026072205],
+    "reserve_seeds": [2026072206, 2026072207, 2026072208, 2026072209, 2026072210]
+  },
+  "oracle": {
+    "algorithm": "exact_dynamic_programming",
+    "max_exact_jobs": 12,
+    "future_information_allowed": true,
+    "runtime_overhead_charged": false,
+    "purpose": "necessity_upper_bound_only"
+  },
+  "forbidden_rescues": [
+    "precision_change",
+    "dvfs",
+    "drop",
+    "offload",
+    "reroute",
+    "replicate",
+    "learned_controller",
+    "baseline_removal",
+    "threshold_relaxation"
+  ],
+  "formal_capabilities": {
+    "identity_complete_native_route_producer": false,
+    "native_5090_surface_producer": false,
+    "real_board_energy_queue_executor": false,
+    "full_dependency_replay": false
+  },
+  "formal_gate": {
+    "review_status": "SIGNED-OFF",
+    "hash_manifest": [
+      "docs/ideas/energy_slo/JouleQueue_Phase2_冻结实验协议_2026-07-22.md",
+      "docs/ideas/energy_slo/experiments/joulequeue_policy.py",
+      "docs/ideas/energy_slo/experiments/run_joulequeue_oracle.py",
+      "docs/ideas/energy_slo/experiments/test_joulequeue_policy.py",
+      "docs/ideas/energy_slo/experiments/configs/joulequeue_v1.json"
+    ]
+  },
+  "result_boundary": "Development logic only until every formal capability is true and Phase 4 signs the exact hashes. Never convert PARTIAL/BLOCKED into a scientific GO or NO-GO."
+}

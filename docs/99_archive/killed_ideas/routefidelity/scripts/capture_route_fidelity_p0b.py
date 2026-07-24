@@ -54,6 +54,7 @@ computed here.  ``home_rank`` is assigned independently of dataset order by
 sorting document SHA-256 values and round-robin assigning the sorted positions.
 """
 
+from __future__ import annotations
 
 # --- shared-lib bootstrap (auto) ---
 import sys
@@ -77,8 +78,6 @@ def _ensure_shared_on_path() -> None:
 _ensure_shared_on_path()
 del _ensure_shared_on_path, _Path
 # --- end bootstrap ---
-
-from __future__ import annotations
 
 import argparse
 import csv

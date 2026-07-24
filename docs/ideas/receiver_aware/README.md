@@ -9,7 +9,7 @@
 
 - v2：结构 hotspot 下静态 profile 可拿到大部分字节收益；瞬时拥塞因果信号弱/负。
 - Codec 硬门槛（2026-07-21）：主口径 `once_per_step`；FP8→INT4；hotspot 轨迹可正净收益，均质微基准仍紧；H2D≠RDMA。见 [`../../01_current_status/Receiver_Codec硬门槛测量结论_2026-07-21.md`](../../01_current_status/Receiver_Codec硬门槛测量结论_2026-07-21.md)。
-- Existence Test：`run_receiver_aware_task_quality_gpu.py`（任务质量 λ 包络）。
+- Existence Test：旧产物未启用 positive-net-saving hard gate 且未记 H2D，是乐观 pilot，不是纠正策略的最终 verdict。入口已修正，GPU 重跑未完成。
 - **不要**再把 HHI v3「自适应全面优于固定基线」当主结果（因果审计已撤回）。
 
 ## 脚本与产物（本目录）

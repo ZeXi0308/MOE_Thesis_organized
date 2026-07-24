@@ -81,6 +81,7 @@ MODEL_SPECS = {
         "hidden_size": 2048,
         "codec_pack_us": 26.12175941467285,
         "codec_unpack_us": 25.37951946258545,
+        "codec_h2d_us": 11.232,
     },
     "llmjp": {
         "model": "llm-jp/optimal-sparsity-math-d512-E32-k16-920M-A520M",
@@ -88,6 +89,7 @@ MODEL_SPECS = {
         "hidden_size": 512,
         "codec_pack_us": 17.097280025482178,
         "codec_unpack_us": 16.322879791259766,
+        "codec_h2d_us": 11.232,
     },
 }
 
@@ -138,9 +140,20 @@ def parse_args() -> argparse.Namespace:
                    help="defaults to the model-specific real GPU codec measurement")
     p.add_argument("--codec-unpack-us", type=float, default=None,
                    help="defaults to the model-specific real GPU codec measurement")
+    p.add_argument("--codec-h2d-us", type=float, default=None,
+                   help="defaults to the model-specific measured pinned-H2D tax")
+    hardgate = p.add_mutually_exclusive_group()
+    hardgate.add_argument("--require-positive-net-saving", dest="require_positive_net_saving",
+                          action="store_true",
+                          help="reject low-lane actions whose logical wire saving does not pay codec tax")
+    hardgate.add_argument("--no-require-positive-net-saving", dest="require_positive_net_saving",
+                          action="store_false", help="legacy optimistic replay; not a formal verdict setting")
+    p.set_defaults(require_positive_net_saving=True)
     p.add_argument("--high-scale-bytes", type=float, default=4.0)
     p.add_argument("--low-scale-bytes", type=float, default=4.0)
     p.add_argument("--codec-tile-rows", type=int, default=32)
+    p.add_argument("--codec-measured-rows", type=int, default=128,
+                   help="row count at which pack/unpack/H2D taxes were measured")
     p.add_argument("--codec-tax-mode", default="once_per_step",
                    choices=("once_per_step", "serialized_tiles"))
     p.add_argument("--resume", action="store_true")
@@ -159,6 +172,8 @@ def parse_args() -> argparse.Namespace:
         args.codec_pack_us = spec["codec_pack_us"]
     if args.codec_unpack_us is None:
         args.codec_unpack_us = spec["codec_unpack_us"]
+    if args.codec_h2d_us is None:
+        args.codec_h2d_us = spec["codec_h2d_us"]
     return args
 
 
@@ -927,8 +942,11 @@ def main() -> None:
                     inter_node_gbps=args.inter_node_gbps,
                     codec_pack_us=args.codec_pack_us,
                     codec_unpack_us=args.codec_unpack_us,
+                    codec_h2d_us=args.codec_h2d_us,
                     codec_tile_rows=args.codec_tile_rows,
+                    codec_measured_rows=args.codec_measured_rows,
                     codec_tax_mode=args.codec_tax_mode,
+                    require_positive_net_saving=args.require_positive_net_saving,
                 )
                 controller = ReceiverLaneController(config)
                 policy_df = run_rows(

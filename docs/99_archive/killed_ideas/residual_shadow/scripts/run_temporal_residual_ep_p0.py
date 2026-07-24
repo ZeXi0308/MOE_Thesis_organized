@@ -9,6 +9,7 @@ It is a numerical and logical-payload experiment.  It does not measure a GPU
 kernel, collective, NIC traffic, TPOT, or P99 latency.
 """
 
+from __future__ import annotations
 
 # --- shared-lib bootstrap (auto) ---
 import sys
@@ -32,8 +33,6 @@ def _ensure_shared_on_path() -> None:
 _ensure_shared_on_path()
 del _ensure_shared_on_path, _Path
 # --- end bootstrap ---
-
-from __future__ import annotations
 
 import argparse
 from collections import defaultdict

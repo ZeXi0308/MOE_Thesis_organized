@@ -1,5 +1,7 @@
 # Expert-Precision Persistence & Shadow-Verify Controller (llmjp)
 
+> **SUPERSEDED FOR H2 VERDICT (2026-07-22):** the table below masks an independently collected all-INT4 KL trajectory; it does not execute the mixed-precision policy's KV-state evolution or charge low+high shadow compute. H1 remains descriptive. H2 requires an in-loop rerun.
+
 - documents: 32 (calib=12, test=20), decode_steps=48, fp_scope=all
 - escalate threshold tau (calibrated at 0.75 quantile of calib KL): 0.078719
 

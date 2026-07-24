@@ -166,7 +166,7 @@ rank 不是理论上最精确的重要性信号，gate threshold 和 $g\|o\|$ co
 
 ### 5. 已放弃的旧 MILP 边界
 
-旧方案用单层 profile 的 $\delta_{l,R,p}$ 线性预测多层端到端 KL。OLMoE 实测中，$\epsilon=0.1$ 的 MILP predicted KL 为 `0.10`，actual KL 为 `9.41`，低估约 `94×`；MILP 与 rank-only 的实际质量和 saving 也接近。
+`SUPERSEDED`：旧方案用单层 profile 的 $\delta_{l,R,p}$ 线性预测多层端到端 KL 时重复累加了共享 FP8 baseline，其旧倍数不得引用。正确增量口径下 `locked_incremental` ratio=1.076，95% CI [0.983,1.165]，可加性未决；PLTB 在 matched-docs 端到端门槛下仍不胜 fixed-tail。
 
 因此当前不能声称：
 

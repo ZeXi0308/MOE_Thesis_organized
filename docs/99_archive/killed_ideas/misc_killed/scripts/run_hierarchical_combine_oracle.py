@@ -8,6 +8,7 @@ crossing the next topology level.  This script reports the resulting copy-count
 upper bound.  It does not model kernels, synchronization, links, or latency.
 """
 
+from __future__ import annotations
 
 # --- shared-lib bootstrap (auto) ---
 import sys
@@ -31,8 +32,6 @@ def _ensure_shared_on_path() -> None:
 _ensure_shared_on_path()
 del _ensure_shared_on_path, _Path
 # --- end bootstrap ---
-
-from __future__ import annotations
 
 import argparse
 from pathlib import Path

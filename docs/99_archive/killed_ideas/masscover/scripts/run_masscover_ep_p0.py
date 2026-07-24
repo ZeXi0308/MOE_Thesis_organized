@@ -18,6 +18,7 @@ been inspected by the project.  They are therefore labelled historical test,
 not a newly sealed confirmatory holdout.
 """
 
+from __future__ import annotations
 
 # --- shared-lib bootstrap (auto) ---
 import sys
@@ -41,8 +42,6 @@ def _ensure_shared_on_path() -> None:
 _ensure_shared_on_path()
 del _ensure_shared_on_path, _Path
 # --- end bootstrap ---
-
-from __future__ import annotations
 
 import argparse
 from dataclasses import dataclass

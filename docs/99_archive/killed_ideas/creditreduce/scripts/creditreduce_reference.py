@@ -17,6 +17,7 @@ Home-domain groups never enter the logical wire accounting.  They retain their
 FP32 subtotal for every early endpoint.
 """
 
+from __future__ import annotations
 
 # --- shared-lib bootstrap (auto) ---
 import sys
@@ -40,8 +41,6 @@ def _ensure_shared_on_path() -> None:
 _ensure_shared_on_path()
 del _ensure_shared_on_path, _Path
 # --- end bootstrap ---
-
-from __future__ import annotations
 
 from dataclasses import dataclass
 import math

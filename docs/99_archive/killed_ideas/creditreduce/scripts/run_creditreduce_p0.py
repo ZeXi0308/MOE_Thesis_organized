@@ -4,6 +4,7 @@ This driver measures full-model numerical quality and logical remote payload.
 It is not a GPU, collective, network, latency, or actual-wire benchmark.
 """
 
+from __future__ import annotations
 
 # --- shared-lib bootstrap (auto) ---
 import sys
@@ -27,8 +28,6 @@ def _ensure_shared_on_path() -> None:
 _ensure_shared_on_path()
 del _ensure_shared_on_path, _Path
 # --- end bootstrap ---
-
-from __future__ import annotations
 
 import argparse
 import csv

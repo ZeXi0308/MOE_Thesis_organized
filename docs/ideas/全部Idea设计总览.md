@@ -1,4 +1,4 @@
-# 全部 Idea 设计总览（从 GitHub 备份归纳 · 2026-07-21）
+# 全部 Idea 设计总览（系统纠错后 · 2026-07-22）
 
 > 备份仓库：https://github.com/ZeXi0308/MOE_Thesis.git  
 > 本地镜像：`~/Desktop/MOE_Thesis_backup`（只读对照）  
@@ -8,6 +8,10 @@
 > - **`experiments/`** 或 **`scripts/`** — 代码
 
 权威状态表仍见：[`../01_current_status/研究现状与Idea演进_2026-07-21.md`](../01_current_status/研究现状与Idea演进_2026-07-21.md)  
+系统纠错证据与最小重跑协议：[`../01_current_status/Idea系统纠错审计_2026-07-22.md`](../01_current_status/Idea系统纠错审计_2026-07-22.md)
+上一轮 Phase 1 创新筛选（已被 v2 取代为历史候选）：[`../01_current_status/Phase1_创新探索与候选收敛_2026-07-22.md`](../01_current_status/Phase1_创新探索与候选收敛_2026-07-22.md)
+上一轮 Phase 1 v2（历史排序：CommitMap-EP / FJEC）：[`../01_current_status/Phase1_v2_创新探索与候选收敛_2026-07-22.md`](../01_current_status/Phase1_v2_创新探索与候选收敛_2026-07-22.md)
+最新 Phase 1 v3（5090 可判死、高上限筛选；仅条件保留 RouteShare-VTC / RouteCloak）：[`../01_current_status/Phase1_v3_5090可验证高上限Idea筛选_2026-07-22.md`](../01_current_status/Phase1_v3_5090可验证高上限Idea筛选_2026-07-22.md)
 元材料（Registry / 时间线 / 三条线长文）：[`../99_archive/killed_ideas/_meta_原文/`](../99_archive/killed_ideas/_meta_原文/)
 
 ---
@@ -16,13 +20,15 @@
 
 | Idea | 状态 | 设计说明 |
 |---|---|---|
-| Rank 长尾 + FP8-first | GO（结构） | [A_rank_tail_fp8/设计说明.md](A_rank_tail_fp8/设计说明.md) |
-| Receiver-aware | CONDITIONAL（在线必要性未过门） | [receiver_aware/设计说明.md](receiver_aware/设计说明.md) |
-| Verify, Don’t Predict（B） | CONDITIONAL GO | [B_verify_precision/设计说明.md](B_verify_precision/设计说明.md) |
-| Energy-SLO | GO（杠杆） | [energy_slo/设计说明.md](energy_slo/设计说明.md) |
-| Quality debt | WEAK | [quality_debt/设计说明.md](quality_debt/设计说明.md) |
+| Rank 长尾 + FP8-first | GO（仅 Claim 1 结构） | [A_rank_tail_fp8/设计说明.md](A_rank_tail_fp8/设计说明.md) |
+| Receiver-aware | CONDITIONAL（正式硬门槛重跑未完成） | [receiver_aware/设计说明.md](receiver_aware/设计说明.md) |
+| Verify, Don’t Predict（B） | INVALIDATED / NEEDS IN-LOOP RERUN | [B_verify_precision/设计说明.md](B_verify_precision/设计说明.md) |
+| Energy-SLO | CHARACTERIZATION / SYSTEM UNVERIFIED | [energy_slo/设计说明.md](energy_slo/设计说明.md) |
+| Quality debt | NO-GO | [quality_debt/设计说明.md](quality_debt/设计说明.md) |
 
-## 严格判死（12）
+## 已归档 / 非主线（12）
+
+> 此处不再把 12 条统称为「严格实验判死」：QuotaEP 是 Gate C 未验证，WaveCredit 是 prior-art 筛查后未实验，Additive 的旧可加性否定已撤回。其余狭义判死范围见纠错审计。
 
 | Idea | 设计说明 |
 |---|---|

@@ -5,6 +5,7 @@ Run directly; pytest is intentionally not required:
     ./.venv/bin/python experiments/idea_a_mac/test_route_fidelity_p0b_core.py
 """
 
+from __future__ import annotations
 
 # --- shared-lib bootstrap (auto) ---
 import sys
@@ -28,8 +29,6 @@ def _ensure_shared_on_path() -> None:
 _ensure_shared_on_path()
 del _ensure_shared_on_path, _Path
 # --- end bootstrap ---
-
-from __future__ import annotations
 
 import csv
 import math

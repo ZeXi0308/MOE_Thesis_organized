@@ -2,12 +2,12 @@
 
 ## 主张
 
-MoE combine 通信中，**尾部 rank 的低比特（INT4）远比头部安全**；在 FP8 为默认高精的前提下，存在清晰的 **FP8-first + tail-INT4** 质量–字节 Pareto（约 62.5% 低比特饱和点在原主张上 GO）。
+MoE combine 中，**matched-byte 下 tail rank 的 INT4 远比 head 安全**，该 Claim 1 跨模型 GO。`SUPERSEDED`：「FP8-first frontier / 62.5% 已严格 GO」；按冻结全扫描最差点，Claim 2 跨模型 NO-GO，62.5% 仅是探索性逻辑 payload 点。
 
 ## 关键证据与边界
 
 - GPU + bootstrap CI：OLMoE / LLM-jp 尾部相对头部安全边际可达数十倍量级（见 Idea A LUT GPU verify 报告）。
-- 边界：质量/字节证据，**不是**真实多卡 RDMA P99；在线自适应不在本 idea 主张内。
+- 边界：字节口径不含 scale metadata/header/padding/alignment，**不是**真实 wire 或多卡 RDMA P99。
 
 ## 脚本与产物（本目录）
 

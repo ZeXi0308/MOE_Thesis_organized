@@ -14,6 +14,7 @@ Evidence boundary:
   as independent observations.
 """
 
+from __future__ import annotations
 
 # --- shared-lib bootstrap (auto) ---
 import sys
@@ -37,8 +38,6 @@ def _ensure_shared_on_path() -> None:
 _ensure_shared_on_path()
 del _ensure_shared_on_path, _Path
 # --- end bootstrap ---
-
-from __future__ import annotations
 
 from collections import Counter, defaultdict
 from dataclasses import dataclass
