@@ -1,0 +1,7 @@
+# TriageAudit Gate M
+
+Status: NO_GO
+
+Verdict: NO_GO_PREFILL_RISK_RANKING_FOR_AUDIT_ALLOCATION
+
+Evidence boundary: single_gpu_teacher_forced_mechanism_probe_not_native_int4_not_serving

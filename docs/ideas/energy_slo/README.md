@@ -1,17 +1,10 @@
-# Energy-SLO Precision EP
+# Energy-SLO
 
-## 主张
+Energy-SLO 目录已按两条 formulation 拆分，协议、代码与结果分别就近保存。
 
-待检验的系统主张是在 SLO 约束下联合选择 **batch accumulation** 与 **compute 精度（FP8）**。当前只有两个独立硬件微基准，系统主张未验证。
+| 分支 | 当前边界 | 目录 |
+|---|---|---|
+| Route-row FP8 / 单卡能耗 characterization | 有真实单卡微基准；没有 arrival、KV decode、P99 或系统 controller 证明 | [`route_row_fp8/`](route_row_fp8/) |
+| JouleQueue | v1 Phase 4 blocked；无正式科学结果 | [`joulequeue/`](joulequeue/) |
 
-## 关键证据与边界
-
-- 固定 seq=64 full-forward 的 batch 1→64：measured J/counted-token 约 17× 改善；不是 KV decode/arrival SLO。
-- 预 cast FP8 vs BF16 GEMM-core：约 2× 吞吐、~34% 单 matmul 能耗下降；不含 activation quantize/scale/cast。
-- `SUPERSEDED`：batch64 在延迟和能耗两维严格支配；代理延迟实际从 142.2ms 增至 209.5ms，且无 queueing/P99。
-
-## 脚本与产物（本目录）
-
-- [`experiments/`](experiments/) · [`outputs/`](outputs/)
-- `run_energy_slo_power_probe.py` / `run_energy_slo_fp8_compute_quality_gate.py`
-- 文档：本目录 [`原文/`](原文/)
+两个分支都不能把单卡功耗或预量化 GEMM 数字外推为 serving Energy-SLO 结论。

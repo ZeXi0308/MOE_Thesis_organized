@@ -15,4 +15,4 @@ MoE combine 中，**matched-byte 下 tail rank 的 INT4 远比 head 安全**，�
 - 产物：[`outputs/`](outputs/)（含 `idea_a_rank_lut_gpu_verify_*`、`main_experiments/`）
 - 共享捕获/量化：[`../../../experiments/shared/`](../../../experiments/shared/)（`capture_moe.py` / `fake_quant.py` / `policies.py`）
 
-结论文档：本目录 [`原文/`](原文/) · [`设计说明.md`](设计说明.md)；GPU 第五辑见 [`../../02_gpu_audits/`](../../02_gpu_audits/)。
+结论文档：本目录 [`原文/`](原文/) · [`设计说明.md`](设计说明.md)；当前状态见 [`../../current/README.md`](../../current/README.md)，历史跨方向 GPU 汇编见 [`../../archive/research_summaries/`](../../archive/research_summaries/)。

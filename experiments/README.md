@@ -1,9 +1,12 @@
-# experiments/
+# 公共实验代码
 
-| 路径 | 用途 |
-|---|---|
-| [`shared/`](shared/) | 公共库（`capture_moe` / `modeling` / `policies` / TBT 仿真等） |
-| [`SCRIPTS_BY_IDEA.md`](SCRIPTS_BY_IDEA.md) | 脚本按 idea 索引 |
+本目录只保留跨 idea 复用的 [`shared/`](shared/) 库。Idea 专用代码已经移动到对应目录：
 
-活 idea 脚本/产物：`docs/ideas/<idea>/experiments|outputs/`  
-判死：`docs/99_archive/killed_ideas/<idea>/scripts/`（结论在各目录 `思路与判死.md`）
+- [BCRD](../docs/ideas/bcrd/experiments/README.md)
+- [DEPA-MoE](../docs/ideas/depa_moe/experiments/README.md)
+- [Receiver-aware / CPR](../docs/ideas/receiver_aware/cpr_ranklane/README.md)
+- [ConfidenceGuard](../docs/ideas/B_verify_precision/confidenceguard_v3/README.md)
+- [Energy-SLO](../docs/ideas/energy_slo/README.md)
+- [其他 idea](../docs/ideas/README.md)
+
+历史 receiver formulation 见 [`docs/archive/receiver_aware/`](../docs/archive/receiver_aware/README.md)；其他停止方向见 [`docs/archive/killed_ideas/`](../docs/archive/killed_ideas/README.md)。

@@ -14,4 +14,4 @@
 
 - [`experiments/`](experiments/) · [`outputs/`](outputs/)
 - `run_per_request_quality_isolation_p0.py` / `run_quality_debt_fairness_p0.py` / `run_quality_routing_synergy_check.py`
-- 文档：本目录 [`原文/`](原文/)
+- 文档：[`设计说明.md`](设计说明.md)；审计结论见 [`audits/`](audits/)

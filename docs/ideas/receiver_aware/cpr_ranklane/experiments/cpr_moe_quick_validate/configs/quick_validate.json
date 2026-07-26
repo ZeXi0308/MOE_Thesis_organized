@@ -1,0 +1,77 @@
+{
+  "schema_version": "cpr-moe-5090-quick-validate-v1",
+  "seed": 20260725,
+  "formal_seeds": [20260725, 20260726, 20260727],
+  "quantization_contract": {
+    "name": "per_row_symmetric_int_v1",
+    "scale_dtype": "float32",
+    "scale_formula": "clamp_min(absmax,1e-8)/qmax",
+    "rounding": "nearest_ties_to_even",
+    "zero_point": 0,
+    "int4_qmin": -7,
+    "int4_qmax": 7,
+    "int4_storage": "two_signed_nibbles_per_uint8"
+  },
+  "quality": {
+    "decision_mode": "int4",
+    "producer": "docs/ideas/A_rank_tail_fp8/experiments/run_idea_a_rank_lut_gpu_rigorous_verify.py",
+    "runtime_contract": {
+      "gpu_name_substring": "RTX 5090",
+      "compute_capability": [12, 0],
+      "torch_version_prefix": "2.8.0",
+      "torch_cuda_prefix": "12.8"
+    },
+    "bootstrap_repeats": 5000,
+    "head_tail_ratio_threshold": 5.0,
+    "paired_difference_lcb_threshold": 0.0,
+    "models": [
+      {
+        "name": "olmoe",
+        "run_identity": {
+          "model": "allenai/OLMoE-1B-7B-0924",
+          "model_key": "olmoe",
+          "model_revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+          "dataset": "wikitext103_docs",
+          "split": "train",
+          "samples": 128,
+          "offset": 600,
+          "seq_len": 128,
+          "dtype": "bfloat16",
+          "producer_seed": 20260720
+        },
+        "per_document_csv": "docs/ideas/A_rank_tail_fp8/outputs/cpr_quality_refresh_2026-07-25_olmoe/per_document.csv",
+        "provenance_json": "docs/ideas/A_rank_tail_fp8/outputs/cpr_quality_refresh_2026-07-25_olmoe/quantization_provenance.json"
+      },
+      {
+        "name": "llmjp",
+        "run_identity": {
+          "model": "llm-jp/optimal-sparsity-math-d512-E32-k16-920M-A520M",
+          "model_key": "llmjp",
+          "model_revision": "1d5983076dfc67aee4a77ec06a27027f5bab6055",
+          "dataset": "wikitext103_docs",
+          "split": "train",
+          "samples": 128,
+          "offset": 600,
+          "seq_len": 128,
+          "dtype": "bfloat16",
+          "producer_seed": 20260720
+        },
+        "per_document_csv": "docs/ideas/A_rank_tail_fp8/outputs/cpr_quality_refresh_2026-07-25_llmjp/per_document.csv",
+        "provenance_json": "docs/ideas/A_rank_tail_fp8/outputs/cpr_quality_refresh_2026-07-25_llmjp/quantization_provenance.json"
+      }
+    ]
+  },
+  "codec": {
+    "required_gpu_substring": "RTX 5090",
+    "dtype": "bfloat16",
+    "rows": [128, 512],
+    "hidden_sizes": [512, 2048],
+    "modes": ["int8", "int4"],
+    "decision_mode": "int4",
+    "link_gbps": [200.0, 400.0],
+    "warmup": 20,
+    "repeats": 200,
+    "max_codec_fraction_of_wire_saving": 0.30,
+    "min_viable_fraction": 0.75
+  }
+}

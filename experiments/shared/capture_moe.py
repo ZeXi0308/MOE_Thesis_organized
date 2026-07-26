@@ -19,8 +19,8 @@ from policies import receiver_group_ids
 # branches importable without making every active entrypoint modify sys.path.
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 for _compat_dir in (
-    _REPO_ROOT / "docs/99_archive/killed_ideas/creditreduce/scripts",
-    _REPO_ROOT / "docs/99_archive/killed_ideas/quotaep/scripts",
+    _REPO_ROOT / "docs/archive/killed_ideas/creditreduce/scripts",
+    _REPO_ROOT / "docs/archive/killed_ideas/quotaep/scripts",
 ):
     if str(_compat_dir) not in sys.path:
         sys.path.append(str(_compat_dir))

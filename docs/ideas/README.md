@@ -1,24 +1,30 @@
-# 活 / 待验证 Idea 总索引
+# 研究方向索引
 
-> 2026-07-22 系统纠错后整理。下列包含一条结构 GO、三条待正确验证/重新定义的路线，以及一条 NO-GO：
-> [`../99_archive/killed_ideas/README.md`](../99_archive/killed_ideas/README.md)  
-> **现状与演进总览**：[`../01_current_status/研究现状与Idea演进_2026-07-21.md`](../01_current_status/研究现状与Idea演进_2026-07-21.md)  
-> **系统纠错审计**：[`../01_current_status/Idea系统纠错审计_2026-07-22.md`](../01_current_status/Idea系统纠错审计_2026-07-22.md)
-> **思想 / 实验设计 / 代码 / 演进（先读）**：[`全部Idea设计总览.md`](全部Idea设计总览.md)
+当前总裁决见[当前研究状态](../current/README.md)。目录存在只表示材料被保留，不表示方向已经 GO。
 
-| Idea | 状态 | 一句话 | 设计说明 |
-|---|---|---|---|
-| Rank 长尾 + FP8-first | 仅 Claim 1 结构 GO | matched-byte 下 combine tail 比 head 安全；frontier 严格门槛跨模型未过 | [设计说明](A_rank_tail_fp8/设计说明.md) |
-| Receiver-aware | 条件性 | 结构画像可用；旧 Existence Test 未启用纠正后 codec hard gate | [设计说明](receiver_aware/设计说明.md) |
-| Verify, Don’t Predict（Idea B） | 正结果失效 | 离线 KL 掩码没有执行混合 KV 策略；待 in-loop 重跑 | [设计说明](B_verify_precision/设计说明.md) |
-| Energy-SLO Precision EP | 硬件 characterization | full-sequence batch 与 GEMM-core 杠杆已观测；serving SLO/controller 未验证 | [设计说明](energy_slo/设计说明.md) |
-| Quality debt / Isolation | NO-GO | harm 可观测性和 CI 口径不成立，且点估计未过 20% 门 | [设计说明](quality_debt/设计说明.md) |
+## 当前候选
 
-每个 idea 目录下现含：
+| Idea | 状态 | 文档与代码 |
+|---|---|---|
+| BCRD | `DESIGNED_AND_IMPLEMENTED / NOT_FORMALLY_RUN` | [目录](bcrd/) · [研究设计](bcrd/研究设计与三门验证协议.md) · [实验代码](bcrd/experiments/README.md) |
+| DEPA-MoE | `DEVELOPMENT_ONLY_NOT_SCIENTIFIC` | [说明与代码](depa_moe/README.md) |
 
-- `设计说明.md` — **思想、背景、实验设计、代码组织、演进**  
-- `原文/` — 从 GitHub 备份恢复的长文  
-- `experiments/` — 脚本 · `outputs/` — 产物  
+BCRD 与 DEPA 先复用同一套 route、full-path breakdown、5090 service surface 和 frozen workload manifest；不得并行调参竞争。
 
-共享库：[`../../experiments/shared/`](../../experiments/shared/)  
-脚本索引：[`../../experiments/SCRIPTS_BY_IDEA.md`](../../experiments/SCRIPTS_BY_IDEA.md)
+## 保留的证据方向
+
+| Idea | 当前结论 | 目录 |
+|---|---|---|
+| Rank-tail / FP8-first | 仅结构性 evidence；不是系统 GO | [A_rank_tail_fp8](A_rank_tail_fp8/) |
+| Receiver-aware / CPR | fixed RankLane 冻结域停止；8×A100 existence 未测；FJRC/PhaseMap 已归档 | [receiver_aware](receiver_aware/) |
+| ConfidenceGuard / Verify precision | sealed scientific result 为 NO-GO | [B_verify_precision](B_verify_precision/) |
+| Energy-SLO | 单 GPU characterization；serving controller 未验证 | [energy_slo](energy_slo/) |
+| Quality debt | NO-GO | [quality_debt](quality_debt/) |
+
+## 归档
+
+- [已停止 ideas](../archive/killed_ideas/README.md)
+- [Receiver-aware 历史 formulation](../archive/receiver_aware/README.md)
+- [非活动但未形成正式科学结论的 ideas](../archive/inactive_ideas/README.md)
+
+开发夹具、smoke、逻辑 bytes、单卡 LUT/H2D 都不能升级为多卡 EP、NCCL、TPOT 或 P99 结论。

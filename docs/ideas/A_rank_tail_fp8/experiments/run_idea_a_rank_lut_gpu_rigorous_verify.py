@@ -87,7 +87,9 @@ Known confounds most likely to overturn a GO result
 Usage
 -----
   python run_idea_a_rank_lut_gpu_rigorous_verify.py \\
-      --model allenai/OLMoE-1B-7B-0924 --model-key olmoe \\
+      --model allenai/OLMoE-1B-7B-0924 \\
+      --model-revision 6d84c48581ece794365f2b8e9cfb043c68ade9c5 \\
+      --model-key olmoe \\
       --output-dir outputs/idea_a_rank_lut_gpu_verify_2026-07-20_olmoe
 """
 from __future__ import annotations
@@ -117,6 +119,7 @@ del _ensure_shared_on_path, _Path
 # --- end bootstrap ---
 
 import argparse
+import hashlib
 import json
 from pathlib import Path
 
@@ -124,16 +127,44 @@ import numpy as np
 import pandas as pd
 import torch
 
+import capture_moe as capture_moe_module
+import fake_quant as fake_quant_module
+import metrics as metrics_module
+import modeling as modeling_module
+import policies as policies_module
+import prompts as prompts_module
 from capture_moe import patch_mixtral_moe
 from metrics import MetricAccumulator
-from modeling import load_model, load_tokenizer, resolve_device
+from modeling import load_model, load_tokenizer
 from policies import make_policy
 from prompts import get_prompts
+
+
+INT4_QUANTIZATION_CONTRACT = {
+    "name": "per_row_symmetric_int_v1",
+    "scale_dtype": "float32",
+    "scale_formula": "clamp_min(absmax,1e-8)/qmax",
+    "rounding": "nearest_ties_to_even",
+    "zero_point": 0,
+    "int4_qmin": -7,
+    "int4_qmax": 7,
+    "int4_storage": "two_signed_nibbles_per_uint8",
+}
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for block in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
 
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--model", required=True)
+    p.add_argument("--model-revision", required=True,
+                   help="immutable Hugging Face commit SHA")
     p.add_argument("--model-key", required=True)
     p.add_argument("--dataset", default="wikitext103_docs")
     p.add_argument("--split", default="train")
@@ -172,8 +203,15 @@ def build_policy_grid(top_k: int) -> list[str]:
 
 
 def collect(args) -> tuple[pd.DataFrame, dict]:
-    tokenizer = load_tokenizer(args.model, local_files_only=args.offline)
-    model, load_seconds = load_model(args.model, dtype_name=args.dtype, local_files_only=args.offline)
+    tokenizer = load_tokenizer(
+        args.model, local_files_only=args.offline, revision=args.model_revision
+    )
+    model, load_seconds = load_model(
+        args.model,
+        dtype_name=args.dtype,
+        local_files_only=args.offline,
+        revision=args.model_revision,
+    )
     top_k = int(model.config.num_experts_per_tok)
     policies = build_policy_grid(top_k)
     byte_saving = {name: make_policy(name).byte_saving(top_k) for name in policies}
@@ -202,9 +240,12 @@ def collect(args) -> tuple[pd.DataFrame, dict]:
         del ref_logits
 
     metadata = {
-        "model": args.model, "model_key": args.model_key, "top_k": top_k,
+        "model": args.model, "model_revision": args.model_revision,
+        "model_key": args.model_key, "top_k": top_k,
         "policies": policies, "byte_saving": byte_saving,
+        "dataset": args.dataset, "split": args.split,
         "samples": args.samples, "offset": args.offset, "seq_len": args.seq_len,
+        "dtype": args.dtype, "producer_seed": args.seed,
         "load_seconds": load_seconds,
         "evidence_boundary": (
             "single-forward combine-output KL on the COMBINE axis only, real GPU, "
@@ -289,8 +330,23 @@ def analyze(df: pd.DataFrame, metadata: dict, args) -> tuple[pd.DataFrame, dict]
 def main() -> None:
     args = parse_args()
     out = Path(args.output_dir)
+    if out.exists() and any(out.iterdir()):
+        raise FileExistsError(f"refusing to mix rank-quality evidence in non-empty {out}")
     out.mkdir(parents=True, exist_ok=True)
-    resolve_device()
+    if not torch.cuda.is_available():
+        raise RuntimeError("formal rank-quality producer requires CUDA; CPU fallback is forbidden")
+    gpu_name = torch.cuda.get_device_name(0)
+    compute_capability = list(torch.cuda.get_device_capability(0))
+    if "rtx 5090" not in gpu_name.lower() or compute_capability != [12, 0]:
+        raise RuntimeError(
+            f"formal rank-quality producer requires RTX 5090 sm_120, got "
+            f"{gpu_name!r} capability={compute_capability}"
+        )
+    if not torch.__version__.startswith("2.8.0") or not str(torch.version.cuda).startswith("12.8"):
+        raise RuntimeError(
+            f"frozen runtime requires torch 2.8.0 / CUDA 12.8, got "
+            f"torch={torch.__version__} cuda={torch.version.cuda}"
+        )
 
     df, metadata = collect(args)
     df.to_csv(out / "per_document.csv", index=False)
@@ -298,6 +354,47 @@ def main() -> None:
     summary.to_csv(out / "policy_summary_with_ci.csv", index=False)
     metadata["result"] = result
     (out / "metadata.json").write_text(json.dumps(metadata, indent=2, default=str), encoding="utf-8")
+    producer_path = Path(__file__).resolve()
+    dependency_paths = {
+        "fake_quant.py": Path(fake_quant_module.__file__).resolve(),
+        "policies.py": Path(policies_module.__file__).resolve(),
+        "capture_moe.py": Path(capture_moe_module.__file__).resolve(),
+        "metrics.py": Path(metrics_module.__file__).resolve(),
+        "modeling.py": Path(modeling_module.__file__).resolve(),
+        "prompts.py": Path(prompts_module.__file__).resolve(),
+    }
+    provenance = {
+        "schema_version": "rank-quality-int4-provenance-v1",
+        "attestation": "PRODUCER_EMITTED_DURING_FORWARD_RUN",
+        "producer_path": str(producer_path),
+        "producer_sha256": sha256_file(producer_path),
+        "runtime_environment": {
+            "gpu": gpu_name,
+            "compute_capability": compute_capability,
+            "torch": torch.__version__,
+            "torch_cuda": torch.version.cuda,
+        },
+        "run_identity": {
+            "model": args.model,
+            "model_key": args.model_key,
+            "model_revision": args.model_revision,
+            "dataset": args.dataset,
+            "split": args.split,
+            "samples": args.samples,
+            "offset": args.offset,
+            "seq_len": args.seq_len,
+            "dtype": args.dtype,
+            "producer_seed": args.seed,
+        },
+        "dependency_sha256": {
+            name: sha256_file(path) for name, path in sorted(dependency_paths.items())
+        },
+        "per_document_sha256": sha256_file(out / "per_document.csv"),
+        "quantization_contract": INT4_QUANTIZATION_CONTRACT,
+    }
+    (out / "quantization_provenance.json").write_text(
+        json.dumps(provenance, indent=2, sort_keys=True), encoding="utf-8"
+    )
 
     c1 = result["claim1_tail_vs_head"]
     c2 = result["claim2_fp8_first_pareto"]
