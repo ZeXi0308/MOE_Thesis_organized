@@ -2,9 +2,9 @@
 
 > 日期：2026-07-26
 >
-> 当前状态：`PROPOSED / KILL_PROBE_ONLY / NOT_CURRENT_MAINLINE`
+> 当前状态：`R0A_GPU_SMOKE_INTEGRITY_PASS / CALIBRATION_NOT_RUN / KILL_PROBE_ONLY / NOT_CURRENT_MAINLINE`
 >
-> 证据等级：研究问题与预注册设计；**尚无 R0 结果、尚无系统机制证据、尚无多卡证据**。
+> 证据等级：冻结设计与数据、实现、25项 CPU/真实 tiny OLMoE 集成测试，以及单张 RTX 5090 engineering smoke 完整性 PASS；**尚无 calibration/formal R0-A 科学裁决、尚无系统机制证据、尚无多卡证据**。
 >
 > 执行权威：[当前研究状态与唯一执行线](../../current/README.md)。若本文与新的 machine-readable sealed/formal decision 或当前状态冲突，以后者为准。
 
@@ -17,6 +17,7 @@ RouteGuard-KV 中真正值得验证的科学问题是：
 当前裁决分为三层：
 
 - `[Observed]` KV-cache 精度是长上下文、高并发解码的真实容量/带宽变量；逐层 K/V 混合精度和离线配置本身已有强 prior art。
+- `[Observed, engineering smoke only]` 冻结的2文档 smoke 在 RTX 5090 上完成50/50条 trajectory，完整性、identity、patched-BF16、route-lock 和 quantizer-ledger 门全部 PASS；该样本不进入 formal 统计。
 - `[Inferred]` RouteGuard-KV 可能剩余的新意，不是“把 KVTuner 用到 MoE”，而是 **KV 扰动 → 路由变化 → 额外质量损失** 的 post-training 因果链，以及该信号对精度分配的增量价值。
 - `[Hypothesis]` 该链可能被残差流、归一化和路由 margin 稀释；即使存在，也可能被 attention-error signal 或“保护少数敏感层”简单策略几乎完全捕获。
 
@@ -59,7 +60,7 @@ RouteGuard-KV 的位置是：**可登记、可预注册、可在不干扰唯一�
 主估计量必须来自**同一 MoE、同一文档、同一 token 流、同一量化配置**下的三个 counterfactual 臂。设 BF16-KV 参考轨迹在层 `l`、位置 `t` 的 expert 集合和 gate weights 为 `(S*_{l,t}, g*_{l,t})`：
 
 1. `free(b)`：量化 KV，router 正常产生集合和权重；
-2. `set_locked(b)`：量化 KV，但强制使用 `S*`；在量化态 router logits 上仅对 `S*` 取值并重新归一化；
+2. `set_locked(b)`：量化 KV，但强制使用 `S*`；在量化态完整 router softmax 上仅对 `S*` gather，并严格遵循模型原生 `norm_topk_prob` 语义；OLMoE 的冻结配置为 `false`，因此不额外归一化；
 3. `fully_locked(b)`：量化 KV，同时强制使用 `(S*, g*)`。
 
 对相对 BF16 参考输出的文档级损失 `L(·)`，报告：
@@ -98,9 +99,9 @@ teacher forcing 只用于对齐输出 token；三个臂必须维护**彼此独�
 ### 4.2 冻结最小矩阵
 
 - **模型：** `allenai/OLMoE-1B-7B-0924` 一个模型；通过后才加第二个开放 MoE。
-- **数据：** 两个 prompt 长度桶；每桶 32 个自然文档；用归一化文本 SHA-256 与历史 calibration/sealed manifest 做排除。仅使用新的 offset 不能证明数据独立。
+- **数据：** 同32篇 sealed 自然文档构造 prompt 512/2048 两个 paired condition；用归一化文本 SHA-256 与历史 calibration/sealed manifest 做排除。仅使用新的 offset 不能证明数据独立。
 - **decode：** 每文档 32 个 teacher-forced decode step；逐步写入和读取真实 KV state。
-- **配置：** `BF16`、`INT4-K-only`、`INT4-V-only`；另加 identity/no-op quantizer 负控。位宽格式、group size、scale 粒度、RoPE 前后顺序必须与目标后端谱系一致。
+- **配置：** 唯一 primary 为 `INT4-K-only @ prompt 2048`；512、V-only 与 KV 均为不能 rescue 的 secondary；另加 identity/no-op quantizer 负控。位宽格式、group size、scale 粒度、RoPE 前后顺序必须与目标后端谱系一致。
 - **counterfactual：** `free`、`set_locked`、`fully_locked`。
 - **主指标：** 文档级 KL、route-set Jaccard/flip rate、gate-weight drift、`Δset`、`Δweight`、`Δnumeric`、`Δrouter`，以及逐层/逐位置分布。
 - **统计：** 文档级 paired bootstrap 5,000 次；同时公开 effect size、95% CI、正负交互和每个长度桶结果。
@@ -118,14 +119,15 @@ teacher forcing 只用于对齐输出 token；三个臂必须维护**彼此独�
 
 进入 R0-B 的必要条件：
 
-- 至少一个 aggressive K/V 臂在两个长度桶中 `Δrouter` 同方向；
-- 文档级 paired-bootstrap 的 `Δrouter` 95% CI 下界 `>0`；
+- `INT4-K-only @ prompt 2048` 的文档级 `L_free ≥1e-4`，且 non-tie route-set flip rate `≥1%`；
+- 该唯一 primary cell 的 paired-bootstrap `Δrouter` 95% CI 下界 `>0`；
 - `Δrouter / L(free)` point estimate `≥40%`，且 95% CI 下界 `>25%`；
-- 结果不能由极少数文档、单层、top-k tie 或量化实现异常解释。
+- leave-one-document-out 的 `Δrouter` point estimate 全正，且至少90%的 flip 不是 top-k boundary tie；
+- 512、V-only 与 KV cell 原样报告，但不得救回或推翻 primary。
 
 以下任一成立即停止机制线：
 
-- 两个长度桶的 route-mediated 份额均 `<25%`；
+- primary 总 KL `<1e-4`、non-tie set flip `<1%` 或 route-mediated share `<25%`；
 - 份额符号不稳，或只在 INT2/异常格式出现；
 - route flip 存在但 `Δrouter` 接近零；
 - 普通数值残余几乎解释全部损失；
@@ -202,7 +204,8 @@ RouteGuard 的系统收益必须相对“质量门内的 best deployable uniform
 ## 9. 当前最短动作
 
 1. 不修改[当前唯一执行线](../../current/README.md)；
-2. 先完成 R0-A 的配置、哈希排除清单、counterfactual 语义和不变量测试；
-3. Code Review 通过后，才能申请一次 `MECHANISM_PROBE_ONLY` GPU run；
-4. R0-A 未过门立即停止，不扩模型、不做 R1/R2；
-5. 任何新 sealed result 都必须写 machine-readable decision，并同步更新本页与当前状态。
+2. R0-A 实现、数据冻结、25项 CPU/真实 tiny OLMoE 集成测试和 RTX 5090 smoke v2 已完成，审计见[Code Review 与执行手册](experiments/R0A_5090_CodeReview与执行手册_2026-07-27.md)；
+3. smoke v2 只授权下一步运行8文档 calibration；当前 calibration 未运行，formal 仍为 `NOT_APPROVED`；
+4. smoke 的方向性数值不能宣布 R0-A PASS；calibration 不得调阈值、位宽、模型、prompt、steps 或样本数；
+5. R0-A 未过门立即停止，不扩模型、不做 R1/R2；
+6. 任何新 sealed result 都必须写 machine-readable decision，并同步更新本页与当前状态。

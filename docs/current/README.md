@@ -1,7 +1,7 @@
 # MoE 研究问题重构：严格审计与唯一主线
 
 > 状态：**当前权威裁决文档**  
-> 证据截止：2026-07-25  
+> 证据截止：2026-07-27
 > 作用：统一 7 月 25 日多个并行进程留下的候选生成、代码框架和局部裁决；含独有证据的原文转入方向目录或历史汇总，已被完整吸收的中间“最终稿”不再单独保留。
 >
 > 长篇研究问题、候选边界和实验蓝图见[《MoE 推理毕业论文方向统一稿》](MoE_推理毕业论文方向统一稿_2026-07-25.md)；本页继续负责当前证据账本和唯一执行顺序。
@@ -60,6 +60,7 @@
 | CPR 5090 quick validate | runner、kernel、provenance 校验、CPU 测试；旧质量数值重分析为 PASS | 同次 provenance 的正式质量重跑、5090 connected INT4 正式运行；核心仍需 8×A100 | `INCOMPLETE_NECESSARY_GATES` |
 | BCRD | 三道串行 Gate、identity/oracle/causality 测试和 smoke harness | 自然 continuous-decode routes、完整路径 denominator、正式 5090 service curve、正式 Gate 1 结果 | `DESIGNED_AND_IMPLEMENTED / NOT_FORMALLY_RUN` |
 | DEPA | 因果 CPU replay、request ledger、exact small oracle、三门 runner、10 个测试 | 四项 formal capability 均为 false；无正式 breakdown/episodes/surface；无完整 prior-art 边界文档 | `DEVELOPMENT_ONLY_NOT_SCIENTIFIC` |
+| RouteGuard-KV R0-A | 冻结协议/数据/实现、25项 CPU 测试；RTX 5090 smoke v2 完成50/50 trajectory 且完整性/负控 PASS | 冻结的8文档 calibration 与32文档 formal 均未运行；formal 未批准；无跨模型、native INT4、serving 或多卡证据 | `GPU_SMOKE_INTEGRITY_PASS / CALIBRATION_NOT_RUN / NOT_CURRENT_MAINLINE` |
 | optimized EP return-path existence | 8×A100 Gate 设计 | 真实 8×A100、optimized backend、timeline/transport/identity 闭合 | `NOT_TESTED_REQUIRES_8XA100` |
 
 ## 3. 唯一研究问题
