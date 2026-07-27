@@ -11,6 +11,12 @@
 
 BCRD 与 DEPA 先复用同一套 route、full-path breakdown、5090 service surface 和 frozen workload manifest；不得并行调参竞争。
 
+## 新登记但未授权升格的候选
+
+| Idea | 状态 | 文档与边界 |
+|---|---|---|
+| RouteGuard-KV | `PROPOSED / KILL_PROBE_ONLY / NOT_CURRENT_MAINLINE` | [严格评审与收紧后 R0–R2 协议](routeguard_kv/README.md)；只允许廉价存在性判死，不改变共同 Gate 0/1 的执行顺序 |
+
 ## 保留的证据方向
 
 | Idea | 当前结论 | 目录 |
