@@ -1,0 +1,81 @@
+$ /root/miniconda3/bin/python3 -B -m unittest discover -s docs/ideas/bcrd/experiments -p test_*.py
+exit_code=0
+....../root/miniconda3/lib/python3.12/site-packages/torch/cuda/__init__.py:63: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+Skipping import of cpp extensions due to incompatible torch version. Please upgrade to torch >= 2.11.0 (found 2.8.0+cu128).
+..............
+----------------------------------------------------------------------
+Ran 20 tests in 4.191s
+
+OK
+
+$ /root/miniconda3/bin/python3 -B -m unittest discover -s docs/ideas/energy_slo/routeslack/experiments -p test_*.py
+exit_code=1
+....................../root/miniconda3/lib/python3.12/site-packages/torch/cuda/__init__.py:63: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+F........
+======================================================================
+FAIL: test_dry_run_is_complete_but_never_formal (test_routeslack_protocol.GateAndDryRunTest.test_dry_run_is_complete_but_never_formal)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/root/autodl-tmp/routeslack_audit_20260728_1443/docs/ideas/energy_slo/routeslack/experiments/test_routeslack_protocol.py", line 236, in test_dry_run_is_complete_but_never_formal
+    self.assertNotIn("FAILED(", manifest["git_commit"])
+AssertionError: 'FAILED(' unexpectedly found in 'FAILED(128): fatal: not a git repository (or any parent up to mount point /root)\nStopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).'
+
+----------------------------------------------------------------------
+Ran 31 tests in 1.919s
+
+FAILED (failures=1)
+
+$ /root/miniconda3/bin/python3 -B -m unittest docs.ideas.energy_slo.route_row_fp8.experiments.test_continuous_decode_harness docs.ideas.energy_slo.route_row_fp8.experiments.test_power_accounting
+exit_code=0
+.................
+----------------------------------------------------------------------
+Ran 17 tests in 0.004s
+
+OK
+
+$ /root/miniconda3/bin/python3 -B -m unittest discover -s docs/ideas/energy_slo/joulequeue/experiments -p test_*.py
+exit_code=1
+/root/miniconda3/lib/python3.12/site-packages/torch/cuda/__init__.py:63: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+E..................E
+======================================================================
+ERROR: test_capture_joulequeue_expert_inputs_gpu (unittest.loader._FailedTest.test_capture_joulequeue_expert_inputs_gpu)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_capture_joulequeue_expert_inputs_gpu
+Traceback (most recent call last):
+  File "/root/miniconda3/lib/python3.12/unittest/loader.py", line 394, in _find_test_path
+    module = self._get_module_from_name(name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/unittest/loader.py", line 337, in _get_module_from_name
+    __import__(name)
+  File "/root/autodl-tmp/routeslack_audit_20260728_1443/docs/ideas/energy_slo/joulequeue/experiments/test_capture_joulequeue_expert_inputs_gpu.py", line 14, in <module>
+    from capture_joulequeue_expert_inputs_gpu import _expert_modules, _source_hash, select_experts
+  File "/root/autodl-tmp/routeslack_audit_20260728_1443/docs/ideas/energy_slo/joulequeue/experiments/capture_joulequeue_expert_inputs_gpu.py", line 28, in <module>
+    from capture_cjc_routes_gpu import (  # noqa: E402
+ModuleNotFoundError: No module named 'capture_cjc_routes_gpu'
+
+
+======================================================================
+ERROR: test_run_joulequeue_expert_surface (unittest.loader._FailedTest.test_run_joulequeue_expert_surface)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_run_joulequeue_expert_surface
+Traceback (most recent call last):
+  File "/root/miniconda3/lib/python3.12/unittest/loader.py", line 394, in _find_test_path
+    module = self._get_module_from_name(name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/unittest/loader.py", line 337, in _get_module_from_name
+    __import__(name)
+  File "/root/autodl-tmp/routeslack_audit_20260728_1443/docs/ideas/energy_slo/joulequeue/experiments/test_run_joulequeue_expert_surface.py", line 19, in <module>
+    from run_joulequeue_expert_surface import (  # noqa: E402
+  File "/root/autodl-tmp/routeslack_audit_20260728_1443/docs/ideas/energy_slo/joulequeue/experiments/run_joulequeue_expert_surface.py", line 32, in <module>
+    from capture_cjc_routes_gpu import MODEL_SPECS, sha256_file  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'capture_cjc_routes_gpu'
+
+
+----------------------------------------------------------------------
+Ran 20 tests in 0.008s
+
+FAILED (errors=2)

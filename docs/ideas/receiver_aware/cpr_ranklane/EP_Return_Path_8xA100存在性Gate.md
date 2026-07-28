@@ -29,6 +29,7 @@ defense 或 Energy-SLO controller。第一笔 GPU 预算只用于问题存在性
 | 已否定主张 | PhaseMap formal selection 停在 `BLOCKED_UNINFORMATIVE_DEADLINE_GRID`，`holdout_opened=false`；各模型自己的 50% 点仍 `B0=Q=J=R` | closed-pair、work-conserving reorder 中 queue/join 信息无增量动作价值 | 不是否定所有 receiver-awareness |
 | 已否定主张 | corrected FJRC：OLMoE miss 绝对下降 1.5625pp，LLM-jp 0pp，双模型门失败 | keyed join bitmap 机制停止 | OLMoE secondary CVaR 不能升级为 physical receiver 结论 |
 | 代理证据 | native route identity 中存在 many-to-one fan-in；冻结 64 waves/model；5090 RR-credit 仅 `LOCAL_CLONE` smoke | schema、identity 和守恒路径可运行 | 未证明 temporal incast、NCCL ingress、receiver busy period、TPOT/P99 |
+| 真实单卡 inference-time | 5090 上 16 层 LLM-jp 完整 KV decode；本地 MoE block 占 profiled decode 约 82.8%–90.2%，最慢单层仅占各层 median 之和 6.36%–6.58%；粗分解中 expert loop 已占约 74.9%–85.7% | 多 MoE 层成本在完整 inference denominator 中近似均匀累积，8 卡 Gate 必须覆盖全层；主要单卡成本当前来自本地 expert loop | 本地 router/expert/combine 不是 return A2A；不得写成 `p_return`、Receiver congestion 或 serving TPOT/P99；通信仍需单独证明 exposed headroom |
 | 真实单卡证据 | RouteShare matched-histogram residual 仅 2.35%–3.06%，强简单模型 held-out `R²=0.9971–0.9986` | 当前 route-coalition cost 对象判死 | clustered/current-route oracle 不能冒充 causal scheduler |
 | 真实单卡证据 | RouteShare causal previous-token union reduction：OLMoE 3.08%，LLM-jp 0.285%；scheduler 税吃掉净收益 | RouteShare/VTC 不进入 serving scheduler | 不用 predictor 或 topology simulation 救活 |
 | 已否定主张 | ConfidenceGuard v3 sealed decision 为 `NO_GO_PREFILL_RISK_RANKING_FOR_AUDIT_ALLOCATION` | 当前 prefill risk ranking 不能产生所需 audit allocation 增量 | engineering pass 不是 scientific pass |
@@ -58,7 +59,8 @@ defense 或 Energy-SLO controller。第一笔 GPU 预算只用于问题存在性
 - scientific object：优化后 `expert-ready → combine-complete` 的不可 overlap 时间。
 - 自然 workload：真实 serving arrival；不能用单层同步 wave、人工 barrier 或 sleep 制造。
 - 用户指标：TPOT P50/P95/P99、TTFT、goodput、tokens/s。
-- 现有证据：只有 gate-rank 质量结构与单卡 codec 反证；**Gate 0 未通过**。
+- 现有证据：gate-rank 质量结构、单卡 codec 反证，以及 16 层本地 MoE 成本在完整
+  KV decode 中均匀累积；但后者无 EP/return A2A，**Gate 0 仍未通过**。
 - 删除式 Oracle：在依赖 DAG 中把 return-path service 置零，重算 request/token completion；
   不能把 profiler span 直接相加。
 - 配置消失风险：SwiftEP、Comet、tile-level second-A2A overlap、改变 EP/TP、增加 batch 或
@@ -206,6 +208,10 @@ CoCoQuant 已覆盖其大部分优化抽象，最新 overlap 工作又可能吃�
   `experiments/ric_clean_v2/run_multirank_rr_census.py` 可复用 identity、message conservation、
   NVTX 与 topology manifest；它当前使用 trial barrier、随机 expert weights、rank-local clock，
   并明确输出 `RAW_TRACE_AWAITING_NSYS_CUPTI_BINDING_NOT_HEADROOM_RESULT`，因此不是 serving Gate。
+- **完整 inference denominator 参考：**
+  [`../inference_time_5090/`](../inference_time_5090/) 已提供全 MoE 层 KV-decode 计时、逐层 census
+  和 observer-tax 会计；可复用其全层覆盖和端到端 denominator 思路，但不得复用其
+  单卡 MoE 占比当作 return-path 占比。
 - **分析入口：**
   `docs/ideas/receiver_aware/cpr_ranklane/experiments/analyze_ep_return_path_gate0.py`（待新增）；必须从
   Nsight/CUPTI 同一时间轴重建依赖 DAG，不能拼 rank-local wall clock。
@@ -248,6 +254,7 @@ Baseline 必须是当前环境可运行的最强 unmodified backend：
 
 - per-request TTFT、per-token TPOT、P95/P99、goodput；
 - `expert_ready → first_return_send → receiver_visible → unpack/combine_complete` 同轴时间；
+- 上述事件必须覆盖每次正式 forward 的全部 MoE 层；任一层缺失即为 census 不闭合；
 - exposed return-path critical-path fraction；
 - receiver busy-period/join-wait 仅作 P4 诊断；
 - message count、actual payload bytes、transport/topology、GPU utilization。

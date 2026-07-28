@@ -1,0 +1,175 @@
+{
+  "baselines_exercised": [
+    "immediate_execution",
+    "fixed_row_threshold",
+    "fixed_timeout",
+    "earliest_deadline_first",
+    "least_loaded_replica",
+    "min_predicted_finish",
+    "lplb_like_token_balancing",
+    "two_tier_static_power",
+    "min_finish_plus_two_tier_power",
+    "route_unaware_batch_kv_phase_energy_controller"
+  ],
+  "confidence_intervals": null,
+  "evidence_boundary": "Synthetic audit fixture only. It verifies pipeline and fail-closed invariants, not a model, GPU, energy, latency, SLO, or Oracle result.",
+  "formal_result": false,
+  "gate0": "FAIL",
+  "gate0_open_items": [
+    "native_continuous_decode",
+    "kv_advances_one",
+    "latency_window_aligned",
+    "energy_window_aligned",
+    "thermal_state_logged"
+  ],
+  "identity_stages": 4,
+  "included_development_artifacts": [
+    "raw/olmoe_cached_decode_routes.csv",
+    "raw/olmoe_cached_decode_routes.meta.json",
+    "raw/llmjp_cached_decode_routes.csv",
+    "raw/llmjp_cached_decode_routes.meta.json",
+    "raw/olmoe_expert_latency_curve.csv",
+    "raw/olmoe_expert_latency_curve.meta.json",
+    "raw/llmjp_expert_latency_curve.csv",
+    "raw/llmjp_expert_latency_curve.meta.json",
+    "logs/identity_validation.log",
+    "logs/joulequeue_tolerance_probe.log",
+    "logs/initial_routeslack_test_failure.log",
+    "logs/initial_joulequeue_import_failure.log",
+    "logs/joulequeue_tolerance_failure.log",
+    "logs/joulequeue_tests_final.log"
+  ],
+  "noop_host_tax": {
+    "independent_unit": "timed outer trial",
+    "operations": {
+      "decision_framework": {
+        "host_mean_ci95_us_per_call": [
+          0.23534548749999998,
+          0.23740485149999996
+        ],
+        "host_mean_us_per_call": 0.23633296,
+        "host_p50_us_per_call": 0.2370215,
+        "host_p99_us_per_call": 0.24285352000000002,
+        "iterations_per_trial": 2000,
+        "p50_increment_over_empty_loop_us": 0.18775999999999998,
+        "paired_mean_increment_ci95_us": [
+          0.18603655750000003,
+          0.18807699149999998
+        ],
+        "paired_mean_increment_over_empty_loop_us": 0.18704088,
+        "trials": 25
+      },
+      "empty_loop": {
+        "host_mean_ci95_us_per_call": [
+          0.0492535765,
+          0.049343765
+        ],
+        "host_mean_us_per_call": 0.04929208,
+        "host_p50_us_per_call": 0.0492615,
+        "host_p99_us_per_call": 0.049731979999999995,
+        "iterations_per_trial": 2000,
+        "p50_increment_over_empty_loop_us": 0.0,
+        "paired_mean_increment_ci95_us": [
+          0.0,
+          0.0
+        ],
+        "paired_mean_increment_over_empty_loop_us": 0.0,
+        "trials": 25
+      },
+      "instrumentation": {
+        "host_mean_ci95_us_per_call": [
+          0.075748764,
+          0.076174367
+        ],
+        "host_mean_us_per_call": 0.07592565999999999,
+        "host_p50_us_per_call": 0.0758545,
+        "host_p99_us_per_call": 0.0778872,
+        "iterations_per_trial": 2000,
+        "p50_increment_over_empty_loop_us": 0.026593000000000006,
+        "paired_mean_increment_ci95_us": [
+          0.0264645735,
+          0.0268752495
+        ],
+        "paired_mean_increment_over_empty_loop_us": 0.02663358,
+        "trials": 25
+      },
+      "logging": {
+        "host_mean_ci95_us_per_call": [
+          5.8287400190000005,
+          5.836605540500001
+        ],
+        "host_mean_us_per_call": 5.8325580200000005,
+        "host_p50_us_per_call": 5.830395,
+        "host_p99_us_per_call": 5.85511098,
+        "iterations_per_trial": 2000,
+        "p50_increment_over_empty_loop_us": 5.7811335,
+        "paired_mean_increment_ci95_us": [
+          5.7796073725,
+          5.787457915999999
+        ],
+        "paired_mean_increment_over_empty_loop_us": 5.78326594,
+        "trials": 25
+      },
+      "route_hook": {
+        "host_mean_ci95_us_per_call": [
+          0.125129251,
+          0.125472467
+        ],
+        "host_mean_us_per_call": 0.1252773,
+        "host_p50_us_per_call": 0.1250945,
+        "host_p99_us_per_call": 0.12682246,
+        "iterations_per_trial": 2000,
+        "p50_increment_over_empty_loop_us": 0.075833,
+        "paired_mean_increment_ci95_us": [
+          0.075841094,
+          0.07618045350000001
+        ],
+        "paired_mean_increment_over_empty_loop_us": 0.07598522,
+        "trials": 25
+      }
+    },
+    "scope": "local CPU host-only; no CUDA, NVML, route hook, or GPU energy"
+  },
+  "oracle_exercised": "future_known_oracle",
+  "out_of_range_fallback": {
+    "action_eligible": false,
+    "status": "FALLBACK_DEFAULT",
+    "tier": "default"
+  },
+  "physical_energy_samples": 0,
+  "physical_latency_samples": 0,
+  "schema": "routeslack-dry-run-v1",
+  "status": "DRY_RUN_COMPLETE",
+  "synthetic_contributions_per_stage": 16,
+  "unit_tests": {
+    "all_passed": true,
+    "failed_suites": 0,
+    "suites": [
+      {
+        "exit_code": 0,
+        "passed": true,
+        "suite": "bcrd",
+        "tests": 20
+      },
+      {
+        "exit_code": 0,
+        "passed": true,
+        "suite": "routeslack",
+        "tests": 31
+      },
+      {
+        "exit_code": 0,
+        "passed": true,
+        "suite": "route-row-contracts",
+        "tests": 17
+      },
+      {
+        "exit_code": 0,
+        "passed": true,
+        "suite": "joulequeue",
+        "tests": 28
+      }
+    ],
+    "tests": 96
+  }
+}
