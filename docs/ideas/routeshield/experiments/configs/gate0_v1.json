@@ -1,0 +1,206 @@
+{
+  "schema": "routeshield-gate0-v1",
+  "frozen_at": "2026-07-29",
+  "status": "PROTOCOL_ONLY_NOT_AUTHORIZED",
+  "formal_execution_authorized": false,
+  "authority_boundary": "Candidate qualification protocol only; does not replace docs/current/README.md",
+  "claim_scope": {
+    "primary_phase": "prefill",
+    "primary_metric": "victim_request_ttft_p99",
+    "single_gpu_metric_name": "REPLAYED_TTFT_P99",
+    "secondary_metrics": [
+      "victim_request_tpot_p99_exploratory_only",
+      "per_tenant_goodput",
+      "total_goodput",
+      "queue_stability"
+    ],
+    "maximum_gate0_verdict": "QUALIFIED_FOR_8XA100_EXISTENCE_GATE",
+    "forbidden_claims": [
+      "RTX5090_SYSTEM_P99",
+      "RTX5090_EP_ISOLATION",
+      "PROVABLE_WORST_CASE_BOUND",
+      "PRODUCTION_GO"
+    ]
+  },
+  "models": [
+    {
+      "key": "olmoe",
+      "model_id": "allenai/OLMoE-1B-7B-0924",
+      "revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+      "tokenizer_sha256": "UNRESOLVED_OLMOE_TOKENIZER_SHA256",
+      "dtype": "bfloat16",
+      "num_experts": 64,
+      "top_k": 8
+    },
+    {
+      "key": "llmjp",
+      "model_id": "llm-jp/optimal-sparsity-math-d512-E32-k16-920M-A520M",
+      "revision": "1d5983076dfc67aee4a77ec06a27027f5bab6055",
+      "tokenizer_sha256": "UNRESOLVED_LLMJP_TOKENIZER_SHA256",
+      "dtype": "bfloat16",
+      "num_experts": 32,
+      "top_k": 16
+    }
+  ],
+  "threat_model": {
+    "attacker_identity": "single_authenticated_tenant",
+    "sybil_accounts": "out_of_scope",
+    "capabilities": ["black_box_text_api"],
+    "forbidden_capabilities": [
+      "direct_route_injection",
+      "router_weight_access",
+      "placement_knowledge",
+      "privileged_backend_state"
+    ],
+    "matched_budget": {
+      "same_request_count": true,
+      "same_arrivals": true,
+      "same_input_token_count": true,
+      "max_new_tokens": 1
+    },
+    "policy_constraints": {
+      "drop_attacker": false,
+      "unbounded_starvation": false,
+      "change_router_or_topk": false,
+      "change_expert_identity_or_weights": false,
+      "change_output_tokens": false
+    }
+  },
+  "workloads": {
+    "traffic_classes": [
+      "NAT_BENIGN",
+      "NAT_PATHOLOGICAL",
+      "ADV_TEXT",
+      "SYN_ROUTE"
+    ],
+    "prompt_lengths": [512, 2048],
+    "route_census_min_independent_prompts_per_cell": 128,
+    "formal_p99_min_paired_blocks_per_cell": 30,
+    "formal_p99_min_completed_victim_requests_per_cell": 10000,
+    "calibration_manifest_sha256": "UNRESOLVED_CALIBRATION_MANIFEST_SHA256",
+    "sealed_evaluation_manifest_sha256": "UNRESOLVED_SEALED_EVALUATION_MANIFEST_SHA256",
+    "historical_prompt_registry_sha256": "UNRESOLVED_HISTORICAL_PROMPT_REGISTRY_SHA256",
+    "natural_dataset_revision": "UNRESOLVED_NATURAL_DATASET_REVISION",
+    "structured_benign_dataset_revision": "UNRESOLVED_STRUCTURED_DATASET_REVISION",
+    "attack_generator_source_sha256": "UNRESOLVED_ATTACK_GENERATOR_SOURCE_SHA256",
+    "sealed_evaluation_opened": false
+  },
+  "target_system": {
+    "primary_load_fraction": 0.7,
+    "negative_control_load_fraction": 0.3,
+    "queue_must_be_stable": true,
+    "engine": "UNRESOLVED_ENGINE_AND_COMMIT",
+    "expert_backend": "UNRESOLVED_OPTIMIZED_EP_BACKEND_AND_COMMIT",
+    "ep_size": 8,
+    "placement_id": "UNRESOLVED_PHYSICAL_PLACEMENT_ID",
+    "placement_snapshot_path": "UNRESOLVED_PLACEMENT_SNAPSHOT_PATH",
+    "placement_snapshot_sha256": "UNRESOLVED_PLACEMENT_SNAPSHOT_SHA256",
+    "arrival_trace_sha256": "UNRESOLVED_ARRIVAL_TRACE_SHA256",
+    "chunked_prefill_config_sha256": "UNRESOLVED_CHUNKED_PREFILL_CONFIG_SHA256"
+  },
+  "required_evidence": {
+    "raw_request_ledger_sha256": "UNRESOLVED_RAW_REQUEST_LEDGER_SHA256",
+    "raw_block_ledger_sha256": "UNRESOLVED_RAW_BLOCK_LEDGER_SHA256",
+    "tenant_qualified_route_producer_sha256": "UNRESOLVED_ROUTE_PRODUCER_SHA256",
+    "tenant_route_ledger_sha256": "UNRESOLVED_TENANT_ROUTE_LEDGER_SHA256",
+    "route_census_summary_sha256": "UNRESOLVED_ROUTE_CENSUS_SUMMARY_SHA256",
+    "expected_route_event_manifest_path": "UNRESOLVED_ROUTE_EVENT_MANIFEST_PATH",
+    "expected_route_event_manifest_sha256": "UNRESOLVED_ROUTE_EVENT_MANIFEST_SHA256",
+    "prompt_bytes_token_ids_manifest_sha256": "UNRESOLVED_PROMPT_TOKEN_MANIFEST_SHA256",
+    "native_continuous_prefill": false,
+    "full_request_dag_replay_sha256": "UNRESOLVED_FULL_REQUEST_DAG_REPLAY_SHA256",
+    "exact_legal_oracle_sha256": "UNRESOLVED_EXACT_LEGAL_ORACLE_SHA256",
+    "service_surface_manifest_sha256": "UNRESOLVED_SERVICE_SURFACE_MANIFEST_SHA256",
+    "service_weighted_causal_ledger_sha256": "UNRESOLVED_SERVICE_WEIGHTED_CAUSAL_LEDGER_SHA256",
+    "full_path_denominator_manifest_sha256": "UNRESOLVED_FULL_PATH_DENOMINATOR_SHA256",
+    "exactness_manifest_sha256": "UNRESOLVED_EXACTNESS_MANIFEST_SHA256",
+    "baseline_bundle_sha256": "UNRESOLVED_BASELINE_BUNDLE_SHA256"
+  },
+  "causal_observation": {
+    "prefix_contribution_fraction": 0.25,
+    "minimum_remaining_service_work_fraction_at_action": 0.5,
+    "future_routes_visible_to_online_policy": false,
+    "future_arrivals_visible_to_online_policy": false,
+    "future_service_visible_to_online_policy": false
+  },
+  "baselines": [
+    "production_default_fcfs_chunked_prefill",
+    "per_tenant_request_concurrency_quota",
+    "per_tenant_input_token_quota",
+    "exact_repetition_detector",
+    "ppl_filter_with_structured_benign_false_positive",
+    "vtc_token_cost_fairness",
+    "fairserve_weighted_service_counter",
+    "expert_drr_drf",
+    "physical_rank_drr_drf",
+    "fixed_tenant_capacity_partition",
+    "vulnerability_aware_placement",
+    "dynamic_eplb_snapshot"
+  ],
+  "baseline_selection": {
+    "selection_split": "calibration",
+    "selection_manifest_sha256": "UNRESOLVED_BASELINE_SELECTION_MANIFEST_SHA256",
+    "frozen_strongest_simple_by_model": {
+      "olmoe": "UNRESOLVED_OLMOE_SIMPLE_POLICY",
+      "llmjp": "UNRESOLVED_LLMJP_SIMPLE_POLICY"
+    }
+  },
+  "counterfactuals": {
+    "delete_attacker": "attribution_only_not_policy_oracle",
+    "legal_oracle": "future_known_exact_all_work_retained_real_action_space",
+    "oracle_state_limit_behavior": "UNSOLVED_EXACT_STATE_LIMIT",
+    "legal_oracle_objective": "victim_request_ttft_p99",
+    "legal_oracle_scope": "full_frozen_cell",
+    "delete_attacker_used_for_policy_capture": false
+  },
+  "statistics": {
+    "bootstrap": "paired_arrival_block_clustered_by_request_document",
+    "bootstrap_resamples": 10000,
+    "bootstrap_seed": 20260729,
+    "empirical_p99": "nearest_rank_v1",
+    "bootstrap_interval": "percentile_two_sided_type7_95",
+    "confidence_level": 0.95,
+    "no_cross_model_pooling": true,
+    "queue_growth_max_fraction": 0.02,
+    "goodput_definition": "completed_input_tokens_per_wall_clock_us",
+    "goodput_window": "last_completion_minus_first_arrival_per_block",
+    "goodput_aggregation": "paired_block_ratio_of_sums",
+    "thresholds": {
+      "harm_point_min": 0.2,
+      "harm_lcb_strict_min": 0.1,
+      "oracle_gain_point_min": 0.1,
+      "oracle_gain_lcb_strict_min": 0.05,
+      "oracle_recovery_lcb_min": 0.5,
+      "simple_capture_ucb_strict_max": 0.9,
+      "benign_goodput_loss_ucb_strict_max": 0.05,
+      "future_policy_residual_lcb_strict_min": 0.05
+    }
+  },
+  "exactness": {
+    "output_token_ids_exact": true,
+    "argmax_exact": true,
+    "hidden_max_abs": "UNRESOLVED_HIDDEN_MAX_ABS_TOLERANCE",
+    "logit_max_abs": "UNRESOLVED_LOGIT_MAX_ABS_TOLERANCE",
+    "logit_max_rel": "UNRESOLVED_LOGIT_MAX_REL_TOLERANCE"
+  },
+  "allowed_statuses": [
+    "BLOCKED_PROTOCOL_NOT_AUTHORIZED",
+    "BLOCKED_MISSING_FORMAL_EVIDENCE",
+    "INVALID_CONFIG",
+    "INVALID_ARTIFACT",
+    "INVALID_REQUEST_DAG",
+    "UNSOLVED_EXACT_STATE_LIMIT",
+    "NO_GO_PHENOMENON",
+    "NO_GO_ORACLE",
+    "SIMPLE_BASELINE_WINS",
+    "NO_GO_BATCHING_TAX",
+    "MODEL_SPECIFIC_OBSERVATION",
+    "UNTRUSTED_AGGREGATE_SHAPE_ONLY",
+    "RAW_RECOMPUTE_DIAGNOSTIC_ONLY",
+    "RAW_RECOMPUTE_SMOKE_ONLY",
+    "BLOCKED_INSUFFICIENT_RAW_SAMPLE",
+    "BLOCKED_FORMAL_RAW_EVALUATOR_NOT_APPROVED",
+    "QUALIFIED_FOR_8XA100_EXISTENCE_GATE",
+    "SMOKE_ONLY"
+  ]
+}
