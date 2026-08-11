@@ -1,0 +1,89 @@
+{
+  "schema": "bcrd-gate0-continuous-decode-prereg-v1",
+  "gate": "Gate 0-A",
+  "seed": 20260725,
+  "generation": {
+    "mode": "greedy",
+    "max_decode_steps": 16
+  },
+  "scheduler": {
+    "max_batch_size": 8,
+    "arrival_trace_sha256": "808036ca39e74a095b562eeaca3ede3d2f62f308d2952a7aa57960005e42858d",
+    "arrival_source": {
+      "kind": "real_world_llm_serving_trace",
+      "name": "BurstGPT_1",
+      "repository": "https://github.com/HPMLL/BurstGPT",
+      "revision": "d895a53bb7b8ec137d0d2fe203b335835a78c10a",
+      "path": "data/BurstGPT_1.csv",
+      "git_blob_oid": "f95dd2c84454b067fdd0973858c55ecfe31bdad7",
+      "sha256": "46fc9480ef0b748ecb2b51d512ff08c196b031782cbe6f78e28044d768e86d5a",
+      "license": "CC-BY-4.0",
+      "selection_rule": "first_128_data_rows_after_header",
+      "source_csv_rows": [
+        2,
+        129
+      ],
+      "timestamp_field": "Timestamp",
+      "timestamp_unit": "seconds",
+      "source_time_origin_s": "5",
+      "time_scale_factor": 1000,
+      "scaled_time_unit": "microseconds",
+      "deadline_policy": "scaled_arrival_plus_60000000_us"
+    }
+  },
+  "dataset": {
+    "id": "wikitext",
+    "config": "wikitext-103-raw-v1",
+    "split": "test",
+    "revision": "b08601e04326c79dfdd32d625aee71d232d685c3",
+    "arrow_sha256": "2b8a3efac7b468cbe6432edba5f55c21e435d93873acc6727431f08d5ed328ea",
+    "fingerprint": "1d21d2114e992cd6",
+    "selection_rule": "first_128_nonempty_rows_in_dataset_index_order",
+    "prompt_policy": "raw_text_verbatim_before_model_tokenizer_truncation",
+    "documents_per_model": 128,
+    "max_prompt_tokens": 128
+  },
+  "models": [
+    {
+      "key": "olmoe",
+      "id": "allenai/OLMoE-1B-7B-0924",
+      "revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+      "dtype": "bfloat16"
+    },
+    {
+      "key": "llmjp",
+      "id": "llm-jp/optimal-sparsity-math-d512-E32-k16-920M-A520M",
+      "revision": "1d5983076dfc67aee4a77ec06a27027f5bab6055",
+      "dtype": "bfloat16"
+    }
+  ],
+  "formal_workloads": {
+    "olmoe": {
+      "path": "docs/ideas/bcrd/experiments/configs/workloads/olmoe.formal.json",
+      "sha256": "2bf4b4897c15b165fea90d730ed9136d0777535daab7f6807336c09a7c70cdbe"
+    },
+    "llmjp": {
+      "path": "docs/ideas/bcrd/experiments/configs/workloads/llmjp.formal.json",
+      "sha256": "83a8b410b2d9c22bd2c13a760cb242f5a40691dc156cb24a3fcd9de725674f79"
+    }
+  },
+  "formal_environment": {
+    "device": "cuda",
+    "visible_gpu_count": 1,
+    "required_gpu_name_substring": "RTX 5090",
+    "required_torch_version_prefix": "2.8.0",
+    "required_transformers_version": "4.57.6",
+    "evidence_scope": "single_gpu_producer_qualification_only"
+  },
+  "acceptance": {
+    "minimum_observed_decode_batch_size": 2,
+    "identity_coverage": 1.0,
+    "serial_token_match": 1.0,
+    "serial_route_identity_match": 1.0,
+    "serial_audit_requests_per_cell": 128,
+    "expected_formal_cells": 2,
+    "require_integrity_sentinel": true
+  },
+  "formal_execution_authorized": true,
+  "formal_blockers": []
+}
