@@ -7,7 +7,7 @@
 
 ## 1. 直接结论
 
-- `[Observed]` `docs/current/README.md` 仍是当前权威入口：没有已经通过 formal Gate 的 MoE 系统主机制；BCRD 仍是 `DESIGNED_AND_IMPLEMENTED / NOT_FORMALLY_RUN`。
+- `[Observed]` `docs/current/README.md` 仍是当前权威入口：没有已经通过 formal Gate 的 MoE 系统主机制；BCRD 已收口 local simulator，但仍是 `FORMAL_GATE0_OPEN / REQUEST_DAG_OPEN / NOT_FORMALLY_RUN`。
 - `[Observed]` 历史 `capture_native_routes.py --phase decode` 只是对一次 `model(**inputs)` 标签 decode，不是 KV-cache decode。本轮 working tree 已增加 prefill + 逐 token `past_key_values` 路径，并在 tiny OLMoE 上完成 cached logits 对 full recomputation 的 CPU 等价测试。
 - `[Observed]` 该新路径仍只支持 batch size 1 的 development capture；双模型 4-step patched/native exactness 已通过，但 arrival/deadline 由 CLI 合成，仍没有 natural continuous batching、真实 ready time、dispatch/execute/combine ledger 或 matched SLO energy window，因此 metadata 正确保持 `formal_eligible=false`。
 - `[Observed]` BCRD service curve 只测 isolated expert CUDA latency，不含 Joules、power/clock tier、thermal state 或 natural input-event 方差；本轮已禁止它被自动升格为 RouteSlack Gate-1 证据。
@@ -15,7 +15,7 @@
 - `[Observed]` LLM-jp 完成 2 个 cached one-token step，得到 `2×16 layers×top-16=512` 条 contribution；OLMoE 得到 `2×16×top-8=256` 条。每步 layer/top-k/token identity、revision 和输出文件 hash 全部闭合；两份 metadata 均保持 `formal_eligible=false`。
 - `[Observed]` 随后的双模型 native-vs-shared-patch parity 也通过：相同 16-token prompt 与强制 2-step decode 下，两模型的 prefill/decode max absolute logit error、KL、selected-expert mismatch 和 route-weight error 均为 0；native/patched KV length 均为 `[17,18]`。这关闭的是 batch-1 instrumentation exactness 子项，不是 serving/E2E exactness。
 - `[Observed]` RTX 5090 的 NVML 累计 energy counter 可读；一次无竞争 compute process 的 200 点能力窗口中，请求采样间隔 5 ms，实际 gap median 5.090 ms、max 12.024 ms，低于 20 ms gate。该窗口不是 idle calibration、workload energy 或 A/B 策略样本。
-- `[Observed]` canonical artifact 内嵌 96 个 CPU/合成协议测试，并完成 host-only no-op 开销测量；formal energy/latency sample 都是 0。历史 BCRD `SMOKE_ONLY` 只作为支持性代码路径证据，不进入 RouteSlack 物理判定。
+- `[Observed]` 此前命名的 canonical raw dry-run artifact 内嵌 96 个 CPU/合成协议测试，并完成 host-only no-op 开销测量；formal energy/latency sample 都是 0。当前统一入口指向 `20260728_160000_final_audit` canonical compact capsule。历史 BCRD `SMOKE_ONLY` 只作为支持性代码路径证据，不进入 RouteSlack 物理判定。
 - `[Observed]` 新增 GPU development bundle `artifacts/energy_slo_routeslack/20260728_144614_gpu_dev/`，manifest SHA-256 为 `491faee358570fcba18e1564c5dbde57695e09c1309acc5409a46ae536816480`。bundle 内 21 个声明文件逐一校验无缺失、无 hash 漂移，并保留首次因遗漏静态依赖而失败的原始日志。
 - `[Observed]` 扩展 GPU development bundle `20260728_1500_remote_5090_gpu_dev` 又完成远端 96/96 tests、LLM-jp 8,192 与 OLMoE 4,096 条 route contribution，以及 rows 1–64 的 14 个 isolated CUDA latency point；34 个 manifest entry 全部 hash 通过。所有结果仍显式 non-formal，strategy energy window N=0。
 - `[Observed]` latest bundle `20260728_151500_rtx5090_dev` 固化了正确的 RTX 5090/NVML provenance、五项 meter preflight PASS、两冻结 revision 的 `DEVELOPMENT_PARITY_PASS`，以及两次竞争失败记录。manifest SHA-256 为 `d23f18a0455c4ebd04f3611746bc8150eac674ba1bd97e91d24ee5e7517f05c8`；70 个声明文件 0 missing / 0 hash mismatch。
@@ -36,7 +36,7 @@
 | route-row FP8 | `[Observed]` development/proxy asset | monotonic power-accounting helper、completed-token denominator contract | RouteSlack BF16 exact path 或 formal energy surface |
 | JouleQueue | `[Observed]` superseded/development asset | NVML/counter 接口和部分测试思路 | natural decode、等 repeat AB/BA、thermal-closed formal result |
 | RouteSlack CPU contracts | `[Observed]` audit-only | identity conservation、cache audit shape、counter wrap、fallback、Oracle/online 接口隔离 | 任何 GPU 物理效应 |
-| `20260728_115300` artifact | `[Observed]` canonical dry-run | 96 tests、tiny cached-decode development capture、四阶段 synthetic identity ledger、10 baseline 名称与 Oracle 的接口/管线调用、host-only no-op、raw artifacts 和逐文件 hash | 仍为 `formal_result=false`；没有实现或执行 10 个物理 baseline 算法，也不增加物理样本 |
+| `20260728_115300` artifact | `[Observed]` prior canonical raw dry-run evidence | 96 tests、tiny cached-decode development capture、四阶段 synthetic identity ledger、10 baseline 名称与 Oracle 的接口/管线调用、host-only no-op、raw artifacts 和逐文件 hash | 仍为 `formal_result=false`；没有实现或执行 10 个物理 baseline 算法，也不增加物理样本 |
 | `20260728_120340` artifact | `[Observed]` supporting audit bundle | 最终五份报告快照、GPU fail-closed 原始日志、关键源文件和 96-test rerun 的 hash-bound bundle | supporting only；不替代 `115300` 的已报告 host timing，也不增加物理样本 |
 | `20260728_144614_gpu_dev` artifact | `[Observed]` RTX 5090 development bundle | 双模型真实 cached-step 路由闭合、冻结 revision/config、NVML counter/采样能力、远端 20+31 tests 与完整 raw log/hash | batch=1、synthetic arrival；没有 continuous serving、同窗策略能耗、EP 或 SLO denominator；`Gate0=FAIL` |
 | `20260728_150422_gpu_followup` artifact | `[Observed]` RTX 5090 follow-up bundle | 双模型 native/patch exact parity、KV/layer/top-k closure、20/20 runner tests，以及竞争 workload 下 energy runner 的 fail-closed negative result；19/19 文件验哈希闭合，manifest `e588eafb…bbf654e` | parity 仍为 1 prompt/model、batch=1；一次在 0 window 拒绝、一次完成 12 window 后整次拒绝，accepted energy N=0，不能给出策略能耗差或 Gate-1 结论 |

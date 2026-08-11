@@ -1,23 +1,23 @@
 # RouteSlack-MoE Gate 执行结果
 
 > 执行日期：2026-07-28  
-> canonical artifact：`artifacts/energy_slo_routeslack/20260728_115300/`  
+> prior canonical raw dry-run evidence：`artifacts/energy_slo_routeslack/20260728_115300/`
 > supporting audit bundle：`artifacts/energy_slo_routeslack/20260728_120340/`  
 > final supporting dry-run：`artifacts/energy_slo_routeslack/20260728_151412_final_support/`  
 > final current audit bundle：`artifacts/energy_slo_routeslack/20260728_155500_final_audit/`  
-> latest compact final audit：`artifacts/energy_slo_routeslack/20260728_160000_final_audit/`  
+> canonical compact final audit：`artifacts/energy_slo_routeslack/20260728_160000_final_audit/`
 > RTX 5090 development bundle：`artifacts/energy_slo_routeslack/20260728_144614_gpu_dev/`  
 > RTX 5090 parity/failed-energy follow-up：`artifacts/energy_slo_routeslack/20260728_150422_gpu_followup/`  
 > latest RTX 5090 development bundle：`artifacts/energy_slo_routeslack/20260728_151500_rtx5090_dev/`  
 > current-validator energy characterization：`artifacts/energy_slo_routeslack/20260728_154500_current_energy_characterization/`  
 > repeated physical characterization：`artifacts/energy_slo_routeslack/20260728_153000_rtx5090_physical_dev/`  
 > sealed GPU qualification：`artifacts/energy_slo_routeslack_gpu/20260728_144600/`  
-> manifest SHA-256：canonical `9c661c0bb90fbffd2cfc99b34d798feb04455cc9160e76bd9f610a57a94bde7c`；supporting `f70e0ba95811bec292f93c8d0cb50124ed8be875a248cd8a1aa6e8af818c9be1`；GPU dev `491faee358570fcba18e1564c5dbde57695e09c1309acc5409a46ae536816480`  
+> manifest SHA-256：prior raw `9c661c0bb90fbffd2cfc99b34d798feb04455cc9160e76bd9f610a57a94bde7c`；canonical compact `8c4792a061f537b9b86b54cd101687ce536d8ee49c45b144e4f5c0cf6ebc3967`；supporting `f70e0ba95811bec292f93c8d0cb50124ed8be875a248cd8a1aa6e8af818c9be1`；GPU dev `491faee358570fcba18e1564c5dbde57695e09c1309acc5409a46ae536816480`
 > latest GPU dev manifest SHA-256：`d23f18a0455c4ebd04f3611746bc8150eac674ba1bd97e91d24ee5e7517f05c8`  
 > current energy manifests：LLM-jp `152317db94a008df4f51a9c87cae3faccd3fcf1ab96c98056f1be42daf758716`；OLMoE `b2550018de3b8d481cf13d6039715affb4e0c4cb1ed0ba60224d102f7bff8a1c`  
 > repeated physical manifest SHA-256：`7727e487b3035122e763b519b493af9aa081d4dfbf0d7ad7144f91708ead4ef9`  
 > final current audit manifest SHA-256：`5760d1c8e24aee6986647468c50d8b186de310ade616c6a6820d052336a3531d`  
-> latest compact audit manifest SHA-256：`8c4792a061f537b9b86b54cd101687ce536d8ee49c45b144e4f5c0cf6ebc3967`  
+> canonical compact audit manifest SHA-256：`8c4792a061f537b9b86b54cd101687ce536d8ee49c45b144e4f5c0cf6ebc3967`
 > follow-up artifact manifest SHA-256：`e588eafb78926fe35abdfa15727d414d50498e4fe0ba04568abf34621bbf654e`  
 > final supporting manifest SHA-256：`b3e51f274f34148f477a1f6392dc7eb5620f733ba054faea97c690e84d501da1`  
 > sealed GPU qualification manifest SHA-256：`69e6303bfaadaec93bfa6f15fee0abe154325c0ce097e8d58914d9fc197a0f37`  
@@ -172,7 +172,7 @@ dry-run 的 `synthetic_cost_units` 是固定测试常量，且每行 `scientific
 
 ## 10. Artifact 完整性
 
-canonical artifact 保存 `manifest.json`、environment、config、commands、git diff、raw CSV/JSONL、processed summary、figures marker、完整测试日志和 verdict。`manifest.json` 记录 base commit、dirty status、seed、执行命令以及每个已纳入文件的 SHA-256。
+prior canonical raw dry-run evidence 保存 `manifest.json`、environment、config、commands、git diff、raw CSV/JSONL、processed summary、figures marker、完整测试日志和 verdict。`manifest.json` 记录 base commit、dirty status、seed、执行命令以及每个已纳入文件的 SHA-256。
 
 supporting audit bundle 另保存五份报告的运行时快照、关键源文件和 `logs/gpu_gate_attempts.log`；它只补全 provenance，不替换 canonical artifact 中已报告的 host timing。
 
@@ -182,7 +182,7 @@ final current audit bundle 重新执行 124/124 tests，并纳入两模型 curre
 
 repeated physical bundle 另密封了 132 MiB 双模型 activation capture、双模型 4-step zero-error exactness、32 个 physical window、所有 raw telemetry/失败重试和 source snapshot。顶层 manifest 声明 368 个文件，368/368 复算一致，状态为 `PHYSICAL_CHARACTERIZATION_INCOMPLETE_GATE0_FAIL`。
 
-latest compact final audit 将 current characterization、replication summary/trials/exactness、GPU follow-up、五份当前报告与 124/124 test log 统一密封；35/35 文件复算一致，`formal_result=false`、`Gate0=FAIL`。
+canonical compact final audit 将 current characterization、replication summary/trials/exactness、GPU follow-up、五份当前报告与 124/124 test log 统一密封；35/35 文件复算一致，`formal_result=false`、`Gate0=FAIL`。
 
 GPU development bundle 保存两份原始 route CSV/meta、成功与失败日志、冻结 revision/config/token IDs、源码 SHA、nvidia-smi/NVML raw state、环境、commands、verdict 和 manifest。下载后复核 21/21 声明文件，无 missing/hash/extra；它自己的 `formal_result=false`、`Gate0=FAIL` 是授权边界。
 

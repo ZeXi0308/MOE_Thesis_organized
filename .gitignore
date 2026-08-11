@@ -34,6 +34,15 @@ tmp_energy_search/
 **/outputs/**/calibration_routes.csv
 **/outputs/**/*_raw.csv
 **/outputs/**/pair_interventions.csv
+# Large, regenerable SemanticFence calibration traces.  Keep summary cards and
+# manifests trackable; exclude only the high-volume raw call/numeric logs.
+docs/ideas/semanticfence/experiments/outputs/semanticfence_pilot_*/calibration_calls.jsonl
+docs/ideas/semanticfence/experiments/outputs/semanticfence_pilot_*/calibration_numeric.jsonl
+docs/ideas/semanticfence/experiments/outputs/semanticfence_pilot_*/calibration_reference_rows.jsonl
+docs/ideas/semanticfence/experiments/outputs/semanticfence_pilot_*/calibration_cublaslt_*.log
+# Parent recomputation is represented by the compact raw-output index and
+# hashes.  Keep the per-pair BF16 tensors local; together they exceed 1 GiB.
+docs/ideas/semanticfence/experiments/outputs/semanticfence_pilot_*/evaluation_raw_bf16/
 experiments/**/*.pt
 experiments/**/*.safetensors
 experiments/**/*.bin
@@ -41,7 +50,18 @@ docs/**/*.pt
 docs/**/*.safetensors
 **/checkpoints.jsonl
 
+# Oversized raw ledgers retained locally.  Their compact summaries, manifests,
+# recomputations, and audit cards remain trackable.
+docs/ideas/spectatorroute/experiments/outputs/phase0a_5090_*/regime_cells.jsonl
+docs/ideas/stablebatch/experiments/outputs/shape_lane_continuous_cost_*/expert_call_ledger.jsonl
+
 # Resume / incomplete run leftovers
 **/*.partial.csv
 **/outputs/**/_smoke*/
 **/outputs/**/*_smoke_*/
+
+# Generated experiment bundles are local/external by default.  Keep only the
+# repository policy and the canonical routing index in Git going forward.
+/artifacts/**
+!/artifacts/README.md
+!/artifacts/index.json

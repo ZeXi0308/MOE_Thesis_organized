@@ -48,7 +48,7 @@ Gate 0 仍有 9 个开放 P0，formal physical strategy sample=0；当前成果�
 - `[Observed]` CPU decision fixture P50=0.116479 µs/call、P99=0.194960 µs/call；相对 empty-loop 的 paired mean increment=0.095192 µs，95% CI=[0.084725, 0.106695]。
 - `[Observed]` CPU JSON logging fixture P50=2.896584 µs/call、P99=3.293015 µs/call；paired mean increment=2.905731 µs，95% CI=[2.855718, 2.965092]。
 - `[Blocked]` physical latency N=0、physical energy N=0、physical paired difference=`N/A`、formal 95% CI=`N/A`。
-- `[Observed]` canonical artifact：`artifacts/energy_slo_routeslack/20260728_115300/`，manifest SHA-256 `9c661c0bb90fbffd2cfc99b34d798feb04455cc9160e76bd9f610a57a94bde7c`。
+- `[Observed]` 此前文档命名的 canonical 原始 bundle：`artifacts/energy_slo_routeslack/20260728_115300/`，manifest SHA-256 `9c661c0bb90fbffd2cfc99b34d798feb04455cc9160e76bd9f610a57a94bde7c`；它继续作为不可变历史证据保留。
 - `[Observed]` 最终报告快照/关键源文件/GPU fail-closed 日志的 supporting bundle：`artifacts/energy_slo_routeslack/20260728_120340/`。
 - `[Observed]` sealed GPU qualification：`artifacts/energy_slo_routeslack_gpu/20260728_144600/`，manifest SHA-256 `69e6303bfaadaec93bfa6f15fee0abe154325c0ce097e8d58914d9fc197a0f37`；29/29 文件远端与下载后复算一致。
 - `[Observed]` 该 bundle 在 RTX 5090 上重跑 96/96 protocol-critical tests；LLM-jp 与 OLMoE 的 4-step batch-1 cached-decode logits/argmax/KV length exactness 全通过、误差为 0，development route capture 为 2,048/1,024 contributions。
@@ -57,7 +57,7 @@ Gate 0 仍有 9 个开放 P0，formal physical strategy sample=0；当前成果�
 - `[Observed]` 独立 parity/failed-energy follow-up：`artifacts/energy_slo_routeslack/20260728_150422_gpu_followup/`，artifact manifest SHA-256 `e588eafb78926fe35abdfa15727d414d50498e4fe0ba04568abf34621bbf654e`；19/19 声明文件无缺失、无 hash 漂移，accepted energy N=0。
 - `[Observed]` 最终 supporting dry-run：`artifacts/energy_slo_routeslack/20260728_151412_final_support/`，manifest SHA-256 `b3e51f274f34148f477a1f6392dc7eb5620f733ba054faea97c690e84d501da1`；17/17 文件闭合并重新确认 123/123 tests PASS、`formal_result=false`、`Gate0=FAIL`。
 - `[Observed]` final current audit bundle：`artifacts/energy_slo_routeslack/20260728_155500_final_audit/`，manifest SHA-256 `5760d1c8e24aee6986647468c50d8b186de310ade616c6a6820d052336a3531d`；29/29 文件闭合并重新确认 124/124 tests PASS、`formal_result=false`、`Gate0=FAIL`。
-- `[Observed]` latest compact final audit：`artifacts/energy_slo_routeslack/20260728_160000_final_audit/`，manifest SHA-256 `8c4792a061f537b9b86b54cd101687ce536d8ee49c45b144e4f5c0cf6ebc3967`；35/35 文件复算一致，内含 124/124 test log、两次 characterization 摘要/trial、exactness、GPU follow-up 与五份报告快照。
+- `[Observed]` canonical compact final audit：`artifacts/energy_slo_routeslack/20260728_160000_final_audit/`，manifest SHA-256 `8c4792a061f537b9b86b54cd101687ce536d8ee49c45b144e4f5c0cf6ebc3967`；35/35 文件复算一致，内含 124/124 test log、两次 characterization 摘要/trial、exactness、GPU follow-up 与五份报告快照。统一入口为 [`artifacts/index.json`](../../artifacts/index.json)；该路由选择不改变 `MEASUREMENT_ONLY` 或 Gate 0 状态，也不使此前 bundle 失效。
 - `[Blocked]` latest GPU dev bundle 中的 synthetic ABBA 两次都在 12 windows 后检出竞争 CUDA 进程并 fail closed；独立 follow-up 另为 0/12 completed windows 后拒绝。所有尝试的可接受 energy sample 合计仍为 0，不报告 A/B effect。
 - `[Observed]` current-validator isolated-expert characterization：`artifacts/energy_slo_routeslack/20260728_154500_current_energy_characterization/`。LLM-jp 11/16 窗有效：rows 1/8/32/128 的 raw J/expert-row mean 分别为 0.008206、0.001004、0.000280、0.0000856，95% CI 分别为 [0.008120,0.008355]、[0.000977,0.001019]、[0.000275,0.000285]、[0.0000838,0.0000870]。
 - `[Observed]` OLMoE 仅 4/16 窗有效，rows 1/8/32 的 raw J/expert-row mean 为 0.007445、0.000869、0.000278；对应 valid N 为 2/1/1，rows=128 为 0。因此 OLMoE 状态是 `CHARACTERIZATION_INCOMPLETE_INVALID_WINDOWS`，`N=1` 的退化 CI 不作为统计证据。
@@ -116,7 +116,7 @@ synthetic fixture 的 `cost_units` 不是 Joules，不能代入 CaptureRatio 或
 - `run_rtx5090_energy_characterization.py`：加入实际 workload ≥10 s、完整/filtered/incomplete 状态和逐窗 thermal/gap fail-close；本轮两模型 physical run 仍硬编码 non-formal。
 - `test_rtx5090_energy_characterization.py`：7/7 覆盖 cumulative counter、expert-row denominator、request-disjoint group、thermal/gap、sampler exception 和 filtered status 防误升级。
 - `finalize_rtx5090_physical_characterization.py`：验证子 manifest、汇总 filtered reason、固化 source snapshot 并生成 368-file 顶层 manifest。
-- artifact 保存 base commit、dirty status、git diff、命令、环境、seed、raw data 和逐文件 SHA-256；当前修改未提交、未推送，不能声称已发布。
+- artifact 保存生成时的 base commit、dirty status、git diff、命令、环境、seed、raw data 和逐文件 SHA-256。上述原始证据集已随 commit `8fe396078ca365afb9ea5d06d8b88c9c01e7a825` 推送至 `origin/agent/publish-current-moe-code`；compact manifest 仍如实记录生成时 `26cc135f9ea3e4f2b778de38fae8f31666bf31bc` 上的 dirty snapshot，因此“已发布”只闭合仓库交付，不升级为 clean formal run 或科学 PASS。
 
 ## 10. Reproduction
 
