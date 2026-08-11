@@ -1,0 +1,78 @@
+{
+  "schema_version": "semanticfence-row-safety-predictor-config-v1",
+  "status": "FROZEN_PRE_RUN",
+  "frozen_at": "2026-08-10T18:18:00+08:00",
+  "evidence_boundary": "exploratory_reused_run03_calibration_m2_labels_document_disjoint_cpu_prediction_only_not_fresh_not_certificate_not_serving_not_ep_not_latency",
+  "source": {
+    "source_run": "semanticfence_pilot_20260810_run03",
+    "complete_sha256": "7583fbe46ee65e0bdb6005e61c35ff6c6bb48858235e73c4f604810bf5b5b7e2",
+    "calibration_numeric_sha256": "5410e3a8853f4b839df1096e57034cb187e44d0b91b584890de210663e1775a8",
+    "calibration_captures_sha256": "5257fc6531c832ca7e4ff2ecf8c6f3e9ba4cac21ea5cc69b7499f3be4abcdb51",
+    "required_m": 2,
+    "expected_rows": 32234,
+    "expected_safe_rows": 2768,
+    "expected_unsafe_rows": 29466,
+    "expected_documents": 8,
+    "expected_hidden_size": 2048,
+    "expected_repeats": 10
+  },
+  "split": {
+    "unit": "document_sha256",
+    "folds": 8,
+    "test_document_index": "fold_index",
+    "validation_document_index": "(fold_index + 1) mod 8",
+    "train_documents": "remaining six",
+    "forbid_random_row_split": true
+  },
+  "features": {
+    "shape_control": [
+      "layer_one_hot",
+      "expert_id_one_hot",
+      "route_rank_one_hot",
+      "routing_weight"
+    ],
+    "input_value_additions": [
+      "bf16_hidden_summary",
+      "bf16_exponent_histogram",
+      "fixed_32d_label_independent_signed_projection"
+    ],
+    "forbidden": [
+      "document_index_or_hash",
+      "row_id_or_hidden_hash",
+      "token_id_or_offset",
+      "pack_or_call_identity",
+      "partner_features",
+      "m2_slot",
+      "any_output_or_exactness_feature"
+    ]
+  },
+  "model": {
+    "family": "l2_logistic_regression",
+    "l2": 0.01,
+    "class_weight": "balanced_from_current_train_fold",
+    "optimizer": "scipy_lbfgsb",
+    "maximum_iterations": 200,
+    "gradient_tolerance": 1e-08,
+    "hyperparameter_search": false,
+    "standardization_fit_on_train_only": true,
+    "projection_seed": "sha256(calibration_numeric_sha256 + semanticfence-row-safety-predictor-v1)"
+  },
+  "admission": {
+    "threshold": "nextafter(max(validation_unsafe_raw_score), positive_infinity)",
+    "admit": "raw_score_strictly_greater_than_threshold",
+    "threshold_search": false,
+    "test_labels_hidden_until_model_and_threshold_are_frozen": true
+  },
+  "decision": {
+    "zero_error_required": true,
+    "minimum_true_admissions": 32,
+    "minimum_safe_coverage": 0.01,
+    "minimum_admitted_documents": 4,
+    "minimum_admitted_layer_expert_cells": 4,
+    "minimum_input_over_shape_coverage_gain": 0.005,
+    "any_test_false_admission": "KILL_C09_V1_ZERO_ERROR_ADMISSION",
+    "zero_false_but_below_coverage_or_span": "KILL_C09_V1_NO_USABLE_SIGNAL",
+    "shape_control_meets_gate_without_input_gain": "SHAPE_ONLY",
+    "input_model_meets_all_gates": "SUPPORT_VALUE_SIGNAL_CALIBRATION_ONLY"
+  }
+}
