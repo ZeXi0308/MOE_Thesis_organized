@@ -7,9 +7,9 @@ import json
 from pathlib import Path
 
 try:
-    from .core import ProtocolError, clustered_bootstrap_mean_ci, read_json, relative_latency_gain, sha256_file, write_json
+    from .core import ProtocolError, clustered_bootstrap_mean_ci, objective_key, read_json, relative_latency_gain, sha256_file, write_json
 except ImportError:
-    from core import ProtocolError, clustered_bootstrap_mean_ci, read_json, relative_latency_gain, sha256_file, write_json
+    from core import ProtocolError, clustered_bootstrap_mean_ci, objective_key, read_json, relative_latency_gain, sha256_file, write_json
 
 
 def parse_args() -> argparse.Namespace:
@@ -31,38 +31,59 @@ def _jsonl(path):
 
 def run(args: argparse.Namespace) -> dict[str, object]:
     plan = read_json(args.resolved_plan)
-    if not isinstance(plan, dict) or bool(plan.get("smoke")) != bool(args.smoke):
+    if (
+        not isinstance(plan, dict)
+        or plan.get("schema") != "bcrd-gate3-plan-v2"
+        or bool(plan.get("smoke")) != bool(args.smoke)
+    ):
         raise ProtocolError("resolved plan smoke/formal mode mismatch")
+    if plan.get("policy_results_sha256") != sha256_file(args.policy_results):
+        raise ProtocolError("policy results differ from the resolved plan")
+    if plan.get("oracle_results_sha256") != sha256_file(args.oracle_results):
+        raise ProtocolError("Oracle results differ from the resolved plan")
+    replay_costs = plan.get("replay_costs")
+    if not isinstance(replay_costs, dict):
+        raise ProtocolError("resolved plan replay costs are missing")
+    selected_remote = float(replay_costs.get("remote_latency_us", -1.0))
     policy_rows = _jsonl(args.policy_results)
     oracle_rows = [
         row for row in _jsonl(args.oracle_results)
-        if row.get("exact") and row.get("split") == "evaluation"
+        if row.get("exact")
+        and row.get("split") == "evaluation"
+        and float(row.get("remote_latency_us", -1.0)) == selected_remote
     ]
     if not policy_rows or not oracle_rows:
         raise ProtocolError("policy and exact Oracle results are required")
     oracle = {}
     for row in oracle_rows:
         key = (row["instance_id"], float(row["remote_latency_us"]))
+        if key in oracle:
+            raise ProtocolError(f"{row['instance_id']}: duplicate exact Oracle row")
         oracle[key] = row
     by_instance = {}
     for row in policy_rows:
-        by_instance.setdefault(row["instance_id"], {})[row["policy"]] = row
+        if float(row.get("remote_latency_us", -1.0)) != selected_remote:
+            raise ProtocolError("policy result remote cell differs from the resolved plan")
+        policies = by_instance.setdefault(row["instance_id"], {})
+        if row["policy"] in policies:
+            raise ProtocolError(f"{row['instance_id']}: duplicate policy result")
+        policies[row["policy"]] = row
     analyses = []
     for instance_id, policies in sorted(by_instance.items()):
         required = {"current_hash", "current_least_load", "random", "threshold", "greedy", "bcrd"}
         if set(policies) != required:
             raise ProtocolError(f"{instance_id}: missing policies {sorted(required - set(policies))}")
-        current_name = min(
+        current_name = max(
             ("current_hash", "current_least_load"),
-            key=lambda name: float(policies[name]["metrics"]["modeled_net_mean_completion_us"]),
+            key=lambda name: (objective_key(policies[name]["metrics"]), name),
         )
-        simple_name = min(
+        simple_name = max(
             ("threshold", "greedy"),
-            key=lambda name: float(policies[name]["metrics"]["modeled_net_mean_completion_us"]),
+            key=lambda name: (objective_key(policies[name]["metrics"]), name),
         )
-        current = float(policies[current_name]["metrics"]["modeled_net_mean_completion_us"])
-        simple = float(policies[simple_name]["metrics"]["modeled_net_mean_completion_us"])
-        proposed = float(policies["bcrd"]["metrics"]["modeled_net_mean_completion_us"])
+        current = float(policies[current_name]["metrics"]["mean_completion_us"])
+        simple = float(policies[simple_name]["metrics"]["mean_completion_us"])
+        proposed = float(policies["bcrd"]["metrics"]["mean_completion_us"])
         matches = [value for (key_id, _), value in oracle.items() if key_id == instance_id]
         if len(matches) != 1:
             raise ProtocolError(f"{instance_id}: need exactly one Oracle remote-cost row")
@@ -70,12 +91,22 @@ def run(args: argparse.Namespace) -> dict[str, object]:
         denominator = current - oracle_latency
         captured = (current - simple) / denominator if denominator > 1e-12 else 1.0
         proposed_captured = (current - proposed) / denominator if denominator > 1e-12 else 1.0
+        proposed_metrics = policies["bcrd"]["metrics"]
+        controller_tax_per_request = (
+            float(policies["bcrd"].get("modeled_controller_latency_us_per_action", 0.0))
+            * float(proposed_metrics["contributions"])
+            / max(float(proposed_metrics["requests"]), 1.0)
+        )
+        gross_gain_before_controller = max(
+            current - (proposed - controller_tax_per_request), 0.0
+        )
         analyses.append(
             {
                 "instance_id": instance_id,
                 "model": policies["bcrd"]["model"],
                 "phase": policies["bcrd"]["phase"],
                 "cluster_id": policies["bcrd"]["cluster_id"],
+                "independent_cluster_id": policies["bcrd"]["independent_cluster_id"],
                 "current_policy": current_name,
                 "strongest_simple": simple_name,
                 "current_latency_us": current,
@@ -86,11 +117,16 @@ def run(args: argparse.Namespace) -> dict[str, object]:
                 "proposed_captured_headroom": proposed_captured,
                 "proposed_net_gain": relative_latency_gain(current, proposed),
                 "proposed_incremental_vs_simple": relative_latency_gain(simple, proposed),
-                "decision_tax_fraction": float(policies["bcrd"]["decision_overhead_us"]) / max(float(policies["bcrd"]["metrics"]["total_service_us"]), 1e-9),
+                "controller_tax_us_per_request": controller_tax_per_request,
+                "decision_tax_fraction": (
+                    controller_tax_per_request / max(gross_gain_before_controller, 1e-9)
+                    if controller_tax_per_request > 0
+                    else 0.0
+                ),
                 "p99_regression": (
-                    float(policies["bcrd"]["metrics"]["modeled_net_p99_completion_us"])
-                    - float(policies[current_name]["metrics"]["modeled_net_p99_completion_us"])
-                ) / max(float(policies[current_name]["metrics"]["modeled_net_p99_completion_us"]), 1e-9),
+                    float(policies["bcrd"]["metrics"]["p99_completion_us"])
+                    - float(policies[current_name]["metrics"]["p99_completion_us"])
+                ) / max(float(policies[current_name]["metrics"]["p99_completion_us"]), 1e-9),
             }
         )
     grouped = {}
@@ -100,7 +136,7 @@ def run(args: argparse.Namespace) -> dict[str, object]:
     for (model, phase), rows in sorted(grouped.items()):
         point, low, high = clustered_bootstrap_mean_ci(
             [float(row["proposed_net_gain"]) for row in rows],
-            [str(row["cluster_id"]) for row in rows],
+            [str(row["independent_cluster_id"]) for row in rows],
             replicates=args.bootstrap,
             seed=args.seed,
         )
@@ -109,7 +145,7 @@ def run(args: argparse.Namespace) -> dict[str, object]:
                 "model": model,
                 "phase": phase,
                 "instances": len(rows),
-                "request_clusters": len({str(row["cluster_id"]) for row in rows}),
+                "request_clusters": len({str(row["independent_cluster_id"]) for row in rows}),
                 "proposed_net_gain": point,
                 "net_gain_ci_low": low,
                 "net_gain_ci_high": high,

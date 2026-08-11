@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
+import copy
 import csv
 import hashlib
 import json
@@ -19,7 +20,7 @@ def _optional_int(row: Mapping[str, object], key: str, default: int) -> int:
     return default if value is None or value == "" else int(value)
 
 
-ROUTE_COLUMNS = (
+ROUTE_V2_COLUMNS = (
     "model",
     "phase",
     "request_id",
@@ -41,9 +42,48 @@ ROUTE_COLUMNS = (
     "target_replica",
 )
 
-# These are the columns emitted by the original v1 producer.  Loading remains
-# backwards compatible, but every newly written trace is normalized to v2.
-ROUTE_V1_REQUIRED_COLUMNS = ROUTE_COLUMNS[:12]
+# route-v3 retains the v2 identity fields and adds the causal timing/legality
+# ledger required by a continuous decode replay.  Legacy rows remain readable,
+# but they are never formal-v3 eligible merely because defaults can be filled.
+ROUTE_COLUMNS = ROUTE_V2_COLUMNS + (
+    "document_id",
+    "request_arrival_us",
+    "layer_ready_us",
+    "route_end_us",
+    "dispatch_end_us",
+    "expert_start_us",
+    "expert_end_us",
+    "combine_end_us",
+    "legal_replica_set",
+)
+
+# These are the columns emitted by the original v1 producer. Loading remains
+# backwards compatible, but only an explicit, validated v3 trace is eligible
+# for the causal Gate path.
+ROUTE_V1_REQUIRED_COLUMNS = ROUTE_V2_COLUMNS[:12]
+
+
+def _optional_float(row: Mapping[str, object], key: str, default: float) -> float:
+    value = row.get(key)
+    return default if value is None or value == "" else float(value)
+
+
+def _replica_set(value: object) -> tuple[int, ...]:
+    if value is None or value == "":
+        return ()
+    if isinstance(value, str):
+        try:
+            decoded = json.loads(value)
+        except json.JSONDecodeError as exc:
+            raise ValueError("legal_replica_set must be a JSON integer list") from exc
+    else:
+        decoded = value
+    if not isinstance(decoded, (list, tuple)):
+        raise ValueError("legal_replica_set must be a list or tuple")
+    replicas = tuple(int(item) for item in decoded)
+    if any(item < 0 for item in replicas) or len(replicas) != len(set(replicas)):
+        raise ValueError("legal_replica_set must contain unique non-negative integers")
+    return tuple(sorted(replicas))
 
 
 @dataclass(frozen=True)
@@ -67,6 +107,15 @@ class Contribution:
     topk_slot: int = -1
     source_rank: int = -1
     target_replica: int = -1
+    document_id: str = ""
+    request_arrival_us: float = -1.0
+    layer_ready_us: float = -1.0
+    route_end_us: float = -1.0
+    dispatch_end_us: float = -1.0
+    expert_start_us: float = -1.0
+    expert_end_us: float = -1.0
+    combine_end_us: float = -1.0
+    legal_replica_set: tuple[int, ...] = ()
 
     def __post_init__(self) -> None:
         if not self.model or not self.phase or not self.request_id:
@@ -87,6 +136,15 @@ class Contribution:
             object.__setattr__(self, "topk_slot", self.rank - 1)
         if self.source_rank < 0:
             object.__setattr__(self, "source_rank", self.src_replica)
+        if not self.document_id:
+            object.__setattr__(self, "document_id", self.request_id)
+        if self.request_arrival_us < 0:
+            object.__setattr__(self, "request_arrival_us", self.arrival_us)
+        if self.layer_ready_us < 0:
+            object.__setattr__(self, "layer_ready_us", self.arrival_us)
+        if self.route_end_us < 0:
+            object.__setattr__(self, "route_end_us", self.layer_ready_us)
+        object.__setattr__(self, "legal_replica_set", _replica_set(self.legal_replica_set))
 
         for name in (
             "sample_id",
@@ -104,6 +162,8 @@ class Contribution:
                 raise ValueError(f"{name} must be a non-negative integer")
         if not self.input_event_id:
             raise ValueError("input_event_id must be non-empty")
+        if not self.document_id:
+            raise ValueError("document_id must be non-empty")
         if isinstance(self.decode_step, bool) or not isinstance(self.decode_step, int) or self.decode_step < -1:
             raise ValueError("decode_step must be an integer >= -1")
         if (
@@ -124,6 +184,37 @@ class Contribution:
             raise ValueError("arrival_us must be finite and non-negative")
         if not math.isfinite(self.deadline_us) or self.deadline_us < self.arrival_us:
             raise ValueError("deadline_us must be finite and >= arrival_us")
+        if not (
+            math.isfinite(self.request_arrival_us)
+            and math.isfinite(self.layer_ready_us)
+            and math.isfinite(self.route_end_us)
+        ):
+            raise ValueError("causal route timestamps must be finite")
+        if not (
+            0 <= self.request_arrival_us <= self.layer_ready_us <= self.route_end_us
+        ):
+            raise ValueError(
+                "causal route timestamps require request_arrival <= layer_ready <= route_end"
+            )
+        observed_stage_times = (
+            self.dispatch_end_us,
+            self.expert_start_us,
+            self.expert_end_us,
+            self.combine_end_us,
+        )
+        if any(not math.isfinite(value) for value in observed_stage_times):
+            raise ValueError("observed stage timestamps must be finite or -1")
+        present = [value >= 0 for value in observed_stage_times]
+        if any(present) and not all(present):
+            raise ValueError("dispatch/expert/combine timestamps must be all present or all absent")
+        if all(present) and not (
+            self.route_end_us
+            <= self.dispatch_end_us
+            <= self.expert_start_us
+            <= self.expert_end_us
+            <= self.combine_end_us
+        ):
+            raise ValueError("observed stage timestamps violate causal order")
         if not math.isfinite(self.gate_weight) or self.gate_weight < 0:
             raise ValueError("gate_weight must be finite and non-negative")
 
@@ -143,8 +234,36 @@ class Contribution:
             f"weight={format(self.gate_weight, '.17g')}|source={self.source_rank}"
         )
 
+    @property
+    def dispatch_ready_us(self) -> float:
+        return self.route_end_us
+
+    @property
+    def has_observed_stage_ledger(self) -> bool:
+        return self.combine_end_us >= 0
+
+    def legal_replicas(self, replica_count: int) -> tuple[int, ...]:
+        if replica_count <= 0:
+            raise ValueError("replica_count must be positive")
+        if not self.legal_replica_set:
+            return tuple(range(replica_count))
+        if any(replica >= replica_count for replica in self.legal_replica_set):
+            raise ProtocolError(
+                f"legal replica set {self.legal_replica_set} exceeds replica_count={replica_count}"
+            )
+        return self.legal_replica_set
+
     def to_json(self) -> dict[str, object]:
-        return asdict(self)
+        payload = asdict(self)
+        payload["legal_replica_set"] = list(self.legal_replica_set)
+        return payload
+
+    def to_csv(self) -> dict[str, object]:
+        payload = self.to_json()
+        payload["legal_replica_set"] = json.dumps(
+            payload["legal_replica_set"], separators=(",", ":")
+        )
+        return payload
 
     @classmethod
     def from_mapping(cls, row: Mapping[str, object]) -> "Contribution":
@@ -169,25 +288,42 @@ class Contribution:
                 topk_slot=_optional_int(row, "topk_slot", -1),
                 source_rank=_optional_int(row, "source_rank", -1),
                 target_replica=_optional_int(row, "target_replica", -1),
+                document_id=str(row.get("document_id") or ""),
+                request_arrival_us=_optional_float(row, "request_arrival_us", -1.0),
+                layer_ready_us=_optional_float(row, "layer_ready_us", -1.0),
+                route_end_us=_optional_float(row, "route_end_us", -1.0),
+                dispatch_end_us=_optional_float(row, "dispatch_end_us", -1.0),
+                expert_start_us=_optional_float(row, "expert_start_us", -1.0),
+                expert_end_us=_optional_float(row, "expert_end_us", -1.0),
+                combine_end_us=_optional_float(row, "combine_end_us", -1.0),
+                legal_replica_set=_replica_set(row.get("legal_replica_set")),
             )
         except (KeyError, TypeError, ValueError) as exc:
             raise ProtocolError(f"invalid route row: {exc}") from exc
 
 
 def load_routes(
-    paths: Sequence[str | Path], *, require_explicit_v2: bool = False
+    paths: Sequence[str | Path], *, require_explicit_v2: bool = False,
+    require_explicit_v3: bool = False,
 ) -> list[Contribution]:
     rows: list[Contribution] = []
     for raw_path in paths:
         path = Path(raw_path)
         with path.open(newline="", encoding="utf-8") as handle:
             reader = csv.DictReader(handle)
-            required = ROUTE_COLUMNS if require_explicit_v2 else ROUTE_V1_REQUIRED_COLUMNS
+            if require_explicit_v3:
+                required = ROUTE_COLUMNS
+            elif require_explicit_v2:
+                required = ROUTE_V2_COLUMNS
+            else:
+                required = ROUTE_V1_REQUIRED_COLUMNS
             missing = set(required) - set(reader.fieldnames or ())
             if missing:
                 raise ProtocolError(f"{path}: missing route columns {sorted(missing)}")
             rows.extend(Contribution.from_mapping(row) for row in reader)
     validate_identity_conservation(rows)
+    if require_explicit_v3:
+        validate_causal_route_v3(rows, require_observed_stages=True)
     return rows
 
 
@@ -198,7 +334,7 @@ def write_routes(path: str | Path, rows: Sequence[Contribution]) -> None:
     with target.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=ROUTE_COLUMNS, lineterminator="\n")
         writer.writeheader()
-        writer.writerows(row.to_json() for row in rows)
+        writer.writerows(row.to_csv() for row in rows)
 
 
 def validate_identity_conservation(
@@ -282,6 +418,109 @@ def validate_identity_conservation(
         "contributions": len(rows),
         "tokens": len(event_keys),
         "requests": len({(row.model, row.phase, row.request_id) for row in rows}),
+    }
+
+
+def validate_causal_route_v3(
+    rows: Sequence[Contribution], *, require_observed_stages: bool = True
+) -> dict[str, int]:
+    """Validate the route-v3 ledger and autoregressive/layer dependencies.
+
+    A v3 CSV may still be development-only, but a formal consumer must never
+    infer missing stage times from row order or synthetic request arrivals.
+    Top-k siblings share one event timeline. Within decode, layer ``l+1`` waits
+    for layer ``l`` combine and step ``t+1`` waits for the previous step's final
+    combine.
+    """
+
+    validate_identity_conservation(rows)
+    if not rows:
+        raise ProtocolError("route-v3 trace is empty")
+    request_contracts: dict[tuple[str, str, str], tuple[str, float, float]] = {}
+    step_events: dict[tuple[str, str, str, int], str] = {}
+    events: dict[
+        tuple[str, str, str, str, int], tuple[float, float, float, float, float, float, float]
+    ] = {}
+    representatives: dict[tuple[str, str, str, int, int], Contribution] = {}
+    for row in rows:
+        request_key = (row.model, row.phase, row.request_id)
+        request_contract = (row.document_id, row.request_arrival_us, row.deadline_us)
+        prior_contract = request_contracts.setdefault(request_key, request_contract)
+        if prior_contract != request_contract:
+            raise ProtocolError(
+                f"request {request_key} changes document, arrival, or deadline"
+            )
+        if abs(row.arrival_us - row.request_arrival_us) > 1e-12:
+            raise ProtocolError("legacy arrival_us must equal route-v3 request_arrival_us")
+        if not row.legal_replica_set:
+            raise ProtocolError("formal route-v3 requires a non-empty legal_replica_set")
+        if row.target_replica >= 0 and row.target_replica not in row.legal_replica_set:
+            raise ProtocolError("observed target_replica is outside legal_replica_set")
+        if require_observed_stages and not row.has_observed_stage_ledger:
+            raise ProtocolError("formal route-v3 requires dispatch/expert/combine timestamps")
+        if row.phase == "decode":
+            step_key = (*request_key, row.decode_step)
+            prior_event = step_events.setdefault(step_key, row.input_event_id)
+            if prior_event != row.input_event_id:
+                raise ProtocolError(
+                    f"decode step {row.decode_step} maps to multiple input events for {request_key}"
+                )
+        event_key = (
+            row.model,
+            row.phase,
+            row.request_id,
+            row.input_event_id,
+            row.layer_id,
+        )
+        timeline = (
+            row.request_arrival_us,
+            row.layer_ready_us,
+            row.route_end_us,
+            row.dispatch_end_us,
+            row.expert_start_us,
+            row.expert_end_us,
+            row.combine_end_us,
+        )
+        prior = events.setdefault(event_key, timeline)
+        if prior != timeline:
+            raise ProtocolError(f"top-k siblings disagree on causal timeline for {event_key}")
+        representatives.setdefault(
+            (row.model, row.phase, row.request_id, row.decode_step, row.layer_id), row
+        )
+
+    by_request_step: dict[tuple[str, str, str], dict[int, list[Contribution]]] = {}
+    for (model, phase, request_id, step, _layer), row in representatives.items():
+        if phase != "decode":
+            continue
+        if step < 0:
+            raise ProtocolError("decode route-v3 row is missing decode_step")
+        by_request_step.setdefault((model, phase, request_id), {}).setdefault(step, []).append(row)
+    for request_key, steps in by_request_step.items():
+        ordered_steps = sorted(steps)
+        if ordered_steps != list(range(ordered_steps[0], ordered_steps[-1] + 1)):
+            raise ProtocolError(f"decode steps are not contiguous for {request_key}: {ordered_steps}")
+        previous_step_end = -math.inf
+        for step in ordered_steps:
+            layer_rows = sorted(steps[step], key=lambda item: item.layer_id)
+            if layer_rows[0].layer_ready_us < previous_step_end - 1e-12:
+                raise ProtocolError(
+                    f"decode step {step} becomes ready before prior combine for {request_key}"
+                )
+            previous_layer_end = -math.inf
+            for row in layer_rows:
+                if row.layer_ready_us < previous_layer_end - 1e-12:
+                    raise ProtocolError(
+                        f"layer {row.layer_id} becomes ready before prior layer combine for {request_key}"
+                    )
+                if row.has_observed_stage_ledger:
+                    previous_layer_end = row.combine_end_us
+            if layer_rows[-1].has_observed_stage_ledger:
+                previous_step_end = layer_rows[-1].combine_end_us
+    return {
+        "contributions": len(rows),
+        "events": len(events),
+        "requests": len(request_contracts),
+        "documents": len({contract[0] for contract in request_contracts.values()}),
     }
 
 
@@ -469,46 +708,406 @@ class ReplayConfig:
     remote_latency_us: float = 0.0
     remote_bytes_per_row: int = 0
     conservative_curve: bool = False
+    hold_by_queue: Mapping[tuple[int, int], float] = field(default_factory=dict)
+    max_batch_rows: int | None = None
+    controller_latency_us: float = 0.0
+    seal_cost_us: float = 0.0
+    launch_cost_us: float = 0.0
 
     def __post_init__(self) -> None:
         if self.replica_count < 2:
             raise ValueError("BCRD requires at least two replicas")
-        if self.hold_us < 0 or self.remote_latency_us < 0 or self.remote_bytes_per_row < 0:
+        if (
+            self.hold_us < 0
+            or self.remote_latency_us < 0
+            or self.remote_bytes_per_row < 0
+            or self.controller_latency_us < 0
+            or self.seal_cost_us < 0
+            or self.launch_cost_us < 0
+        ):
             raise ValueError("replay costs must be non-negative")
+        if self.max_batch_rows is not None and self.max_batch_rows <= 0:
+            raise ValueError("max_batch_rows must be positive when specified")
+        for key, value in self.hold_by_queue.items():
+            if (
+                not isinstance(key, tuple)
+                or len(key) != 2
+                or any(isinstance(part, bool) or not isinstance(part, int) or part < 0 for part in key)
+                or not math.isfinite(float(value))
+                or float(value) < 0
+            ):
+                raise ValueError("hold_by_queue must map (replica, expert) to non-negative hold")
+
+    def hold_for(self, replica: int, expert: int) -> float:
+        return float(self.hold_by_queue.get((replica, expert), self.hold_us))
 
 
-def _make_batches(
-    contributions: Sequence[Contribution], assignments: Sequence[int], config: ReplayConfig
-) -> dict[int, list[dict[str, object]]]:
-    grouped: dict[tuple[int, int], list[tuple[int, Contribution, float]]] = {}
-    for index, (item, replica) in enumerate(zip(contributions, assignments)):
-        if replica < 0 or replica >= config.replica_count:
-            raise ProtocolError(f"illegal replica {replica} for contribution {index}")
-        ready = item.arrival_us + (config.remote_latency_us if item.src_replica != replica else 0.0)
-        grouped.setdefault((replica, item.expert_id), []).append((index, item, ready))
+class CausalReplayEngine:
+    """Discrete-event expert queue used by both online policies and Oracle.
 
-    by_replica: dict[int, list[dict[str, object]]] = {r: [] for r in range(config.replica_count)}
-    for (replica, expert), items in grouped.items():
-        items.sort(key=lambda value: (value[2], value[1].deadline_us, value[0]))
-        cursor = 0
-        while cursor < len(items):
-            first_ready = items[cursor][2]
-            seal = first_ready + config.hold_us
-            end = cursor + 1
-            while end < len(items) and items[end][2] <= seal + 1e-12:
-                end += 1
-            chunk = items[cursor:end]
-            by_replica[replica].append(
+    Dispatch choices may be submitted ahead of time by an offline evaluator,
+    but batching itself is strictly event driven: destination arrivals are
+    processed before same-time seals, a singleton pays the complete hold, and
+    launched rows are removed from the open queue immediately.
+    """
+
+    _EPS = 1e-12
+
+    def __init__(
+        self,
+        catalog: ServiceCatalog,
+        config: ReplayConfig,
+        *,
+        model: str,
+        layer: int,
+    ) -> None:
+        self.catalog = catalog
+        self.config = config
+        self.model = model
+        self.layer = layer
+        self.now_us = 0.0
+        self.inflight: list[dict[str, object]] = []
+        self.open_batches: dict[tuple[int, int], dict[str, object]] = {}
+        self.sealed: dict[int, list[dict[str, object]]] = {
+            replica: [] for replica in range(config.replica_count)
+        }
+        self.running: list[dict[str, object] | None] = [None] * config.replica_count
+        self.completion_us: dict[int, float] = {}
+        self.submitted: dict[int, tuple[Contribution, int]] = {}
+        self.batch_records: list[dict[str, object]] = []
+        self.events: list[dict[str, object]] = []
+        self.total_service_us = 0.0
+        self.total_launch_cost_us = 0.0
+        self.remote_assignments = 0
+        self.last_finish_us = [0.0] * config.replica_count
+
+    def clone(self) -> "CausalReplayEngine":
+        return copy.deepcopy(self)
+
+    def submit(
+        self,
+        index: int,
+        item: Contribution,
+        replica: int,
+        *,
+        hold_us: float | None = None,
+        decision_end_us: float | None = None,
+    ) -> None:
+        if index in self.submitted:
+            raise ProtocolError(f"duplicate replay contribution index {index}")
+        if item.model != self.model or item.layer != self.layer:
+            raise ProtocolError("one replay engine must contain one model and one layer")
+        legal = item.legal_replicas(self.config.replica_count)
+        if replica not in legal:
+            raise ProtocolError(
+                f"illegal replica {replica} for contribution {index}; legal={legal}"
+            )
+        hold = self.config.hold_for(replica, item.expert_id) if hold_us is None else float(hold_us)
+        if not math.isfinite(hold) or hold < 0:
+            raise ProtocolError("hold action must be finite and non-negative")
+        earliest_dispatch = item.dispatch_ready_us + self.config.controller_latency_us
+        dispatch_end = earliest_dispatch if decision_end_us is None else float(decision_end_us)
+        if dispatch_end < earliest_dispatch - self._EPS:
+            raise ProtocolError("decision_end_us precedes route/controller readiness")
+        remote = replica != item.source_rank
+        destination_ready = dispatch_end + (self.config.remote_latency_us if remote else 0.0)
+        self.submitted[index] = (item, replica)
+        self.inflight.append(
+            {
+                "index": index,
+                "item": item,
+                "replica": replica,
+                "hold_us": hold,
+                "dispatch_end_us": dispatch_end,
+                "ready_us": destination_ready,
+            }
+        )
+        if remote:
+            self.remote_assignments += 1
+        self.events.append(
+            {
+                "event": "DISPATCH_END",
+                "time_us": dispatch_end,
+                "index": index,
+                "replica": replica,
+            }
+        )
+
+    def _next_event_time(self) -> float | None:
+        values: list[float] = []
+        values.extend(float(row["ready_us"]) for row in self.inflight)
+        values.extend(float(row["seal_at_us"]) for row in self.open_batches.values())
+        values.extend(
+            float(row["finish_us"]) for row in self.running if row is not None
+        )
+        for replica, queue in self.sealed.items():
+            if self.running[replica] is None:
+                values.extend(float(row["ready_us"]) for row in queue)
+        return min(values) if values else None
+
+    def _seal(self, key: tuple[int, int], time_us: float, reason: str) -> None:
+        batch = self.open_batches.pop(key)
+        batch["seal_us"] = time_us
+        batch["ready_us"] = time_us + self.config.seal_cost_us
+        batch["seal_reason"] = reason
+        self.sealed[key[0]].append(batch)
+        self.events.append(
+            {
+                "event": {
+                    "timeout": "SEAL_TIMEOUT",
+                    "max_batch": "SEAL_MAX_BATCH",
+                    "deadline": "SEAL_DEADLINE_CAP",
+                }[reason],
+                "time_us": time_us,
+                "replica": key[0],
+                "expert_id": key[1],
+                "rows": len(batch["indices"]),
+            }
+        )
+
+    def _launch_idle(self, time_us: float) -> None:
+        for replica in range(self.config.replica_count):
+            if self.running[replica] is not None:
+                continue
+            ready = [
+                batch
+                for batch in self.sealed[replica]
+                if float(batch["ready_us"]) <= time_us + self._EPS
+            ]
+            if not ready:
+                continue
+            batch = min(
+                ready,
+                key=lambda row: (
+                    float(row["deadline_us"]),
+                    float(row["ready_us"]),
+                    tuple(sorted(row["request_ids"])),
+                    tuple(row["indices"]),
+                ),
+            )
+            self.sealed[replica].remove(batch)
+            service = self.catalog.estimate_us(
+                self.model,
+                self.layer,
+                len(batch["indices"]),
+                conservative=self.config.conservative_curve,
+            )
+            finish = time_us + self.config.launch_cost_us + service
+            batch["start_us"] = time_us
+            batch["finish_us"] = finish
+            batch["service_us"] = service
+            self.running[replica] = batch
+            self.total_service_us += service
+            self.total_launch_cost_us += self.config.launch_cost_us
+            self.events.append(
                 {
-                    "expert_id": expert,
-                    "indices": tuple(value[0] for value in chunk),
-                    "ready_us": max(value[2] for value in chunk),
-                    "deadline_us": min(value[1].deadline_us for value in chunk),
-                    "rows": len(chunk),
+                    "event": "BATCH_LAUNCH",
+                    "time_us": time_us,
+                    "replica": replica,
+                    "expert_id": batch["expert_id"],
+                    "rows": len(batch["indices"]),
                 }
             )
-            cursor = end
-    return by_replica
+
+    def _process_time(self, time_us: float) -> None:
+        if time_us < self.now_us - self._EPS:
+            raise AssertionError("event time moved backwards")
+        self.now_us = time_us
+
+        # Finish first so a batch completing at t releases the executor before
+        # arrivals and seals at t are considered for the next launch.
+        for replica, running in enumerate(self.running):
+            if running is None or float(running["finish_us"]) > time_us + self._EPS:
+                continue
+            for index in running["indices"]:
+                self.completion_us[int(index)] = time_us
+            self.batch_records.append(dict(running))
+            self.running[replica] = None
+            self.last_finish_us[replica] = time_us
+            self.events.append(
+                {
+                    "event": "EXPERT_FINISH",
+                    "time_us": time_us,
+                    "replica": replica,
+                    "expert_id": running["expert_id"],
+                    "rows": len(running["indices"]),
+                }
+            )
+
+        arrivals = [
+            row for row in self.inflight if float(row["ready_us"]) <= time_us + self._EPS
+        ]
+        self.inflight = [row for row in self.inflight if row not in arrivals]
+        for row in sorted(arrivals, key=lambda value: int(value["index"])):
+            item = row["item"]
+            assert isinstance(item, Contribution)
+            replica = int(row["replica"])
+            key = (replica, item.expert_id)
+            batch = self.open_batches.get(key)
+            if batch is None:
+                batch = {
+                    "replica": replica,
+                    "expert_id": item.expert_id,
+                    "indices": [],
+                    "request_ids": set(),
+                    "first_ready_us": time_us,
+                    "seal_at_us": time_us + float(row["hold_us"]),
+                    "requested_seal_at_us": time_us + float(row["hold_us"]),
+                    "deadline_us": item.deadline_us,
+                    "deadline_capped": False,
+                }
+                self.open_batches[key] = batch
+            batch["indices"].append(int(row["index"]))
+            batch["request_ids"].add(item.request_id)
+            batch["deadline_us"] = min(float(batch["deadline_us"]), item.deadline_us)
+            service_lower_bound = self.catalog.estimate_us(
+                self.model,
+                self.layer,
+                len(batch["indices"]),
+                conservative=self.config.conservative_curve,
+            )
+            deadline_seal_cap = max(
+                time_us,
+                float(batch["deadline_us"])
+                - self.config.seal_cost_us
+                - self.config.launch_cost_us
+                - service_lower_bound,
+            )
+            if deadline_seal_cap < float(batch["seal_at_us"]) - self._EPS:
+                batch["seal_at_us"] = deadline_seal_cap
+                batch["deadline_capped"] = True
+            self.events.append(
+                {
+                    "event": "CONTRIBUTION_ARRIVAL",
+                    "time_us": time_us,
+                    "index": int(row["index"]),
+                    "replica": replica,
+                    "expert_id": item.expert_id,
+                }
+            )
+            if (
+                self.config.max_batch_rows is not None
+                and len(batch["indices"]) == self.config.max_batch_rows
+            ):
+                # max_batch is an observed causal early-seal action. Seal at
+                # the exact bound before another same-time arrival can create
+                # an oversized batch; subsequent rows open a fresh batch.
+                self._seal(key, time_us, "max_batch")
+
+        # All arrivals at t join before hold=0 timeouts at t fire, except that
+        # the explicit max_batch bound above seals at the exact row limit.
+        for key, batch in list(self.open_batches.items()):
+            timed_out = float(batch["seal_at_us"]) <= time_us + self._EPS
+            if timed_out:
+                self._seal(
+                    key,
+                    time_us,
+                    "deadline" if bool(batch["deadline_capped"]) else "timeout",
+                )
+        self._launch_idle(time_us)
+
+    def advance_to(self, target_us: float) -> None:
+        if target_us < self.now_us - self._EPS:
+            raise ProtocolError("cannot rewind causal replay")
+        while True:
+            next_time = self._next_event_time()
+            if next_time is None or next_time > target_us + self._EPS:
+                break
+            self._process_time(next_time)
+        self.now_us = max(self.now_us, target_us)
+
+    def run_all(self) -> None:
+        iterations = 0
+        while self._next_event_time() is not None:
+            next_time = self._next_event_time()
+            assert next_time is not None
+            self._process_time(next_time)
+            iterations += 1
+            if iterations > 10_000_000:
+                raise AssertionError("causal replay failed to make progress")
+        if len(self.completion_us) != len(self.submitted):
+            missing = sorted(set(self.submitted) - set(self.completion_us))
+            raise AssertionError(f"replay lost contributions: {missing[:3]}")
+
+    def projected_available_us(self) -> list[float]:
+        projected = self.clone()
+        projected.run_all()
+        return list(projected.last_finish_us)
+
+    def predict_submission(
+        self,
+        item: Contribution,
+        replica: int,
+        *,
+        hold_us: float,
+        decision_end_us: float | None = None,
+    ) -> dict[str, float]:
+        baseline = self.clone()
+        baseline.run_all()
+        trial = self.clone()
+        prediction_index = min([-1, *(index - 1 for index in trial.submitted if index < 0)])
+        trial.submit(
+            prediction_index,
+            item,
+            replica,
+            hold_us=hold_us,
+            decision_end_us=decision_end_us,
+        )
+        trial.run_all()
+        record = next(
+            batch for batch in trial.batch_records if prediction_index in batch["indices"]
+        )
+        return {
+            "completion_us": trial.completion_us[prediction_index],
+            "batch_rows": float(len(record["indices"])),
+            "marginal_service_us": trial.total_service_us - baseline.total_service_us,
+            "projected_replica_finish_us": trial.last_finish_us[replica],
+        }
+
+    def metrics(self) -> dict[str, object]:
+        if not self.submitted or len(self.completion_us) != len(self.submitted):
+            raise ProtocolError("metrics require a complete non-empty replay")
+        request_completion: dict[str, float] = {}
+        request_arrival: dict[str, float] = {}
+        request_deadline: dict[str, float] = {}
+        for index, (item, _replica) in self.submitted.items():
+            request_completion[item.request_id] = max(
+                request_completion.get(item.request_id, -math.inf), self.completion_us[index]
+            )
+            request_arrival[item.request_id] = min(
+                request_arrival.get(item.request_id, math.inf), item.request_arrival_us
+            )
+            request_deadline[item.request_id] = min(
+                request_deadline.get(item.request_id, math.inf), item.deadline_us
+            )
+        latencies = [request_completion[key] - request_arrival[key] for key in request_completion]
+        on_time = sum(request_completion[key] <= request_deadline[key] for key in request_completion)
+        return {
+            "requests": len(request_completion),
+            "contributions": len(self.submitted),
+            "on_time": on_time,
+            "slo_attainment": on_time / len(request_completion),
+            "mean_completion_us": sum(latencies) / len(latencies),
+            "p50_completion_us": percentile(latencies, 0.50),
+            "p95_completion_us": percentile(latencies, 0.95),
+            "p99_completion_us": percentile(latencies, 0.99),
+            "makespan_us": max(request_completion.values()) - min(request_arrival.values()),
+            "total_service_us": self.total_service_us,
+            "launch_cost_us": self.total_launch_cost_us,
+            "launches": len(self.batch_records),
+            "remote_assignments": self.remote_assignments,
+            "remote_bytes": self.remote_assignments * self.config.remote_bytes_per_row,
+            "request_completion_us": request_completion,
+            "contribution_completion_us": dict(self.completion_us),
+            "batch_records": [
+                {
+                    **{key: value for key, value in row.items() if key != "request_ids"},
+                    "request_ids": sorted(row["request_ids"]),
+                }
+                for row in self.batch_records
+            ],
+            "event_count": len(self.events),
+        }
 
 
 def simulate_assignment(
@@ -517,77 +1116,31 @@ def simulate_assignment(
     catalog: ServiceCatalog,
     config: ReplayConfig,
 ) -> dict[str, object]:
-    """Replay one layer with per-replica EDF batches and request fork-join."""
+    """Replay one layer with causal seal/launch/finish events and fork-join."""
     if not contributions or len(contributions) != len(assignments):
         raise ProtocolError("assignment must cover every contribution exactly once")
     model = contributions[0].model
     layer = contributions[0].layer
     if any(item.model != model or item.layer != layer for item in contributions):
         raise ProtocolError("one replay instance must contain one model and one layer")
-    batches = _make_batches(contributions, assignments, config)
-    completion: dict[int, float] = {}
-    launches = 0
-    total_service = 0.0
-    for replica, pending in batches.items():
-        now = min((float(batch["ready_us"]) for batch in pending), default=0.0)
-        queue = list(pending)
-        while queue:
-            ready = [batch for batch in queue if float(batch["ready_us"]) <= now + 1e-12]
-            if not ready:
-                now = min(float(batch["ready_us"]) for batch in queue)
-                continue
-            batch = min(
-                ready,
-                key=lambda value: (
-                    float(value["deadline_us"]),
-                    float(value["ready_us"]),
-                    int(value["expert_id"]),
-                ),
-            )
-            duration = catalog.estimate_us(
-                model, layer, int(batch["rows"]), conservative=config.conservative_curve
-            )
-            now += duration
-            total_service += duration
-            launches += 1
-            for index in batch["indices"]:  # type: ignore[union-attr]
-                completion[int(index)] = now
-            queue.remove(batch)
-    if len(completion) != len(contributions):
-        raise AssertionError("replay lost contributions")
-
-    request_completion: dict[str, float] = {}
-    request_arrival: dict[str, float] = {}
-    request_deadline: dict[str, float] = {}
-    for index, item in enumerate(contributions):
-        request_completion[item.request_id] = max(
-            request_completion.get(item.request_id, -math.inf), completion[index]
+    engine = CausalReplayEngine(catalog, config, model=model, layer=layer)
+    decision_cursor_us = 0.0
+    ordered = sorted(
+        enumerate(zip(contributions, assignments)),
+        key=lambda value: (
+            value[1][0].dispatch_ready_us,
+            value[1][0].deadline_us,
+            value[1][0].contribution_id,
+        ),
+    )
+    for index, (item, replica) in ordered:
+        decision_end_us = (
+            max(item.dispatch_ready_us, decision_cursor_us) + config.controller_latency_us
         )
-        request_arrival[item.request_id] = min(
-            request_arrival.get(item.request_id, math.inf), item.arrival_us
-        )
-        request_deadline[item.request_id] = min(
-            request_deadline.get(item.request_id, math.inf), item.deadline_us
-        )
-    latencies = [request_completion[key] - request_arrival[key] for key in request_completion]
-    on_time = sum(request_completion[key] <= request_deadline[key] for key in request_completion)
-    remote = sum(item.src_replica != replica for item, replica in zip(contributions, assignments))
-    return {
-        "requests": len(request_completion),
-        "contributions": len(contributions),
-        "on_time": on_time,
-        "slo_attainment": on_time / len(request_completion),
-        "mean_completion_us": sum(latencies) / len(latencies),
-        "p50_completion_us": percentile(latencies, 0.50),
-        "p95_completion_us": percentile(latencies, 0.95),
-        "p99_completion_us": percentile(latencies, 0.99),
-        "makespan_us": max(request_completion.values()) - min(request_arrival.values()),
-        "total_service_us": total_service,
-        "launches": launches,
-        "remote_assignments": remote,
-        "remote_bytes": remote * config.remote_bytes_per_row,
-        "request_completion_us": request_completion,
-    }
+        engine.submit(index, item, int(replica), decision_end_us=decision_end_us)
+        decision_cursor_us = decision_end_us
+    engine.run_all()
+    return engine.metrics()
 
 
 def objective_key(metrics: Mapping[str, object]) -> tuple[float, ...]:
