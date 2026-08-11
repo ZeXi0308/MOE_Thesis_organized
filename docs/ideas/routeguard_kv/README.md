@@ -2,9 +2,9 @@
 
 > 日期：2026-07-26
 >
-> 当前状态：`R0A_GPU_SMOKE_INTEGRITY_PASS / CALIBRATION_NOT_RUN / KILL_PROBE_ONLY / NOT_CURRENT_MAINLINE`
+> 当前状态：`R0A_GPU_CALIBRATION_INTEGRITY_PASS / FORMAL_NOT_RUN / CCF_B_ROUTE_KILLED / KILL_PROBE_ONLY / NOT_CURRENT_MAINLINE`
 >
-> 证据等级：冻结设计与数据、实现、25项 CPU/真实 tiny OLMoE 集成测试，以及单张 RTX 5090 engineering smoke 完整性 PASS；**尚无 calibration/formal R0-A 科学裁决、尚无系统机制证据、尚无多卡证据**。
+> 证据等级：冻结设计与数据、实现、25项 CPU/真实 tiny OLMoE 集成测试，以及单张 RTX 5090 engineering smoke 和8文档 calibration 完整性 PASS；**calibration 不进入科学统计，尚无 formal R0-A 科学裁决、尚无系统机制证据、尚无多卡证据**。
 >
 > 执行权威：[当前研究状态与唯一执行线](../../current/README.md)。若本文与新的 machine-readable sealed/formal decision 或当前状态冲突，以后者为准。
 
@@ -18,10 +18,11 @@ RouteGuard-KV 中真正值得验证的科学问题是：
 
 - `[Observed]` KV-cache 精度是长上下文、高并发解码的真实容量/带宽变量；逐层 K/V 混合精度和离线配置本身已有强 prior art。
 - `[Observed, engineering smoke only]` 冻结的2文档 smoke 在 RTX 5090 上完成50/50条 trajectory，完整性、identity、patched-BF16、route-lock 和 quantizer-ledger 门全部 PASS；该样本不进入 formal 统计。
+- `[Observed, calibration integrity only]` 冻结的8文档 calibration 于2026-07-29完成200/200条 trajectory，完整性、identity、patched-BF16、route-lock 和 quantizer-ledger 门全部 PASS，峰值 allocated 约13.83 GiB；该样本仍不进入 R0-A scientific decision。
 - `[Inferred]` RouteGuard-KV 可能剩余的新意，不是“把 KVTuner 用到 MoE”，而是 **KV 扰动 → 路由变化 → 额外质量损失** 的 post-training 因果链，以及该信号对精度分配的增量价值。
 - `[Hypothesis]` 该链可能被残差流、归一化和路由 margin 稀释；即使存在，也可能被 attention-error signal 或“保护少数敏感层”简单策略几乎完全捕获。
 
-因此只授权廉价、fail-closed 的存在性探针。它不是当前主线，不改变 BCRD/DEPA 共同 Gate 0/1 的执行顺序，也不授权先实现完整分配器或系统。
+2026-07-29 的 CCF-B 查新进一步发现 EAC-MoE、EAQuant、VSRAQ 等已覆盖 quantization-induced expert shift / route consistency，而 KVTuner、MoE-nD、TriRoute 与生产 skip-layer 路径已占据逐层 K/V 保护动作空间。因此 RouteGuard-KV 作为 CCF-B 主候选已 KILL；详见[查新审计](../../../refine-logs/ROUTEGUARD_CCFB_AUDIT_20260729.md)。这里只授权廉价、fail-closed 的存在性探针。它不是当前主线，不改变 BCRD/DEPA 共同 Gate 0/1 的执行顺序，也不授权先实现完整分配器或系统。
 
 ## 1. 对原执行顺序的纠正
 
@@ -205,7 +206,7 @@ RouteGuard 的系统收益必须相对“质量门内的 best deployable uniform
 
 1. 不修改[当前唯一执行线](../../current/README.md)；
 2. R0-A 实现、数据冻结、25项 CPU/真实 tiny OLMoE 集成测试和 RTX 5090 smoke v2 已完成，审计见[Code Review 与执行手册](experiments/R0A_5090_CodeReview与执行手册_2026-07-27.md)；
-3. smoke v2 只授权下一步运行8文档 calibration；当前 calibration 未运行，formal 仍为 `NOT_APPROVED`；
-4. smoke 的方向性数值不能宣布 R0-A PASS；calibration 不得调阈值、位宽、模型、prompt、steps 或样本数；
+3. 8文档 calibration 已完成200/200条 trajectory且 integrity PASS；formal 仍为 `NOT_APPROVED`，本轮 CCF-B 探索不继续解封；
+4. smoke/calibration 的方向性数值都不能宣布 R0-A PASS；不得调阈值、位宽、模型、prompt、steps 或样本数；
 5. R0-A 未过门立即停止，不扩模型、不做 R1/R2；
 6. 任何新 sealed result 都必须写 machine-readable decision，并同步更新本页与当前状态。

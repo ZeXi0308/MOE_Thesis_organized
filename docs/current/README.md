@@ -1,25 +1,46 @@
 # MoE 研究问题重构：严格审计与唯一主线
 
 > 状态：**当前权威裁决文档**  
-> 证据截止：2026-07-27
+> 证据截止：2026-08-11
 > 作用：统一 7 月 25 日多个并行进程留下的候选生成、代码框架和局部裁决；含独有证据的原文转入方向目录或历史汇总，已被完整吸收的中间“最终稿”不再单独保留。
 >
 > 长篇研究问题、候选边界和实验蓝图见[《MoE 推理毕业论文方向统一稿》](MoE_推理毕业论文方向统一稿_2026-07-25.md)；本页继续负责当前证据账本和唯一执行顺序。
 
-## 0. 直接结论
+## 0. 2026-08-11 当前结论
+
+**JoinStream 当前 formulation 已正式封存。** 三阶段证据链必须同时保留：CPU exact Oracle 为 `SUPPORT_ACTION_SPACE / CPU_EXPLORATORY_SIGNAL`；synthetic single-GPU pilot 为 `WEAKEN_TAX_DOMINATES / SINGLE_GPU_EXPLORATORY_MICROBENCHMARK`；realistic MoE-tail pilot 最终为 `WEAKEN_UPPER_BOUND_TOO_SMALL / GATING_INSUFFICIENT / WEAKENS / SINGLE_GPU_REALISTIC_MOE_TAIL_MICROBENCHMARK`。最终四个 cells 有 `3/4` natural windows、最大 `161.664 us`，但安全收益为 `0/4`；审计 `PASS / P0=0 / P1=0`。因此保留 action validity、memory legality、single-GPU schedulability、natural tail headroom 和 producer safety，削弱 critical-path utility，paper viability 为 `FREEZE`。核心边界是 `overlap opportunity != critical-path leverage`，并已标记 `NO_MORE_EXPERIMENTS_FOR_CURRENT_FORMULATION`；不得继续优化 gate/priority/polling/stream/notification 或用多 GPU 假设抢救。完整证据与禁止外推边界见 [JOINSTREAM_FINAL_FREEZE](JOINSTREAM_FINAL_FREEZE_2026-08-10.md)。
+
+**下一 Primary 仅是 Oracle-first 研究问题，不是已验证方法。** 对现有候选池的 fresh same-family provisional jury 选择 `Route-Conditioned Barrier Amplification Boundary`：先在 near-real、identity-complete full request DAG 上证明自然 MoE barrier 带来 charged end-to-end critical-path Oracle headroom，再讨论任何 action/runtime。2026-08-10 的 protocol-first preparation 裁决为 `BLOCKED_PROTOCOL_AMBIGUITY / FORMAL_GATE_NOT_RUN`：common natural regime、removable barrier/dependency semantics 与 resource capacity 尚未唯一冻结，且两个模型的 identity-complete trace 与 complete measured surface 均不存在；因此 evaluator 未实现，Primary 保持 `UNVALIDATED`。正结果之前不实现 scheduler/controller；若共同自然 cells 全部 `<5%`、actionable mass `<20%`，或 max-load/CV 在 holdout 上完全解释边界，立即冻结。候选 Top 3 与未决项见 [Next-Idea Jury](../../idea-stage/NEXT_IDEA_JURY.md)，preparation 边界见 [RCBA README](../ideas/rcba/README.md)。
+
+**D10 Stability-Aware Expert Shape Lanes 已降级。** fixed-C8 correctness 证据仍成立，但冻结 continuous-decode cost Gate 裁决为 `NO_GO_D10_HEADLINE_COST`：fixed-C8 / serial-M1 expert GPU-time ratio 为 0.8491（要求 <=0.8），fixed-C8 / native token-step p99 ratio 为 1.4694（要求 <=1.05），padding fraction 为 77.4056%。因此 universal fixed-C8 不再是 headline method candidate，不得通过修改 `C`、阈值、workload 或指标救活。
+
+同日完成的 single-contribution hindsight Oracle sweep 给出互补正结论：240 cells × 8 actions 中，abstaining Oracle 用 33 个正动作恢复 37/43（86.0465%）unprotected downstream route distance，覆盖 8 victims；相对 budget-matched conditional/global random 的优势分别为 17.5/36.690625，四个 STRONG 门全过。最终审计为 WARN，P0 0 / P1 1；局部 outcome 知识限制 preregistration 措辞，但不改变重算指标。它只证明冻结 enriched proxy 上的 action value existence；MaxGate-v1 仍为 -3，不能据此得到 online selector。
+
+**StableBatch 已完成最终 fresh Selectability Gate，并按冻结规则停止。** 在 16 个全新 document-disjoint requests、240 cells、1,920 actions、exact B=33 上，Outcome Oracle reward 为 `57`，matched shuffle 为 `-4`，恢复 `57/84=67.86%` unprotected route distance并覆盖 12 个正收益 requests；因此 fresh intervention opportunity 成立。Static Compatibility Map 与 Online Observable Ridge 均为 `-7`，低于 shuffle，Recovered Oracle Gap 均为 `-0.04918`，LODO 均为 `0/16`。formal manifest、独立 aggregation 与从 240 个 U/1,920 个 A raw routes 重建的 verifier 全部零 mismatch；审计为 `WARN / P0=0 / P1=0`。因此停止 compatibility-aware coalescing 与 row-conditioned pre-action scheduling，不做第三个 selector、partition planner 或 controller；现象证据保留，但不构成系统论文机制。
+
+Cheap selector 已单独被证伪：C09-v1 的 8-fold document-disjoint input-only linear model为 0 TP / 14 FP、零 admission，裁决 `KILL_C09_V1_ZERO_ERROR_ADMISSION`。新的 cross-companion 证据将 exact 机制裁决为 `MIXED`：fixed `M=2`/small-M ABI 内 2,048/2,048 focal labels 不随 companion 翻转，而跨 `M` safe-set 嵌套且 M32/M64 完全失效。因此 H1 row-intrinsic + H3 shape/cardinality-conditioned 是当前最窄解释，H2 pairwise 主因不受支持。
+
+SemanticFence 分支的 Exact `M=2` Oracle maximum matching 覆盖 2,264/32,234 rows（7.0236%），同表 expert-stage projection 只节省 3.4034%。因此 exact-only RowFence 只保留为 baseline/fallback。同表 Semantic Oracle shadow 在刻意富集的 64 条 raw-unsafe edges 上得到 41 条 route/top-k-safe edges，maximum matching 覆盖 52/96 rows（54.1667%），additive expert-stage projection 节省 26.2038%。这是 reused-calibration shadow upper bound，不是自然 prevalence、fresh generalization 或 serving speedup；它曾授权在 safe-packing 机制族内进一步资格化 **SemanticFence-v2 / Semantic Stability Budget**，但 2026-08-10 Oracle-first 重筛后只列第二候选，不再是下一 Primary。
+
+**SFV2-O1 已完成 fresh online-observability Gate，但不授权在线执行。** 在 4 个 document-disjoint test documents 的 128 条自然 edges 上，Semantic Oracle 得到 77 条 downstream ordered-top-k-stable proxy edges，maximum matching 覆盖 154/255 rows（60.3922%），4/4 documents 有正动作，additive expert-stage projection 为 29.2714%；这把 enriched shadow upper bound 提升为当前单栈 fresh route/top-k-stability proxy action-space 证据。可是 frozen witness-v1 只执行 5 pairs、其中 4 unsafe，覆盖 3.9216%，计入 measured prototype overhead 后 net projection 为 -183.3504%，故机械裁决为 `PIVOT_TO_SHADOW_VERIFY`。在 SemanticFence 分支内保留的是该 proxy action-space / observability headline，不是 witness-v1 方法；下一步只允许 shadow verifier / selective repair。该分支结果不取代当前 RCBA Oracle-first Primary，也不构成 task semantics、M2 runtime、serving 或 controller 证据。
+
+此前 SemanticFence coarse contract 的 `WEAKEN` 与 backup CriticalSplit 的 `WEAKEN_ACTION_SPACE` 都保持有效，分别见 [SemanticFence README](../ideas/semanticfence/README.md) 与 [CriticalSplit 跟踪器](../../refine-logs/EXPERIMENT_TRACKER_20260810_173700.md)。上述 StableBatch/SemanticFence 结果只覆盖 pretrained OLMoE / BF16 / single RTX 5090 / eager、prompt-forward 或 decode-style 局部栈；JoinStream 则是独立 FP16 standalone grouped-expert microbenchmark。两类证据都不是 vLLM serving、EP/NCCL、多卡或论文结果。
+
+## 0A. 2026-08-02 前序结论（仅作历史上下文，不授权当前执行）
 
 当前**没有已经被正式实验证实的 MoE 系统主机制**。
 
-现阶段只保留一条研究主线：
+截至 2026-08-02，当时只保留一条研究主线：
 
 > 在自然连续到达、有限 admission/batching 能力和 exact model semantics 下，先验证 expert-side fragmentation、route-conditioned straggler 与 HoL 是否构成足够大的暴露关键路径；只有现象和 Oracle 空间跨模型成立，才研究 expert-pressure-aware 的在线决策。
 
-当前唯一动作不是同时实现 BCRD、DEPA 和 CPR，而是完成一份可同时约束 BCRD/DEPA 的**共同现象 Gate**。在该 Gate 之前：
+当时的唯一动作不是同时实现 BCRD、DEPA 和 CPR，而是完成一份可同时约束 BCRD/DEPA 的**共同现象 Gate**。2026-08-10 的 Oracle-first reset 已取代这条执行顺序；以下列表只保留历史状态：
 
 - BCRD 是有完整三门协议和代码 harness 的**候选 formulation**，不是主结果；
 - DEPA 是更宽 action space 的**开发态 CPU 回放框架**，不是正式候选结论；
 - CPR/RankLane 的 fixed actuator 已在冻结域内 NO-GO，真实 8×A100 return-path existence 仍未测试，但不占用当前单卡优先级；
 - 5090 已补齐多 MoE 层的完整 KV-decode inference-time 表征，但单卡无 return all-to-all，不构成 Receiver congestion 或 `p_return` 证据；
+- RouteSlack 最终审计为 `MEASUREMENT_ONLY / Gate 0 FAIL`，formal physical strategy latency/energy sample 均为 0；紧凑证据入口由 [`artifacts/index.json`](../../artifacts/index.json) 路由，不构成 controller 或系统 GO；
 - PhaseMap、FJRC、ConfidenceGuard v3 等已停止的 formulation 不得换名字复活。
 
 ## 1. 为什么此前会出现多个“唯一主攻”
@@ -60,12 +81,15 @@
 | 对象 | 已有内容 | 缺口 | 当前标签 |
 |---|---|---|---|
 | CPR 5090 quick validate | runner、kernel、provenance 校验、CPU 测试；旧质量数值重分析为 PASS | 同次 provenance 的正式质量重跑、5090 connected INT4 正式运行；核心仍需 8×A100 | `INCOMPLETE_NECESSARY_GATES` |
-| BCRD | 三道串行 Gate、identity/oracle/causality 测试和 smoke harness | 自然 continuous-decode routes、完整路径 denominator、正式 5090 service curve、正式 Gate 1 结果 | `DESIGNED_AND_IMPLEMENTED / NOT_FORMALLY_RUN` |
+| BCRD | route-v3 契约、共享因果事件引擎、continuous-prefix baseline、document-disjoint split、symmetry-reduced exact local Oracle；Gate-0 A 物理 continuous-decode producer 已实现并通过 tiny OLMoE 开发资格测试；BCRD 69/69 CPU 测试通过 | 冻结且授权的 formal workload manifest、两模型 CUDA producer 实跑、expert/dtype 完整 service surface、full-path denominator、跨 layer/step counterfactual request-DAG、正式 Gate 结果 | [`GATE0_A_PARTIAL_IMPLEMENTED / FORMAL_NOT_RUN / REQUEST_DAG_OPEN`](gate0_audit_2026-08-02.md) |
 | DEPA | 因果 CPU replay、request ledger、exact small oracle、三门 runner、10 个测试 | 四项 formal capability 均为 false；无正式 breakdown/episodes/surface；无完整 prior-art 边界文档 | `DEVELOPMENT_ONLY_NOT_SCIENTIFIC` |
-| RouteGuard-KV R0-A | 冻结协议/数据/实现、25项 CPU 测试；RTX 5090 smoke v2 完成50/50 trajectory 且完整性/负控 PASS | 冻结的8文档 calibration 与32文档 formal 均未运行；formal 未批准；无跨模型、native INT4、serving 或多卡证据 | `GPU_SMOKE_INTEGRITY_PASS / CALIBRATION_NOT_RUN / NOT_CURRENT_MAINLINE` |
+| RouteGuard-KV R0-A | 冻结协议/数据/实现、25项 CPU 测试；RTX 5090 smoke v2 50/50、calibration 200/200 trajectory 且完整性/负控 PASS | calibration 仅为工程完整性；32文档 formal 未运行且未批准；最新查新已 KILL CCF-B 主候选身份；无跨模型、native INT4、serving 或多卡证据 | `GPU_CALIBRATION_INTEGRITY_PASS / FORMAL_NOT_RUN / CCF_B_ROUTE_KILLED / NOT_CURRENT_MAINLINE` |
+| RouteSlack | 124/124 protocol-critical tests、双模型 development cached-decode exactness、单卡 isolated-expert characterization、compact audit capsule | 9 个开放 P0；无真实 continuous serving/EP actuator；formal physical strategy latency/energy N=0 | [`MEASUREMENT_ONLY / GATE0_FAIL`](routeslack_final_verdict.md) |
 | optimized EP return-path existence | 8×A100 Gate 设计 | 真实 8×A100、optimized backend、timeline/transport/identity 闭合 | `NOT_TESTED_REQUIRES_8XA100` |
 
-## 3. 唯一研究问题
+## 3. 新 Primary 的历史问题底座
+
+> 当前执行权以第 0 节和 [Next-Idea Jury](../../idea-stage/NEXT_IDEA_JURY.md) 为准。本节的现象定义、route/service/denominator 要求可作为 `Route-Conditioned Barrier Amplification Boundary` 的 Oracle Gate 输入约束；BCRD/DEPA action 分支不再构成并行当前主线。
 
 ### 3.1 问题定义
 
@@ -86,20 +110,29 @@
 - DEPA 能覆盖 admission、batch composition 和 release，当前却过宽；开发夹具的 Gate 1/2 PASS、Gate 3 FAIL 均明确 `scientific_result_eligible=false`，不能用于方向排序。
 - 两者共享 route、service surface、continuous-arrival episode 和 full-path breakdown。先各跑一套会重复生产证据，并制造选择性解释空间。
 
-所以当前先冻结共同输入和现象门，再依据结果选择一个 formulation；不得并行调参竞争。
+所以历史方案先冻结共同输入和现象门，再依据结果选择一个 formulation。2026-08-10 reset 后，这段只解释已有资产来源，不授权运行 BCRD/DEPA Gate 或并行调参。
 
-## 4. 唯一执行线
+## 4. Oracle Gate 准备约束（历史共同 Gate 收敛后）
+
+本节 Gate 0/1 只作为新 Primary 的数据与会计规格。`PREPARE_ORACLE_GATE` 已 fail closed 为 `BLOCKED_PROTOCOL_AMBIGUITY`，不授权执行 Gate；Gate 2/3 的 action/policy 分支保持历史冻结，只有协议、双模型 trace/surface 和 charged full-request Oracle headroom 依次通过后才可能重新裁决。
 
 ### Gate 0：正式资格预检
 
 以下四项缺一项即停止在 `BLOCKED_MISSING_FORMAL_EVIDENCE`，不能用开发夹具代替：
 
 1. native continuous-decode route producer；
-2. RTX 5090 实测 expert service surface，且仅在测量区间内保守插值；
+2. RTX 5090 实测、按 expert/dtype 绑定的 service surface，且仅在测量区间内保守插值；
 3. identity-complete、exact-output replay；
 4. 冻结的 natural workload / model / revision / seed manifest。
 
 还需一个与目标 accounting boundary 一致的完整路径 denominator。不能从 proposed saving 反推 denominator。
+
+截至 2026-08-02，第 1 项已有唯一开发入口和 fail-closed artifact
+contract，但未完成正式资格。第 4 项输入已冻结：两个 canonical manifest
+绑定 exact model/tokenizer revision、WikiText 样本与 prompt/token hashes、
+BurstGPT 真实到达 trace 和 RTX 5090 软件环境；当前 dirty checkout 未提交，
+本机也无 CUDA，两个正式 cell 均未运行。详见
+[Gate-0 审计账本](gate0_audit_2026-08-02.md)。这不授权 Gate 1。
 
 ### Gate 1：共同现象测量
 
@@ -115,7 +148,9 @@
 - 只在 synthetic skew、单模型、单层、极端 replica 数成立：不构成论文主线；
 - identity、route、rows、request ledger 或 denominator 不闭合：`INVALID`，只修测量，不解释收益。
 
-### Gate 2：只选择一个 exact Oracle
+### Gate 2：历史 action-space 分支（当前未授权）
+
+当前 builder/Oracle 只做 `single_layer_window` 回放，不会把 assignment/hold 改变的完成时间传播到后续 layer 和 decode step。因此 formal Gate 2 已硬编码返回 `INVALID_REQUEST_DAG_REPLAY_NOT_IMPLEMENTED`；即使 Gate 1 将来通过，也必须先实现并验证 full request-DAG，才能运行 Oracle 或 Gate 3。
 
 Gate 1 后按现象来源分叉，但一次只允许一个分支：
 
@@ -125,7 +160,7 @@ Gate 1 后按现象来源分叉，但一次只允许一个分支：
 
 Oracle `<10%`、动作等价或只在 zero-cost / future-unbounded 条件下成立，立即停止。
 
-### Gate 3：简单策略差距
+### Gate 3：历史 policy 分支（当前未授权）
 
 统一比较 current/default、deterministic random、threshold、EDF/least-laxity、greedy 和 chosen proposed policy；参数只能在 calibration split 选择。
 
@@ -150,6 +185,7 @@ optimized EP return-path existence 是另一条**硬件条件分支**，不是�
 - FJRC keyed Join-Deficit bitmap；
 - ConfidenceGuard v3 当前 prefill-risk audit allocation；
 - fixed RankLane actuator 在 `p_return≤20%` 冻结域内；
+- StableBatch compatibility-aware / row-conditioned pre-action selector；
 - 已归档的 CreditReduce、MassCover、TokenRace、QuotaEP、PLTB additive、RouteFidelity、Prefetch 等 formulation。
 
 ### 仅保留为证据或工具
@@ -161,11 +197,10 @@ optimized EP return-path existence 是另一条**硬件条件分支**，不是�
 
 ## 7. 当前最短执行清单
 
-1. 不再生成新 idea 文档，也不再改 Top 3 排名。
-2. 复核 BCRD 与 DEPA 的输入 schema，冻结一份共同 manifest 和 accounting boundary。
-3. 补齐 Gate 0 的四项正式能力及 full-path denominator。
-4. 只运行共同 Gate 1；先看科学 verdict，再决定是否进入一个 Oracle 分支。
-5. Gate 失败就记录窄负结果并停止，不调 workload、阈值或指标救活。
+1. 不重跑或调参抢救 SemanticFence coarse contract、C09-v1、MaxGate-v1 或 CriticalSplit。
+2. D10 cost Gate 与 StableBatch Selectability Gate 均已关闭；保留原始证据，不改 C/B、特征、阈值、workload 或 metric 救活。
+3. 不实现 StableBatch selector、partition planner、controller 或 vLLM integration；Oracle upper bound 不能充当 online policy。
+4. 下一 Primary `Route-Conditioned Barrier Amplification Boundary` 的 preparation 已因协议歧义 fail closed；不得运行 Oracle Gate或设计 action/runtime。若不另行完成 protocol-definition qualification，则返回 candidate discovery。
 
 ## 8. 文档裁决顺序
 
@@ -179,6 +214,12 @@ optimized EP return-path existence 是另一条**硬件条件分支**，不是�
 
 新的正式结果必须同时更新本文和对应 idea README。只新增一份“唯一主攻”文档而不更新本页，视为来源快照，不改变执行顺序。
 
+### Artifact 路由与发布边界
+
+- 科学裁决仍以 `docs/current/` 为准；[`artifacts/index.json`](../../artifacts/index.json) 只提供 canonical artifact 路由，bundle 本身不能升级 verdict。
+- RouteSlack 的 canonical compact capsule 是 `20260728_160000_final_audit`；此前文档称 `20260728_115300` 为 canonical 的记录保留为历史原始证据，不删除、不失效，二者关系由索引显式说明。
+- 新生成的 `artifacts/` run bundle 默认不进入 Git；完整规则见 [`artifacts/README.md`](../../artifacts/README.md)。现有已跟踪 bundle 的取消跟踪或历史重写不属于本次变更。
+
 ## 9. 一句话状态
 
-> 目前已完成的是候选清理、多个 formulation 的窄负结果和两套严格 Gate harness；尚未完成的是能让 BCRD 或 DEPA 成为论文主机制的正式自然 workload 现象验证。当前唯一工作是共同 Gate 1，而不是继续扩展 controller。
+> JoinStream 当前 formulation 已 `FREEZE / NO_MORE_EXPERIMENTS_FOR_CURRENT_FORMULATION`；D10 headline 已因成本 Gate 降级，StableBatch pre-action 机制已 STOP。当前仍没有被正式实验证实的 MoE 系统主机制；下一 Primary 只是 `Route-Conditioned Barrier Amplification Boundary` 的 Oracle-first 研究问题，其 preparation 为 `BLOCKED_PROTOCOL_AMBIGUITY`，尚无 evaluator 或 headroom 证据。
