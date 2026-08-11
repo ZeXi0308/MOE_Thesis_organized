@@ -2,10 +2,8 @@ from __future__ import annotations
 
 from collections import defaultdict
 from dataclasses import dataclass, field
-from pathlib import Path
 from types import MethodType
 import re
-import sys
 
 import torch
 import torch.nn.functional as F
@@ -14,17 +12,9 @@ from fake_quant import apply_precision
 from policies import ApproxPolicy, make_policy
 from policies import receiver_group_ids
 
-# These two numerical references were moved into killed-idea archives while
-# capture_moe remained shared by active experiments.  Keep the historical
-# branches importable without making every active entrypoint modify sys.path.
-_REPO_ROOT = Path(__file__).resolve().parents[2]
-for _compat_dir in (
-    _REPO_ROOT / "docs/archive/killed_ideas/creditreduce/scripts",
-    _REPO_ROOT / "docs/archive/killed_ideas/quotaep/scripts",
-):
-    if str(_compat_dir) not in sys.path:
-        sys.path.append(str(_compat_dir))
-
+# Stable shared numerical references.  Historical experiment entrypoints keep
+# importing the same flat module names, so this move preserves their API while
+# removing an active runtime dependency on docs/archive.
 from creditreduce_reference import creditreduce_reference
 from grouped_owner_combine import grouped_owner_combine
 
