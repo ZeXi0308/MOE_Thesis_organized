@@ -1,0 +1,89 @@
+{
+  "audit_skill": "experiment-audit",
+  "verdict": "WARN",
+  "reason_code": "PARTIAL_PRIOR_OUTCOME_KNOWLEDGE_PRECLUDES_FULL_CONFIRMATORY_FREEZE",
+  "summary": "All 240 cells and 1920 actions recompute exactly; prior knowledge of MaxGate/shuffle closures downgrades preregistration status but does not alter the retrospective oracle upper bound.",
+  "audited_input_hashes": {
+    "docs/ideas/stablebatch/experiments/run_oracle_action_sweep.py": "sha256:949b35e16f722452b397e66b867d0f3f9ad17f2fa0b18eb91c1e4cf4b7da12e8",
+    "docs/ideas/stablebatch/experiments/configs/oracle_action_sweep_v1.json": "sha256:2c0110d17fb8f0c8cf6e09a587fd9b8ce2eb4664ce3cda57edb8e6979b7a400a",
+    "summary.json": "sha256:fde35cfb609e07ae2d9439a0227fd30e97807e05df4456fe7c300e4f12f6bd80",
+    "cell_results.jsonl": "sha256:2ab83c452ec41b0e949bb13c0bdf4f599e9d3e0d201e86f800c6dbbd72981654",
+    "RUN_STATUS.json": "sha256:185bfcb149a4e070eef40c0c261656d94089fdb881628329d87713cba0a173e3",
+    "MANIFEST.json": "sha256:921ddee7a3b5147db76b147ba14e049241c62feabb27e16acedb59ec4cc491b2"
+  },
+  "trace_path": ".aris/traces/experiment-audit/2026-08-10_run09/",
+  "agent_id": "/root/oracle_result_integrity",
+  "executor_model": "gpt-5",
+  "executor_family": "openai",
+  "reviewer_model": "gpt-5.6-sol",
+  "reviewer_family": "openai",
+  "reviewer_reasoning": "ultra",
+  "review_independence": "same-family",
+  "acceptance_status": "provisional",
+  "generated_at": "2026-08-10T18:49:03+08:00",
+  "date": "2026-08-10",
+  "auditor": "gpt-5.6-sol-ultra",
+  "overall_verdict": "warn",
+  "integrity_status": "warn",
+  "p0": [],
+  "p1": [
+    {
+      "id": "PARTIAL_PRIOR_OUTCOME_KNOWLEDGE",
+      "impact": "Downgrades full confirmatory preregistration only; does not change executed actions or recomputed oracle metrics."
+    }
+  ],
+  "checks": {
+    "gt_provenance": {
+      "status": "pass",
+      "details": "All-M1 is explicitly labeled self_supervised_proxy."
+    },
+    "score_normalization": {
+      "status": "pass",
+      "details": "Raw signed rewards, route distances, and exact fractions are retained."
+    },
+    "result_existence": {
+      "status": "pass",
+      "details": "COMPLETE; manifest, runner, config, lock, and source hashes match."
+    },
+    "dead_code": {
+      "status": "pass",
+      "details": "R/U/A0..A7 and positive-action confirmation paths appear in cell results."
+    },
+    "scope": {
+      "status": "warn",
+      "details": "Retrospective same-cell proxy; prior MaxGate/shuffle closure values were known before oracle config freeze."
+    },
+    "eval_type": "self_supervised_proxy_retrospective_oracle_upper_bound"
+  },
+  "recomputed_metrics": {
+    "cell_count": 240,
+    "candidate_action_count": 1920,
+    "unprotected_route_distance": 43,
+    "forced_oracle_reward": 37,
+    "abstaining_oracle_reward": 37,
+    "action_budget": 33,
+    "recovery_fraction": 0.8604651162790697,
+    "budget_matched_global_random": 0.309375,
+    "budget_matched_conditional_random": 19.5,
+    "positive_cells": 33,
+    "positive_victims": 8,
+    "full_restoration_cells": 31,
+    "maxgate_v1_reward": -3,
+    "frozen_shuffle_reward": 3,
+    "summary_mismatch_count": 0
+  },
+  "claims": [
+    {
+      "id": "ORACLE_ACTION_VALUE",
+      "impact": "supported_with_retrospective_proxy_qualifier"
+    },
+    {
+      "id": "ONLINE_SELECTOR",
+      "impact": "unsupported"
+    },
+    {
+      "id": "SERVING_GENERALIZATION",
+      "impact": "unsupported"
+    }
+  ]
+}

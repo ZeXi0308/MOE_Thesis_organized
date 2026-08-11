@@ -1,0 +1,70 @@
+{
+  "acceptance_status": "provisional",
+  "agent_id": "/root/stablebatch_observable_audit",
+  "audit_skill": "experiment-audit",
+  "audited_input_hashes": {
+    "INDEPENDENT_RECOMPUTE.json": "sha256:5a551cfde9629425efc103eb99921d3b33a85693ac5a5b3a443e536fc01b2152",
+    "MANIFEST.json": "sha256:c73d77eacb9f632bb6c5def86bb64f9c3042bc903218757a00450637ff187f43",
+    "cell_results.jsonl": "sha256:b850aebee339f083b13ea7c43e8685f2cad4a29d600502e5eebd5cf584c4d9a2",
+    "summary.json": "sha256:700a4bc41932881f440a79bf5143932a4570107e8f86ce9e932bdaab979b6c76"
+  },
+  "auditor": "gpt-5.6-sol-ultra",
+  "checks": {
+    "control_integrity": {
+      "details": "Observable-only selector view, pre-outcome policy lock, and frozen balanced-shuffle assignments verified; zero recomputation mismatches.",
+      "status": "pass"
+    },
+    "dead_code": {
+      "details": "Claimed observable selector and frozen classifier are executed; outcome-informed base-runner scan is not used by this formal path.",
+      "status": "pass"
+    },
+    "eval_type": "causal_model-internal_measurement_with_self_supervised_proxy_reference",
+    "gt_provenance": {
+      "details": "All-M1 is explicitly model-internal self-supervised counterfactual reference, not external ground truth.",
+      "status": "pass"
+    },
+    "result_existence": {
+      "details": "Remote/local 27-path hashes match; both manifests pass; raw-ledger and independent recomputations match the frozen verdict.",
+      "status": "pass"
+    },
+    "scope": {
+      "details": "One model revision, one RTX 5090 stack, 16 documents, 240 cells, one formal run, and one balanced-shuffle realization; descriptive pilot only.",
+      "status": "warn"
+    },
+    "score_normalization": {
+      "details": "Direct raw reward totals and fixed cell denominator; no prediction-statistic self-normalization.",
+      "status": "pass"
+    }
+  },
+  "claims": [
+    {
+      "id": "frozen_pilot_verdict",
+      "impact": "supported"
+    },
+    {
+      "id": "maxgate_improves_over_shuffle",
+      "impact": "contradicted_in_this_run"
+    },
+    {
+      "id": "general_statistical_inferiority",
+      "impact": "unsupported"
+    }
+  ],
+  "date": "2026-08-10",
+  "executor_family": "openai",
+  "executor_model": "codex-gpt-5.6-sol",
+  "generated_at": "2026-08-10T09:36:33Z",
+  "integrity_status": "pass",
+  "overall_verdict": "pass_with_limitations",
+  "p0_count": 0,
+  "p1_count": 0,
+  "reason_code": "NO_CORE_INTEGRITY_DEFECT_PROXY_SCOPE_ONLY",
+  "review_independence": "same-family",
+  "reviewer_family": "openai",
+  "reviewer_model": "gpt-5.6-sol",
+  "reviewer_reasoning": "ultra",
+  "summary": "No P0/P1 integrity defect; frozen descriptive verdict A_O=-3 versus A_S=3 reproduces exactly within the declared proxy scope.",
+  "trace_path": ".aris/traces/experiment-audit/2026-08-10_run06/",
+  "verdict": "PASS_WITH_LIMITATIONS",
+  "verdict_id": "/root/stablebatch_observable_audit"
+}

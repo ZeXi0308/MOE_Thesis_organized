@@ -1,0 +1,147 @@
+{
+  "action_pre_features": {
+    "categorical_one_hot": [
+      "layer",
+      "expert_id",
+      "rank"
+    ],
+    "continuous": [
+      "gate_weight",
+      "gate_share",
+      "gate_gap_to_min",
+      "topk_mass",
+      "normalized_entropy",
+      "cutoff_margin"
+    ],
+    "forbidden": [
+      "document_identity",
+      "token_identity",
+      "cell_identity",
+      "previous_selector_score",
+      "fresh_outcome_as_feature",
+      "historical_outcome_profile_in_dynamic_heads"
+    ],
+    "normalization": "broad-fit-only population mean/std; held-out and fresh never refit"
+  },
+  "action_space": {
+    "budget_B": 33,
+    "candidate_ranks": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "forbid_final_logit_labels": true,
+    "harm": "route_harmed_count",
+    "max_actions_per_cell": 1,
+    "utility": "route_recovered_count-route_harmed_count"
+  },
+  "claim_boundary": "Existing broad and fresh C8 outcome surfaces are reused after their outcomes were already observed. This analysis can diagnose transfer failure and choose one future policy to preregister, but cannot confirm that policy.",
+  "decision": {
+    "future_confirmation_requirement": "Any selected policy must be sealed before C8 outcomes on a third, fully new document-disjoint cohort.",
+    "missing_branch_resolution_frozen_pre_result": "A positive harm diagnostic alone does not create a third harm-only policy. This prevents post-result policy shopping.",
+    "priority": [
+      "if fresh profile_rank_gain_B > 0: PRE_REGISTER_HYBRID_CELLGATE_PROFILEDRANK_V1",
+      "otherwise: STOP_SUPERVISED_SELECTOR_TO_WITNESSPATCH_BUDGETED_PROBING"
+    ]
+  },
+  "decomposition": {
+    "cell_opportunity": "mu_c=(1/8)*sum_r utility_c_r",
+    "rank_residual": "delta_c_r=residual8_c_r/8=utility_c_r-mu_c",
+    "rank_residual_scaled": "residual8_c_r=8*utility_c_r-sum_r utility_c_r",
+    "required_closure": "sum_r residual8_c_r=0 for every cell"
+  },
+  "evaluation": {
+    "additional_views": [
+      "all-cell rank gain",
+      "per-document gain and positive-document count",
+      "prediction MAE/RMSE/Pearson",
+      "rank oracle headroom and capture",
+      "exact harm avoidance"
+    ],
+    "cell_matched_random_rank_net": "sum_selected_cells mu_c",
+    "cell_selection_gain": "cell_matched_random_rank_net-global_random_net",
+    "expectations": "exact rational arithmetic; no Monte Carlo",
+    "fresh_side": "one full-broad fit evaluated once on the existing document-disjoint fresh surface",
+    "global_random_net": "B/N_cells*sum_c mu_c",
+    "primary_cell_set": "exact top-B cells selected by the corresponding cell-head predictions",
+    "profile_rank_gain_primary": "profile rank gain on the fresh cell-head top-B cell set",
+    "rank_gain": "sum_selected_cells delta_c_selected_rank",
+    "train_side": "16-fold leave-one-document-out cross-fit over broad; no tuning"
+  },
+  "evidence_class": "EXPLORATORY_POST_HOC_DECOMPOSITION",
+  "execution": {
+    "cpu_only": true,
+    "gpu_allowed": false,
+    "model_inference_allowed": false,
+    "output_directory": "docs/ideas/stablebatch/experiments/outputs/selector_failure_decomposition_20260810_run01"
+  },
+  "heads": {
+    "cell_head": {
+      "alpha": 1.0,
+      "features": "mean action-pre vector per cell, excluding intercept and constant rank block",
+      "intercept_penalized": false,
+      "model": "ridge",
+      "selection": "global predicted mu descending, then cell_identity ascending, exact B",
+      "target": "mu_c"
+    },
+    "harm_head": {
+      "alpha": 1.0,
+      "effective_if": "fresh MSE skill versus broad-train-mean constant is positive AND exact selected-cell harm avoidance is positive",
+      "features": "raw action-pre vector",
+      "intercept_penalized": false,
+      "model": "ridge",
+      "selection_for_diagnostic": "minimum predicted harm within each selected cell; tie smallest rank",
+      "target": "route_harmed_count"
+    },
+    "hierarchical_static_rank_profile": {
+      "algorithm": "three_pair_posteriors_mean_then_exact_tuple_posterior",
+      "claim_name": "profile-aware rank selection",
+      "hyperparameter_search": false,
+      "name": "HierarchicalStaticRankProfile-v1",
+      "selection": "maximum broad-fitted profile score within each selected fresh cell; tie smallest rank",
+      "shrinkage_lambda": 4.0,
+      "tables": [
+        "layer_expert",
+        "expert_rank",
+        "layer_rank",
+        "layer_expert_rank"
+      ],
+      "target": "residual8_c_r"
+    },
+    "rank_residual_ridge": {
+      "alpha": 1.0,
+      "features": "action-pre vector minus within-cell mean action-pre vector",
+      "intercept": false,
+      "model": "ridge",
+      "selection": "maximum predicted residual within each selected cell; tie smallest rank",
+      "target": "residual8_c_r"
+    }
+  },
+  "inputs": {
+    "evaluation_surface": {
+      "expected_actions": 1920,
+      "expected_cells": 240,
+      "expected_documents": 16,
+      "path": "docs/ideas/stablebatch/experiments/outputs/sparse_c8_stability_budget_20260810_run01/fresh/cell_results.jsonl",
+      "role": "fresh",
+      "sha256": "8969c2418f26864429e30354185e3c3b0d142454a443ecf33a4c807282ece418"
+    },
+    "required_document_hash_overlap": 0,
+    "shared_action_pre_eligibility": "unconditional 16 documents x layers 0..14 at the same frozen victim position; no outcome filter",
+    "train_surface": {
+      "expected_actions": 1920,
+      "expected_cells": 240,
+      "expected_documents": 16,
+      "path": "docs/ideas/stablebatch/experiments/outputs/sparse_c8_stability_budget_20260810_run01/broad/cell_results.jsonl",
+      "role": "broad",
+      "sha256": "3cb008af91b6329396ff7df1ce34a90c281ccabb646aa321ad559d7214bf9bfa"
+    }
+  },
+  "schema_version": "stablebatch-selector-failure-decomposition-v1",
+  "status": "FROZEN_BEFORE_NEW_DECOMPOSITION_COMPUTATION"
+}
