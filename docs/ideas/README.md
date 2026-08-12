@@ -20,6 +20,7 @@ BCRD 与 DEPA 不再是当前执行线。新 Primary 的 Oracle Gate 准备可�
 | Idea | 状态 | 文档与边界 |
 |---|---|---|
 | RouteGuard-KV | `PROPOSED / KILL_PROBE_ONLY / NOT_CURRENT_MAINLINE` | [严格评审与收紧后 R0–R2 协议](routeguard_kv/README.md)；保留历史协议，不改变 Oracle-first Primary 的执行顺序 |
+| RouteShape-SLO | `BLOCKED_RUNTIME_NOT_REPRESENTATIVE / P1_SMOKE_ONLY / NOT_CURRENT_MAINLINE` | [状态、代码与唯一下一实验](route_shape_slo/)；只登记探索，不改变 Oracle-first Primary。 |
 
 ## 保留的证据方向
 
