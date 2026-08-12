@@ -1,0 +1,1099 @@
+repo_branch=agent/publish-current-moe-code
+repo_head=beb08ee4e25dbf93ea3e199db671080c4d3ecea5
+{'gpu': 'NVIDIA GeForce RTX 5090', 'cuda': '12.8', 'free_gib': 30.86, 'torch': '2.8.0+cu128', 'transformers': '4.57.6', 'numpy': '2.3.2'}
++ python3 /root/autodl-tmp/rce_capacity_envelope_beb08ee/docs/ideas/route_shape_slo/v2_capacity_envelope/experiments/prepare_dev_workloads.py --spec /root/autodl-tmp/rce_capacity_envelope_beb08ee/docs/ideas/route_shape_slo/v2_capacity_envelope/experiments/olmoe_dev_workload.json --output-dir /tmp/rce-v2-manifests-20260812T170512Z
+{"episodes": ["olmoe-dev-bursty", "olmoe-dev-steady"], "request_counts": {"olmoe-dev-bursty": 16, "olmoe-dev-steady": 16}, "status": "DEV_WORKLOADS_MATERIALIZED"}
++ timeout 10m python3 /root/autodl-tmp/rce_capacity_envelope_beb08ee/docs/ideas/route_shape_slo/v2_capacity_envelope/experiments/check_telemetry_overhead.py --workload-manifest /tmp/rce-v2-manifests-20260812T170512Z/olmoe-dev-steady.json --output /tmp/rce-v2-work-20260812T170512Z/telemetry_overhead.json --requests 8 --decode-steps 8 --warmup-repeats 1 --repeats 3 --max-relative-overhead 0.02 --offline
+Loading checkpoint shards:   0%|          | 0/3 [00:00<?, ?it/s]Loading checkpoint shards:  67%|██████▋   | 2/3 [00:00<00:00, 15.63it/s]Loading checkpoint shards: 100%|██████████| 3/3 [00:00<00:00, 17.15it/s]
+{"status": "TELEMETRY_OVERHEAD_OK"}
++ timeout 25m python3 /root/autodl-tmp/rce_capacity_envelope_beb08ee/docs/ideas/route_shape_slo/v2_capacity_envelope/experiments/capture_dev_continuous_decode.py --workload-manifest /tmp/rce-v2-manifests-20260812T170512Z/olmoe-dev-steady.json --preregistration docs/ideas/bcrd/experiments/configs/gate0_continuous_decode_v1.json --output-dir /tmp/bcrd-gate0-smoke-rce-steady-20260812T170512Z --offline
+Loading checkpoint shards:   0%|          | 0/3 [00:00<?, ?it/s]Loading checkpoint shards:  67%|██████▋   | 2/3 [00:00<00:00, 15.09it/s]Loading checkpoint shards: 100%|██████████| 3/3 [00:00<00:00, 16.70it/s]
+{
+  "schema": "bcrd-continuous-capture-complete-v1",
+  "status": "CAPTURE_COMPLETE",
+  "run_class": "development",
+  "formal_capture_candidate": false,
+  "producer_formal_eligible": false,
+  "scientific_result_eligible": false,
+  "gate0_complete": false,
+  "gate1_authorized": false,
+  "qualification_scope": "producer candidate; independent audit still required",
+  "model_load_seconds": 3.315934419631958,
+  "workload_manifest_sha256": "47babe9d8f875fda3457a68ca83ee7d1274866ebc47013622691d1fc1b556a6d",
+  "preregistration_sha256": "5664e1e457548b6564a1bf3d24af5c3d2d98c1d1ddbd6510a93556ea49042de4",
+  "expected_requests": 16,
+  "admitted_requests": 16,
+  "completed_requests": 16,
+  "failed_requests": 0,
+  "filtered_requests": 0,
+  "stop_reason_counts": {
+    "max_decode_steps": 16
+  },
+  "decode_steps": 128,
+  "router_invocations": 2048,
+  "identity_closed_router_invocations": 2048,
+  "route_contributions": 16384,
+  "identity_closed_contributions": 16384,
+  "serial_audit": {
+    "status": "PASS_TOKEN_PARITY_ROUTE_BATCH_DEPENDENT",
+    "requests": 4,
+    "steps": 32,
+    "layers": 512,
+    "token_match_fraction": 1.0,
+    "route_identity_match_fraction": 0.966796875,
+    "route_assignment_step_match_fraction": 0.8125,
+    "route_ordered_layer_match_fraction": 0.857421875,
+    "route_identity_semantics": "per_layer_expert_assignment_multiset",
+    "batch_dependent_route_observed": true,
+    "difference_examples": [
+      {
+        "request_id": "olmoe-dev-steady-000",
+        "decode_step": 1,
+        "layer": 3,
+        "batched_experts": [
+          56,
+          51,
+          37,
+          61,
+          19,
+          39,
+          62,
+          23
+        ],
+        "serial_experts": [
+          56,
+          51,
+          37,
+          61,
+          19,
+          39,
+          40,
+          23
+        ]
+      },
+      {
+        "request_id": "olmoe-dev-steady-000",
+        "decode_step": 1,
+        "layer": 7,
+        "batched_experts": [
+          61,
+          36,
+          13,
+          38,
+          47,
+          1,
+          45,
+          11
+        ],
+        "serial_experts": [
+          61,
+          36,
+          13,
+          38,
+          47,
+          1,
+          45,
+          43
+        ]
+      },
+      {
+        "request_id": "olmoe-dev-steady-000",
+        "decode_step": 1,
+        "layer": 8,
+        "batched_experts": [
+          18,
+          53,
+          23,
+          32,
+          22,
+          15,
+          31,
+          33
+        ],
+        "serial_experts": [
+          18,
+          53,
+          23,
+          32,
+          22,
+          15,
+          5,
+          31
+        ]
+      },
+      {
+        "request_id": "olmoe-dev-steady-001",
+        "decode_step": 2,
+        "layer": 5,
+        "batched_experts": [
+          57,
+          21,
+          0,
+          1,
+          41,
+          60,
+          13,
+          2
+        ],
+        "serial_experts": [
+          57,
+          21,
+          0,
+          1,
+          41,
+          60,
+          13,
+          42
+        ]
+      },
+      {
+        "request_id": "olmoe-dev-steady-001",
+        "decode_step": 2,
+        "layer": 8,
+        "batched_experts": [
+          53,
+          38,
+          31,
+          3,
+          37,
+          54,
+          45,
+          58
+        ],
+        "serial_experts": [
+          53,
+          38,
+          31,
+          3,
+          37,
+          45,
+          54,
+          18
+        ]
+      },
+      {
+        "request_id": "olmoe-dev-steady-001",
+        "decode_step": 3,
+        "layer": 10,
+        "batched_experts": [
+          42,
+          35,
+          32,
+          33,
+          56,
+          21,
+          15,
+          27
+        ],
+        "serial_experts": [
+          42,
+          35,
+          32,
+          33,
+          21,
+          56,
+          15,
+          52
+        ]
+      },
+      {
+        "request_id": "olmoe-dev-steady-001",
+        "decode_step": 3,
+        "layer": 13,
+        "batched_experts": [
+          38,
+          50,
+          0,
+          22,
+          6,
+          8,
+          2,
+          11
+        ],
+        "serial_experts": [
+          38,
+          50,
+          0,
+          22,
+          6,
+          2,
+          8,
+          16
+        ]
+      },
+      {
+        "request_id": "olmoe-dev-steady-002",
+        "decode_step": 5,
+        "layer": 4,
+        "batched_experts": [
+          22,
+          60,
+          38,
+          20,
+          39,
+          40,
+          50,
+          47
+        ],
+        "serial_experts": [
+          22,
+          60,
+          38,
+          20,
+          39,
+          40,
+          50,
+          44
+        ]
+      },
+      {
+        "request_id": "olmoe-dev-steady-002",
+        "decode_step": 5,
+        "layer": 9,
+        "batched_experts": [
+          19,
+          2,
+          56,
+          3,
+          5,
+          25,
+          62,
+          22
+        ],
+        "serial_experts": [
+          19,
+          2,
+          56,
+          3,
+          5,
+          25,
+          29,
+          62
+        ]
+      },
+      {
+        "request_id": "olmoe-dev-steady-002",
+        "decode_step": 5,
+        "layer": 10,
+        "batched_experts": [
+          25,
+          26,
+          52,
+          15,
+          21,
+          22,
+          51,
+          63
+        ],
+        "serial_experts": [
+          25,
+          26,
+          52,
+          63,
+          32,
+          22,
+          51,
+          21
+        ]
+      },
+      {
+        "request_id": "olmoe-dev-steady-002",
+        "decode_step": 5,
+        "layer": 11,
+        "batched_experts": [
+          3,
+          39,
+          35,
+          60,
+          19,
+          29,
+          36,
+          21
+        ],
+        "serial_experts": [
+          3,
+          39,
+          35,
+          60,
+          19,
+          29,
+          2,
+          36
+        ]
+      },
+      {
+        "request_id": "olmoe-dev-steady-003",
+        "decode_step": 4,
+        "layer": 0,
+        "batched_experts": [
+          49,
+          46,
+          10,
+          8,
+          6,
+          21,
+          47,
+          16
+        ],
+        "serial_experts": [
+          49,
+          46,
+          10,
+          8,
+          6,
+          21,
+          47,
+          43
+        ]
+      },
+      {
+        "request_id": "olmoe-dev-steady-003",
+        "decode_step": 4,
+        "layer": 11,
+        "batched_experts": [
+          6,
+          45,
+          31,
+          8,
+          32,
+          53,
+          50,
+          40
+        ],
+        "serial_experts": [
+          6,
+          45,
+          31,
+          8,
+          32,
+          53,
+          50,
+          48
+        ]
+      },
+      {
+        "request_id": "olmoe-dev-steady-003",
+        "decode_step": 6,
+        "layer": 1,
+        "batched_experts": [
+          53,
+          37,
+          41,
+          42,
+          48,
+          2,
+          45,
+          36
+        ],
+        "serial_experts": [
+          53,
+          37,
+          41,
+          42,
+          48,
+          2,
+          45,
+          46
+        ]
+      },
+      {
+        "request_id": "olmoe-dev-steady-003",
+        "decode_step": 6,
+        "layer": 5,
+        "batched_experts": [
+          44,
+          10,
+          6,
+          49,
+          13,
+          33,
+          57,
+          40
+        ],
+        "serial_experts": [
+          44,
+          10,
+          6,
+          49,
+          33,
+          13,
+          57,
+          27
+        ]
+      },
+      {
+        "request_id": "olmoe-dev-steady-003",
+        "decode_step": 6,
+        "layer": 6,
+        "batched_experts": [
+          20,
+          35,
+          9,
+          28,
+          61,
+          45,
+          26,
+          42
+        ],
+        "serial_experts": [
+          20,
+          35,
+          9,
+          28,
+          61,
+          45,
+          26,
+          23
+        ]
+      }
+    ],
+    "topk_order_checked": true,
+    "gate_weight_checked": false,
+    "reference_type": "same-model serial cached-decode conformance diagnostic",
+    "scientific_ground_truth": false,
+    "development_wrapper": "/root/autodl-tmp/rce_capacity_envelope_beb08ee/docs/ideas/route_shape_slo/v2_capacity_envelope/experiments/capture_dev_continuous_decode.py",
+    "identity_summary": {
+      "contributions": 16384,
+      "tokens": 128,
+      "requests": 16
+    }
+  },
+  "decode_batch_size_histogram": {
+    "4": 32
+  },
+  "active_set_changes": 3,
+  "maximum_observed_decode_batch_size": 4,
+  "timing_boundary": "model-call boundaries only; not layer/stage service timing",
+  "formal_blockers_outside_gate0_a": [
+    "no dispatch/expert/combine stage ledger",
+    "no expert/dtype-complete service surface",
+    "no full-path denominator",
+    "Gate 0 completeness has not been audited"
+  ],
+  "files": {
+    "routes.csv": "6f6faf981d6d0318b9e3038e29785c5f350ef3a02f16bebe93e7bc002776538a",
+    "decode_batches.jsonl": "093b24964c9a4735548462505ba71cbfd1f766cca18a0326e729dd1e1d424ba4",
+    "request_ledger.jsonl": "191a261a2a9204df993fc4ad67f72060530e1dd0c3510ade6633c981a1c33464",
+    "workload_manifest.json": "47babe9d8f875fda3457a68ca83ee7d1274866ebc47013622691d1fc1b556a6d",
+    "preregistration.json": "1896af295658e2554c1a9b05e8da7b3ac16d4c472c0f91048a853e164b0fa1a9",
+    "environment.json": "13402145423468e28f02d4d1351859bbbfb6d316c0314ab02fb322e189666930",
+    "serial_audit.json": "111ccad1dfacede7c3b9788c9a8fe913cdbcf272c19cea29afed07a63b0733a7"
+  }
+}
++ timeout 25m python3 /root/autodl-tmp/rce_capacity_envelope_beb08ee/docs/ideas/route_shape_slo/v2_capacity_envelope/experiments/capture_dev_continuous_decode.py --workload-manifest /tmp/rce-v2-manifests-20260812T170512Z/olmoe-dev-bursty.json --preregistration docs/ideas/bcrd/experiments/configs/gate0_continuous_decode_v1.json --output-dir /tmp/bcrd-gate0-smoke-rce-bursty-20260812T170512Z --offline
+Loading checkpoint shards:   0%|          | 0/3 [00:00<?, ?it/s]Loading checkpoint shards:  67%|██████▋   | 2/3 [00:00<00:00, 15.71it/s]Loading checkpoint shards: 100%|██████████| 3/3 [00:00<00:00, 17.18it/s]
+{
+  "schema": "bcrd-continuous-capture-complete-v1",
+  "status": "CAPTURE_COMPLETE",
+  "run_class": "development",
+  "formal_capture_candidate": false,
+  "producer_formal_eligible": false,
+  "scientific_result_eligible": false,
+  "gate0_complete": false,
+  "gate1_authorized": false,
+  "qualification_scope": "producer candidate; independent audit still required",
+  "model_load_seconds": 3.2541494369506836,
+  "workload_manifest_sha256": "6a62efbe43e4494c194662d997396b6040c6f69a1f063e5d278211e29c473e79",
+  "preregistration_sha256": "5664e1e457548b6564a1bf3d24af5c3d2d98c1d1ddbd6510a93556ea49042de4",
+  "expected_requests": 16,
+  "admitted_requests": 16,
+  "completed_requests": 16,
+  "failed_requests": 0,
+  "filtered_requests": 0,
+  "stop_reason_counts": {
+    "max_decode_steps": 16
+  },
+  "decode_steps": 128,
+  "router_invocations": 2048,
+  "identity_closed_router_invocations": 2048,
+  "route_contributions": 16384,
+  "identity_closed_contributions": 16384,
+  "serial_audit": {
+    "status": "PASS_TOKEN_PARITY_ROUTE_BATCH_DEPENDENT",
+    "requests": 4,
+    "steps": 32,
+    "layers": 512,
+    "token_match_fraction": 1.0,
+    "route_identity_match_fraction": 0.947265625,
+    "route_assignment_step_match_fraction": 0.375,
+    "route_ordered_layer_match_fraction": 0.78515625,
+    "route_identity_semantics": "per_layer_expert_assignment_multiset",
+    "batch_dependent_route_observed": true,
+    "difference_examples": [
+      {
+        "request_id": "olmoe-dev-bursty-000",
+        "decode_step": 0,
+        "layer": 0,
+        "batched_experts": [
+          6,
+          8,
+          31,
+          52,
+          13,
+          2,
+          63,
+          54
+        ],
+        "serial_experts": [
+          6,
+          8,
+          31,
+          52,
+          13,
+          2,
+          63,
+          33
+        ]
+      },
+      {
+        "request_id": "olmoe-dev-bursty-000",
+        "decode_step": 1,
+        "layer": 1,
+        "batched_experts": [
+          21,
+          25,
+          47,
+          18,
+          15,
+          39,
+          5,
+          22
+        ],
+        "serial_experts": [
+          21,
+          25,
+          47,
+          18,
+          15,
+          39,
+          5,
+          41
+        ]
+      },
+      {
+        "request_id": "olmoe-dev-bursty-000",
+        "decode_step": 1,
+        "layer": 13,
+        "batched_experts": [
+          42,
+          29,
+          0,
+          21,
+          25,
+          16,
+          46,
+          45
+        ],
+        "serial_experts": [
+          42,
+          29,
+          0,
+          21,
+          16,
+          25,
+          46,
+          54
+        ]
+      },
+      {
+        "request_id": "olmoe-dev-bursty-000",
+        "decode_step": 2,
+        "layer": 10,
+        "batched_experts": [
+          57,
+          34,
+          8,
+          49,
+          13,
+          44,
+          31,
+          19
+        ],
+        "serial_experts": [
+          57,
+          34,
+          8,
+          49,
+          13,
+          44,
+          31,
+          4
+        ]
+      },
+      {
+        "request_id": "olmoe-dev-bursty-000",
+        "decode_step": 3,
+        "layer": 5,
+        "batched_experts": [
+          43,
+          15,
+          6,
+          35,
+          8,
+          5,
+          42,
+          63
+        ],
+        "serial_experts": [
+          43,
+          15,
+          6,
+          35,
+          8,
+          5,
+          42,
+          29
+        ]
+      },
+      {
+        "request_id": "olmoe-dev-bursty-000",
+        "decode_step": 4,
+        "layer": 1,
+        "batched_experts": [
+          43,
+          55,
+          30,
+          28,
+          20,
+          13,
+          10,
+          60
+        ],
+        "serial_experts": [
+          43,
+          55,
+          30,
+          28,
+          20,
+          13,
+          10,
+          6
+        ]
+      },
+      {
+        "request_id": "olmoe-dev-bursty-001",
+        "decode_step": 0,
+        "layer": 0,
+        "batched_experts": [
+          59,
+          17,
+          43,
+          7,
+          5,
+          39,
+          33,
+          15
+        ],
+        "serial_experts": [
+          59,
+          17,
+          43,
+          7,
+          5,
+          39,
+          33,
+          24
+        ]
+      },
+      {
+        "request_id": "olmoe-dev-bursty-001",
+        "decode_step": 3,
+        "layer": 11,
+        "batched_experts": [
+          51,
+          40,
+          12,
+          17,
+          25,
+          55,
+          41,
+          28
+        ],
+        "serial_experts": [
+          51,
+          40,
+          12,
+          17,
+          55,
+          25,
+          41,
+          29
+        ]
+      },
+      {
+        "request_id": "olmoe-dev-bursty-001",
+        "decode_step": 3,
+        "layer": 12,
+        "batched_experts": [
+          20,
+          57,
+          10,
+          29,
+          51,
+          24,
+          56,
+          26
+        ],
+        "serial_experts": [
+          20,
+          57,
+          10,
+          29,
+          51,
+          24,
+          56,
+          12
+        ]
+      },
+      {
+        "request_id": "olmoe-dev-bursty-001",
+        "decode_step": 6,
+        "layer": 8,
+        "batched_experts": [
+          26,
+          52,
+          12,
+          63,
+          51,
+          48,
+          55,
+          49
+        ],
+        "serial_experts": [
+          26,
+          52,
+          12,
+          63,
+          51,
+          48,
+          55,
+          33
+        ]
+      },
+      {
+        "request_id": "olmoe-dev-bursty-001",
+        "decode_step": 7,
+        "layer": 3,
+        "batched_experts": [
+          42,
+          30,
+          12,
+          38,
+          4,
+          3,
+          54,
+          16
+        ],
+        "serial_experts": [
+          42,
+          30,
+          12,
+          38,
+          4,
+          3,
+          54,
+          61
+        ]
+      },
+      {
+        "request_id": "olmoe-dev-bursty-002",
+        "decode_step": 0,
+        "layer": 4,
+        "batched_experts": [
+          45,
+          11,
+          34,
+          26,
+          62,
+          8,
+          49,
+          51
+        ],
+        "serial_experts": [
+          45,
+          11,
+          34,
+          26,
+          62,
+          8,
+          49,
+          37
+        ]
+      },
+      {
+        "request_id": "olmoe-dev-bursty-002",
+        "decode_step": 0,
+        "layer": 5,
+        "batched_experts": [
+          28,
+          23,
+          63,
+          27,
+          45,
+          10,
+          26,
+          14
+        ],
+        "serial_experts": [
+          28,
+          23,
+          63,
+          27,
+          45,
+          10,
+          26,
+          11
+        ]
+      },
+      {
+        "request_id": "olmoe-dev-bursty-002",
+        "decode_step": 0,
+        "layer": 9,
+        "batched_experts": [
+          27,
+          41,
+          63,
+          7,
+          37,
+          11,
+          26,
+          50
+        ],
+        "serial_experts": [
+          27,
+          63,
+          41,
+          7,
+          37,
+          11,
+          26,
+          55
+        ]
+      },
+      {
+        "request_id": "olmoe-dev-bursty-002",
+        "decode_step": 1,
+        "layer": 12,
+        "batched_experts": [
+          47,
+          32,
+          19,
+          5,
+          22,
+          45,
+          0,
+          58
+        ],
+        "serial_experts": [
+          47,
+          32,
+          19,
+          5,
+          22,
+          45,
+          0,
+          27
+        ]
+      },
+      {
+        "request_id": "olmoe-dev-bursty-002",
+        "decode_step": 4,
+        "layer": 7,
+        "batched_experts": [
+          47,
+          18,
+          26,
+          30,
+          24,
+          46,
+          1,
+          33
+        ],
+        "serial_experts": [
+          47,
+          26,
+          18,
+          30,
+          24,
+          46,
+          1,
+          0
+        ]
+      }
+    ],
+    "topk_order_checked": true,
+    "gate_weight_checked": false,
+    "reference_type": "same-model serial cached-decode conformance diagnostic",
+    "scientific_ground_truth": false,
+    "development_wrapper": "/root/autodl-tmp/rce_capacity_envelope_beb08ee/docs/ideas/route_shape_slo/v2_capacity_envelope/experiments/capture_dev_continuous_decode.py",
+    "identity_summary": {
+      "contributions": 16384,
+      "tokens": 128,
+      "requests": 16
+    }
+  },
+  "decode_batch_size_histogram": {
+    "4": 32
+  },
+  "active_set_changes": 3,
+  "maximum_observed_decode_batch_size": 4,
+  "timing_boundary": "model-call boundaries only; not layer/stage service timing",
+  "formal_blockers_outside_gate0_a": [
+    "no dispatch/expert/combine stage ledger",
+    "no expert/dtype-complete service surface",
+    "no full-path denominator",
+    "Gate 0 completeness has not been audited"
+  ],
+  "files": {
+    "routes.csv": "f684effde4981a4cba64b3992ee3e5b7aa5224eb8d3e96c171fdb278f9923a2a",
+    "decode_batches.jsonl": "beaae4f9ecfa22a3dc30039b70fb26b5115c5f22cf53b29745c7cbaefb52dc48",
+    "request_ledger.jsonl": "8dc1b35576fe9191db2e54b70fd7cccb8010ceb17a2c420d7262e4e37e3f0f5f",
+    "workload_manifest.json": "6a62efbe43e4494c194662d997396b6040c6f69a1f063e5d278211e29c473e79",
+    "preregistration.json": "1896af295658e2554c1a9b05e8da7b3ac16d4c472c0f91048a853e164b0fa1a9",
+    "environment.json": "13402145423468e28f02d4d1351859bbbfb6d316c0314ab02fb322e189666930",
+    "serial_audit.json": "2c61c39d7f30f7b97dd1c06f3c8a8897a9af018887e7943a1b4cf362feb850a5"
+  }
+}
++ python3 /root/autodl-tmp/rce_capacity_envelope_beb08ee/docs/ideas/route_shape_slo/v2_capacity_envelope/experiments/build_capacity_windows.py --capture-dir /tmp/bcrd-gate0-smoke-rce-steady-20260812T170512Z --capture-dir /tmp/bcrd-gate0-smoke-rce-bursty-20260812T170512Z --num-experts 64 --overhead /tmp/rce-v2-work-20260812T170512Z/telemetry_overhead.json --output /tmp/rce-v2-work-20260812T170512Z/windows.csv
+{
+  "arrival_episodes_independent": true,
+  "arrival_regimes": [
+    "bursty",
+    "steady"
+  ],
+  "captures": [
+    {
+      "arrival_episode_independent": true,
+      "arrival_regime": "bursty",
+      "capture_dir": "/tmp/bcrd-gate0-smoke-rce-bursty-20260812T170512Z",
+      "custom_running_field": "custom_running_set",
+      "custom_waiting_field": "custom_waiting_count",
+      "episode_id": "olmoe-dev-bursty",
+      "evidence_type": "[Observed real runtime]",
+      "future_fields_consumed": [],
+      "future_unarrived_counter_consumed": false,
+      "instrumentation_overhead_measured": false,
+      "model": "allenai/OLMoE-1B-7B-0924",
+      "model_key": "olmoe",
+      "model_revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+      "models": [
+        "olmoe"
+      ],
+      "physical_kv_bytes_available": false,
+      "qualification": {
+        "arrival_regime": "bursty",
+        "batch_dependent_route_observed": true,
+        "capture_dir": "/tmp/bcrd-gate0-smoke-rce-bursty-20260812T170512Z",
+        "checks": {
+          "causal_future_information": "PASS_BY_RAW_CAPTURE_SCHEMA_NO_SHIFTED_TARGETS",
+          "hook_no_hook_distortion": "PASS",
+          "route_request_step_latency_alignment": "PASS",
+          "same_data_same_action_space": "PASS_P0_NO_ACTION_ALL_METHODS_SHARE_WINDOWS",
+          "serial_route_conformance": "BATCH_DEPENDENT",
+          "serial_token_parity": "PASS"
+        },
+        "custom_running_set_semantics": "scheduled request_ids",
+        "custom_waiting_count_semantics": "len(active_request_ids)-batch_size",
+        "decode_windows": 32,
+        "diagnostic_only": true,
+        "episode_id": "olmoe-dev-bursty",
+        "exploratory_p1_ready": true,
+        "native_queue": false,
+        "native_serving_runtime": false,
+        "p1_runtime_ready": false,
+        "pending_request_count_consumed_as_queue": false,
+        "representative_serving_p1_ready": false,
+        "request_count": 16,
+        "route_events": 128,
+        "schema": "route-capacity-envelope-p0-qualification-v1",
+        "serial_route_identity_match_fraction": 0.947265625,
+        "status": "P0_READY_WITH_PROXY_RUNTIME",
+        "telemetry_arrival_replay_measured": false
+      },
+      "qualification_boundary": "P0 identity/timing alignment only; representative runtime, overhead, and fresh-holdout qualification are forced false",
+      "route_events": 128,
+      "route_rows": 16384,
+      "runtime_kind": "development_custom_continuous_runtime",
+      "runtime_representative": false,
+      "runtime_status": "P0_READY_WITH_PROXY_RUNTIME",
+      "windows": 32
+    },
+    {
+      "arrival_episode_independent": true,
+      "arrival_regime": "steady",
+      "capture_dir": "/tmp/bcrd-gate0-smoke-rce-steady-20260812T170512Z",
+      "custom_running_field": "custom_running_set",
+      "custom_waiting_field": "custom_waiting_count",
+      "episode_id": "olmoe-dev-steady",
+      "evidence_type": "[Observed real runtime]",
+      "future_fields_consumed": [],
+      "future_unarrived_counter_consumed": false,
+      "instrumentation_overhead_measured": false,
+      "model": "allenai/OLMoE-1B-7B-0924",
+      "model_key": "olmoe",
+      "model_revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+      "models": [
+        "olmoe"
+      ],
+      "physical_kv_bytes_available": false,
+      "qualification": {
+        "arrival_regime": "steady",
+        "batch_dependent_route_observed": true,
+        "capture_dir": "/tmp/bcrd-gate0-smoke-rce-steady-20260812T170512Z",
+        "checks": {
+          "causal_future_information": "PASS_BY_RAW_CAPTURE_SCHEMA_NO_SHIFTED_TARGETS",
+          "hook_no_hook_distortion": "PASS",
+          "route_request_step_latency_alignment": "PASS",
+          "same_data_same_action_space": "PASS_P0_NO_ACTION_ALL_METHODS_SHARE_WINDOWS",
+          "serial_route_conformance": "BATCH_DEPENDENT",
+          "serial_token_parity": "PASS"
+        },
+        "custom_running_set_semantics": "scheduled request_ids",
+        "custom_waiting_count_semantics": "len(active_request_ids)-batch_size",
+        "decode_windows": 32,
+        "diagnostic_only": true,
+        "episode_id": "olmoe-dev-steady",
+        "exploratory_p1_ready": true,
+        "native_queue": false,
+        "native_serving_runtime": false,
+        "p1_runtime_ready": false,
+        "pending_request_count_consumed_as_queue": false,
+        "representative_serving_p1_ready": false,
+        "request_count": 16,
+        "route_events": 128,
+        "schema": "route-capacity-envelope-p0-qualification-v1",
+        "serial_route_identity_match_fraction": 0.966796875,
+        "status": "P0_READY_WITH_PROXY_RUNTIME",
+        "telemetry_arrival_replay_measured": false
+      },
+      "qualification_boundary": "P0 identity/timing alignment only; representative runtime, overhead, and fresh-holdout qualification are forced false",
+      "route_events": 128,
+      "route_rows": 16384,
+      "runtime_kind": "development_custom_continuous_runtime",
+      "runtime_representative": false,
+      "runtime_status": "P0_READY_WITH_PROXY_RUNTIME",
+      "windows": 32
+    }
+  ],
+  "document_overlap_across_episodes": 0,
+  "episodes": [
+    "olmoe-dev-bursty",
+    "olmoe-dev-steady"
+  ],
+  "future_fields_consumed": [],
+  "model_identities": [
+    [
+      "allenai/OLMoE-1B-7B-0924",
+      "6d84c48581ece794365f2b8e9cfb043c68ade9c5"
+    ]
+  ],
+  "request_overlap_across_episodes": 0,
+  "schema": "route-capacity-envelope-windows-diagnostic-v1",
+  "status": "P0_WINDOWS_BUILT",
+  "windows": 64
+}
++ python3 /root/autodl-tmp/rce_capacity_envelope_beb08ee/docs/ideas/route_shape_slo/v2_capacity_envelope/experiments/analyze_capacity_signal.py --windows /tmp/rce-v2-work-20260812T170512Z/windows.csv --config /root/autodl-tmp/rce_capacity_envelope_beb08ee/docs/ideas/route_shape_slo/v2_capacity_envelope/experiments/olmoe_dev_capture.json --overhead /tmp/rce-v2-work-20260812T170512Z/telemetry_overhead.json --metrics /tmp/rce-v2-work-20260812T170512Z/metrics.json --report /tmp/rce-v2-work-20260812T170512Z/report.md
+{"metrics": "/tmp/rce-v2-work-20260812T170512Z/metrics.json", "verdict": "PIVOT_TO_EXECUTION_CONFORMANCE"}
++ set +x
+RCE development bundle: /root/autodl-tmp/rce_capacity_envelope_beb08ee/artifacts/route_capacity_envelope/dev/20260812T170512Z
+Raw captures: /tmp/bcrd-gate0-smoke-rce-steady-20260812T170512Z and /tmp/bcrd-gate0-smoke-rce-bursty-20260812T170512Z
