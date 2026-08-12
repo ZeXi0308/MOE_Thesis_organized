@@ -247,3 +247,15 @@
 | 2026-08-11 00:41 | /direct-action | refine-logs/EXPERIMENT_TRACKER_SFV2_O1_20260811_000054.md | decision | Dedicated timestamped tracker; does not overwrite the workspace latest tracker |
 | 2026-08-11 00:41 | /direct-action | docs/ideas/semanticfence/README.md | decision | SemanticFence branch updated to PIVOT_TO_SHADOW_VERIFY with model-output proxy boundary |
 | 2026-08-11 00:41 | /direct-action | docs/current/README.md | decision | Canonical authority records SFV2-O1 while preserving JoinStream freeze and RCBA Primary |
+| 2026-08-12 17:19 | /idea-creator | idea-stage/LANDSCAPE_INPUT_20260811_213449.md | idea-discovery | Workspace-grounded local and 2025-2026 literature landscape for systematic MoE direction selection; no experiment or method GO |
+| 2026-08-12 17:19 | /idea-creator | idea-stage/IDEA_CANDIDATES_20260811_213449.md | idea-discovery | Timestamped mechanical merge of 12 candidates from three analytic lenses with no pre-jury quality filtering |
+| 2026-08-12 17:19 | /idea-creator | idea-stage/IDEA_CANDIDATES.md | idea-discovery | Latest mechanically deduplicated 12-candidate pool |
+| 2026-08-12 17:19 | /novelty-check | idea-stage/NOVELTY_INPUT_TOP3_20260811_213449.md | idea-discovery | Core claims and closest-work input for C10, C07 and C02 novelty review |
+| 2026-08-12 17:19 | /idea-creator | idea-stage/REF_PAPER_SUMMARY_20260812_171903.md | idea-discovery | Timestamped MoE literature and evidence map identifying the inference conformance residual |
+| 2026-08-12 17:19 | /idea-creator | idea-stage/REF_PAPER_SUMMARY.md | idea-discovery | Latest MoE literature and evidence map |
+| 2026-08-12 17:19 | /novelty-check | idea-stage/NOVELTY_CHECK_TOP3_20260812_171903.md | idea-discovery | Timestamped same-family provisional novelty verdict stopping standalone C10 and retaining conditional C07 plus infrastructure-only C02 |
+| 2026-08-12 17:19 | /novelty-check | idea-stage/NOVELTY_CHECK_TOP3.md | idea-discovery | Latest Top-3 novelty verdict and IECP-G0 source-localization Gate |
+| 2026-08-12 17:19 | /idea-creator | idea-stage/IDEA_REPORT_20260812_171903.md | idea-discovery | Timestamped systematic MoE idea report; research-program optimism only and formal method/system GO remains zero |
+| 2026-08-12 17:19 | /idea-creator | idea-stage/IDEA_REPORT.md | idea-discovery | Latest ranked report selecting the unvalidated execution-conformance research program |
+| 2026-08-12 17:19 | /idea-creator | .aris/traces/idea-creator/2026-08-12_run01/ | review | Same-family provisional generation, jury and devil's-advocate trace for the 12-candidate rerank |
+| 2026-08-12 17:19 | /novelty-check | .aris/traces/novelty-check/2026-08-12_run01/ | review | Same-family provisional Top-3 novelty trace and C10 standalone stop decision |
