@@ -1,0 +1,223 @@
+{
+  "generated_at_utc": "2026-07-25T10:55:29.598843+00:00",
+  "experiment_id": "cpr_moe_ranklane_quick_gate_2026-07-25",
+  "hypothesis": "在暴露的 MoE EP 回传路径占端到端时延不超过 20% 时，RankLane 相对 uniform FP8 仍能在零编解码开销的乐观上界下带来至少 5% 的端到端时延改善。",
+  "primary_gate": {
+    "domain": "raw BF16 exposed return fraction <= 0.20",
+    "assumption": "zero codec, launch, queueing, and metadata overhead",
+    "cross_model_rule": "AND",
+    "target_relative_improvement": 0.05,
+    "pass": false
+  },
+  "decision": {
+    "code": "NO_GO_RANKLANE_ACTUATOR_UNDER_P_RETURN_MAX_0_20",
+    "ranklane_hypothesis_status": "FALSIFIED_WITHIN_FROZEN_DOMAIN",
+    "p1_return_path_existence_status": "NOT_TESTED_REQUIRES_8XA100",
+    "receiver_ordering_status": "NOT_TESTED",
+    "reopen_condition": "8xA100 shows raw BF16 exposed return fraction at or above each model's recorded required fraction, and a fused codec has non-negative net benefit"
+  },
+  "model_results": [
+    {
+      "model_key": "olmoe",
+      "model": "allenai/OLMoE-1B-7B-0924",
+      "samples": 128,
+      "top_k": 8,
+      "baseline": {
+        "policy": "uniform_fp8",
+        "byte_saving": 0.5,
+        "mean_kl": 0.003845442178123814,
+        "kl_ci_low": 0.003632482235076082,
+        "kl_ci_high": 0.00407181200878438
+      },
+      "quality_free_max_saving_candidate": {
+        "policy": "fp8top2_rest_int4",
+        "byte_saving": 0.6875,
+        "mean_kl": 0.0517090911295001,
+        "kl_ci_low": 0.0499581246196813,
+        "kl_ci_high": 0.053606686625981656
+      },
+      "zero_codec_upper_bound_at_p_max": 0.04166666666666667,
+      "required_exposed_fraction_for_target": 0.23529411764705885,
+      "captured_remaining_return_headroom": 0.375,
+      "pass": false,
+      "quality_sensitivity": [
+        {
+          "kl_ci_high_budget": 0.01,
+          "policy": null,
+          "byte_saving": null,
+          "upper_bound_at_p_max": null
+        },
+        {
+          "kl_ci_high_budget": 0.02,
+          "policy": "fp8top6_rest_int4",
+          "byte_saving": 0.5625,
+          "upper_bound_at_p_max": 0.01388888888888889
+        },
+        {
+          "kl_ci_high_budget": 0.04,
+          "policy": "fp8top3_rest_int4",
+          "byte_saving": 0.65625,
+          "upper_bound_at_p_max": 0.034722222222222224
+        },
+        {
+          "kl_ci_high_budget": 0.06,
+          "policy": "fp8top2_rest_int4",
+          "byte_saving": 0.6875,
+          "upper_bound_at_p_max": 0.04166666666666667
+        }
+      ],
+      "quality_evidence_boundary": "single-forward combine-output KL on the COMBINE axis only, real GPU, fresh document offset, document-level paired bootstrap CIs. No decode-loop, no real communication latency claim."
+    },
+    {
+      "model_key": "llmjp",
+      "model": "llm-jp/optimal-sparsity-math-d512-E32-k16-920M-A520M",
+      "samples": 128,
+      "top_k": 16,
+      "baseline": {
+        "policy": "uniform_fp8",
+        "byte_saving": 0.5,
+        "mean_kl": 0.005853068087191327,
+        "kl_ci_low": 0.005678285088566111,
+        "kl_ci_high": 0.006075434703251537
+      },
+      "quality_free_max_saving_candidate": {
+        "policy": "fp8top4_rest_int4",
+        "byte_saving": 0.6875,
+        "mean_kl": 0.03394502328019442,
+        "kl_ci_low": 0.03349341832864003,
+        "kl_ci_high": 0.03447531633717045
+      },
+      "zero_codec_upper_bound_at_p_max": 0.04166666666666667,
+      "required_exposed_fraction_for_target": 0.23529411764705885,
+      "captured_remaining_return_headroom": 0.375,
+      "pass": false,
+      "quality_sensitivity": [
+        {
+          "kl_ci_high_budget": 0.01,
+          "policy": "fp8top8_rest_int4",
+          "byte_saving": 0.625,
+          "upper_bound_at_p_max": 0.02777777777777778
+        },
+        {
+          "kl_ci_high_budget": 0.02,
+          "policy": "fp8top6_rest_int4",
+          "byte_saving": 0.65625,
+          "upper_bound_at_p_max": 0.034722222222222224
+        },
+        {
+          "kl_ci_high_budget": 0.04,
+          "policy": "fp8top4_rest_int4",
+          "byte_saving": 0.6875,
+          "upper_bound_at_p_max": 0.04166666666666667
+        },
+        {
+          "kl_ci_high_budget": 0.06,
+          "policy": "fp8top4_rest_int4",
+          "byte_saving": 0.6875,
+          "upper_bound_at_p_max": 0.04166666666666667
+        }
+      ],
+      "quality_evidence_boundary": "single-forward combine-output KL on the COMBINE axis only, real GPU, fresh document offset, document-level paired bootstrap CIs. No decode-loop, no real communication latency claim."
+    }
+  ],
+  "codec_summary": {
+    "gpu": "NVIDIA GeForce RTX 5090",
+    "incremental_fp8_to_int4_viable_count": 0,
+    "incremental_fp8_to_int4_n_cells": 8,
+    "p95_is_independent_measurement": false,
+    "source": "reconstructed from AutoDL run stdout p50 timings; full p95 sample arrays not re-fetched",
+    "evidence_boundary": "single-GPU Triton pack/unpack plus pinned H2D; analytic wire time at given Gbps; not NCCL/RDMA; no incast, collective headers, or multi-node queueing",
+    "role_in_primary_decision": "descriptive_only; primary bound assumes zero codec cost"
+  },
+  "matrix": [
+    {
+      "model_key": "olmoe",
+      "baseline_policy": "uniform_fp8",
+      "candidate_policy": "fp8top2_rest_int4",
+      "baseline_byte_saving": 0.5,
+      "candidate_byte_saving": 0.6875,
+      "exposed_return_fraction": 0.05,
+      "zero_codec_relative_improvement": 0.009615384615384618,
+      "min_required_improvement": 0.05,
+      "pass": false
+    },
+    {
+      "model_key": "olmoe",
+      "baseline_policy": "uniform_fp8",
+      "candidate_policy": "fp8top2_rest_int4",
+      "baseline_byte_saving": 0.5,
+      "candidate_byte_saving": 0.6875,
+      "exposed_return_fraction": 0.1,
+      "zero_codec_relative_improvement": 0.01973684210526316,
+      "min_required_improvement": 0.05,
+      "pass": false
+    },
+    {
+      "model_key": "olmoe",
+      "baseline_policy": "uniform_fp8",
+      "candidate_policy": "fp8top2_rest_int4",
+      "baseline_byte_saving": 0.5,
+      "candidate_byte_saving": 0.6875,
+      "exposed_return_fraction": 0.15,
+      "zero_codec_relative_improvement": 0.0304054054054054,
+      "min_required_improvement": 0.05,
+      "pass": false
+    },
+    {
+      "model_key": "olmoe",
+      "baseline_policy": "uniform_fp8",
+      "candidate_policy": "fp8top2_rest_int4",
+      "baseline_byte_saving": 0.5,
+      "candidate_byte_saving": 0.6875,
+      "exposed_return_fraction": 0.2,
+      "zero_codec_relative_improvement": 0.04166666666666667,
+      "min_required_improvement": 0.05,
+      "pass": false
+    },
+    {
+      "model_key": "llmjp",
+      "baseline_policy": "uniform_fp8",
+      "candidate_policy": "fp8top4_rest_int4",
+      "baseline_byte_saving": 0.5,
+      "candidate_byte_saving": 0.6875,
+      "exposed_return_fraction": 0.05,
+      "zero_codec_relative_improvement": 0.009615384615384618,
+      "min_required_improvement": 0.05,
+      "pass": false
+    },
+    {
+      "model_key": "llmjp",
+      "baseline_policy": "uniform_fp8",
+      "candidate_policy": "fp8top4_rest_int4",
+      "baseline_byte_saving": 0.5,
+      "candidate_byte_saving": 0.6875,
+      "exposed_return_fraction": 0.1,
+      "zero_codec_relative_improvement": 0.01973684210526316,
+      "min_required_improvement": 0.05,
+      "pass": false
+    },
+    {
+      "model_key": "llmjp",
+      "baseline_policy": "uniform_fp8",
+      "candidate_policy": "fp8top4_rest_int4",
+      "baseline_byte_saving": 0.5,
+      "candidate_byte_saving": 0.6875,
+      "exposed_return_fraction": 0.15,
+      "zero_codec_relative_improvement": 0.0304054054054054,
+      "min_required_improvement": 0.05,
+      "pass": false
+    },
+    {
+      "model_key": "llmjp",
+      "baseline_policy": "uniform_fp8",
+      "candidate_policy": "fp8top4_rest_int4",
+      "baseline_byte_saving": 0.5,
+      "candidate_byte_saving": 0.6875,
+      "exposed_return_fraction": 0.2,
+      "zero_codec_relative_improvement": 0.04166666666666667,
+      "min_required_improvement": 0.05,
+      "pass": false
+    }
+  ],
+  "evidence_boundary": "This is a deterministic upper-bound synthesis of prior single-GPU artifacts. It is not a new GPU run, EP/NCCL/RDMA measurement, decode SLO result, or proof that the return path is exposed in production."
+}

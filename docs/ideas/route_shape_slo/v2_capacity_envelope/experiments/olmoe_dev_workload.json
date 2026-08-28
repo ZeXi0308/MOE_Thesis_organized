@@ -1,0 +1,39 @@
+{
+  "schema": "route-capacity-envelope-dev-workload-v1",
+  "source_manifest": "docs/ideas/bcrd/experiments/configs/workloads/olmoe.formal.json",
+  "source_manifest_sha256": "2bf4b4897c15b165fea90d730ed9136d0777535daab7f6807336c09a7c70cdbe",
+  "model": {
+    "key": "olmoe",
+    "id": "allenai/OLMoE-1B-7B-0924",
+    "revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "tokenizer_revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "dtype": "bfloat16"
+  },
+  "seed": 20260812,
+  "max_prompt_tokens": 128,
+  "max_decode_steps": 8,
+  "max_batch_size": 4,
+  "serial_audit_requests_per_episode": 4,
+  "deadline_offset_us": 60000000,
+  "episodes": [
+    {
+      "episode_id": "olmoe-dev-bursty",
+      "arrival_regime": "bursty",
+      "source_request_start": 0,
+      "request_count": 16,
+      "arrival": {
+        "kind": "preserve_source_relative"
+      }
+    },
+    {
+      "episode_id": "olmoe-dev-steady",
+      "arrival_regime": "steady",
+      "source_request_start": 16,
+      "request_count": 16,
+      "arrival": {
+        "kind": "fixed_interarrival",
+        "interarrival_us": 50000
+      }
+    }
+  ]
+}

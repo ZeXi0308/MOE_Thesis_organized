@@ -1,0 +1,88 @@
+{
+  "status": "SINGLE_GPU_NATURAL_TEXT_CHARACTERIZATION_ONLY_NOT_RECEIVER_CONGESTION",
+  "evidence_boundary": "Real CUDA timing of frozen contiguous natural-text spans and local MoE blocks on one RTX 5090. No continuous arrivals, EP ranks, NCCL, receiver queue, or return all-to-all traffic.",
+  "args": {
+    "model": "llm-jp/optimal-sparsity-math-d512-E32-k16-920M-A520M",
+    "revision": null,
+    "output_dir": "/root/autodl-tmp/receiver_natural_llmjp_p128_20260728",
+    "cache_dir": "/root/autodl-tmp/hf-cache",
+    "prompt_file": "/root/autodl-tmp/alice_in_wonderland_gutenberg_11.txt",
+    "prompt_source_url": "https://www.gutenberg.org/files/11/11-0.txt",
+    "dtype": "bfloat16",
+    "batch_sizes": [
+      1,
+      4,
+      8
+    ],
+    "prompt_len": 128,
+    "decode_steps": 16,
+    "warmup_decode_steps": 4,
+    "repeats": 3,
+    "route_census_steps": 8,
+    "seed": 20260728,
+    "local_files_only": true
+  },
+  "workload": {
+    "kind": "contiguous_natural_text_spans",
+    "prompt_file": "/root/autodl-tmp/alice_in_wonderland_gutenberg_11.txt",
+    "prompt_file_sha256": "a3a27f8edbf7fcd9b8ba8435494440e24952deaa3e2f2d65192d4cb7ca403754",
+    "prompt_source_url": "https://www.gutenberg.org/files/11/11-0.txt",
+    "corpus_tokens": 41232,
+    "span_sampling": "deterministic uniform start offset without token reordering"
+  },
+  "model": {
+    "name": "llm-jp/optimal-sparsity-math-d512-E32-k16-920M-A520M",
+    "revision_requested": null,
+    "config_commit_hash": "1d5983076dfc67aee4a77ec06a27027f5bab6055",
+    "architectures": [
+      "MixtralForCausalLM"
+    ],
+    "num_hidden_layers": 16,
+    "num_experts": null,
+    "num_experts_per_tok": 16,
+    "moe_block_count": 16,
+    "moe_block_names": [
+      "model.layers.0.block_sparse_moe",
+      "model.layers.1.block_sparse_moe",
+      "model.layers.2.block_sparse_moe",
+      "model.layers.3.block_sparse_moe",
+      "model.layers.4.block_sparse_moe",
+      "model.layers.5.block_sparse_moe",
+      "model.layers.6.block_sparse_moe",
+      "model.layers.7.block_sparse_moe",
+      "model.layers.8.block_sparse_moe",
+      "model.layers.9.block_sparse_moe",
+      "model.layers.10.block_sparse_moe",
+      "model.layers.11.block_sparse_moe",
+      "model.layers.12.block_sparse_moe",
+      "model.layers.13.block_sparse_moe",
+      "model.layers.14.block_sparse_moe",
+      "model.layers.15.block_sparse_moe"
+    ],
+    "load_seconds": 1.3245048522949219
+  },
+  "environment": {
+    "created_at_utc": "2026-07-27T13:36:48Z",
+    "python": "3.12.3 | packaged by Anaconda, Inc. | (main, May  6 2024, 19:46:43) [GCC 11.2.0]",
+    "platform": "Linux-5.15.0-78-generic-x86_64-with-glibc2.35",
+    "torch": "2.8.0+cu128",
+    "torch_cuda": "12.8",
+    "transformers": "4.57.6",
+    "huggingface_hub": "0.36.2",
+    "nvidia_smi": "NVIDIA GeForce RTX 5090, 32607 MiB, 580.95.05, 38, 575.00 W",
+    "cuda_device": "NVIDIA GeForce RTX 5090",
+    "peak_allocated_bytes": 2099493376,
+    "peak_reserved_bytes": 2252341248
+  },
+  "source": {
+    "path": "/root/autodl-tmp/receiver_multi_moe_code/profile_natural_moe_inference.py",
+    "sha256": "606e1ac10cb266a24d561c98ad4375a58b60f5310283f0d7e1a0109cebb516f9",
+    "base_profiler_path": "/root/autodl-tmp/receiver_multi_moe_code/profile_multi_moe_inference.py",
+    "base_profiler_sha256": "67bdfb02f5e3039255d919df7a08de4100a8527d3913d7ec36cf46ed9ab664f8"
+  },
+  "row_counts": {
+    "timings_raw": 306,
+    "moe_layers_raw": 2448,
+    "route_census_untimed": 432
+  }
+}

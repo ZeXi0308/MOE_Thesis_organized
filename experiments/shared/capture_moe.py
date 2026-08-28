@@ -8,11 +8,15 @@ import re
 import torch
 import torch.nn.functional as F
 
-from creditreduce_reference import creditreduce_reference
 from fake_quant import apply_precision
-from grouped_owner_combine import grouped_owner_combine
 from policies import ApproxPolicy, make_policy
 from policies import receiver_group_ids
+
+# Stable shared numerical references.  Historical experiment entrypoints keep
+# importing the same flat module names, so this move preserves their API while
+# removing an active runtime dependency on docs/archive.
+from creditreduce_reference import creditreduce_reference
+from grouped_owner_combine import grouped_owner_combine
 
 
 def parse_dispatch_policy(name: str | None, top_k: int) -> list[str] | None:
@@ -709,6 +713,13 @@ def _patched_mixtral_sparse_moe_forward(self, hidden_states: torch.Tensor):
                 routing_weights.clone(),
             )
 
+    # Route capture is a cheap, independent capability.  It must not inherit
+    # the expensive contribution/error diagnostics gate: identity-complete
+    # route producers intentionally run with record_diagnostics=False.
+    self._idea_recorder.update_routing(
+        self._idea_layer_id, selected_experts, routing_weights
+    )
+
     total_tokens = batch_size * sequence_length
     raw_outputs = torch.zeros(
         (total_tokens, self.top_k, hidden_dim),
@@ -728,7 +739,6 @@ def _patched_mixtral_sparse_moe_forward(self, hidden_states: torch.Tensor):
     if bool(getattr(self, "_idea_record_diagnostics", True)):
         contrib = routing_weights.float() * raw_outputs.float().norm(dim=-1)
         shares = contrib / contrib.sum(dim=-1, keepdim=True).clamp_min(1e-12)
-        self._idea_recorder.update_routing(self._idea_layer_id, selected_experts, routing_weights)
         self._idea_recorder.update_pair_audit(
             self._idea_layer_id, raw_outputs, routing_weights, selected_experts
         )
@@ -812,6 +822,10 @@ def _patched_olmoe_sparse_moe_forward(self, hidden_states: torch.Tensor):
                 routing_weights.clone(),
             )
 
+    self._idea_recorder.update_routing(
+        self._idea_layer_id, selected_experts, routing_weights
+    )
+
     total_tokens = batch_size * sequence_length
     raw_outputs = torch.zeros(
         (total_tokens, self.top_k, hidden_dim),
@@ -838,7 +852,6 @@ def _patched_olmoe_sparse_moe_forward(self, hidden_states: torch.Tensor):
     if bool(getattr(self, "_idea_record_diagnostics", True)):
         contrib = routing_weights.float() * raw_outputs.float().norm(dim=-1)
         shares = contrib / contrib.sum(dim=-1, keepdim=True).clamp_min(1e-12)
-        self._idea_recorder.update_routing(self._idea_layer_id, selected_experts, routing_weights)
         self._idea_recorder.update_pair_audit(
             self._idea_layer_id, raw_outputs, routing_weights, selected_experts
         )
@@ -893,6 +906,10 @@ def _patched_qwen2_moe_sparse_moe_forward(self, hidden_states: torch.Tensor):
                 routing_weights.clone(),
             )
 
+    self._idea_recorder.update_routing(
+        self._idea_layer_id, selected_experts, routing_weights
+    )
+
     total_tokens = batch_size * sequence_length
     raw_outputs = torch.zeros(
         (total_tokens, self.top_k, hidden_dim),
@@ -915,7 +932,6 @@ def _patched_qwen2_moe_sparse_moe_forward(self, hidden_states: torch.Tensor):
     if bool(getattr(self, "_idea_record_diagnostics", True)):
         contrib = routing_weights.float() * raw_outputs.float().norm(dim=-1)
         shares = contrib / contrib.sum(dim=-1, keepdim=True).clamp_min(1e-12)
-        self._idea_recorder.update_routing(self._idea_layer_id, selected_experts, routing_weights)
         self._idea_recorder.update_pair_audit(
             self._idea_layer_id, raw_outputs, routing_weights, selected_experts
         )

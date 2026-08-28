@@ -9,8 +9,14 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 DEFAULT_MODEL = "jamesdborin/tiny-mixtral"
 
 
-def load_tokenizer(model_name: str = DEFAULT_MODEL, local_files_only: bool = False):
-    tokenizer = AutoTokenizer.from_pretrained(model_name, local_files_only=local_files_only)
+def load_tokenizer(
+    model_name: str = DEFAULT_MODEL,
+    local_files_only: bool = False,
+    revision: str | None = None,
+):
+    tokenizer = AutoTokenizer.from_pretrained(
+        model_name, local_files_only=local_files_only, revision=revision
+    )
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
     return tokenizer
@@ -37,13 +43,19 @@ def resolve_device() -> str:
     return "cpu"
 
 
-def load_model(model_name: str = DEFAULT_MODEL, dtype_name: str = "float32", local_files_only: bool = False):
+def load_model(
+    model_name: str = DEFAULT_MODEL,
+    dtype_name: str = "float32",
+    local_files_only: bool = False,
+    revision: str | None = None,
+):
     start = time.time()
     model = AutoModelForCausalLM.from_pretrained(
         model_name,
         dtype=resolve_dtype(dtype_name),
         low_cpu_mem_usage=True,
         local_files_only=local_files_only,
+        revision=revision,
     )
     model.eval()
     device = resolve_device()

@@ -1,0 +1,495 @@
+{
+  "schema_version": "stablebatch-sparse-c8-stability-budget-gate-v1",
+  "status": "FROZEN_BEFORE_BROAD_TRAINING_C8_AND_FRESH_C8_OUTCOMES",
+  "frozen_at": "2026-08-10T21:20:33+08:00",
+  "gate_type": "GLOBAL_CELL_AND_RANK_STABILITY_BUDGET",
+  "research_question": "Can action-pre signals predict the rank-specific net utility of fixed-C8 protection on document-disjoint fresh windows and beat both globally matched random cell-rank selection and cell-matched random-rank selection under an exact sparse budget?",
+  "primary_claim_if_successful": "A fixed-C8 ShapeLane action and an outcome-naive action-pre linear selector generalize across documents under an exact sparse budget.",
+  "research_boundary": "single_rtx5090_one_olmoe_revision_old16_broad240x8_training_fresh16_document_disjoint240x8_evaluation_exact_B33_same_cell_route_proxy_not_model_quality_not_serving_not_EP",
+  "prerequisite": {
+    "required_before_ridge_fit": "Complete and seal fixed-C8 outcomes for all 240 old eligible cells and all 8 ranks per cell.",
+    "broad_training_action_count": 1920,
+    "existing_positive_subset_is_insufficient": true,
+    "existing_positive_subset_action_count": 264,
+    "missing_broad_training_action_count_before_completion": 1656,
+    "on_prerequisite_failure": "DO_NOT_RUN_GLOBAL_SELECTOR_GATE",
+    "conditional_fallback": "CONDITIONAL_RANK_SELECTOR_GATE_WITH_AN_INDEPENDENTLY_PRESEALED_FRESH_CELL_COHORT"
+  },
+  "shared_action_pre_eligibility": {
+    "definition": "Every cell in the Cartesian product of the 16 presealed document windows and target layers 0 through 14 at victim position 15 is eligible; each eligible cell exposes all top-8 ranks.",
+    "document_windows": 16,
+    "token_offset": 512,
+    "window_tokens": 16,
+    "victim_position": 15,
+    "target_layers": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14
+    ],
+    "top_k": 8,
+    "cell_count": 240,
+    "candidate_action_count": 1920,
+    "filters": [],
+    "explicitly_not_filtered_by": [
+      "unprotected route opportunity",
+      "M1 reward",
+      "C8 reward",
+      "recovered routes",
+      "harmed routes",
+      "oracle rank",
+      "final route outcome",
+      "final-logit outcome"
+    ]
+  },
+  "cohorts": {
+    "old_training": {
+      "document_indices": [
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31
+      ],
+      "document_count": 16,
+      "cell_count": 240,
+      "candidate_action_count": 1920,
+      "bindings": {
+        "source_config": {
+          "path": "docs/ideas/stablebatch/experiments/configs/observable_selector_pilot_v1.json",
+          "sha256": "ad66441d7b0bb542f00de36d090b4a3e69c7fc6f31194b9bdbb1ff9e14c5ed65"
+        },
+        "source_manifest": {
+          "path": "docs/ideas/routeguard_kv/experiments/data/r0a_5090_v1/sealed_manifest.jsonl",
+          "sha256": "469e5da28dc794e50f9e3d8b1d6b2b13dfb7079d1bb6fdf9d00cd41b7c4d0d11"
+        },
+        "workloads": {
+          "path": "docs/ideas/stablebatch/experiments/outputs/oracle_action_sweep_20260810_run01/workloads.jsonl",
+          "sha256": "7a89f67f65b2aee567e3e37be2ad8495a9898253cd9639b1f13b0fe048ede6d2"
+        },
+        "action_pre_cells": {
+          "path": "docs/ideas/stablebatch/experiments/outputs/oracle_action_sweep_20260810_run01/observable_cells.jsonl",
+          "sha256": "9095343e2793d2c19c2116c2e426b2fab97e31a7eb2e4c8b217129eed31314c2"
+        },
+        "preoutcome_cell_plan": {
+          "path": "docs/ideas/stablebatch/experiments/outputs/oracle_action_sweep_20260810_run01/ACTION_SWEEP_LOCK.json",
+          "sha256": "3e88b058d466e6cf5ae191eac2819958544bfd5f14edb1a7f4c5c54db51ebf7a"
+        },
+        "m1_action_ledger_for_R_U_execution_closure_only": {
+          "path": "docs/ideas/stablebatch/experiments/outputs/oracle_action_sweep_20260810_run01/cell_results.jsonl",
+          "sha256": "2ab83c452ec41b0e949bb13c0bdf4f599e9d3e0d201e86f800c6dbbd72981654"
+        }
+      },
+      "broad_c8_label_ledger": {
+        "required_status": "SEALED_COMPLETE_BEFORE_RIDGE_FIT",
+        "required_rows": 240,
+        "required_actions_per_row": 8,
+        "required_unique_cell_rank_pairs": 1920,
+        "label_field": "route_net_reward",
+        "label_definition": "route_recovered_count - route_harmed_count",
+        "must_include_all_eligible_cells": true,
+        "may_include_no_opportunity_cells": true,
+        "may_not_select_rows_by_label": true
+      }
+    },
+    "fresh_evaluation": {
+      "document_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "document_count": 16,
+      "cell_count": 240,
+      "candidate_action_count": 1920,
+      "document_disjoint_from_old": true,
+      "c8_outcomes_read_at_freeze": false,
+      "other_action_space_outcomes_present_but_forbidden": "A separately frozen M1 selectability run exists on these documents; this Gate does not bind, read, feature-engineer from, or tune against that output. The fresh claim is C8-outcome-naive, not never-used-by-any-experiment.",
+      "bindings": {
+        "manifest": {
+          "path": "docs/ideas/stablebatch/experiments/data/selectability_fresh_eval_20260810_v1/eval_manifest.jsonl",
+          "sha256": "30e1d366f6e3578660931ec586ccf58d3b3d1886b4c80c8da73898c5e3dfa6f3"
+        },
+        "provenance": {
+          "path": "docs/ideas/stablebatch/experiments/data/selectability_fresh_eval_20260810_v1/provenance.json",
+          "sha256": "2bdc9abd05fa9bb6455eedc7b781b3f614cfdc413926f6da862cd2b9314c9b6f"
+        },
+        "artifact_hashes": {
+          "path": "docs/ideas/stablebatch/experiments/data/selectability_fresh_eval_20260810_v1/artifact_hashes.json",
+          "sha256": "f71cbacefe4ebaa621ce0baba0817ffc49f0625afd967f23efe8aa8016b19273"
+        },
+        "ordered_window_hash_digest": "44321cf960c2903b2db143c9fe7a0530028591da8e3442dd6d919022fde81b67"
+      }
+    }
+  },
+  "action_space": {
+    "reference": "all_8_contributions_M1",
+    "unprotected": "all_8_contributions_M64",
+    "candidate_action": "exactly_one_fixed_C8_zero_pad_slot5_rank_plus_seven_M64_ranks",
+    "candidate_ranks": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "m_reference": 1,
+    "m_unprotected": 64,
+    "canonical_c": 8,
+    "c8_context": {
+      "name": "zero_pad_slot5",
+      "kind": "zero",
+      "focal_slot": 5
+    },
+    "max_actions_per_cell": 1,
+    "full_forward_input_shape_changes": false,
+    "replace_all_target_token_topk_raw_outputs_before_gate_weight": true,
+    "nonprotected_ranks_must_be_M64_not_native": true,
+    "reference_is_self_supervised_proxy_not_ground_truth": true,
+    "primitive_reference_bindings": {
+      "scope": "action semantics and integrity checks only; the bound runner and lock remain limited to the historical 33-cell transfer cohort and are not a broad-cohort selection source",
+      "runner": {
+        "path": "docs/ideas/stablebatch/experiments/run_c8_action_transfer.py",
+        "sha256": "f9ded0c299bf5a2d24e0e999356835667b36468bb459cc4a4b4ad95d2e9bb7ed"
+      },
+      "config": {
+        "path": "docs/ideas/stablebatch/experiments/configs/c8_action_transfer_v1.json",
+        "sha256": "046056af0850729184d64d39a805cfa7a0203b7445af133a7064bc226f633fed"
+      },
+      "lock": {
+        "path": "docs/ideas/stablebatch/experiments/configs/FROZEN_C8_ACTION_TRANSFER_LOCK_V1.json",
+        "sha256": "13cdda8f2a25a6913236ffedb6b46744534dc319d92e507276bca5e0cbac55e1"
+      }
+    }
+  },
+  "execution": {
+    "m1_m64_sidecall_repeats": 3,
+    "c8_sidecall_repeats": 3,
+    "fresh_sidecall_schedule_seed": "stablebatch-sparse-c8-sidecall-v1|20260810",
+    "full_forward_arm_order_seed": "stablebatch-sparse-c8-arm-order-v1|20260810",
+    "attention_mask": "all_ones",
+    "use_cache": false,
+    "dtype": "bfloat16",
+    "attn_implementation": "eager"
+  },
+  "training": {
+    "sample_unit": "one old eligible cell-rank C8 action",
+    "sample_count": 1920,
+    "label": {
+      "name": "c8_route_net_utility",
+      "formula": "route_recovered_count - route_harmed_count",
+      "source": "sealed broad old-cohort fixed-C8 action outcomes",
+      "forbidden_substitutes": [
+        "M1 action utility",
+        "recovery-only label",
+        "oracle rank",
+        "binary recovered label",
+        "final-logit recovered element count"
+      ]
+    },
+    "standardization_fit_scope": "old_training_1920_actions_only",
+    "fresh_rows_used_for_fit": 0,
+    "fresh_outcomes_used_for_fit_or_tuning": 0
+  },
+  "features": {
+    "claim_type": "outcome_naive_action_pre_linear_selection",
+    "historical_outcome_derived_sensitivity_in_primary_features": false,
+    "categorical_one_hot": [
+      "layer",
+      "expert_id",
+      "rank"
+    ],
+    "continuous": [
+      "gate_weight",
+      "gate_share",
+      "gate_gap_to_min",
+      "topk_mass",
+      "normalized_entropy",
+      "cutoff_margin"
+    ],
+    "definitions": {
+      "gate_weight": "gate_weights[rank]",
+      "gate_share": "gate_weights[rank] / sum(gate_weights)",
+      "gate_gap_to_min": "gate_weights[rank] - min(gate_weights)",
+      "topk_mass": "sum(gate_weights)",
+      "normalized_entropy": "-sum(p_i * log(p_i)) / log(8), where p_i = gate_weights[i] / sum(gate_weights)",
+      "cutoff_margin": "current_layer_topk_cutoff_margin"
+    },
+    "forbidden": [
+      "document identity",
+      "token identity",
+      "cell identity",
+      "window token ids or hashes",
+      "target hidden or router hashes",
+      "historical static sensitivity score",
+      "historical layer-expert-rank reward table",
+      "M1 or M64 local side-call hashes",
+      "local changed BF16 elements",
+      "local L2",
+      "unprotected route distance",
+      "downstream route difference",
+      "recovered or harmed counts",
+      "final logits",
+      "oracle rank or oracle reward",
+      "any fresh outcome-derived statistic"
+    ],
+    "profile_aware_renaming_rule": "If any historical outcome-derived sensitivity is later added as a primary feature, the claim must be renamed profile-aware action selection and this frozen gate no longer applies."
+  },
+  "ridge": {
+    "algorithm": "L2_regularized_ridge",
+    "alpha": 1.0,
+    "alpha_selection": "fixed_no_search",
+    "intercept": true,
+    "intercept_penalized": false,
+    "categorical_encoding": "one_hot",
+    "continuous_standardization": "mean_and_population_std_fit_on_old_training_only",
+    "zero_std_replacement": 1.0,
+    "model_search": false,
+    "feature_search": false,
+    "threshold_tuning": false,
+    "seal_before_fresh_outcomes": [
+      "feature order",
+      "standardization parameters",
+      "coefficients",
+      "alpha",
+      "selection policy"
+    ]
+  },
+  "selection": {
+    "budget_B": 33,
+    "budget_mode": "exactly_B_actions",
+    "max_actions_per_cell": 1,
+    "per_cell_rank_selection": {
+      "rule": "choose the rank with maximum predicted C8 net utility",
+      "tie_break": "lowest rank index"
+    },
+    "global_cell_selection": {
+      "rule": "rank the 240 per-cell winners by predicted C8 net utility and select the first 33",
+      "tie_break": [
+        "cell_identity lexicographic ascending",
+        "rank ascending"
+      ]
+    },
+    "abstention": false,
+    "replacement_after_failure": false,
+    "selection_must_be_sealed_before_fresh_outcomes": true,
+    "per_document_allocation": "none_global_top_B"
+  },
+  "random_baselines": {
+    "global_matched_random": {
+      "definition": "Uniformly select 33 distinct cells from all 240 fresh eligible cells, then independently select one of 8 ranks uniformly in each selected cell.",
+      "expectation": "exact",
+      "constraints": {
+        "budget": 33,
+        "distinct_cells": true,
+        "one_rank_per_cell": true,
+        "abstention": false
+      },
+      "metric_formula": "B / 240 * sum_over_cells((1 / 8) * sum_over_ranks(metric(cell, rank)))",
+      "report": [
+        "expected_recovered",
+        "expected_harmed",
+        "expected_net"
+      ]
+    },
+    "cell_matched_random_rank": {
+      "definition": "Hold fixed the exact 33 cells selected by the ridge selector and choose one of 8 ranks uniformly within each cell.",
+      "expectation": "exact",
+      "constraints": {
+        "budget": 33,
+        "selected_cells_equal_selector_cells": true,
+        "one_rank_per_cell": true,
+        "abstention": false
+      },
+      "metric_formula": "sum_over_selector_cells((1 / 8) * sum_over_ranks(metric(cell, rank)))",
+      "report": [
+        "expected_recovered",
+        "expected_harmed",
+        "expected_net"
+      ]
+    }
+  },
+  "oracles": {
+    "oracle_exact_B": {
+      "budget": 33,
+      "budget_mode": "exactly_B_actions",
+      "max_actions_per_cell": 1,
+      "per_cell_rule": "choose maximum observed C8 net utility",
+      "per_cell_tie_break": [
+        "harmed ascending",
+        "recovered descending",
+        "rank ascending"
+      ],
+      "global_rule": "select the 33 highest-utility per-cell oracle winners",
+      "global_tie_break": [
+        "harmed ascending",
+        "recovered descending",
+        "cell_identity lexicographic ascending",
+        "rank ascending"
+      ],
+      "abstention": false
+    },
+    "oracle_at_most_B": {
+      "budget": 33,
+      "budget_mode": "at_most_B_actions",
+      "max_actions_per_cell": 1,
+      "selection": "use the same ordered per-cell oracle winners as oracle_exact_B but select only strictly positive C8 net-utility actions, up to 33",
+      "zero_or_negative_action": "abstain",
+      "abstention": true
+    }
+  },
+  "primary_metrics": {
+    "utility": "recovered_routes - harmed_routes",
+    "cell_selection_gain": "cell_matched_random_rank_net - global_matched_random_net",
+    "rank_selection_gain": "selector_net - cell_matched_random_rank_net",
+    "selector_gain_over_global_random": "selector_net - global_matched_random_net",
+    "oracle_gap": "oracle_exact_B_net - selector_net",
+    "rank_headroom_capture": {
+      "formula": "rank_selection_gain / (oracle_exact_B_net - cell_matched_random_rank_net)",
+      "defined_only_if": "oracle_exact_B_net - cell_matched_random_rank_net > 0",
+      "otherwise": null
+    },
+    "required_arms": [
+      "global_matched_random",
+      "cell_matched_random_rank",
+      "ridge_selector",
+      "oracle_exact_B",
+      "oracle_at_most_B"
+    ]
+  },
+  "reporting": {
+    "aggregate": [
+      "recovered",
+      "harmed",
+      "net",
+      "cell_selection_gain",
+      "rank_selection_gain",
+      "rank_headroom_capture",
+      "oracle_gap"
+    ],
+    "selector_diagnostics": [
+      "positive_selected_actions",
+      "zero_selected_actions",
+      "negative_selected_actions",
+      "selected_document_coverage",
+      "selected_rank_distribution"
+    ],
+    "per_document": [
+      "selected_action_count",
+      "selector_recovered",
+      "selector_harmed",
+      "selector_net",
+      "cell_matched_random_rank_expected_net",
+      "global_matched_random_expected_net",
+      "oracle_exact_B_net",
+      "selector_minus_cell_matched_random_rank_gap"
+    ],
+    "cross_document": [
+      "selector_positive_net_document_count",
+      "selector_above_cell_matched_random_rank_document_count",
+      "median_selector_minus_cell_matched_random_rank_document_gap"
+    ],
+    "final_logits": "diagnostic_only_no_vector_restoration_claim"
+  },
+  "classification": {
+    "integrity_precondition": {
+      "result_if_failed": "INVALID_NO_SCIENTIFIC_CLASSIFICATION",
+      "checks": [
+        "old and fresh eligibility are the same unconditional 240-cell by 8-rank definition",
+        "old broad C8 ledger contains exactly 1920 unique cell-rank labels",
+        "fresh documents are disjoint from old documents",
+        "fresh candidate cells, features, ridge, and 33-action selection are sealed before any fresh C8 outcome is read",
+        "selector and both random baselines use exact B=33 and at most one rank per cell",
+        "recovered and harmed are computed against the same R and U arms"
+      ]
+    },
+    "priority_after_integrity": [
+      "HARM_DOMINATES",
+      "ACTION_GENERALIZATION_FAIL",
+      "SELECTOR_AND_ACTION_GENERALIZE",
+      "SELECTOR_WEAKLY_ABOVE_RANDOM",
+      "ACTION_GENERALIZES_SELECTOR_WEAK"
+    ],
+    "fixed_thresholds": {
+      "min_oracle_positive_net_documents_for_action_generalization": 4,
+      "min_rank_headroom_capture_for_strong_selector": 0.3,
+      "min_selector_positive_net_documents_for_strong_selector": 4,
+      "min_selector_above_cell_matched_random_documents_for_strong_selector": 4
+    },
+    "derived_predicates": {
+      "action_generalizes": "oracle_at_most_B_net > 0 AND oracle_exact_B_net > 0 AND oracle_exact_B_net > global_matched_random_net AND oracle_positive_net_document_count >= 4",
+      "rank_signal_positive": "rank_selection_gain > 0",
+      "strong_rank_signal": "rank_signal_positive AND rank_headroom_capture is defined AND rank_headroom_capture >= 0.3",
+      "selector_beats_global_random": "selector_net > global_matched_random_net",
+      "selector_harm_safe": "selector_net > 0 AND selector_recovered > selector_harmed",
+      "selector_cross_document": "selector_positive_net_document_count >= 4 AND selector_above_cell_matched_random_rank_document_count >= 4"
+    },
+    "cases": {
+      "HARM_DOMINATES": "Select first if recovered routes are nonzero and net utility is nonpositive for oracle_exact_B or for the ridge selector.",
+      "ACTION_GENERALIZATION_FAIL": "Select if HARM_DOMINATES is false and action_generalizes is false.",
+      "SELECTOR_AND_ACTION_GENERALIZE": "Select if action_generalizes, strong_rank_signal, selector_beats_global_random, selector_harm_safe, and selector_cross_document are all true.",
+      "SELECTOR_WEAKLY_ABOVE_RANDOM": "Select if action_generalizes and rank_signal_positive are true, but one or more strong-rank, harm-safety, or cross-document conditions for SELECTOR_AND_ACTION_GENERALIZE are false.",
+      "ACTION_GENERALIZES_SELECTOR_WEAK": "Select if action_generalizes is true and rank_signal_positive is false. Selector gain over global random alone is insufficient."
+    }
+  },
+  "scope": {
+    "supported_if_successful": [
+      "fixed-C8 action value is present on document-disjoint fresh prompt-forward cells",
+      "the frozen action-pre feature set contains cross-document rank-utility signal",
+      "the exact B=33 selector beats both global cell-rank random expectation and cell-matched random-rank expectation"
+    ],
+    "not_supported": [
+      "model quality improvement",
+      "complete model-output recovery",
+      "serving SLO or latency improvement",
+      "production deployability",
+      "multi-model generalization",
+      "multi-GPU, expert-parallel, NCCL, or RDMA behavior",
+      "population prevalence outside the frozen cohorts"
+    ],
+    "failure_scope": {
+      "ACTION_GENERALIZATION_FAIL": "Weakens fixed-C8 zero-pad-slot5 as a generally useful ShapeLane primitive on this frozen same-cell proxy; it does not reject ShapeABI or shape canonicalization in general.",
+      "ACTION_GENERALIZES_SELECTOR_WEAK": "Rejects only ridge alpha=1 with the frozen outcome-naive feature set as a rank selector; it does not reject the fixed-C8 action or StabilityBudget problem.",
+      "SELECTOR_WEAKLY_ABOVE_RANDOM": "Supports only weak rank observability and favors profile-once or coarse policies, not a complex online scheduler.",
+      "HARM_DOMINATES": "Rejects unweighted recovered-minus-harmed protection under exact B=33 and requires a newly frozen risk-aware objective on new data; no post-hoc harm weighting is allowed."
+    },
+    "profile_aware_boundary": "Because this gate excludes historical outcome-derived sensitivity from features, its success is an outcome-naive action-pre result. Any later inclusion of such sensitivity changes the claim to profile-aware action selection."
+  }
+}

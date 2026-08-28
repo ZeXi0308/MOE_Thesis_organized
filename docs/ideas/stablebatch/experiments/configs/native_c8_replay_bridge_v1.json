@@ -1,0 +1,44 @@
+{
+  "schema_version": "stablebatch-native-c8-replay-bridge-v1",
+  "status": "FROZEN_BEFORE_NATIVE_LATENCY",
+  "frozen_at": "2026-08-10T22:42:00+08:00",
+  "hypothesis": "A fixed-C8 zero-pad-slot5 replay performed only after every native expert contribution has executed can replace one frozen target raw contribution while preserving the other native contributions, retain positive route utility relative to the sealed all-M1 reference, and expose a directly measurable target-MoE-stage GPU cost.",
+  "source_config": {
+    "path": "docs/ideas/stablebatch/experiments/configs/observable_selector_pilot_v1.json",
+    "sha256": "ad66441d7b0bb542f00de36d090b4a3e69c7fc6f31194b9bdbb1ff9e14c5ed65"
+  },
+  "proxy_ledger": {
+    "path": "docs/ideas/stablebatch/experiments/outputs/c8_action_transfer_20260810_run01/cell_results.jsonl",
+    "sha256": "9d4a1742820c19d7f1e20cb6b16a4ff7d34b67dd9bf0846b7c210987420d2a7d",
+    "expected_cells": 33,
+    "expected_documents": 8,
+    "expected_ranks": 8,
+    "proxy_same_rank": {"recovered": 31, "harmed": 6, "net": 25},
+    "proxy_oracle": {"recovered": 36, "harmed": 0, "net": 36}
+  },
+  "canonical_replay": {
+    "canonical_m": 8,
+    "focal_slot": 5,
+    "context": "zero",
+    "dummy_rows": 7,
+    "execute_all_native_experts_before_replay": true,
+    "keep_all_unselected_raw_contributions_native": true
+  },
+  "timing": {
+    "selection": "per_rank_natural_m_min_and_max_stable_cell_tiebreak",
+    "max_actions": 16,
+    "warmup_pairs": 3,
+    "measurement_pairs": 20,
+    "range_percentiles": [10, 90],
+    "event_boundary": "after_router_topk_before_dispatch_through_final_index_add",
+    "clearly_high_relative_overhead": 1.0
+  },
+  "classification_order": [
+    "NO_NATIVE_OPPORTUNITY",
+    "PROXY_BACKGROUND_DEPENDENT",
+    "NATIVE_ACTION_VALID_DIRECT_COST_HIGH",
+    "NATIVE_REPLAY_AND_RANK_SPECIFICITY_TRANSFER",
+    "NATIVE_REPLAY_TRANSFERS_RANK_SIGNAL_WEAK"
+  ],
+  "research_boundary": "one_frozen_olmoe_revision_one_rtx5090_bf16_eager_33_proxy_selected_cells_264_native_background_actions_fixed_c8_zero_slot5_target_moe_stage_cuda_event_cost_not_serving_slo_not_model_quality_not_online_selector"
+}

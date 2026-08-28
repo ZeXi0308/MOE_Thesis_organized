@@ -1,0 +1,237 @@
+{
+  "schema_version": "stablebatch-independent-recompute-v1",
+  "generated_at": "2026-08-10T10:44:08Z",
+  "audit_mode": "independent_deterministic_recompute_from_cell_results_without_calling_or_importing_runner_classify_results",
+  "source_run": "docs/ideas/stablebatch/experiments/outputs/oracle_action_sweep_20260810_run01",
+  "source_artifact_sha256": {
+    "cell_results.jsonl": "2ab83c452ec41b0e949bb13c0bdf4f599e9d3e0d201e86f800c6dbbd72981654",
+    "summary.json": "fde35cfb609e07ae2d9439a0227fd30e97807e05df4456fe7c300e4f12f6bd80",
+    "MANIFEST.json": "921ddee7a3b5147db76b147ba14e049241c62feabb27e16acedb59ec4cc491b2"
+  },
+  "authority_closure": {
+    "run_status": "COMPLETE",
+    "scientific_result_eligible": true,
+    "reported_verdict": "STRONG_ORACLE_ACTION_VALUE_SIGNAL",
+    "manifest_listed_file_count": 12,
+    "manifest_hash_and_size_mismatch_count": 0,
+    "summary_status_and_verdict_match_run_status": true
+  },
+  "cell_action_closure": {
+    "cell_count": 240,
+    "unique_cell_count": 240,
+    "actions_per_cell": 8,
+    "candidate_action_count": 1920,
+    "candidate_ranks": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "action_key_or_rank_mismatch_count": 0,
+    "reward_formula": "reward(cell,rank)=unprotected_distance_vs_R(cell)-actions[rank].distance_vs_R",
+    "reward_mismatch_count": 0,
+    "best_formula": "best_reward=max_rank(reward); best_rank=min(rank where reward==best_reward)",
+    "best_reward_mismatch_count": 0,
+    "lowest_rank_tie_break_mismatch_count": 0,
+    "abstaining_formula": "protect best_rank iff best_reward>0, otherwise abstain with reward 0",
+    "abstaining_action_mismatch_count": 0,
+    "positive_cell_count": 33,
+    "selected_positive_confirmation_count": 33,
+    "selected_positive_confirmation_pass_count": 33,
+    "confirmation_rank_or_route_mismatch_count": 0,
+    "unexpected_nonpositive_confirmation_count": 0,
+    "cell_integrity_failure_count": 0,
+    "native_noop_failure_count": 0,
+    "source_maxgate_rank_nonzero_count": 0,
+    "frozen_shuffle_rank_counts": {
+      "0": 30,
+      "1": 30,
+      "2": 30,
+      "3": 30,
+      "4": 30,
+      "5": 30,
+      "6": 30,
+      "7": 30
+    }
+  },
+  "decisive_metric_recompute": {
+    "no_intervention_total_reward": {
+      "formula": "sum_cell(0)",
+      "value": 0,
+      "summary_match": true
+    },
+    "maxgate_v1_total_reward": {
+      "formula": "sum_cell(actions[0].reward)",
+      "value": -3,
+      "summary_match": true
+    },
+    "frozen_shuffle_total_reward": {
+      "formula": "sum_cell(actions[source_shuffled_rank].reward)",
+      "value": 3,
+      "summary_match": true
+    },
+    "forced_oracle_total_reward": {
+      "formula": "sum_cell(max_rank(actions[rank].reward))",
+      "value": 37,
+      "summary_match": true
+    },
+    "abstaining_oracle_total_reward": {
+      "formula": "sum_cell(max(0,max_rank(actions[rank].reward)))",
+      "value": 37,
+      "summary_match": true
+    },
+    "positive_oracle_cell_count": {
+      "formula": "count_cell(best_reward>0)",
+      "value": 33,
+      "summary_match": true
+    },
+    "positive_oracle_distinct_victim_count": {
+      "formula": "count_distinct(victim_id where best_reward>0)",
+      "value": 8,
+      "summary_match": true
+    },
+    "oracle_full_restoration_cell_count": {
+      "formula": "sum_positive_cell(1[selected_best.full_restoration])",
+      "value": 31,
+      "summary_match": true
+    },
+    "positive_oracle_rank_counts": {
+      "formula": "count_positive_cell_by_lowest_tie_broken_best_rank",
+      "value": {
+        "0": 13,
+        "1": 9,
+        "2": 4,
+        "3": 6,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 1
+      },
+      "summary_match": true
+    },
+    "unprotected_total_downstream_route_distance": {
+      "formula": "sum_cell(unprotected_distance_vs_R)",
+      "value": 43,
+      "summary_match": true
+    },
+    "abstaining_oracle_remaining_route_distance": {
+      "formula": "unprotected_total_downstream_route_distance-abstaining_oracle_total_reward",
+      "value": 6,
+      "summary_match": true
+    },
+    "abstaining_oracle_recovery_fraction": {
+      "formula": "abstaining_oracle_total_reward/unprotected_total_downstream_route_distance",
+      "exact": {
+        "numerator": 37,
+        "denominator": 43
+      },
+      "value": 0.8604651162790697,
+      "summary_match": true
+    },
+    "uniform_random_one_action_per_cell_expected_total_reward": {
+      "formula": "sum_all_1920_action_rewards/8",
+      "exact": {
+        "numerator": 9,
+        "denominator": 4
+      },
+      "value": 2.25,
+      "summary_match": true
+    },
+    "budget_matched_conditional_random_expected_reward": {
+      "formula": "sum_over_33_positive_cells(sum_rank(reward)/8)",
+      "exact": {
+        "numerator": 39,
+        "denominator": 2
+      },
+      "value": 19.5,
+      "summary_match": true
+    },
+    "budget_matched_global_random_expected_reward": {
+      "formula": "33*sum_all_1920_action_rewards/(240*8)",
+      "exact": {
+        "numerator": 99,
+        "denominator": 320
+      },
+      "value": 0.309375,
+      "summary_match": true
+    },
+    "abstaining_oracle_advantage_over_budget_matched_conditional_random": {
+      "formula": "37-39/2",
+      "exact": {
+        "numerator": 35,
+        "denominator": 2
+      },
+      "value": 17.5,
+      "summary_match": true
+    },
+    "abstaining_oracle_advantage_over_budget_matched_global_random": {
+      "formula": "37-99/320",
+      "exact": {
+        "numerator": 11741,
+        "denominator": 320
+      },
+      "value": 36.690625,
+      "summary_match": true
+    },
+    "per_victim_metrics": {
+      "victim_count": 16,
+      "mismatch_count": 0
+    },
+    "budget_curve": {
+      "budgets": [
+        1,
+        4,
+        8,
+        16,
+        32,
+        60,
+        120,
+        240
+      ],
+      "formula": "sort positive best actions by reward descending then cell key; truncate to budget; independently recompute oracle, conditional-random, global-random, advantages, and victim coverage",
+      "entry_mismatch_count": 0
+    }
+  },
+  "strong_signal_gate": {
+    "oracle_advantage_over_budget_matched_conditional_random": {
+      "threshold": 8.0,
+      "value": 17.5,
+      "pass": true
+    },
+    "oracle_advantage_over_budget_matched_global_random": {
+      "threshold": 8.0,
+      "value": 36.690625,
+      "pass": true
+    },
+    "oracle_recovery_fraction": {
+      "threshold": 0.25,
+      "value": 0.8604651162790697,
+      "pass": true
+    },
+    "positive_victim_coverage": {
+      "threshold": 4,
+      "value": 8,
+      "pass": true
+    },
+    "all_gates_pass": true,
+    "derived_verdict": "STRONG_ORACLE_ACTION_VALUE_SIGNAL"
+  },
+  "findings": {
+    "p0": [],
+    "p1": []
+  },
+  "bounded_verdict": {
+    "status": "PASS",
+    "scope": "Deterministic artifact-level closure of the exact sealed run from cell_results.jsonl, with summary and MANIFEST agreement.",
+    "exclusions": [
+      "No model or GPU rerun was performed.",
+      "Confirmation reruns were checked through their sealed PASS, selected-rank, route, and signature records; they were not physically replayed.",
+      "This audit does not establish online selector value, serving behavior, expert parallel behavior, prevalence, or generalization beyond this exact run.",
+      "The original sealed run and its MANIFEST were not modified."
+    ]
+  }
+}

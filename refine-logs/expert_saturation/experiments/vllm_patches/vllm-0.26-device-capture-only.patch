@@ -1,0 +1,57 @@
+diff --git a/vllm/v1/worker/gpu_model_runner.py b/vllm/v1/worker/gpu_model_runner.py
+--- a/vllm/v1/worker/gpu_model_runner.py
++++ b/vllm/v1/worker/gpu_model_runner.py
+@@ -4,6 +4,7 @@
+ import functools
+ import gc
+ import itertools
++import os
+ import threading
+ import time
+ from collections import defaultdict
+@@ -497,5 +498,9 @@ class GPUModelRunner(
+         # Prevents routed experts code from running during profiling/dummy run.
+         self.routed_experts_initialized = False
++        # N0c diagnostic mode keeps the exact device-side route capture path
++        # while suppressing every route D2H/export/reconstruction operation.
++        # It is enabled only in a sealed experiment-only package snapshot.
++        self.n0c_device_capture_only = os.environ.get("N0C_DEVICE_CAPTURE_ONLY") == "1"
+         self.max_model_len = model_config.max_model_len
+ 
+         # Always set to false after the first forward pass
+@@ -3711,7 +3716,10 @@ class GPUModelRunner(
+             # waits for every D2H queued on the default stream since
+             # the last sync, so this enqueue is naturally covered
+             # without requiring its own synchronize.
+-            if self.routed_experts_initialized:
++            if (
++                self.routed_experts_initialized
++                and not self.n0c_device_capture_only
++            ):
+                 buf = self.routed_experts_capturer.get_device_buffer()
+                 total = scheduler_output.total_num_scheduled_tokens
+                 self.routed_experts_cpu[:total].copy_(buf[:total], non_blocking=True)
+@@ -4724,7 +4732,10 @@ class GPUModelRunner(
+             )
+ 
+         if not self.use_async_scheduling:
+-            if self.routed_experts_initialized:
++            if (
++                self.routed_experts_initialized
++                and not self.n0c_device_capture_only
++            ):
+                 # Sync path: D2H was issued in ``_bookkeeping_sync`` and
+                 # synchronized by ``_to_list``'s event.synchronize(), so
+                 # the pinned buffers are ready to be wrapped as numpy.
+@@ -4751,7 +4762,10 @@ class GPUModelRunner(
+             #     stream.
+             # Without clones, the copy stream would read torn data.
+             routed_experts_snapshot = None
+-            if self.routed_experts_initialized:
++            if (
++                self.routed_experts_initialized
++                and not self.n0c_device_capture_only
++            ):
+                 buf = self.routed_experts_capturer.get_device_buffer()
+                 total = scheduler_output.total_num_scheduled_tokens
+                 routed_experts_snapshot = RoutedExpertsTensors(

@@ -1,0 +1,116 @@
+diff --git a/vllm/model_executor/layers/fused_moe/routed_experts_capturer.py b/vllm/model_executor/layers/fused_moe/routed_experts_capturer.py
+index 115f43a..8354516 100644
+--- a/vllm/model_executor/layers/fused_moe/routed_experts_capturer.py
++++ b/vllm/model_executor/layers/fused_moe/routed_experts_capturer.py
+@@ -204,12 +204,22 @@ class RoutedExpertsCapturer:
+             start_loc:end_loc, :
+         ]
+ 
+-    def clear_buffer(self) -> None:
+-        """Zero the device buffer. Called at the start of every step so
+-        slots belonging to finished / preempted tokens don't leak into
+-        the next step.
++    def clear_buffer(self, num_tokens: int | None = None) -> None:
++        """Zero only the token window that can be returned by this step.
++
++        ``GPUModelRunner`` copies only ``[:total_num_scheduled_tokens]`` to
++        the scheduler. Clearing the full worst-case allocation on every
++        decode step therefore adds work proportional to
++        ``max_num_batched_tokens`` even when only a handful of tokens are
++        scheduled. Keep the no-argument behavior for compatibility, while
++        allowing the model runner to clear exactly the observable window.
+         """
+-        self.device_buffer.zero_()
++        if num_tokens is None:
++            self.device_buffer.zero_()
++            return
++        if not 0 <= num_tokens <= self.device_buffer.shape[0]:
++            raise ValueError(f"invalid routed-expert token window: {num_tokens}")
++        self.device_buffer[:num_tokens].zero_()
+ 
+     def get_device_buffer(self) -> torch.Tensor:
+         """Return the underlying device buffer so the model runner can
+diff --git a/vllm/v1/worker/gpu_model_runner.py b/vllm/v1/worker/gpu_model_runner.py
+index f3f0afb..7007139 100644
+--- a/vllm/v1/worker/gpu_model_runner.py
++++ b/vllm/v1/worker/gpu_model_runner.py
+@@ -4120,7 +4120,9 @@ class GPUModelRunner(
+             )
+ 
+         if self.routed_experts_initialized:
+-            self.routed_experts_capturer.clear_buffer()
++            self.routed_experts_capturer.clear_buffer(
++                scheduler_output.total_num_scheduled_tokens
++            )
+ 
+         # If ngram_gpu is used, we need to copy the scheduler_output to avoid
+         # the modification has influence on the scheduler_output in engine core process.
+diff --git a/tests/model_executor/test_routed_experts_capture.py b/tests/model_executor/test_routed_experts_capture.py
+index 7bb7b8b..8ee089b 100644
+--- a/tests/model_executor/test_routed_experts_capture.py
++++ b/tests/model_executor/test_routed_experts_capture.py
+@@ -278,3 +278,64 @@ def test_routed_experts_capturer_dp_unexpected_batch_raises():
+     ):
+         capturer.capture(layer_id=0, topk_ids=topk)
+     assert capturer.device_buffer[0, 0, 0].item() == -1
++
++
++def test_routed_experts_capturer_clear_buffer_defaults_to_full_window():
++    capturer = _capturer_with_buffer(max_tokens=8, num_layers=4)
++    capturer.clear_buffer()
++    assert torch.count_nonzero(capturer.device_buffer).item() == 0
++
++
++def test_routed_experts_capturer_clear_buffer_only_visible_window():
++    """Dense/non-MoE layers in visible rows are zero; hidden tail may stay stale."""
++    capturer = _capturer_with_buffer(max_tokens=8, num_layers=4)
++    capturer.clear_buffer(num_tokens=3)
++
++    assert torch.count_nonzero(capturer.device_buffer[:3]).item() == 0
++    assert torch.all(capturer.device_buffer[3:] == -1)
++
++    # Simulate only layer 1 being an MoE layer. Dense layers in the exported
++    # window retain the zero sentinel established by clear_buffer().
++    capturer.device_buffer[:3, 1, :] = torch.tensor([[1, 2], [3, 4], [5, 6]])
++    assert torch.count_nonzero(capturer.device_buffer[:3, 0, :]).item() == 0
++    assert torch.count_nonzero(capturer.device_buffer[:3, 2:, :]).item() == 0
++
++
++def test_routed_experts_capturer_clear_buffer_handles_window_growth_and_shrink():
++    capturer = _capturer_with_buffer(max_tokens=8, num_layers=2)
++
++    capturer.clear_buffer(num_tokens=6)
++    capturer.device_buffer[:6].fill_(7)
++
++    # A smaller following step clears everything it can export. Stale rows are
++    # outside its output slice and therefore unobservable.
++    capturer.clear_buffer(num_tokens=2)
++    assert torch.count_nonzero(capturer.device_buffer[:2]).item() == 0
++    assert torch.all(capturer.device_buffer[2:6] == 7)
++
++    # If a later step grows again, the newly visible rows are cleared before
++    # forward/capture and cannot leak the old value.
++    capturer.clear_buffer(num_tokens=7)
++    assert torch.count_nonzero(capturer.device_buffer[:7]).item() == 0
++
++
++def test_routed_experts_capturer_clear_buffer_preserves_async_snapshot():
++    """The async path clones before the next step's default-stream clear."""
++    capturer = _capturer_with_buffer(max_tokens=8, num_layers=2)
++    capturer.clear_buffer(num_tokens=4)
++    capturer.device_buffer[:4].copy_(
++        torch.arange(16, dtype=torch.int32).reshape(4, 2, 2)
++    )
++    private_snapshot = capturer.device_buffer[:4].clone()
++
++    capturer.clear_buffer(num_tokens=2)
++    assert torch.equal(
++        private_snapshot, torch.arange(16, dtype=torch.int32).reshape(4, 2, 2)
++    )
++
++
++@pytest.mark.parametrize("num_tokens", [-1, 9])
++def test_routed_experts_capturer_clear_buffer_rejects_invalid_window(num_tokens):
++    capturer = _capturer_with_buffer(max_tokens=8)
++    with pytest.raises(ValueError, match="invalid routed-expert token window"):
++        capturer.clear_buffer(num_tokens=num_tokens)

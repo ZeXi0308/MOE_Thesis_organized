@@ -350,7 +350,7 @@ FP8 已经足够稳，所以在 FP8 里纠结"rank1 用 FP8 还是 rank8 用 FP8
 ### 5.2 为什么 INT4/drop 比 FP8 危险
 
 - **FP8 良性叠加**：16 层全 FP8，total KL=0.293（~1× 线性）。
-- **INT4 灾难放大**：MILP 多层 INT4/drop，actual/predicted KL = **94×**。
+- **`SUPERSEDED` — 不得引用旧 additivity 倍数**：旧公式重复累加共享 FP8 baseline。正确增量口径 `locked_incremental` ratio=1.076，95% CI [0.983,1.165]，可加性未决。
 - **drift 拆解**：FP8 的 drift fraction（59-73%）反高于 INT4（48%），但绝对 drift 相近（0.176 vs 0.182）——FP8 把数值误差压到极小，drift 才在残差中占比上升。因绝对值小，多层叠加仍可控。
 
 直观理解：MoE 不是只量化一层。前面层的 output 一旦被 INT4/drop 扰动，后面层看到的 hidden state 就变了，后面的 router/expert 也可能跟着变。FP8 的误差太小，传到后面也不明显；INT4/drop 的误差大，就可能一层层放大。
