@@ -183,9 +183,11 @@ only scientific execution. Three counterbalanced fresh processes all preserved
 serial-A/B exactness, 32/32 reference-token parity, and within-arm stability.
 The first Expert-assignment frontier was request `olmoe-dev-steady-000`, decode
 step 1, layer 3; the same request-step already had a nonzero BF16 router-logit
-difference at layer 0. An append-only evaluator-v2 replay independently
-validated all 4,608 retained Expert sets against their router logits and kept
-the status `PRETOPK_NUMERICAL_DIVERGENCE_ASSOCIATION_REPRODUCED`.
+difference at layer 0. An append-only evaluator-v3 replay validated all 4,608
+retained Expert sets for top-k value consistency and kept the status
+`PRETOPK_NUMERICAL_DIVERGENCE_ASSOCIATION_REPRODUCED`. Forty-eight rows have an
+exact top-k boundary tie, so exact GPU tie-break identity is not independently
+reconstructed.
 
 This is a custom-runtime matched-prestate conformance measurement only. It does
 not identify Attention/KV/padding versus gate-Linear causality and does not

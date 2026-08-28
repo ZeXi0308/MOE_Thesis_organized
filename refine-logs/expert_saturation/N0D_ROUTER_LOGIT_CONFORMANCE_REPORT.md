@@ -60,10 +60,12 @@ The three processes all reproduce these facts:
   and the qualifying layer-0 maximum delta in the same request-step is
   `0.0078125`.
 
-The append-only evaluator-v2 replay independently validates all 4,608 retained
-Expert sets against their 64 router logits. It returns the same verdict with
-`selected_experts_topk_recomputed=true`, no structural errors, exact serial
-controls, exact token parity, and stable three-process signatures.
+The append-only evaluator-v3 replay validates all 4,608 retained Expert sets
+for top-k value consistency against their 64 router logits. It returns the same
+verdict with `selected_experts_topk_value_consistent=true`, no structural
+errors, exact serial controls, exact token parity, and stable three-process
+signatures. There are 48 exact boundary-tie rows, so exact GPU tie-break
+identity is not independently reconstructed.
 
 ## What was not measured
 
@@ -73,13 +75,14 @@ from the router gate Linear's `M=1` versus `M=4` execution shape. It also has no
 same-width shuffled-companion arm, so physical batch shape and companion
 identity remain confounded.
 
-The Expert IDs are reconstructed from retained router logits and independently
-top-k-validated; they are not captured at an internal dispatch hook. Coverage
-is limited to one model, one steady cell, BF16, a custom Transformers runtime,
-and one GPU. No second model, bursty cell, native serving runtime, multi-GPU EP,
-batch-specific future-state trajectory, full next-token-logit comparison,
-semantic-quality result, request latency, TPOT/P99, SLO-goodput, or full-request
-critical-path consequence was measured.
+The Expert IDs are retained producer outputs and are independently validated
+for top-k value consistency; they are not captured at an internal dispatch
+hook, and the exact selected identity in boundary-tie rows is not reconstructed.
+Coverage is limited to one model, one steady cell, BF16, a custom Transformers
+runtime, and one GPU. No second model, bursty cell, native serving runtime,
+multi-GPU EP, batch-specific future-state trajectory, full next-token-logit
+comparison, semantic-quality result, request latency, TPOT/P99, SLO-goodput, or
+full-request critical-path consequence was measured.
 
 ## Strongest baseline
 

@@ -105,11 +105,12 @@ tokens were exact in every process. The first Expert-assignment frontier was
 router-logit difference for that same request-step was already present at
 layer 0. All three double-sided signatures were identical.
 
-The original campaign verdict is preserved. An external evaluator-v2 addendum
-independently checked every retained Expert set against the corresponding 64
-router logits and reproduced the same status with
-`selected_experts_topk_recomputed=true`. The full local suite passes 202/202
-tests.
+The original campaign verdict is preserved. An external evaluator-v3 addendum
+checked every retained Expert set for top-k value consistency against the
+corresponding 64 router logits and reproduced the same status with
+`selected_experts_topk_value_consistent=true`. Forty-eight rows have an exact
+top-k boundary tie, so exact GPU tie-break identity is not independently
+reconstructed. The full local suite passes 202/202 tests.
 
 All manifest-listed campaign files still pass SHA-256. Two unmanifested local
 `frozen/__pycache__/*.pyc` files have post-sentinel mtimes, so exact local-
