@@ -1,0 +1,31 @@
+CPU preparation verification 2026-09-04T23:09:01.387037+00:00
+HEAD 2a37765fe522b1d74609a686f1d327ede7619a50; Python 3.9.6 / torch 2.8.0 / transformers 4.57.6; CUDA unavailable.
+Earlier this turn: offload unittest 3/3 PASS; receiver unittest 4/4 PASS.
+Real pinned OLMoE tensor headers: 13838323712 weight bytes, 1024 expert objects, 10 scenario cells; weights not loaded.
+Tiny real OLMoE CPU integration PASS: 3 x 32-step policy-specific trajectories, 4 served-high each, unchanged original DynamicCache, 96 actual QDQ low forwards; synthetic randomly initialized model, no performance result.
+
+COMMAND ["/Users/leandrozhao/Desktop/、++++++++/.venv/bin/python", "-m", "unittest", "discover", "-s", "/Users/leandrozhao/Desktop/、++++++++/refine-logs/independent_ideas_20260905/verify_precision", "-p", "test_*.py", "-v"]
+test_each_policy_advances_its_selected_cache_without_mutating_prefix (test_budget_adapter.BudgetTests) ... ok
+test_exact_served_and_physical_budgets_including_forced_fill (test_budget_adapter.BudgetTests) ... ok
+test_fresh_document_selection_rejects_overlap_duplicates_and_short_text (test_budget_adapter.BudgetTests) ... ok
+test_reference_outcomes_do_not_select_actions_and_threshold_is_required (test_budget_adapter.BudgetTests) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.035s
+
+OK
+EXIT 0
+
+COMMAND ["/Users/leandrozhao/Desktop/、++++++++/.venv/bin/python", "/Users/leandrozhao/Desktop/、++++++++/refine-logs/independent_ideas_20260905/verify_precision/run_qualification.py", "--prepare-only", "--split", "test", "--offset", "0", "--output-dir", "/Users/leandrozhao/Desktop/、++++++++/refine-logs/independent_ideas_20260905/verify_precision/prepared_r01"]
+/Users/leandrozhao/Desktop/、++++++++/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+Using the latest cached version of the dataset since wikitext couldn't be found on the Hugging Face Hub (offline mode is enabled).
+Found the latest cached dataset configuration 'wikitext-103-raw-v1' at /Users/leandrozhao/.cache/huggingface/datasets/wikitext/wikitext-103-raw-v1/0.0.0/b08601e04326c79dfdd32d625aee71d232d685c3 (last modified on Wed Jul 22 14:40:38 2026).
+EXIT 0
+
+COMMAND ["/Users/leandrozhao/Desktop/、++++++++/.venv/bin/python", "/Users/leandrozhao/Desktop/、++++++++/refine-logs/independent_ideas_20260905/verify_precision/run_qualification.py", "--prepared-dir", "/Users/leandrozhao/Desktop/、++++++++/refine-logs/independent_ideas_20260905/verify_precision/prepared_r01", "--output-dir", "/private/tmp/verify-budget-cuda-guard-20260905T070909"]
+/Users/leandrozhao/Desktop/、++++++++/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+RuntimeError: exactly one CUDA GPU required; scientific experiment UNRUN
+EXPECTED EXIT 1; UNRUN with zero completed policies; prepared config and exact token IDs reused byte-for-byte.
+New GPU experiment count: 0. Native serving / offload / multi-GPU EP results: UNRUN.

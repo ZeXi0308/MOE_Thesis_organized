@@ -1,0 +1,292 @@
+--- safe_static_r02/memory_telemetry.py
++++ native_preemption_r01/memory_telemetry.py
+@@ -38,11 +38,12 @@
+                    "Torch reserved includes allocated. These fields must not be summed.")
+ 
+ 
+-def capture_with_memory(engine, capture_fn, workload, config, **kwargs):
++def capture_with_memory(engine, capture_fn, workload, config, *, allow_preemption=False, **kwargs):
+     scheduler = engine.engine_core.engine_core.scheduler
+     manager = scheduler.kv_cache_manager
+     pool = manager.block_pool
+     trace, boundary, current = [], None, None
++    preemption_events = []
+     saved = []
+ 
+     def replace(obj, name, method):
+@@ -58,6 +59,7 @@
+         groups = manager.get_blocks(request.request_id).blocks
+         return dict(computed_tokens=int(request.num_computed_tokens),
+             prompt_tokens=int(request.num_prompt_tokens),
++            output_tokens=int(request.num_output_tokens),
+             num_preemptions=int(request.num_preemptions),
+             block_counts=[len(group) for group in groups])
+ 
+@@ -67,6 +69,7 @@
+             requests={rid: request_state(req) for rid, req in scheduler.requests.items()})
+ 
+     original_schedule, original_allocate = scheduler.schedule, manager.allocate_slots
++    original_preempt = scheduler._preempt_request
+ 
+     def allocate(request, *args, **kw):
+         before = pool_state()
+@@ -77,14 +80,31 @@
+                 before=before, after=pool_state(), computed_tokens=int(request.num_computed_tokens)))
+         return result
+ 
+-    def stop_preemption(request, timestamp):
++    def record_preemption(request, timestamp):
+         nonlocal boundary
+-        boundary = dict(victim_internal_request_id=request.request_id,
++        event = dict(victim_internal_request_id=request.request_id,
+             attempted_step=len(trace), native_timestamp=timestamp,
+             host_perf_counter_s=time.perf_counter(), victim_state=request_state(request),
+-            pool=pool_state(), original_preemption_called=False, model_execution_confirmed=False,
++            output_token_ids_before=list(request.output_token_ids),
++            pool=pool_state(), original_preemption_called=False, original_preemption_returned=False,
+             hook_boundary="Caller already removed victim from running; see schedule-before snapshot.")
+-        raise CapacityExhausted("KV capacity requires native preemption; episode stopped before KV release")
++        preemption_events.append(event)
++        if not allow_preemption:
++            boundary = event
++            event['model_execution_confirmed'] = False
++            raise CapacityExhausted("KV capacity requires native preemption; episode stopped before KV release")
++        event['original_preemption_called'] = True
++        try:
++            result = original_preempt(request, timestamp)
++            event['original_preemption_returned'] = True
++            return result
++        except Exception as error:
++            event['error'] = f'{type(error).__name__}: {error}'
++            raise
++        finally:
++            event.update(victim_state_after=request_state(request), pool_after=pool_state(),
++                         output_token_ids_after=list(request.output_token_ids),
++                         returned_host_perf_counter_s=time.perf_counter())
+ 
+     def schedule(*args, **kw):
+         nonlocal current
+@@ -114,7 +134,7 @@
+     try:
+         replace(scheduler, "schedule", schedule)
+         replace(manager, "allocate_slots", allocate)
+-        replace(scheduler, "_preempt_request", stop_preemption)
++        replace(scheduler, "_preempt_request", record_preemption)
+         raw = capture_fn(engine, workload, config, **kwargs)
+     finally:
+         for obj, name, had_instance, original in reversed(saved):
+@@ -122,10 +142,13 @@
+                 setattr(obj, name, original)
+             elif name in vars(obj):
+                 delattr(obj, name)
+-    raw.update(memory_trace=trace, capacity_boundary=boundary,
++    raw.update(memory_trace=trace, capacity_boundary=boundary, preemption_events=preemption_events,
++        preemption_mode='native_recompute' if allow_preemption else 'stop_before_preemption',
++        actual_preemption_count=sum(e['original_preemption_returned'] for e in preemption_events),
+         block_count_semantics="Per-group block-table lengths may include null placeholders; global pool used excludes null.",
+-        strict_nonpreemptive_status="CAPACITY_BOUNDARY_STOP" if boundary is not None else (
+-            "COMPLETE_NO_PREEMPTION" if raw["status"] == "COMPLETE" else "INCOMPLETE_NO_PREEMPTION"),
++        strict_nonpreemptive_status='NOT_APPLICABLE_NATIVE_PREEMPTION' if allow_preemption else (
++            "CAPACITY_BOUNDARY_STOP" if boundary is not None else (
++            "COMPLETE_NO_PREEMPTION" if raw["status"] == "COMPLETE" else "INCOMPLETE_NO_PREEMPTION")),
+         memory_trace_clock="Absolute perf_counter seconds; join native capture using attempted_step. "
+             "Successful schedule alone does not confirm GPU execution. Failed attempts never executed.")
+     return raw
+--- safe_static_r02/native_capture.py
++++ native_preemption_r01/native_capture.py
+@@ -43,7 +43,8 @@
+         raise ValueError("duplicate source request IDs")
+     pending = sorted(range(len(sources)), key=lambda i: (arrivals[i] * arrival_scale, i))
+     internal_to_source, external_to_source = {}, {}
+-    scheduler_steps, output_events = [], []
++    scheduler_steps, output_events, engine_steps = [], [], []
++    executed_high_water = {}
+     scheduler = original = None
+     had_instance_schedule = False
+     error = None
+@@ -62,29 +63,38 @@
+ 
+         def schedule(*args, **kwargs):
+             started = now()
+-            before = {rid: (int(req.num_computed_tokens), int(req.num_prompt_tokens))
++            before = {rid: (int(req.num_computed_tokens), int(req.num_prompt_tokens), int(req.num_output_tokens))
+                       for rid, req in scheduler.requests.items()}
+             running_before, waiting_before = scheduler.get_request_counts()
+             result = original(*args, **kwargs)
+             scheduled = []
+             for rid, amount in result.num_scheduled_tokens.items():
+-                prior, prompt_length = before[rid]
++                prior, prompt_length, output_count = before[rid]
+                 after = int(scheduler.requests[rid].num_computed_tokens)
+                 # schedule() already increments computed; a reset/cache adjustment
+                 # inside it is retained explicitly instead of silently misclassifying.
+                 actual_start = after - amount
+                 if actual_start < 0 or amount <= 0:
+                     raise ValueError("invalid native scheduled/computed token accounting")
+-                prefill = min(amount, max(0, prompt_length - actual_start))
++                high_water = executed_high_water.get(rid, 0)
++                recompute = max(0, min(after, high_water) - actual_start)
++                new_start = max(actual_start, high_water)
++                prefill = max(0, min(after, prompt_length) - new_start)
++                decode = amount - recompute - prefill
++                if min(recompute, prefill, decode) < 0:
++                    raise ValueError("invalid exclusive new/recomputed token accounting")
+                 scheduled.append(dict(request_id=internal_to_source[rid], internal_request_id=rid,
+                     computed_before=prior, computed_after=after, scheduled_start_computed=actual_start,
+                     computed_adjustment=actual_start - prior, prompt_tokens=prompt_length,
+-                    scheduled_tokens=amount, prefill_tokens=prefill, decode_tokens=amount - prefill))
++                    output_tokens_before=output_count, executed_high_water_before=high_water,
++                    scheduled_tokens=amount, prefill_tokens=prefill, decode_tokens=decode,
++                    recompute_tokens=recompute))
+             running_after, waiting_after = scheduler.get_request_counts()
+             scheduler_steps.append(dict(step=len(scheduler_steps), start_s=started, end_s=now(),
+                 target_cap=config["cap"], running_before=running_before, waiting_before=waiting_before,
+                 actual_active=running_after, waiting_requests=waiting_after,
+                 decode_requests=sum(row["decode_tokens"] > 0 for row in scheduled), scheduled=scheduled,
++                recompute_tokens=sum(row["recompute_tokens"] for row in scheduled),
+                 total_scheduled_tokens=sum(row["scheduled_tokens"] for row in scheduled),
+                 preempted_request_ids=[internal_to_source[rid] for rid in (result.preempted_req_ids or [])]))
+             return result
+@@ -120,8 +130,22 @@
+                     delay = rows[sources[pending[next_request]]["request_id"]]["arrival_s"] - now()
+                     time.sleep(max(0.0, min(0.001, delay)))
+                 continue
+-            outputs = engine.step()
+-            received = now()  # One immediate host receipt timestamp for this output batch.
++            step_start = len(scheduler_steps)
++            call = dict(call_index=len(engine_steps), start_s=now(), scheduler_step_start=step_start,
++                        returned_s=None, completed=False, output_request_ids=[], new_output_tokens=0)
++            engine_steps.append(call)
++            try:
++                outputs = engine.step()
++            except Exception as error:
++                call.update(returned_s=now(), scheduler_step_end=len(scheduler_steps), error=repr(error))
++                raise
++            received = now()  # Retain calls that return no output as well.
++            call.update(returned_s=received, scheduler_step_end=len(scheduler_steps), completed=True,
++                        output_request_ids=[output.request_id for output in outputs])
++            for step in scheduler_steps[step_start:]:
++                for item in step['scheduled']:
++                    rid = item['internal_request_id']
++                    executed_high_water[rid] = max(executed_high_water.get(rid, 0), item['computed_after'])
+             for output in outputs:
+                 source_id = external_to_source[output.request_id]
+                 row = rows[source_id]
+@@ -142,6 +166,7 @@
+                 if tokens[:len(previous)] != previous or len(tokens) < len(previous) or len(tokens) > count:
+                     raise ValueError("cumulative token prefix changed or output length exceeded")
+                 added = tokens[len(previous):]
++                call['new_output_tokens'] += len(added)
+                 event.update(new_token_ids=added, chunk_size=len(added), prefix_valid=True)
+                 row["output_token_ids"] = tokens
+                 row["token_times_s"].extend([received] * len(added))
+@@ -166,6 +191,10 @@
+     sizes = [event["chunk_size"] for event in output_events]
+     return dict(status="COMPLETE" if error is None else "INCOMPLETE", error=error,
+         requests=list(rows.values()), scheduler_steps=scheduler_steps, output_events=output_events,
++        engine_steps=engine_steps,
++        scheduled_token_semantics="scheduled = first-time prefill + first-time decode + recompute; "
++            "recompute uses the high-water mark from prior completed engine.step calls, not output-token count. "
++            "Scheduled intervals in a failed engine.step are attempts, not confirmed executed work.",
+         observation_end_s=now(), regime=regime, arrival_scale=arrival_scale, target_cap=config["cap"],
+         internal_to_source=internal_to_source, evidence_type="NATIVE_SERVING_INPROCESS_HOST_CAPTURE",
+         queue_semantics="admission_s minus arrival_s is client submission lag; native waiting is scheduler telemetry",
+--- safe_static_r02/run_probe.py
++++ native_preemption_r01/run_probe.py
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""One native memory-capacity episode; stop before the first KV preemption."""
++"""One full native-preemption or guarded safe-cap episode."""
+ import argparse
+ import csv
+ import hashlib
+@@ -52,8 +52,10 @@
+ def main():
+     parser = argparse.ArgumentParser(description=__doc__)
+     parser.add_argument('--domain', choices=['short', 'long'], required=True)
+-    parser.add_argument('--cap', type=int, choices=[16], required=True)
+-    parser.add_argument('--safe-static', action='store_true')
++    parser.add_argument('--cap', type=int, choices=[32], required=True)
++    arm = parser.add_mutually_exclusive_group(required=True)
++    arm.add_argument('--safe-static', action='store_true')
++    arm.add_argument('--native-preemption', action='store_true')
+     parser.add_argument('--output-dir', type=Path, required=True)
+     args = parser.parse_args()
+     root, out = Path(__file__).resolve().parent, args.output_dir
+@@ -62,8 +64,9 @@
+     config = dict(config, cap=args.cap, domain=args.domain, engine_max_num_seqs=32,
+         metric_role='continuous request metrics primary; SLO 5s/.2s reference only',
+         evidence_ceiling='NATIVE_INPROCESS_CAPACITY_QUALIFICATION', max_seconds=120)
+-    config.update(requested_arm='safe' if args.safe_static else 'baseline16',
+-                  cap=None if args.safe_static else 16)
++    config.update(requested_arm='safe' if args.safe_static else 'native32',
++                  cap=None if args.safe_static else 32,
++                  preemption_mode='stop_before_preemption' if args.safe_static else 'native_recompute')
+     out.mkdir(parents=True, exist_ok=False)
+     dump(out/'config.json', config)
+     (out/'commands.txt').write_text(shlex.join([sys.executable, *sys.argv])+'\n')
+@@ -97,12 +100,15 @@
+         engine = LLMEngine.from_engine_args(EngineArgs(**kwargs), enable_multiprocessing=False)
+         dump(out/'memory-after-init.json', memory_snapshot(engine, torch))
+         qualification = qualify_safe_cap(engine, config)
++        if qualification['status'] == 'QUALIFIED' and qualification['safe_cap'] != 29:
++            qualification.update(status='QUALIFICATION_FAILED', measurement_status='UNRUN',
++                                 error='live safe cap differs from the frozen safe29 comparison')
+         dump(out/'safe-cap-qualification.json', qualification)
+         if qualification['status'] != 'QUALIFIED':
+             dump(out/'status.json', dict(status='UNRUN', qualification_status='QUALIFICATION_FAILED',
+                  error=qualification.get('error'), measurement_executed=False))
+             raise SystemExit(2)
+-        args.cap = qualification['safe_cap'] if args.safe_static else 16
++        args.cap = qualification['safe_cap'] if args.safe_static else 32
+         config.update(cap=args.cap)
+         dump(out/'config.json', config)
+         # Identical warmups in every process; do not run the pressure case as warmup.
+@@ -122,6 +128,7 @@
+         torch.cuda.reset_peak_memory_stats()
+         dump(out/'memory-before.json', memory_snapshot(engine, torch))
+         raw = capture_with_memory(engine, capture_episode, workload, config,
++            allow_preemption=args.native_preemption,
+             regime='steady', arrival_scale=1.0, run_id='measured', max_seconds=120)
+         raw['gpu_before'] = before
+         dump(out/'raw.json', raw)
+@@ -130,10 +137,12 @@
+         metrics = summarize_episode_requests(raw['requests'], observation_end_s=raw['observation_end_s'],
+             ttft_slo_s=5.0, tpot_slo_s=0.2)
+         metrics.update(complete_episode_comparison_eligible=raw['status'] == 'COMPLETE',
++            actual_preemption_count=raw['actual_preemption_count'], preemption_mode=raw['preemption_mode'],
+             role='partial completion retained; incomplete cells are not full-horizon throughput comparisons')
+         dump(out/'metrics.json', metrics)
+         status = 'CAPACITY_BOUNDARY_STOP' if raw['capacity_boundary'] else raw['status']
+         dump(out/'status.json', dict(status=status, requests_completed=sum(r['status']=='completed' for r in raw['requests']),
++            actual_preemption_count=raw['actual_preemption_count'], preemption_mode=raw['preemption_mode'],
+             scientific_verdict='MEASUREMENT_ONLY', error=raw['error']))
+         if status not in ['COMPLETE', 'CAPACITY_BOUNDARY_STOP']:
+             raise RuntimeError(raw['error'])
+--- safe_static_r02/run_campaign.py
++++ native_preemption_r01/run_campaign.py
+@@ -9,8 +9,8 @@
+ import sys
+ import time
+ 
+-FROZEN_CELLS = [('repeat0-baseline16', 'long', 16), ('repeat0-safe', 'long', 'safe'),
+-                ('repeat1-safe', 'long', 'safe'), ('repeat1-baseline16', 'long', 16)]
++FROZEN_CELLS = [('repeat0-native32', 'long', 32), ('repeat0-safe', 'long', 'safe'),
++                ('repeat1-safe', 'long', 'safe'), ('repeat1-native32', 'long', 32)]
+ CELL_BY_LABEL = {label: (domain, cap) for label, domain, cap in FROZEN_CELLS}
+ 
+ 
+@@ -22,10 +22,12 @@
+     metadata = out / f'{label}-execution.json'
+     if (out / label).exists():
+         raise FileExistsError(f'cell results already exist: {out / label}')
+-    command = [sys.executable, '-u', 'run_probe.py', '--domain', domain, '--cap', '16',
++    command = [sys.executable, '-u', 'run_probe.py', '--domain', domain, '--cap', '32',
+                '--output-dir', str(out / label)]
+     if cap == 'safe':
+         command.append('--safe-static')
++    else:
++        command.append('--native-preemption')
+     env = dict(os.environ, HF_HUB_CACHE='/root/autodl-tmp/hf-cache/hub', HF_HUB_OFFLINE='1',
+         TRANSFORMERS_OFFLINE='1', CUDA_VISIBLE_DEVICES='0', VLLM_ENABLE_V1_MULTIPROCESSING='0',
+         VLLM_USE_FLASHINFER_SAMPLER='0')

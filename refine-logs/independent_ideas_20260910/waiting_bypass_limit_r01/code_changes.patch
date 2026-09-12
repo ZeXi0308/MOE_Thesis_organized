@@ -1,0 +1,397 @@
+--- a/run_waiting_order.py
++++ b/run_waiting_order.py
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""One fresh engine, matched waiting-order episodes; active work is untouched."""
++"""One fresh engine, three waiting-order arms; active work is untouched."""
+ import argparse
+ import csv
+ import hashlib
+@@ -15,6 +15,8 @@
+ sys.path.insert(0, str(ROOT / "runtime"))
+ from native_capture import capture_episode
+ from metrics import summarize_episode_requests
++
++MODES = ("fcfs", "short_prompt_first", "bounded_bypass_once")
+ 
+ def dump(path, value):
+     path.write_text(json.dumps(value, indent=2, allow_nan=False) + "\n")
+@@ -73,11 +75,12 @@
+         enable_prefix_caching=False, scheduling_policy="fcfs", async_scheduling=False,
+         stream_interval=1, enforce_eager=False, enable_return_routed_experts=False, disable_log_stats=False)
+     warmups = [dict(cohort=c, budget=1024, waiting_order=o) for c in ("all_short", "mixed")
+-               for o in ("fcfs", "short_prompt_first")]
++               for o in MODES]
+     plans = warmups[:] if block == "forward" else list(reversed(warmups))
+-    files = [Path(__file__).resolve(), *(ROOT / "runtime").glob("*.py"), *ROOT.glob("prepared/*/*.json")]
++    files = [Path(__file__).resolve(), ROOT / "runtime_reference.json", *(ROOT / "runtime").glob("*.py"), *ROOT.glob("prepared/*/*.json")]
+     return inputs, dict(block=block, warmups=warmups, plans=plans, engine_args=engine_args,
+         reference_slo=dict(ttft_slo_s=5.0, tpot_slo_s=0.2), max_seconds=180,
++        bypass_limit=1, bypass_action="count actual first admissions of later arrivals, not proposed queue reorders",
+         source_and_input_sha256={str(p.relative_to(ROOT)): sha(p) for p in sorted(files)},
+         evidence_ceiling="REQUEST_LEVEL_EXPLORATORY_INTERVENTION_NO_METHOD_GO")
+ 
+@@ -136,7 +139,7 @@
+                         **frozen["reference_slo"]) for g, rows in groups.items()}, host_chunk_diagnostics=raw["host_chunk_diagnostics"]))
+                 completed += phase == "cell"
+                 print(json.dumps(dict(phase="END", cell=stem, status=raw["status"])), flush=True)
+-        dump(out / "status.json", dict(status="COMPLETE", cells_completed=completed, warmups_completed=4,
++        dump(out / "status.json", dict(status="COMPLETE", cells_completed=completed, warmups_completed=len(frozen["warmups"]),
+             scientific_verdict="MEASUREMENT_ONLY_PENDING_ANALYSIS"))
+     except BaseException as exc:
+         dump(out / "status.json", dict(status="INCOMPLETE" if attempted else "BLOCKED", cells_completed=completed,
+@@ -159,7 +162,7 @@
+     dump(args.output_dir / "plans.json", dict(warmups=frozen["warmups"], measured=frozen["plans"]))
+     (args.output_dir / "commands.txt").write_text(shlex.join([sys.executable, *sys.argv]) + "\n")
+     dump(args.output_dir / "status.json", dict(status="PREPARED" if args.prepare_only else "INITIALIZING",
+-        cells_completed=0, cells_planned=4, gpu_initialized=False))
++        cells_completed=0, cells_planned=len(frozen["plans"]), warmups_planned=len(frozen["warmups"]), gpu_initialized=False))
+     if args.prepare_only:
+         return
+     with (args.output_dir / "stdout.log").open("x") as stdout, (args.output_dir / "stderr.log").open("x") as stderr:
+--- a/runtime/native_capture.py
++++ b/runtime/native_capture.py
+@@ -7,7 +7,7 @@
+ import time
+ 
+ from admission_feedback import AdmissionFeedback, apply_nonpreemptive_limit
+-from waiting_order import reorder_waiting
++from waiting_order import WaitingBypassLedger, reorder_waiting
+ 
+ 
+ def set_empty_admission_cap(engine, cap) -> dict:
+@@ -51,6 +51,7 @@
+     internal_to_source, external_to_source = {}, {}
+     scheduler_steps, output_events, engine_step_returns = [], [], []
+     waiting_order_actions, ever_scheduled = [], set()
++    bypass_ledger = WaitingBypassLedger()
+     waiting_order = config.get("waiting_order", "fcfs")
+     scheduler = original = None
+     had_instance_schedule = False
+@@ -64,7 +65,7 @@
+         from vllm import SamplingParams
+         from vllm.sampling_params import RequestOutputKind
+         scheduler = engine.engine_core.engine_core.scheduler
+-        if policy != "static" or waiting_order not in ("fcfs", "short_prompt_first"):
++        if policy != "static" or waiting_order not in ("fcfs", "short_prompt_first", "bounded_bypass_once"):
+             raise ValueError("waiting-order probe supports only static admission and frozen queue actions")
+         original = scheduler.schedule
+         had_instance_schedule = "schedule" in vars(scheduler)
+@@ -79,7 +80,7 @@
+             event = dict(step=len(scheduler_steps), start_s=started)
+             waiting_order_actions.append(event)  # Retain failed actions even when schedule never runs.
+             try:
+-                reorder_waiting(scheduler, waiting_order, ever_scheduled, event)
++                reorder_waiting(scheduler, waiting_order, ever_scheduled, event, bypass_ledger)
+             finally:
+                 event["end_s"] = now()
+             before = {rid: (int(req.num_computed_tokens), int(req.num_prompt_tokens))
+@@ -97,6 +98,8 @@
+                 decision["effective_scheduler_limit"] = apply_nonpreemptive_limit(scheduler, target, maximum)
+                 decision["applied_s"] = now()
+             result = original(*args, **kwargs)
++            bypass_ledger.record(result.num_scheduled_tokens, ever_scheduled, waiting_order, event)
++            event["ledger_end_s"] = now()
+             ever_scheduled.update(result.num_scheduled_tokens)
+             scheduled = []
+             for rid, amount in result.num_scheduled_tokens.items():
+@@ -165,6 +168,7 @@
+                 if internal_id in internal_to_source or external_id in external_to_source:
+                     raise ValueError("native request ID collision")
+                 internal_to_source[internal_id] = source_id
++                bypass_ledger.register(internal_id)  # Due arrivals are submitted in stable arrival order.
+                 external_to_source[external_id] = source_id
+                 row.update(external_request_id=external_id, internal_request_id=internal_id)
+                 next_request += 1
+@@ -235,6 +239,8 @@
+         requests=list(rows.values()), scheduler_steps=scheduler_steps, output_events=output_events,
+         engine_step_returns=engine_step_returns,
+         waiting_order=waiting_order, waiting_order_actions=waiting_order_actions,
++        arrival_ranks=bypass_ledger.rank, first_admission_bypasses=bypass_ledger.bypasses,
++        bypass_semantics="later-arrival first schedules preceding an older waiting request; order within a schedule uses num_scheduled_tokens insertion order",
+         observation_end_s=now(), regime=regime, arrival_scale=arrival_scale, target_cap=config["cap"],
+         policy=policy, actions=[] if feedback is None else feedback.actions,
+         feedback_observations=[] if feedback is None else feedback.observations,
+--- a/runtime/waiting_order.py
++++ b/runtime/waiting_order.py
+@@ -1,7 +1,59 @@
+ """Reorder only native FCFS requests that have never started execution."""
+ 
+ 
+-def reorder_waiting(scheduler, mode, ever_scheduled, event):
++class WaitingBypassLedger:
++    """Count later arrivals first scheduled before an older waiting request."""
++
++    def __init__(self):
++        self.rank, self.bypasses = {}, {}
++
++    def register(self, request_id):
++        if request_id in self.rank:
++            raise ValueError("duplicate arrival in bypass ledger")
++        self.rank[request_id] = len(self.rank)
++        self.bypasses[request_id] = 0
++
++    def order(self, requests):
++        pending = sorted(requests, key=lambda r: self.rank[r.request_id])
++        virtual = self.bypasses.copy()  # Proposal only: no service has occurred yet.
++        ordered = []
++        while pending:
++            barrier = next((i for i, r in enumerate(pending)
++                            if virtual[r.request_id] >= 1), len(pending) - 1)
++            chosen = min(pending[:barrier + 1],
++                         key=lambda r: (r.num_prompt_tokens, self.rank[r.request_id]))
++            index = pending.index(chosen)
++            for older in pending[:index]:
++                virtual[older.request_id] += 1
++            ordered.append(pending.pop(index))
++        return ordered
++
++    def record(self, scheduled_tokens, ever_scheduled, mode, event):
++        pending = {r["request_id"] for r in event["before"]}
++        event.update(first_admitted=[], bypass_charges=[],
++                     bypasses_before={rid: self.bypasses[rid] for rid in sorted(pending)})
++        try:
++            for rid, amount in scheduled_tokens.items():
++                if amount <= 0 or rid in ever_scheduled:
++                    continue
++                if rid not in pending:
++                    raise ValueError("first admission absent from captured waiting queue")
++                pending.remove(rid)
++                event["first_admitted"].append(rid)
++                for older in sorted(pending, key=self.rank.__getitem__):
++                    if self.rank[older] < self.rank[rid]:
++                        self.bypasses[older] += 1
++                        event["bypass_charges"].append(dict(older=older, admitted=rid))
++            if mode == "bounded_bypass_once" and any(n > 1 for n in self.bypasses.values()):
++                raise ValueError("native first-admission order exceeded one bypass")
++        except Exception as exc:
++            event["error"] = f"{type(exc).__name__}: {exc}"
++            raise
++        finally:
++            event["bypasses_after"] = {rid: self.bypasses[rid] for rid in event["bypasses_before"]}
++
++
++def reorder_waiting(scheduler, mode, ever_scheduled, event, ledger=None):
+     from vllm.v1.core.sched.request_queue import FCFSRequestQueue, SchedulingPolicy
+     from vllm.v1.request import RequestStatus
+ 
+@@ -15,7 +67,7 @@
+     event.update(mode=mode, before=describe(before), after=None, running_before=describe(running),
+                  action_applied=False, order_changed=False, error=None)
+     try:
+-        if mode not in ("fcfs", "short_prompt_first"):
++        if mode not in ("fcfs", "short_prompt_first", "bounded_bypass_once"):
+             raise ValueError("unsupported waiting order")
+         if type(waiting) is not FCFSRequestQueue or scheduler.policy is not SchedulingPolicy.FCFS:
+             raise ValueError("waiting action requires the native FCFS deque and policy")
+@@ -28,6 +80,10 @@
+                or getattr(r, "num_preemptions", 0) or r.num_prompt_tokens <= 0 for r in before):
+             raise ValueError("waiting action requires never-started, unblocked requests")
+         ordered = sorted(before, key=lambda r: r.num_prompt_tokens) if mode == "short_prompt_first" else before
++        if mode == "bounded_bypass_once":
++            if ledger is None:
++                raise ValueError("bounded bypass requires a first-admission ledger")
++            ordered = ledger.order(before)
+         waiting.clear()  # Identical deque mutation in both arms; request objects remain untouched.
+         waiting.extend(ordered)
+         event.update(action_applied=True, order_changed=[id(r) for r in before] != [id(r) for r in ordered])
+--- a/analyze_results.py
++++ b/analyze_results.py
+@@ -13,6 +13,7 @@
+ from metrics import _distribution, summarize_episode_requests
+ 
+ SLO = dict(ttft_slo_s=5.0, tpot_slo_s=0.2)
++MODES = ("fcfs", "short_prompt_first", "bounded_bypass_once")
+ read = lambda p: json.loads(p.read_text())
+ digest = lambda x: hashlib.sha256(json.dumps(x, separators=(",", ":")).encode()).hexdigest()
+ identity = lambda r: (r["request_id"], r["document_id"], r["prompt_token_ids_sha256"], r["prompt_tokens"], r["arrival_s"])
+@@ -32,9 +33,11 @@
+     check(all(len(r["output_token_ids"]) == 128 for r in rows if r["status"] == "completed"), "completed_output_length_mismatch")
+     for group, selected in (("all", rows), ("short128", [r for r in rows if r["prompt_tokens"] == 128]), ("long2048", [r for r in rows if r["prompt_tokens"] == 2048])):
+         summary = summarize_episode_requests(selected, observation_end_s=raw["observation_end_s"], **SLO)
+-        derived = summary.pop("per_request")
++        derived = summary["per_request"]
++        for row in derived:
++            row["max_itl_s"] = max(row["itl_s"], default=None)
+         summary["latency_s"] = {metric: distribution([v for r in derived for v in (r[key] if metric == "itl" else [r[key]]) if v is not None])
+-                                for metric, key in (("ttft", "ttft_s"), ("tpot", "tpot_s"), ("itl", "itl_s"), ("request", "request_latency_s"))}
++                                for metric, key in (("ttft", "ttft_s"), ("tpot", "tpot_s"), ("itl", "itl_s"), ("max_itl", "max_itl_s"), ("request", "request_latency_s"))}
+         summary["whole_episode_completion_rps"] = summary["n_completed"] / raw["observation_end_s"] if raw["observation_end_s"] > 0 else None
+         groups[group] = summary
+     returns, receipts = raw["engine_step_returns"], {}
+@@ -58,6 +61,11 @@
+     check(event_counts == Counter({r["received_s"]: r["output_count"] for r in returns if r["output_count"]}), "return_event_count_mismatch")
+     actions, first, prefills = raw["waiting_order_actions"], [], Counter()
+     rows_by_id = {r["request_id"]: r for r in rows}
++    ranks = {r["request_id"]: i for i, r in enumerate(rows)}
++    source_id = raw["internal_to_source"].__getitem__
++    bypasses = {rid: 0 for rid in ranks}
++    first_schedule_times = {}
++    check(raw["arrival_ranks"] == {internal: ranks[source] for internal, source in raw["internal_to_source"].items()}, "arrival_rank_mismatch")
+     check(len(actions) == len(steps), "action_step_count_mismatch")
+     for i, step in enumerate(steps):
+         scheduled = step["scheduled"]
+@@ -68,8 +76,11 @@
+         check(step["existing_decode_all_scheduled"] == (not missing) and set(step["missing_decode_request_ids"]) == missing, "decode_guard_mismatch")
+         diagnostics.update(decode_checks=len(step["existing_decode_request_ids"]), decode_skips=len(missing), preemptions=len(step["preempted_request_ids"]))
+         a = actions[step["waiting_order_action_index"]]
+-        expected_order = sorted(a["before"], key=lambda r: r["prompt_tokens"]) if plan["waiting_order"] == "short_prompt_first" else a["before"]
+-        check(a["step"] == i and a["mode"] == plan["waiting_order"] and a["error"] is None and a["action_applied"] and a["after"] == expected_order, "queue_action_mismatch")
++        check(a["step"] == i and a["mode"] == plan["waiting_order"] and a["error"] is None and a["action_applied"], "queue_action_mismatch")
++        check(sorted(a["before"], key=lambda r: r["request_id"]) == sorted(a["after"], key=lambda r: r["request_id"]), "queue_action_not_permutation")
++        if plan["waiting_order"] != "bounded_bypass_once":
++            expected_order = sorted(a["before"], key=lambda r: r["prompt_tokens"]) if plan["waiting_order"] == "short_prompt_first" else a["before"]
++            check(a["after"] == expected_order, "baseline_queue_order_mismatch")
+         check(a["running_unchanged"] and a["running_before"] == a["running_after"], "running_state_changed_by_action")
+         check(all(r["computed_tokens"] == 0 and r["output_tokens"] == 0 and r["status"] == "WAITING" and raw["internal_to_source"][r["request_id"]] not in first for r in a["before"]), "action_touched_started_request")
+         check(all(rows_by_id[raw["internal_to_source"][r["request_id"]]]["prompt_tokens"] == r["prompt_tokens"] and rows_by_id[raw["internal_to_source"][r["request_id"]]]["arrival_s"] <= a["start_s"] for r in a["before"]), "queue_prompt_identity_or_future_arrival")
+@@ -78,6 +89,20 @@
+         diagnostics.update(actual_reorders=int(changed), action_calls=1, queue_multiple_steps=int(len(a["before"]) > 1))
+         new = [r["request_id"] for r in scheduled if r["request_id"] not in first]
+         check(new == [raw["internal_to_source"][r["request_id"]] for r in a["after"]][:len(new)], "first_schedule_not_queue_prefix")
++        check([source_id(rid) for rid in a["first_admitted"]] == new, "first_admission_event_mismatch")
++        pending = [r["request_id"] for r in a["before"]]
++        check(a["bypasses_before"] == {rid: bypasses[source_id(rid)] for rid in pending}, "bypass_ledger_before_mismatch")
++        charges = []
++        for internal in a["first_admitted"]:
++            pending.remove(internal)
++            admitted = source_id(internal)
++            first_schedule_times[admitted] = step["start_s"]
++            for older in sorted(pending, key=lambda rid: ranks[source_id(rid)]):
++                if ranks[source_id(older)] < ranks[admitted]:
++                    bypasses[source_id(older)] += 1
++                    charges.append(dict(older=older, admitted=internal))
++        check(a["bypass_charges"] == charges, "actual_bypass_charges_mismatch")
++        check(a["bypasses_after"] == {r["request_id"]: bypasses[source_id(r["request_id"])] for r in a["before"]}, "bypass_ledger_after_mismatch")
+         first.extend(new)
+         for r in scheduled:
+             prefills[r["request_id"]] += r["prefill_tokens"]
+@@ -88,23 +113,48 @@
+         check(all(prefills[r["request_id"]] == r["prompt_tokens"] for r in rows), "prefill_conservation")
+     if plan["cohort"] == "all_short":
+         check(diagnostics["actual_reorders"] == 0, "all_short_negative_control_changed_order")
++    check(raw["first_admission_bypasses"] == {internal: bypasses[source] for internal, source in raw["internal_to_source"].items()}, "final_bypass_ledger_mismatch")
++    # Independent order-statistic reconstruction, including requests never admitted.
++    recomputed = {rid: sum(ranks[earlier] > ranks[rid] for earlier in first[:first.index(rid) if rid in first else len(first)]) for rid in ranks}
++    check(recomputed == bypasses, "first_admission_order_bypass_mismatch")
++    if plan["waiting_order"] == "bounded_bypass_once":
++        check(max(bypasses.values(), default=0) <= 1, "bounded_bypass_limit_exceeded")
++    if plan["waiting_order"] == "fcfs" or plan["cohort"] == "all_short":
++        check(not any(bypasses.values()), "fcfs_or_negative_control_bypassed")
++    per_request = []
++    derived_by_id = {r["request_id"]: r for r in groups["all"]["per_request"]}
++    for row in rows:
++        rid = row["request_id"]
++        per_request.append(dict(derived_by_id.get(rid, {}), request_id=rid, document_id=row["document_id"],
++            prompt_tokens=row["prompt_tokens"], arrival_s=row["arrival_s"], status=row["status"],
++            arrived=row["arrival_s"] <= raw["observation_end_s"], first_schedule_s=first_schedule_times.get(rid),
++            arrival_to_first_schedule_s=first_schedule_times[rid]-row["arrival_s"] if rid in first_schedule_times else None,
++            actual_first_admission_bypasses=bypasses[rid]))
++    fairness = dict(per_request_bypasses=bypasses, distribution=distribution(list(bypasses.values())),
++        bypassed_requests=sum(n > 0 for n in bypasses.values()), total_bypasses=sum(bypasses.values()),
++        more_than_one=sum(n > 1 for n in bypasses.values()), fixed_limit=1,
++        semantics="Later-arrival requests actually first scheduled before this never-started request; same-step prefix order counts. Not a waiting-time/SLO bound.")
+     eligible = raw["status"] == "COMPLETE" and groups["all"]["n_completed"] == 16 and not issues
+     return dict(source=str(path), plan=plan, block=path.parent.name, phase=raw["phase"], status=raw["status"], error=raw["error"],
+                 eligible_for_comparison=eligible, issues=sorted(set(issues)), episode_wall_s=raw["observation_end_s"], groups=groups,
+                 identity=[identity(r) for r in rows], output_hashes={r["request_id"]: digest(r["output_token_ids"]) for r in rows},
+-                first_schedule_order=first, diagnostics=dict(diagnostics), all_short_noop=(eligible and not diagnostics["actual_reorders"]) if plan["cohort"] == "all_short" else None)
++                first_schedule_order=first, per_request_measurements=per_request, fairness=fairness,
++                queue_reorder_duration_s=distribution([a["end_s"]-a["start_s"] for a in actions]),
++                diagnostics=dict(diagnostics), all_short_noop=(eligible and not diagnostics["actual_reorders"]) if plan["cohort"] == "all_short" else None)
+ 
+ 
+ def compare(base, spt):
+     valid = base["eligible_for_comparison"] and spt["eligible_for_comparison"] and base["identity"] == spt["identity"]
+-    delta = lambda a, b: None if a is None or b is None else dict(fcfs=a, short_prompt_first=b, delta=b-a, delta_pct=100*(b/a-1) if a else None)
+-    result = dict(block=base["block"], cohort=base["plan"]["cohort"], valid=valid, exclusion=None if valid else "Incomplete/invalid cells or identity mismatch", metrics={})
++    delta = lambda a, b: None if a is None or b is None else dict(baseline=a, intervention=b, delta=b-a, delta_pct=100*(b/a-1) if a else None)
++    result = dict(block=base["block"], cohort=base["plan"]["cohort"], baseline=base["plan"]["waiting_order"], intervention=spt["plan"]["waiting_order"], valid=valid, exclusion=None if valid else "Incomplete/invalid cells or identity mismatch", metrics={})
+     if valid:
+         result.update(episode_wall_s=delta(base["episode_wall_s"], spt["episode_wall_s"]), first_schedule_order_changed=base["first_schedule_order"] != spt["first_schedule_order"],
+                       equal_output_sequences=sum(h == spt["output_hashes"].get(rid) for rid, h in base["output_hashes"].items()), n_sequences=len(base["output_hashes"]))
++        result["fairness"] = {metric: delta(base["fairness"][metric], spt["fairness"][metric]) for metric in ("bypassed_requests", "total_bypasses", "more_than_one")}
+         for group in base["groups"]:
+             result["metrics"][group] = {f"{metric}_{stat}_s": delta(base["groups"][group]["latency_s"][metric][stat], spt["groups"][group]["latency_s"][metric][stat])
+-                                       for metric, stats in (("ttft", ("mean", "p95")), ("tpot", ("mean",)), ("itl", ("p95", "p99")), ("request", ("mean", "p95", "max"))) for stat in stats}
++                                       for metric, stats in (("ttft", ("mean", "p95", "p99")), ("tpot", ("mean", "p99")), ("itl", ("p95", "p99")), ("max_itl", ("mean", "p99", "max")), ("request", ("mean", "p95", "max"))) for stat in stats}
++            result["metrics"][group].update({metric: delta(base["groups"][group][metric], spt["groups"][group][metric]) for metric in ("goodput_rps", "whole_episode_completion_rps", "n_slo_pass")})
+     return result
+ 
+ 
+@@ -141,15 +191,16 @@
+         for cohort in ("all_short", "mixed"):
+             pair = [c for c in cells if c["block"] == block and c["plan"].get("cohort") == cohort]
+             by_mode = {c["plan"].get("waiting_order"): c for c in pair}
+-            if len(pair) == 2 and set(by_mode) == {"fcfs", "short_prompt_first"}:
+-                comparisons.append(compare(by_mode["fcfs"], by_mode["short_prompt_first"]))
++            if len(pair) == 3 and set(by_mode) == set(MODES):
++                comparisons.extend(compare(by_mode[baseline], by_mode[intervention]) for baseline, intervention in
++                    (("fcfs", "short_prompt_first"), ("fcfs", "bounded_bypass_once"), ("short_prompt_first", "bounded_bypass_once")))
+             else:
+-                issues.append(f"missing_or_duplicate_pair:{block}/{cohort}")
+-    complete = len(cells) == len(warmups) == 8 and all(c["eligible_for_comparison"] for c in cells + warmups) and not issues
++                issues.append(f"missing_or_duplicate_three_arms:{block}/{cohort}")
++    complete = len(cells) == len(warmups) == 12 and all(c["eligible_for_comparison"] for c in cells + warmups) and not issues
+     summary = dict(status="DESCRIPTIVE_MEASUREMENT_ONLY" if complete else "PARTIAL_OR_INVALID_MEASUREMENT", cells=cells, warmups=warmups, comparisons=comparisons, blocks=blocks, issues=issues, reference_slo=SLO,
+-                   semantics="Host receipt timing; pooled ITL is descriptive. Every raw retained, warmups excluded from comparisons. Completion/SLO require completed status; group rates use group first arrival, wall uses shared episode origin. No Oracle, route counterfactual, significance claim or quality guarantee from output equality.")
++                   semantics="Only current-campaign same-engine arm comparisons; no cross-GPU or old missing-block substitution. Host receipt timing; pooled ITL is descriptive. Every raw and per-request measurement retained, warmups excluded from comparisons. Completion/SLO require completed status; group rates use group first arrival, wall uses shared episode origin. queue_s is host submission lag, not native queue wait. arrival_to_first_schedule_s includes both. Queue reorder timing uses action end-start; ledger_end also includes native schedule and is not pure policy tax. All ledger overhead is inside request/wall metrics. Bypass counts use actual first-admission prefix order, including same-step order, not a wall-clock waiting guarantee. No Oracle, route counterfactual, significance claim or quality guarantee from output equality.")
+     fmt = lambda v, scale=1000: "NA" if v is None else f"{v*scale:.3f}"
+-    lines = ["# Waiting order: retained measurements", "", summary["status"], "", summary["semantics"], "", "Latencies: ms. SLO: TTFT 5 s / mean TPOT 0.2 s. Warmups excluded.", "",
++    lines = ["# Waiting order with one-bypass limit: retained measurements", "", summary["status"], "", summary["semantics"], "", "Latencies: ms. SLO: TTFT 5 s / mean TPOT 0.2 s. Warmups excluded.", "",
+              "| Block/cohort/order | Group | Complete/arrived/planned; SLO pass | Wall s | TTFT mean/p95 | TPOT mean | ITL p95/p99 | Request mean/p95/max |", "|---|---|---|---:|---|---:|---|---|"]
+     for c in cells:
+         label = f"{c['block']}/{c['plan'].get('cohort')}/{c['plan'].get('waiting_order')}"
+@@ -159,13 +210,16 @@
+             lines.append(f"| {label} | {group} | {g['n_completed']}/{g['n_arrived']}/{g['n_planned']}; {g['n_slo_pass']} | {fmt(c['episode_wall_s'], 1)} | " + " | ".join(metrics) + " |")
+     for c in cells:
+         lines.append(f"\n{c['block']}/{c['plan'].get('cohort')}/{c['plan'].get('waiting_order')}: comparison eligible={c['eligible_for_comparison']}; issues={c['issues']}; error={c.get('error')}; diagnostics={c.get('diagnostics')}; all-short no-op={c.get('all_short_noop')}.\n")
+-    lines += ["", "SPT minus FCFS, each block separately; negative latency delta is lower.", "", "| Block/cohort | Group | Request mean Δ% | Request p95 Δ% | Request max Δ% | Wall Δ% |", "|---|---|---:|---:|---:|---:|"]
++        if "fairness" in c:
++            fair = c["fairness"]
++            lines.append(f"Actual first-admission bypasses: total={fair['total_bypasses']}, affected requests={fair['bypassed_requests']}, max={fair['distribution']['max']}, requests bypassed >1={fair['more_than_one']}. Queue reorder duration: {c['queue_reorder_duration_s']}.\n")
++    lines += ["", "Intervention minus baseline, each block separately; negative latency delta is lower.", "", "| Block/cohort/intervention vs baseline | Group | Request mean Δ% | Request p95 Δ% | Request max Δ% | Wall Δ% |", "|---|---|---:|---:|---:|---:|"]
+     for comp in comparisons:
+         for group, metrics in comp["metrics"].items():
+             values = [fmt(metrics[k]["delta_pct"], 1) if metrics[k] else "NA" for k in ("request_mean_s", "request_p95_s", "request_max_s")]
+-            lines.append(f"| {comp['block']}/{comp['cohort']} | {group} | " + " | ".join(values) + f" | {fmt(comp['episode_wall_s']['delta_pct'], 1)} |")
++            lines.append(f"| {comp['block']}/{comp['cohort']}/{comp['intervention']} vs {comp['baseline']} | {group} | " + " | ".join(values) + f" | {fmt(comp['episode_wall_s']['delta_pct'], 1)} |")
+     for comp in comparisons:
+-        lines.append(f"\n{comp['block']}/{comp['cohort']}: valid={comp['valid']}; first-schedule order changed={comp.get('first_schedule_order_changed')}; equal outputs={comp.get('equal_output_sequences')}/{comp.get('n_sequences')}; exclusion={comp['exclusion']}.\n")
++        lines.append(f"\n{comp['block']}/{comp['cohort']}/{comp['intervention']} vs {comp['baseline']}: valid={comp['valid']}; first-schedule order changed={comp.get('first_schedule_order_changed')}; equal outputs={comp.get('equal_output_sequences')}/{comp.get('n_sequences')}; exclusion={comp['exclusion']}.\n")
+     lines += ["", f"Campaign issues: {issues}. Retained warmups: {len(warmups)}; details and all metric deltas in summary.json."]
+     args.output_dir.mkdir(parents=True, exist_ok=False)
+     (args.output_dir / "summary.json").write_text(json.dumps(summary, indent=2, allow_nan=False) + "\n")
+--- a/launch_block.py
++++ b/launch_block.py
+@@ -1,4 +1,5 @@
+ """Launch one engine and retain its OS exit status, including startup failures."""
++import fcntl
+ import json
+ import os
+ from pathlib import Path
+@@ -18,9 +19,23 @@
+ state = dict(command=cmd, block=block, started_unix_s=time.time(), pid=None, exit_code=None)
+ with metadata.open('x') as f:
+     json.dump(state, f, indent=2)
+-env = dict(os.environ, CUDA_VISIBLE_DEVICES='0', HF_HUB_CACHE='/root/autodl-tmp/hf-cache/hub')
++env = dict(os.environ, CUDA_VISIBLE_DEVICES='0',
++           HF_HUB_CACHE=os.environ.get('HF_HUB_CACHE', '/root/autodl-tmp/hf-cache/hub'))
+ with (results/f'{block}-launch.stdout.log').open('x') as out, \
+      (results/f'{block}-launch.stderr.log').open('x') as err:
++    # Record this attempt before acquiring the lock; failed starts must archive too.
++    try:
++        lease = Path('/root/autodl-tmp/moe-gpu0.lock').open('a+')
++        fcntl.flock(lease.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
++    except BlockingIOError:
++        state.update(status='BLOCKED', exit_code=75, finished_unix_s=time.time(),
++                     blocked_reason='GPU_LOCK_HELD', gpu_initialized=False,
++                     gpu_processes_started=0, cells_completed=0, warmups_completed=0)
++        (results/block).mkdir()
++        (results/block/'status.json').write_text(json.dumps(state, indent=2)+'\n')
++        metadata.write_text(json.dumps(state, indent=2)+'\n')
++        err.write('GPU_LOCK_HELD: shared GPU lock is occupied; no experiment process started.\n')
++        raise SystemExit(state['exit_code'])
+     child = subprocess.Popen(cmd, cwd=root, env=env, stdout=out, stderr=err)
+     state['pid'] = child.pid
+     metadata.write_text(json.dumps(state, indent=2)+'\n')

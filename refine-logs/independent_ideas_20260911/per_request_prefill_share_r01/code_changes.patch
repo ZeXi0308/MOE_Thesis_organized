@@ -1,0 +1,365 @@
+--- previous/run_waiting_order.py
++++ current/run_prefill_share.py
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""One fresh engine, three waiting-order arms; active work is untouched."""
++"""One fresh engine: global budget versus per-request prefill sharing, FCFS."""
+ import argparse
+ import csv
+ import hashlib
+@@ -16,7 +16,7 @@
+ from native_capture import capture_episode
+ from metrics import summarize_episode_requests
+ 
+-MODES = ("fcfs", "short_prompt_first", "bounded_bypass_once")
++ARMS = {"native1024": (1024, 0), "global512": (512, 0), "per_request512": (1024, 512)}
+ 
+ def dump(path, value):
+     path.write_text(json.dumps(value, indent=2, allow_nan=False) + "\n")
+@@ -34,20 +34,25 @@
+         "--query-gpu=name,uuid,memory.total,memory.used,temperature.gpu,power.draw,clocks.sm",
+         "--format=csv,noheader"], text=True).strip())
+ 
+-def set_empty_budget(engine, budget):
++def set_empty_policy(engine, policy):
+     config = engine.vllm_config.scheduler_config
+     scheduler = engine.engine_core.engine_core.scheduler
+-    if type(budget) is not int or budget != 1024:
+-        raise ValueError("waiting-order probe requires fixed runtime budget1024")
++    if policy not in ARMS:
++        raise ValueError("unknown frozen prefill policy")
++    budget, threshold = ARMS[policy]
+     if config.max_num_seqs != 8 or config.max_num_batched_tokens != 1024:
+         raise ValueError("compiled engine must retain cap8 and token capacity1024")
+     if not hasattr(scheduler, "max_num_scheduled_tokens") or scheduler.max_num_running_reqs != 8:
+         raise ValueError("native scheduler budget field/cap differs from frozen v0.26 contract")
++    if scheduler.scheduler_config is not config or not hasattr(config, "long_prefill_token_threshold"):
++        raise ValueError("native scheduler must read the same long-prefill threshold config")
+     if engine.has_unfinished_requests() or scheduler.get_request_counts() != (0, 0) or scheduler.requests:
+-        raise ValueError("runtime budget may change only after complete drain")
+-    previous = scheduler.max_num_scheduled_tokens
++        raise ValueError("runtime budget/threshold may change only after complete drain")
++    previous = dict(budget=scheduler.max_num_scheduled_tokens, threshold=config.long_prefill_token_threshold)
+     scheduler.max_num_scheduled_tokens = budget
+-    return dict(previous_budget=previous, runtime_budget=budget, compiled_token_capacity=1024, cap=8)
++    config.long_prefill_token_threshold = threshold
++    return dict(previous=previous, prefill_policy=policy, runtime_budget=budget,
++        long_prefill_token_threshold=threshold, compiled_token_capacity=1024, cap=8)
+ 
+ def prepare(block):
+     inputs = {}
+@@ -74,13 +79,14 @@
+         max_num_batched_tokens=1024, enable_chunked_prefill=True, gpu_memory_utilization=0.70,
+         enable_prefix_caching=False, scheduling_policy="fcfs", async_scheduling=False,
+         stream_interval=1, enforce_eager=False, enable_return_routed_experts=False, disable_log_stats=False)
+-    warmups = [dict(cohort=c, budget=1024, waiting_order=o) for c in ("all_short", "mixed")
+-               for o in MODES]
++    warmups = [dict(cohort=c, prefill_policy=p, budget=budget, long_prefill_token_threshold=threshold,
++                    waiting_order="fcfs") for c in ("all_short", "mixed") for p, (budget, threshold) in ARMS.items()]
+     plans = warmups[:] if block == "forward" else list(reversed(warmups))
+     files = [Path(__file__).resolve(), ROOT / "runtime_reference.json", *(ROOT / "runtime").glob("*.py"), *ROOT.glob("prepared/*/*.json")]
+     return inputs, dict(block=block, warmups=warmups, plans=plans, engine_args=engine_args,
+         reference_slo=dict(ttft_slo_s=5.0, tpot_slo_s=0.2), max_seconds=180,
+-        bypass_limit=1, bypass_action="count actual first admissions of later arrivals, not proposed queue reorders",
++        action="Only drained-engine global scheduled-token budget and per-request long-prefill threshold; FCFS unchanged",
++        all_short_control="Ordering and threshold are no-op; global512 may still bind the aggregate token budget",
+         source_and_input_sha256={str(p.relative_to(ROOT)): sha(p) for p in sorted(files)},
+         evidence_ceiling="REQUEST_LEVEL_EXPLORATORY_INTERVENTION_NO_METHOD_GO")
+ 
+@@ -112,15 +118,17 @@
+             raise RuntimeError("frozen vLLM0.26.0 and exactly one visible CUDA GPU required")
+         engine = LLMEngine.from_engine_args(EngineArgs(**frozen["engine_args"]), enable_multiprocessing=False)
+         capacity = engine.vllm_config.cache_config
+-        dump(out / "engine_capacity.json", dict(initial_budget=set_empty_budget(engine, 1024),
++        dump(out / "engine_capacity.json", dict(initial_budget=set_empty_policy(engine, "native1024"),
+             num_gpu_blocks=getattr(capacity, "num_gpu_blocks", None), block_size=getattr(capacity, "block_size", None),
+             scheduler_config=str(engine.vllm_config.scheduler_config), cache_config=str(capacity)))
+         for phase, plans in (("warmup", frozen["warmups"]), ("cell", frozen["plans"])):
+             for index, plan in enumerate(plans):
+                 before = gpu_state()
+-                state = set_empty_budget(engine, plan["budget"])
++                state = set_empty_policy(engine, plan["prefill_policy"])
+                 config, workload = inputs[plan["cohort"]]
+-                config = dict(config, cap=8, policy="static", waiting_order=plan["waiting_order"])
++                config = dict(config, cap=8, policy="static", waiting_order="fcfs",
++                    prefill_policy=plan["prefill_policy"], token_budget=plan["budget"],
++                    long_prefill_token_threshold=plan["long_prefill_token_threshold"])
+                 stem = f"{phase}-{index:03d}"
+                 print(json.dumps(dict(phase="START", cell=stem, plan=plan)), flush=True)
+                 dump(out / "status.json", dict(status="RUNNING", phase=phase, index=index, cells_completed=completed))
+@@ -131,7 +139,7 @@
+                 attempted += phase == "cell"
+                 if raw["status"] != "COMPLETE":
+                     raise RuntimeError(f"{stem} incomplete: {raw['error']}")
+-                dump(out / (stem + "-checks.json"), dict(gpu_after=gpu_state(), drained_budget=set_empty_budget(engine, plan["budget"])))
++                dump(out / (stem + "-checks.json"), dict(gpu_after=gpu_state(), drained_budget=set_empty_policy(engine, plan["prefill_policy"])))
+                 groups = {"all": raw["requests"], "short": [r for r in raw["requests"] if r["prompt_tokens"] == 128],
+                           "long": [r for r in raw["requests"] if r["prompt_tokens"] == 2048]}
+                 dump(out / (stem + "-metrics.json"), dict(reference_slo_only=True, plan=plan,
+--- previous/analyze_results.py
++++ current/analyze_results.py
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""Describe retained waiting-order raw; failed cells stay visible and excluded."""
++"""Describe native/global/per-request prefill arms; retain failed cells."""
+ import argparse
+ import hashlib
+ import json
+@@ -13,11 +13,37 @@
+ from metrics import _distribution, summarize_episode_requests
+ 
+ SLO = dict(ttft_slo_s=5.0, tpot_slo_s=0.2)
+-MODES = ("fcfs", "short_prompt_first", "bounded_bypass_once")
++ARMS = {"native1024": (1024, 0), "global512": (512, 0), "per_request512": (1024, 512)}
+ read = lambda p: json.loads(p.read_text())
+ digest = lambda x: hashlib.sha256(json.dumps(x, separators=(",", ":")).encode()).hexdigest()
+ identity = lambda r: (r["request_id"], r["document_id"], r["prompt_token_ids_sha256"], r["prompt_tokens"], r["arrival_s"])
+ distribution = lambda x: dict(_distribution(x), mean=statistics.mean(x) if x else None, max=max(x) if x else None)
++
++
++def prefill_step_diagnostics(step, newly_admitted):
++    """Read actual allocations; do not synthesize another policy's trajectory."""
++    remaining = step["runtime_token_budget"]
++    threshold = step["long_prefill_token_threshold"]
++    binding, shared_short, long_prefills = [], [], []
++    for row in step["scheduled"]:
++        prompt_left = max(0, row["prompt_tokens"] - row["scheduled_start_computed"])
++        if (threshold > 0 and prompt_left > threshold and remaining > threshold
++                and row["scheduled_tokens"] == threshold):
++            binding.append(dict(request_id=row["request_id"], budget_before=remaining,
++                remaining_prefill_tokens=prompt_left, scheduled_tokens=row["scheduled_tokens"],
++                path="waiting" if row["computed_before"] == 0 else "running"))
++        if row["prefill_tokens"] > 0 and row["prompt_tokens"] == 2048:
++            long_prefills.append(row["request_id"])
++        if row["request_id"] in newly_admitted and row["prompt_tokens"] == 128 and long_prefills:
++            shared_short.append(dict(request_id=row["request_id"], preceding_long_prefill_ids=long_prefills[:],
++                preceding_threshold_limited_ids=[r["request_id"] for r in binding]))
++        remaining -= row["scheduled_tokens"]
++    partial = [r["request_id"] for r in step["scheduled"] if r["prefill_tokens"] > 0 and r["computed_before"] > 0]
++    return dict(step=step["step"], free_request_slots_before=8-step["running_before"],
++        budget_exhausted=remaining == 0, unused_budget=remaining,
++        prefill_requests=sum(r["prefill_tokens"] > 0 for r in step["scheduled"]),
++        partial_prefill_with_new_request=bool(partial and newly_admitted),
++        threshold_limited_allocations=binding, short_first_admitted_after_long_prefill=shared_short)
+ 
+ 
+ def analyze_cell(path):
+@@ -29,7 +55,13 @@
+     expected_ids = [(r["request_id"], r["document_id"], r["prompt_token_ids_sha256"], r["prompt_token_count"], a)
+                     for r, a in zip(expected["source_requests"], expected["arrival_traces_s"]["steady"])]
+     check([identity(r) for r in rows] == expected_ids, "frozen_identity_or_arrival_mismatch")
+-    check(plan["budget"] == 1024 and raw["target_cap"] == 8 and raw["waiting_order"] == plan["waiting_order"], "frozen_action_mismatch")
++    budget, threshold = ARMS[plan["prefill_policy"]]
++    check(plan["budget"] == budget and plan["long_prefill_token_threshold"] == threshold
++        and raw["target_cap"] == 8 and raw["waiting_order"] == plan["waiting_order"] == "fcfs"
++        and raw["prefill_policy"] == plan["prefill_policy"] and raw["runtime_token_budget"] == budget
++        and raw["long_prefill_token_threshold"] == threshold, "frozen_action_mismatch")
++    check(raw["budget_state"]["runtime_budget"] == budget and raw["budget_state"]["long_prefill_token_threshold"] == threshold
++        and raw["budget_state"]["compiled_token_capacity"] == 1024 and raw["budget_state"]["cap"] == 8, "drained_action_state_mismatch")
+     check(all(len(r["output_token_ids"]) == 128 for r in rows if r["status"] == "completed"), "completed_output_length_mismatch")
+     for group, selected in (("all", rows), ("short128", [r for r in rows if r["prompt_tokens"] == 128]), ("long2048", [r for r in rows if r["prompt_tokens"] == 2048])):
+         summary = summarize_episode_requests(selected, observation_end_s=raw["observation_end_s"], **SLO)
+@@ -64,13 +96,15 @@
+     ranks = {r["request_id"]: i for i, r in enumerate(rows)}
+     source_id = raw["internal_to_source"].__getitem__
+     bypasses = {rid: 0 for rid in ranks}
+-    first_schedule_times = {}
++    first_schedule_times, share_events = {}, []
+     check(raw["arrival_ranks"] == {internal: ranks[source] for internal, source in raw["internal_to_source"].items()}, "arrival_rank_mismatch")
+     check(len(actions) == len(steps), "action_step_count_mismatch")
+     for i, step in enumerate(steps):
+         scheduled = step["scheduled"]
+         total = sum(r["scheduled_tokens"] for r in scheduled)
+-        check(step["step"] == i and step["runtime_token_budget"] == 1024 and total == step["total_scheduled_tokens"] and total <= 1024, "step_budget_or_identity")
++        check(step["step"] == i and step["runtime_token_budget"] == budget and total == step["total_scheduled_tokens"] and total <= budget, "step_budget_or_identity")
++        check(step["long_prefill_token_threshold"] == threshold
++            and (threshold == 0 or all(r["scheduled_tokens"] <= threshold for r in scheduled)), "step_threshold_mismatch")
+         check(step["target_cap"] == 8 and step["actual_active"] <= 8, "fixed_cap8_mismatch")
+         missing = set(step["existing_decode_request_ids"]) - {r["request_id"] for r in scheduled if r["decode_tokens"] > 0}
+         check(step["existing_decode_all_scheduled"] == (not missing) and set(step["missing_decode_request_ids"]) == missing, "decode_guard_mismatch")
+@@ -78,9 +112,8 @@
+         a = actions[step["waiting_order_action_index"]]
+         check(a["step"] == i and a["mode"] == plan["waiting_order"] and a["error"] is None and a["action_applied"], "queue_action_mismatch")
+         check(sorted(a["before"], key=lambda r: r["request_id"]) == sorted(a["after"], key=lambda r: r["request_id"]), "queue_action_not_permutation")
+-        if plan["waiting_order"] != "bounded_bypass_once":
+-            expected_order = sorted(a["before"], key=lambda r: r["prompt_tokens"]) if plan["waiting_order"] == "short_prompt_first" else a["before"]
+-            check(a["after"] == expected_order, "baseline_queue_order_mismatch")
++        check(a["after"] == a["before"] and a["mode"] == "fcfs", "fcfs_queue_order_mismatch")
++        check(a["runtime_token_budget"] == budget and a["long_prefill_token_threshold"] == threshold, "action_live_config_mismatch")
+         check(a["running_unchanged"] and a["running_before"] == a["running_after"], "running_state_changed_by_action")
+         check(all(r["computed_tokens"] == 0 and r["output_tokens"] == 0 and r["status"] == "WAITING" and raw["internal_to_source"][r["request_id"]] not in first for r in a["before"]), "action_touched_started_request")
+         check(all(rows_by_id[raw["internal_to_source"][r["request_id"]]]["prompt_tokens"] == r["prompt_tokens"] and rows_by_id[raw["internal_to_source"][r["request_id"]]]["arrival_s"] <= a["start_s"] for r in a["before"]), "queue_prompt_identity_or_future_arrival")
+@@ -88,6 +121,15 @@
+         check(a["order_changed"] == changed, "queue_change_record_mismatch")
+         diagnostics.update(actual_reorders=int(changed), action_calls=1, queue_multiple_steps=int(len(a["before"]) > 1))
+         new = [r["request_id"] for r in scheduled if r["request_id"] not in first]
++        share = prefill_step_diagnostics(step, new)
++        check(step["prefill_requests"] == share["prefill_requests"], "prefill_request_count_mismatch")
++        diagnostics.update(budget_exhausted_steps=int(share["budget_exhausted"]),
++            prefill_steps=int(share["prefill_requests"] > 0), prefill_request_steps=share["prefill_requests"],
++            partial_prefill_with_new_request_steps=int(share["partial_prefill_with_new_request"]),
++            threshold_limited_prefill_rows=len(share["threshold_limited_allocations"]),
++            short_first_admitted_with_preceding_long_prefill=len(share["short_first_admitted_after_long_prefill"]))
++        if share["threshold_limited_allocations"] or share["short_first_admitted_after_long_prefill"]:
++            share_events.append(share)
+         check(new == [raw["internal_to_source"][r["request_id"]] for r in a["after"]][:len(new)], "first_schedule_not_queue_prefix")
+         check([source_id(rid) for rid in a["first_admitted"]] == new, "first_admission_event_mismatch")
+         pending = [r["request_id"] for r in a["before"]]
+@@ -112,15 +154,12 @@
+     if raw["status"] == "COMPLETE":
+         check(all(prefills[r["request_id"]] == r["prompt_tokens"] for r in rows), "prefill_conservation")
+     if plan["cohort"] == "all_short":
+-        check(diagnostics["actual_reorders"] == 0, "all_short_negative_control_changed_order")
++        check(diagnostics["actual_reorders"] == 0 and diagnostics["threshold_limited_prefill_rows"] == 0, "all_short_order_or_threshold_changed")
+     check(raw["first_admission_bypasses"] == {internal: bypasses[source] for internal, source in raw["internal_to_source"].items()}, "final_bypass_ledger_mismatch")
+     # Independent order-statistic reconstruction, including requests never admitted.
+     recomputed = {rid: sum(ranks[earlier] > ranks[rid] for earlier in first[:first.index(rid) if rid in first else len(first)]) for rid in ranks}
+     check(recomputed == bypasses, "first_admission_order_bypass_mismatch")
+-    if plan["waiting_order"] == "bounded_bypass_once":
+-        check(max(bypasses.values(), default=0) <= 1, "bounded_bypass_limit_exceeded")
+-    if plan["waiting_order"] == "fcfs" or plan["cohort"] == "all_short":
+-        check(not any(bypasses.values()), "fcfs_or_negative_control_bypassed")
++    check(not any(bypasses.values()) and diagnostics["actual_reorders"] == 0, "fcfs_order_changed")
+     per_request = []
+     derived_by_id = {r["request_id"]: r for r in groups["all"]["per_request"]}
+     for row in rows:
+@@ -132,25 +171,30 @@
+             actual_first_admission_bypasses=bypasses[rid]))
+     fairness = dict(per_request_bypasses=bypasses, distribution=distribution(list(bypasses.values())),
+         bypassed_requests=sum(n > 0 for n in bypasses.values()), total_bypasses=sum(bypasses.values()),
+-        more_than_one=sum(n > 1 for n in bypasses.values()), fixed_limit=1,
++        more_than_one=sum(n > 1 for n in bypasses.values()), fixed_limit=0,
+         semantics="Later-arrival requests actually first scheduled before this never-started request; same-step prefix order counts. Not a waiting-time/SLO bound.")
+     eligible = raw["status"] == "COMPLETE" and groups["all"]["n_completed"] == 16 and not issues
+     return dict(source=str(path), plan=plan, block=path.parent.name, phase=raw["phase"], status=raw["status"], error=raw["error"],
+                 eligible_for_comparison=eligible, issues=sorted(set(issues)), episode_wall_s=raw["observation_end_s"], groups=groups,
+                 identity=[identity(r) for r in rows], output_hashes={r["request_id"]: digest(r["output_token_ids"]) for r in rows},
+-                first_schedule_order=first, per_request_measurements=per_request, fairness=fairness,
++                first_schedule_order=first, per_request_measurements=per_request, fairness=fairness, prefill_share_events=share_events,
++                completion_order=[r["request_id"] for r in sorted((r for r in rows if r["completion_s"] is not None), key=lambda r:r["completion_s"])],
+                 queue_reorder_duration_s=distribution([a["end_s"]-a["start_s"] for a in actions]),
+-                diagnostics=dict(diagnostics), all_short_noop=(eligible and not diagnostics["actual_reorders"]) if plan["cohort"] == "all_short" else None)
++                diagnostics=dict(diagnostics),
++                all_short_order_threshold_noop=(eligible and not diagnostics["actual_reorders"] and not diagnostics["threshold_limited_prefill_rows"]) if plan["cohort"] == "all_short" else None,
++                all_short_global_budget_may_differ=plan["cohort"] == "all_short" and budget == 512)
+ 
+ 
+ def compare(base, spt):
+     valid = base["eligible_for_comparison"] and spt["eligible_for_comparison"] and base["identity"] == spt["identity"]
+     delta = lambda a, b: None if a is None or b is None else dict(baseline=a, intervention=b, delta=b-a, delta_pct=100*(b/a-1) if a else None)
+-    result = dict(block=base["block"], cohort=base["plan"]["cohort"], baseline=base["plan"]["waiting_order"], intervention=spt["plan"]["waiting_order"], valid=valid, exclusion=None if valid else "Incomplete/invalid cells or identity mismatch", metrics={})
++    result = dict(block=base["block"], cohort=base["plan"]["cohort"], baseline=base["plan"]["prefill_policy"], intervention=spt["plan"]["prefill_policy"], valid=valid, exclusion=None if valid else "Incomplete/invalid cells or identity mismatch", metrics={})
+     if valid:
+         result.update(episode_wall_s=delta(base["episode_wall_s"], spt["episode_wall_s"]), first_schedule_order_changed=base["first_schedule_order"] != spt["first_schedule_order"],
+                       equal_output_sequences=sum(h == spt["output_hashes"].get(rid) for rid, h in base["output_hashes"].items()), n_sequences=len(base["output_hashes"]))
+         result["fairness"] = {metric: delta(base["fairness"][metric], spt["fairness"][metric]) for metric in ("bypassed_requests", "total_bypasses", "more_than_one")}
++        result["prefill_diagnostics"] = {metric: delta(base["diagnostics"].get(metric, 0), spt["diagnostics"].get(metric, 0))
++            for metric in ("budget_exhausted_steps", "prefill_steps", "prefill_request_steps", "partial_prefill_with_new_request_steps", "threshold_limited_prefill_rows", "short_first_admitted_with_preceding_long_prefill")}
+         for group in base["groups"]:
+             result["metrics"][group] = {f"{metric}_{stat}_s": delta(base["groups"][group]["latency_s"][metric][stat], spt["groups"][group]["latency_s"][metric][stat])
+                                        for metric, stats in (("ttft", ("mean", "p95", "p99")), ("tpot", ("mean", "p99")), ("itl", ("p95", "p99")), ("max_itl", ("mean", "p99", "max")), ("request", ("mean", "p95", "max"))) for stat in stats}
+@@ -190,26 +234,26 @@
+     for block in ("forward", "reverse"):
+         for cohort in ("all_short", "mixed"):
+             pair = [c for c in cells if c["block"] == block and c["plan"].get("cohort") == cohort]
+-            by_mode = {c["plan"].get("waiting_order"): c for c in pair}
+-            if len(pair) == 3 and set(by_mode) == set(MODES):
++            by_mode = {c["plan"].get("prefill_policy"): c for c in pair}
++            if len(pair) == 3 and set(by_mode) == set(ARMS):
+                 comparisons.extend(compare(by_mode[baseline], by_mode[intervention]) for baseline, intervention in
+-                    (("fcfs", "short_prompt_first"), ("fcfs", "bounded_bypass_once"), ("short_prompt_first", "bounded_bypass_once")))
++                    (("native1024", "global512"), ("native1024", "per_request512"), ("global512", "per_request512")))
+             else:
+                 issues.append(f"missing_or_duplicate_three_arms:{block}/{cohort}")
+     complete = len(cells) == len(warmups) == 12 and all(c["eligible_for_comparison"] for c in cells + warmups) and not issues
+     summary = dict(status="DESCRIPTIVE_MEASUREMENT_ONLY" if complete else "PARTIAL_OR_INVALID_MEASUREMENT", cells=cells, warmups=warmups, comparisons=comparisons, blocks=blocks, issues=issues, reference_slo=SLO,
+-                   semantics="Only current-campaign same-engine arm comparisons; no cross-GPU or old missing-block substitution. Host receipt timing; pooled ITL is descriptive. Every raw and per-request measurement retained, warmups excluded from comparisons. Completion/SLO require completed status; group rates use group first arrival, wall uses shared episode origin. queue_s is host submission lag, not native queue wait. arrival_to_first_schedule_s includes both. Queue reorder timing uses action end-start; ledger_end also includes native schedule and is not pure policy tax. All ledger overhead is inside request/wall metrics. Bypass counts use actual first-admission prefix order, including same-step order, not a wall-clock waiting guarantee. No Oracle, route counterfactual, significance claim or quality guarantee from output equality.")
++                   semantics="Only current-campaign same-engine native1024/global512/per_request512 comparisons; no cross-GPU or old missing-block substitution. FCFS stays fixed. All-short verifies ordering/threshold no-op only; global512 may still bind aggregate budget. Threshold-hit rows with remaining global budget and same-step short admissions describe actual execution, not a same-state causal counterfactual. Host receipt timing; pooled ITL is descriptive. Every raw and per-request measurement retained, warmups excluded from comparisons. Completion/SLO require completed status; group rates use group first arrival, wall uses shared episode origin. queue_s is host submission lag, not native queue wait. arrival_to_first_schedule_s includes both. Queue reorder timing uses action end-start; ledger_end also includes native schedule and is not pure policy tax. All ledger overhead is inside request/wall metrics. Bypass counts use actual first-admission prefix order, including same-step order, not a wall-clock waiting guarantee. No Oracle, route counterfactual, significance claim or quality guarantee from output equality.")
+     fmt = lambda v, scale=1000: "NA" if v is None else f"{v*scale:.3f}"
+-    lines = ["# Waiting order with one-bypass limit: retained measurements", "", summary["status"], "", summary["semantics"], "", "Latencies: ms. SLO: TTFT 5 s / mean TPOT 0.2 s. Warmups excluded.", "",
+-             "| Block/cohort/order | Group | Complete/arrived/planned; SLO pass | Wall s | TTFT mean/p95 | TPOT mean | ITL p95/p99 | Request mean/p95/max |", "|---|---|---|---:|---|---:|---|---|"]
++    lines = ["# Global versus per-request prefill budgets: retained measurements", "", summary["status"], "", summary["semantics"], "", "Latencies: ms. SLO: TTFT 5 s / mean TPOT 0.2 s. Warmups excluded.", "",
++             "| Block/cohort/prefill policy | Group | Complete/arrived/planned; SLO pass | Wall s | TTFT mean/p95 | TPOT mean | ITL p95/p99 | Request mean/p95/max |", "|---|---|---|---:|---|---:|---|---|"]
+     for c in cells:
+-        label = f"{c['block']}/{c['plan'].get('cohort')}/{c['plan'].get('waiting_order')}"
++        label = f"{c['block']}/{c['plan'].get('cohort')}/{c['plan'].get('prefill_policy')}"
+         for group, g in c.get("groups", {}).items():
+             lat = g["latency_s"]
+             metrics = [" / ".join(fmt(lat[m][s]) for s in stats) for m, stats in (("ttft", ("mean", "p95")), ("tpot", ("mean",)), ("itl", ("p95", "p99")), ("request", ("mean", "p95", "max")))]
+             lines.append(f"| {label} | {group} | {g['n_completed']}/{g['n_arrived']}/{g['n_planned']}; {g['n_slo_pass']} | {fmt(c['episode_wall_s'], 1)} | " + " | ".join(metrics) + " |")
+     for c in cells:
+-        lines.append(f"\n{c['block']}/{c['plan'].get('cohort')}/{c['plan'].get('waiting_order')}: comparison eligible={c['eligible_for_comparison']}; issues={c['issues']}; error={c.get('error')}; diagnostics={c.get('diagnostics')}; all-short no-op={c.get('all_short_noop')}.\n")
++        lines.append(f"\n{c['block']}/{c['plan'].get('cohort')}/{c['plan'].get('prefill_policy')}: comparison eligible={c['eligible_for_comparison']}; issues={c['issues']}; error={c.get('error')}; diagnostics={c.get('diagnostics')}; all-short ordering/threshold no-op={c.get('all_short_order_threshold_noop')}; global512 budget may differ={c.get('all_short_global_budget_may_differ')}.\n")
+         if "fairness" in c:
+             fair = c["fairness"]
+             lines.append(f"Actual first-admission bypasses: total={fair['total_bypasses']}, affected requests={fair['bypassed_requests']}, max={fair['distribution']['max']}, requests bypassed >1={fair['more_than_one']}. Queue reorder duration: {c['queue_reorder_duration_s']}.\n")
+--- previous/runtime/native_capture.py
++++ current/runtime/native_capture.py
+@@ -65,8 +65,8 @@
+         from vllm import SamplingParams
+         from vllm.sampling_params import RequestOutputKind
+         scheduler = engine.engine_core.engine_core.scheduler
+-        if policy != "static" or waiting_order not in ("fcfs", "short_prompt_first", "bounded_bypass_once"):
+-            raise ValueError("waiting-order probe supports only static admission and frozen queue actions")
++        if policy != "static" or waiting_order != "fcfs":
++            raise ValueError("prefill-sharing probe requires static cap and unchanged FCFS")
+         original = scheduler.schedule
+         had_instance_schedule = "schedule" in vars(scheduler)
+         if engine.vllm_config.scheduler_config.async_scheduling is not False or engine.vllm_config.scheduler_config.stream_interval != 1:
+@@ -79,6 +79,12 @@
+             started = now()
+             event = dict(step=len(scheduler_steps), start_s=started)
+             waiting_order_actions.append(event)  # Retain failed actions even when schedule never runs.
++            runtime_budget = scheduler.max_num_scheduled_tokens
++            runtime_threshold = scheduler.scheduler_config.long_prefill_token_threshold
++            event.update(runtime_token_budget=runtime_budget, long_prefill_token_threshold=runtime_threshold)
++            if runtime_budget != config["token_budget"] or runtime_threshold != config["long_prefill_token_threshold"]:
++                event["error"] = "live budget/threshold differs from frozen episode"
++                raise ValueError(event["error"])
+             try:
+                 reorder_waiting(scheduler, waiting_order, ever_scheduled, event, bypass_ledger)
+             finally:
+@@ -120,7 +126,8 @@
+                 waiting_order_action_index=len(waiting_order_actions) - 1,
+                 target_cap=target, running_before=running_before, waiting_before=waiting_before,
+                 actual_active=running_after, waiting_requests=waiting_after,
+-                decode_requests=sum(row["decode_tokens"] > 0 for row in scheduled), scheduled=scheduled,
++                decode_requests=sum(row["decode_tokens"] > 0 for row in scheduled),
++                prefill_requests=sum(row["prefill_tokens"] > 0 for row in scheduled), scheduled=scheduled,
+                 total_scheduled_tokens=sum(row["scheduled_tokens"] for row in scheduled),
+                 preempted_request_ids=[internal_to_source[rid] for rid in (result.preempted_req_ids or [])]))
+             step = scheduler_steps[-1]
+@@ -128,10 +135,11 @@
+             missing = sorted(set(existing_decode_ids) - decoded)
+             step.update(existing_decode_request_ids=[internal_to_source[rid] for rid in existing_decode_ids],
+                 existing_decode_all_scheduled=not missing,
+-                runtime_token_budget=scheduler.max_num_scheduled_tokens,
++                runtime_token_budget=runtime_budget, long_prefill_token_threshold=runtime_threshold,
+                 missing_decode_request_ids=[internal_to_source[rid] for rid in missing])
+             if (missing or step["preempted_request_ids"] or any(row["computed_adjustment"] for row in scheduled)
+-                    or step["total_scheduled_tokens"] > scheduler.max_num_scheduled_tokens):
++                    or step["total_scheduled_tokens"] > runtime_budget
++                    or (runtime_threshold > 0 and any(row["scheduled_tokens"] > runtime_threshold for row in scheduled))):
+                 raise ValueError("budget probe requires all existing decode to advance without preemption or KV adjustment")
+             if decision is not None:
+                 step = scheduler_steps[-1]
+@@ -239,6 +247,8 @@
+         requests=list(rows.values()), scheduler_steps=scheduler_steps, output_events=output_events,
+         engine_step_returns=engine_step_returns,
+         waiting_order=waiting_order, waiting_order_actions=waiting_order_actions,
++        prefill_policy=config["prefill_policy"], runtime_token_budget=config["token_budget"],
++        long_prefill_token_threshold=config["long_prefill_token_threshold"],
+         arrival_ranks=bypass_ledger.rank, first_admission_bypasses=bypass_ledger.bypasses,
+         bypass_semantics="later-arrival first schedules preceding an older waiting request; order within a schedule uses num_scheduled_tokens insertion order",
+         observation_end_s=now(), regime=regime, arrival_scale=arrival_scale, target_cap=config["cap"],
+--- previous/launch_block.py
++++ current/launch_block.py
+@@ -14,7 +14,7 @@
+ results = root/'results'
+ results.mkdir(exist_ok=True)
+ metadata = results/f'{block}-process.json'
+-cmd = [sys.executable, '-u', str(root/'run_waiting_order.py'), '--block', block,
++cmd = [sys.executable, '-u', str(root/'run_prefill_share.py'), '--block', block,
+        '--output-dir', str(results/block)]
+ state = dict(command=cmd, block=block, started_unix_s=time.time(), pid=None, exit_code=None)
+ with metadata.open('x') as f:

@@ -1,0 +1,66 @@
+--- paired-runtime/native_capture.py
++++ independent-budget-runtime/native_capture.py
+@@ -48,7 +48,7 @@
+         raise ValueError("duplicate source request IDs")
+     pending = sorted(range(len(sources)), key=lambda i: (arrivals[i] * arrival_scale, i))
+     internal_to_source, external_to_source = {}, {}
+-    scheduler_steps, output_events = [], []
++    scheduler_steps, output_events, engine_step_returns = [], [], []
+     scheduler = original = None
+     had_instance_schedule = False
+     error = None
+@@ -75,11 +75,10 @@
+                       for rid, req in scheduler.requests.items()}
+             running_before, waiting_before = scheduler.get_request_counts()
+             decision = None
+-            existing_decode_ids = []
++            existing_decode_ids = [request.request_id for request in scheduler.running
++                if request.num_computed_tokens >= request.num_prompt_tokens]
+             target = config["cap"]
+             if feedback is not None:
+-                existing_decode_ids = [request.request_id for request in scheduler.running
+-                    if request.num_computed_tokens >= request.num_prompt_tokens]
+                 decision = feedback.decide(decision_start_s=started, active=running_before,
+                                            waiting=waiting_before)
+                 target = decision["target_cap"]
+@@ -108,6 +107,16 @@
+                 decode_requests=sum(row["decode_tokens"] > 0 for row in scheduled), scheduled=scheduled,
+                 total_scheduled_tokens=sum(row["scheduled_tokens"] for row in scheduled),
+                 preempted_request_ids=[internal_to_source[rid] for rid in (result.preempted_req_ids or [])]))
++            step = scheduler_steps[-1]
++            decoded = {row["internal_request_id"] for row in scheduled if row["decode_tokens"] > 0}
++            missing = sorted(set(existing_decode_ids) - decoded)
++            step.update(existing_decode_request_ids=[internal_to_source[rid] for rid in existing_decode_ids],
++                existing_decode_all_scheduled=not missing,
++                runtime_token_budget=scheduler.max_num_scheduled_tokens,
++                missing_decode_request_ids=[internal_to_source[rid] for rid in missing])
++            if (missing or step["preempted_request_ids"] or any(row["computed_adjustment"] for row in scheduled)
++                    or step["total_scheduled_tokens"] > scheduler.max_num_scheduled_tokens):
++                raise ValueError("budget probe requires all existing decode to advance without preemption or KV adjustment")
+             if decision is not None:
+                 step = scheduler_steps[-1]
+                 step.update(effective_scheduler_limit=decision["effective_scheduler_limit"],
+@@ -151,8 +160,15 @@
+                     delay = rows[sources[pending[next_request]]["request_id"]]["arrival_s"] - now()
+                     time.sleep(max(0.0, min(0.001, delay)))
+                 continue
++            steps_before = len(scheduler_steps)
++            call_started = now()
+             outputs = engine.step()
+             received = now()  # One immediate host receipt timestamp for this output batch.
++            engine_step_returns.append(dict(call_index=len(engine_step_returns), call_start_s=call_started,
++                received_s=received, output_count=len(outputs), scheduler_begin=steps_before,
++                scheduler_end=len(scheduler_steps)))
++            if len(scheduler_steps) != steps_before + 1:
++                raise ValueError("synchronous budget probe requires exactly one schedule per engine.step return")
+             request_itls = {} if feedback is not None else None
+             for output in outputs:
+                 source_id = external_to_source[output.request_id]
+@@ -204,6 +220,7 @@
+     sizes = [event["chunk_size"] for event in output_events]
+     return dict(status="COMPLETE" if error is None else "INCOMPLETE", error=error,
+         requests=list(rows.values()), scheduler_steps=scheduler_steps, output_events=output_events,
++        engine_step_returns=engine_step_returns,
+         observation_end_s=now(), regime=regime, arrival_scale=arrival_scale, target_cap=config["cap"],
+         policy=policy, actions=[] if feedback is None else feedback.actions,
+         feedback_observations=[] if feedback is None else feedback.observations,

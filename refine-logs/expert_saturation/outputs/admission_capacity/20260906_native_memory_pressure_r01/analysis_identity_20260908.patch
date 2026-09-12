@@ -1,0 +1,94 @@
+--- analyze_probe.py before identity qualification
++++ analyze_probe.py after identity qualification
+@@ -1,13 +1,53 @@
+ #!/usr/bin/env python3
+ """Summarize all expected capacity cells, including missing and boundary stops."""
+ import argparse
++import hashlib
+ import json
++import math
+ from pathlib import Path
+ from metrics import summarize_episode_requests
+ 
+ 
+ def read(path):
+     return json.loads(path.read_text())
++
++
++def validate_identity(raw, config, prepared, domain, cap):
++    """Bind each retained cell to the frozen domain, cap, arrivals and tokens."""
++    frozen = read(prepared/domain/'config.json')
++    workload = read(prepared/domain/'workload.json')
++    digest = hashlib.sha256(json.dumps(workload, sort_keys=True).encode()).hexdigest()
++    if digest != frozen['workload_sha256'] or digest != config['workload_sha256']:
++        raise ValueError('frozen workload hash mismatch')
++    if config['domain'] != domain or config['cap'] != cap or raw['target_cap'] != cap:
++        raise ValueError('directory/config/raw domain or cap mismatch')
++    if any(config[k] != frozen[k] for k in ['model', 'requests', 'prompt_tokens', 'output_tokens', 'seed']):
++        raise ValueError('cell differs from frozen input configuration')
++    if raw['regime'] != 'steady' or raw['arrival_scale'] != 1.0:
++        raise ValueError('unexpected arrival regime or scale')
++    sources, tokens = workload['source_requests'], workload['actual_prompt_token_ids']
++    arrivals = workload['arrival_traces_s']['steady']
++    indexed = {r['request_id']: r for r in raw['requests']}
++    if not (len(indexed) == len(raw['requests']) == len(sources) == len(tokens) == len(arrivals) == config['requests']):
++        raise ValueError('request identity or count mismatch')
++    if set(indexed) != {s['request_id'] for s in sources}:
++        raise ValueError('request identity set mismatch')
++    for source, ids, arrival in zip(sources, tokens, arrivals):
++        row = indexed[source['request_id']]
++        token_hash = hashlib.sha256(json.dumps(ids, separators=(',', ':')).encode()).hexdigest()
++        if not (row['document_id'] == source['document_id'] and
++                row['prompt_token_ids_sha256'] == source['prompt_token_ids_sha256'] == token_hash and
++                row['prompt_tokens'] == len(ids) == config['prompt_tokens'] and
++                math.isclose(row['arrival_s'], arrival, rel_tol=0, abs_tol=1e-12)):
++            raise ValueError('request document/prompt/arrival mismatch')
++        if row['status'] == 'completed' and not (
++                len(row['output_token_ids']) == len(row['token_times_s']) == config['output_tokens']):
++            raise ValueError('completed request output length mismatch')
++    if any(s['target_cap'] != cap for s in raw['scheduler_steps']):
++        raise ValueError('scheduler target cap changed')
++    return dict(checked_requests=len(indexed), workload_sha256=digest,
++                frozen_directory=str((prepared/domain).resolve()),
++                all_requests_completed=all(r['status']=='completed' for r in raw['requests']))
+ 
+ 
+ def main():
+@@ -30,7 +70,7 @@
+                             missing_artifacts=['raw.json'], full_episode_comparison_eligible=False)
+                     continue
+                 raw = read(directory/'raw.json')
+-                required = ['status.json', 'metrics.json', 'engine_args.json', 'memory-before.json',
++                required = ['config.json', 'status.json', 'metrics.json', 'engine_args.json', 'memory-before.json',
+                             'memory-after.json', 'gpu-after.json']
+                 missing = [name for name in required if not (directory/name).exists()]
+                 if missing:
+@@ -38,6 +78,14 @@
+                         missing_artifacts=missing, full_episode_comparison_eligible=False,
+                         capacity_boundary=raw.get('capacity_boundary'),
+                         requests_completed=sum(r['status']=='completed' for r in raw['requests']))
++                    continue
++                config = read(directory/'config.json')
++                try:
++                    identity = validate_identity(raw, config,
++                        Path(__file__).resolve().parent/'inputs_preparation/prepared', domain, cap)
++                except (KeyError, ValueError, TypeError) as exc:
++                    row.update(status='INVALID', identity_error=str(exc), raw_status=raw['status'],
++                        full_episode_comparison_eligible=False)
+                     continue
+                 metrics = summarize_episode_requests(raw['requests'], observation_end_s=raw['observation_end_s'],
+                     ttft_slo_s=5.0, tpot_slo_s=0.2)
+@@ -59,8 +107,12 @@
+                     raise ValueError('destructive preemption was executed')
+                 expected_status = 'CAPACITY_BOUNDARY_STOP' if boundary else raw['status']
+                 status = expected_status if terminal['status'] == expected_status else 'INCOMPLETE'
++                if status == 'COMPLETE' and not (identity['all_requests_completed'] and
++                        metrics['n_completed'] == config['requests']):
++                    status = 'INCOMPLETE'
+                 row.update(status=status, terminal_status=terminal, raw_status=raw['status'],
+-                    full_episode_comparison_eligible=status=='COMPLETE' and not boundary,
++                    identity_check=identity,
++                    full_episode_comparison_eligible=status=='COMPLETE' and not boundary and identity['all_requests_completed'],
+                     strict_nonpreemptive_status=raw['strict_nonpreemptive_status'],
+                     max_scheduled_active=max((s['actual_active'] for s in raw['scheduler_steps']), default=0),
+                     max_waiting=max((s['waiting_requests'] for s in raw['scheduler_steps']), default=0),

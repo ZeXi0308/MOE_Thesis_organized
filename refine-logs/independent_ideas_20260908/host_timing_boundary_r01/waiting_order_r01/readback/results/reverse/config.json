@@ -1,0 +1,83 @@
+{
+  "block": "reverse",
+  "warmups": [
+    {
+      "cohort": "all_short",
+      "budget": 1024,
+      "waiting_order": "fcfs"
+    },
+    {
+      "cohort": "all_short",
+      "budget": 1024,
+      "waiting_order": "short_prompt_first"
+    },
+    {
+      "cohort": "mixed",
+      "budget": 1024,
+      "waiting_order": "fcfs"
+    },
+    {
+      "cohort": "mixed",
+      "budget": 1024,
+      "waiting_order": "short_prompt_first"
+    }
+  ],
+  "plans": [
+    {
+      "cohort": "mixed",
+      "budget": 1024,
+      "waiting_order": "short_prompt_first"
+    },
+    {
+      "cohort": "mixed",
+      "budget": 1024,
+      "waiting_order": "fcfs"
+    },
+    {
+      "cohort": "all_short",
+      "budget": 1024,
+      "waiting_order": "short_prompt_first"
+    },
+    {
+      "cohort": "all_short",
+      "budget": 1024,
+      "waiting_order": "fcfs"
+    }
+  ],
+  "engine_args": {
+    "model": "allenai/OLMoE-1B-7B-0924",
+    "revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "tokenizer_revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "dtype": "bfloat16",
+    "seed": 20260905,
+    "max_model_len": 4096,
+    "max_num_seqs": 8,
+    "max_num_batched_tokens": 1024,
+    "enable_chunked_prefill": true,
+    "gpu_memory_utilization": 0.7,
+    "enable_prefix_caching": false,
+    "scheduling_policy": "fcfs",
+    "async_scheduling": false,
+    "stream_interval": 1,
+    "enforce_eager": false,
+    "enable_return_routed_experts": false,
+    "disable_log_stats": false
+  },
+  "reference_slo": {
+    "ttft_slo_s": 5.0,
+    "tpot_slo_s": 0.2
+  },
+  "max_seconds": 180,
+  "source_and_input_sha256": {
+    "prepared/all_short/config.json": "277a4fcf8461c126e5c0bcd914a93ec173cc2e75476e9da23aef51406790d286",
+    "prepared/all_short/workload.json": "65a5f322427764fbbcc18b47c61feb4c3ea814e42dce764ae9393a1a4f70f973",
+    "prepared/mixed/config.json": "bbec63062af76ab478cede657b27c5bd9610270c40c0762d16cd25d5b70cc247",
+    "prepared/mixed/workload.json": "6c92fe261c43fa66c88abfc95c946b9d97545753f3aeb881b54731ef149e8546",
+    "run_waiting_order.py": "f3a6b0fa7187fdcd614efdfbf65ade16f6203fcaee33d85e2ab4a59f775d48ea",
+    "runtime/admission_feedback.py": "279c3e0ef44f8d9a0dec9bfeffe4dea72e657f24c637d9111f6712eb7ee0ece7",
+    "runtime/metrics.py": "1ca4874d718402ad149e26abd1b109eadf50afabb7aadc9e562e244aeb594b11",
+    "runtime/native_capture.py": "b7994ac6ca769d0b66042d4da3d663ea2aa70f1b677828c7045fe260841952c3",
+    "runtime/waiting_order.py": "4e837c53e7fbf03bc850db506fa708f476dc103799ec4774372d48460a93e911"
+  },
+  "evidence_ceiling": "REQUEST_LEVEL_EXPLORATORY_INTERVENTION_NO_METHOD_GO"
+}
