@@ -1,0 +1,5 @@
+# r01 → r02 interface correction
+
+The retained r01 failed before its first compile-domain invocation because `vars()` requires `__dict__`, while the pinned WiSP state declares `__slots__`. r02 reads the six named integer counters using `getattr`. The same CPU helper test now extracts all 23 slots from the exact SHA-verified WiSP source and fills a slotted object. It explicitly verifies that the old `vars(state)` operation raises TypeError, and passes F320/X320 plus failure-at-13 restoration.
+
+Changed frozen files: COMMANDS.md, protocol.json, instrumentation/compile_domain.py, instrumentation/check_domain_cpu.py. Added one unchanged source fixture: instrumentation/installed_source/wisp_fused_moe.py. The original 11 runtime files, host observer, driver, analyzer, resource allocation, four-arm order and request input bytes are identical. This corrects an interface failure; it does not establish compiler coverage or performance. All 42.951954032 s of the failed r01 process remain recorded separately.

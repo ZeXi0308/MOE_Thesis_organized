@@ -785,3 +785,123 @@ weste本次两个控制尝试已停止并完整取回：[第一次仅资源预�
 | One next smallest experiment | 普通full-stage 20×16私有+64共享的GPU资格及同预算性能；CPU已通过，GPU UNRUN。计入stage命中搬入与LRU写回D2D，区分已知stage与21+48紧凑映射增量 |
 
 对研究问题的直接回答：**真实paging下，prefill工作量与专家执行组织会改变旧请求等待及完整请求代价。共享池X在两组新文档上相对U使capture下降5.542%/5.931%，旧max-ITL和新TTFT也下降；相对M同样改善请求指标，但X对U/M的五warmup加measurement周期均更慢。该周期不是持续服务摊销测量，当前既不能宣布净收益GO，也不能据此判死共享池或admission问题。主问题与专家信息决策增量仍OPEN；唯一下一步是普通20×16+64 full-stage的GPU资格及同预算性能，CPU已通过、GPU UNRUN。**
+
+
+## 2026-09-14 接续：F/X 原生生命周期资格完成，性能待交接
+
+返回westc:53036后，实测GPU UUID为70fa1c0a-77d4-c14a-9daf-7e685874eef9、RTX5090/driver595.71.05、cgroup25核/90GiB。沿用原冻结11源、输入、模型revision与软件版本，14项封存输入检查通过；原westc PID5178已不存在，旧Q/P均无results。新目录westc-r02保留独立尝试。
+
+[完整资格结果](../20260912_wisp_olmoe_r01/westc_return_20260913/qualification_completed/qualification/results/execution.json)于23:57:56完成运行收尾、23:58:02父驱动收尾，两格各4请求/32输出。归档611286B、SHA256 c51ee8194a0d4b4b54f135da49d1d69e5c35579276b1be737b63bae28f1414a5，43文件回读匹配。[冻结检查器结果](../20260912_wisp_olmoe_r01/westc_return_20260913/qualification_check.json)为`QUALIFIED_NEW_HOST_LIFECYCLE_ONLY`、issues为空。
+
+| 项目 | F fullstage20 | X oneshot21 |
+|---|---:|---:|
+| 私有槽 + 共享stage槽 | 320 + 64 | 336 + 48 |
+| 实际expert pool字节 | 4,831,838,208 | 4,831,838,208 |
+| 实际KV字节 | 1,073,741,824 | 1,073,741,824 |
+| 全部层调用（初始化/预热/主请求） | 224（32/32/160） | 224（32/32/160） |
+| 主请求逐层参考对照：finite/allclose/bit_equal | 160/160均通过 | 160/160均通过 |
+| 最大绝对差 | 0 | 0 |
+| 权重字节检查 | 640/640 | 640/640 |
+| 完整请求/输出token | 4/32 | 4/32 |
+| 独立子进程时间，含加载/参考/JIT | 43.770290659s | 50.194993448s |
+
+检查器从各臂16个空私有LRU出发，沿该臂实际调用与当前rows推进，重建加载、暂存/写回、最终映射和元数据；请求/step/row关联通过。每臂三处GPU边界检查没有foreign PID。两组参考比较各自使用同一pre-call输入及CPU master权重，不是文本质量GT；四篇文档在两臂复用，不能说八篇独立文档。参考计算/回读增加显存和时间，上表pool/KV相等不代表资格总峰值相等，更不能把两格耗时作为F/X性能比较。原过程记录含JIT，不据此推断方法更快；边界检查也不证明连续独占。
+
+多会话交接发生竞争：旧rotation提交进程消失且GPU空时，本会话按排队准备启动；原会话随后声明恢复原剩五格、保留原组队位。F/X已在途，因此仅暂停自己的总controller4540（SIGSTOP/T），保留资格driver自然结束；23:58现场GPU为空后在共享协调记录宣布释放。原rotation已恢复新controller，F/X性能没有启动。资格子进程时间未包含总controller暂停；将来总controller的QUALIFYING阶段墙钟会包含协调等待，不用作性能成本。恢复必须SIGCONT同一controller4540，由它执行原远端checker及X/F/F/X，不重启已有results的资格driver。
+
+| 裁决字段 | 当前判定 |
+|---|---|
+| Verdict | `QUALIFIED_NEW_HOST_LIFECYCLE_ONLY`；研究仍`OPEN / MEASUREMENT_ONLY` |
+| Evidence type | 原生vLLM调用路径的单卡、单模型、同pre-call算子资格与请求完整性 |
+| What was measured | 两臂8条请求执行/64输出；448层调用的状态会计；320次按位参考比较；1280项权重字节检查 |
+| What was not measured | F/X请求性能增量、持续到达摊销收益、文本质量、真实超显存模型或EP |
+| Strongest baseline | 已测U24/M及split21；本轮F20+64完成资格，尚不是性能强基线结果 |
+| Oracle/headroom | 未测统一目标Oracle，不从复制字节推断性能上界 |
+| Claim ceiling | 测试输入/调用上的生命周期与数值一致性，不构成方法GO |
+| Failure category | 旧启动资源冲突保留；本轮无数值失败，发生了队列交接竞争并保留暂停事实 |
+| Resurrection condition | 主问题未判死；性能接续条件为原rotation整组终态或所属会话明确交接且现场GPU空闲 |
+| One next smallest experiment | 继续原controller，执行冻结同机X/F/F/X四格，计入所有H2D/D2D、预热及完整请求成本 |
+
+本轮回答：F与X在这四篇资格输入上的真实缓存推进、物理权重及层输出比较均通过；X是否优于普通完整stage，仍必须由待运行的四格性能回答。
+
+
+## 2026-09-14 性能接续：X/F 四格完成
+
+前述“性能待交接/UNRUN”是当时状态。rotation八格完成并交接后，00:08恢复原controller4540，原资格没有重跑；X/F/F/X四格随后全部COMPLETE。[完整归档清单](../20260912_wisp_olmoe_r01/westc_return_20260913/attempt01/retrieval_manifest.json)为40,713,785B、SHA256 `4824480de66d6aa1a0cfbd878a20436cff87c050577dbcd4e1f26068004f2e6b`，547文件逐字节回读。00:18确认controller退出及GPU空闲后，按共享队列交给A-review压力扫描。本组不再提交GPU任务。
+
+[冻结分析](../20260912_wisp_olmoe_r01/westc_return_20260913/attempt01/continuation/performance_analysis.json)状态`DESCRIPTIVE_NATIVE_SHARED_POOL_EXECUTION`、issues为空；[简表](../20260912_wisp_olmoe_r01/westc_return_20260913/performance_summary.json)保留逐配对方向和极值。共4个独立引擎，每个8个相关测量episode；32次测量、96请求、1280输出token。另有160次预热、416请求、5184输出；62,592个全阶段层调用中12,288个属于测量，76处GPU边界检查通过。所有四格和repeat保留，没有依据快慢删样本。边界检查不证明连续独占。
+
+资源与请求合同沿用冻结协议：OLMoE BF16，expert pool实际384唯一槽/4,831,838,208B，KV实际1,073,741,824B；F为20×16私有+64暂存，X为21×16私有+48暂存。每次测量两个旧请求P32、输出各16，第三个P128、输出8，在旧请求各输出4token后注入；prefill chunk8，旧请求完成后释放该限制。性能关闭资格参考。两组各三篇源文档；第二组同时反转执行顺序，故文档效应与顺序效应仍混淆。每臂独立推进route/KV/cache；本次16对输出hash和route hash恰好全部相同，cache与复制轨迹全部不同。
+
+表中为各block八次episode的均值，变化分母均为同block的F。时间和复制开销分别列示，不能相加为互斥成本桶。
+
+| 指标 | block0 F → X | 变化 | block1 F → X | 变化 |
+|---|---:|---:|---:|---:|
+| 请求capture窗口，s | 2.13690 → 2.00347 | −6.244% | 2.06869 → 1.95462 | −5.514% |
+| 五预热+测量实验cycle，s | 12.68448 → 12.13528 | −4.330% | 12.23882 → 11.73960 | −4.079% |
+| 旧请求最大ITL，ms | 127.962 → 122.351 | −4.385% | 130.693 → 120.240 | −7.998% |
+| 旧请求注入边界ITL，ms | 110.394 → 102.070 | −7.540% | 104.844 → 97.517 | −6.988% |
+| 旧请求完成时间，s | 1.70419 → 1.59117 | −6.631% | 1.65687 → 1.55560 | −6.112% |
+| 新请求TTFT，s | 1.53238 → 1.42748 | −6.845% | 1.48458 → 1.39021 | −6.357% |
+| 新请求完成时间，s | 1.80446 → 1.68799 | −6.455% | 1.74353 → 1.63949 | −5.967% |
+| H2D payload | — | −2.995% | — | −3.121% |
+| 全部stage/writeback D2D | — | −69.576% | — | −69.967% |
+| GPU load-section event跨度 | — | −8.001% | — | −8.636% |
+| 整个子进程时间，s | 138.04541 → 135.15396 | −2.095% | 134.51237 → 131.14980 | −2.500% |
+
+capture、实验cycle、旧边界ITL、旧完成、新TTFT及新完成在16个ordinal配对中均下降；这些配对共享engine，不能当16个独立重复。旧最大ITL有11对下降、5对上升，最差上升10.698%；新最大ITL同样11降5升，最差上升25.243%。因此均值下降支持本次输入上的描述性改善，不支持“最大ITL无损”。当前没有同环境、同工作负载的独立零动作重复来估计噪声分布；不把跨实验负控的最大差当本表阈值，不给显著性、置信区间或非劣效保证。
+
+X减少了F的stage命中复制并取消其LRU写回，同时多16个私有槽；这里测的是容量、复制与映射组织的联合实现差异，未单独识别D2D的因果收益。F保持逐层私有LRU终态并支付写回，不能代表优化后的FreeToken或全局LRU。先前X/U和X/M实验的五预热周期更慢仍成立；本次只补足X/F比较，没有用不同主机/不同文档间的数字拼接新配对。
+
+资格解释补记：原full_stage_qualification协议只列F；换机后先验证F与X两臂的安排已在执行前[HOST_ADDENDUM](../20260912_wisp_olmoe_r01/westc_return_20260913/HOST_ADDENDUM.json)及双臂driver声明。资格检查器校验11份wrapper源码，但未将外部WiSP源码hash作为拒绝条件；两份实际pager_summary中的fused_moe hash均为封存的`5572d4f05593a5a9fc4adaa14421cc596886a435b6f5f51f476a1dae6e521857`，由限定审计另行核对。不追改已运行检查器。资格controller阶段墙钟包含SIGSTOP协调等待；上表四个性能子进程的时间均来自恢复之后，不含这次暂停。
+
+| 裁决字段 | 当前判定 |
+|---|---|
+| Verdict | `MEASUREMENT_ONLY`，X/F已测两block请求与实验cycle改善；主问题仍`OPEN` |
+| Evidence type | `NATIVE_SERVING`调用路径的受控单卡、单模型、人工专家池请求实验 |
+| What was measured | 同384槽/1GiB KV的F/X四格、32测量、96请求、全预热与进程成本；逐配对不利尾部保留 |
+| What was not measured | 持续到达成本摊销、稳定尾延迟或SLO-goodput增益、独立噪声分布、全局cache强基线、真实超显存模型、文本质量与EP |
+| Strongest baseline | 本次普通完整stage F；先前U24/M仍是有竞争力的已测底座，尚无同次持续到达比较 |
+| Oracle/headroom | 未测统一目标Oracle；复制减少不是请求收益上界 |
+| Claim ceiling | 当前事件注入输入与实现上的描述性X/F改善，不能升级为部署/论文方法GO |
+| Failure category | 本次无请求或会计失败；部分尾部配对恶化、独立重复不足，持续服务成本仍未知 |
+| Resurrection condition | 主问题未判死；只有新运行域或新动作再扩展，不能以换阈值抹去旧权衡 |
+| One next smallest experiment | 复用原runtime，做同一新16请求时钟到达序列的U/M/F/X与反序整组；每引擎仅初始预热一次、测量中不重置cache，检验请求收益能否进入完整服务成本。先CPU准备，排在A-review与rotation_runtime_repeat之后 |
+
+本轮直接回答：X相对普通完整stage的请求窗口改善已在两组输入上观察到，连同五预热实验周期也更短；它仍未回答持续到达中相对U/M等强底座能否净增有效服务量。下一步改变测量窗口，复用现有机制，测有限到达序列的完整成本。
+
+[本次限定审计](../20260912_wisp_olmoe_r01/westc_return_20260913/EXPERIMENT_AUDIT.md)为WARN/same-family/provisional，数据本体PASS；性能唯一P1是旧analyzer未强制比对外部WiSP hash，本次四份实际hash均独立匹配。没有数字或范围更正，下一新包补直接比较，旧封存脚本不追改。
+
+
+有限到达下一实验已完成CPU准备并暂存：[协议与固定顺序](../20260912_wisp_olmoe_r01/finite_arrival_r01/protocol.json)、[CPU检查](../20260912_wisp_olmoe_r01/finite_arrival_r01/cpu_check.json)、[远端暂存核验](../20260912_wisp_olmoe_r01/finite_arrival_r01/staging_verification.json)。U/M/F/X/X/F/M/U八个新引擎均使用同一16篇新源文档、P128/输出32、0.25s时钟到达、token budget160、固定prefill32、384槽/1GiB KV。每个引擎只先运行第一篇文档的2输出warmup，保留各自cache后连续测量；没有测量内reset或五次warmup。32输出、prefill32和到达间隔是预先固定pilot选择。一次短warmup不保证所有shape已编译，后续JIT仍计入测量及process成本。所有请求正常自由生成至固定长度，不复用其他policy未来轨迹。
+
+11份runtime和10份CPU helper逐字节复用；新增166行driver及177行分析，外部WiSP hash在逐格运行前和结果分析中直接比较。CPU命令/输入/预算/语法检查通过；用历史资格raw的临时副本验证依赖hash错配会新增拒绝项，原始证据未改。该负例不构成本轮GPU运行。完整包272026B、32文件已到新目录，31项文件hash及远端4源码/6版本通过；尚无results、GPU仍UNRUN。
+
+主要分母为同一有限到达序列从首个计划到达到最后请求完成；另保留整个进程的初始化、单次warmup、采集、写盘与排空时间。capture与进程成本分开，提交延迟与引擎内等待分开，不称稳态吞吐。两次同臂新引擎差异只报告观察漂移，不当总体噪声底或显著性检验。A-review已结束，rotation_runtime_repeat在前；本组已登记明确交接请求，没有后台候卡或GPU进程。
+
+
+## 2026-09-14 有限到达八格完成：X/F没有稳定收益
+
+[完整新报告](../20260912_wisp_olmoe_r01/finite_arrival_r01/REPORT.md)保留128请求/4096输出、7856调用及所有八格。X/F capture为+3.394%/−0.948%，process为+1.771%/+0.636%；D2D虽减少52.061%/53.862%，未形成稳定完整收益。同臂U/M/F/X的capture第二次变化−20.900%/−9.225%/−0.412%/−4.594%，只是已观察漂移，不能称噪声底。U0的额外延迟主要定位到layer0 host_apply包络；日志warning_once不足以逐次归因JIT。另有外部PID13921的11.799s初始化仅与首M启动相交，capture无直接重叠但后效未知，完整进程不具连续隔离。原始162文件完整回读，无删样本/修改旧结果。当前MEASUREMENT_ONLY，先定位运行变异，保留F强基线，不推进新controller。
+
+用户新增的A线直接近邻已核对并写入[恢复相关工作附录](../../../experiments/admission_capacity/RELATED_WORK_RECOVERY_20260914.md)：LTR的等待提权/时间片、Andes的容量及切换净收益、UniBoost的按实际decode计数保护、TokenFlow的恢复队列及合批成本均有直接覆盖。跨步资源可行性和候选batch成本只是待验证假说；该文献边界不把本轮B线执行实验计作A线调度收益。
+
+### 2026-09-14：普通U编译来源定位完成
+
+[两格报告](../20260912_wisp_olmoe_r01/jit_localization_r01/REPORT.md)：32请求/1024输出全部完成，实际compiler listener与逐层host区间对齐。7个超过100ms的layer0调用，其97.40%–98.25%区间由实际compiler pipeline及首次加载覆盖；冷cache测量12次编译，保留cache仍有2次新specialization。两格完整进程57.977/48.313s、capture11.646/9.232s，但输出9/16相同、route和49/51步轨迹不同，不能扣除编译当反事实收益。旧八格仍MEASUREMENT_ONLY，不能回溯逐次归因。唯一下一项是固定specialization覆盖基线，计入启动成本，确认无测量编译后再判断F/X；不盲增预热次数或增加调度器。
+
+## 2026-09-14 B compile-domain r01 execution failure
+
+The first F engine initialized, then the new snapshot failed on vars(WispMoEState), because the actual pinned state uses __slots__. Full process 42.951954032 s; 0/320 preparation calls, no request warmup/measurement, other three cells UNRUN. [Retained report](../20260912_wisp_olmoe_r01/compile_domain_r01/REPORT.md). This is INVALID_EXPERIMENT due to an interface bug, with no F/X scientific verdict. The GPU was released to the queued LTR group. New r02 preserves runtime, resources and documents while fixing six stats reads and the CPU state-layout fixture.
+
+## 2026-09-14 B compile-domain r02: qualified coverage, no stable X/F completion gain
+
+[Full report](../20260912_wisp_olmoe_r01/compile_domain_r02/REPORT.md). New r02 fixes only the r01 slotted-state snapshot; the original runtime, four-cell F/X/X/F sequence, resource budgets and new16 documents remain unchanged. Four fresh private Triton caches; all 320×4 compile/handle setup calls completed, CPU pager/KV snapshots stayed equal, and measurement had zero actual compiler calls. Setup 7.019/5.460/5.929/6.841 seconds is retained in process time.
+
+64 requests/2048 output tokens/10176 scheduled positions completed. X/F capture −3.873%/+0.086%, mean completion −5.705%/−0.873%, maximum ITL −7.864%/−6.368%, full process −7.745%/+0.804%. D2D bytes −54.040%/−54.623%, H2D −1.369%/−2.253%. X same-arm capture +2.999% and mean completion +4.627%; only two correlated engines per mode, not a noise bound. Outputs and route traces differ. No statistical improvement, noninferiority, SLO, quality, all-runtime steady-state or method GO is established.
+
+The original failure stays INVALID_EXPERIMENT before measurement; r02 is MEASUREMENT_ONLY with coverage fulfilled. Strongest paired baseline is ordinary F at the same 384 expert slots and actual1GiB KV; it is a joint layout/execution comparison, not an isolated writeback treatment. Original archives are preserved: r01 62 members; r02 134 members/SHA acf66ad7688296778dfdcdc969d67b190f956b8eb2fe2153caa77b3cf6754cf1. Local frozen analysis matches remote exactly; limited result review is in progress. GPU released 1789324505.834, no additional GPU matrix. Next only CPU localization of the residual X same-arm time, respecting nested host/CUDA clocks and action-dependent arrival trajectories.
+
+### 2026-09-14 r02限定结果审计闭合
+
+[审计](../20260912_wisp_olmoe_r01/compile_domain_r02/EXPERIMENT_AUDIT.md) PASS/P0/P1=0，复用同族reviewer、provisional。独立133payload/40输入/11runtime、64请求2048输出、10176位置/4032全调用核对通过；1280准备调用与108真实编译/加载仅在初始化/准备、测量事件本身为0。r01失败独立保留。无稳定F/X收益主张。新[CPU定位](../20260912_wisp_olmoe_r01/compile_domain_r02/OBSERVED_COST_LOCALIZATION.md)将下一问题限定为可观察前缀先出现的host成本；host_cost_r01四项观察开关仅CPU准备/GPU UNRUN。

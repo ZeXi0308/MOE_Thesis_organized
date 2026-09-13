@@ -1,14 +1,18 @@
 # 准入／容量研究简记
 
-**当前执行状态：** 目标恢复后连续三个回合实时确认同一Qwen3 PID13275占用GPU，再次标记BLOCKED_RESOURCE；最新已处理4/16分片，第5片3.10GB。新32文档四臂八项保持STAGED、GPU 0/8，本地及远端无已启动结果；准备与检查已完成，无后台等待或执行器。主问题OPEN，资源释放后接续同一包。详见[状态与接续入口](../../outputs/admission_capacity/20260913_rotation_strong_baseline_r01/STATUS.json)。
+**当前执行状态：** 原八项之后的同输入/runtime四项重复已全部执行回传，128/128请求；实际执行在`execution02_after_finite`，首初始化失败另存。四项主分析同资源资格通过，接手方负责结果审计；本会话的跨轮次诊断已完成。主问题OPEN、MEASUREMENT_ONLY：吞吐仍变号，旧恢复长调用未在新增两次重现，但另有分散的全程计时差。见[四项主分析](../../outputs/admission_capacity/20260914_rotation_runtime_repeat_r01/analysis02_after_finite/report.md)和[跨轮次解释](../../outputs/admission_capacity/20260914_rotation_runtime_repeat_r01/diagnostics_r02/INTERPRETATION.md)。
 
 探索记录，不替代 sealed verdict 或 `docs/current/README.md`。每轮一条：假说 → 命令 → 结果路径 → 解释 → 下一动作。
 
 **新轮先查[共享结论台账](RESULT_LEDGER.md)。** 最新[首次交换六项实测](../../outputs/admission_capacity/20260913_rotation_first_swap_r01/RESULTS_WESTE_ADDENDUM.md)：C相对A吞吐+0.166%/−0.425%，平均完成−0.032%/+0.644%；C相对持续B吞吐−1.332%/−1.513%，平均完成−1.065%/−0.850%。首次交换减轻了B对早完成请求的拖延，但没有同时保住其吞吐结果。B相对A仍是吞吐+1.518%/+1.105%、平均完成+1.044%/+1.507%的权衡；不作方法GO。原八项与20项结果及各自审计状态保持独立，下文历史“下一动作”只描述当时状态。
 
+**最新八项实测：** 相对主native，持续most_output最大ITL从4.572/4.760秒降至1.520/1.020秒，但吞吐−1.362%/+3.241%、平均完成+5.962%/+1.031%。相对headroom吞吐+3.604%/+5.303%、平均完成−3.730%/−5.003%，每block仍有3条请求变慢。审计WARN，保留描述性权衡，不作方法GO。新定位确认两most完整执行选择/输出相同，wall差0.971142秒主要落在同一恢复调用（0.766318/0.031701秒）；根因未验证，不能删调用或用native A/A校正。
+
+**最新四项重复：** most/native吞吐+4.087%/−1.640%、平均完成+0.258%/+6.310%，最大ITL4.885/4.711→1.065/1.067秒；9/32与32/32请求完成更慢。四次most完整实际执行、决策及输出一致，首次恢复末调用旧0.766318/0.031701、新0.032029/0.032457秒。新most间wall差0.848332秒，最大单调用增量仅占3.24%，不能用旧单次慢调用解释全部差异。全部原始调用及不利结果保留。
+
 **最新成本模型修正：** A/C进入同一末两请求阶段时剩余输出87/99→58/103，双请求调用少29、单请求调用多33，抵消约90–91%的双请求桶时间减少，总引擎调用1257→1261。只看双请求阶段长度或剩余token总和会漏掉落后请求的单独收尾。观察阶段满足T_tail≈r·c2+(s−r)·c1（r≤s，期间无新到达/抢占）；它不是使用事后尾请求身份的在线预测或跨策略Oracle。
 
-**唯一下一项：** 新文档cohort，同预算native/native A/A/completion_headroom/持续most_output四臂×两反向block已封存并STAGED，等待GPU空闲后按[接续命令](../../outputs/admission_capacity/20260913_rotation_strong_baseline_r01/RESUME_COMMAND.sh)执行。新32与旧96的文档/输入hash及源区间互斥，仍为同语料同运行域；主native预先指定，A/A只记录漂移。当前无八项GPU结果，不继续扫描首次交换次数。
+**唯一下一项：** 同资源native APC开/关强基线由接手会话准备，先检查原生历史KV复用对恢复成本与完整请求的影响；本会话不重复实现或提交。当前四项重复到此结束，不追加同配置重复或阈值扫描；特定慢调用若在后续再次出现，再最小区分host/device等待。下文历史下一动作与各轮审计状态分别保留。
 
 最新模型修正见 [KV 诊断 addendum](../../outputs/admission_capacity/20260912_kv_deficit_law_r01/ADDENDUM.md)：早期条件耗尽预测仍成立，但两个 CPU 反例推翻了原诊断的跨策略下界表述。代码已修正，原始报告保留。
 

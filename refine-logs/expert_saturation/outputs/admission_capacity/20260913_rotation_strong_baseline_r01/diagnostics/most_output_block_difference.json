@@ -1,0 +1,1020 @@
+{
+  "status": "MEASUREMENT_ONLY",
+  "question": "Why do the two most_output executions differ in full wall and max-ITL with frozen inputs/config?",
+  "verdict": "EXECUTED_SCHEDULE_ACTION_AND_OUTPUT_MATCH_WITH_QUEUE_TIMING_DIFFERENCES; MAIN_STALL_LOCALIZED_BUT_INTERNAL_CAUSE_UNRESOLVED",
+  "evidence_type": "NATIVE_SERVING_INPROCESS_HOST_CAPTURE",
+  "source_analysis": "analysis02_westc_53036/analysis.json",
+  "source_cells": [
+    "cohort2-block0-most_output",
+    "cohort2-block1-most_output"
+  ],
+  "identity_helper": "experiments/admission_capacity/analyze_completion_headroom.py:held_accounting",
+  "identity_and_trajectory": {
+    "scheduler_including_queue": {
+      "lengths": [
+        1162,
+        1162
+      ],
+      "different_indices": [
+        60,
+        62,
+        64,
+        66,
+        68
+      ],
+      "first_difference": {
+        "waiting_before": [
+          8,
+          7
+        ],
+        "waiting_requests": [
+          7,
+          6
+        ]
+      },
+      "removed_clock_fields": [
+        "start_s",
+        "end_s"
+      ]
+    },
+    "executed_schedule": {
+      "lengths": [
+        1162,
+        1162
+      ],
+      "different_indices": [],
+      "first_difference": null,
+      "removed_clock_fields": [
+        "start_s",
+        "end_s",
+        "waiting_before",
+        "waiting_requests"
+      ]
+    },
+    "decisions": {
+      "lengths": [
+        1162,
+        1162
+      ],
+      "different_indices": [],
+      "first_difference": null,
+      "removed_clock_fields": [
+        "decision_seconds",
+        "wrapped_schedule_seconds"
+      ]
+    },
+    "engine_logical_outputs": {
+      "lengths": [
+        1162,
+        1162
+      ],
+      "different_indices": [],
+      "first_difference": null,
+      "removed_clock_fields": [
+        "start_s",
+        "returned_s"
+      ]
+    },
+    "recovery_paths_equal": true,
+    "output_sequences_equal_count": 32,
+    "config_equal": true,
+    "engine_args_equal": true
+  },
+  "first_queue_difference": {
+    "request_id": "memory-train-article-0016451",
+    "rows": [
+      {
+        "block": 0,
+        "step": 60,
+        "step_start_s": 1.3559755012392998,
+        "arrival_s": 1.35,
+        "admission_s": 1.3556110505014658
+      },
+      {
+        "block": 1,
+        "step": 60,
+        "step_start_s": 1.3499020040035248,
+        "arrival_s": 1.35,
+        "admission_s": 1.374383294954896
+      }
+    ],
+    "interpretation": "At step 60 the 1.35 s arrival is already submitted in block0 but not yet in block1. Only waiting counts differ at steps 60,62,64,66,68; actual scheduled work and decisions remain identical."
+  },
+  "cost_accounting_identity": "wall = scheduler_inclusive + engine_non_schedule + outside_engine_calls; decision_subset belongs to scheduler_inclusive. Work buckets partition engine_non_schedule; tail and individual calls overlap these buckets and must not be added again.",
+  "host_cost": [
+    {
+      "component": "wall_s",
+      "block0": 24.31348698027432,
+      "block1": 23.34234456717968,
+      "block0_minus_block1_s": 0.9711424130946398
+    },
+    {
+      "component": "scheduler_inclusive_s",
+      "block0": 0.880432989448309,
+      "block1": 0.8726519420742989,
+      "block0_minus_block1_s": 0.007781047374010086
+    },
+    {
+      "component": "engine_non_schedule_s",
+      "block0": 22.992490688338876,
+      "block1": 22.05383635684848,
+      "block0_minus_block1_s": 0.9386543314903975
+    },
+    {
+      "component": "outside_engine_calls_s",
+      "block0": 0.44056330248713493,
+      "block1": 0.4158562682569027,
+      "block0_minus_block1_s": 0.02470703423023224
+    },
+    {
+      "component": "decision_subset_s",
+      "block0": 0.08214224688708782,
+      "block1": 0.09037579223513603,
+      "block0_minus_block1_s": -0.00823354534804821
+    }
+  ],
+  "work_cost": [
+    {
+      "component": "new_prefill",
+      "block0": {
+        "calls": 98,
+        "engine_non_schedule_s": 2.2841628044843674,
+        "scheduled_tokens": 99819,
+        "new_prefill_tokens": 98304,
+        "recomputed_tokens": 0,
+        "new_decode_tokens": 1515
+      },
+      "block1": {
+        "calls": 98,
+        "engine_non_schedule_s": 2.2779606748372316,
+        "scheduled_tokens": 99819,
+        "new_prefill_tokens": 98304,
+        "recomputed_tokens": 0,
+        "new_decode_tokens": 1515
+      },
+      "engine_non_schedule_delta_s": 0.0062021296471357346
+    },
+    {
+      "component": "recompute",
+      "block0": {
+        "calls": 49,
+        "engine_non_schedule_s": 2.113163100555539,
+        "scheduled_tokens": 44907,
+        "new_prefill_tokens": 0,
+        "recomputed_tokens": 43471,
+        "new_decode_tokens": 1436
+      },
+      "block1": {
+        "calls": 49,
+        "engine_non_schedule_s": 1.3607027512043715,
+        "scheduled_tokens": 44907,
+        "new_prefill_tokens": 0,
+        "recomputed_tokens": 43471,
+        "new_decode_tokens": 1436
+      },
+      "engine_non_schedule_delta_s": 0.7524603493511677
+    },
+    {
+      "component": "pure_new_decode",
+      "block0": {
+        "calls": 1015,
+        "engine_non_schedule_s": 18.59516478329897,
+        "scheduled_tokens": 29785,
+        "new_prefill_tokens": 0,
+        "recomputed_tokens": 0,
+        "new_decode_tokens": 29785
+      },
+      "block1": {
+        "calls": 1015,
+        "engine_non_schedule_s": 18.415172930806875,
+        "scheduled_tokens": 29785,
+        "new_prefill_tokens": 0,
+        "recomputed_tokens": 0,
+        "new_decode_tokens": 29785
+      },
+      "engine_non_schedule_delta_s": 0.17999185249209404
+    },
+    {
+      "component": "empty",
+      "block0": {
+        "calls": 0,
+        "engine_non_schedule_s": 0,
+        "scheduled_tokens": 0,
+        "new_prefill_tokens": 0,
+        "recomputed_tokens": 0,
+        "new_decode_tokens": 0
+      },
+      "block1": {
+        "calls": 0,
+        "engine_non_schedule_s": 0,
+        "scheduled_tokens": 0,
+        "new_prefill_tokens": 0,
+        "recomputed_tokens": 0,
+        "new_decode_tokens": 0
+      },
+      "engine_non_schedule_delta_s": 0
+    }
+  ],
+  "common_work_totals": {
+    "scheduled_tokens": 174511,
+    "recomputed_tokens": 43471,
+    "new_prefill_tokens": 98304,
+    "new_decode_tokens": 32736
+  },
+  "common_action_counts": {
+    "forced_count": 9,
+    "natural_count": 2
+  },
+  "held_request_steps": [
+    0,
+    0
+  ],
+  "width_count_sequence_equal": true,
+  "localized_calls": [
+    {
+      "step": 839,
+      "rows": [
+        {
+          "block": 0,
+          "start_s": 17.53139510937035,
+          "returned_s": 18.2977130189538,
+          "engine_s": 0.7663179095834494,
+          "scheduler_s": 0.0009459909051656723,
+          "decision_subset_s": 2.687983214855194e-05,
+          "wall_start": "2026-09-13T23:36:46.202789+08:00",
+          "wall_returned": "2026-09-13T23:36:46.969106+08:00",
+          "scheduled_width": 31,
+          "scheduled_tokens": 829,
+          "recompute_tokens": 798,
+          "new_decode_tokens": 31,
+          "prefill_tokens": 0
+        },
+        {
+          "block": 1,
+          "start_s": 17.458292558789253,
+          "returned_s": 17.48999321088195,
+          "engine_s": 0.031700652092695236,
+          "scheduler_s": 0.0006811395287513733,
+          "decision_subset_s": 2.4026259779930115e-05,
+          "wall_start": "2026-09-14T00:02:59.691163+08:00",
+          "wall_returned": "2026-09-14T00:02:59.722864+08:00",
+          "scheduled_width": 31,
+          "scheduled_tokens": 829,
+          "recompute_tokens": 798,
+          "new_decode_tokens": 31,
+          "prefill_tokens": 0
+        }
+      ],
+      "engine_delta_s": 0.7346172574907541,
+      "scheduler_delta_s": 0.000264851376414299,
+      "engine_non_schedule_delta_s": 0.7343524061143398
+    },
+    {
+      "step": 1140,
+      "rows": [
+        {
+          "block": 0,
+          "start_s": 24.079657008871436,
+          "returned_s": 24.197137275710702,
+          "engine_s": 0.11748026683926582,
+          "scheduler_s": 0.00016392581164836884,
+          "decision_subset_s": 2.800673246383667e-05,
+          "wall_start": "2026-09-13T23:36:52.751050+08:00",
+          "wall_returned": "2026-09-13T23:36:52.868531+08:00",
+          "scheduled_width": 3,
+          "scheduled_tokens": 3,
+          "recompute_tokens": 0,
+          "new_decode_tokens": 3,
+          "prefill_tokens": 0
+        },
+        {
+          "block": 1,
+          "start_s": 23.213867139071226,
+          "returned_s": 23.221229745075107,
+          "engine_s": 0.007362606003880501,
+          "scheduler_s": 0.0001789182424545288,
+          "decision_subset_s": 2.7680769562721252e-05,
+          "wall_start": "2026-09-14T00:03:05.446738+08:00",
+          "wall_returned": "2026-09-14T00:03:05.454100+08:00",
+          "scheduled_width": 3,
+          "scheduled_tokens": 3,
+          "recompute_tokens": 0,
+          "new_decode_tokens": 3,
+          "prefill_tokens": 0
+        }
+      ],
+      "engine_delta_s": 0.11011766083538532,
+      "scheduler_delta_s": -1.4992430806159973e-05,
+      "engine_non_schedule_delta_s": 0.11013265326619148
+    }
+  ],
+  "first_forced_recovery": {
+    "first_forced_step": 836,
+    "resume_request": "memory-train-article-0017069",
+    "victim_request": "memory-train-article-0012128",
+    "recovery_steps": [
+      836,
+      837,
+      838,
+      839
+    ],
+    "recompute_tokens": 3780,
+    "same_recovery_by_block": [
+      {
+        "request_id": "memory-train-article-0017069",
+        "kind": "natural",
+        "preempt_step": 806,
+        "outputs_before": 709,
+        "last_token_step": 805,
+        "last_token_s": 16.777858931571245,
+        "first_schedule_step": 836,
+        "first_schedule_s": 17.441162711009383,
+        "first_new_token_step": 839,
+        "first_new_token_s": 18.2977130189538,
+        "gap_s": 1.519854087382555,
+        "boundary_s": 0.000523613765835762,
+        "wait_before_recovery_s": 0.6627801656723022,
+        "recovery_span_s": 0.856550307944417,
+        "recomputed_positions": 3780
+      },
+      {
+        "request_id": "memory-train-article-0017069",
+        "kind": "natural",
+        "preempt_step": 806,
+        "outputs_before": 709,
+        "last_token_step": 805,
+        "last_token_s": 16.708612486720085,
+        "first_schedule_step": 836,
+        "first_schedule_s": 17.368825647979975,
+        "first_new_token_step": 839,
+        "first_new_token_s": 17.48999321088195,
+        "gap_s": 0.7813807241618633,
+        "boundary_s": 0.00049627386033535,
+        "wait_before_recovery_s": 0.6597168873995543,
+        "recovery_span_s": 0.12116756290197372,
+        "recomputed_positions": 3780
+      }
+    ]
+  },
+  "longest_itl_by_block": [
+    {
+      "block": 0,
+      "max_itl_s": 1.519854087382555,
+      "recovery": {
+        "request_id": "memory-train-article-0017069",
+        "kind": "natural",
+        "preempt_step": 806,
+        "outputs_before": 709,
+        "last_token_step": 805,
+        "last_token_s": 16.777858931571245,
+        "first_schedule_step": 836,
+        "first_schedule_s": 17.441162711009383,
+        "first_new_token_step": 839,
+        "first_new_token_s": 18.2977130189538,
+        "gap_s": 1.519854087382555,
+        "boundary_s": 0.000523613765835762,
+        "wait_before_recovery_s": 0.6627801656723022,
+        "recovery_span_s": 0.856550307944417,
+        "recomputed_positions": 3780
+      }
+    },
+    {
+      "block": 1,
+      "max_itl_s": 1.020475821569562,
+      "recovery": {
+        "request_id": "memory-train-article-0015839",
+        "kind": "forced",
+        "preempt_step": 996,
+        "outputs_before": 921,
+        "last_token_step": 995,
+        "last_token_s": 20.797161929309368,
+        "first_schedule_step": 1036,
+        "first_schedule_s": 21.67889079079032,
+        "first_new_token_step": 1040,
+        "first_new_token_s": 21.81763775087893,
+        "gap_s": 1.020475821569562,
+        "boundary_s": 0.0005467217415571213,
+        "wait_before_recovery_s": 0.8811821397393942,
+        "recovery_span_s": 0.13874696008861065,
+        "recomputed_positions": 3992
+      }
+    }
+  ],
+  "single_request_completion_tail": [
+    {
+      "block": 0,
+      "last_request": "memory-train-article-0017069",
+      "second_last_request": "memory-train-article-0016821",
+      "start_s": 24.25924631394446,
+      "end_s": 24.311160136014223,
+      "wall_span_s": 0.05191382206976414,
+      "steps": [
+        1151,
+        1152,
+        1153,
+        1154,
+        1155,
+        1156,
+        1157,
+        1158,
+        1159,
+        1160,
+        1161
+      ],
+      "engine_s": 0.05151849612593651,
+      "scheduler_s": 0.0012723486870527267,
+      "all_width1_calls": {
+        "calls": 14,
+        "engine_s": 0.11832106485962868
+      }
+    },
+    {
+      "block": 1,
+      "last_request": "memory-train-article-0017069",
+      "second_last_request": "memory-train-article-0016821",
+      "start_s": 23.28262996673584,
+      "end_s": 23.33490612357855,
+      "wall_span_s": 0.05227615684270859,
+      "steps": [
+        1151,
+        1152,
+        1153,
+        1154,
+        1155,
+        1156,
+        1157,
+        1158,
+        1159,
+        1160,
+        1161
+      ],
+      "engine_s": 0.0518312081694603,
+      "scheduler_s": 0.0013304688036441803,
+      "all_width1_calls": {
+        "calls": 14,
+        "engine_s": 0.11806461587548256
+      }
+    }
+  ],
+  "log_timing": {
+    "timezone": "+08:00 inferred consistently from launcher/log wall time; timestamps are second resolution",
+    "mapping": "epoch_origin = native_metrics.arrival_time - arrival_s; wall endpoint = epoch_origin + host relative perf_counter endpoint; adjacent clock-read skew is not recorded",
+    "cells": [
+      {
+        "block": 0,
+        "label": "cohort2-block0-most_output",
+        "measured_epoch_origin_unix_s": 1789313788.6713934,
+        "measured_start_local": "2026-09-13T23:36:28.671393+08:00",
+        "measured_end_local": "2026-09-13T23:36:52.984880+08:00",
+        "warmups": [
+          {
+            "episode": "warmup-0",
+            "epoch_origin_unix_s": 1789313787.4520988,
+            "end_unix_s": 1789313787.8817267,
+            "start_local": "2026-09-13T23:36:27.452099+08:00",
+            "end_local": "2026-09-13T23:36:27.881727+08:00"
+          },
+          {
+            "episode": "warmup-1",
+            "epoch_origin_unix_s": 1789313787.9167502,
+            "end_unix_s": 1789313788.1663911,
+            "start_local": "2026-09-13T23:36:27.916750+08:00",
+            "end_local": "2026-09-13T23:36:28.166391+08:00"
+          },
+          {
+            "episode": "warmup-2",
+            "epoch_origin_unix_s": 1789313788.1973934,
+            "end_unix_s": 1789313788.4031012,
+            "start_local": "2026-09-13T23:36:28.197393+08:00",
+            "end_local": "2026-09-13T23:36:28.403101+08:00"
+          }
+        ],
+        "notices": [
+          {
+            "stream": "stdout",
+            "line": 1,
+            "text": "INFO 09-13 23:36:04 [arg_utils.py:779] HF_HUB_OFFLINE is True, replace model_id [allenai/OLMoE-1B-7B-0924] to model_path [/root/autodl-tmp/hf-cache/hub/models--allenai--OLMoE-1B-7B-0924/snapshots/6d84c48581ece794365f2b8e9cfb043c68ade9c5]",
+            "wall_second_unix_s": [
+              1789313764.0,
+              1789313765.0
+            ],
+            "overlaps_measured_second": false
+          },
+          {
+            "stream": "stdout",
+            "line": 12,
+            "text": "INFO 09-13 23:36:06 [gpu_model_runner.py:5250] Starting to load model /root/autodl-tmp/hf-cache/hub/models--allenai--OLMoE-1B-7B-0924/snapshots/6d84c48581ece794365f2b8e9cfb043c68ade9c5...",
+            "wall_second_unix_s": [
+              1789313766.0,
+              1789313767.0
+            ],
+            "overlaps_measured_second": false
+          },
+          {
+            "stream": "stdout",
+            "line": 22,
+            "text": "INFO 09-13 23:36:14 [backends.py:1094] Using cache directory: /root/.cache/vllm/torch_compile_cache/49120a40c9/rank_0_0/backbone for vLLM's torch.compile",
+            "wall_second_unix_s": [
+              1789313774.0,
+              1789313775.0
+            ],
+            "overlaps_measured_second": false
+          },
+          {
+            "stream": "stdout",
+            "line": 24,
+            "text": "INFO 09-13 23:36:14 [backends.py:292] Directly load the compiled graph(s) for compile range (1, 1024) from the cache, took 0.538 s",
+            "wall_second_unix_s": [
+              1789313774.0,
+              1789313775.0
+            ],
+            "overlaps_measured_second": false
+          },
+          {
+            "stream": "stdout",
+            "line": 25,
+            "text": "INFO 09-13 23:36:14 [decorators.py:311] Directly load AOT compilation from path /root/.cache/vllm/torch_compile_cache/torch_aot_compile/60886276083721536e9ade50e53121c6efd958ee59fc36ccfc01856bbdcad128/rank_0_0/model",
+            "wall_second_unix_s": [
+              1789313774.0,
+              1789313775.0
+            ],
+            "overlaps_measured_second": false
+          },
+          {
+            "stream": "stdout",
+            "line": 26,
+            "text": "INFO 09-13 23:36:14 [monitor.py:53] torch.compile took 1.99 s in total",
+            "wall_second_unix_s": [
+              1789313774.0,
+              1789313775.0
+            ],
+            "overlaps_measured_second": false
+          },
+          {
+            "stream": "stdout",
+            "line": 28,
+            "text": "INFO 09-13 23:36:15 [monitor.py:81] Initial profiling/warmup run took 0.28 s",
+            "wall_second_unix_s": [
+              1789313775.0,
+              1789313776.0
+            ],
+            "overlaps_measured_second": false
+          },
+          {
+            "stream": "stdout",
+            "line": 29,
+            "text": "INFO 09-13 23:36:15 [gpu_worker.py:479] Initial free memory 30.86 GiB, reserved 14.98 GiB memory for KV Cache as specified by kv_cache_memory_bytes config and skipped memory profiling. This does not respect the gpu_memory_utilization config. Only use kv_cache_memory_bytes config when you want manual control of KV cache memory size. If OOM'ed, check the difference of initial free memory between the current run and the previous run where kv_cache_memory_bytes is suggested and update it correspondingly.",
+            "wall_second_unix_s": [
+              1789313775.0,
+              1789313776.0
+            ],
+            "overlaps_measured_second": false
+          },
+          {
+            "stream": "stdout",
+            "line": 30,
+            "text": "INFO 09-13 23:36:15 [kv_cache_utils.py:2177] GPU KV cache size: 122,752 tokens",
+            "wall_second_unix_s": [
+              1789313775.0,
+              1789313776.0
+            ],
+            "overlaps_measured_second": false
+          },
+          {
+            "stream": "stdout",
+            "line": 31,
+            "text": "INFO 09-13 23:36:15 [kv_cache_utils.py:2178] Maximum concurrency for 4,096 tokens per request: 29.97x",
+            "wall_second_unix_s": [
+              1789313775.0,
+              1789313776.0
+            ],
+            "overlaps_measured_second": false
+          },
+          {
+            "stream": "stdout",
+            "line": 32,
+            "text": "INFO 09-13 23:36:15 [kernel_warmup.py:65] Warming up ll_bf16 router GEMM kernels.",
+            "wall_second_unix_s": [
+              1789313775.0,
+              1789313776.0
+            ],
+            "overlaps_measured_second": false
+          },
+          {
+            "stream": "stdout",
+            "line": 33,
+            "text": "INFO 09-13 23:36:25 [cutedsl_warmup.py:101] Skipping CuTeDSL warmup because no compile units were requested.",
+            "wall_second_unix_s": [
+              1789313785.0,
+              1789313786.0
+            ],
+            "overlaps_measured_second": false
+          },
+          {
+            "stream": "stdout",
+            "line": 35,
+            "text": "INFO 09-13 23:36:26 [gpu_model_runner.py:6844] Graph capturing finished in 1 secs, took 0.05 GiB",
+            "wall_second_unix_s": [
+              1789313786.0,
+              1789313787.0
+            ],
+            "overlaps_measured_second": false
+          },
+          {
+            "stream": "stdout",
+            "line": 36,
+            "text": "INFO 09-13 23:36:27 [jit_monitor.py:79] Kernel JIT monitor activated; monitored JIT compilations during inference will use mode=warn.",
+            "wall_second_unix_s": [
+              1789313787.0,
+              1789313788.0
+            ],
+            "overlaps_measured_second": false
+          },
+          {
+            "stream": "stdout",
+            "line": 37,
+            "text": "INFO 09-13 23:36:27 [core.py:340] init engine (profile, create kv cache, warmup model) took 14.57 s (compilation: 1.99 s)",
+            "wall_second_unix_s": [
+              1789313787.0,
+              1789313788.0
+            ],
+            "overlaps_measured_second": false
+          },
+          {
+            "stream": "stdout",
+            "line": 39,
+            "text": "WARNING 09-13 23:36:27 [jit_monitor.py:135] Triton kernel JIT compilation during inference: fused_moe_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.",
+            "wall_second_unix_s": [
+              1789313787.0,
+              1789313788.0
+            ],
+            "overlaps_measured_second": false
+          },
+          {
+            "stream": "stdout",
+            "line": 40,
+            "text": "INFO 09-13 23:36:37 [loggers.py:310] Engine 000: Avg prompt throughput: 11134.3 tokens/s, Avg generation throughput: 1304.3 tokens/s, Running: 32 reqs, Waiting: 0 reqs, GPU KV cache usage: 90.2%, Prefix cache hit rate: 0.0%",
+            "wall_second_unix_s": [
+              1789313797.0,
+              1789313798.0
+            ],
+            "overlaps_measured_second": true
+          },
+          {
+            "stream": "stdout",
+            "line": 41,
+            "text": "INFO 09-13 23:36:47 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 1398.0 tokens/s, Running: 31 reqs, Waiting: 1 reqs, GPU KV cache usage: 97.6%, Prefix cache hit rate: 0.0%",
+            "wall_second_unix_s": [
+              1789313807.0,
+              1789313808.0
+            ],
+            "overlaps_measured_second": true
+          }
+        ],
+        "measured_compile_jit_tactic_notices": []
+      },
+      {
+        "block": 1,
+        "label": "cohort2-block1-most_output",
+        "measured_epoch_origin_unix_s": 1789315362.2328706,
+        "measured_start_local": "2026-09-14T00:02:42.232871+08:00",
+        "measured_end_local": "2026-09-14T00:03:05.575215+08:00",
+        "warmups": [
+          {
+            "episode": "warmup-0",
+            "epoch_origin_unix_s": 1789315361.042221,
+            "end_unix_s": 1789315361.4763832,
+            "start_local": "2026-09-14T00:02:41.042221+08:00",
+            "end_local": "2026-09-14T00:02:41.476383+08:00"
+          },
+          {
+            "episode": "warmup-1",
+            "epoch_origin_unix_s": 1789315361.5112245,
+            "end_unix_s": 1789315361.7592854,
+            "start_local": "2026-09-14T00:02:41.511225+08:00",
+            "end_local": "2026-09-14T00:02:41.759285+08:00"
+          },
+          {
+            "episode": "warmup-2",
+            "epoch_origin_unix_s": 1789315361.7901196,
+            "end_unix_s": 1789315361.9956677,
+            "start_local": "2026-09-14T00:02:41.790120+08:00",
+            "end_local": "2026-09-14T00:02:41.995668+08:00"
+          }
+        ],
+        "notices": [
+          {
+            "stream": "stdout",
+            "line": 1,
+            "text": "INFO 09-14 00:02:18 [arg_utils.py:779] HF_HUB_OFFLINE is True, replace model_id [allenai/OLMoE-1B-7B-0924] to model_path [/root/autodl-tmp/hf-cache/hub/models--allenai--OLMoE-1B-7B-0924/snapshots/6d84c48581ece794365f2b8e9cfb043c68ade9c5]",
+            "wall_second_unix_s": [
+              1789315338.0,
+              1789315339.0
+            ],
+            "overlaps_measured_second": false
+          },
+          {
+            "stream": "stdout",
+            "line": 12,
+            "text": "INFO 09-14 00:02:21 [gpu_model_runner.py:5250] Starting to load model /root/autodl-tmp/hf-cache/hub/models--allenai--OLMoE-1B-7B-0924/snapshots/6d84c48581ece794365f2b8e9cfb043c68ade9c5...",
+            "wall_second_unix_s": [
+              1789315341.0,
+              1789315342.0
+            ],
+            "overlaps_measured_second": false
+          },
+          {
+            "stream": "stdout",
+            "line": 22,
+            "text": "INFO 09-14 00:02:27 [backends.py:1094] Using cache directory: /root/.cache/vllm/torch_compile_cache/49120a40c9/rank_0_0/backbone for vLLM's torch.compile",
+            "wall_second_unix_s": [
+              1789315347.0,
+              1789315348.0
+            ],
+            "overlaps_measured_second": false
+          },
+          {
+            "stream": "stdout",
+            "line": 24,
+            "text": "INFO 09-14 00:02:28 [backends.py:292] Directly load the compiled graph(s) for compile range (1, 1024) from the cache, took 0.509 s",
+            "wall_second_unix_s": [
+              1789315348.0,
+              1789315349.0
+            ],
+            "overlaps_measured_second": false
+          },
+          {
+            "stream": "stdout",
+            "line": 25,
+            "text": "INFO 09-14 00:02:28 [decorators.py:311] Directly load AOT compilation from path /root/.cache/vllm/torch_compile_cache/torch_aot_compile/60886276083721536e9ade50e53121c6efd958ee59fc36ccfc01856bbdcad128/rank_0_0/model",
+            "wall_second_unix_s": [
+              1789315348.0,
+              1789315349.0
+            ],
+            "overlaps_measured_second": false
+          },
+          {
+            "stream": "stdout",
+            "line": 26,
+            "text": "INFO 09-14 00:02:28 [monitor.py:53] torch.compile took 1.93 s in total",
+            "wall_second_unix_s": [
+              1789315348.0,
+              1789315349.0
+            ],
+            "overlaps_measured_second": false
+          },
+          {
+            "stream": "stdout",
+            "line": 28,
+            "text": "INFO 09-14 00:02:28 [monitor.py:81] Initial profiling/warmup run took 0.26 s",
+            "wall_second_unix_s": [
+              1789315348.0,
+              1789315349.0
+            ],
+            "overlaps_measured_second": false
+          },
+          {
+            "stream": "stdout",
+            "line": 29,
+            "text": "INFO 09-14 00:02:29 [gpu_worker.py:479] Initial free memory 30.86 GiB, reserved 14.98 GiB memory for KV Cache as specified by kv_cache_memory_bytes config and skipped memory profiling. This does not respect the gpu_memory_utilization config. Only use kv_cache_memory_bytes config when you want manual control of KV cache memory size. If OOM'ed, check the difference of initial free memory between the current run and the previous run where kv_cache_memory_bytes is suggested and update it correspondingly.",
+            "wall_second_unix_s": [
+              1789315349.0,
+              1789315350.0
+            ],
+            "overlaps_measured_second": false
+          },
+          {
+            "stream": "stdout",
+            "line": 30,
+            "text": "INFO 09-14 00:02:29 [kv_cache_utils.py:2177] GPU KV cache size: 122,752 tokens",
+            "wall_second_unix_s": [
+              1789315349.0,
+              1789315350.0
+            ],
+            "overlaps_measured_second": false
+          },
+          {
+            "stream": "stdout",
+            "line": 31,
+            "text": "INFO 09-14 00:02:29 [kv_cache_utils.py:2178] Maximum concurrency for 4,096 tokens per request: 29.97x",
+            "wall_second_unix_s": [
+              1789315349.0,
+              1789315350.0
+            ],
+            "overlaps_measured_second": false
+          },
+          {
+            "stream": "stdout",
+            "line": 32,
+            "text": "INFO 09-14 00:02:29 [kernel_warmup.py:65] Warming up ll_bf16 router GEMM kernels.",
+            "wall_second_unix_s": [
+              1789315349.0,
+              1789315350.0
+            ],
+            "overlaps_measured_second": false
+          },
+          {
+            "stream": "stdout",
+            "line": 33,
+            "text": "INFO 09-14 00:02:38 [cutedsl_warmup.py:101] Skipping CuTeDSL warmup because no compile units were requested.",
+            "wall_second_unix_s": [
+              1789315358.0,
+              1789315359.0
+            ],
+            "overlaps_measured_second": false
+          },
+          {
+            "stream": "stdout",
+            "line": 35,
+            "text": "INFO 09-14 00:02:40 [gpu_model_runner.py:6844] Graph capturing finished in 2 secs, took 0.05 GiB",
+            "wall_second_unix_s": [
+              1789315360.0,
+              1789315361.0
+            ],
+            "overlaps_measured_second": false
+          },
+          {
+            "stream": "stdout",
+            "line": 36,
+            "text": "INFO 09-14 00:02:40 [jit_monitor.py:79] Kernel JIT monitor activated; monitored JIT compilations during inference will use mode=warn.",
+            "wall_second_unix_s": [
+              1789315360.0,
+              1789315361.0
+            ],
+            "overlaps_measured_second": false
+          },
+          {
+            "stream": "stdout",
+            "line": 37,
+            "text": "INFO 09-14 00:02:41 [core.py:340] init engine (profile, create kv cache, warmup model) took 14.46 s (compilation: 1.93 s)",
+            "wall_second_unix_s": [
+              1789315361.0,
+              1789315362.0
+            ],
+            "overlaps_measured_second": false
+          },
+          {
+            "stream": "stdout",
+            "line": 39,
+            "text": "WARNING 09-14 00:02:41 [jit_monitor.py:135] Triton kernel JIT compilation during inference: fused_moe_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.",
+            "wall_second_unix_s": [
+              1789315361.0,
+              1789315362.0
+            ],
+            "overlaps_measured_second": false
+          },
+          {
+            "stream": "stdout",
+            "line": 40,
+            "text": "INFO 09-14 00:02:51 [loggers.py:310] Engine 000: Avg prompt throughput: 11138.0 tokens/s, Avg generation throughput: 1311.1 tokens/s, Running: 32 reqs, Waiting: 0 reqs, GPU KV cache usage: 90.2%, Prefix cache hit rate: 0.0%",
+            "wall_second_unix_s": [
+              1789315371.0,
+              1789315372.0
+            ],
+            "overlaps_measured_second": true
+          },
+          {
+            "stream": "stdout",
+            "line": 41,
+            "text": "INFO 09-14 00:03:01 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 1514.8 tokens/s, Running: 31 reqs, Waiting: 1 reqs, GPU KV cache usage: 99.3%, Prefix cache hit rate: 0.0%",
+            "wall_second_unix_s": [
+              1789315381.0,
+              1789315382.0
+            ],
+            "overlaps_measured_second": true
+          }
+        ],
+        "measured_compile_jit_tactic_notices": []
+      }
+    ],
+    "conclusion": "The explicit fused_moe_kernel JIT warning in each process precedes measured capture. No measured compile/JIT/tactic notice directly identifies step 839. Log silence cannot exclude an unreported or suppressed first-use compilation/cache event. Cold action-shape cost and other internal engine stalls remain unseparated."
+  },
+  "claim_ceiling": "Host-recorded executed request work, decisions and output trajectory match; route, kernel-dispatch identity and pure GPU tax were not measured. No future-action replay, anomaly subtraction, corrected wall, canonical replacement, or performance-validity change.",
+  "one_next_smallest_experiment": "One additional controlled four-engine group with the same frozen cohort2/runtime/common warmups: native -> most_output, then most_output -> native. Start only after the queued F/X and A-review work and keep the group uninterrupted. Preserve caches, every slow call, all outputs and canonical metrics. Align the candidate stall by the final call of the first successful forced recovery; use step 839 only when the executed trajectory matches. Observe whether that call recurs and whether the native-relative throughput direction repeats. This repeat is not guaranteed to identify the internal stall cause; direct compile/cache or CPU/GPU phase evidence would still be needed to name JIT.",
+  "input_fingerprints": [
+    {
+      "path": "/Users/leandrozhao/Desktop/、++++++++/refine-logs/expert_saturation/outputs/admission_capacity/20260913_rotation_strong_baseline_r01/analysis02_westc_53036/analysis.json",
+      "sha256": "7127622628680964b13241d159b67ed7f242666d9183d9d53a00b5877d2fa7f0"
+    },
+    {
+      "path": "/Users/leandrozhao/Desktop/、++++++++/refine-logs/expert_saturation/outputs/admission_capacity/20260913_rotation_strong_baseline_r01/execution02_westc_53036/frozen/run_probe.py",
+      "sha256": "121c3d37c9874c61c01890003dce0e3b797da48c87e364f754a9c03816c0509b"
+    },
+    {
+      "path": "/Users/leandrozhao/Desktop/、++++++++/refine-logs/expert_saturation/outputs/admission_capacity/20260913_rotation_strong_baseline_r01/execution02_westc_53036/frozen/native_capture.py",
+      "sha256": "9b0b825992d9417b58947e744a16fdf033117f24c2e116cb394210238edd5952"
+    },
+    {
+      "path": "/Users/leandrozhao/Desktop/、++++++++/refine-logs/expert_saturation/experiments/admission_capacity/analyze_completion_headroom.py",
+      "sha256": "e23a33d1641b725bee12390f20c7d29220bd5f48f73c9888138b21a7a453126e"
+    },
+    {
+      "path": "/Users/leandrozhao/Desktop/、++++++++/refine-logs/expert_saturation/experiments/admission_capacity/analyze_pause_ledger.py",
+      "sha256": "2511d71004007320766a14ec5463f730b8fa4b572ea79955b528525cc4a3a7e2"
+    },
+    {
+      "path": "/Users/leandrozhao/Desktop/、++++++++/refine-logs/expert_saturation/outputs/admission_capacity/20260913_rotation_strong_baseline_r01/diagnostics/most_output_block_difference.py",
+      "sha256": "ff74420502b42a92661b98074f843e10a7ee8cb8f84e3c8317a4ee4504d8c316"
+    },
+    {
+      "path": "/Users/leandrozhao/Desktop/、++++++++/refine-logs/expert_saturation/outputs/admission_capacity/20260913_rotation_strong_baseline_r01/execution02_westc_53036/gpu_results/cohort2-block0-most_output/raw.json",
+      "sha256": "c41366a65f0abb26f155c5a716b8a1abfca36bb803ccbc61671cb482a7c7adee"
+    },
+    {
+      "path": "/Users/leandrozhao/Desktop/、++++++++/refine-logs/expert_saturation/outputs/admission_capacity/20260913_rotation_strong_baseline_r01/execution02_westc_53036/gpu_results/cohort2-block0-most_output/headroom-decisions.json",
+      "sha256": "672b9f9ea5d3e58b059d5b371671b811c409ed81dddb5bd205a7840f8b976a72"
+    },
+    {
+      "path": "/Users/leandrozhao/Desktop/、++++++++/refine-logs/expert_saturation/outputs/admission_capacity/20260913_rotation_strong_baseline_r01/execution02_westc_53036/gpu_results/cohort2-block0-most_output/config.json",
+      "sha256": "63505317bdf1b6ecf0f7a9ea3f1afe41b90754d9f42798b11857e44eae4a0b49"
+    },
+    {
+      "path": "/Users/leandrozhao/Desktop/、++++++++/refine-logs/expert_saturation/outputs/admission_capacity/20260913_rotation_strong_baseline_r01/execution02_westc_53036/gpu_results/cohort2-block0-most_output/engine_args.json",
+      "sha256": "d1ea9d74bde50c1cdcc127c5b5e5729315d9288d0cad6adcf9998a1e4937e593"
+    },
+    {
+      "path": "/Users/leandrozhao/Desktop/、++++++++/refine-logs/expert_saturation/outputs/admission_capacity/20260913_rotation_strong_baseline_r01/execution02_westc_53036/gpu_results/cohort2-block0-most_output/warmup-0.json",
+      "sha256": "2ff42e22c230b4b09b5cde7ebf0971a4709a7d80a6459f6529f25ad72a5ca784"
+    },
+    {
+      "path": "/Users/leandrozhao/Desktop/、++++++++/refine-logs/expert_saturation/outputs/admission_capacity/20260913_rotation_strong_baseline_r01/execution02_westc_53036/gpu_results/cohort2-block0-most_output/warmup-1.json",
+      "sha256": "f056031e9a83737ffd019970e2662c1325781d911f7e9568d537be0372b34bdd"
+    },
+    {
+      "path": "/Users/leandrozhao/Desktop/、++++++++/refine-logs/expert_saturation/outputs/admission_capacity/20260913_rotation_strong_baseline_r01/execution02_westc_53036/gpu_results/cohort2-block0-most_output/warmup-2.json",
+      "sha256": "037a1de6f1b4895edaaaa56e2e9d7af89851abebe0bbed9a0c7c293cb028ce24"
+    },
+    {
+      "path": "/Users/leandrozhao/Desktop/、++++++++/refine-logs/expert_saturation/outputs/admission_capacity/20260913_rotation_strong_baseline_r01/execution02_westc_53036/gpu_results/cohort2-block0-most_output.stdout.log",
+      "sha256": "60ecdad0834135875531010c2af420056b4cd43467330d1e068ebef1878fc5f9"
+    },
+    {
+      "path": "/Users/leandrozhao/Desktop/、++++++++/refine-logs/expert_saturation/outputs/admission_capacity/20260913_rotation_strong_baseline_r01/execution02_westc_53036/gpu_results/cohort2-block0-most_output.stderr.log",
+      "sha256": "9dc6e5170c7e0e35aa38d4b3993374b8359e0d052cdde43b5cb1561adc4e2c1a"
+    },
+    {
+      "path": "/Users/leandrozhao/Desktop/、++++++++/refine-logs/expert_saturation/outputs/admission_capacity/20260913_rotation_strong_baseline_r01/execution02_westc_53036/gpu_results/cohort2-block1-most_output/raw.json",
+      "sha256": "ea2818682b70102a6490fcd2ac252c4d6c229d21a09933d12eaae45cdac01f50"
+    },
+    {
+      "path": "/Users/leandrozhao/Desktop/、++++++++/refine-logs/expert_saturation/outputs/admission_capacity/20260913_rotation_strong_baseline_r01/execution02_westc_53036/gpu_results/cohort2-block1-most_output/headroom-decisions.json",
+      "sha256": "30a875ba89e5e0240a84da4a43ef7f7247b33641bc98e40991f0c76ef9a6a087"
+    },
+    {
+      "path": "/Users/leandrozhao/Desktop/、++++++++/refine-logs/expert_saturation/outputs/admission_capacity/20260913_rotation_strong_baseline_r01/execution02_westc_53036/gpu_results/cohort2-block1-most_output/config.json",
+      "sha256": "63505317bdf1b6ecf0f7a9ea3f1afe41b90754d9f42798b11857e44eae4a0b49"
+    },
+    {
+      "path": "/Users/leandrozhao/Desktop/、++++++++/refine-logs/expert_saturation/outputs/admission_capacity/20260913_rotation_strong_baseline_r01/execution02_westc_53036/gpu_results/cohort2-block1-most_output/engine_args.json",
+      "sha256": "d1ea9d74bde50c1cdcc127c5b5e5729315d9288d0cad6adcf9998a1e4937e593"
+    },
+    {
+      "path": "/Users/leandrozhao/Desktop/、++++++++/refine-logs/expert_saturation/outputs/admission_capacity/20260913_rotation_strong_baseline_r01/execution02_westc_53036/gpu_results/cohort2-block1-most_output/warmup-0.json",
+      "sha256": "a7a725350a021cd0cf215119047250f3f8189011ea47be5b46dc03e3a5da6266"
+    },
+    {
+      "path": "/Users/leandrozhao/Desktop/、++++++++/refine-logs/expert_saturation/outputs/admission_capacity/20260913_rotation_strong_baseline_r01/execution02_westc_53036/gpu_results/cohort2-block1-most_output/warmup-1.json",
+      "sha256": "b134af4c692def68ba54c202c86f835e98cb9a67f328ce8507a0a48a0c9e1fba"
+    },
+    {
+      "path": "/Users/leandrozhao/Desktop/、++++++++/refine-logs/expert_saturation/outputs/admission_capacity/20260913_rotation_strong_baseline_r01/execution02_westc_53036/gpu_results/cohort2-block1-most_output/warmup-2.json",
+      "sha256": "8960098b9be4b5b69ac5254aa2287027f40def192bb3942b12951fa88461de5e"
+    },
+    {
+      "path": "/Users/leandrozhao/Desktop/、++++++++/refine-logs/expert_saturation/outputs/admission_capacity/20260913_rotation_strong_baseline_r01/execution02_westc_53036/gpu_results/cohort2-block1-most_output.stdout.log",
+      "sha256": "9542bf4e53519931377d328ea739068689f285b46c34ed20e9c70782e4bba6ab"
+    },
+    {
+      "path": "/Users/leandrozhao/Desktop/、++++++++/refine-logs/expert_saturation/outputs/admission_capacity/20260913_rotation_strong_baseline_r01/execution02_westc_53036/gpu_results/cohort2-block1-most_output.stderr.log",
+      "sha256": "fcd4880470520eb7e81f9d13eb1eb712448406c44621beec7ccc564acc39ed19"
+    }
+  ],
+  "reproduce_core_diagnostic": {
+    "command_argv": [
+      "/Users/leandrozhao/.brew/opt/python@3.14/bin/python3.14",
+      "refine-logs/expert_saturation/outputs/admission_capacity/20260913_rotation_strong_baseline_r01/diagnostics/most_output_block_difference.py",
+      "--run-dir",
+      "refine-logs/expert_saturation/outputs/admission_capacity/20260913_rotation_strong_baseline_r01/execution02_westc_53036",
+      "--labels",
+      "cohort2-block0-most_output",
+      "cohort2-block1-most_output"
+    ],
+    "cwd": "/Users/leandrozhao/Desktop/、++++++++",
+    "environment": {
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "stdout": "JSON containing inputs, trajectory differences, full wall partition, first successful forced recovery final call, and largest matched-step call deltas",
+    "script_lines": 108,
+    "scope": "Reuses held_accounting for decision/source identity. Accepts two labels within a run-dir. Full report additionally cites existing analysis tables and wall-mapped stdout notices.",
+    "observed_core": {
+      "schedule_different_indices": [],
+      "decision_different_indices": [],
+      "output_sequences_equal_count": 32,
+      "recovery_final_steps": [
+        839,
+        839
+      ],
+      "largest_delta_step": 839
+    }
+  }
+}

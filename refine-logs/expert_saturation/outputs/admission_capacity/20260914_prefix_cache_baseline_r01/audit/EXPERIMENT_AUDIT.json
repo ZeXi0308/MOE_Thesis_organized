@@ -1,0 +1,208 @@
+{
+  "audit_skill": "experiment-audit",
+  "verdict": "WARN",
+  "reason_code": "bounded_resource_metadata_label_inconsistency",
+  "summary": "No P0/P1. The two finite MEASUREMENT_ONLY claims reproduce from raw data; one unused safe-cap resource field is mislabeled.",
+  "repository_head": "c4ae4f5daaea929e1a4358862296d832f1cc67ab",
+  "repository_dirty": true,
+  "agent_id": "/root/apc_integrity",
+  "verdict_id": "20260914_prefix_cache_baseline_r01_apc_integrity_v1",
+  "executor_model": "codex",
+  "executor_family": "openai",
+  "reviewer_model": "codex",
+  "reviewer_family": "openai",
+  "reviewer_reasoning": "fresh-agent bounded integrity review",
+  "review_independence": "same-family",
+  "acceptance_status": "provisional",
+  "generated_at": "2026-09-14T01:34:42+08:00",
+  "date": "2026-09-14",
+  "auditor": "fresh-codex-subagent",
+  "overall_verdict": "warn",
+  "integrity_status": "warn",
+  "trace_path": null,
+  "trace_policy": "disabled_by_explicit_user_instruction_no_aris",
+  "gpu_execution_by_auditor": false,
+  "p0_findings": [],
+  "p1_findings": [],
+  "nonblocking_findings": [
+    {
+      "id": "RESOURCE_FIELD_LABEL",
+      "status": "warn",
+      "path": "execution/gpu_results/cohort2-block0-apc_off/safe-cap-qualification.json",
+      "evidence_lines": "46-54",
+      "source_path": "preparation/source/safe_static.py",
+      "source_lines": "58-62",
+      "details": "remaining_blocks_at_full_reservation=247 is computed with safe_cap=29. It is remaining at safe cap. Cap32 headroom is 7671-8192=-521. full_cap_reserved_blocks=8192 and full_reservation_sufficient=false are correct.",
+      "claim_impact": "none; the field is not consumed by the current addendum or analyzer verdict"
+    }
+  ],
+  "checks": {
+    "future_leakage_policy_state": {
+      "status": "pass",
+      "details": "Fixed native APC flag, four fresh engines, independent request/KV/future state, no selector or trace-derived counterfactual."
+    },
+    "identity_time_alignment": {
+      "status": "pass",
+      "details": "All request, prompt, arrival, internal-ID, receipt, scheduler-step and engine-call identities align; 32x1024 complete outputs per cell."
+    },
+    "accounting_resources": {
+      "status": "warn",
+      "details": "Request and executed-position conservation, denominators, cold reset, KV bytes and GPU identity pass. WARN only for the unused resource-field label."
+    },
+    "baseline_fairness_repeat_retention": {
+      "status": "pass",
+      "details": "Configurations differ only in APC; fixed off/on/on/off order; all fresh-process repeats and unfavorable metrics retained."
+    },
+    "gt_provenance": {
+      "status": "pass",
+      "details": "No task GT claim. Frozen dataset prompts are hashed; generated outputs are used only for identity/equality and request accounting."
+    },
+    "score_normalization": {
+      "status": "pass",
+      "details": "Raw time/count metrics and action/baseline ratios only; no normalization by model-output statistics."
+    },
+    "result_existence": {
+      "status": "pass",
+      "details": "All four archives/raw/metrics/environment/reset ledgers exist; claim numbers and archive hashes match."
+    },
+    "dead_code": {
+      "status": "pass",
+      "details": "All claimed metric and work-accounting functions are called and their outputs appear in retained results."
+    },
+    "scope": {
+      "status": "pass",
+      "details": "One GPU/model/cohort/arrival trace and two correlated repeats per role are stated; claims do not exceed this scope."
+    },
+    "eval_type": "self_supervised_proxy",
+    "eval_type_detail": "native_system_measurement_no_task_gt"
+  },
+  "scope": {
+    "evidence_tier": "NATIVE_SERVING",
+    "scientific_status": "MEASUREMENT_ONLY",
+    "hardware": "NVIDIA GeForce RTX 5090 GPU-70fa1c0a-77d4-c14a-9daf-7e685874eef9",
+    "model": "allenai/OLMoE-1B-7B-0924@6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "runtime": "vLLM 0.26.0 retained-source-hash identity",
+    "workload": "cohort2; 32 requests; 3072 prompt; 1024 output; 50ms steady arrival",
+    "cells": 4,
+    "order": [
+      "cohort2-block0-apc_off",
+      "cohort2-block0-apc_on",
+      "cohort2-block1-apc_on",
+      "cohort2-block1-apc_off"
+    ],
+    "repeat_semantics": "fresh-process same-input correlated repeats; not a noise bound",
+    "not_measured": [
+      "statistical significance",
+      "independent workload population",
+      "task quality",
+      "external HTTP serving",
+      "second model or runtime",
+      "Oracle or APC-aware rotation"
+    ]
+  },
+  "deterministic_verification": {
+    "analysis_rerun": "pass",
+    "analysis_rerun_difference": "only absolute versus relative source/raw path strings",
+    "raw_archive_extracted_hash_match": true,
+    "preparation_execution_archive_hash_match": true,
+    "normalized_config_hash": "dcbcda0ad505325f3db70fb896e5e06de50e0d3188d2364fbaab116114cce6cb",
+    "normalized_engine_args_hash": "1bf8be5604434a35e9c932ca20e96f42d5cecb318cc2bab737a6187436c1909a",
+    "measurement_identity_projection_hash": "bd871fc96bf4004b8ff70047aa72f59ff83b3c5267423405631e8eb0bda222cd",
+    "output_projection_hash": "a058f7680c2dc61cf2f767100a7a4bbfddfc3d74a96af069ce0735ccdbdcfcfd"
+  },
+  "measured_cells": [
+    {
+      "label": "cohort2-block0-apc_off",
+      "wall_s": 23.93861474841833,
+      "throughput_rps": 1.3367523700223423,
+      "mean_completion_s": 21.491376334533562,
+      "max_itl_s": 4.663436498492956,
+      "scheduled_positions": 138725,
+      "repeated_executed_positions": 7685,
+      "computed_jump_positions": 0
+    },
+    {
+      "label": "cohort2-block0-apc_on",
+      "wall_s": 23.820034163072705,
+      "throughput_rps": 1.3434069733455036,
+      "mean_completion_s": 21.367483097151855,
+      "max_itl_s": 4.685996869578958,
+      "scheduled_positions": 137717,
+      "repeated_executed_positions": 6677,
+      "computed_jump_positions": 1008
+    },
+    {
+      "label": "cohort2-block1-apc_on",
+      "wall_s": 23.739309759810567,
+      "throughput_rps": 1.3479751654015804,
+      "mean_completion_s": 21.285463284957224,
+      "max_itl_s": 4.708893092349172,
+      "scheduled_positions": 137717,
+      "repeated_executed_positions": 6677,
+      "computed_jump_positions": 1008
+    },
+    {
+      "label": "cohort2-block1-apc_off",
+      "wall_s": 23.748766096308827,
+      "throughput_rps": 1.347438425652507,
+      "mean_completion_s": 21.27131304513896,
+      "max_itl_s": 4.686814248561859,
+      "scheduled_positions": 138725,
+      "repeated_executed_positions": 7685,
+      "computed_jump_positions": 0
+    }
+  ],
+  "audited_input_hashes": {
+    "experiments/analyze_prefix_cache_baseline.py": "sha256:590ee20ee3648bb097abf82f29b23ac1e249ca588216bba4b0b13d713d18a473",
+    "experiments/prepare_prefix_cache_baseline.py": "sha256:eaf81e8b3c5f64edd52a2e17a3de6a7c70aa294e575a81bb5763ec3ee182b1ad",
+    "experiments/run_frozen_kv_remote.py": "sha256:5bed0643468a8de17122d1ff3855790db7a6755626dd494f9fbc608ecdc4d83f",
+    "REPORT.md": "sha256:25b2c0b63e3c7d448589a00bf7c5889bff235a838bac576bc75daf6e3937b94b",
+    "RESULTS_ADDENDUM.md": "sha256:f994ef22340fd357aed652cd5ff9d0bb3c28f069a173ee2ddae8660e2f5bdb5a",
+    "preparation/execution.tar.gz": "sha256:6266a0dff1411cbf5403beb8ccab18918325ed912b2054e68985e286302290fd",
+    "execution/execution.json": "sha256:43366d88d2e68626687eed3de92ed917c41721a61b251a8416a6129ec4a5a524",
+    "analysis/analysis.json": "sha256:a1b58aed882e12941217435ab7e815567abd3b7c5b663d3bcf337344e3908206",
+    "analysis/REPORT.md": "sha256:1ce104b73f9888f8d9034a6e257b87cc6f74e6b94ef81d90dc2ead61cc318133",
+    "execution/gpu_results/cohort2-block0-apc_off/raw.json": "sha256:8aebd8a233d497a577b31c5fdea407dc80378580f0cf953656574a451ec78b90",
+    "execution/gpu_results/cohort2-block0-apc_on/raw.json": "sha256:cfe9ce89ecf486289c3b3972f13d06d674941a2b75583b234be32724d8692868",
+    "execution/gpu_results/cohort2-block1-apc_on/raw.json": "sha256:061ccaf6acb1c825806c17c9b221bc8f5e050cb2ecc144725465fb7bb8169ae3",
+    "execution/gpu_results/cohort2-block1-apc_off/raw.json": "sha256:b9ce36e1aec77855bdda8baf4f253f62f48cb5bcebee7d6db3265b8605996a11",
+    "execution/gpu_results/cohort2-block0-apc_off/metrics.json": "sha256:07b30940c5dd33aa004bff3180c71c13bc0b0c45e79c5e781963e9893a3e9d6e",
+    "execution/gpu_results/cohort2-block0-apc_on/metrics.json": "sha256:bc80061fe12c7a56ee57c7c03a355c9ad80cc73c7bd3e332293c5f8bb13c2edb",
+    "execution/gpu_results/cohort2-block1-apc_on/metrics.json": "sha256:89681a21f189cdde15c55f1821379d07320394d3f22020542d268b9ab61d48fc",
+    "execution/gpu_results/cohort2-block1-apc_off/metrics.json": "sha256:fe708d80774ab0bbd27a8f68c9a623d651be1827f46d4a778287b7a953daafc6",
+    "execution/gpu_results/cohort2-block0-apc_off/environment.json": "sha256:f35125a7549db2d89173d774825f87580b3bff7704ab2ec6ddf7386064f44e64",
+    "execution/gpu_results/cohort2-block0-apc_on/environment.json": "sha256:fb8e0ded9704021420a9ace15240e7a7db721c290d6df3167cc68c97af413a57",
+    "execution/gpu_results/cohort2-block1-apc_on/environment.json": "sha256:844d15650bfb9ad2b08d08f5ff79d6912939fd39604f973b71b40a8df0153f58",
+    "execution/gpu_results/cohort2-block1-apc_off/environment.json": "sha256:380152dc6572b26593fe51f4986f7ed76344203ed9970b8ad5b88bafc167bf49",
+    "execution/gpu_results/cohort2-block0-apc_off/prefix-cache-reset.json": "sha256:3a40deedf5e4c895e646193d1515de64fda3b4eeb0eee9741a72f6c5bb106a68",
+    "execution/gpu_results/cohort2-block0-apc_on/prefix-cache-reset.json": "sha256:eaefe6046032fb31ab4fdde18f68eff6996347a9e077fd8ffeda22abae79ee41",
+    "execution/gpu_results/cohort2-block1-apc_on/prefix-cache-reset.json": "sha256:eaefe6046032fb31ab4fdde18f68eff6996347a9e077fd8ffeda22abae79ee41",
+    "execution/gpu_results/cohort2-block1-apc_off/prefix-cache-reset.json": "sha256:3a40deedf5e4c895e646193d1515de64fda3b4eeb0eee9741a72f6c5bb106a68",
+    "execution/gpu_results/cohort2-block0-apc_off/cache-accounting.json": "sha256:172ef4c8e757614e2f551f18cd996b718f9a9e2154da5f1cc055073fbbc89dc9",
+    "execution/gpu_results/cohort2-block0-apc_on/cache-accounting.json": "sha256:52c4a63cfdde3a0ccf9b2e4bf10f734e964e2ff6d71e623c6e9159b32636754e",
+    "execution/gpu_results/cohort2-block1-apc_on/cache-accounting.json": "sha256:52c4a63cfdde3a0ccf9b2e4bf10f734e964e2ff6d71e623c6e9159b32636754e",
+    "execution/gpu_results/cohort2-block1-apc_off/cache-accounting.json": "sha256:172ef4c8e757614e2f551f18cd996b718f9a9e2154da5f1cc055073fbbc89dc9"
+  },
+  "claims": [
+    {
+      "id": "C1_REPEATED_EXECUTION",
+      "impact": "supported",
+      "claim": "APC-on reduced actually repeated positions from 7685 to 6677 in both tested pairs."
+    },
+    {
+      "id": "C2_RECOVERY_START",
+      "impact": "supported",
+      "claim": "The two victims' first recovery service steps remained 1030 and 1026."
+    },
+    {
+      "id": "C3_STABLE_SPEEDUP",
+      "impact": "unsupported_and_not_claimed",
+      "claim": "APC-on has a stable or significant full-request speedup."
+    },
+    {
+      "id": "C4_GENERAL_METHOD",
+      "impact": "unsupported_and_not_claimed",
+      "claim": "APC or APC-aware rotation is generally GO or NO-GO."
+    }
+  ]
+}

@@ -1,12 +1,12 @@
 # 请求进度与 KV 预算：实验记录
 
-**当前执行状态：** 目标恢复后连续三个回合实时确认同一Qwen3 PID13275占用GPU，再次标记BLOCKED_RESOURCE；最新已处理4/16分片，第5片3.10GB。新32文档四臂八项保持STAGED、GPU 0/8，本地及远端无已启动结果；准备与检查已完成，无后台等待或执行器。主问题OPEN，资源释放后接续同一包。详见[状态与接续入口](../../outputs/admission_capacity/20260913_rotation_strong_baseline_r01/STATUS.json)。
+**当前执行状态：** westc原四角色八项已全部完成并回传，256/256请求，整组GPU已交接F/X。全量分析及fresh same-family审计完成（WARN、P0/P1=0）；当前主问题OPEN、MEASUREMENT_ONLY。新定位为同逻辑恢复调用的时间差，四项同输入/runtime重复已准备，排在F/X与A-review压力16之后，上传被自动审批拒绝、直接授权问题待回复，未上传、GPU0。见[八项结果addendum](../../outputs/admission_capacity/20260913_rotation_strong_baseline_r01/RESULTS_WESTC_ADDENDUM.md)及[四项准备](../../outputs/admission_capacity/20260914_rotation_runtime_repeat_r01/REPORT.md)。
 
 新一轮先查 [共享结论台账与四臂对照修正](RESULT_LEDGER.md)（2026-09-13）：复用已算结论，比较最新 headroom 基线，初始化前检查 GPU 并留痕。
 
 主文档：[RESEARCH_NOTES.md](RESEARCH_NOTES.md)。原始运行保留；本文件维护同一问题的命令与接续点。
 
-当前接续：首次交换不足以保留持续排序的吞吐结果；主问题OPEN。新文档cohort上native/native A/A/headroom/持续most_output四臂×两block已STAGED，空卡后执行既有RESUME_COMMAND.sh。历史条目和各轮审计状态分别保留。
+**唯一下一项：** 同一cohort2上native/most、most/native四项受控重复已封存；保持缓存和公共预热，检查相同恢复调用的长耗时是否重现，不删除慢调用或更换基线。仅在具体包上传授权明确且前序两组释放后执行。下文历史下一动作与各轮审计状态分别保留。
 
 2026-09-13定向动作查新已核对FastServe正式版/代码、FastSwitch全文、VTC正文/抢占附录及Andes v2/作者代码：token抢占、aging、KV预留和重算成本计费均非本轮独有。Andes公开实现默认RECOMPUTE，但固定时延/slack限抢占代码不能等同论文refiner；server max-ITL未升级为消费QoE。详细矩阵与迁移边界写入[主文档](RESEARCH_NOTES.md#当前动作与已有工作的重合2026-09-13定向核查)。20项仍是输入迁移测量，不代替最近邻策略基线；本轮未修改冻结包或新增Controller。有界查新至此结束；新文本迁移已实跑，下一信息缺口是具体动作贡献的分离。
 
@@ -14,6 +14,18 @@
 
 此前授权的四项恢复准入对照已全部完成、回传，128/128 请求。
 同池 chunk 臂两次均从 2 次抢占增至 70 次，吞吐下降 6.89%/4.74%；见[结果与源码定位](../../outputs/admission_capacity/20260912_recovery_admission_r01/REPORT.md)。下文授权阻塞条目保留为历史经过。
+
+## 2026-09-14：新文档强基线八项完成，四项同路径重复待授权
+
+westc:53036原八格全部回读，256请求/262144输出、24公共预热；实际KV16,089,350,144bytes/7671块。前三格原结果保留，中断只补回第三格及执行后五格，约22.28分钟间隔与其间F/X资格运行保留。全部原始测量/环境/动作资格与主配对复核完成，fresh GPT-5.6-Sol ultra WARN、P0/P1=0，same-family/provisional。
+
+持续most_output对native最大ITL 4.572/4.760→1.520/1.020秒、吞吐−1.362%/+3.241%、平均完成+5.962%/+1.031%；对headroom吞吐+3.604%/+5.303%、平均完成−3.730%/−5.003%。不换主native，不减A/A或慢调用。具体host成本与每请求损益见[结果addendum](../../outputs/admission_capacity/20260913_rotation_strong_baseline_r01/RESULTS_WESTC_ADDENDUM.md)。
+
+两most实际调度/决策/输出相同，0.971142秒wall差主要定位到step839：相同恢复末次调用0.766318/0.031701秒；显式JIT通知在预热期，内部原因未验证。诊断脚本与输入hash见原包diagnostics/most_output_block_difference.py及json。
+
+唯一后续：同一cohort2、native/most、most/native四新引擎；原runtime/输入/预热21文件完全相同，复用现有driver，138行rotation_runtime_repeat.py只做四格封包与现有分析组合。无GPU时4/4 UNRUN、数字配对关闭；另agent准备复核PASS_CODE_ONLY、无P0/P1。包SHA2383b1738e7b8bd3e7da8460093896b12b7852f3d3749d8babc1b7ab405e7060。
+
+四项stage-only命令两次被自动审批拒绝（第二次已补逐文件差分）；工具中全局授权记录未被视为可信直接用户证据，现待这个具体包/目的地的直接授权。上传0、GPU0、无controller。仍排F/X→A-review压力16之后，不抢占队位。完整入口与拒绝记录见[四项准备](../../outputs/admission_capacity/20260914_rotation_runtime_repeat_r01/REPORT.md)。
 
 ## 2026-09-13：新文档强基线八项准备并上传（STAGED / GPU 0）
 

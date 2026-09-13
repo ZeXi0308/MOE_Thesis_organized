@@ -133,3 +133,62 @@ G 论文可行性：区分问题真实性、动作已验证、模型正确性、
 
 本次定向核验已确认engine_steps一对一映射混合调用且确实返回233/1185新token。已写根目录A_LINE_RESEARCH_REVIEW_20260913.md准备汇总，请现在返回当前有界评审，不再扩大查阅。最需要你独立指出主结论有无反例或遗漏；完整后可直接final。
 ```
+
+### 独立评审结论与协调
+
+Reviewer 返回 `PROVISIONAL CONTINUE / MEASUREMENT_ONLY`。六项判断与主评审一致：错误槽位恒等式；完整未来序列目标过远；max-ITL 事后闭合不能当预测；onset 限首次共同轨迹；执行前更正判据与冲突；论文贡献未闭合但不能判死。补充指出恢复被调度到首个新输出还需四个调用，须与未调度缺席分开；校准系数 0.777/1.107 冲突也须记录。唯一下一实验同为更正后剩余压力扫描。
+
+主 agent 采纳上述意见。对 reviewer 提议的“已观察可分辨尺度”采用更窄措辞“已观察重复差”，避免将有限样本最大差变为可靠可分辨界。P4 采用配对 wall 差与其精确吞吐换算作为描述性结果，不宣布非劣通过。没有要求第二轮审计，也没有将同家族评审标为独立统计确认。
+
+## 执行与成本模型更正续记
+
+用户随后授权继续并提供 westc:53036。已登录验证 GPU `GPU-70fa1c0a-77d4-c14a-9daf-7e685874eef9`、RTX 5090、vLLM 0.26.0、torch 2.11.0、transformers 5.15.1。新包 `P/execution_review_westc_r02` 保留旧源副本，仅将 pool=7671 断言改为四个冻结内存字节数的精确块数映射，执行前 addendum 已冻结。计划在新 GPU 执行 16 格，包含本机 d2 参照。
+
+初始检查无 GPU 计算进程；准备期间另一会话启动 cohort2 强基线，PID1770 占约29430MiB。本包启动检查随即退出93，记录 `BLOCKED_BEFORE_GPU_INITIALIZATION`，**本包零 GPU 初始化、零新增测量**。对方工作目录 `/root/autodl-tmp/moe-rotation-strong-baseline-20260913-r01`，属于需要保留的同问题强基线验证；没有干扰。不可在对方每格之间的短暂空闲抢占资源，须待其整批执行结束后再核查。
+
+新增 E/analyze_call_progress.py，读取已有 H 的8份 native/rotate raw，验证 scheduler↔engine 一对一、engine 调用不重叠、全部返回 token=请求保留 token。结果为 P/call_progress_review_r01.json。四个配对计数一致：native/rotate 全调用1348/1257、pure含末步1242/1119、prefill调用98/98、recompute调用8/40；每格输出32768，prefill调用产生1547个新输出，recompute调用产生233/1185个新输出。
+
+cohort0/block0 的互斥 engine 调用时间：native prefill/pure/recompute 为2.273/20.063/0.228秒；rotate为2.254/19.081/1.149秒。纯阶段少0.982秒，同时重算类别多0.921秒。各类别都包含实际并发有效输出，不能把整个重算类别时间称为重算税；这只是策略各自轨迹的阶段分解，不是保持未来轨迹不变的因果扣减。该分解解释了“总调用减少但吞吐接近”这一成本关系，是本轮新增实质分析。
+
+## FastServe 动作级核对补记
+
+已读 [NSDI 2026 原文](https://www.usenix.org/system/files/nsdi26-wu-bingyang.pdf) §4.1、算法1、§4.2相关描述及§6.3缓存消融。FastServe 不仅做 token 粒度抢占：它会按等待时间提升饥饿任务优先级，并按队列优先级主动换出/换入 KV；也已有重算与响应式换页基线。因此“按等待时间恢复”和“主动解决 KV 压力”均不是足够的新颖性依据。
+
+| Work | Signal/state | Prediction target | Action | Objective | Regime | Guarantee |
+|---|---|---|---|---|---|---|
+| FastServe | 输入长度、已用时间片、饥饿等待、队列优先级 | profile估计下一迭代时间 | skip-join/降级/饥饿提升，主动KV换页 | 请求延迟与服务吞吐 | 可用主机KV存储与传输 | 所读部分是机制/实测，未据此声称严格max-ITL界 |
+| 当前A | 当前块、等待年龄、已生成进度、冷却/保护 | 尚无通过验证的候选预测 | 真实驱逐重算，资助最久等待者恢复 | 最大停顿与完整服务量权衡 | 固定GPU KV，当前未用主机KV交换 | 当前仅合法性检查与测量；无一般停顿上界 |
+
+上述差别不是贡献证明。A 的下一模型应检验：同样可执行的恢复优先动作下，块可行性和“重算同时推进其他请求”的完整成本，能否产生超过普通饥饿提升/简单victim策略的可重复决策收益。主机KV交换未比较，不能称其收益已被A覆盖；同底座移植的队列规则也只能称 FastServe-style，不是完整 FastServe 复现。原文未完成公开代码对照，论文级新颖性仍未确认。该补记缩小贡献范围，不新增GPU队列项，也不替代压力扫描。
+
+## 2026-09-14 压力扫描已执行
+
+此前资源阻塞已解除，按协调交接完成16格，全部原始数据回读校验。完整报告见 [压力扫描结果](refine-logs/expert_saturation/outputs/admission_capacity/20260913_pressure_sweep_r01/execution_review_westc_r02/REPORT.md)。512请求/524288新输出对齐；两个d0轮转零动作标记保留。d0可行，旧显存门槛估计被否定；d4/d6 onset误差约1.7%/5.2%，但d6 native pure实测1748对预测2543，触发原M2。
+
+恢复动作的长停顿收益跨压力保持，d6 native约14.2–14.4秒降至2.81秒，同时平均完成慢4.49%–8.90%，吞吐随block变号。原评审关于成本模型与目标权衡的担忧得到新数据支持，不能据此判死恢复问题。下一步先在d6加入headroom/most_output直接强简单基线，不先拟合完整未来缺席预测。新结果fresh同族审阅已返回WARN，无影响主表/冻结证伪的P0/P1；范围限原生vLLM进程内测量，高压强基线仍缺。GPU已交接，无额外占用。
+
+## d6强简单基线接续（2026-09-14）
+
+完整结果见[八格报告](refine-logs/expert_saturation/outputs/admission_capacity/20260914_d6_strong_baselines_r01/REPORT.md)。8/8 COMPLETE，256请求，262144输出，仍是旧32输入、两反序block、APC关闭。least/native平均完成+7.47%/+9.32%，最长ITL约14秒→2.80/2.94秒；most/least整批吞吐+2.75%/+9.58%，平均完成却+8.03%/+0.60%，最长ITL接近。headroom/least平均完成+50.33%/+40.91%，最长ITL也更差。此处仅描述观测，不称差异显著或吞吐非劣。
+
+新边界：更少调用及更早最后完成，仍可伴随更晚的多数请求完成。block0 most/least第16个完成24.612/22.027秒，最后25.764/26.474秒；未完成请求数积分准确还原各格全部请求延迟。A的最弱链路应收窄为动作条件下的恢复/退出与完整请求代价，而非继续拟合总步数。后续候选状态分支尚未实现或运行；不声称已获得在线选择器或Oracle。GPU已交下一会话，本轮无追加。
+
+## 动作条件分支接续（2026-09-14）
+
+真实KV资格与三分支已完成：[前态资格](refine-logs/expert_saturation/outputs/admission_capacity/20260914_d6_action_state_r01/REPORT.md)、[三分支](refine-logs/expert_saturation/outputs/admission_capacity/20260914_d6_action_branches_r01/REPORT.md)。每臂校验请求/有效KV后独立推进，六格192请求完成；立即least/首次most/延迟一步的4/4/5恢复调用预测均命中。但首次most的平均剩余+0.04%/−1.84%，延迟−0.51%/−0.64%且最后完成更晚，不支持方法GO。仅当前状态短期资源模型得到验证，完整成本排序未成立。首次动作确实改变1240步后续请求调度，不是无动作负控。下一仅CPU补请求完成/释放的资源进展模型，以三条真实未来校准，不把真实未来复用于候选预测。
+
+## 2026-09-14 资源进展模型补充
+
+[本轮报告](refine-logs/expert_saturation/outputs/admission_capacity/20260914_recovery_progress_model_r01/REPORT.md)：26条既有轨迹的调度、块计数和完成步匹配；12条未拟合轨迹条件mean/last成本最大误差2.10%/2.60%。这支持固定长度域的模型保真性，尚未证明在线选择收益。31个首次victim没有预测平均完成收益，停止该截点的GPU扫描；下一仅CPU查看后续决策状态是否有完整请求收益空间。无新GPU执行，无新增独立审计。
+
+## 2026-09-14 后续单事件空间
+
+[结果](refine-logs/expert_saturation/outputs/admission_capacity/20260914_recovery_later_victim_r01/REPORT.md)：802个合法victim替换最佳预测mean−0.074%；取消一次轮转最佳−0.373%并使gap+11.22%。当前只支持单事件机制空间不足的模型诊断，不是整个问题或联合动作NO-GO。下一CPU定位持续轮转对完成释放的影响；无新GPU执行。
+
+## 2026-09-14 持续轮转与恢复成本
+
+[报告](refine-logs/expert_saturation/outputs/admission_capacity/20260914_recovery_stop_r01/REPORT.md)：三档62个停止点没有同时改善平均完成和最大沉默。12条真实轨迹完成面积闭合，净损失集中于含重算的混合调用区间（不可当纯重算税）。下一检验同状态KV暂存往返相对重算的物理成本空间；没有新GPU或方法GO。
+
+## 2026-09-14 KV往返实测
+
+[补充](refine-logs/expert_saturation/outputs/admission_capacity/20260914_kv_roundtrip_feasibility_r01/GPU_ADDENDUM.md)：三尺寸含打包往返16.50–20.54ms，24次内容正确。局部物理成本支持下一资格化，尚无请求收益。安装vLLM已有native OffloadingConnector；下一优先测纯native offload基线，现轮转connector guard不变，不重写pager。

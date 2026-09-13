@@ -1,0 +1,411 @@
+{
+  "schema_version": 1,
+  "audit_skill": "experiment-audit",
+  "verdict": "PASS",
+  "overall_verdict": "pass",
+  "integrity_status": "pass",
+  "reason_code": "no_p0_or_p1_integrity_defect",
+  "summary": "The four-cell frozen repeat, action paths, raw request records, accounting, same-role timing, initialization failure, diagnostics, analysis, and final addendum are internally consistent. Reported numbers match direct raw recomputation, APC=True remains UNRUN, and no GPU/JIT causal attribution is made.",
+  "project": "MoE admission-capacity rotation runtime repeat",
+  "campaign_id": "20260914_rotation_runtime_repeat_r01",
+  "campaign_path": "refine-logs/expert_saturation/outputs/admission_capacity/20260914_rotation_runtime_repeat_r01",
+  "run_path": "refine-logs/expert_saturation/outputs/admission_capacity/20260914_rotation_runtime_repeat_r01/execution02_after_finite",
+  "repository_head": "c4ae4f5daaea929e1a4358862296d832f1cc67ab",
+  "repository_dirty_before_audit": true,
+  "generated_at": "2026-09-14T01:21:34+08:00",
+  "date": "2026-09-14",
+  "timezone": "Asia/Shanghai",
+  "auditor": "gpt-5.6-sol-ultra",
+  "reviewer_task": "/root/runtime_integrity",
+  "reviewer_model": "gpt-5.6-sol",
+  "reviewer_family": "openai",
+  "reviewer_reasoning": "ultra",
+  "review_independence": "same-family",
+  "acceptance_status": "provisional",
+  "trace_path": null,
+  "trace_status": "not_created_by_explicit_user_scope",
+  "p0_count": 0,
+  "p1_count": 0,
+  "p0_findings": [],
+  "p1_findings": [],
+  "checks": {
+    "A_ground_truth_provenance": {
+      "status": "pass",
+      "details": "No semantic ground truth is claimed. Dataset/model/tokenizer/workload identities are frozen and verified. Output equality is explicitly an execution-identity proxy, not task quality.",
+      "evidence": [
+        "execution02_after_finite/gpu_results/cohort2-block0-most_output/config.json:2-45",
+        "preparation/source/run_probe.py:40-52",
+        "RESULTS_AFTER_FINITE_ADDENDUM.md:12",
+        "RESULTS_AFTER_FINITE_ADDENDUM.md:22"
+      ]
+    },
+    "B_score_normalization": {
+      "status": "pass",
+      "details": "Metrics use raw clocks/counts and all arrived requests at the actual observation end. No own-output normalization or saving-derived denominator is used; absolute values remain beside native-relative changes.",
+      "evidence": [
+        "preparation/source/metrics.py:10-29",
+        "preparation/source/metrics.py:62-155",
+        "refine-logs/expert_saturation/experiments/admission_capacity/analyze_completion_headroom.py:168-194"
+      ]
+    },
+    "C_result_existence_and_fidelity": {
+      "status": "pass",
+      "details": "All four successful cell bundles and sidecars exist; 128/128 requests completed. Saved metrics and displayed values match raw recomputation. The initialization failure has no raw request result and is not counted.",
+      "evidence": [
+        "execution02_after_finite/execution.json:2-83",
+        "analysis02_after_finite/report.md:7-17",
+        "RESULTS_AFTER_FINITE_ADDENDUM.md:3-24",
+        "execution/execution.json:2-15",
+        "INITIALIZATION_FAILURE_ADDENDUM.md:1-3"
+      ]
+    },
+    "D_dead_code_and_executed_path": {
+      "status": "pass",
+      "details": "Fresh-cell launch, policy installation, native execution, raw metric recomputation, matched comparison, same-role comparison, and recovery accounting are all called on the result path. The policy is not an offline mask.",
+      "evidence": [
+        "preparation/source/run_campaign.py:15-56",
+        "preparation/source/run_probe.py:140-194",
+        "refine-logs/expert_saturation/experiments/admission_capacity/rotation_runtime_repeat.py:92-116",
+        "refine-logs/expert_saturation/experiments/admission_capacity/analyze_completion_headroom.py:104-202"
+      ]
+    },
+    "E_scope_assessment": {
+      "status": "pass",
+      "details": "The narrative matches the declared one-model, one-GPU, one reused cohort, two-block scope. It does not claim a fresh holdout, quality, production SLO, APC-on result, causal root, stable net benefit, significance, Oracle, or method GO.",
+      "evidence": [
+        "preparation/source/campaign.json:12-50",
+        "preparation/source/DECISIONS.md:3-19",
+        "RESULTS_AFTER_FINITE_ADDENDUM.md:18-28"
+      ]
+    },
+    "F_evaluation_type_and_evidence_tier": {
+      "status": "pass",
+      "classification": "self_supervised_proxy",
+      "evidence_tier": "REQUEST_LEVEL_NATIVE_SERVING_INPROCESS_HOST_CAPTURE",
+      "details": "Direct native in-process request/system measurement is valid at the stated ceiling. Token equality is a self-comparison identity proxy. Host-side timing does not identify GPU, JIT, compiler, or GC causes.",
+      "evidence": [
+        "preparation/source/native_capture.py:190-204",
+        "most_same_path_after_finite.json:2-39",
+        "refine-logs/expert_saturation/outputs/admission_capacity/20260913_rotation_strong_baseline_r01/diagnostics/most_output_block_difference.py:59-97",
+        "RESULTS_AFTER_FINITE_ADDENDUM.md:14-22"
+      ]
+    }
+  },
+  "early_checks": {
+    "future_information": {
+      "status": "pass",
+      "details": "most_output uses observed current output counts and current scheduler/KV state; each arm evolves in its own fresh engine.",
+      "evidence": [
+        "preparation/source/absence_rotation.py:133-205",
+        "preparation/source/rotation_native.py:125-211",
+        "preparation/source/run_campaign.py:15-56"
+      ]
+    },
+    "identity_and_time_alignment": {
+      "status": "pass",
+      "details": "Request/document/prompt/arrival identities are hash-bound and aligned; one host monotonic clock covers capture; token ITL is accepted only for one-token receipt chunks. Same-path comparison removes timing fields before trajectory comparison.",
+      "evidence": [
+        "refine-logs/expert_saturation/experiments/admission_capacity/analyze_rotation_strong_baseline.py:47-79",
+        "preparation/source/native_capture.py:190-204",
+        "refine-logs/expert_saturation/outputs/admission_capacity/20260913_rotation_strong_baseline_r01/diagnostics/most_output_block_difference.py:77-97"
+      ]
+    },
+    "accounting": {
+      "status": "pass",
+      "details": "Wall intervals are nested and close exactly; scheduler decision time is included once; successful scheduled work partitions into new prefill, new decode, and recompute without overlap; recovery events align to new output.",
+      "evidence": [
+        "refine-logs/expert_saturation/experiments/admission_capacity/analyze_headroom_cost.py:11-42",
+        "refine-logs/expert_saturation/experiments/admission_capacity/analyze_headroom_work_cost.py:17-44",
+        "refine-logs/expert_saturation/experiments/admission_capacity/analyze_rotation_recovery.py:17-95"
+      ]
+    },
+    "fair_baseline": {
+      "status": "pass",
+      "details": "Within each block, native and most_output have the same frozen workload, engine arguments, cap and runtime except the intended policy/victim order. A/B/B/A ordering and same-role drift are retained, and native is not replaced or corrected.",
+      "evidence": [
+        "preparation/source/campaign.json:12-50",
+        "preparation/source/DECISIONS.md:7-15",
+        "refine-logs/expert_saturation/experiments/admission_capacity/rotation_runtime_repeat.py:100-116",
+        "refine-logs/expert_saturation/experiments/admission_capacity/analyze_completion_headroom.py:168-190"
+      ]
+    }
+  },
+  "verified_counts": {
+    "cells_planned": 4,
+    "cells_complete": 4,
+    "requests_planned": 128,
+    "requests_completed": 128,
+    "requests_failed_unfinished_or_skipped": 0,
+    "output_tokens_planned": 131072,
+    "output_tokens_retained": 131072,
+    "requests_per_cell": 32,
+    "prompt_tokens_per_request": 3072,
+    "output_tokens_per_request": 1024,
+    "same_role_pairs": 2,
+    "within_block_pairs": 2,
+    "warmups_planned": 12,
+    "warmups_complete": 12,
+    "initial_failed_execution_raw_files": 0
+  },
+  "verified_cells": [
+    {
+      "label": "cohort2-block0-native",
+      "completed": 32,
+      "wall_s": 24.438141636550426,
+      "throughput_rps": 1.3094285349480024,
+      "mean_completion_s": 21.903292649739885,
+      "max_itl_s": 4.885155024006963,
+      "forced_preemptions": 0,
+      "natural_preemptions": 2,
+      "recomputed_positions": 7685,
+      "scheduled_positions": 138725
+    },
+    {
+      "label": "cohort2-block0-most_output",
+      "completed": 32,
+      "wall_s": 23.478503989055753,
+      "throughput_rps": 1.3629488495057627,
+      "mean_completion_s": 21.959875404601917,
+      "max_itl_s": 1.0646225214004517,
+      "forced_preemptions": 9,
+      "natural_preemptions": 2,
+      "recomputed_positions": 43471,
+      "scheduled_positions": 174511
+    },
+    {
+      "label": "cohort2-block1-most_output",
+      "completed": 32,
+      "wall_s": 24.3268362544477,
+      "throughput_rps": 1.3154197144788775,
+      "mean_completion_s": 22.80310307641059,
+      "max_itl_s": 1.0671629626303911,
+      "forced_preemptions": 9,
+      "natural_preemptions": 2,
+      "recomputed_positions": 43471,
+      "scheduled_positions": 174511
+    },
+    {
+      "label": "cohort2-block1-native",
+      "completed": 32,
+      "wall_s": 23.927952939644456,
+      "throughput_rps": 1.3373479996686872,
+      "mean_completion_s": 21.449650400525827,
+      "max_itl_s": 4.710558792576194,
+      "forced_preemptions": 0,
+      "natural_preemptions": 2,
+      "recomputed_positions": 7685,
+      "scheduled_positions": 138725
+    }
+  ],
+  "verified_within_block_changes": [
+    {
+      "block": 0,
+      "pair": "native_to_most_output",
+      "throughput_relative_change": 0.04087303211235249,
+      "mean_completion_relative_change": 0.0025832990378173992,
+      "max_itl_change_s": -3.820532502606511,
+      "completion_better_requests": 23,
+      "completion_worse_requests": 9,
+      "output_sequences_equal": 32,
+      "output_sequences_total": 32
+    },
+    {
+      "block": 1,
+      "pair": "native_to_most_output",
+      "throughput_relative_change": -0.01639684300215216,
+      "mean_completion_relative_change": 0.06309905525943149,
+      "max_itl_change_s": -3.6433958299458027,
+      "completion_better_requests": 0,
+      "completion_worse_requests": 32,
+      "output_sequences_equal": 32,
+      "output_sequences_total": 32
+    }
+  ],
+  "same_role_timing_retained": {
+    "status": "pass",
+    "native_block0_to_block1": {
+      "wall_delta_s": -0.5101886969059706,
+      "wall_relative_change": -0.020876738685519203,
+      "throughput_relative_change": 0.021321869789399095,
+      "mean_completion_relative_change": -0.020711144049347485,
+      "max_itl_change_s": -0.17459623143076897,
+      "output_sequences_equal": 32,
+      "output_sequences_total": 32
+    },
+    "most_output_block0_to_block1": {
+      "wall_delta_s": 0.8483322653919458,
+      "wall_relative_change": 0.03613229640983029,
+      "throughput_relative_change": -0.03487228082265914,
+      "mean_completion_relative_change": 0.0383985635770685,
+      "max_itl_change_s": 0.0025404412299394608,
+      "output_sequences_equal": 32,
+      "output_sequences_total": 32,
+      "wall_component_deltas_s": {
+        "scheduler_inclusive": 0.16347136907279491,
+        "engine_excluding_scheduler": 0.5553162917494774,
+        "outside_engine_calls": 0.12954460456967354
+      }
+    },
+    "evidence": [
+      "analysis02_after_finite/analysis.json:194076-194097",
+      "analysis02_after_finite/analysis.json:194846-194866",
+      "RESULTS_AFTER_FINITE_ADDENDUM.md:16"
+    ]
+  },
+  "same_path_diagnostic": {
+    "status": "pass",
+    "most_output_executed_schedule_steps_each": 1162,
+    "executed_schedule_differences": 0,
+    "decision_differences": 0,
+    "engine_logical_differences": 0,
+    "equal_output_sequences": 32,
+    "aligned_first_forced_recovery_final_step": 839,
+    "aligned_recomputed_positions": 3780,
+    "aligned_final_scheduled_positions": 829,
+    "block0_final_call_s": 0.032029252499341965,
+    "block1_final_call_s": 0.032457245513796806,
+    "historical_call_s": 0.766318,
+    "historical_call_reobserved": false,
+    "causal_attribution": "unverified; observed host execution only",
+    "evidence": [
+      "most_same_path_after_finite.json:2-39",
+      "most_same_path_after_finite.json:41-97",
+      "most_same_path_after_finite.json:99-177",
+      "RESULTS_AFTER_FINITE_ADDENDUM.md:14-16"
+    ]
+  },
+  "accounting": {
+    "status": "pass",
+    "wall_identity": "wall = scheduler_inclusive + engine_non_schedule + outside_engine_calls; decision time is a subset of scheduler_inclusive",
+    "native_work_identity": "138725 = 98304 new_prefill + 32736 new_decode + 7685 recomputed",
+    "most_output_work_identity": "174511 = 98304 new_prefill + 32736 new_decode + 43471 recomputed",
+    "all_calls_retained": true,
+    "long_calls_subtracted": false,
+    "held_request_steps": 0
+  },
+  "initialization_failure": {
+    "status": "separate_non_result",
+    "execution_status": "STOPPED",
+    "first_cell_status": "INCOMPLETE",
+    "returncode": 1,
+    "raw_request_files": 0,
+    "error": "Free memory 27.91 GiB was below the requested 28.22 GiB at engine initialization",
+    "classified_as_mechanism_result": false,
+    "evidence": [
+      "execution/execution.json:2-15",
+      "INITIALIZATION_FAILURE_ADDENDUM.md:1-3"
+    ]
+  },
+  "evaluation_type": {
+    "primary": "self_supervised_proxy",
+    "description": "direct paired native in-process systems measurement without external task-quality ground truth",
+    "quality_check": "output-sequence equality as execution-identity proxy only",
+    "external_task_quality_ground_truth": false
+  },
+  "evidence_tier": "REQUEST_LEVEL_NATIVE_SERVING_INPROCESS_HOST_CAPTURE",
+  "scientific_status": "OPEN_MEASUREMENT_ONLY",
+  "claim_ceiling": "descriptive one-model one-GPU reused-cohort steady-arrival runtime repeat",
+  "claims": [
+    {
+      "id": "C1",
+      "claim": "Four cells completed and displayed numbers match retained raw",
+      "impact": "supported"
+    },
+    {
+      "id": "C2",
+      "claim": "most_output reduced observed maximum ITL relative to native in both blocks",
+      "impact": "supported_with_descriptive_scope"
+    },
+    {
+      "id": "C3",
+      "claim": "Native-relative throughput repeated in one direction",
+      "impact": "refuted_by_retained_sign_flip"
+    },
+    {
+      "id": "C4",
+      "claim": "The historical 0.766318-second aligned call reappeared",
+      "impact": "refuted_for_this_repeat"
+    },
+    {
+      "id": "C5",
+      "claim": "GPU, JIT, compiler, cache, or GC caused or fixed the historical stall",
+      "impact": "unverified_and_not_claimed"
+    },
+    {
+      "id": "C6",
+      "claim": "Matching output sequences establish task quality",
+      "impact": "unsupported_and_not_claimed"
+    },
+    {
+      "id": "C7",
+      "claim": "APC=True produced a baseline result",
+      "impact": "unrun_no_result"
+    },
+    {
+      "id": "C8",
+      "claim": "Stable net benefit, full Oracle, production SLO benefit, or method GO",
+      "impact": "unsupported_and_outside_claim_ceiling"
+    }
+  ],
+  "non_blocking_notes": [
+    "analysis02_after_finite/report.md leaves its Native A/A table empty because the repeat stores cross-block observations in same_role_repeats; both native and most_output rows remain in analysis.json and report.md points readers there.",
+    "The repository was dirty and the campaign files were untracked at review time; the frozen execution archive, per-file hashes, raw hashes, and this audit hash manifest are the provenance anchors.",
+    "Same-family review cannot provide different-family independence, so acceptance remains provisional."
+  ],
+  "action_items": [],
+  "audited_input_hashes": {
+    "refine-logs/expert_saturation/experiments/admission_capacity/rotation_runtime_repeat.py": "sha256:57890e0bc3493234ed33b360cbc9d6a0bc93fd5308a95dd735bab9e305f9600f",
+    "refine-logs/expert_saturation/experiments/admission_capacity/run_frozen_kv_remote.py": "sha256:5bed0643468a8de17122d1ff3855790db7a6755626dd494f9fbc608ecdc4d83f",
+    "refine-logs/expert_saturation/experiments/admission_capacity/analyze_rotation_strong_baseline.py": "sha256:3f269e71d10ae5ce5215f6a12ea8690e2c80de38b196f3a6a75d9a02d7c7d780",
+    "refine-logs/expert_saturation/experiments/admission_capacity/analyze_completion_headroom.py": "sha256:e23a33d1641b725bee12390f20c7d29220bd5f48f73c9888138b21a7a453126e",
+    "refine-logs/expert_saturation/experiments/admission_capacity/analyze_headroom_cost.py": "sha256:a65cf1907fb48478acdf74e7bc7102add2b87c9b77bac84bd093c9d92bac050b",
+    "refine-logs/expert_saturation/experiments/admission_capacity/analyze_headroom_work_cost.py": "sha256:a322eda1a3461b875b6895c145f3ae9f5dace494095b9e7d18a14f6a4eb110fc",
+    "refine-logs/expert_saturation/experiments/admission_capacity/analyze_rotation_recovery.py": "sha256:aed8bfd03541c70711aa799a5739740d24960cd32a43b7ce21a74a06970f8b40",
+    "refine-logs/expert_saturation/outputs/admission_capacity/20260908_native_preemption_r01/analyze_native_preemption.py": "sha256:19a0633d1627f081b8e26044ea91cefbbb9d82e063805f9d179e0b4316cd6552",
+    "refine-logs/expert_saturation/outputs/admission_capacity/20260913_rotation_strong_baseline_r01/diagnostics/most_output_block_difference.py": "sha256:ff74420502b42a92661b98074f843e10a7ee8cb8f84e3c8317a4ee4504d8c316",
+    "preparation/source/DECISIONS.md": "sha256:5036498d8cac68e29259a2ff67c691e2e19d9f3aa8f9b468759ae7acf99dc90c",
+    "preparation/source/campaign.json": "sha256:c6870b45c0ee9cfe1e72d041aff5cc88b767cd9718e1147de6af315106a6c675",
+    "preparation/source/run_campaign.py": "sha256:e6f6e14d0ecf8ff64b280c6be827ab7ab0e2384cf142081ff980c6ffcf1906e2",
+    "preparation/source/run_probe.py": "sha256:121c3d37c9874c61c01890003dce0e3b797da48c87e364f754a9c03816c0509b",
+    "preparation/source/native_capture.py": "sha256:9b0b825992d9417b58947e744a16fdf033117f24c2e116cb394210238edd5952",
+    "preparation/source/metrics.py": "sha256:1ca4874d718402ad149e26abd1b109eadf50afabb7aadc9e562e244aeb594b11",
+    "preparation/source/absence_rotation.py": "sha256:abc721e9ab5bed4634fca85d515a5eabb23f962de7d74e96a45dda8faa0ff9e4",
+    "preparation/source/rotation_native.py": "sha256:10149fc99ec060c3c36ac313c99a9988d68593eb67146dba1d6d662e8f049350",
+    "execution02_after_finite/execution.json": "sha256:fb384a15de3568649b4dd2b9025076f6a48215e9279dd3370fb61c3ac4f46171",
+    "execution02_after_finite/execution.tar.gz": "sha256:2383b1738e7b8bd3e7da8460093896b12b7852f3d3749d8babc1b7ab405e7060",
+    "execution02_after_finite/gpu_results/cohort2-block0-native/raw.json": "sha256:6e0ca96b7c0e709cee80c20fc3ef8806b5f8aa2e61777258081effb4fcd708df",
+    "execution02_after_finite/gpu_results/cohort2-block0-native/headroom-decisions.json": "sha256:8b9a5eceda0e39a3f5e9a3fd886d0908da056e093e46d7b84bb1d6224bc07ef6",
+    "execution02_after_finite/gpu_results/cohort2-block0-native/metrics.json": "sha256:caa6dd4c4c23691a175c69b2c0dba4da67aa1129a71e185e1cf3d7df89521d35",
+    "execution02_after_finite/gpu_results/cohort2-block0-native/config.json": "sha256:a8a766005002f8087aa46a21791162f8d569d787769fb11a0183263a2d83afea",
+    "execution02_after_finite/gpu_results/cohort2-block0-native/engine_args.json": "sha256:d1ea9d74bde50c1cdcc127c5b5e5729315d9288d0cad6adcf9998a1e4937e593",
+    "execution02_after_finite/gpu_results/cohort2-block0-native/status.json": "sha256:c00e7219543aa0ef8487cb3071ffa1f84927b135a0ae307d751d888c01c82d75",
+    "execution02_after_finite/gpu_results/cohort2-block0-native/environment.json": "sha256:6dd6d832a4d650eacc35c6512f8c4923d3f774b53adbeb3ca30d36a67cfc41eb",
+    "execution02_after_finite/gpu_results/cohort2-block0-most_output/raw.json": "sha256:480643e1baf0a56819d93bfd0635dc1553307216ac1ad3cffe8c11cd62ee3945",
+    "execution02_after_finite/gpu_results/cohort2-block0-most_output/headroom-decisions.json": "sha256:74f9e1dd5e9b306024bd4ce1ddc5224db2035e86b42a6fdcdfab73d0df63543b",
+    "execution02_after_finite/gpu_results/cohort2-block0-most_output/metrics.json": "sha256:df1deaefd05eb62a011af9d732ba8e7b53a1b7b60f277f8338742949de7d3352",
+    "execution02_after_finite/gpu_results/cohort2-block0-most_output/config.json": "sha256:63505317bdf1b6ecf0f7a9ea3f1afe41b90754d9f42798b11857e44eae4a0b49",
+    "execution02_after_finite/gpu_results/cohort2-block0-most_output/engine_args.json": "sha256:d1ea9d74bde50c1cdcc127c5b5e5729315d9288d0cad6adcf9998a1e4937e593",
+    "execution02_after_finite/gpu_results/cohort2-block0-most_output/status.json": "sha256:34803553edda930f796eddcc7920ec67d11fb2cdadd5464dec8243caad1597c8",
+    "execution02_after_finite/gpu_results/cohort2-block0-most_output/environment.json": "sha256:bff1d76192bd5abc6299343eae6f0a0922197f0dc52025b7472807e5da0195ab",
+    "execution02_after_finite/gpu_results/cohort2-block1-most_output/raw.json": "sha256:10890f487a8807bc9e7e5c4b1a9830ec53d10a4ad1b82df35e7a9a46126b7fca",
+    "execution02_after_finite/gpu_results/cohort2-block1-most_output/headroom-decisions.json": "sha256:b65f480c203739320dfd0be4b96c47be2e95e35e35179ac6110124a99cf2b49e",
+    "execution02_after_finite/gpu_results/cohort2-block1-most_output/metrics.json": "sha256:ca4710d8642fd8920dbb06d937d9416e2b9f3f0850ecdf599633db3695a27012",
+    "execution02_after_finite/gpu_results/cohort2-block1-most_output/config.json": "sha256:63505317bdf1b6ecf0f7a9ea3f1afe41b90754d9f42798b11857e44eae4a0b49",
+    "execution02_after_finite/gpu_results/cohort2-block1-most_output/engine_args.json": "sha256:d1ea9d74bde50c1cdcc127c5b5e5729315d9288d0cad6adcf9998a1e4937e593",
+    "execution02_after_finite/gpu_results/cohort2-block1-most_output/status.json": "sha256:34803553edda930f796eddcc7920ec67d11fb2cdadd5464dec8243caad1597c8",
+    "execution02_after_finite/gpu_results/cohort2-block1-most_output/environment.json": "sha256:b9059b6c069a25ee06c41e558cf923acc589875aac01a992f044a97e968d7c93",
+    "execution02_after_finite/gpu_results/cohort2-block1-native/raw.json": "sha256:959b79a83568dd0fd3e82bc0c373bdd2b67f23a55d70f37644b14f25f1fb12a9",
+    "execution02_after_finite/gpu_results/cohort2-block1-native/headroom-decisions.json": "sha256:1620cb6e57e6bd1564e9798ad793b642f927d4a943854a6e074b82c3b01264a1",
+    "execution02_after_finite/gpu_results/cohort2-block1-native/metrics.json": "sha256:ac55c61c348f294c27bafc72d4e79095e3c511e928c69a7d40ced669ba00f7a2",
+    "execution02_after_finite/gpu_results/cohort2-block1-native/config.json": "sha256:a8a766005002f8087aa46a21791162f8d569d787769fb11a0183263a2d83afea",
+    "execution02_after_finite/gpu_results/cohort2-block1-native/engine_args.json": "sha256:d1ea9d74bde50c1cdcc127c5b5e5729315d9288d0cad6adcf9998a1e4937e593",
+    "execution02_after_finite/gpu_results/cohort2-block1-native/status.json": "sha256:c00e7219543aa0ef8487cb3071ffa1f84927b135a0ae307d751d888c01c82d75",
+    "execution02_after_finite/gpu_results/cohort2-block1-native/environment.json": "sha256:79b0a5064537bebbe676ee19b92960220d021b781ed31dae3cb2467792dccc1f",
+    "analysis02_after_finite/analysis.json": "sha256:487dac45f9c2df6ca8fd94a82234adc54c23f8b46577095079cf642e904f2e53",
+    "analysis02_after_finite/report.md": "sha256:8a25cbcf8793611bbaaa598ff5a40f2d406a699fa132c80c1b565ff7b5349f70",
+    "most_same_path_after_finite.json": "sha256:5a88ecca855606a9fc09be601d3a5f1781381ca50f8efaf5d00974fb0c5bd6eb",
+    "RESULTS_AFTER_FINITE_ADDENDUM.md": "sha256:0d12b6c099c42aa6b5954d1fdaa3556236e835481282076ab360f3e54c3a10fd",
+    "execution/execution.json": "sha256:03f0451ca144001de8ff2e9224299e1a7d9314cc4f313ab53338906f1bc6bad2",
+    "INITIALIZATION_FAILURE_ADDENDUM.md": "sha256:141f61d8a52b047ac35fb460f93b4c26fe6658d4b091cdab403a24d1435b1c1c"
+  }
+}

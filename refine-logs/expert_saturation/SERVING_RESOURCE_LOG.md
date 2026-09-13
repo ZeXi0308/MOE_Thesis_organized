@@ -139,3 +139,9 @@ static8→phase8的r0/r1 wall为3.777829→3.743439s（−0.9103%）和3.784312�
 - 2026-09-13观察中断补记：observer34278已rc255，[中断记录](outputs/admission_capacity/20260912_native_pager_r01/phase_baseline/qwen3_localized_static_v026/return_host_20260913/attempt02/observation_interruption01.json)与watch末行一致。最后实际live为UTC11:21:00.364910（北京时间19:21:00.364910），parent13263/worker13275存活，第7片1,806,696,448/3,999,975,472B，qualification为空、结果INITIALIZING；当前远端worker/结果UNKNOWN。reconnect_after_observer01/02均255；[handshake_diagnostic02](outputs/admission_capacity/20260912_native_pager_r01/phase_baseline/qwen3_localized_static_v026/return_host_20260913/attempt02/handshake_diagnostic02.json)实见TCP建立、SSH认证前HTTP/1.1 502 Bad Gateway。本地只读路由显示116.172.94.204经utun4，尚不能据此确定根因，也不能推断机器关机或实验终止。未修改raw/冻结输入；本次补记仅改文档，未另行连接或启停，修正此前verified wait的当前状态。
 
 - 控制台补记：UTC11:42:20.570的[控制台只读观察](outputs/admission_capacity/20260912_native_pager_r01/phase_baseline/qwen3_localized_static_v026/return_host_20260913/attempt02/browser_console_observation01.json)显示当前可见5条AutoDL实例均已关机；F04（ddbfwkg1fy-f70e677e）的RTX5090/Gold6459C/92GB与系统30GB、数据50GB配置相符，但页面没有SSH端口，targetSshMappingVerified=false，尚未核验其就是weste:23478。因此“控制台5实例全off”与“目标远端终态回执UNKNOWN”分列；无现成live网页终端，未开机或付费，SSH502/utun4不构成VPN根因结论。
+
+- 2026-09-13 跨会话占用登记：本会话 thread 01a0953f 正在 westc:53036 / GPU-70fa1c0a 执行固定八项 rotation strong baseline，包括各格回传间隙。请其它会话暂避该卡；实际状态以[本会话记录](active_gpu_sessions/rotation_strong_baseline_westc_53036.json)及实时进程查询为准。它是协作登记，不是强制互斥锁；完成或停止后本会话更新该条记录。写入范围主要为20260913_rotation_strong_baseline_r01，不改其它会话的代码或raw。
+
+### 2026-09-14 rotation strong baseline 八格交接
+
+westc:53036 原八格全部 READ_BACK/COMPLETE，每格32请求；本地恢复PID28677和末格远端PID7228/7229均不存在。GPU_COORDINATION已由F/X会话接续；本会话00:09现场见其它任务PID7850占用7316MiB，仅记录、不干预。原前三格未重跑，恢复及跨会话资格运行间隔保留。本会话继续CPU分析，见 `outputs/admission_capacity/20260913_rotation_strong_baseline_r01/gpu_handoff.json`。
