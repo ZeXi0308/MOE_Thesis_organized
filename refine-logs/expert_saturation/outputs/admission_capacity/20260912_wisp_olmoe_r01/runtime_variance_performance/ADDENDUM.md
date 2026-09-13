@@ -1,0 +1,7 @@
+# 观测计时边界补充（2026-09-13）
+
+原始结果、预写协议及初版analysis保持不变。协议和analysis中的“All observation cost remains inside request/episode times”应按以下具体边界理解：native_capture内每步runtime_before/runtime_after与CPU counter读取保留在observation_end_s；请求token时间是engine.step立即返回后的received_s，因此本次返回之后的观测进入后续token间隔，最后输出之后的观测只进入episode wall。没有从这些已测时间中扣除GC或观测开销。
+
+runner在capture之前/之后的runtime_observation快照和JSON写出、GPU边界检查、共同预热及最终pager归档不包含在单次capture wall中。不能用本轮wall宣称整个运行周期已完整计费，也不能将未来把GC/写出移到这些区间解释成系统加速。下一次trace生命周期干预必须同时记录含写出/回收/最终归档的完整执行周期。
+
+此补充修正范围措辞，不改变任何raw时间戳、GC交集或数值。实际执行过的analysis_source及其hash保留。

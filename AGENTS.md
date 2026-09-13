@@ -799,6 +799,8 @@ Do-not-rescue list:
 
 ## 9.1 开始前
 
+请求调度/KV/paging 实验先查 [共享结论台账](refine-logs/expert_saturation/experiments/admission_capacity/RESULT_LEDGER.md)：共享 raw 保持只读，已有分析直接引用；新分析先说明新增问题。同运行域、同指标的竞争机制纳入强基线，不用代码隔离回避比较。GPU 初始化及重复边界检查占用并留痕，忙碌或查询失败则 ABORT，不终止他人进程。
+
 Codex 必须先输出：
 
 ```text

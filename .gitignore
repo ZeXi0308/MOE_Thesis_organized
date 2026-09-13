@@ -80,6 +80,27 @@ refine-logs/expert_saturation/outputs/native_route_shape/*/runtime/
 !/artifacts/README.md
 !/artifacts/index.json
 
+# Per-step engine traces recorded after 2026-09-12.  These are the raw scheduler
+# and pager ledgers; the 2026-09-13 admission_capacity runs alone hold 23.9 GB of
+# them, with single files above 1.5 GB.  Every scientific claim is carried by the
+# compact metrics/analysis/summary JSON and the Markdown reports committed beside
+# them, so the ledgers stay local and are republished as adjacent .gz files under
+# the docs/GITHUB_DATA.md procedure when a specific run needs to be shared.
+refine-logs/expert_saturation/outputs/**/raw.json
+refine-logs/expert_saturation/outputs/**/pager/calls.jsonl
+
+# Tokenizer and vocabulary snapshots copied into model_metadata/ during Qwen3 and
+# OLMoE launches.  These are upstream model assets retrievable from their original
+# source, duplicated once per launch directory; the launch manifests record their
+# digests, which is what the experiments actually verify against.
+**/model_metadata/tokenizer.json
+**/model_metadata/vocab.json
+**/model_metadata/merges.txt
+
+# Execution bundles and result archives shipped to or retrieved from GPU hosts.
+# Their extracted contents are already tracked where they matter.
+refine-logs/expert_saturation/outputs/**/*.tar.gz
+
 # Oversized raw JSON files are published losslessly as adjacent .gz files.
 # Restore and verify using docs/GITHUB_DATA.md; local originals stay unchanged.
 /refine-logs/expert_saturation/outputs/admission_capacity/20260906_native_memory_pressure_r01/gpu_results/repeat0-long-cap16/raw.json

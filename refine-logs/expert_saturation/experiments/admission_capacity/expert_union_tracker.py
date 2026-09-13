@@ -172,35 +172,55 @@ class ExpertUnionTracker:
                 load_skew=self.load_skew(layer))
         return out
 
-    def verdict(self, *, action_space_threshold=0.10):
+    def verdict(self, *, action_space_threshold=0.10, immediate_reuse_steps=4):
         """Mechanical read: is there any instantaneous residency headroom?
 
         `action_space_threshold` is the minimum median idle fraction that could
         plausibly repay a transfer, frozen before measurement. Below it, no
-        reclamation action exists regardless of transfer cost."""
+        reclamation action exists regardless of transfer cost.
+
+        `immediate_reuse_steps` is the horizon within which re-needing an
+        expert makes a *static* residency decision meaningless, because the
+        transfer cost recurs on that period. A layer that saturates in 4 steps
+        re-reads its evicted experts roughly every 4 steps; calling that
+        "candidate headroom" would overstate the result, so the boundary is
+        explicit rather than implied by the horizon grid.
+
+        A layer whose 99% saturation window is `None` never saturated within
+        the tracked horizons. That is the only case where a genuinely stable
+        idle subset can exist, so it is required for CANDIDATE.
+        """
         summary = self.summary()
         if not summary:
             return dict(verdict="NO_DATA")
         idles = [v["idle_fraction_p50"] for v in summary.values()]
         windows = [v["saturation_window_99"] for v in summary.values()]
         best = max(idles)
-        immediate = [w for w in windows if w is not None and w <= 2]
+        # Saturating within the reuse horizon => transfer cost recurs.
+        recurring = [w for w in windows if w is not None and w <= immediate_reuse_steps]
+        # Never saturating within any tracked horizon => a stable idle subset.
+        stable = [w for w in windows if w is None]
         if best < action_space_threshold:
             verdict = "NO_RESIDENCY_HEADROOM"
-        elif len(immediate) == len(windows):
+        elif not stable:
             verdict = "HEADROOM_BUT_IMMEDIATE_REUSE"
         else:
             verdict = "CANDIDATE_RESIDENCY_HEADROOM"
         return dict(verdict=verdict, action_space_threshold=action_space_threshold,
+                    immediate_reuse_steps=immediate_reuse_steps,
                     max_layer_median_idle_fraction=best,
                     min_layer_median_idle_fraction=min(idles),
                     n_layers=len(summary),
-                    n_layers_saturating_within_2_steps=len(immediate),
+                    max_tracked_horizon=self.horizons[-1],
+                    n_layers_reusing_within_horizon=len(recurring),
+                    n_layers_never_saturating=len(stable),
                     interpretation=(
                         "NO_RESIDENCY_HEADROOM: every step needs nearly all experts; "
-                        "HEADROOM_BUT_IMMEDIATE_REUSE: idle now but needed within 2 steps, so "
-                        "transfer cost recurs; CANDIDATE_RESIDENCY_HEADROOM: some layer keeps "
-                        "experts idle across a horizon, cost question remains open"))
+                        "HEADROOM_BUT_IMMEDIATE_REUSE: every layer re-needs its experts "
+                        "within the tracked horizons, so transfer cost recurs and no "
+                        "static residency decision survives; "
+                        "CANDIDATE_RESIDENCY_HEADROOM: at least one layer keeps experts "
+                        "idle beyond every tracked horizon, cost question remains open"))
 
 
 def topk_from_logits(logits_row, k):
