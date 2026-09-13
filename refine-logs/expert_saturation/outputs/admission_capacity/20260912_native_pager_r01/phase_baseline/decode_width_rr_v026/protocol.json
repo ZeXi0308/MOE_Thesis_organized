@@ -1,0 +1,157 @@
+{
+  "status": "PREPARED_UNRUN",
+  "question": "Can pure-decode width2 round robin remove the cap16 group boundary cost without moving a larger delay onto held requests?",
+  "hypothesis": "C16/topk8 gives at most one expert group per layer for two decode rows. Extra model calls and held-request intervals are charged; structural savings alone do not imply faster requests.",
+  "source_indices": [
+    4,
+    5,
+    10
+  ],
+  "prompt_tokens": [
+    32,
+    32,
+    128
+  ],
+  "output_tokens": [
+    16,
+    16,
+    8
+  ],
+  "cells": [
+    {
+      "block": 0,
+      "order": 0,
+      "order_in_block": 0,
+      "arm": "static8",
+      "chunk": 8,
+      "decode_width_mode": "none"
+    },
+    {
+      "block": 0,
+      "order": 1,
+      "order_in_block": 1,
+      "arm": "static16",
+      "chunk": 16,
+      "decode_width_mode": "none"
+    },
+    {
+      "block": 0,
+      "order": 2,
+      "order_in_block": 2,
+      "arm": "static32",
+      "chunk": 32,
+      "decode_width_mode": "none"
+    },
+    {
+      "block": 0,
+      "order": 3,
+      "order_in_block": 3,
+      "arm": "rr32",
+      "chunk": 32,
+      "decode_width_mode": "rr2"
+    },
+    {
+      "block": 1,
+      "order": 4,
+      "order_in_block": 0,
+      "arm": "rr32",
+      "chunk": 32,
+      "decode_width_mode": "rr2"
+    },
+    {
+      "block": 1,
+      "order": 5,
+      "order_in_block": 1,
+      "arm": "static32",
+      "chunk": 32,
+      "decode_width_mode": "none"
+    },
+    {
+      "block": 1,
+      "order": 6,
+      "order_in_block": 2,
+      "arm": "static16",
+      "chunk": 16,
+      "decode_width_mode": "none"
+    },
+    {
+      "block": 1,
+      "order": 7,
+      "order_in_block": 3,
+      "arm": "static8",
+      "chunk": 8,
+      "decode_width_mode": "none"
+    }
+  ],
+  "runtime": {
+    "vllm": "0.26.0",
+    "dtype": "BF16",
+    "model_revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "expert_cap": 16,
+    "kv_bytes": 536870912,
+    "token_budget": 64,
+    "max_num_seqs": 3,
+    "chunk": "arm:8/16/32",
+    "map_mode": "batched",
+    "retention": "none",
+    "release_after_old": false,
+    "execution": "expert_after_injection"
+  },
+  "warmup": [
+    "token16_before",
+    "expert8",
+    "expert16",
+    "expert32",
+    "rr32",
+    "token16_after"
+  ],
+  "event": "Common token prefix; inject third request after four incumbent outputs; switch to expert and arm chunk. RR has no action during two-request prefix or mixed prefill.",
+  "prepared_source": {
+    "remote": "/root/autodl-tmp/expert-union/inputs_preparation/prepared/short/workload.json",
+    "sha256": "2c08f17c8edef382e6aacb4f1321d35c3f386a60ec840c95c922fbd7e0a25a53"
+  },
+  "primary": [
+    "capture wall",
+    "old-request maximum ITL and completion",
+    "new TTFT and completion"
+  ],
+  "costs": "Same instrumentation, all six warmup sequences, episode trace flush and parent/engine cycle. Actual peak memory retained; validation after capture is outside request wall.",
+  "prestate": "Source-ID normalized logical metadata including output tokens, positions, KV counts and pager slots/LRU. Physical KV IDs retained separately; no KV tensor equality claim.",
+  "scope": "Eight same-engine episodes on the already viewed source triplet. Artificial OLMoE expert capacity; natural policy-specific generation. Not an independent holdout, quality result, production tail estimate, true over-HBM model or SLO result.",
+  "stops": "Foreign GPU process or failed query; native source mismatch; incomplete or changed task; budget restoration/held state/rotation failure; observed union/group violation. Retain all attempts and do not select favorable cells.",
+  "comparison": "Compare rr32 against static32 matched no-action arm and independently selected static16 wall/static8 old-pause baselines. Show both blocks, all-request costs and same-arm repeat drift. No observed maximum used as a population noise bound.",
+  "continuation": "If full-request gains survive all three simple baselines, validate fresh requests and clock arrivals with this exact action. Otherwise decompose the necessary extra-call/held-wait cost; do not tune a sequence of width thresholds or kill the problem family.",
+  "base_source_sha256": {
+    "runtime_variation_observer.py": "ee70ee8bb1c76901ad92d61daac9724855710889264bd8fb30e12a4cc7c3178a",
+    "wisp_expert_groups.py": "d22fa5d0b1ced552556fab5209f4e55a4ecae24b658f043ef0bc35e7fd90f6f2",
+    "run_native_pager.py": "555fb35fe5fd97eb4e8080804f3da14db2099c8733d1a649b06c5df8cf0e8160",
+    "wisp_v026_adapter.py": "b6c25e2656678636a596403fba7d9318465a4bee5b0eaf9c7b457dadcbafdd93",
+    "native_pager_context.py": "cef0fc3ea112b2099d586a2ccb89c94253cecc6f5f4d9c97a22c9e22b2821008",
+    "admission_feedback.py": "279c3e0ef44f8d9a0dec9bfeffe4dea72e657f24c637d9111f6712eb7ee0ece7",
+    "batched_expert_map.py": "746367a1d68afb28ad3ba6b3a4694be00ba2579a19ecae3216f700c5daff968e",
+    "native_capture.py": "7e981d3ea2d0d206908ceaab568471d7923e2db0fc1b4f38fe6b2a73ebc5d9da"
+  },
+  "source_sha256": {
+    "admission_feedback.py": "279c3e0ef44f8d9a0dec9bfeffe4dea72e657f24c637d9111f6712eb7ee0ece7",
+    "batched_expert_map.py": "746367a1d68afb28ad3ba6b3a4694be00ba2579a19ecae3216f700c5daff968e",
+    "decode_width_rr.py": "a7c8b6324c3f5d87d954b6528aa8858ac26c6d20e6e7dad7b7ac7cf9da46cd26",
+    "native_capture.py": "26f39a7e5b96ef14f225d1ed735af508b8bb46b07155437957762f2c12d1ef89",
+    "native_pager_context.py": "cef0fc3ea112b2099d586a2ccb89c94253cecc6f5f4d9c97a22c9e22b2821008",
+    "run_native_pager.py": "5c5fa7893538cc3fb573e388657dc176e388791cb04d389df7e47e19e2310b09",
+    "runtime_variation_observer.py": "ee70ee8bb1c76901ad92d61daac9724855710889264bd8fb30e12a4cc7c3178a",
+    "wisp_expert_groups.py": "d22fa5d0b1ced552556fab5209f4e55a4ecae24b658f043ef0bc35e7fd90f6f2",
+    "wisp_v026_adapter.py": "b6c25e2656678636a596403fba7d9318465a4bee5b0eaf9c7b457dadcbafdd93"
+  },
+  "required_costs": [
+    "all-request maximum ITL",
+    "new-request maximum ITL and TPOT",
+    "all requests completion",
+    "actual payload and group counts",
+    "online observation and scheduling time",
+    "full engine and parent cycle"
+  ],
+  "ordering": "Declared static8/static16/static32/rr32 then reverse; two observations per arm, not independent randomized blocks.",
+  "action": "Only when exactly three pure decode requests are ready and both waiting queues empty: temporarily set native schedule token budget64 to2, run native schedule, validate held request RUNNING/KV/computed unchanged, rotate running order by2, restore budget64. No eviction or fixed future routes.",
+  "fairness": "While the three-request pure-decode condition persists, no request is held on consecutive nonempty calls. This is a step bound, not a wall-time guarantee.",
+  "native_scheduler_sha256": "2ed2a550b6558b2495eda845a97ae38bcf0225027b9e25fbf00fc3880c1d3941"
+}

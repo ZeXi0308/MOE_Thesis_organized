@@ -1,0 +1,1016 @@
+{
+  "schema": "document-state-abba-safe-v1",
+  "status": "MEASUREMENT_ONLY",
+  "config": {
+    "resources": {
+      "kv_bytes": 536870912,
+      "expert_cap": 16,
+      "max_num_seqs": 3,
+      "max_num_batched_tokens": 64,
+      "cpu_affinity": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "gpu_numa_node": 0,
+      "memory_binding": "Unchanged: no explicit membind; taskset CPU0-7 plus external NUMA page observation",
+      "OMP_NUM_THREADS": 8
+    },
+    "cells": [
+      {
+        "cell": "r0-old16",
+        "repeat": 0,
+        "policy": "static16",
+        "chunk": 16,
+        "new_prompt_length": 128,
+        "map_mode": "batched",
+        "document_set": "old"
+      },
+      {
+        "cell": "r0-new16",
+        "repeat": 0,
+        "policy": "static16",
+        "chunk": 16,
+        "new_prompt_length": 128,
+        "map_mode": "batched",
+        "document_set": "new"
+      },
+      {
+        "cell": "r1-new16",
+        "repeat": 1,
+        "policy": "static16",
+        "chunk": 16,
+        "new_prompt_length": 128,
+        "map_mode": "batched",
+        "document_set": "new"
+      },
+      {
+        "cell": "r1-old16",
+        "repeat": 1,
+        "policy": "static16",
+        "chunk": 16,
+        "new_prompt_length": 128,
+        "map_mode": "batched",
+        "document_set": "old"
+      }
+    ],
+    "runtime": "vLLM0.11.2 fixed WiSP cap16 BF16 with map-write-only intervention; prefetch/dynamic off",
+    "holdout_scope": "Exploratory source localization on previously observed documents; source indices [4,5,6] versus [4,5,9], prefixes 32/32/128; no new holdout.",
+    "first_action_payload": {
+      "status": "MEASURED_BY_FIRST_STEP_HOST_COUNTER_DIAGNOSTIC",
+      "boundary": "Miss-count delta times fixed per-expert tensor bytes; counter observation time recorded separately; no pure memcpy or wire claim"
+    },
+    "total_payload": "Sum final_worker pager_layers weight_copy_payload_bytes after measurement counter reset; complete episode includes preaction prefix; bytes are copied tensor bytes, not PCIe wire bytes",
+    "status": "PREPARED_UNRUN",
+    "question": "At fixed old request pair and common preaction KV/pager state, does replacing only the incoming document change first mixed-step expert loads and latency?",
+    "remote_root": "/root/autodl-tmp/wisp-runtime-0112-r01",
+    "remote_reference": "phase-baseline8-r01",
+    "remote_output": "incoming-document-abba-r01",
+    "model": "/root/autodl-tmp/hf-cache/hub/models--allenai--OLMoE-1B-7B-0924/snapshots/6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "preaction_sha256": "134afb5418f2f2bf4fdf170aa69419dc01d9b50217ae0a60560fec9d478232b2",
+    "reference_rule": "All four episodes must match the frozen old-pair common preaction state; old/new groups differ only in the third incoming request.",
+    "source_sha256": {
+      "run_wisp_injection_probe.py": "11b438d7392fc07c2a2cd328176f5f9bc7c02251bf1d240d98dcd304f1749ade",
+      "run_wisp_olmoe_probe.py": "7c8dfdb5d4a6f0663954d5d2beab2f517ac0caf12abf36a223d7d10ead30d678",
+      "phase_prefill_policy.py": "6cc3384dd91258245c7bcb04306b9de1f7823e3d339ba5df93b6b4825fd8e775",
+      "wisp_paging_trace.py": "bcbf61e7c6233e741961101968eebefe2cf460d937cddb24b8fef1676d6fa2d5",
+      "workload.json": "41f649143a6bfcdc3f902423cd2a395575016ec3f6a26076f93a7d4a8d954305",
+      "run_campaign.py": "9a627de5732d6402ef703a758fe64bdabf30df16d92620aff74bef063ddd9b07"
+    },
+    "retention": "Keep every episode including first; stop on first failure; all raw remote; safe numeric/hash export only",
+    "measurement_control": "Same LLM/CUDA context/pinned-master/scratch/map/KV allocations, native schedule restored, drained KV queue sorted and pager state emptied before identical warmup; all control costs retained separately and excluded from episode by original measurement boundary; same tiny pinned map buffers/events in both arms; no profiler; map stats reset before measurement and final GPU map validation after wall receipt; actual expert bytes/LRU/output hashes compared",
+    "interpretation": "Fixed old request pair and common preaction state in one LLM, chunk16 old/new/new/old. First-step host counters measure expert tensor payload; later free outputs may diverge.",
+    "map_source_sha256": "5572d4f05593a5a9fc4adaa14421cc596886a435b6f5f51f476a1dae6e521857",
+    "workload_sources": {
+      "old": {
+        "remote": "optimized-static-calibration-r01/workload.json",
+        "sha256": "e298138f7b85b045aaacfa2ac4663f05bb51c59c002b103fbef9e2f75203fc50"
+      },
+      "new": {
+        "remote": "optimized-static-transfer-r01/workload.json",
+        "sha256": "5b32ee7ed05af80cdea9a184873072cbbaf2fc1b487a9f45ba3c9770b9686c90",
+        "source_sha256": "9ec4dc9ebf3e775ab682b5b9d7fbaa2e5e3714a5a684b91bc05c5e78af87dd13"
+      }
+    },
+    "correction": "ensure_calls counts expert subgroups; verify 16 layer entries, positive subgroup calls and nonnegative deltas, not subgroup count==16",
+    "parent_completed_diagnostic": "document-state-abba-r02",
+    "workload_reconstruction": "Hash-check both existing remote inputs; old retains its three rows; new uses old rows 0,1 plus source-new row 2. Serialize JSON indent=2 with trailing newline, and verify each target workload SHA. Input tokens are not uploaded."
+  },
+  "config_sha256": "265d026256ad4e93c5333b02fa886caa69826b0f69c48441600c75a44365b4fd",
+  "execution": {
+    "status": "COMPLETED",
+    "pid": 46985,
+    "start_unix": 1789238185.835372,
+    "end_unix": 1789238226.8242702,
+    "document_prestate_sha256": {
+      "old": "134afb5418f2f2bf4fdf170aa69419dc01d9b50217ae0a60560fec9d478232b2",
+      "new": "134afb5418f2f2bf4fdf170aa69419dc01d9b50217ae0a60560fec9d478232b2"
+    }
+  },
+  "protocol": {
+    "valid": true,
+    "expected_order": [
+      [
+        "r0-old16",
+        0,
+        "old"
+      ],
+      [
+        "r0-new16",
+        0,
+        "new"
+      ],
+      [
+        "r1-new16",
+        1,
+        "new"
+      ],
+      [
+        "r1-old16",
+        1,
+        "old"
+      ]
+    ]
+  },
+  "cells": {
+    "r0-old16": {
+      "run_status": "COMPLETED",
+      "error": null,
+      "cell_config": {
+        "cell": "r0-old16",
+        "repeat": 0,
+        "policy": "static16",
+        "chunk": 16,
+        "new_prompt_length": 128,
+        "map_mode": "batched",
+        "document_set": "old"
+      },
+      "raw_sha256": "b1628658535a8b0e6e2cd167e79eb38e167effaa8a41dde5358b7d04340c0803",
+      "analysis_status": "VALID",
+      "metrics": {
+        "wall_s": 3.8500747811049223,
+        "old_done_s": 3.6952933594584465,
+        "old_max_itl_s": 0.3237488577142358,
+        "new_ttft_s": 2.4434215798974037,
+        "copy_payload_bytes": 177897209856,
+        "engine_calls": 19,
+        "first_action_step_s": 0.3069061962887645,
+        "max_old_cross_action_itl_s": 0.30799588467925787
+      },
+      "preaction_engine_calls_1_3": {
+        "valid": true,
+        "calls": [
+          {
+            "engine_call": 1,
+            "returned": true,
+            "wall_s": 0.03617793507874012,
+            "scheduled_tokens": 2
+          },
+          {
+            "engine_call": 2,
+            "returned": true,
+            "wall_s": 0.03796352632343769,
+            "scheduled_tokens": 2
+          },
+          {
+            "engine_call": 3,
+            "returned": true,
+            "wall_s": 0.03934081457555294,
+            "scheduled_tokens": 2
+          }
+        ]
+      },
+      "first_action_map_counters": {
+        "valid": true,
+        "engine_call": 4,
+        "layer_count": 16,
+        "before": {
+          "ensure_calls": 446,
+          "misses": 3672,
+          "evictions": 3672,
+          "full_map_copy_calls": 446
+        },
+        "after": {
+          "ensure_calls": 580,
+          "misses": 4836,
+          "evictions": 4836,
+          "full_map_copy_calls": 580
+        },
+        "delta": {
+          "ensure_calls": 134,
+          "misses": 1164,
+          "evictions": 1164,
+          "full_map_copy_calls": 134
+        },
+        "counter_read_s": {
+          "before": 3.999844193458557e-05,
+          "after": 5.836319178342819e-05,
+          "total": 9.836163371801376e-05
+        },
+        "expert_tensor_payload_bytes": 14646509568,
+        "accounting": "misses * 12 MiB expert tensor payload; not PCIe wire bytes"
+      },
+      "hashes": {
+        "prestate_sha256": "134afb5418f2f2bf4fdf170aa69419dc01d9b50217ae0a60560fec9d478232b2",
+        "workload_sha256": "e298138f7b85b045aaacfa2ac4663f05bb51c59c002b103fbef9e2f75203fc50",
+        "resources_sha256": "ce2caa2675a5db9a19b6d420265866e6e2793b461d4346007829e8f594b33f76",
+        "output_sha256": {
+          "independent-0": "fa84d40aff9becd5d610ed9e585d48abc2b36d2018120b3d111b4f42bfa9e220",
+          "independent-1": "99c6336f2109de38801a5bbb15458c391bb2f3895a96216315cb65f9b2cbf986",
+          "independent-2": "a15c5e7595def9392c34dcc64c94ce826bf87c55860494adccb41d83becbd9b3"
+        }
+      },
+      "checks": {
+        "requests_complete": true,
+        "identity": true,
+        "first_shape_18": true,
+        "preaction_calls": true,
+        "decode_once": true,
+        "timing": true,
+        "no_preemption_or_recompute": true,
+        "decisions": true,
+        "map_pass": true,
+        "first_action_map_counters": true,
+        "workload_source": true,
+        "driver_prestate": true
+      },
+      "hardware": {
+        "status": "SAMPLED",
+        "samples": 20,
+        "measurement_start_unix_s": 1789238210.1074362,
+        "measurement_end_unix_s": 1789238213.957511,
+        "mean_sample_interval_s": 0.19173456493176913,
+        "first_sample_unix_s": 1789238210.2242692,
+        "last_sample_unix_s": 1789238213.867226,
+        "clocks": {
+          "sm_clock_mhz": {
+            "samples": 20,
+            "minimum": 2715,
+            "maximum": 2872,
+            "mean": 2864.15
+          },
+          "memory_clock_mhz": {
+            "samples": 20,
+            "minimum": 13801,
+            "maximum": 13801,
+            "mean": 13801.0
+          },
+          "temperature_c": {
+            "samples": 20,
+            "minimum": 36,
+            "maximum": 37,
+            "mean": 36.8
+          },
+          "power_mw": {
+            "samples": 20,
+            "minimum": 76334,
+            "maximum": 114614,
+            "mean": 109774.1
+          },
+          "gpu_util_pct": {
+            "samples": 20,
+            "minimum": 0,
+            "maximum": 94,
+            "mean": 88.5
+          }
+        },
+        "cgroup_cpu": {
+          "nr_throttled": {
+            "first": 224,
+            "last": 224,
+            "delta": 0
+          },
+          "throttled_usec": {
+            "first": 1148255797,
+            "last": 1148255797,
+            "delta": 0
+          },
+          "usage_usec": {
+            "first": 8751509845,
+            "last": 8756946198,
+            "delta": 5436353
+          }
+        },
+        "gpu_process_isolation": {
+          "expected_worker_pids": [
+            46985
+          ],
+          "worker_pids_unchanged": true,
+          "samples_with_pid_info": 20,
+          "unexpected_compute_pids": [],
+          "all_samples_exactly_expected": true
+        },
+        "process_placement": [
+          {
+            "pid": 46985,
+            "samples": 20,
+            "cpu_allowed_lists": [
+              "0-7"
+            ],
+            "mems_allowed_lists": [
+              "0-1"
+            ],
+            "expected_cpu_affinity": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "all_sampled_affinity_matches": true,
+            "anon_numa_pages": {
+              "N1": {
+                "minimum": 10,
+                "maximum": 10
+              },
+              "N0": {
+                "minimum": 372146,
+                "maximum": 372153
+              }
+            },
+            "first_anon_numa_pages": {
+              "N0": 372146,
+              "N1": 10
+            },
+            "last_anon_numa_pages": {
+              "N0": 372153,
+              "N1": 10
+            }
+          }
+        ],
+        "boundary": "Counter delta covers first-to-last samples inside measurement; unsampled edges remain. Clock/PID samples cannot exclude between-sample excursions. Anonymous pages are process totals, not tensor-specific pinned-master placement; affinity is sampled process allowlist."
+      }
+    },
+    "r0-new16": {
+      "run_status": "COMPLETED",
+      "error": null,
+      "cell_config": {
+        "cell": "r0-new16",
+        "repeat": 0,
+        "policy": "static16",
+        "chunk": 16,
+        "new_prompt_length": 128,
+        "map_mode": "batched",
+        "document_set": "new"
+      },
+      "raw_sha256": "840d4a8c244d999be015878964e4fff6098c2ae761f5b7917b844e7bd567b2c2",
+      "analysis_status": "VALID",
+      "metrics": {
+        "wall_s": 3.469088182784617,
+        "old_done_s": 3.415970710106194,
+        "old_max_itl_s": 0.3038172582164407,
+        "new_ttft_s": 2.1880665803328156,
+        "copy_payload_bytes": 162017574912,
+        "engine_calls": 19,
+        "first_action_step_s": 0.2657896615564823,
+        "max_old_cross_action_itl_s": 0.26679340470582247
+      },
+      "preaction_engine_calls_1_3": {
+        "valid": true,
+        "calls": [
+          {
+            "engine_call": 1,
+            "returned": true,
+            "wall_s": 0.03586055338382721,
+            "scheduled_tokens": 2
+          },
+          {
+            "engine_call": 2,
+            "returned": true,
+            "wall_s": 0.03887304291129112,
+            "scheduled_tokens": 2
+          },
+          {
+            "engine_call": 3,
+            "returned": true,
+            "wall_s": 0.03945906087756157,
+            "scheduled_tokens": 2
+          }
+        ]
+      },
+      "first_action_map_counters": {
+        "valid": true,
+        "engine_call": 4,
+        "layer_count": 16,
+        "before": {
+          "ensure_calls": 446,
+          "misses": 3672,
+          "evictions": 3672,
+          "full_map_copy_calls": 446
+        },
+        "after": {
+          "ensure_calls": 565,
+          "misses": 4666,
+          "evictions": 4666,
+          "full_map_copy_calls": 565
+        },
+        "delta": {
+          "ensure_calls": 119,
+          "misses": 994,
+          "evictions": 994,
+          "full_map_copy_calls": 119
+        },
+        "counter_read_s": {
+          "before": 3.674905747175217e-05,
+          "after": 5.437806248664856e-05,
+          "total": 9.112711995840073e-05
+        },
+        "expert_tensor_payload_bytes": 12507414528,
+        "accounting": "misses * 12 MiB expert tensor payload; not PCIe wire bytes"
+      },
+      "hashes": {
+        "prestate_sha256": "134afb5418f2f2bf4fdf170aa69419dc01d9b50217ae0a60560fec9d478232b2",
+        "workload_sha256": "5b32ee7ed05af80cdea9a184873072cbbaf2fc1b487a9f45ba3c9770b9686c90",
+        "resources_sha256": "ce2caa2675a5db9a19b6d420265866e6e2793b461d4346007829e8f594b33f76",
+        "output_sha256": {
+          "independent-0": "fa84d40aff9becd5d610ed9e585d48abc2b36d2018120b3d111b4f42bfa9e220",
+          "independent-1": "99c6336f2109de38801a5bbb15458c391bb2f3895a96216315cb65f9b2cbf986",
+          "independent-2": "d9ca655044e1550b7437daea9506981272351271e15a4a714b5bf2a2ebc57087"
+        }
+      },
+      "checks": {
+        "requests_complete": true,
+        "identity": true,
+        "first_shape_18": true,
+        "preaction_calls": true,
+        "decode_once": true,
+        "timing": true,
+        "no_preemption_or_recompute": true,
+        "decisions": true,
+        "map_pass": true,
+        "first_action_map_counters": true,
+        "workload_source": true,
+        "driver_prestate": true
+      },
+      "hardware": {
+        "status": "SAMPLED",
+        "samples": 18,
+        "measurement_start_unix_s": 1789238214.6619525,
+        "measurement_end_unix_s": 1789238218.1310406,
+        "mean_sample_interval_s": 0.191942621679867,
+        "first_sample_unix_s": 1789238214.817787,
+        "last_sample_unix_s": 1789238218.0808115,
+        "clocks": {
+          "sm_clock_mhz": {
+            "samples": 18,
+            "minimum": 2872,
+            "maximum": 2872,
+            "mean": 2872.0
+          },
+          "memory_clock_mhz": {
+            "samples": 18,
+            "minimum": 13801,
+            "maximum": 13801,
+            "mean": 13801.0
+          },
+          "temperature_c": {
+            "samples": 18,
+            "minimum": 37,
+            "maximum": 38,
+            "mean": 37.666666666666664
+          },
+          "power_mw": {
+            "samples": 18,
+            "minimum": 106223,
+            "maximum": 115368,
+            "mean": 112948.05555555556
+          },
+          "gpu_util_pct": {
+            "samples": 18,
+            "minimum": 91,
+            "maximum": 95,
+            "mean": 93.27777777777777
+          }
+        },
+        "cgroup_cpu": {
+          "nr_throttled": {
+            "first": 224,
+            "last": 224,
+            "delta": 0
+          },
+          "throttled_usec": {
+            "first": 1148255797,
+            "last": 1148255797,
+            "delta": 0
+          },
+          "usage_usec": {
+            "first": 8758272396,
+            "last": 8763334708,
+            "delta": 5062312
+          }
+        },
+        "gpu_process_isolation": {
+          "expected_worker_pids": [
+            46985
+          ],
+          "worker_pids_unchanged": true,
+          "samples_with_pid_info": 18,
+          "unexpected_compute_pids": [],
+          "all_samples_exactly_expected": true
+        },
+        "process_placement": [
+          {
+            "pid": 46985,
+            "samples": 18,
+            "cpu_allowed_lists": [
+              "0-7"
+            ],
+            "mems_allowed_lists": [
+              "0-1"
+            ],
+            "expected_cpu_affinity": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "all_sampled_affinity_matches": true,
+            "anon_numa_pages": {
+              "N1": {
+                "minimum": 10,
+                "maximum": 10
+              },
+              "N0": {
+                "minimum": 377310,
+                "maximum": 377310
+              }
+            },
+            "first_anon_numa_pages": {
+              "N0": 377310,
+              "N1": 10
+            },
+            "last_anon_numa_pages": {
+              "N0": 377310,
+              "N1": 10
+            }
+          }
+        ],
+        "boundary": "Counter delta covers first-to-last samples inside measurement; unsampled edges remain. Clock/PID samples cannot exclude between-sample excursions. Anonymous pages are process totals, not tensor-specific pinned-master placement; affinity is sampled process allowlist."
+      }
+    },
+    "r1-new16": {
+      "run_status": "COMPLETED",
+      "error": null,
+      "cell_config": {
+        "cell": "r1-new16",
+        "repeat": 1,
+        "policy": "static16",
+        "chunk": 16,
+        "new_prompt_length": 128,
+        "map_mode": "batched",
+        "document_set": "new"
+      },
+      "raw_sha256": "699047f91f6a50584086e6d4038bc52604bc0a0c6013f79ba1900e00472d3d9a",
+      "analysis_status": "VALID",
+      "metrics": {
+        "wall_s": 3.4643342019990087,
+        "old_done_s": 3.411307655274868,
+        "old_max_itl_s": 0.30365310702472925,
+        "new_ttft_s": 2.1852400908246636,
+        "copy_payload_bytes": 162017574912,
+        "engine_calls": 19,
+        "first_action_step_s": 0.2639058092609048,
+        "max_old_cross_action_itl_s": 0.26501354295760393
+      },
+      "preaction_engine_calls_1_3": {
+        "valid": true,
+        "calls": [
+          {
+            "engine_call": 1,
+            "returned": true,
+            "wall_s": 0.035997326485812664,
+            "scheduled_tokens": 2
+          },
+          {
+            "engine_call": 2,
+            "returned": true,
+            "wall_s": 0.037980603985488415,
+            "scheduled_tokens": 2
+          },
+          {
+            "engine_call": 3,
+            "returned": true,
+            "wall_s": 0.040021453984081745,
+            "scheduled_tokens": 2
+          }
+        ]
+      },
+      "first_action_map_counters": {
+        "valid": true,
+        "engine_call": 4,
+        "layer_count": 16,
+        "before": {
+          "ensure_calls": 446,
+          "misses": 3672,
+          "evictions": 3672,
+          "full_map_copy_calls": 446
+        },
+        "after": {
+          "ensure_calls": 565,
+          "misses": 4666,
+          "evictions": 4666,
+          "full_map_copy_calls": 565
+        },
+        "delta": {
+          "ensure_calls": 119,
+          "misses": 994,
+          "evictions": 994,
+          "full_map_copy_calls": 119
+        },
+        "counter_read_s": {
+          "before": 3.9638951420783997e-05,
+          "after": 5.152542144060135e-05,
+          "total": 9.116437286138535e-05
+        },
+        "expert_tensor_payload_bytes": 12507414528,
+        "accounting": "misses * 12 MiB expert tensor payload; not PCIe wire bytes"
+      },
+      "hashes": {
+        "prestate_sha256": "134afb5418f2f2bf4fdf170aa69419dc01d9b50217ae0a60560fec9d478232b2",
+        "workload_sha256": "5b32ee7ed05af80cdea9a184873072cbbaf2fc1b487a9f45ba3c9770b9686c90",
+        "resources_sha256": "ce2caa2675a5db9a19b6d420265866e6e2793b461d4346007829e8f594b33f76",
+        "output_sha256": {
+          "independent-0": "fa84d40aff9becd5d610ed9e585d48abc2b36d2018120b3d111b4f42bfa9e220",
+          "independent-1": "99c6336f2109de38801a5bbb15458c391bb2f3895a96216315cb65f9b2cbf986",
+          "independent-2": "d9ca655044e1550b7437daea9506981272351271e15a4a714b5bf2a2ebc57087"
+        }
+      },
+      "checks": {
+        "requests_complete": true,
+        "identity": true,
+        "first_shape_18": true,
+        "preaction_calls": true,
+        "decode_once": true,
+        "timing": true,
+        "no_preemption_or_recompute": true,
+        "decisions": true,
+        "map_pass": true,
+        "first_action_map_counters": true,
+        "workload_source": true,
+        "driver_prestate": true
+      },
+      "hardware": {
+        "status": "SAMPLED",
+        "samples": 18,
+        "measurement_start_unix_s": 1789238218.8714733,
+        "measurement_end_unix_s": 1789238222.3358076,
+        "mean_sample_interval_s": 0.19233396474052877,
+        "first_sample_unix_s": 1789238219.033637,
+        "last_sample_unix_s": 1789238222.3033144,
+        "clocks": {
+          "sm_clock_mhz": {
+            "samples": 18,
+            "minimum": 2872,
+            "maximum": 2872,
+            "mean": 2872.0
+          },
+          "memory_clock_mhz": {
+            "samples": 18,
+            "minimum": 13801,
+            "maximum": 13801,
+            "mean": 13801.0
+          },
+          "temperature_c": {
+            "samples": 18,
+            "minimum": 38,
+            "maximum": 38,
+            "mean": 38.0
+          },
+          "power_mw": {
+            "samples": 18,
+            "minimum": 108604,
+            "maximum": 115487,
+            "mean": 114202.77777777778
+          },
+          "gpu_util_pct": {
+            "samples": 18,
+            "minimum": 81,
+            "maximum": 94,
+            "mean": 89.61111111111111
+          }
+        },
+        "cgroup_cpu": {
+          "nr_throttled": {
+            "first": 224,
+            "last": 224,
+            "delta": 0
+          },
+          "throttled_usec": {
+            "first": 1148255797,
+            "last": 1148255797,
+            "delta": 0
+          },
+          "usage_usec": {
+            "first": 8766019735,
+            "last": 8774524612,
+            "delta": 8504877
+          }
+        },
+        "gpu_process_isolation": {
+          "expected_worker_pids": [
+            46985
+          ],
+          "worker_pids_unchanged": true,
+          "samples_with_pid_info": 18,
+          "unexpected_compute_pids": [],
+          "all_samples_exactly_expected": true
+        },
+        "process_placement": [
+          {
+            "pid": 46985,
+            "samples": 18,
+            "cpu_allowed_lists": [
+              "0-7"
+            ],
+            "mems_allowed_lists": [
+              "0-1"
+            ],
+            "expected_cpu_affinity": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "all_sampled_affinity_matches": true,
+            "anon_numa_pages": {
+              "N1": {
+                "minimum": 10,
+                "maximum": 10
+              },
+              "N0": {
+                "minimum": 377459,
+                "maximum": 377459
+              }
+            },
+            "first_anon_numa_pages": {
+              "N0": 377459,
+              "N1": 10
+            },
+            "last_anon_numa_pages": {
+              "N0": 377459,
+              "N1": 10
+            }
+          }
+        ],
+        "boundary": "Counter delta covers first-to-last samples inside measurement; unsampled edges remain. Clock/PID samples cannot exclude between-sample excursions. Anonymous pages are process totals, not tensor-specific pinned-master placement; affinity is sampled process allowlist."
+      }
+    },
+    "r1-old16": {
+      "run_status": "COMPLETED",
+      "error": null,
+      "cell_config": {
+        "cell": "r1-old16",
+        "repeat": 1,
+        "policy": "static16",
+        "chunk": 16,
+        "new_prompt_length": 128,
+        "map_mode": "batched",
+        "document_set": "old"
+      },
+      "raw_sha256": "b1e553387cf7113108af0c9b4657b2095d0afbfc36e58c6b9318c225d5e8ae99",
+      "analysis_status": "VALID",
+      "metrics": {
+        "wall_s": 3.767305395565927,
+        "old_done_s": 3.6882569268345833,
+        "old_max_itl_s": 0.32173673156648874,
+        "new_ttft_s": 2.436751624569297,
+        "copy_payload_bytes": 177897209856,
+        "engine_calls": 19,
+        "first_action_step_s": 0.3067885572090745,
+        "max_old_cross_action_itl_s": 0.30771782994270325
+      },
+      "preaction_engine_calls_1_3": {
+        "valid": true,
+        "calls": [
+          {
+            "engine_call": 1,
+            "returned": true,
+            "wall_s": 0.03576935548335314,
+            "scheduled_tokens": 2
+          },
+          {
+            "engine_call": 2,
+            "returned": true,
+            "wall_s": 0.0388620775192976,
+            "scheduled_tokens": 2
+          },
+          {
+            "engine_call": 3,
+            "returned": true,
+            "wall_s": 0.0392675893381238,
+            "scheduled_tokens": 2
+          }
+        ]
+      },
+      "first_action_map_counters": {
+        "valid": true,
+        "engine_call": 4,
+        "layer_count": 16,
+        "before": {
+          "ensure_calls": 446,
+          "misses": 3672,
+          "evictions": 3672,
+          "full_map_copy_calls": 446
+        },
+        "after": {
+          "ensure_calls": 580,
+          "misses": 4836,
+          "evictions": 4836,
+          "full_map_copy_calls": 580
+        },
+        "delta": {
+          "ensure_calls": 134,
+          "misses": 1164,
+          "evictions": 1164,
+          "full_map_copy_calls": 134
+        },
+        "counter_read_s": {
+          "before": 3.684498369693756e-05,
+          "after": 5.625002086162567e-05,
+          "total": 9.309500455856323e-05
+        },
+        "expert_tensor_payload_bytes": 14646509568,
+        "accounting": "misses * 12 MiB expert tensor payload; not PCIe wire bytes"
+      },
+      "hashes": {
+        "prestate_sha256": "134afb5418f2f2bf4fdf170aa69419dc01d9b50217ae0a60560fec9d478232b2",
+        "workload_sha256": "e298138f7b85b045aaacfa2ac4663f05bb51c59c002b103fbef9e2f75203fc50",
+        "resources_sha256": "ce2caa2675a5db9a19b6d420265866e6e2793b461d4346007829e8f594b33f76",
+        "output_sha256": {
+          "independent-0": "fa84d40aff9becd5d610ed9e585d48abc2b36d2018120b3d111b4f42bfa9e220",
+          "independent-1": "99c6336f2109de38801a5bbb15458c391bb2f3895a96216315cb65f9b2cbf986",
+          "independent-2": "a15c5e7595def9392c34dcc64c94ce826bf87c55860494adccb41d83becbd9b3"
+        }
+      },
+      "checks": {
+        "requests_complete": true,
+        "identity": true,
+        "first_shape_18": true,
+        "preaction_calls": true,
+        "decode_once": true,
+        "timing": true,
+        "no_preemption_or_recompute": true,
+        "decisions": true,
+        "map_pass": true,
+        "first_action_map_counters": true,
+        "workload_source": true,
+        "driver_prestate": true
+      },
+      "hardware": {
+        "status": "SAMPLED",
+        "samples": 20,
+        "measurement_start_unix_s": 1789238223.0451949,
+        "measurement_end_unix_s": 1789238226.8125002,
+        "mean_sample_interval_s": 0.19306743772406326,
+        "first_sample_unix_s": 1789238223.0681198,
+        "last_sample_unix_s": 1789238226.736401,
+        "clocks": {
+          "sm_clock_mhz": {
+            "samples": 20,
+            "minimum": 2872,
+            "maximum": 2872,
+            "mean": 2872.0
+          },
+          "memory_clock_mhz": {
+            "samples": 20,
+            "minimum": 13801,
+            "maximum": 13801,
+            "mean": 13801.0
+          },
+          "temperature_c": {
+            "samples": 20,
+            "minimum": 38,
+            "maximum": 38,
+            "mean": 38.0
+          },
+          "power_mw": {
+            "samples": 20,
+            "minimum": 109241,
+            "maximum": 116018,
+            "mean": 113777.15
+          },
+          "gpu_util_pct": {
+            "samples": 20,
+            "minimum": 87,
+            "maximum": 94,
+            "mean": 92.35
+          }
+        },
+        "cgroup_cpu": {
+          "nr_throttled": {
+            "first": 224,
+            "last": 224,
+            "delta": 0
+          },
+          "throttled_usec": {
+            "first": 1148255797,
+            "last": 1148255797,
+            "delta": 0
+          },
+          "usage_usec": {
+            "first": 8776393536,
+            "last": 8783806853,
+            "delta": 7413317
+          }
+        },
+        "gpu_process_isolation": {
+          "expected_worker_pids": [
+            46985
+          ],
+          "worker_pids_unchanged": true,
+          "samples_with_pid_info": 20,
+          "unexpected_compute_pids": [],
+          "all_samples_exactly_expected": true
+        },
+        "process_placement": [
+          {
+            "pid": 46985,
+            "samples": 20,
+            "cpu_allowed_lists": [
+              "0-7"
+            ],
+            "mems_allowed_lists": [
+              "0-1"
+            ],
+            "expected_cpu_affinity": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "all_sampled_affinity_matches": true,
+            "anon_numa_pages": {
+              "N1": {
+                "minimum": 10,
+                "maximum": 10
+              },
+              "N0": {
+                "minimum": 377532,
+                "maximum": 377532
+              }
+            },
+            "first_anon_numa_pages": {
+              "N0": 377532,
+              "N1": 10
+            },
+            "last_anon_numa_pages": {
+              "N0": 377532,
+              "N1": 10
+            }
+          }
+        ],
+        "boundary": "Counter delta covers first-to-last samples inside measurement; unsampled edges remain. Clock/PID samples cannot exclude between-sample excursions. Anonymous pages are process totals, not tensor-specific pinned-master placement; affinity is sampled process allowlist."
+      }
+    }
+  },
+  "groups": {
+    "old": {
+      "cells": [
+        "r0-old16",
+        "r1-old16"
+      ],
+      "checks": {
+        "prestate_repeat": true,
+        "input_repeat": true,
+        "output_repeat": true
+      }
+    },
+    "new": {
+      "cells": [
+        "r0-new16",
+        "r1-new16"
+      ],
+      "checks": {
+        "prestate_repeat": true,
+        "input_repeat": true,
+        "output_repeat": true
+      }
+    }
+  },
+  "consistency": {
+    "all_four_completed": true,
+    "same_engine": true,
+    "resources_across_documents": true,
+    "map_selftest": true
+  }
+}

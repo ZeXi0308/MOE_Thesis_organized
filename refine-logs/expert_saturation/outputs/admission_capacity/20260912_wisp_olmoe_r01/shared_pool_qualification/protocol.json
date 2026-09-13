@@ -1,0 +1,49 @@
+{
+  "status": "FROZEN_UNRUN",
+  "frozen_unix_s": 1789248324.696824,
+  "question": "Can native vLLM0.26 Triton faithfully execute real OLMoE inputs with weights mapped into a 384-slot physical pool spanning 21 private and 43 shared locations per layer?",
+  "hypothesis": "The physical-index domain can exceed the logical model expert count when weights/map/global indexing are configured consistently; this is an interface qualification for a stronger baseline, not a shared-cache performance result.",
+  "source_sha256": {
+    "admission_feedback.py": "279c3e0ef44f8d9a0dec9bfeffe4dea72e657f24c637d9111f6712eb7ee0ece7",
+    "native_capture.py": "7e981d3ea2d0d206908ceaab568471d7923e2db0fc1b4f38fe6b2a73ebc5d9da",
+    "native_pager_context.py": "cef0fc3ea112b2099d586a2ccb89c94253cecc6f5f4d9c97a22c9e22b2821008",
+    "qualify_shared_expert_pool.py": "5e66e162a9e449a2bea2b1b867743b3c187c5529f607b6020e46d98dbed75539",
+    "run_native_pager.py": "959bd6a8bf4bc574c9b1fd03f136c8b38112b153e84c149177269f371c6a701f",
+    "runtime_variation_observer.py": "ee70ee8bb1c76901ad92d61daac9724855710889264bd8fb30e12a4cc7c3178a",
+    "wisp_expert_groups.py": "5ebc15df1b717d25c44017a9ae1be455c25da7d845ebeb4007cacf19c68f6033",
+    "wisp_v026_adapter.py": "ca610db5f0977871b0b058f760af141d781efb30a9856ab8d4907f8394780304"
+  },
+  "prepared_sha256": "62766f58d68db3730c43d9262a4a29a0adeb75b447d17b687abcb3a6e230f071",
+  "source_workload": "refine-logs/expert_saturation/outputs/admission_capacity/20260906_native_memory_pressure_r01/inputs_preparation/prepared/short/workload.json",
+  "source_workload_sha256": "2c08f17c8edef382e6aacb4f1321d35c3f386a60ec840c95c922fbd7e0a25a53",
+  "configuration": {
+    "vllm": "0.26.0",
+    "model": "OLMoE-1B-7B-0924",
+    "revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "requests": 4,
+    "prompt_tokens": 64,
+    "output_tokens": 8,
+    "token_budget": 160,
+    "kv_bytes": 1073741824,
+    "pager_expert_cap": 24,
+    "execution": "expert",
+    "cpu_affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "omp_threads": 8
+  },
+  "comparison": "Original per-layer same-input reference remains. Shadow compares own same-shaped full64 weights/global64/mapNone against full384 pools/global384/map384 on first min(2,M),min(10,M),min(64,M) distinct rows for each of16 actual layer calls; unchanged original output continues the model.",
+  "mapping": "Logical experts0..20 map to21*layer_index+[0..20]; experts21..63 map to336..378; other logical indices map-1. Other physical weight rows are NaN. Both real CPU master weight tensors match mapped rows before and after execution byte-for-byte.",
+  "negative_control": "Only layer0 at10rows: swap the two smallest active logical expert map values before observing negative output. Require finite/not-allclose. Missing M10 or failed fixed control is incomplete/failed, no new pair selection.",
+  "conditions": "Retain all results; finite/allclose(rtol=.01,atol=.01), exact16 layer coverage, original validation and mapped-row byte equality required. Abort on runtime/source/GPU errors. No performance, quality or bitwise-guarantee claim.",
+  "scope": "Extra shadow pool/reference/weight byte checks/CPU hashing/GPU synchronization are counted as qualification overhead. This does not implement shared-cache ownership, eviction or cross-layer lifetime. The total384 slot budget is a future steady-state design, not the memory consumption of this qualification.",
+  "next_if_pass": "Implement minimal fixed-budget shared staging using a declared deterministic private-cache rule and same-stream lifetime, then measure against strong ordinary/static baselines on new inputs.",
+  "next_if_fail": "Localize physical-map/operator compatibility; do not use invalid mapping or rewrite the failed evidence."
+}

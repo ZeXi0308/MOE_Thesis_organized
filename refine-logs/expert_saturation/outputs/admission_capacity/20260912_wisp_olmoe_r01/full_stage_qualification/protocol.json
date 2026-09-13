@@ -1,0 +1,49 @@
+{
+  "status": "FROZEN_UNRUN",
+  "created_unix_s": 1789253026.2644138,
+  "question": "Can ordinary private20 LRU plus full64 shared staging preserve actual current weights and native full-row output?",
+  "evidence_type": "NATIVE_EAGER_FULL_STAGE_LIFECYCLE_QUALIFICATION_ONLY",
+  "modes": [
+    "fullstage"
+  ],
+  "resources": {
+    "expert_slots": 384,
+    "private_slots_per_layer": 20,
+    "layers": 16,
+    "shared_slots": 64,
+    "weight_bytes": 4831838208,
+    "kv_bytes": 1073741824
+  },
+  "workload": {
+    "source": "refine-logs/expert_saturation/outputs/admission_capacity/20260906_native_memory_pressure_r01/inputs_preparation/prepared/short/workload.json",
+    "source_sha256": "2c08f17c8edef382e6aacb4f1321d35c3f386a60ec840c95c922fbd7e0a25a53",
+    "source_indices": [
+      18,
+      19,
+      20,
+      21
+    ],
+    "document_ids": [
+      "memory-train-article-0002038",
+      "memory-train-article-0002270",
+      "memory-train-article-0002378",
+      "memory-train-article-0002555"
+    ],
+    "prepared_sha256": "45d10ea8b583c81abf6b636c4ec554ec5ea096449492ad8b356af95fd05bac49",
+    "requests": 4,
+    "prompt_tokens": 64,
+    "output_tokens": 8,
+    "token_budget": 160,
+    "arrival_interval_s": 0.05
+  },
+  "contract": [
+    "Own actual current routes only; exact ordinary20 LRU final state. Stage is not a cache.",
+    "Copy current private hits to stage, each entry miss H2D once, write back newly retained private weights, then full64 kernel on contiguous pool[320:384], map=None. All same stream; stream changes wait on previous event.",
+    "Every measurement layer call must be finite/allclose(.01,.01)/bitwise against own pre-call full64 reference; actual private final and active stage weight bytes equal. All16 layers required.",
+    "References/readback add qualification memory/time; no same-budget peak or performance claim.",
+    "Total physical expert storage384 measured uniquely; private320 plus64 stage. H2D and hit-stage/writeback D2D independently counted, no overlap credit.",
+    "All failures retained, one new engine, stop on failure without automatic retry."
+  ],
+  "next_if_pass": "Same-budget compact21+48 versus ordinary fullstage20+64 complete requests, all costs retained; then sustained-service amortization if needed.",
+  "stop_if_fail": "Localize exact first implementation/numerical failure; no problem-family NO-GO."
+}

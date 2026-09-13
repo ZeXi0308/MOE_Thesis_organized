@@ -1,0 +1,43 @@
+{
+  "hypothesis": "At the same preaction state, an unmeasured chunk16 has intermediate first-step copy and decode pause predicted by a minimal line through chunk8/32, with no future route input from chunk16.",
+  "runtime": "Existing vLLM0.11.2/upstream WiSP cap16 BF16 calibration reference; not pooled with vLLM0.26 absolute latency",
+  "resources": "same512MiB KV/maxseq3/maxbudget64/cap16",
+  "action": "two fresh independent chunk16 runs of the existing two-old+new128 injection script",
+  "calibration": {
+    "r0-long8": {
+      "first_copy_bytes": 6706692096,
+      "first_itl_s": 0.24253932107239962,
+      "raw_sha256": "477c08bb7e8554a3cdd7e6b73ba09230b209724b517ef6d8bd7b14ed5cabf2e0"
+    },
+    "r0-long32": {
+      "first_copy_bytes": 19478347776,
+      "first_itl_s": 0.485749801620841,
+      "raw_sha256": "a98e57a977df8380d44b05c633825d370283fd4bc981d9420c83386a83507cb3"
+    },
+    "r1-long8": {
+      "first_copy_bytes": 6706692096,
+      "first_itl_s": 0.17765188217163086,
+      "raw_sha256": "ae23a954c28b10584c5b251b6dad5420a8bc6013a661993e2e867ea7bee4ae9b"
+    },
+    "r1-long32": {
+      "first_copy_bytes": 19478347776,
+      "first_itl_s": 0.49187565688043833,
+      "raw_sha256": "fb8dbf81da55b781e3395f2270b48832da1a62be996dfd0cc69519d8d6c00c54"
+    }
+  },
+  "frozen_predictions": [
+    {
+      "first_copy_bytes": 10963910656.0,
+      "first_itl_s": 0.32360948125521344
+    },
+    {
+      "first_copy_bytes": 10963910656.0,
+      "first_itl_s": 0.28239314040790003
+    }
+  ],
+  "holdout_scope": "held-out action, same three documents; not document holdout or online policy evidence",
+  "checks": "preaction scheduler/KV/tokens/full cache slots/ticks/clock equal original; every old decode advances; no preemption; all requests and outputs retained",
+  "interpretation": "compare first-step predicted/actual cost and action order; whole-request metrics remain measured tradeoff, not inferred from first-step saving",
+  "no_retry": "any resource occupancy or failed run stops, preserve partial results",
+  "expected_information_gain": "tests whether a simple action-cost curve transfers beyond observed endpoints before introducing a more complex model"
+}

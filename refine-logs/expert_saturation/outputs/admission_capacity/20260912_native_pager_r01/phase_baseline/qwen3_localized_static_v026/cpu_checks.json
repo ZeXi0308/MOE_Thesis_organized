@@ -1,0 +1,119 @@
+{
+  "status": "PASS",
+  "execution_status": "PREPARED_UNRUN",
+  "no_gpu": true,
+  "evidence": "CPU-only integration, capture sequence and separately checked fake-kernel numerical helper; no Qwen inference or numerical qualification result",
+  "source_sha256": {
+    "admission_feedback.py": "279c3e0ef44f8d9a0dec9bfeffe4dea72e657f24c637d9111f6712eb7ee0ece7",
+    "admission_width.py": "dded8d7c3004551015177614ba3fde83c015426cf1c704b18b994dab8ccac7f2",
+    "batched_expert_map.py": "746367a1d68afb28ad3ba6b3a4694be00ba2579a19ecae3216f700c5daff968e",
+    "continuous_admission.py": "3536857e35f9b4fce5b4e9cf530e5cc424aada41b8b1e3ac17b687b7b2cfaba4",
+    "layer47_replay.py": "179dcfd58c0e27bb204a3ea0ddd65427b092dd7ab81ccede56e05146110bce06",
+    "localized_scope.py": "3696d355757915b46d837445a5667afeed05b2400457f0414330e2479a300bd5",
+    "memory_observer.py": "33743f58c690214ae61e372916d33b177efe4a1d4199b570e422b3b59e96a3b5",
+    "native_capture.py": "50ae79b0683a2b112a7f8bfa1cfba113b25184427cb62135be49e5aa60d67250",
+    "native_pager_context.py": "cef0fc3ea112b2099d586a2ccb89c94253cecc6f5f4d9c97a22c9e22b2821008",
+    "qualification_native_capture.py": "df3527fcd7a829b5bca065de1e902b8b4f63a025dd596c6caaef444dd4c253d2",
+    "qwen_serial_loader.py": "aad68ed9fd82a75aa82495b0762ecf74e19558b7c4571beac8dcc7eed34a275c",
+    "qwen_static_prefill.py": "1ce3f0c2f4cec829747a024ccae6a65ae10e26f7133bff12ccbe49b882e4e9d7",
+    "run_native_pager.py": "780b00a192f4834163c5da69d10fc0c9e2ada0e35e468bed8b34c21ecdecd72b",
+    "runtime_variation_observer.py": "ee70ee8bb1c76901ad92d61daac9724855710889264bd8fb30e12a4cc7c3178a",
+    "serial_shards.py": "9eb9ff882151d6bc368836371b987955fe384d19399db409f2d17c719dbb2234",
+    "wisp_expert_groups.py": "cbe9fb5ac17bde0d977a798a769f07e1c21097d8b5db3a9bac9416155706d904",
+    "wisp_v026_adapter.py": "23660a1c714f145e0f556657c8448222a30054555cedd0e93e64d2d202b3c8c2"
+  },
+  "integration_checks": {
+    "status": "PASS",
+    "tests": 3,
+    "command": "python3 cpu_check_integration.py",
+    "checks": [
+      "original failed allclose retained while local attribution gate is separate",
+      "residual, missing target, nonfinite, non-drained and unknown-runtime-state rejection",
+      "same runtime/model-hook/state object and all native allocation identities preserved",
+      "qualification finalized trace retained; fresh performance calls start at zero with no validation results",
+      "original formal ABBA loop AST unchanged except completed-episode bookkeeping",
+      "original qualification capture byte-identical; exactly one pre-warmup reset"
+    ]
+  },
+  "capture_checks": {
+    "status": "PASS",
+    "path": "capture_cpu_checks.json",
+    "captures": 14,
+    "qualification": {
+      "warmup_requests": 1,
+      "warmup_outputs": 2,
+      "warmup_positions": 65,
+      "requests": 4,
+      "outputs": 32,
+      "positions": 284,
+      "no_post_warmup_reset": true,
+      "arrivals": [
+        0.0,
+        0.05,
+        0.1,
+        0.15000000000000002
+      ],
+      "original_i_times_005_metadata_equal": true
+    },
+    "formal_cells": [
+      {
+        "name": "repeat_0_static32/measurement",
+        "requests": 4,
+        "outputs": 104,
+        "positions": 388,
+        "chunk": 32,
+        "all_ready_decode_advanced": true
+      },
+      {
+        "name": "repeat_1_static16/measurement",
+        "requests": 4,
+        "outputs": 104,
+        "positions": 388,
+        "chunk": 16,
+        "all_ready_decode_advanced": true
+      },
+      {
+        "name": "repeat_2_static16/measurement",
+        "requests": 4,
+        "outputs": 104,
+        "positions": 388,
+        "chunk": 16,
+        "all_ready_decode_advanced": true
+      },
+      {
+        "name": "repeat_3_static32/measurement",
+        "requests": 4,
+        "outputs": 104,
+        "positions": 388,
+        "chunk": 32,
+        "all_ready_decode_advanced": true
+      }
+    ],
+    "command": "python3 /private/tmp/check_localized_capture_sequence.py --output NEW_RESULT.json"
+  },
+  "numerical_helper_checks": {
+    "status": "PASS",
+    "path": "../qwen3_numerical_localization_v026/cpu_checks.json",
+    "helper_sha256": "179dcfd58c0e27bb204a3ea0ddd65427b092dd7ab81ccede56e05146110bce06"
+  },
+  "inputs": {
+    "formal_sha256": "714931e38ed05732c04a476e18e43124ab230ef0955ffdbd6d8a4c6cdf920780",
+    "qualification_sha256": "03f81c893459d270e78c0be8e4717f656fa0f165c32c35184c9d7c96e91ede20",
+    "original_pattern_sha256": "42f94ff25c2d3ed76b7bd76c9e0d977f79c0339fe32900e8f0331ce9bdddc6ce"
+  },
+  "analysis_sha256": "0dd1916192e7551b2baf95e3e7606b69a088289c9b7d4dd453fbeea56f9cbd13",
+  "artifact_paths": {
+    "qualification_gate": "numerical_qualification/attribution_gate.json",
+    "qualification_raw": "numerical_qualification/repeat_0_qwen_qualification/raw.json",
+    "local_replay": "numerical_qualification/layer47_replay/layer47.pt",
+    "local_diagnostic": "numerical_qualification/layer47_replay/layer47.json",
+    "scope_handoff": "scope_handoff.json",
+    "session_lifetime": "session_lifetime.json"
+  },
+  "new_runtime_logic": {
+    "runner_added_lines": 98,
+    "scope_helper_lines": 101,
+    "layer47_helper_lines": 156
+  },
+  "cli_addition": "--qualification-prepared DIRECTORY"
+}

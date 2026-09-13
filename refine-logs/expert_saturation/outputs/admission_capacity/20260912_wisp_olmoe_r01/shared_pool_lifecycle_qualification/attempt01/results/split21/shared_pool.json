@@ -1,0 +1,125 @@
+{
+  "status": "FAILED",
+  "mode": "split",
+  "qualification": true,
+  "sources": {
+    "run_shared_pool_pager.py": "b84652c016cc0a4b5d0315af84da9c10e8b108ab9760546ee35def52eea54500",
+    "shared_pool_plan.py": "8c06a212181046cca5ba23e1aed5f6aec59ad3a2c9a7b3721b7069a472fb139b",
+    "analyze_layer_budget.py": "add39f782798eadc7bf56546783cca4a7f62fe4a72b4703869068f1fa23e0da0",
+    "run_native_pager.py": "959bd6a8bf4bc574c9b1fd03f136c8b38112b153e84c149177269f371c6a701f",
+    "wisp_v026_adapter.py": "ca610db5f0977871b0b058f760af141d781efb30a9856ab8d4907f8394780304",
+    "wisp_expert_groups.py": "5ebc15df1b717d25c44017a9ae1be455c25da7d845ebeb4007cacf19c68f6033",
+    "native_pager_context.py": "cef0fc3ea112b2099d586a2ccb89c94253cecc6f5f4d9c97a22c9e22b2821008",
+    "native_capture.py": "7e981d3ea2d0d206908ceaab568471d7923e2db0fc1b4f38fe6b2a73ebc5d9da",
+    "admission_feedback.py": "279c3e0ef44f8d9a0dec9bfeffe4dea72e657f24c637d9111f6712eb7ee0ece7"
+  },
+  "invocation": [
+    "/root/autodl-tmp/expert-saturation/vllm-0.26/bin/python",
+    "/root/autodl-tmp/shared-pool-lifecycle-qualification-20260913-root-r01/source/run_shared_pool_pager.py",
+    "--pool-execution",
+    "split",
+    "--pool-qualification",
+    "--output",
+    "/root/autodl-tmp/shared-pool-lifecycle-qualification-20260913-root-r01/results/split21",
+    "--prepared",
+    "/root/autodl-tmp/shared-pool-lifecycle-qualification-20260913-root-r01/prepared",
+    "--model",
+    "/root/autodl-tmp/hf-cache/hub/models--allenai--OLMoE-1B-7B-0924/snapshots/6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "--expert-cap",
+    "24",
+    "--execution",
+    "expert",
+    "--verify-kernel",
+    "--requests",
+    "4",
+    "--prompt-tokens",
+    "64",
+    "--output-tokens",
+    "8",
+    "--token-budget",
+    "160",
+    "--kv-bytes",
+    "1073741824",
+    "--max-seconds",
+    "900"
+  ],
+  "counter_scope": "Legacy weight_copy_bytes is H2D only; d2d_copy_bytes is separate in call/group. Canonical evictions are simulated ordinary operations; entry evictions are actual old resident removals.",
+  "scope": "384 total expert slots, 336 private and 48 reusable staging; ordinary cap21 LRU end-state on own actual rows. Single stream, no prediction or overlap. Qualifier uses extra references/readback.",
+  "error": "Traceback (most recent call last):\n  File \"/root/autodl-tmp/shared-pool-lifecycle-qualification-20260913-root-r01/source/run_shared_pool_pager.py\", line 207, in main\n    try:runner.main()\n        ^^^^^^^^^^^^^\n  File \"/root/autodl-tmp/shared-pool-lifecycle-qualification-20260913-root-r01/source/run_native_pager.py\", line 299, in main\n    engine = LLMEngine.from_engine_args(EngineArgs(**kwargs), enable_multiprocessing=False)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/engine/llm_engine.py\", line 179, in from_engine_args\n    return cls(\n           ^^^^\n  File \"/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/engine/llm_engine.py\", line 105, in __init__\n    self.engine_core = EngineCoreClient.make_client(\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/engine/core_client.py\", line 105, in make_client\n    return InprocClient(vllm_config, executor_class, log_stats)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/engine/core_client.py\", line 287, in __init__\n    self.engine_core = EngineCore(*args, **kwargs)\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/engine/core.py\", line 136, in __init__\n    kv_cache_config = self._initialize_kv_caches(vllm_config)\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/tracing/otel.py\", line 178, in sync_wrapper\n    return func(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/engine/core.py\", line 324, in _initialize_kv_caches\n    self.model_executor.initialize_from_config(kv_cache_configs)\n  File \"/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/executor/abstract.py\", line 124, in initialize_from_config\n    compilation_times: list[CompilationTimes] = self.collective_rpc(\n                                                ^^^^^^^^^^^^^^^^^^^^\n  File \"/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/executor/uniproc_executor.py\", line 92, in collective_rpc\n    result = run_method(self.driver_worker, method, args, kwargs)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/serial_utils.py\", line 510, in run_method\n    return func(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/tracing/otel.py\", line 178, in sync_wrapper\n    return func(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/worker/gpu_worker.py\", line 876, in compile_or_warm_up_model\n    hidden_states, last_hidden_states = self.model_runner._dummy_run(\n                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/torch/utils/_contextlib.py\", line 124, in decorate_context\n    return func(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/worker/gpu_model_runner.py\", line 6084, in _dummy_run\n    outputs = self.model(\n              ^^^^^^^^^^^\n  File \"/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/torch/nn/modules/module.py\", line 1779, in _wrapped_call_impl\n    return self._call_impl(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/torch/nn/modules/module.py\", line 1790, in _call_impl\n    return forward_call(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/model_executor/models/olmoe.py\", line 396, in forward\n    hidden_states = self.model(\n                    ^^^^^^^^^^^\n  File \"/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/compilation/decorators.py\", line 507, in __call__\n    return self.forward(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/model_executor/models/olmoe.py\", line 322, in forward\n    hidden_states, residual = layer(\n                              ^^^^^^\n  File \"/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/torch/nn/modules/module.py\", line 1779, in _wrapped_call_impl\n    return self._call_impl(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/torch/nn/modules/module.py\", line 1790, in _call_impl\n    return forward_call(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/model_executor/models/olmoe.py\", line 264, in forward\n    hidden_states = self.mlp(hidden_states)\n                    ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/torch/nn/modules/module.py\", line 1779, in _wrapped_call_impl\n    return self._call_impl(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/torch/nn/modules/module.py\", line 1790, in _call_impl\n    return forward_call(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/model_executor/models/olmoe.py\", line 115, in forward\n    final_hidden_states = self.experts(\n                          ^^^^^^^^^^^^^\n  File \"/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/torch/nn/modules/module.py\", line 1779, in _wrapped_call_impl\n    return self._call_impl(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/torch/nn/modules/module.py\", line 1790, in _call_impl\n    return forward_call(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/model_executor/layers/fused_moe/runner/moe_runner.py\", line 685, in forward\n    result = self._forward_entry(\n             ^^^^^^^^^^^^^^^^^^^^\n  File \"/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/torch/_ops.py\", line 1269, in __call__\n    return self._op(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/model_executor/layers/fused_moe/runner/moe_runner.py\", line 127, in _moe_forward\n    return layer._forward_impl(\n           ^^^^^^^^^^^^^^^^^^^^\n  File \"/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/model_executor/layers/fused_moe/runner/moe_runner.py\", line 830, in _forward_impl\n    shared_output, hidden_states = self._apply_quant_method(\n                                   ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/model_executor/layers/fused_moe/runner/moe_runner.py\", line 580, in _apply_quant_method\n    fused_out = self.routed_experts.forward_modular(\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/model_executor/layers/fused_moe/routed_experts.py\", line 1179, in forward_modular\n    return self.quant_method.apply(\n           ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/autodl-tmp/shared-pool-lifecycle-qualification-20260913-root-r01/source/wisp_v026_adapter.py\", line 116, in apply\n    return runtime.apply(self, layer, x, topk_weights, topk_ids)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/autodl-tmp/shared-pool-lifecycle-qualification-20260913-root-r01/source/run_shared_pool_pager.py\", line 199, in dispatch\n    if self.torch.cuda.current_stream().cuda_stream!=self.shared_stream:raise RuntimeError('shared stream changed')\n                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: shared stream changed\n",
+  "initialization": {
+    "before_release": {
+      "allocated": 5196051456,
+      "reserved": 5244977152,
+      "peak_allocated": 5200608256,
+      "peak_reserved": 5244977152
+    },
+    "pool_shapes": [
+      [
+        384,
+        2048,
+        2048
+      ],
+      [
+        384,
+        2048,
+        1024
+      ]
+    ],
+    "after_release": {
+      "allocated": 968193024,
+      "reserved": 1017118720,
+      "peak_allocated": 5200608256,
+      "peak_reserved": 5244977152
+    },
+    "after_allocate": {
+      "allocated": 5800031232,
+      "reserved": 5848956928,
+      "peak_allocated": 5800031232,
+      "peak_reserved": 5848956928
+    },
+    "stream": 0
+  },
+  "validation": [],
+  "shared_stream": 0,
+  "allocation": {
+    "layer_caps": {
+      "model.layers.0.mlp.experts": 21,
+      "model.layers.1.mlp.experts": 21,
+      "model.layers.2.mlp.experts": 21,
+      "model.layers.3.mlp.experts": 21,
+      "model.layers.4.mlp.experts": 21,
+      "model.layers.5.mlp.experts": 21,
+      "model.layers.6.mlp.experts": 21,
+      "model.layers.7.mlp.experts": 21,
+      "model.layers.8.mlp.experts": 21,
+      "model.layers.9.mlp.experts": 21,
+      "model.layers.10.mlp.experts": 21,
+      "model.layers.11.mlp.experts": 21,
+      "model.layers.12.mlp.experts": 21,
+      "model.layers.13.mlp.experts": 21,
+      "model.layers.14.mlp.experts": 21,
+      "model.layers.15.mlp.experts": 21
+    },
+    "expert_slots_total": 384,
+    "private_slots_total": 336,
+    "shared_slots": 48,
+    "expert_scratch_bytes": 4831838208,
+    "private_scratch_view_bytes": 4227858432,
+    "shared_staging_bytes": 603979776,
+    "legacy_scratch_bytes_scope": "private views only; expert_scratch_bytes is unique384 total",
+    "shared_pool_mode": "split",
+    "expert_scratch_unique_storages": [
+      {
+        "device": "cuda:0",
+        "pointer": 140401809817600,
+        "bytes": 3221225472
+      },
+      {
+        "device": "cuda:0",
+        "pointer": 140400199204864,
+        "bytes": 1610612736
+      }
+    ]
+  },
+  "coverage_error": "qualification did not cover every layer"
+}

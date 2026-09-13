@@ -1,0 +1,101 @@
+{
+  "status": "PREPARED_UNRUN",
+  "hypothesis": "Frozen endpoint interpolation predicts the first old-request ITL for unseen chunk16 at the same verified preaction state.",
+  "remote_root": "/root/autodl-tmp/wisp-runtime-0112-r01",
+  "remote_reference": "affinity",
+  "remote_output": "affinity-midpoint16-r01",
+  "runtime": "vLLM0.11.2 with unmodified pinned WiSP cap16 BF16; independent from vLLM0.26 absolute timings",
+  "resources": {
+    "kv_bytes": 536870912,
+    "expert_cap": 16,
+    "max_num_seqs": 3,
+    "max_num_batched_tokens": 64,
+    "cpu_affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "gpu_numa_node": 0,
+    "memory_binding": "Unchanged: no explicit membind; taskset CPU0-7 plus external NUMA page observation",
+    "OMP_NUM_THREADS": 8
+  },
+  "trace": false,
+  "telemetry": "Reuse affinity campaign: external 100ms NVML/CPU cgroup/NUMA observations; no new inline trace",
+  "preaction": "Two original requests exactly4outputs; same scheduler/KV blocks, old tokens and complete pager/LRU state as calibration; old decode continues every step; no preemption",
+  "preaction_sha256": "459ece52d36235b4370d0502224c9e8f7ffeb727a5f06bba033d670e12664b4a",
+  "source_sha256": {
+    "run_campaign.py": "52172856a61d7404e7d850fe4eba9a30548388aed9ed497b0ca79192cfd3f6ac",
+    "run_wisp_injection_probe.py": "9f0311b78f2dd8f04c0d4adab4ad7a19a80f8ac241613b28721207bf071c1293",
+    "run_wisp_olmoe_probe.py": "7c8dfdb5d4a6f0663954d5d2beab2f517ac0caf12abf36a223d7d10ead30d678",
+    "wisp_paging_trace.py": "bcbf61e7c6233e741961101968eebefe2cf460d937cddb24b8fef1676d6fa2d5",
+    "workload.json": "41f649143a6bfcdc3f902423cd2a395575016ec3f6a26076f93a7d4a8d954305",
+    "protocol.json": "f217fea8c3adc4c0f8c013fb615f92989d327131f3327c9bb0107bc55cfd6901"
+  },
+  "calibration": {
+    "r4-long8": {
+      "raw_sha256": "0e54af79ba930b84dc807740ca9e731ed7f277efb3bc96b25b4e65f4121a1ec4",
+      "first_itl_s": 0.2278931951150298,
+      "total_payload_bytes": 175116386304
+    },
+    "r4-long32": {
+      "raw_sha256": "8f53406f864e07eed18c1b5b28b533d27e5bba1ecbad0445bfc43a29e8c0c008",
+      "first_itl_s": 0.6087769335135818,
+      "total_payload_bytes": 170737532928
+    },
+    "r5-long8": {
+      "raw_sha256": "61f19b3a9a04df2af20b2966b3fb3e4de49655e26e3ef73507239eae0c26918d",
+      "first_itl_s": 0.2399123813956976,
+      "total_payload_bytes": 175116386304
+    },
+    "r5-long32": {
+      "raw_sha256": "8d6c62d43e84d1e34cbed375b779a1c0a93953fc191d149de9ae48c4adb12220",
+      "first_itl_s": 0.6062409291043878,
+      "total_payload_bytes": 170737532928
+    }
+  },
+  "frozen_predictions": [
+    {
+      "cell": "m0-long16",
+      "calibration_repeat": 4,
+      "chunk": 16,
+      "first_itl_s": 0.35485444124788046,
+      "formula": "ITL8 + (16-8)/(32-8) * (ITL32-ITL8)",
+      "expected_first_rows": 18
+    },
+    {
+      "cell": "m1-long16",
+      "calibration_repeat": 5,
+      "chunk": 16,
+      "first_itl_s": 0.3620218972985943,
+      "formula": "ITL8 + (16-8)/(32-8) * (ITL32-ITL8)",
+      "expected_first_rows": 18
+    }
+  ],
+  "cells": [
+    {
+      "cell": "m0-long16",
+      "repeat": 0,
+      "chunk": 16,
+      "new_prompt_length": 128
+    },
+    {
+      "cell": "m1-long16",
+      "repeat": 1,
+      "chunk": 16,
+      "new_prompt_length": 128
+    }
+  ],
+  "holdout_scope": "Previously unmeasured action on the same three documents, not document holdout or online scheduler evidence",
+  "first_action_payload": {
+    "status": "NOT_MEASURABLE_IN_THIS_UNTRACED_PROTOCOL",
+    "reason": "Original snapshot counters do not isolate first-step demand loads; no payload prediction is claimed verified"
+  },
+  "total_payload": "Sum final_worker pager_layers weight_copy_payload_bytes after measurement counter reset; complete episode includes preaction prefix; bytes are copied tensor bytes, not PCIe wire bytes",
+  "interpretation": "Report signed/absolute first-ITL prediction errors and all request tradeoffs; no invented allclose gate or method GO; full completion cannot be inferred from first-step saving",
+  "retention": "Original blocked traced prediction unchanged; create a new remote directory; require reference COMPLETED and GPU empty; preserve each result; stop at first failure or state mismatch, no automatic retry"
+}

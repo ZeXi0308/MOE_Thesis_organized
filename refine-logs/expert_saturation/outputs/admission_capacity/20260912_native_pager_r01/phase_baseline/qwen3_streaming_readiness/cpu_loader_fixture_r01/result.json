@@ -1,0 +1,36 @@
+{
+  "status": "PASS_CPU_ADAPTER_CONTRACT_ONLY",
+  "torch": "2.8.0",
+  "load_format": "qwen_bf16_serial_v026",
+  "source_sha256": {
+    "base_loader.py": "a7e925f232ad3eebbee7ab37d3aba724c24465c3078da29489da0438664c6b08",
+    "__init__.py": "139a92f930f3e508836932ea6eaacd63d9d4e9835f9bf545c59e84fce08a8aed",
+    "default_loader.py": "5d120c07b8eb4d08ce1d4e9759b832a07086dcc78d0df4cefe9beb5c29b7de4e"
+  },
+  "order": [
+    "initialize",
+    "serial",
+    "model.load_weights",
+    "target_coverage",
+    "postprocess",
+    "eval"
+  ],
+  "checks": [
+    "installed registration",
+    "inherited Base.load_model",
+    "metadata validation without fetch",
+    "one serial call",
+    "one model.load_weights",
+    "MoERunner target aliases",
+    "postprocess auto-fill cannot hide missing expert target",
+    "HTTP timeout=120",
+    "native postprocess then eval",
+    "index mismatch rejected"
+  ],
+  "fixture_dependencies": [
+    "vllm import modules",
+    "CPU model/platform",
+    "serial transport spy"
+  ],
+  "real_vllm_gpu_load": false
+}

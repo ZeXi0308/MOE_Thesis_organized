@@ -1,0 +1,46 @@
+Traceback (most recent call last):
+  File "/root/autodl-tmp/qwen3-native-qualification-v026-launch-r01/run_native_pager.py", line 320, in main
+    engine = LLMEngine.from_engine_args(EngineArgs(**kwargs), enable_multiprocessing=False)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/engine/llm_engine.py", line 179, in from_engine_args
+    return cls(
+           ^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/engine/llm_engine.py", line 105, in __init__
+    self.engine_core = EngineCoreClient.make_client(
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/engine/core_client.py", line 105, in make_client
+    return InprocClient(vllm_config, executor_class, log_stats)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/engine/core_client.py", line 287, in __init__
+    self.engine_core = EngineCore(*args, **kwargs)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/engine/core.py", line 125, in __init__
+    self.model_executor = executor_class(vllm_config)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/tracing/otel.py", line 178, in sync_wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/executor/abstract.py", line 109, in __init__
+    self._init_executor()
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/executor/uniproc_executor.py", line 68, in _init_executor
+    self.driver_worker.load_model()
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/worker/gpu_worker.py", line 431, in load_model
+    self.model_runner.load_model(load_dummy_weights=load_dummy_weights)
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/tracing/otel.py", line 178, in sync_wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/worker/gpu_model_runner.py", line 5266, in load_model
+    self.model = model_loader.load_model(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/tracing/otel.py", line 178, in sync_wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/model_executor/model_loader/base_loader.py", line 64, in load_model
+    self.load_weights(model, model_config)
+  File "/root/autodl-tmp/qwen3-native-qualification-v026-launch-r01/qwen_serial_loader.py", line 62, in load_weights
+    self.download_model(model_config)
+  File "/root/autodl-tmp/qwen3-native-qualification-v026-launch-r01/qwen_serial_loader.py", line 59, in download_model
+    require(getattr(model_config, "model_weights", None) is None, "model_weights override unsupported")
+  File "/root/autodl-tmp/qwen3-native-qualification-v026-launch-r01/serial_shards.py", line 14, in require
+    raise ValueError(message)
+ValueError: model_weights override unsupported

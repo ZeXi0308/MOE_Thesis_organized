@@ -1,0 +1,158 @@
+{
+  "status": "PREPARED_UNRUN",
+  "question": "Where is the measured current-thread CPU cost of identical admit2_32 episodes spent, and does the run variation recur under one fixed policy?",
+  "hypothesis": "Previous equal-workload repeated drift was largely in thread CPU, including native/driver calls; function profiling can localize cost without presuming a Python or CPU-placement cause.",
+  "source_indices": [
+    4,
+    5,
+    10
+  ],
+  "prompt_tokens": [
+    32,
+    32,
+    128
+  ],
+  "output_tokens": [
+    16,
+    16,
+    8
+  ],
+  "cells": [
+    {
+      "block": 0,
+      "order": 0,
+      "order_in_block": 0,
+      "arm": "admit2_32",
+      "chunk": 32,
+      "admission_cap_after": 2,
+      "release_after_old": false,
+      "profile_tag": "plain_before",
+      "cpu_profile_enabled": false
+    },
+    {
+      "block": 0,
+      "order": 1,
+      "order_in_block": 1,
+      "arm": "admit2_32",
+      "chunk": 32,
+      "admission_cap_after": 2,
+      "release_after_old": false,
+      "profile_tag": "cpu_profile_1",
+      "cpu_profile_enabled": true
+    },
+    {
+      "block": 0,
+      "order": 2,
+      "order_in_block": 2,
+      "arm": "admit2_32",
+      "chunk": 32,
+      "admission_cap_after": 2,
+      "release_after_old": false,
+      "profile_tag": "cpu_profile_2",
+      "cpu_profile_enabled": true
+    },
+    {
+      "block": 1,
+      "order": 3,
+      "order_in_block": 0,
+      "arm": "admit2_32",
+      "chunk": 32,
+      "admission_cap_after": 2,
+      "release_after_old": false,
+      "profile_tag": "cpu_profile_3",
+      "cpu_profile_enabled": true
+    },
+    {
+      "block": 1,
+      "order": 4,
+      "order_in_block": 1,
+      "arm": "admit2_32",
+      "chunk": 32,
+      "admission_cap_after": 2,
+      "release_after_old": false,
+      "profile_tag": "cpu_profile_4",
+      "cpu_profile_enabled": true
+    },
+    {
+      "block": 1,
+      "order": 5,
+      "order_in_block": 2,
+      "arm": "admit2_32",
+      "chunk": 32,
+      "admission_cap_after": 2,
+      "release_after_old": false,
+      "profile_tag": "plain_after",
+      "cpu_profile_enabled": false
+    }
+  ],
+  "runtime": {
+    "vllm": "0.26.0",
+    "dtype": "BF16",
+    "model_revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "expert_cap": 16,
+    "kv_bytes": 536870912,
+    "token_budget": 64,
+    "max_num_seqs": 3,
+    "chunk": 32,
+    "map_mode": "batched",
+    "retention": "none",
+    "release_after_old": false,
+    "execution": "expert_after_injection",
+    "admission_cap": "3 prefix, 2 after common event"
+  },
+  "warmup": [
+    "token32_before",
+    "immediate32",
+    "admit2_32",
+    "admit2_release64",
+    "token32_after"
+  ],
+  "event": "Same two-old-token prefix and event after four outputs each. All three arms really submit the third request with the same event arrival rule; its waiting time is included in TTFT.",
+  "prepared_source": {
+    "remote": "/root/autodl-tmp/expert-union/inputs_preparation/prepared/short/workload.json",
+    "sha256": "2c08f17c8edef382e6aacb4f1321d35c3f386a60ec840c95c922fbd7e0a25a53"
+  },
+  "primary": [
+    "full raw capture wall and current-thread CPU",
+    "exclusive profiled function CPU and primitive/total call counts",
+    "unchanged requests, steps, routing, cache transitions and actual payload"
+  ],
+  "costs": "Profiler wraps injection_episode including its setup/finally; raw capture time remains separate. dump_stats is after capture and retained in whole-process time. No subtraction or de-biasing. Thread CPU includes driver polling/spin and C functions; cumulative function times overlap.",
+  "prestate": "Source-ID normalized logical metadata including output tokens, positions, KV counts and pager slots/LRU. Physical KV IDs retained separately; no KV tensor equality claim.",
+  "scope": "Same OLMoE artificial expert-budget triplet and admit2_32 policy, six cells in one engine. Four instrumented episodes are source-localization diagnostics, not performance comparisons or estimates of a noise bound.",
+  "stops": "Foreign GPU or failed query, source mismatch, missing requests, invalid admission/waiting/KV state, profile-scope failure or accounting mismatch aborts and retains the attempt.",
+  "comparison": "All six structural traces and outputs; four full profiles with exclusive self CPU and call counts. Plain before/after provide context only. No policy ranking or controlled profiler-tax estimate.",
+  "continuation": "If repeated CPU variation localizes to a specific path, change one evidenced factor in a fresh controlled comparison. If it does not recur, report that limit and retain all profiles; do not infer a causal origin or stable noise bound.",
+  "base_source_sha256": {
+    "admission_feedback.py": "279c3e0ef44f8d9a0dec9bfeffe4dea72e657f24c637d9111f6712eb7ee0ece7",
+    "admission_width.py": "dded8d7c3004551015177614ba3fde83c015426cf1c704b18b994dab8ccac7f2",
+    "batched_expert_map.py": "746367a1d68afb28ad3ba6b3a4694be00ba2579a19ecae3216f700c5daff968e",
+    "native_capture.py": "54af498cd1482b717846cf61c5b3748ee5a3e6508662e06b5a1aa2aa887b05cc",
+    "native_pager_context.py": "cef0fc3ea112b2099d586a2ccb89c94253cecc6f5f4d9c97a22c9e22b2821008",
+    "run_native_pager.py": "29d16549131480a5bd439f653ed002213b57a316ef32b70ac526497e1b140d7c",
+    "runtime_variation_observer.py": "ee70ee8bb1c76901ad92d61daac9724855710889264bd8fb30e12a4cc7c3178a",
+    "wisp_expert_groups.py": "d22fa5d0b1ced552556fab5209f4e55a4ecae24b658f043ef0bc35e7fd90f6f2",
+    "wisp_v026_adapter.py": "b6c25e2656678636a596403fba7d9318465a4bee5b0eaf9c7b457dadcbafdd93"
+  },
+  "source_sha256": {
+    "admission_feedback.py": "279c3e0ef44f8d9a0dec9bfeffe4dea72e657f24c637d9111f6712eb7ee0ece7",
+    "admission_width.py": "dded8d7c3004551015177614ba3fde83c015426cf1c704b18b994dab8ccac7f2",
+    "batched_expert_map.py": "746367a1d68afb28ad3ba6b3a4694be00ba2579a19ecae3216f700c5daff968e",
+    "cpu_capture_profile.py": "4a99d8adc92e048949bc910482dbc50cfcbfb17fb9b147e94bdd26fab9879cae",
+    "native_capture.py": "54af498cd1482b717846cf61c5b3748ee5a3e6508662e06b5a1aa2aa887b05cc",
+    "native_pager_context.py": "cef0fc3ea112b2099d586a2ccb89c94253cecc6f5f4d9c97a22c9e22b2821008",
+    "run_native_pager.py": "9471264f83c761937cdb8d70c058ef6de1b4aa0fb726945f9a2c0f6db727665d",
+    "runtime_variation_observer.py": "ee70ee8bb1c76901ad92d61daac9724855710889264bd8fb30e12a4cc7c3178a",
+    "wisp_expert_groups.py": "d22fa5d0b1ced552556fab5209f4e55a4ecae24b658f043ef0bc35e7fd90f6f2",
+    "wisp_v026_adapter.py": "b6c25e2656678636a596403fba7d9318465a4bee5b0eaf9c7b457dadcbafdd93"
+  },
+  "ordering": "Six identical D episodes: plain, four CPU-profiled, plain. Diagnostic order; no randomization or independent blocks claimed.",
+  "action": "All episodes set native max_num_running_reqs2 after the same common prestate; no release arm. Only middle four enable cProfile with time.thread_time around injection_episode; all warmups remain unprofiled.",
+  "required_costs": [
+    "same prior observation and accounting",
+    "all profiling overhead retained in raw measurements",
+    "capture wrapper and dump scope metadata",
+    "whole parent/engine cycle"
+  ],
+  "native_scheduler_sha256": "2ed2a550b6558b2495eda845a97ae38bcf0225027b9e25fbf00fc3880c1d3941"
+}

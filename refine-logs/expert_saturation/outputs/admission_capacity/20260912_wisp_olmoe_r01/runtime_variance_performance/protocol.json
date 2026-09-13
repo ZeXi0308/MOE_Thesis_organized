@@ -1,0 +1,64 @@
+{
+  "created_unix_s": 1789236095.086037,
+  "state": "FROZEN_UNRUN",
+  "question": "Does pre-action timing drift recur in identical no-retention execution, and does its timing align with GC or CPU execution state?",
+  "basis": "retention_order_performance: same-arm signatures/outputs stable but late engine episodes slower before retention acts; no root cause isolated",
+  "intervention": "Passive per-step GC/CPU observations only; 8 identical none/early release8 episodes in one engine; no cache selector or resource change",
+  "runtime": {
+    "vllm": "0.26.0",
+    "model": "OLMoE-1B-7B-0924",
+    "revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "dtype": "BF16",
+    "expert_cap": 24,
+    "kv_bytes": 1073741824,
+    "token_budget": 160,
+    "execution": "expert",
+    "cpu_affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "omp_threads": 8
+  },
+  "workload": "Same3 documents P32/P32/P128, outputs16/16/8; inject new request after4 old outputs; release chunk8 only after both old requests complete",
+  "engines": 1,
+  "repeats": 8,
+  "warmup": [
+    "short32",
+    "none_early_release8",
+    "frequency_early_release8",
+    "frequency_late_release8",
+    "decode_late_release8"
+  ],
+  "reset": "Existing drained metadata reset, common warmups, allocations and KV free queue preserved; all runtime layer records retained across episodes",
+  "observations": [
+    "GC callbacks generation/start/stop/collected/uncollectable/thread",
+    "per-step CPU core before/after driver frequency read; driver-exported kHz, not whole-step actual frequency",
+    "thread/process CPU and schedstat deltas; overlapping clocks, not summed",
+    "RSS and cumulative retained layer-record counts",
+    "all request times, row routes, payload/groups, cache and allocation state"
+  ],
+  "accounting": "Intersect GC absolute perf-counter envelopes with original engine-call and episode clocks; merge intersections to avoid double counting; report overlap, do not subtract as recovered latency. All observation overhead remains in wall/request times.",
+  "retention": "All8 plus40 warmup episodes retained, failure stops without retry; previous raw untouched",
+  "outcomes": "Describe all run/step times, pre-action calls0..3, per-phase GC overlaps, CPU samples and trace equality. If drift unobserved record UNREPRODUCED; do not use this as evidence that previous late arms were fast or that variance is bounded.",
+  "stop_conditions": "GPU query error/other process abort before initialization; failed execution/identity or causal-action mismatch stop for diagnosis. No outcome-dependent additional runs or threshold scan.",
+  "claim_ceiling": "Same-program instrumented A/A observation on one model/artificial expert budget; GC/CPU temporal association is not a causal intervention or proof of pure GC/PCIe time. No method GO/noninferiority/population noise floor.",
+  "next_if_localized": "Only a measured source would justify one cost-complete intervention; no disabling GC and omitting its later collection.",
+  "sources_reference": "retention_order_frozen/protocol.json",
+  "frozen_unix_s": 1789236160.078882,
+  "source_sha256": {
+    "run_native_pager.py": "02d39d1ff22e842fecda993ae2a17806d339d8192ade5bef5e3efe55b076119b",
+    "native_capture.py": "7e981d3ea2d0d206908ceaab568471d7923e2db0fc1b4f38fe6b2a73ebc5d9da",
+    "wisp_v026_adapter.py": "0a721624d4e713b46c470e58de6517c0ed5b88da55056a8ecaa80024d0ee032c",
+    "wisp_expert_groups.py": "f299e6275b8bc09876ddac116e877bd1b618f8afdde67dd623b52c25dcd25c1d",
+    "native_pager_context.py": "cef0fc3ea112b2099d586a2ccb89c94253cecc6f5f4d9c97a22c9e22b2821008",
+    "admission_feedback.py": "279c3e0ef44f8d9a0dec9bfeffe4dea72e657f24c637d9111f6712eb7ee0ece7",
+    "runtime_variation_observer.py": "ee70ee8bb1c76901ad92d61daac9724855710889264bd8fb30e12a4cc7c3178a"
+  },
+  "cpu_checks": "4 event tests with timing envelope/unchanged allocation observation check; 2 observer tests; runner 12 argument checks, syntax and git diff --check pass"
+}

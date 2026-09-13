@@ -1,0 +1,64 @@
+{
+  "audit_skill": "experiment-audit",
+  "verdict": "PASS",
+  "P0": 0,
+  "P1": 0,
+  "reason_code": "bounded_integrity_checks_pass",
+  "reviewer_model": "gpt-5.6-sol",
+  "reviewer_reasoning": "ultra",
+  "review_independence": "same-family",
+  "acceptance_status": "provisional",
+  "fresh_agent": true,
+  "agent_id": "/root/fourarm_integrity",
+  "generated_at": "2026-09-12T17:37:15.598942+00:00",
+  "audited_input_hashes": {
+    "REPORT.md": "02fd31b33e88ba2dea9b443a0eaba5cb053e8448236b0b10b740dab0df44c22d",
+    "preparation/source_manifest.json": "726381bc531fa6ccaaf6dee342384a37b50515c4a1d9439d9758be6f42420012",
+    "execution/execution.tar.gz": "e0f95c0657afb7815b48b95de1e8192b53ddf1a24be8df2f01ecd443ae787051",
+    "execution/frozen/inputs_preparation/prepared/long/workload.json": "270d6e1ebc0022319915a25e3714debdab4388c6d5288b634193815087beaa53",
+    "execution/execution.json": "17b033815aa344e7114a1ec6d8d44d9ec0e2953c97dd94aa666794f63b83e39a",
+    "execution/preflight.json": "c7af2e8beab36e34e58f23367c2935669db907348cc08711eaf7f54abde277a5",
+    "analysis/analysis.json": "3461cdc90b0c55697c704d9ed6146de6be7f4cdeb70bdd17736fe7b0544f3bcd",
+    "analysis/rotation_accounting.json": "fd38b26da861a9c6df1a0db8e170c10cd31b459ef96ee8670b0e57c0f09925f5"
+  },
+  "checks": {
+    "identity_and_inputs": {
+      "status": "PASS",
+      "details": "256 formal requests across 8 complete cells match 32 frozen inputs, arrivals, prompt hashes and 1024 output tokens; source manifest and all archive hashes verified."
+    },
+    "online_visibility": {
+      "status": "PASS",
+      "details": "Only current running/waiting, KV/free blocks, declared output limit and own observed history; no future route/completion or other arm trace."
+    },
+    "independent_state": {
+      "status": "PASS",
+      "details": "Eight unique Python processes/engines/output directories; execution intervals do not overlap; forward/reverse order; pre-init process checks retained."
+    },
+    "accounting": {
+      "status": "PASS",
+      "details": "Scheduled work partitions into new prefill/new decode/recompute; host wall partitions into scheduler/engine remainder/outside; used+free=7671. Held work retained and charged."
+    },
+    "baselines_and_claim_scope": {
+      "status": "PASS",
+      "details": "All four arms same model/GPU/runtime/engine and KV; safe29 only changes admission. Report matches actual descriptive measurements and disclaims significance, noninferiority and method GO."
+    }
+  },
+  "allowed_claims": [
+    "Eight complete NATIVE_SERVING_INPROCESS_HOST_CAPTURE cells in one fixed 32-request regime.",
+    "Actual within-block throughput, completion, max-ITL, preemption and mutually exclusive host/work costs.",
+    "Actual rotation events, recovery to new tokens and held-state accounting.",
+    "Both repeats improve headroom throughput/mean completion/max-ITL; native throughput delta changes sign and mean completion worsens.",
+    "Output identity as an execution diagnostic only."
+  ],
+  "forbidden_claims": [
+    "Statistical significance, throughput noninferiority, no throughput cost, method GO.",
+    "Quality equivalence or output identity as a quality proof.",
+    "Cross-workload/model/hardware/production/EP generalization.",
+    "Host-time buckets as pure GPU kernel causal cost.",
+    "Recovery protection necessity or attribution: held=0.",
+    "Exact Oracle, per-request dominance, global strongest baseline, family GO/NO-GO.",
+    "Independent complete worker block-table proof; runtime adapter checks exact IDs but independent trace covers scheduler snapshots/conservation."
+  ],
+  "scope": "One bounded read-only review after eight GPU cells. Reviewer did not run GPU, modify inputs, create .aris, or read other experiment audits. Scientific status remains MEASUREMENT_ONLY.",
+  "audit_stop": "P0=0/P1=0; end this review; next progress is new independent data."
+}
