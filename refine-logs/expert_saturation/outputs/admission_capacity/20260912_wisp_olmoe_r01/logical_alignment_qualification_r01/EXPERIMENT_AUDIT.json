@@ -1,0 +1,104 @@
+{
+  "audit_skill": "experiment-audit",
+  "schema": "logical_alignment_integrity_audit_v1",
+  "generated_at": "2026-09-13T20:26:50Z",
+  "auditor": "fresh-codex-reviewer",
+  "reviewer_family": "openai",
+  "reviewer_independence": "same-family",
+  "acceptance_status": "provisional",
+  "verdict": "PASS",
+  "overall_verdict": "pass",
+  "integrity_status": "pass",
+  "reason_code": "bounded_same_call_numeric_path_qualified",
+  "p0_count": 0,
+  "p1_count": 0,
+  "summary": "All retained actual-call, prefix, helper-path, wrong-map, request, resource, hash, and sampled GPU-boundary evidence is internally consistent with the frozen same-call numerical qualification.",
+  "repository_head_observed": "de64dae5ea4fa3c92ec605e9847e817d8e68f3ac",
+  "repository_state_observed": "shared dirty worktree; exact manifests used",
+  "evaluation_type": "synthetic_proxy",
+  "evaluation_subtype": "same_input_kernel_differential",
+  "claim_ceiling": "ONE_MODEL_ONE_GPU_FROZEN_VLLM026_BF16_EAGER_TRITON_SAME_CALL_NUMERICAL_PATH_ONLY",
+  "audited_input_hashes": {
+    "input_hashes.json": "sha256:9e2107a1be6a12c0182c9caed23f331f1e937b3832dcea51013d983d7cd09ea9",
+    "attempt01/readback_manifest.json": "sha256:cafbbdf4bc5f9041c699a39384113d3b6e6a5802739e6e1e38d6ef34f4e2bd79",
+    "attempt01/results/execution.json": "sha256:5cb6eb4808ad9c24198390520f2564f825aff6852afdd2f32c531989c647c940",
+    "attempt01/results/qualification/raw.json": "sha256:bb5a4c9fff1d03127dc290e54501db471b7cb3d0834f3ef3926dcf47563432ea",
+    "attempt01/results/qualification/pager/calls.jsonl": "sha256:be78ab21e1c7e6105fd726e3f02423da14a9065c85a6c4189e32f71c647d5bfa",
+    "attempt01/results/qualification/logical_alignment.json": "sha256:d406fffe4a3fd3ba6a98b295709b38b22b19522a2bb2e260628455310ba38674",
+    "installed_source/fused_moe.py": "sha256:a8015d90908883d3dc459e7a508d2de56bfbdff678c5f36e23d0410ef5a04683",
+    "installed_source/moe_align_block_size.py": "sha256:c3f7fc2087836f0160a32ab99ceb1d8f6e87c793679da34dd672e225cb7fa31b"
+  },
+  "checks": {
+    "gt_provenance": {
+      "status": "pass",
+      "details": "Physical384/True is explicitly a same-input numerical differential reference, not task ground truth."
+    },
+    "score_normalization": {
+      "status": "pass",
+      "details": "Frozen finite/allclose acceptance uses atol=rtol=0.01; raw bit_equal and maxabs are retained. relative_l2 is diagnostic."
+    },
+    "result_existence": {
+      "status": "pass",
+      "details": "22 frozen inputs and all 48 readback payloads rehash; attempt01 has no unmanifested payload beyond its manifest."
+    },
+    "dead_code": {
+      "status": "pass",
+      "details": "The installed assignment helper is observed exactly once per recorded invocation across actual, nonreused prefix, and negative cases."
+    },
+    "scope": {
+      "status": "pass",
+      "details": "The claim is explicitly limited to one model, one runtime, one GPU, one run, five requests, 40 outputs, and numerical/path equivalence."
+    },
+    "input_preservation": {
+      "status": "pass_with_boundary",
+      "details": "Retained Python sources allocate separate outputs and do not write the input/weight arguments; no before/after tensor dump exists."
+    },
+    "gpu_boundary": {
+      "status": "pass_with_boundary",
+      "details": "Cooperative group lock and before/after no-foreign-process samples pass; sampling is not continuous isolation proof."
+    },
+    "tensor_recomputation": {
+      "status": "unavailable",
+      "details": "Raw tensors were not retained. Numerical predicates are audited original GPU comparison records, not CPU recomputation."
+    }
+  },
+  "measurements": {
+    "requests": 5,
+    "generated_tokens": 40,
+    "pager_calls_total": 288,
+    "actual_measurement_calls": 176,
+    "actual_rows_160_calls": 64,
+    "actual_rows_5_calls": 112,
+    "prefix_cases": 96,
+    "prefix_layers": 16,
+    "prefix_widths": [1, 16, 32, 64, 128, 160],
+    "actual_bit_equal": 176,
+    "actual_maxabs_max": 0.0,
+    "prefix_bit_equal": 96,
+    "prefix_maxabs_max": 0.0,
+    "negative_control": {
+      "call_id": 112,
+      "rows": 160,
+      "active_experts": 64,
+      "finite": true,
+      "allclose": false,
+      "bit_equal": false,
+      "maxabs": 0.23370361328125,
+      "relative_l2": 1.0077784286170393
+    }
+  },
+  "claims": [
+    {
+      "id": "C1",
+      "claim": "logical64/False then physical mapping matches physical384/True on all observed actual and frozen prefix cases",
+      "impact": "supported_provisionally"
+    },
+    {
+      "id": "C2",
+      "claim": "latency, throughput, memory, quality, multi-GPU, EP, or general backend benefit/equivalence",
+      "impact": "unsupported"
+    }
+  ],
+  "trace_path": null,
+  "trace_note": "No .aris trace was created because the repository-specific instruction for this audit forbids unrequested .aris artifacts."
+}

@@ -1,0 +1,1 @@
+SINGLE_EVENT_ORDER_DIAGNOSTIC / alternative GPU_UNRUN。单次排序主要交换等待，同排序保存增量随假设延迟翻转；不追加单事件GPU矩阵。

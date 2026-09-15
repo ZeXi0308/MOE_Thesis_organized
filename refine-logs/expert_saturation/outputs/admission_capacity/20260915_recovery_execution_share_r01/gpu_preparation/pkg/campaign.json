@@ -1,0 +1,79 @@
+{
+  "cells": [
+    {
+      "label": "recovery-block0-most_output",
+      "block": 0,
+      "variant": "most_output",
+      "victim_order": "most_output",
+      "filter_victims_by_funding": false,
+      "protect_native_recovery": false
+    },
+    {
+      "label": "recovery-block0-least_feasible",
+      "block": 0,
+      "variant": "least_feasible",
+      "victim_order": "least_progress",
+      "filter_victims_by_funding": true,
+      "protect_native_recovery": false
+    },
+    {
+      "label": "recovery-block0-least_feasible_native_guard",
+      "block": 0,
+      "variant": "least_feasible_native_guard",
+      "victim_order": "least_progress",
+      "filter_victims_by_funding": true,
+      "protect_native_recovery": true
+    },
+    {
+      "label": "recovery-block1-least_feasible_native_guard",
+      "block": 1,
+      "variant": "least_feasible_native_guard",
+      "victim_order": "least_progress",
+      "filter_victims_by_funding": true,
+      "protect_native_recovery": true
+    },
+    {
+      "label": "recovery-block1-least_feasible",
+      "block": 1,
+      "variant": "least_feasible",
+      "victim_order": "least_progress",
+      "filter_victims_by_funding": true,
+      "protect_native_recovery": false
+    },
+    {
+      "label": "recovery-block1-most_output",
+      "block": 1,
+      "variant": "most_output",
+      "victim_order": "most_output",
+      "filter_victims_by_funding": false,
+      "protect_native_recovery": false
+    }
+  ],
+  "scope": "Exploratory reuse of the same heterogeneous 32 documents; not fresh holdout or a victim search.",
+  "question": "Does extending existing execution protection to an actually scheduled native recovery improve full requests under the fixed pause requirement?",
+  "primary": "Mean completion time of ALL arrivals, eligible only if every planned request completes and every started request has max engine-return ITL <= 3.0 s.",
+  "secondary": [
+    "TTFT",
+    "mean TPOT",
+    "per-request maximum ITL and completion",
+    "episode wall and throughput",
+    "recompute",
+    "recovery waiting and first new output",
+    "improved and harmed requests"
+  ],
+  "actual_kv_blocks_required": 6656,
+  "fixed_kv_bytes": 13960740864,
+  "full_length_blocks_sum": 7680,
+  "dynamic_pressure": "UNMEASURED; no equality or action assumed",
+  "no_action_rule": "Retain complete no-op cells and report measured action counts; never tune or replace cells.",
+  "experiment_id": "20260915_recovery_execution_share_r01",
+  "treatment": "least_feasible_native_guard differs from least_feasible only by protect_native_recovery=True; same ready-first sharing and upper-layer selection.",
+  "strongest_simple_baseline": "most_output",
+  "interpretation_rule": "Most is the strong reference; component improvement alone is not a method or novelty claim.",
+  "retention": "All six cells and failure logs remain in frozen order; no restart or favorable replacement.",
+  "primary_max_started_request_itl_s": 3.0,
+  "infeasible_rule": "If neither arm is eligible, no feasible winner; if only one is eligible report feasibility only. Do not replace the primary with throughput.",
+  "expected_gpu_uuid": "GPU-4015b79d-bed6-3a4b-9d2b-0c17be96d0e5",
+  "expected_physical_gpu_index": 0,
+  "gpu_isolation": "Whole-host process check and common flock; CUDA visible device fixed to physical GPU0 UUID."
+}

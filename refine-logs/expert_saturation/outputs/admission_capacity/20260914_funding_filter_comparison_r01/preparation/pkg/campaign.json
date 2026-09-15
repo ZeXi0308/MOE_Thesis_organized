@@ -1,0 +1,66 @@
+{
+  "cells": [
+    {
+      "label": "funding-block0-most_output",
+      "block": 0,
+      "variant": "most_output",
+      "victim_order": "most_output",
+      "filter_victims_by_funding": false
+    },
+    {
+      "label": "funding-block0-least_progress",
+      "block": 0,
+      "variant": "least_progress",
+      "victim_order": "least_progress",
+      "filter_victims_by_funding": false
+    },
+    {
+      "label": "funding-block0-least_feasible",
+      "block": 0,
+      "variant": "least_feasible",
+      "victim_order": "least_progress",
+      "filter_victims_by_funding": true
+    },
+    {
+      "label": "funding-block1-least_feasible",
+      "block": 1,
+      "variant": "least_feasible",
+      "victim_order": "least_progress",
+      "filter_victims_by_funding": true
+    },
+    {
+      "label": "funding-block1-least_progress",
+      "block": 1,
+      "variant": "least_progress",
+      "victim_order": "least_progress",
+      "filter_victims_by_funding": false
+    },
+    {
+      "label": "funding-block1-most_output",
+      "block": 1,
+      "variant": "most_output",
+      "victim_order": "most_output",
+      "filter_victims_by_funding": false
+    }
+  ],
+  "scope": "Exploratory reuse of cohort3 documents and token prefixes, alternating P2560/P3072; not a fresh holdout, not matched dynamic KV pressure to fixed-P3072. Only the least_feasible arm adds present-state victim funding filtering.",
+  "question": "Does filtering the existing least-progress victim order by current complete-history funding improve the observed request tradeoff?",
+  "primary": "per-request maximum ITL distribution versus complete-episode request throughput",
+  "secondary": [
+    "mean and per-request completion",
+    "ITL distribution",
+    "recompute positions",
+    "actual restore waiting",
+    "selected and applied rotation counts"
+  ],
+  "actual_kv_blocks_required": 6656,
+  "fixed_kv_bytes": 13960740864,
+  "full_length_blocks_sum": 7680,
+  "dynamic_pressure": "UNMEASURED; no equality or action assumed",
+  "no_action_rule": "retain as complete calibration; no tuning pressure after observing outcomes",
+  "experiment_id": "20260914_funding_filter_comparison_r01",
+  "treatment": "least_feasible equals least_progress except filter_victims_by_funding=true",
+  "strongest_simple_baseline": "most_output",
+  "interpretation_rule": "If least_feasible improves only over least_progress and does not exceed most_output, retain it as a simple-baseline repair without independent contribution.",
+  "retention": "retain all six cells in frozen order; no post-result tuning or cell replacement"
+}

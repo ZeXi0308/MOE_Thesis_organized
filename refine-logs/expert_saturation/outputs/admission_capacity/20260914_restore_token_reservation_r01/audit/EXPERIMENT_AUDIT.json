@@ -1,0 +1,234 @@
+{
+  "audit_skill": "experiment-audit",
+  "verdict": "WARN",
+  "reason_code": "bounded_scope_quality_and_causal_transfer_limits",
+  "summary": "No P0/P1 integrity defect was found. Frozen artifacts and six native-serving cells reproduce exactly; three P2 boundaries limit scope, quality, and causal interpretation.",
+  "date": "2026-09-14",
+  "generated_at": "2026-09-13T20:26:32Z",
+  "auditor": "codex-gpt-6-fresh-same-family",
+  "agent_id": null,
+  "verdict_id": null,
+  "executor_model": "codex-gpt-6",
+  "executor_family": "openai",
+  "reviewer_model": "codex-gpt-6",
+  "reviewer_family": "openai",
+  "reviewer_reasoning": "not_exposed",
+  "review_independence": "same-family",
+  "acceptance_status": "provisional",
+  "overall_verdict": "warn",
+  "integrity_status": "pass",
+  "severity_counts": {
+    "P0": 0,
+    "P1": 0,
+    "P2": 3
+  },
+  "trace_path": null,
+  "trace_status": "not_created_by_instruction",
+  "project": "20260914_restore_token_reservation_r01",
+  "evidence_roots": {
+    "experiments_and_outputs": "refine-logs/expert_saturation",
+    "target_local": "refine-logs/expert_saturation/outputs/admission_capacity/20260914_restore_token_reservation_r01"
+  },
+  "repository_head": "de64dae5ea4fa3c92ec605e9847e817d8e68f3ac",
+  "repository_dirty_at_preparation": true,
+  "audited_input_hashes": {
+    "REPORT.md": "sha256:9db3eed807e64f1ac12bcc5723559f0d6479928450ac1fa9916e3593834577cd",
+    "RESULTS_ADDENDUM.md": "sha256:1f0f34138d46a37fc33b99221628dfb50548307c69142810fd6b2f506d24a2a8",
+    "prepare.py": "sha256:f0f2dd89b7a4bcb794174910286705d451a4a68f22bc98da5466d31cad489388",
+    "execute.py": "sha256:ae14fd7ee08bb2cfbd68e507bb8cc86fc2169c3d59182a1a1e9d035438909518",
+    "analyze_frozen_cost.py": "sha256:a367cab6edcbfdf417c50c553956185895dd0e1e6b01d34bbbf0e76dc9fb9b46",
+    "preparation/preparation.json": "sha256:ed37ef0b7fbdc6fdc3fc15024ff4555adf4e176c28667b2431c7362929d8fcdc",
+    "preparation/execution.tar.gz": "sha256:f2e20f73711fd5e54906309b90fa7cea845264f17229d1db0a6138db0cac7450",
+    "execution/execution.json": "sha256:eb590885626bc8c2997afac1677d043f262252198ebf87e99ff70db25a317e4c",
+    "execution/readback.tar.gz": "sha256:ea8b18f275d547ee97ee4014df8304d505246dc86edfbd5470eb9ea7ea72d491",
+    "analysis/analysis.json": "sha256:7331f3c9514951ec36a2fd68c193db927fccc0b2214ec04ae2aff4e76c5d8dd4",
+    "analysis/localization/analysis.json": "sha256:b8845e3be343e2e990dd3d4eab7fd30426eb64da5c4457782592b9595848320f",
+    "analysis/cost_transfer/analysis.json": "sha256:c8e4ab6ce3497b346b4675b710b2bb812d1b76de2d03ff2f18f051d45dd14f95",
+    "experiments/admission_capacity/analyze_restore_token_reservation.py": "sha256:f5def0228345f7fabdbc883776fa22b923412e36130cbbfedbb793aaf7e28342",
+    "experiments/admission_capacity/analyze_restore_completion_probe.py": "sha256:d536a7b97d50eca3e538b7861d31a408af2cb1b8cf6f5c584df3f15266809913",
+    "experiments/admission_capacity/analyze_ltr_packing_probe.py": "sha256:7a88ba39a17e536f87b60788023b3042d5b9366853d32c20fd214fd5b8bbfb38",
+    "experiments/admission_capacity/analyze_ltr_component_probe.py": "sha256:342738deed09c6fb585137a81ed5cd3186abaa54445d0443dbbed3669ccbd1a6",
+    "experiments/admission_capacity/restore_obligation.py": "sha256:54f4dc62427c1c2b6c285cb6b7d22fe6f4563b4970d37a15acf407d764d42c45",
+    "experiments/admission_capacity/test_restore_obligation.py": "sha256:f11c2ddc07b607075a4f96b190d76507bafb2603bbf2dc97da199b64335640b9"
+  },
+  "checks": {
+    "A_ground_truth_provenance": {
+      "status": "pass",
+      "details": "The primary result is native-serving systems measurement, not an accuracy benchmark. Raw engine receipts, request identities, outputs, and clocks are checked. No external quality GT exists or is claimed; differing outputs are retained.",
+      "evidence": [
+        "experiments/admission_capacity/analyze_restore_completion_probe.py:141-177",
+        "experiments/admission_capacity/analyze_prefix_cache_baseline.py:43-61",
+        "outputs/admission_capacity/20260914_restore_token_reservation_r01/RESULTS_ADDENDUM.md:18-25",
+        "outputs/admission_capacity/20260914_restore_token_reservation_r01/RESULTS_ADDENDUM.md:31-37"
+      ]
+    },
+    "B_score_normalization": {
+      "status": "pass",
+      "details": "Metrics use all-arrived request counts, actual duration, direct timestamp differences, and action/baseline ratios. No self-output max/min/mean normalization was found.",
+      "evidence": [
+        "outputs/admission_capacity/20260914_restore_token_reservation_r01/preparation/pkg/metrics.py:10-29",
+        "outputs/admission_capacity/20260914_restore_token_reservation_r01/preparation/pkg/metrics.py:62-155",
+        "experiments/admission_capacity/analyze_prefix_cache_baseline.py:206-220",
+        "outputs/admission_capacity/20260914_restore_token_reservation_r01/analyze_frozen_cost.py:15-52"
+      ]
+    },
+    "C_result_file_existence": {
+      "status": "pass",
+      "details": "All claimed cells, metrics, comparisons, source/archive/runtime receipts, and tracker entries exist and match. Fresh main/localization/cost reruns were byte-identical.",
+      "evidence": [
+        "outputs/admission_capacity/20260914_restore_token_reservation_r01/preparation/preparation.json:6-30",
+        "outputs/admission_capacity/20260914_restore_token_reservation_r01/preparation/preparation.json:31-102",
+        "outputs/admission_capacity/20260914_restore_token_reservation_r01/execution/execution.json:2-33",
+        "outputs/admission_capacity/20260914_restore_token_reservation_r01/execution/execution.json:34-108",
+        "experiments/admission_capacity/analyze_restore_token_reservation.py:152-204",
+        "outputs/admission_capacity/20260914_restore_token_reservation_r01/analysis/analysis.json:5072-5124",
+        "outputs/admission_capacity/20260914_restore_token_reservation_r01/analysis/analysis.json:11200-11252",
+        "outputs/admission_capacity/20260914_restore_token_reservation_r01/analysis/analysis.json:19261-19313",
+        "outputs/admission_capacity/20260914_restore_token_reservation_r01/analysis/analysis.json:27322-27374",
+        "outputs/admission_capacity/20260914_restore_token_reservation_r01/analysis/analysis.json:33450-33502",
+        "outputs/admission_capacity/20260914_restore_token_reservation_r01/analysis/analysis.json:38572-38624",
+        "experiments/admission_capacity/RESULT_LEDGER.md:212"
+      ]
+    },
+    "D_dead_code_and_execution_path": {
+      "status": "pass",
+      "details": "The six declared cells execute the installed scheduler component. Native tokens/victims/resources are asserted against the plan, and the independent analyzer replays every recorded pre-state. Claimed outputs are produced by called paths.",
+      "evidence": [
+        "outputs/admission_capacity/20260914_restore_token_reservation_r01/preparation/pkg/run.sh:7-25",
+        "outputs/admission_capacity/20260914_restore_token_reservation_r01/preparation/pkg/run_probe.py:181-219",
+        "outputs/admission_capacity/20260914_restore_token_reservation_r01/preparation/pkg/ltr_recompute_native.py:169-229",
+        "experiments/admission_capacity/analyze_restore_token_reservation.py:39-84",
+        "experiments/admission_capacity/analyze_restore_token_reservation.py:190-201",
+        "experiments/admission_capacity/analyze_restore_completion_probe.py:60-131"
+      ]
+    },
+    "E_scope": {
+      "status": "warn",
+      "details": "Six cells and 192 executions reuse one 32-request old-d6 cohort on one model/GPU/runtime/arrival trace. Reverse order is retained but is not independent workload replication. The report correctly limits the claim and identifies fit_scan as the strongest same-group baseline.",
+      "evidence": [
+        "outputs/admission_capacity/20260914_restore_token_reservation_r01/RESULTS_ADDENDUM.md:5-7",
+        "outputs/admission_capacity/20260914_restore_token_reservation_r01/RESULTS_ADDENDUM.md:25-31",
+        "outputs/admission_capacity/20260914_restore_token_reservation_r01/RESULTS_ADDENDUM.md:37-45",
+        "outputs/admission_capacity/20260914_restore_token_reservation_r01/execution/execution.json:34-108"
+      ]
+    },
+    "F_evaluation_type": {
+      "status": "pass",
+      "types": {
+        "primary_performance": "real_runtime_measurement",
+        "same_prestate_flag_off": "simulation_only",
+        "frozen_cost_transfer": "simulation_only",
+        "quality": "unmeasured"
+      },
+      "details": "Independent native-serving trajectories support descriptive full-request metrics. One-step flag-off and step-299 cost transfer are diagnostic only. Obligation lifetime, pending-one service, policy state, first ordered dispatch, and token/victim-map boundaries are correctly distinguished.",
+      "evidence": [
+        "outputs/admission_capacity/20260914_restore_token_reservation_r01/RESULTS_ADDENDUM.md:5-7",
+        "experiments/admission_capacity/analyze_restore_completion_probe.py:27-55",
+        "experiments/admission_capacity/analyze_restore_completion_probe.py:65-128",
+        "experiments/admission_capacity/restore_obligation.py:33-56",
+        "experiments/admission_capacity/restore_obligation.py:64-113",
+        "outputs/admission_capacity/20260914_restore_token_reservation_r01/analysis/localization/localize.py:22-39",
+        "outputs/admission_capacity/20260914_restore_token_reservation_r01/analysis/localization/localize.py:76-93",
+        "outputs/admission_capacity/20260914_restore_token_reservation_r01/analysis/localization/REPORT.md:7-12",
+        "outputs/admission_capacity/20260914_restore_token_reservation_r01/analyze_frozen_cost.py:10-52",
+        "outputs/admission_capacity/20260914_restore_token_reservation_r01/analyze_frozen_cost.py:70-76",
+        "outputs/admission_capacity/20260914_restore_token_reservation_r01/RESULTS_ADDENDUM.md:31-41"
+      ]
+    }
+  },
+  "findings": [
+    {
+      "id": "P2-01",
+      "severity": "P2",
+      "title": "Same-cohort scope and repeat dependence",
+      "impact": "The pairwise effects are descriptive for one reused cohort and do not establish statistical robustness or cross-regime performance.",
+      "evidence": [
+        "outputs/admission_capacity/20260914_restore_token_reservation_r01/RESULTS_ADDENDUM.md:5-7",
+        "outputs/admission_capacity/20260914_restore_token_reservation_r01/RESULTS_ADDENDUM.md:31",
+        "outputs/admission_capacity/20260914_restore_token_reservation_r01/RESULTS_ADDENDUM.md:37-45"
+      ]
+    },
+    {
+      "id": "P2-02",
+      "severity": "P2",
+      "title": "Output quality is unmeasured",
+      "impact": "The preserved output differences cannot support a quality-neutrality claim without a task reference or semantic evaluation.",
+      "evidence": [
+        "outputs/admission_capacity/20260914_restore_token_reservation_r01/RESULTS_ADDENDUM.md:18-25",
+        "outputs/admission_capacity/20260914_restore_token_reservation_r01/RESULTS_ADDENDUM.md:31-37",
+        "outputs/admission_capacity/20260914_restore_token_reservation_r01/analysis/analysis.json:38633-38922"
+      ]
+    },
+    {
+      "id": "P2-03",
+      "severity": "P2",
+      "title": "Conditional timing and replay are not full causal estimates",
+      "impact": "Pre-divergence elapsed residuals and actual-future-schedule cost transfer cannot be used as an action counterfactual, online prediction, or Oracle.",
+      "evidence": [
+        "outputs/admission_capacity/20260914_restore_token_reservation_r01/analyze_frozen_cost.py:10-52",
+        "outputs/admission_capacity/20260914_restore_token_reservation_r01/analyze_frozen_cost.py:70-76",
+        "outputs/admission_capacity/20260914_restore_token_reservation_r01/analysis/localization/FINDINGS.md:5-7",
+        "outputs/admission_capacity/20260914_restore_token_reservation_r01/RESULTS_ADDENDUM.md:33-35",
+        "outputs/admission_capacity/20260914_restore_token_reservation_r01/RESULTS_ADDENDUM.md:41"
+      ]
+    }
+  ],
+  "claims": [
+    {
+      "id": "C1",
+      "claim": "The intended reservation changed actual token allocation and selected ready work produced new output while restore obligations reached actual new output.",
+      "impact": "supported_bounded"
+    },
+    {
+      "id": "C2",
+      "claim": "Residual improves throughput and mean completion versus guard_all in both order blocks while increasing global max ITL.",
+      "impact": "supported_descriptive"
+    },
+    {
+      "id": "C3",
+      "claim": "Residual does not beat same-group fit_scan on throughput or mean completion in either order block.",
+      "impact": "supported_negative_boundary"
+    },
+    {
+      "id": "C4",
+      "claim": "The method is generally superior, quality neutral, production-ready, novel, or has validated Oracle headroom.",
+      "impact": "unsupported_and_not_claimed"
+    }
+  ],
+  "fresh_verification": {
+    "write_scope": "/private/tmp/token-reservation-audit.v24Tam",
+    "main_analysis_byte_identical": true,
+    "main_analysis_sha256": "7331f3c9514951ec36a2fd68c193db927fccc0b2214ec04ae2aff4e76c5d8dd4",
+    "localization_byte_identical": true,
+    "localization_sha256": "b8845e3be343e2e990dd3d4eab7fd30426eb64da5c4457782592b9595848320f",
+    "cost_transfer_byte_identical": true,
+    "cost_transfer_sha256": "c8e4ab6ce3497b346b4675b710b2bb812d1b76de2d03ff2f18f051d45dd14f95",
+    "preparation_package_sha256_checks": "17_of_17_pass",
+    "readback_package_sha256_checks": "17_of_17_pass",
+    "archive_integrity": "pass",
+    "obligation_unit_tests": "6_of_6_pass",
+    "residual_ready_candidate_occurrences_per_repeat": 1383,
+    "residual_ready_selected_occurrences_per_repeat": 1382,
+    "selected_already_outputting_occurrences_per_repeat": 1382,
+    "selected_prefill_boundary_occurrences_per_repeat": 0,
+    "selected_with_actual_new_output_occurrences_per_repeat": 1382,
+    "selected_without_actual_new_output_occurrences_per_repeat": 0,
+    "requests_completed_per_cell": 32,
+    "total_request_executions": 192,
+    "output_tokens_per_cell": 32768,
+    "total_output_tokens": 196608,
+    "all_cells_failed_engine_calls": 0,
+    "all_cells_allocation_failures": 0
+  },
+  "unavailable_checks": [
+    "No new GPU execution was permitted or performed.",
+    "No network or remote-host revalidation was permitted or performed.",
+    "Recorded common state does not establish KV tensor equality.",
+    "No free-EOS or semantic output-quality evaluation exists in this bundle.",
+    "Two reverse-order runs per arm do not establish independent statistical replication."
+  ],
+  "source_mutation": false,
+  "raw_mutation": false,
+  "old_derived_result_mutation": false,
+  "aris_created": false
+}

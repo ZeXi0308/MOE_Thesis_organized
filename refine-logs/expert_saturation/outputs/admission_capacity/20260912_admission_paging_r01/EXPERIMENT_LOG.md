@@ -145,3 +145,41 @@ The original failure stays INVALID_EXPERIMENT before measurement; r02 is MEASURE
 ### 2026-09-14 r02限定结果审计闭合
 
 [审计](../20260912_wisp_olmoe_r01/compile_domain_r02/EXPERIMENT_AUDIT.md) PASS/P0/P1=0，复用同族reviewer、provisional。独立133payload/40输入/11runtime、64请求2048输出、10176位置/4032全调用核对通过；1280准备调用与108真实编译/加载仅在初始化/准备、测量事件本身为0。r01失败独立保留。无稳定F/X收益主张。新[CPU定位](../20260912_wisp_olmoe_r01/compile_domain_r02/OBSERVED_COST_LOCALIZATION.md)将下一问题限定为可观察前缀先出现的host成本；host_cost_r01四项观察开关仅CPU准备/GPU UNRUN。
+
+## 2026-09-14 B host-cost observation control completed
+
+[Report](../20260912_wisp_olmoe_r01/host_cost_r01/REPORT.md). Same X execution and r02 compiler preparation, observer off/on/on/off: all64 requests/2048 outputs and10176 scheduled positions completed. 3600 measured/4048 all layer calls; on111 engine plus1776 planner and1776 kernel host spans,3663 total. Four cells qualified compiler coverage and hook restoration. Whole GPU group released1789326482.406;140-member archive fully verified, SHAdea1b44f5e643ec8ca5c4e977cd56eddb41f38c0af37027c1230c554686270b3. Local frozen analysis matches remote semantically.
+
+On/off capture +0.608%/+4.078%, mean completion +1.348%/+7.063%; these include changed trajectories and are not subtractable pure observation overhead. Off repeats have identical routes and16/16 outputs, capture +0.365%; on repeat capture+3.827% with different routes/11-of16 equal outputs. Two engines per switch are not a noise bound.
+
+Observed on engine spans8156.657/8486.156ms, thread CPU8154.735/8484.765ms; same-thread GC overlap46.426/50.228ms. GC difference does not explain the329.500ms engine difference; thread CPU includes potential busy-wait/driver work and is not a Python/GPU bottleneck attribution. Scheduler-stat sysctl was0, so queue counters are retained without qualified wait attribution. Narrow host spans and native wide CPU deltas have different observation envelopes; GC/planner/kernel/engine spans overlap and are not summed or deducted. New CPU prefix localization is being finalized; limited integrity review remains pending. No new GPU group or method GO.
+
+
+### 2026-09-14 host-cost限定审计与前缀定位闭合
+
+[限定审计](../20260912_wisp_olmoe_r01/host_cost_r01/EXPERIMENT_AUDIT.md) PASS/P0/P1=0，复用同族reviewer、provisional；原始四格与完整账本不变。[前缀定位](../20260912_wisp_olmoe_r01/host_cost_r01/PREFIX_LOCALIZATION.md)：两on step1/call137/layer9约20.9ms planner各与generation2 GC重合14.1ms（约67%），约6.8ms仍未定位。前三步engine差32.170ms，GC差仅0.091ms；旧r02长调用位置未重现，不追认旧根因。可观察请求/route/plan/cache/output前缀至step10相同，随后返回时刻跨2s到达点，step11成为70/102行。结论是MEASUREMENT_ONLY / SOURCE_LOCATION_CEILING，无可扣除的GC成本或方法GO；本轮分析完成，停止扩展同类审计/溯源，GPU窗口已释放。
+
+
+### 2026-09-14 新cohort F/X八格首次启动
+
+B/fresh_cohort_r01保留原11runtime/3compiler helper和384槽/1GiB KV，eligible65–96两组新文档，F/X/X/F及X/F/F/X八新引擎。包464784B/SHA1df3d416383e338adf1feb8eef922e2af8e26be670ea53d8871ed085d9a0eadc，44输入/外部4WiSP/6版本双端通过；旧四格派生行不变及错cohort/预热身份负例通过。A offload-cost整组COMPLETE并释放后，1789328040.812535实际启动controller41338，GPU现场空且整组flock。主指标仍capture，关闭H新增CPU/GC观察，成本与不利结果全留。当前RUNNING，非净收益/确认性结论。
+
+
+### 2026-09-14 新文档F/X八格完成：稳定净收益仍未成立
+
+[完整报告](../20260912_wisp_olmoe_r01/fresh_cohort_r01/REPORT.md)。eligible65–96两新cohort，原编译覆盖/384槽/1GiB KV，128请求4096输出、20352调度位置、7136测量/8032全层调用均保留。主capture四配对−3.488%/+0.486%/+1.085%/−0.830%；两cohort均值−1.495%/+0.129%，平均完成−1.460%/+1.426%。D2D均值−54.068%/−54.741%、load包络−5.152%/−6.182%，而四配对最大ITL均增加4.205%–9.657%。不以字节下降替代完整请求改善，不以两台engine/组构造噪声界。
+
+原8格全部COMPLETE/coverage通过，测量无被观测compiler/load事件；setup50.742656s、全部process491.351165s保留。24GPU边界/整组共同锁，通过后已释放。archive11848036B/SHA19bdb3edb6f48ac6ffbfa92800f62af512dc293b320e6b7e792e4d8bd749c96f，222成员/221payload与44输入全匹配，冻结本地/远端分析一致。[fresh同族限定复核](../20260912_wisp_olmoe_r01/fresh_cohort_r01/EXPERIMENT_AUDIT.md)PASS/P0/P1=0、provisional，停止扩展审计。
+
+当前X稳定净收益主张停止，研究问题保留OPEN/MEASUREMENT_ONLY。唯一下一logical_alignment_qualification_r01仅做CPU准备：同384物理槽、先logical64对齐后映射的索引/数值资格；直接global64/True不合法，新False路径增加gather，收益/质量未测。已有qualification不自动覆盖新排序/EM路径，不重复原X取有利样本。
+
+
+- 2026-09-14 logical-alignment资格：remote `/root/autodl-tmp/logical-alignment-qualification-20260914-root-r01`，controller48237，38.828256588s子进程，5/40 COMPLETE，176actual+96prefix数值通过，负控检出。输入SHA daac675524e2bee19ea9f5db127823a886e2fdb47290d55267529eb7bd664edd；readback SHA 2aaabe8803bf3bfd10b7fce7d7ce74e087c6c96c70573f425a8f2425b6570d07，49成员/22输入核对一致。GPU已交其他会话，不作资格时间性能对比。
+- 下一logical-alignment性能六格：输入包SHA 513da51fb7276e05f28e75eda66a7661aece0bb95cd281b12e938578e4591961，40项、276801B；F/X/Y/Y/X/F，输入SHA f734266e875a6aa8e4bd9130b9599344aac6eac002fbe72a79b2486a490daf1c，未运行。最强F和原X同时对照，不带资格双算/数值readback；samearm两值不称噪声底。
+
+- 2026-09-14 logical性能六格：controller55793 finished1789332537.156036，后现场PID退出/GPU空/flock可取；capture Y/F −2.075680/−1.704036%，Y/X −3.196768/−2.408519%，最大ITL双向下降；全进程Y/X +1.684079/−4.123090%保留。归档21,980,850B/SHA d82c23e224e574267f485173d9972106d581248dc5fe576a223bc924fa1c9fd9，1471成员/1470载荷、40输入全部核对，本地封存分析精确相同。SSH空闲断连重连只影响回传，未重新运行GPU。下一独立cohort验证CPU准备，无参数扫描。
+
+
+### 2026-09-14 logical对齐独立文档验证未延续对X增量
+
+[第二cohort报告](../20260912_wisp_olmoe_r01/logical_alignment_validation_r01/REPORT.md)：Y/X capture +1.7684/−0.0648%，全进程+4.4917/+3.5423%；Y/F仍−2.6628/−2.9277%，但本组X/F已−4.3542/−2.8648%。停止stable Y increment，不追加文档/参数扫描。96请求3072输出、15264位置、5440测量层调用全部完成；1473成员回读核对，本地与远端分析一致。GPU六格已完整释放；下一先核对既有Qwen3真实超显存数值资格的UNKNOWN终态，不重复准入/入场冲击旧实验。

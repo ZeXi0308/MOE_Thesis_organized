@@ -1,0 +1,1 @@
+Actual selector/prepare CPU behavior PASS for30 versus0 with cooldown/residency/progress/funding guards retained; package AST, runner CLI, shell syntax PASS. Requested/actual config passthrough reviewed. Inherited measured save/host/output/failure-retention implementation retained. GPU UNRUN. Archive SHA256 8ffa85701f7faf380905085a535c5a0b9a30b28b3dea8390a3666980c21383f7

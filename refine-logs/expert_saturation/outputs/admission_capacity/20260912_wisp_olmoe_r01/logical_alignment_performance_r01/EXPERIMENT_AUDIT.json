@@ -1,0 +1,274 @@
+{
+  "audit_skill": "experiment-audit",
+  "schema": "logical_alignment_performance_integrity_audit_v1",
+  "generated_at": "2026-09-14T00:53:41Z",
+  "auditor": "fresh-codex-reviewer-requested-route",
+  "reviewer_family": "openai",
+  "reviewer_independence": "same-family",
+  "acceptance_status": "provisional",
+  "verdict": "PASS_BOUNDED_INTEGRITY",
+  "overall_verdict": "pass",
+  "integrity_status": "pass",
+  "reason_code": "bounded_native_request_measurement_integrity_pass",
+  "p0_count": 0,
+  "p1_count": 0,
+  "p0_findings": [],
+  "p1_findings": [],
+  "summary": "All retained six-cell input, request, pager, logical-path, compile-domain, resource, timing, cost and sampled GPU-boundary evidence is internally consistent with the frozen one-cohort descriptive result.",
+  "repository_head_observed": "de64dae5ea4fa3c92ec605e9847e817d8e68f3ac",
+  "repository_state_observed": "shared dirty worktree; frozen manifests and readback payloads used",
+  "evaluation_type": "self_supervised_proxy",
+  "evaluation_subtype": "native_request_level_performance_measurement_without_task_ground_truth",
+  "evidence_type": "REQUEST_LEVEL_NATIVE_SERVING_INPROCESS_HOST_CAPTURE_WITH_INTEGRATED_PAGER",
+  "claim_ceiling": "MEASUREMENT_ONLY_ONE_COHORT_DIRECTIONAL_EXISTENCE_SIGNAL",
+  "audited_hashes": {
+    "input_hashes.json": "sha256:32d4a8c15cab53c2eb926cba7d80da046ceebdce45bafba67f233353f1f68d84",
+    "attempt01/readback_manifest.json": "sha256:73ad80c4ddad3305b5559cbe929851c65ef11cd23d9b9c0985b31cc942ebfc3c",
+    "attempt01/results/execution.json": "sha256:3443f39a480286a6b001c4c87caca8fb5f49a205e26896f7b7dbc27af07db45c",
+    "attempt01/analysis.json": "sha256:46de429eb53719041dcfba0058ed89b10b7731602b9f989eaa9ad3610e9269ab"
+  },
+  "readback": {
+    "payload_members": 1470,
+    "total_files_including_manifest": 1471,
+    "all_sizes_match": true,
+    "all_sha256_match": true,
+    "frozen_input_files": 40,
+    "frozen_source_files": 11,
+    "strict_json_files": 437,
+    "strict_jsonl_files": 12,
+    "strict_objects": 6503,
+    "duplicate_key_count": 0,
+    "nonfinite_value_count": 0
+  },
+  "checks": {
+    "ground_truth_provenance": {
+      "status": "not_applicable",
+      "details": "This is direct runtime timing and transfer measurement; no task ground truth or synthetic accuracy label is used. The prior numerical qualification is inherited only as a bounded invocation-domain gate."
+    },
+    "score_normalization": {
+      "status": "pass",
+      "details": "No normalized composite score is used. Primary capture, request/token metrics, bytes and process wall are reported in their raw units with direct ratios."
+    },
+    "result_existence": {
+      "status": "pass",
+      "details": "All 1470 readback payload entries rehash and all six retained cells are COMPLETE with return code zero."
+    },
+    "call_path": {
+      "status": "pass",
+      "details": "Each pager record reaches one top-level fused_experts invocation. Y performs exactly one logical alignment helper per top-level call and invokes the original fused function once; F/X retain the original path."
+    },
+    "switch_and_restoration": {
+      "status": "pass",
+      "details": "Both Y cells record assignment restoration after initialization, warmup and measurement and final hook restoration. F/X have logical alignment disabled and empty logical phase records."
+    },
+    "no_double_execution": {
+      "status": "pass",
+      "details": "Reference, prefix, numerical readback, negative-control, kernel-validation and CPU/runtime observers are disabled or empty. Y calls, completed calls and helper calls are equal in every phase."
+    },
+    "compile_domain": {
+      "status": "pass_with_boundary",
+      "details": "Every cell completes all 320 declared M1..160 x two-GEMM compile-and-load-only calls with unchanged pager/KV state. All measurement rows are in domain and all six measurement jit event sets are empty. Coverage applies only to this MoE Triton family."
+    },
+    "request_and_token_denominators": {
+      "status": "pass",
+      "details": "Each cell has 16 completed requests, 512 one-token output events, 56 scheduler steps, 2544 scheduled token positions, 896 measurement pager calls and 40704 layer-token rows."
+    },
+    "metric_reconstruction": {
+      "status": "pass",
+      "details": "TTFT, TPOT, maximum ITL, completion and complete capture were independently rebuilt from raw request/event timestamps and agree with the retained analyzer values to serialization tolerance."
+    },
+    "statistical_scope": {
+      "status": "pass_with_boundary",
+      "details": "Requests same engines/arrival episode are not treated as independent samples; two engines per arm are not a noise floor or significance estimate."
+    },
+    "resource_parity": {
+      "status": "pass",
+      "details": "All arms record 384 physical expert slots, 4831838208 expert bytes and 1073741824 KV bytes. X/Y both use oneshot 336-private plus 48-stage slots."
+    },
+    "gpu_boundary": {
+      "status": "pass_with_boundary",
+      "details": "Expected UUID, cooperative group flock, outer pre-cell and three inner per-cell samples all pass without a foreign PID. Sampling does not prove continuous exclusion of an uncooperative process."
+    },
+    "cost_accounting": {
+      "status": "pass",
+      "details": "Capture and full subprocess wall are kept separate. Startup, compile preparation, warmup, finalization, artifact I/O and shutdown remain in subprocess wall; nested timing spans are not summed into wall."
+    },
+    "trajectory_boundary": {
+      "status": "pass_with_boundary",
+      "details": "Same-arm outputs/routes are identical, while cross-arm routes differ and only 13/16 F-Y and 14/16 X-Y request outputs match per block. This does not invalidate policy-specific request timing, but it prevents task-quality/equivalence and trajectory-invariant causal claims."
+    }
+  },
+  "sequence": [
+    "0_F",
+    "1_X",
+    "2_Y",
+    "3_Y",
+    "4_X",
+    "5_F"
+  ],
+  "per_phase": {
+    "initialization": {
+      "calls_per_cell": 32,
+      "token_rows_per_cell": 2816,
+      "ordered_identity_sha256": "37d98f01c7b6c4d92ee94490363a8d04f65db09307c94cc62e39179291920572"
+    },
+    "warmup": {
+      "calls_per_cell": 80,
+      "token_rows_per_cell": 2064,
+      "ordered_identity_sha256": "a1b8b03d4a3a0edd55d0b881650be84333821874339711cfa8a93d049a3d72e2"
+    },
+    "measurement": {
+      "calls_per_cell": 896,
+      "token_rows_per_cell": 40704,
+      "ordered_identity_sha256_by_arm": {
+        "F": "7af3871f19785751d983dddfa0bc007f8b9f3768005f62603854dc84e8a052e3",
+        "X": "9ef46d96560fbde655e33601db13823bcbb1835f98743890250e8fc3a05befac",
+        "Y": "222b7109f1c701c78321b5b954a08c8cf0f50ea99bb2bfec074c51cb7c1b3b38"
+      }
+    }
+  },
+  "compile_domains": {
+    "F": {
+      "local_experts": 64,
+      "global_experts": 64,
+      "mapped": false,
+      "invocations_per_cell": 320,
+      "temporary_buffer_bytes": 8572420
+    },
+    "X": {
+      "local_experts": 384,
+      "global_experts": 384,
+      "mapped": true,
+      "invocations_per_cell": 320,
+      "temporary_buffer_bytes": 8733700
+    },
+    "Y": {
+      "local_experts": 384,
+      "global_experts": 64,
+      "mapped": true,
+      "invocations_per_cell": 320,
+      "temporary_buffer_bytes": 8572420
+    }
+  },
+  "cells": [
+    {
+      "label": "0_F",
+      "capture_wall_s": 8.176383018493652,
+      "cohort_last_completion_s": 8.176208842545748,
+      "completion_latency_s_mean": 5.474758761236444,
+      "ttft_s_mean": 0.8202312148641795,
+      "tpot_s_mean": 0.15014604988297628,
+      "max_request_itl_s": 0.1904230173677206,
+      "process_wall_s": 60.73073777,
+      "h2d_bytes": 352749355008,
+      "d2d_bytes": 390359678976,
+      "host_apply_ms": 7536.0997803509235,
+      "measurement_jit_events": 0
+    },
+    {
+      "label": "1_X",
+      "capture_wall_s": 8.271074580028653,
+      "cohort_last_completion_s": 8.270718203857541,
+      "completion_latency_s_mean": 5.56027566222474,
+      "ttft_s_mean": 0.8346989416750148,
+      "tpot_s_mean": 0.15243795872741048,
+      "max_request_itl_s": 0.2128611747175455,
+      "process_wall_s": 59.0464245,
+      "h2d_bytes": 344494964736,
+      "d2d_bytes": 178375360512,
+      "host_apply_ms": 7454.508708789945,
+      "measurement_jit_events": 0
+    },
+    {
+      "label": "2_Y",
+      "capture_wall_s": 8.00666748918593,
+      "cohort_last_completion_s": 8.006341865286231,
+      "completion_latency_s_mean": 5.326670484500937,
+      "ttft_s_mean": 0.7923866934143007,
+      "tpot_s_mean": 0.14626721906731086,
+      "max_request_itl_s": 0.18619324639439583,
+      "process_wall_s": 60.040813204,
+      "h2d_bytes": 346281738240,
+      "d2d_bytes": 177771380736,
+      "host_apply_ms": 7340.551316738129,
+      "measurement_jit_events": 0
+    },
+    {
+      "label": "3_Y",
+      "capture_wall_s": 8.033705048263073,
+      "cohort_last_completion_s": 8.033570298925042,
+      "completion_latency_s_mean": 5.339522977825254,
+      "ttft_s_mean": 0.8008313224418089,
+      "tpot_s_mean": 0.14640940823817566,
+      "max_request_itl_s": 0.1900860983878374,
+      "process_wall_s": 58.164759654,
+      "h2d_bytes": 346281738240,
+      "d2d_bytes": 177771380736,
+      "host_apply_ms": 7353.413121774793,
+      "measurement_jit_events": 0
+    },
+    {
+      "label": "4_X",
+      "capture_wall_s": 8.231973687186837,
+      "cohort_last_completion_s": 8.231842773035169,
+      "completion_latency_s_mean": 5.52031664235983,
+      "ttft_s_mean": 0.8371490611461923,
+      "tpot_s_mean": 0.15106992197463348,
+      "max_request_itl_s": 0.20003614388406277,
+      "process_wall_s": 60.666076813,
+      "h2d_bytes": 344494964736,
+      "d2d_bytes": 178375360512,
+      "host_apply_ms": 7404.878791421652,
+      "measurement_jit_events": 0
+    },
+    {
+      "label": "5_F",
+      "capture_wall_s": 8.172975491732359,
+      "cohort_last_completion_s": 8.172833319753408,
+      "completion_latency_s_mean": 5.481042472063564,
+      "ttft_s_mean": 0.8250043264124542,
+      "tpot_s_mean": 0.15019477889197128,
+      "max_request_itl_s": 0.1984901875257492,
+      "process_wall_s": 60.034147547,
+      "h2d_bytes": 352749355008,
+      "d2d_bytes": 390359678976,
+      "host_apply_ms": 7540.634244680405,
+      "measurement_jit_events": 0
+    }
+  ],
+  "capture_delta_pct": {
+    "forward": {
+      "Y_vs_F": -2.0756797831492757,
+      "Y_vs_X": -3.196768307242226,
+      "X_vs_F": 1.1581106379290773
+    },
+    "reverse": {
+      "Y_vs_F": -1.7040359855498122,
+      "Y_vs_X": -2.4085188614289654,
+      "X_vs_F": 0.7218692324987286
+    },
+    "ratio_of_two_engine_means": {
+      "Y_vs_F": -1.8898966132753658,
+      "Y_vs_X": -2.8035773893095084,
+      "X_vs_F": 0.9400353958435081
+    }
+  },
+  "strongest_baseline": "F for completion, with X retained as the same-budget original-alignment control",
+  "oracle_headroom_status": "not_measured_no_oracle_defined",
+  "failure_category": null,
+  "resurrection_condition": null,
+  "next_smallest_experiment": "Run the frozen independent new workload cohort using the same six-engine mirrored design and unchanged accounting; do not threshold-tune or infer a noise floor from this cohort.",
+  "unsupported_claims": [
+    "stable performance benefit",
+    "statistical significance or noise floor",
+    "task quality or output equivalence",
+    "production SLO",
+    "steady-state behavior",
+    "true model-OOM deployment",
+    "multi-GPU EP",
+    "all-runtime compile warmth",
+    "method GO"
+  ],
+  "trace_path": null,
+  "trace_note": "No .aris trace was created because the repository-specific instruction for this audit forbids unrequested .aris artifacts."
+}

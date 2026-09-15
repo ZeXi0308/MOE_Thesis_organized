@@ -1,0 +1,41 @@
+{
+  "status": "CPU_PREPARED_GPU_UNRUN",
+  "parent_attempt": "attempt03",
+  "q3_input_manifest_sha256": "66e324bf7a3480911801bf45237e2c9fcb1e4336b9a75902bc4a4b91f9f0a837",
+  "q3_frozen_inputs_verified": 38,
+  "unchanged_runtime_sources": 17,
+  "unchanged_payload_files": 30,
+  "source_and_input_identical": true,
+  "scientific_protocol_unchanged": true,
+  "allowed_protocol_sections": [
+    "administrative_launch",
+    "current_gpu_identity_evidence",
+    "execution_guard",
+    "new_host"
+  ],
+  "entry_sha256": "2bfdd99699896e92a68f5330519ead1a657cef0f1592ad48f317b3442ee9354c",
+  "protocol_sha256": "7be5717a525392bd7a2f81fcccf2ad708d44e10ea35bb89f8427b2bee0a3d826",
+  "detached_launcher_unchanged": true,
+  "administrative_changes": [
+    "Exclusive r04 stage/results and /root/qwen-streaming-shards-20260914-r04 workspace",
+    "Root shard filesystem >=6GiB and data results filesystem >=1GiB tested independently; actual path/device/free bytes retained",
+    "New actual GPU UUID plus boot_id/PID1 start ticks/start unix recorded before initialization and after owned work; prior instance data not merged"
+  ],
+  "unchanged_limits": {
+    "complete_process_s": 21600,
+    "episode_s": 600,
+    "host_limit_bytes": 96636764160,
+    "host_anon_guard_bytes": 88046829568
+  },
+  "cpu_checks": {
+    "status": "PASS_CPU_ONLY",
+    "checks": [
+      "30 payload / 17 runtime / detached launcher unchanged; command and scientific fields equal; root>=6GiB and data>=1GiB independently enforced",
+      "busy never launches; inherited worker lock FD, identity fields and real exit0/7 retained; lock released",
+      "monitor failure and parent SIGTERM reap own group, preserve unrelated group, write terminal"
+    ],
+    "scope": "Fake NVML/memory/host identity/preflight and explicit storage-capacity fixtures; real CPU subprocesses and OS flock. No GPU, network, model or numerical qualification. SIGKILL/host-loss receipts are not guaranteed."
+  },
+  "diff": "--- attempt03/run_remote.py\n+++ attempt04/run_remote.py\n@@ -9,7 +9,8 @@\n import time\n \n PACKAGE = Path(__file__).resolve().parent\n-OUTPUT = Path('/root/autodl-tmp/qwen3-new-gpu-localized-static-v026-r03')\n+OUTPUT = Path('/root/autodl-tmp/qwen3-new-gpu-localized-static-v026-r04')\n+SHARDS = Path('/root/qwen-streaming-shards-20260914-r04')\n LOCK = Path('/root/autodl-tmp/moe-research-gpu.lock')\n PYTHON = '/root/autodl-tmp/expert-saturation/vllm-0.26/bin/python'\n INSTALLED = Path('/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm')\n@@ -19,6 +20,28 @@\n     c = Path('/sys/fs/cgroup')\n     fields = {name: {k: int(v) for k, v in (line.split() for line in (c / ('memory.' + name)).read_text().splitlines())} for name in ('stat', 'events')}\n     return dict(current=int((c / 'memory.current').read_text()), limit=int((c / 'memory.max').read_text()), **fields)\n+\n+\n+def read_host_identity():\n+    raw = Path('/proc/1/stat').read_text()\n+    ticks = int(raw.rsplit(')', 1)[1].split()[19])\n+    hz = os.sysconf('SC_CLK_TCK')\n+    boot_unix = int(next(line.split()[1] for line in Path('/proc/stat').read_text().splitlines() if line.startswith('btime ')))\n+    return dict(unix_s=time.time(), boot_id=Path('/proc/sys/kernel/random/boot_id').read_text().strip(),\n+                pid1_stat=raw.strip(), pid1_start_ticks=ticks, clock_ticks_per_s=hz,\n+                kernel_boot_unix_s=boot_unix, pid1_start_unix_s=boot_unix + ticks / hz,\n+                uptime=Path('/proc/uptime').read_text().strip())\n+\n+\n+def storage_checks(out, shards):\n+    rows = {}\n+    for name, path, minimum in [('results', out, 2**30), ('shards', shards, 6 * 2**30)]:\n+        fs = os.statvfs(path)\n+        rows[name] = dict(path=str(path.resolve()), device=os.stat(path).st_dev,\n+                          available_bytes=fs.f_bavail * fs.f_frsize, minimum_bytes=minimum)\n+    rows['different_devices'] = rows['results']['device'] != rows['shards']['device']\n+    rows['passed'] = all(rows[k]['available_bytes'] >= rows[k]['minimum_bytes'] for k in ('results', 'shards'))\n+    return rows\n \n \n def launchers():\n@@ -97,7 +120,7 @@\n                 time.sleep(5)\n \n \n-def main(p=PACKAGE, out=OUTPUT, lock_path=LOCK):\n+def main(p=PACKAGE, out=OUTPUT, lock_path=LOCK, shards=SHARDS):\n     launch = dict(status='PREPARING', start_unix_s=time.time(), results=str(out), qualification_only=False, startup_numerical_localization=True)\n     with (p / 'launch.json').open('x') as f:\n         json.dump(launch, f)\n@@ -109,10 +132,11 @@\n     previous = {s: signal.signal(s, interrupted) for s in (signal.SIGTERM, signal.SIGHUP, signal.SIGINT)}\n     process = lock = nv = None; initialized = False; exit_code = 1\n     try:\n-        out.mkdir(exist_ok=False); shards = out / 'shard_workspace'; shards.mkdir()\n+        out.mkdir(exist_ok=False); shards.mkdir(exist_ok=False)\n         lock = lock_path.open('a+')\n         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)\n         launch.update(lock_path=str(lock_path), lock_acquired_unix_s=time.time(), lock_owner_pid=os.getpid()); save()\n+        launch['host_identity_before'] = read_host_identity(); save()\n         protocol = json.loads((p / 'protocol.json').read_text())\n         for name, sha in protocol['package_files'].items():\n             assert hashlib.sha256((p / name).read_bytes()).hexdigest() == sha, name\n@@ -122,13 +146,15 @@\n         nv.nvmlInit(); initialized = True; gpu = nv.nvmlDeviceGetHandleByIndex(0)\n         uuid = nv.nvmlDeviceGetUUID(gpu); uuid = uuid.decode() if isinstance(uuid, bytes) else uuid\n         assert uuid == protocol['new_host']['gpu_uuid'] and nv.nvmlDeviceGetMemoryInfo(gpu).total == protocol['memory_budget']['gpu_total_bytes']\n+        launch['gpu_identity'] = dict(uuid=uuid, total_bytes=nv.nvmlDeviceGetMemoryInfo(gpu).total); save()\n         preflight(p)\n-        memory_start = read_memory(); disk = os.statvfs(out); available = disk.f_bavail * disk.f_frsize\n+        memory_start = read_memory(); storage = storage_checks(out, shards)\n+        launch['storage_before'] = storage; save()\n         assert memory_start['limit'] == 90 * 2**30 and memory_start['stat']['anon'] < 8 * 2**30\n-        assert available > 6 * 2**30\n+        assert storage['passed'], 'Require root shard filesystem>=6GiB and data results filesystem>=1GiB'\n         env = dict(os.environ, OMP_NUM_THREADS='8', TOKENIZERS_PARALLELISM='false', PYTHONUNBUFFERED='1', WISP_PLUGIN_DISABLE='1', WISP_PREFETCH='0', WISP_DYNAMIC='0', PYTHONPATH='/root/autodl-tmp/qwen3-research-wisp-86f69720/source/src:' + str(p))\n         command = command_for(p, out, shards)\n-        launch.update(status='RUNNING', memory_start=memory_start, disk_available_before=available, gpu_uuid=uuid, command=command, child_start_unix_s=time.time()); save()\n+        launch.update(status='RUNNING', memory_start=memory_start, disk_available_before=storage['results']['available_bytes'], gpu_uuid=uuid, command=command, child_start_unix_s=time.time()); save()\n         with (p / 'run.log').open('x') as log, (p / 'hardware.jsonl').open('x') as hw:\n             process = subprocess.Popen(command, env=env, stdin=subprocess.DEVNULL, stdout=log, stderr=subprocess.STDOUT, start_new_session=True, pass_fds=(lock.fileno(),))\n             launch.update(child_pid=process.pid, child_pgid=process.pid, child_sid=process.pid, inherited_lock_fd=lock.fileno()); save()\n@@ -164,6 +190,8 @@\n             try: nv.nvmlShutdown()\n             except BaseException as exc: launch['nvml_shutdown_error'] = repr(exc); exit_code = 1\n         if process is not None: launch.update(child_exit_code=process.poll(), child_end_unix_s=time.time())\n+        try: launch['host_identity_after'] = read_host_identity()\n+        except BaseException as exc: launch['host_identity_after_error'] = repr(exc)\n         launch.update(status='EXITED', exit_code=exit_code, end_unix_s=time.time())\n         launch['parent_wall_s'] = launch['end_unix_s'] - launch['start_unix_s']\n         save()\n",
+  "scope": "Local administrative preparation only. No SSH/GPU/download/cache deletion. Q3 source/raw/manifest retained; CPU tests use real owned subprocess groups with explicit fake GPU/resource fields."
+}

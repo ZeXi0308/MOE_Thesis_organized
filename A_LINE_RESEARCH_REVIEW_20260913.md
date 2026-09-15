@@ -192,3 +192,84 @@ cohort0/block0 的互斥 engine 调用时间：native prefill/pure/recompute 为
 ## 2026-09-14 KV往返实测
 
 [补充](refine-logs/expert_saturation/outputs/admission_capacity/20260914_kv_roundtrip_feasibility_r01/GPU_ADDENDUM.md)：三尺寸含打包往返16.50–20.54ms，24次内容正确。局部物理成本支持下一资格化，尚无请求收益。安装vLLM已有native OffloadingConnector；下一优先测纯native offload基线，现轮转connector guard不变，不重写pager。
+
+## 2026-09-14 默认native offload基线
+
+[结果](refine-logs/expert_saturation/outputs/admission_capacity/20260914_native_offload_baseline_r01/REPORT.md)：4格128请求结束，默认prompt-only实际减少86.03%重算，但平均完成+23.83%/+6.73%。第一on尖峰完整保留，第二block亦净负；局部传输空间不等于请求收益。下一保持问题/配置，定位后端调度和执行税；full-decode及rotation兼容未测。
+
+## 2026-09-14 默认offload有限开销观测
+
+[报告](refine-logs/expert_saturation/outputs/admission_capacity/20260914_native_offload_cost_r01/REPORT.md)：4格128请求、执行/输出/传输一致，connector互斥开销1.200/1.112s，大部分时间仍在engine未细分部分。profile开关配对wall+2.217%/+4.968%，不能当免费观测或据CPU时间直接定位Python。下一限定共同decode片段的CPU/CUDA活动定位，不增加全程埋点；无新方法GO。
+
+### 2026-09-14 默认offload共同decode活动定位
+
+`20260914_offload_decode_trace_r01` 两臂COMPLETE；相同32调用/32完整输出一致，各10274 GPU事件可匹配API correlation。窗口648.874→868.054ms，GPU活动并集511.701→511.551ms，额外时间主要在记录GPU活动外；不能归因特定函数或宣称可移除收益。单次off/on且带profiler，顺序/主机漂移未隔离；唯一下一步同窗口反序复测并记录CPU环境。证据上限NATIVE_PROFILER_DIAGNOSTIC，非方法GO，原件及分析见该目录REPORT.md。
+
+### 2026-09-14 默认offload反序诊断完成
+
+`20260914_offload_decode_trace_reverse_r01` 两格COMPLETE；32调用调度/32完整输出一致，GPU事件10274/臂且全部API correlation匹配。off/on窗口640.596/844.566ms，GPU并集511.943/511.607ms，主机侧差异反序复现。CPU阶段占比不稳，on第527调用同步后66.556ms尖峰；包围窗口cgroup节流增量0，不能排除频率/主机漂移。下一只定位Python调用/GC事件，不猜测性删逻辑；证据上限NATIVE_PROFILER_DIAGNOSTIC。
+
+### 2026-09-14 offload主机profile发现观测器成本
+
+`20260914_offload_python_cost_r01` COMPLETE，32调用签名/完整输出匹配；一次gen2 GC68.947ms/collected0。memory_telemetry.state64次累计107.4ms，request_state2050次/get_blocks2050次；嵌套含GC、不可相加或直接归为offload增量。下一只做等价低分配块数观察器消融并无profiler复测，不禁用GC。NATIVE_HOST_PROFILE_DIAGNOSTIC，非方法净收益。
+
+### 2026-09-14 KV观察器八格完成，微优化停止
+
+`20260914_kv_observer_cost_r01` 256请求完成，direct平均完成对original：off−2.81/+2.94%，on+5.06/−2.77%，均翻转，无稳定收益。逐步schedule/输出/传输量一致；规范化ID后memory差异仅前69步的到达集合，共享请求状态0差异，严格全状态等价不通过。此实现停止，不归为KV问题NO-GO；下一CPU核对native connector保存/驱逐/恢复契约，禁止直接移除不兼容保护。
+
+### 2026-09-14 Native保存/驱逐契约CPU定位
+
+`20260914_native_store_contract_r01`：store完成用completed_jobs，finished_sending始终空；驱逐只flush已有任务，不自动为未保存victim造任务。封存worker原方法3CPU case通过，fake传输/无GPU。候选须保存登记→原生提交/等待→驱逐两阶段，下一只用真实首次前态核对提前边界及KV保持可行性，不删connector保护。
+
+### 2026-09-14 选择性保存提前边界CPU资格
+
+`20260914_native_store_contract_r01/selective_boundary.json`：两block step328 visible选择3571命中原329victim，31decode/free149→148，释放207块后目标205块静态可容纳；native store-builder原方法+fake host/key/block生成任务，decode允许时3296token保存/10已计算尾部未保存，默认prompt-only3072/234。CPU条件可行性，非GPU/真实hash/净收益；下一单victim真实KV保存恢复接口资格，保留原生保护和成本。
+
+### 2026-09-14 单次选择性保存真实接口观察
+
+`20260914_selective_store_once_r01` 两臂64请求完成；328store/329flush/330load/332恢复首新token，保存3296token，实际store432013312/load864026624bytes（两load），victim gap170→104ms；mean+2.37%/wall+1.66%，n=1不支持净收益。25/32完整输出一致、victim一致，7请求动作后分叉；KV保真未测，下一定向保存前/加载后相同逻辑前缀指纹，非方法GO。
+
+### 2026-09-14 单次保存的完整分母解释修正
+
+[时间分解补充](refine-logs/expert_saturation/outputs/admission_capacity/20260914_selective_store_once_r01/TIME_PARTITION_ADDENDUM.md)：同到达/同前328步调度，保存动作开始前on已慢0.927040s，完整平均完成慢0.610306s；动作后平均剩余时间差−0.316734s。该恒等分解不能用作漂移校正，也不能证明净加速；原+2.37%仅为单次观察，不归因于保存机制。局部恢复170→104ms已观测，稳定完整请求收益仍未验证。KV保真单格已远端18文件校验、GPU_UNRUN，结果分析器的3个CPU替身检查不构成实测。当前唯一下一实验仍该单格，排streaming整组之后；通过后才进入性能重复。
+
+### 2026-09-14 首次恢复的保存前缀真实保真
+
+`20260914_selective_kv_fidelity_r01` 单格32请求/32768输出完成；328保存前与331首load完成后的3296token×16层SHA一致，432013312bytes、206逻辑块，物理映射不同。331 computed3296/output235，332才执行11位置恢复；一次store/两次load，本次只检查首load。哈希新增0.419/0.373s全属诊断，非性能证据。排除该前缀首次搬运损坏，不覆盖其他请求/第二load/质量；净收益仍未验证。下一同非指纹底座完整交错重复，不作漂移扣除。
+
+### 2026-09-14 单次保存交错重复与混合服务会计
+
+`20260914_selective_store_repeat_r01` 四格128请求完成，均完成on/off +1.713%/−18.779%翻转；block1动作前已快1.671s，同臂全调度/输出相同但off wall27.142→33.637s，净效应UNRESOLVED。目标gap两对−33.60/−50.22%，重算少6591tokens；含重算调用26→21却纯decode1745→1748，135新输出转移，总调用只少2。混合恢复仍服务其他请求，重算量不能直接当可删除串行税。按冻结规则停止追加同域重复，下一CPU把混合正常decode服务纳入动作状态/成本模型。GPU已释放；fresh审阅因模型capacity未执行，非PASS。
+
+### 2026-09-14 保存前缀状态模型的ready边界
+
+`20260914_saved_prefix_model_r01`：原模型已含重算混合decode进度；补原生指定抢占后，无保存两重复329–1868逐步完全匹配。补加载先占块/留waiting/ready后恢复后，保存两重复329–1040匹配，1041均失败：首次load等待2步，第二次实际1步，固定2步近似不成立。末步仍同1866不能覆盖轨迹失败。原least/most/defer预测回归相同。下一CPU定位native提交/完成查询/ready可见时序，不喂未来ready标签，不追加GPU。
+
+### 2026-09-14 Native异步完成通知状态回放闭合
+
+`20260914_load_ready_contract_r01`：worker执行结束查询finished_recving，scheduler接收后下一步才可提升WAITING_FOR_REMOTE_KVS；computed/占块不等于ready。真实worker事件按perf_counter定位首次331→332、第二次1040→1041；事件回放下两保存重复各1538步调度/空闲块/输出数全匹配。明确使用实际未来完成通知，仅状态机验证，非预测或反事实收益。默认旧三策略回归不变。下一CPU比较原缺席请求优先与资格实现刚抢占victim排队首的恢复排序，保持异步通知未知边界。
+
+### 2026-09-14 单次恢复排序的贡献边界
+
+`20260914_saved_recovery_order_r01`：实测旧资格优先恢复刚抢占3571（332/333），原缺席3640仍1045/1047恢复。CPU原缺席优先且不保存令首服务交换714步，调用1869→1836，但仅两请求完成+75/−76步，均完成步号只降1/32；同排序保存增量−2/−1/+1调用随假设load1/2/4步翻转。不是GPU/墙钟预测，不把排序收益归保存。停止单事件排序GPU扩展，下一盘点既有完整轮转的重复恢复成本空间，保留混合服务与反事实边界。
+
+### 2026-09-14 完整轮转保存量与混合输出比较
+
+`20260914_rotation_save_volume_r01` 复用旧8格；least39事件预算直接复用核验。most44抢占/163764重算tokens却总1315调用，优于least39/137272/1581，不能用重算量评价策略。least/most含重算调用生成4226/4739新输出；累计4.2–4.9s不能全当可删税。按完整块每次全存least17.954GB、most21.418GB单向，最长逻辑前缀合计4.059/12.053GiB仅条件容量盘点。多次保存未被成本空间排除，也未有净收益；下一仅most两阶段native保存/抢占合同与真实前态合法性，保留最强同底座基线，不删旧保护。
+
+
+### 2026-09-14 更新：真实两阶段单事件的收益边界
+
+见`refine-logs/expert_saturation/outputs/admission_capacity/20260914_staged_store_probe_r01/REPORT.md`。两臂64请求完成，原缺席优先/实际store-flush-load链跑通；保存少3392重算tokens却总调用不降(1794)，原缺席首新输出同333步。on均完成+12.56%且动作前漂移+1.14s，只作资格结果，不作稳定性能结论。当前最弱链路是重复保存是否改变总服务进度，不能继续用重算tokens减少代替完整请求收益。
+
+
+### 2026-09-15 重复保存从单次正信号进入同域交错重复
+
+复用服务窗口原方`20260915_repeated_kv_service_r01`统一分析（当前临时analysis在/private/tmp/moe-repeated-kv-service-20260915-analysis.json，正式归档交接中）。192请求六格全COMPLETE，其中diag两格不混入主ABBA四格。主两对保存相对不保存：均完成−5.755%/−2.128%，输出吞吐+5.864%/+2.033%，max引擎返回gap−18.367%/−14.928%；TTFT均值+2.18ms/+65.83ms，完成更慢请求0/32与1/32。相同staged most_output、6656 GPU块、实际16GiB host KV allocation；不是增加host预算后的不公平对比。
+
+当前证据NATIVE_INPROCESS_FIXED_LENGTH：同一32请求闭合cohort、两对执行顺序平衡，幅度仍有波动，质量/自然EOS/新请求域未验证。可把保存most作为本资源域待确认的强基线；不能把既有native pager的收益全算新调度贡献，更不能据此宣布完整论文方法成立。下一研究不再以重算tokens为收益代理，应优先在新请求集合保持机制和预算不变验证保存后的完整服务边界；不启动新的独立Controller。现GPU归双实例已登记窗口，本文不新增GPU组。
+
+
+### 2026-09-15 TTFT归因边界补充
+
+正式`20260915_repeated_kv_service_r01/analysis/REPORT.md`已核对：全部请求首输出在call97之前，首prepare/store在329；此前8909输出事件及32请求前缀一致。故原主表TTFT+2.182/+65.829ms只是两次运行的观测差异，不得称保存动作造成的代价；on/off动作前偏移−13.644/+214.286ms亦保留，不据此扣除或校正后续收益。两对完成收益仍为小样本同域观察，未声称统计显著。下一文档迁移四格不改参数，恢复启动机制由原测量/资源执行方先定位E到实际可执行边界，本方不并行创建Controller。

@@ -15,3 +15,5 @@
 第3片连续采样回落到3–4MB/s后，以上继续判断被新数据修正。逐项核验PID/父PID/命令/输出路径/PGID/SID及没有性能cell后，仅SIGTERM本worker3326进程组；父监控自然回收，完整原记录保留。`administrative_stop_attempt01.json`记录原因和实际动作。
 
 `attempt02/`已使用21600秒总启动时限与新输出路径，包SHA `06cd9efc13f87bd01172758580f077846ac6118831e387c7593e8d00facfff94`。17个runtime源码、输入、预算、数值归因条件及600秒单episode时限不变。r02通过原GPU空闲检查，monitor5090、父5092、worker5127在独立只读观察中确认存活。stage为`/root/autodl-tmp/qwen3-new-gpu-localized-static-v026-launch-r02`，results为`/root/autodl-tmp/qwen3-new-gpu-localized-static-v026-r02`，观察记录为`attempt02/watch_attempt01.jsonl`。启动SSH已结束，观察连接不会控制实验进程。两次尝试的加载成本分别保留，不合并成一次成功启动成本。
+
+最新状态：[2026-09-14只读回查](RECONCILIATION_20260914.md)确认r02旧进程已不在，只完成4分片/4845源张量；0数值/0性能。原RUNNING保留，退出码/原因未知。新r03仅CPU准备，不与returned weste尝试混合。

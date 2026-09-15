@@ -1,0 +1,20 @@
+# 单victim选择性保存接口资格
+
+本轮新模块selective_store_once.py：第328步按可见output最少选victim，限制其他请求offloadable tokens=0，选中请求保存上限冻结为该步待计算token总长。两臂均native connector/full-decode配置且发生同一次原生抢占，区别仅是否允许所选保存。第329步在原生schedule时间戳之后调用原生_preempt_request并写原preempted_reqs；保留原生本步不立即接纳waiting的规则及全部connector通知。非旧轮转控制器，不删除其不兼容guard。
+
+必须检查selected/victim实际状态、保存任务登记、preempted IDs及worker flush、completed_jobs、load bytes、恢复token和输出一致性。保存臂没有pending store job则ABORT，不能用CPU假任务补齐。真实host hash/bytes/KV往返尚未执行；运行配置及源hash还需核对。
+
+CPU当前只通过注入顺序/preempted列表传播/源形状变化拒绝及语法；native install、生命周期、真实运行仍UNRUN。没有生成完整GPU包、上传0/GPU0/无driver。不得将此PARTIAL_CPU_CHECK写成集成通过。
+
+下一补齐接口生命周期fixture和真实版本校验，随后封存save-off/on两臂资格包。无profile，无参数扫描，不将接口资格的完整wall视为新调度收益。持有KV及等待store成本都保留，首次恢复沿原生顺序，可与先前恢复队列轮转不同；资格不能替代最终机制full-request评估。
+
+
+## 两臂包具体实现
+
+两臂都是16GiB native OffloadingConnector，显式offload_prompt_only=False；warmup完成后drain/reset，再安装单次adapter。save-off为所有测量请求offloadable=0；save-on仅328选中请求冻结cap，其他为0。两臂329都在原生scheduled_timestamp之后调用native_preempt并append原preempted_reqs，保留本步不处理waiting的原生规则。因此不是旧rotate策略比较，也不声称目标原waiting会立即被恢复。
+
+日志新增selective-store.json：选中请求/compute/save cap、抢占前pending jobs、328..336元数据store/load/flush ID；offload-events.completed_jobs记真实worker完成job的store/load身份及请求。采集注册/完成、raw逐请求computed/preemptions/token返回可核对恢复阶段。输出序列一致性是请求级验证，不等同逐块KV数值checksum；若需要宣称严格KV保真，必须补充针对保存前缀的实际KV核验，不能用CPU fixture代替。
+
+本轮重新连线只读核对installed Scheduler SHA2ed2a550…3941匹配、原生preempted_req_ids和kv_connector_metadata字段存在。两臂adapter完整生命周期在替身上通过（测试时仅替身hash覆盖，生产常量未改）；真实native install仍UNRUN。无profiling，不更改共享vLLM/旧runner。完整运行费用保留，但两臂各一次只作为接口资格。
+
+预注册停止：选中请求未调度、save-on没有store job、329没有原生preemption通知或运行失败立即终止，不自动重跑。两臂完成后先核对同资源、前动作请求状态、实际job完成/传输字节、恢复首新token；任一缺失为未验证，不能包装为方法GO。唯一后续由此接口资格结果决定，不先扩成循环swap策略。

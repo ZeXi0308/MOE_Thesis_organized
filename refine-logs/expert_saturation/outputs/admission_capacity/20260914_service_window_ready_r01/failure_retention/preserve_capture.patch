@@ -1,0 +1,51 @@
+--- a/refine-logs/expert_saturation/outputs/admission_capacity/20260914_repeated_staged_probe_r01/pkg/run_probe.py
++++ b/refine-logs/expert_saturation/outputs/admission_capacity/20260914_repeated_staged_probe_r01/pkg/run_probe.py
+@@ -170,26 +170,30 @@
+         decisions = []
+         offload_data, uninstall = observe_offload(scheduler.connector)
+         selective_data, uninstall_selective = install_selective_store(scheduler, vllm_config=engine.vllm_config, block_size=16, save=args.selective_save=='on')
++        raw = None
+         try:
+-            raw = capture_with_memory(engine, capture_episode, workload, config,
+-                allow_preemption=True,
+-                regime='steady', arrival_scale=1.0, run_id='measured', max_seconds=120)
+-            dump(out/'post-request-drain.json', drain_offload(engine))
++            try:
++                raw = capture_with_memory(engine, capture_episode, workload, config,
++                    allow_preemption=True,
++                    regime='steady', arrival_scale=1.0, run_id='measured', max_seconds=120)
++                dump(out/'post-request-drain.json', drain_offload(engine))
++            finally:
++                dump(out/'selective-store.json', uninstall_selective())
++                dump(out/'offload-events.json', offload_data)
++                uninstall()
++                dump(out/'headroom-decisions.json', decisions)
++            if args.completion_policy == 'headroom' and raw['status'] == 'COMPLETE':
++                if not any(d['held'] for d in decisions):
++                    raw.update(status='INVALID_NO_ACTION', error='headroom never held a request')
++            if args.completion_policy == 'rotate' and raw['status'] == 'COMPLETE':
++                if not any(d.get('forced_preempted') for d in decisions):
++                    raw.update(status='INVALID_NO_ACTION', error='rotation never applied a forced preemption')
++            if raw['status']=='COMPLETE' and selective_data['applied_rotations']<2:
++                raise RuntimeError('Repeated intervention did not execute at least twice')
+         finally:
+-            dump(out/'selective-store.json', uninstall_selective())
+-            dump(out/'offload-events.json', offload_data)
+-            uninstall()
+-            dump(out/'headroom-decisions.json', decisions)
+-        if args.completion_policy == 'headroom' and raw['status'] == 'COMPLETE':
+-            if not any(d['held'] for d in decisions):
+-                raw.update(status='INVALID_NO_ACTION', error='headroom never held a request')
+-        if args.completion_policy == 'rotate' and raw['status'] == 'COMPLETE':
+-            if not any(d.get('forced_preempted') for d in decisions):
+-                raw.update(status='INVALID_NO_ACTION', error='rotation never applied a forced preemption')
+-        if raw['status']=='COMPLETE' and selective_data['applied_rotations']<2:
+-            raise RuntimeError('Repeated intervention did not execute at least twice')
+-        raw['gpu_before'] = before
+-        dump(out/'raw.json', raw)
++            if raw is not None:
++                raw['gpu_before'] = before
++                dump(out/'raw.json', raw)
+         dump(out/'memory-after.json', memory_snapshot(engine, torch))
+         dump(out/'gpu-after.json', gpu_state())
+         metrics = summarize_episode_requests(raw['requests'], observation_end_s=raw['observation_end_s'],

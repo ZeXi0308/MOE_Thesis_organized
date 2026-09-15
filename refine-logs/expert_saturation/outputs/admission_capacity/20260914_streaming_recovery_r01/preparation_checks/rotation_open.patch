@@ -1,0 +1,311 @@
+diff --git a/refine-logs/expert_saturation/experiments/admission_capacity/rotation_native.py b/refine-logs/expert_saturation/experiments/admission_capacity/rotation_native.py
+index 0ac9875b..5d9288b6 100644
+--- a/refine-logs/expert_saturation/experiments/admission_capacity/rotation_native.py
++++ b/refine-logs/expert_saturation/experiments/admission_capacity/rotation_native.py
+@@ -48,11 +48,17 @@ def patched_schedule_tree(source):
+ 
+ 
+ def install(scheduler, *, vllm_config, block_size, expected_requests=32,
+-            mode="rotate", rotation_config=None, victim_order="least_progress"):
+-    """Install on the drained scheduler BEFORE memory/native capture wrappers."""
++            mode="rotate", rotation_config=None, victim_order="least_progress",
++            population_mode="closed"):
++    """Install before capture; open episodes retain a 32-running-request cap."""
+     manager, pool = scheduler.kv_cache_manager, scheduler.kv_cache_manager.block_pool
+-    if mode not in ("native", "rotate") or block_size <= 0:
++    if (mode not in ("native", "rotate") or block_size <= 0
++            or population_mode not in ("closed", "open")):
+         raise ValueError("unsupported arm or block size")
++    open_population = population_mode == "open"
++    if open_population and scheduler.max_num_running_reqs != 32:
++        raise ValueError("open population requires max_num_seqs=32")
++    running_cap = scheduler.max_num_running_reqs if open_population else expected_requests
+     if (vllm_config.scheduler_config.async_scheduling
+             or vllm_config.speculative_config is not None
+             or manager.enable_caching or manager.num_kv_cache_groups != 1
+@@ -63,7 +69,7 @@ def install(scheduler, *, vllm_config, block_size, expected_requests=32,
+             or scheduler.connector is not None or scheduler.ec_connector is not None
+             or scheduler.policy.name != "FCFS" or scheduler.is_encoder_decoder
+             or not scheduler.scheduler_reserve_full_isl
+-            or scheduler.max_num_scheduled_tokens <= expected_requests):
++            or scheduler.max_num_scheduled_tokens <= running_cap):
+         raise ValueError("requires pinned synchronous full-history FCFS execution")
+     if scheduler.requests or "schedule" in vars(scheduler):
+         raise ValueError("install requires a drained, unwrapped scheduler")
+@@ -84,6 +90,9 @@ def install(scheduler, *, vllm_config, block_size, expected_requests=32,
+     patched = MethodType(namespace["schedule"], scheduler)
+     tracker = AbsenceRotation(rotation_config or RotationConfig(), victim_order=victim_order)
+     decisions, cohort, protected, output_at_start = [], None, None, None
++    qualified = {}  # Only live request identities, not all previously arrived IDs.
++    if open_population:
++        cohort = set()  # Activation does not wait for a closed cohort to fill.
+     current, proposed_victim, held_before = None, None, {}
+     scheduler._rotation_target, scheduler._rotation_forced_count = None, 0
+ 
+@@ -91,6 +100,16 @@ def install(scheduler, *, vllm_config, block_size, expected_requests=32,
+         return max(0, (request.num_tokens + block_size - 1) // block_size
+                    - len(owned.get(request.request_id, ())))
+ 
++    def qualify(request):
++        # New pure requests, then only the selected victim: no per-step KV scan.
++        blocks = owned.get(request.request_id)
++        ids = [b.block_id for b in blocks] if blocks is not None else []
++        if (blocks is None or len(set(ids)) != len(ids)
++                or any(b.is_null or b.ref_cnt != 1 or pool.blocks[b.block_id] is not b for b in blocks)
++                or ids != manager.get_blocks(request.request_id).get_block_ids()[0]):
++            raise RuntimeError("block ownership is not qualified")
++        qualified[request.request_id] = request
++
+     def begin(preempted, timestamp):
+         nonlocal proposed_victim
+         scheduler._rotation_forced_count = 0
+@@ -127,6 +146,17 @@ def install(scheduler, *, vllm_config, block_size, expected_requests=32,
+         started = time.perf_counter()
+         step = len(decisions)
+         pure = lambda r: r.num_output_tokens > 0 and r.num_computed_tokens == r.num_tokens - 1
++        if open_population:
++            for rid in list(qualified):
++                if scheduler.requests.get(rid) is not qualified[rid]:
++                    del qualified[rid]
++            for state in (tracker.absent_since, tracker.absence_count, tracker.resident_since):
++                for rid in list(state):
++                    if rid not in scheduler.requests:
++                        del state[rid]
++            for r in scheduler.running:
++                if pure(r) and qualified.get(r.request_id) is not r:
++                    qualify(r)
+         if cohort is None and (len(scheduler.running) == expected_requests
+                 and all(pure(r) and not r.num_preemptions for r in scheduler.running)
+                 and not scheduler.waiting and not scheduler.skipped_waiting):
+@@ -142,13 +172,28 @@ def install(scheduler, *, vllm_config, block_size, expected_requests=32,
+                        effective_victim_order=tracker.effective_victim_order,
+                        applied_rotations_before=tracker.applied_rotations)
+         decisions.append(current)
++        if open_population:
++            current["population_mode"] = population_mode
+         held_before, proposed_victim = {}, None
+         if cohort is not None:
+-            if (not set(scheduler.requests) <= cohort or scheduler.skipped_waiting
++            if ((not open_population and not set(scheduler.requests) <= cohort) or scheduler.skipped_waiting
+                     or any(r.num_output_placeholders or r.num_in_flight_tokens or r.spec_token_ids
+                            or r.has_encoder_inputs or r.num_prompt_tokens + r.max_tokens > scheduler.max_model_len
+                            for r in scheduler.requests.values())):
+-                raise RuntimeError("closed synchronous text cohort invariant changed")
++                raise RuntimeError("synchronous text population invariant changed" if open_population
++                                   else "closed synchronous text cohort invariant changed")
++        if open_population and protected is not None:
++            terminal = protected.is_finished()
++            if protected.request_id not in scheduler.requests and not terminal:
++                raise RuntimeError("protected request disappeared without terminal status")
++            gained = protected.num_output_tokens - output_at_start
++            if terminal or gained > 0:
++                current["recovery_released"] = dict(request_id=protected.request_id,
++                    reason="terminal" if terminal else "new_output",
++                    status=protected.status.name, new_output_tokens=gained)
++                if gained > 0:
++                    current["recovery_completed"] = protected.request_id
++                protected, output_at_start = None, None
+         if protected is not None and protected.num_output_tokens > output_at_start:
+             current["recovery_completed"] = protected.request_id
+             protected, output_at_start = None, None
+@@ -166,6 +211,8 @@ def install(scheduler, *, vllm_config, block_size, expected_requests=32,
+                 current["proposal"] = asdict(proposal)
+                 if proposal.action == "rotate":
+                     target, victim = scheduler.requests[proposal.resume_id], scheduler.requests[proposal.victim_id]
++                    if open_population:
++                        qualify(victim)
+                     released = len(owned.get(victim.request_id, ()))
+                     current.update(candidate_released_blocks=released, candidate_required_blocks=need(target))
+                     if pool.get_num_free_blocks() + released < need(target):
+diff --git a/refine-logs/expert_saturation/experiments/admission_capacity/test_rotation_native_open.py b/refine-logs/expert_saturation/experiments/admission_capacity/test_rotation_native_open.py
+new file mode 100644
+index 00000000..d2de4f09
+--- /dev/null
++++ b/refine-logs/expert_saturation/experiments/admission_capacity/test_rotation_native_open.py
+@@ -0,0 +1,186 @@
++"""Dynamic membership CPU fixtures; no native worker, EOS, or performance claim."""
++import ast
++from pathlib import Path
++from types import SimpleNamespace as NS
++import unittest
++from unittest.mock import patch
++
++import rotation_native as adapter
++from verify_headroom_fast import FakeScheduler
++from verify_rotation_native import Queue, check
++
++SOURCE = Path('/private/tmp/moe-native-v026-recovery-source/scheduler.py')
++
++
++class Fixture(FakeScheduler):
++    ec_connector = None
++    policy = NS(name='FCFS')
++    is_encoder_decoder = False
++    scheduler_reserve_full_isl = True
++    max_num_running_reqs = 32
++    natural_next = None
++
++    def _preempt_request(self, request, timestamp):
++        request.status = NS(name='PREEMPTED')
++        request.num_computed_tokens = 0
++        request.num_preemptions += 1
++        self.waiting.prepend_request(request)
++        for block in self.owned.pop(request.request_id, []):
++            block.ref_cnt = 0
++            self.available.append(block.block_id)
++
++    def fixture_schedule(self):
++        forced, tokens, resumed = [], {}, set()
++        self._rotation_begin(forced, 0.0)
++        if self.natural_next:
++            request = self.requests[self.natural_next]
++            self.running.remove(request)
++            self._preempt_request(request, 0.0)
++            forced.append(request)
++            self.natural_next = None
++        if self._rotation_target is not None:
++            request = self.requests[self._rotation_target]
++            if request in self.waiting:
++                self.waiting.remove_request(request)
++                self.running.append(request)
++                resumed.add(request.request_id)
++            blocks = self.owned.setdefault(request.request_id, [])
++            while len(blocks) < (request.num_tokens + 3) // 4:
++                block = self.kv_cache_manager.block_pool.blocks[self.available.pop()]
++                block.ref_cnt = 1
++                blocks.append(block)
++            request.status = NS(name='RUNNING')
++            request.num_computed_tokens += 1
++            tokens[request.request_id] = 1  # Internal work only; no fake output.
++        return NS(num_scheduled_tokens=tokens,
++                  preempted_req_ids={r.request_id for r in forced},
++                  scheduled_cached_reqs=NS(resumed_req_ids=resumed))
++
++
++def fixture(population='open', expected=32):
++    scheduler = Fixture(12, {'output_tokens': 128})
++    scheduler.owned = scheduler.kv_cache_manager.coordinator.single_type_managers[0].req_to_blocks
++    cfg = NS(scheduler_config=NS(async_scheduling=False), speculative_config=None)
++    replacement = ast.parse('def schedule(self):\n return self.fixture_schedule()')
++    kwargs = {} if population is None else {'population_mode': population}
++    with patch.object(adapter.inspect, 'getsourcefile', return_value=str(SOURCE)), \
++            patch.object(adapter, 'patched_schedule_tree', return_value=replacement):
++        decisions, uninstall = adapter.install(scheduler, vllm_config=cfg, block_size=4,
++            expected_requests=expected, victim_order='most_output', **kwargs)
++    scheduler.waiting, scheduler.skipped_waiting = Queue(), Queue()
++    return scheduler, decisions, uninstall
++
++
++def add(scheduler, rid, prompt=4, outputs=4, blocks=2, computed=None):
++    request = NS(request_id=rid, num_computed_tokens=prompt + outputs - 1 if computed is None else computed,
++                 num_prompt_tokens=prompt, num_output_tokens=outputs, num_tokens=prompt + outputs,
++                 max_tokens=128, num_preemptions=0, num_output_placeholders=0,
++                 num_in_flight_tokens=0, spec_token_ids=[], has_encoder_inputs=False,
++                 status=NS(name='RUNNING'))
++    request.is_finished = lambda: request.status.name.startswith('FINISHED_')
++    scheduler.requests[rid] = request
++    scheduler.running.append(request)
++    scheduler.owned[rid] = []
++    for _ in range(blocks):
++        block = scheduler.kv_cache_manager.block_pool.blocks[scheduler.available.pop()]
++        block.ref_cnt = 1
++        scheduler.owned[rid].append(block)
++    return request
++
++
++def protected_fixture():
++    scheduler, decisions, uninstall = fixture()
++    add(scheduler, 'A')
++    add(scheduler, 'B', prompt=8, outputs=8, blocks=4)
++    target = add(scheduler, 'T', prompt=12, outputs=9, blocks=5)
++    scheduler.natural_next = 'T'
++    for _ in range(31):
++        scheduler.schedule()
++    assert decisions[-1]['forced_preempted'] == ['B']
++    assert decisions[-1]['recovery_target'] == 'T'
++    return scheduler, decisions, target, uninstall
++
++
++class OpenPopulation(unittest.TestCase):
++    def test_late_arrival_qualified_once_without_closed_size(self):
++        scheduler, decisions, _ = fixture(expected=10000)
++        add(scheduler, 'A')
++        scheduler.schedule()
++        calls = scheduler.kv_cache_manager.calls
++        scheduler.schedule()
++        self.assertEqual(scheduler.kv_cache_manager.calls, calls)
++        add(scheduler, 'late', prompt=8, outputs=1, blocks=2)
++        scheduler.schedule()
++        self.assertEqual(scheduler.kv_cache_manager.calls, calls + 1)
++        self.assertTrue(decisions[-1]['active'])
++
++    def test_partial_prefill_is_not_a_victim(self):
++        scheduler, decisions, _ = fixture()
++        add(scheduler, 'partial', prompt=8, outputs=0, blocks=1, computed=4)
++        scheduler.schedule()
++        self.assertIsNone(decisions[-1]['proposal'])
++        self.assertEqual(decisions[-1]['not_applied_reason'], 'native recovery already underway')
++        self.assertEqual(scheduler.kv_cache_manager.calls, 0)
++
++    def test_shared_block_rejected_on_first_pure_and_selected_victim(self):
++        scheduler, _, _ = fixture()
++        add(scheduler, 'A')
++        scheduler.owned['A'][0].ref_cnt = 2
++        with self.assertRaisesRegex(RuntimeError, 'ownership'):
++            scheduler.schedule()
++        scheduler, _, _ = fixture()
++        add(scheduler, 'A')
++        add(scheduler, 'B', prompt=8, outputs=8, blocks=4)
++        add(scheduler, 'T', prompt=12, outputs=9, blocks=5)
++        scheduler.natural_next = 'T'
++        scheduler.schedule()
++        scheduler.owned['B'][0].ref_cnt = 2
++        for _ in range(29):
++            scheduler.schedule()
++        with self.assertRaisesRegex(RuntimeError, 'ownership'):
++            scheduler.schedule()
++
++    def test_terminal_without_output_releases_separately(self):
++        scheduler, decisions, target, _ = protected_fixture()
++        target.status = NS(name='FINISHED_STOPPED')
++        scheduler.running.remove(target)
++        del scheduler.requests['T']
++        scheduler.schedule()
++        self.assertNotIn('recovery_completed', decisions[-1])
++        self.assertEqual(decisions[-1]['recovery_released'], dict(request_id='T',
++            reason='terminal', status='FINISHED_STOPPED', new_output_tokens=0))
++        self.assertIsNone(scheduler._rotation_target)
++
++    def test_actual_new_output_and_disappearance_are_distinct(self):
++        scheduler, decisions, target, _ = protected_fixture()
++        target.num_output_tokens += 1
++        scheduler.schedule()
++        self.assertEqual(decisions[-1]['recovery_completed'], 'T')
++        self.assertEqual(decisions[-1]['recovery_released']['reason'], 'new_output')
++        scheduler, _, target, _ = protected_fixture()
++        del scheduler.requests['T']
++        scheduler.running.remove(target)
++        with self.assertRaisesRegex(RuntimeError, 'without terminal status'):
++            scheduler.schedule()
++
++    def test_default_closed_activation_and_late_arrival_rejection(self):
++        scheduler, decisions, _ = fixture(population=None, expected=2)
++        add(scheduler, 'A')
++        scheduler.schedule()
++        self.assertFalse(decisions[-1]['active'])
++        add(scheduler, 'B')
++        scheduler.schedule()
++        self.assertTrue(decisions[-1]['active'])
++        add(scheduler, 'late')
++        with self.assertRaisesRegex(RuntimeError, 'closed synchronous'):
++            scheduler.schedule()
++
++    def test_existing_closed_allocation_and_native_payload_cases(self):
++        for fundable, order in ((False, 'least_progress'), (True, 'least_progress'),
++                                (True, 'most_output'), (True, 'first_most_then_least')):
++            with self.subTest(fundable=fundable, order=order):
++                self.assertEqual(check(SOURCE, fundable, order)['status'], 'PASS')
++
++
++if __name__ == '__main__':
++    unittest.main()

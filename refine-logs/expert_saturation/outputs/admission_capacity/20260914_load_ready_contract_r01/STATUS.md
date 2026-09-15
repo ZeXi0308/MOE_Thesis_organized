@@ -1,0 +1,1 @@
+OBSERVED_EVENT_CONDITIONED_VALIDATION；两次各1538步完全匹配。真实完成事件是回放输入，不是未来预测；无GPU执行。

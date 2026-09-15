@@ -1,0 +1,77 @@
+{
+  "status": "CPU_PREPARATION_UNRUN",
+  "parent_comparison_protocol": "../qwen3_static_prefill_v026/protocol.json",
+  "reason": "The completed Qwen run has complete requests/loading/KV and finite48-layer references, but the original .01/.01 allclose diagnostic fails at layer47. One same-precall partition replay is required before performance; combining both scopes avoids another full5498.824sload.",
+  "original_analysis_sha256": "4a1ecfdc2822291308eb491f230fbfca659a3bff7a6ce693d0a7fa2a54f95578",
+  "original_allclose_diagnostic": false,
+  "original_layer47_pattern_sha256": "42f94ff25c2d3ed76b7bd76c9e0d977f79c0339fe32900e8f0331ce9bdddc6ce",
+  "startup": {
+    "model_loads": 1,
+    "qualification_source_indices": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "warmup": "first qualification request64 prompt/2 outputs; drained pager reset BEFORE warmup, no reset between warmup and diagnostic capture",
+    "capture": "original4 requests64 prompt/8 outputs each/50ms arrivals/static32; all48 full-weight references, targetedlayer47 actual/referencepartials saved",
+    "same_pre_call": "Within each new replay, identical cloned hidden/topk/weights. Old hidden tensors were not retained; original pattern matching is reported separately and never called old-hidden bitidentity."
+  },
+  "gate": {
+    "required": [
+      "all48 reference values finite",
+      "targetlayer47 reached on32actual rows with complete disjoint expert coverage",
+      "each actual partial bit-identical to same-partition full-weight reference partial",
+      "final actual bit-identical to BF16 sum of same-partition full-weight references",
+      "snapshot and raw traces saved; no failure discarded"
+    ],
+    "not_required": [
+      "pointwise full-kernel allclose becomingtrue",
+      "FP32 or reversed sum improving error"
+    ],
+    "failure": "Retain entire startup evidence and exit without any performancecell; never relax tolerances on thisrun"
+  },
+  "comparison": {
+    "order": [
+      32,
+      16,
+      16,
+      32
+    ],
+    "inputs_sha256": "714931e38ed05732c04a476e18e43124ab230ef0955ffdbd6d8a4c6cdf920780",
+    "source_indices": [
+      4,
+      5,
+      6,
+      7
+    ],
+    "prompt_tokens": [
+      64,
+      64,
+      128,
+      32
+    ],
+    "output_tokens": [
+      32,
+      32,
+      16,
+      24
+    ],
+    "arrival_times_s": [
+      0,
+      0,
+      2,
+      4
+    ],
+    "common_warmup_order": [
+      16,
+      32
+    ],
+    "source_policy": "Frozen staticcaps and all ready decode advance; no new scheduler",
+    "reference_validation": false
+  },
+  "handoff": "Seal numerical scope before reinitializing accounting on same runtime object; retain all native model/CPU-master/GPU-scratch/KV allocations and prove pointers/sizes unchanged. New separate observer and pager traces; drained emptyreset before formalwarmups.",
+  "accounting": "Per-cell complete capture/warmup/reset/IO/flush stays as frozen. Engine session lifetime includes model load, numerical scope, scopehandoff, all fourcells and shutdown, with each boundary recorded. Referencecopies/compute/snapshotD2H belong only to numerical scope, never throughput. Do not remove setup or standby cost from totals or allocate commonstartup arbitrarily to arms.",
+  "claim_ceiling": "Local grouped-execution attribution plus one finite same-budget native paging comparison; not task-quality equivalence, SLOcapacity, statistical significance, strongest globalstatic, Oracle or methodGO. This comparison does not complete the later researchgoal.",
+  "gpu": "New user-authorized RTX5090 UUID GPU-70fa1c0a-77d4-c14a-9daf-7e685874eef9; physical cgroup90GiB. Three idle preflights, boundary checks,0.5s monitor, stop only owned process group on foreign/query error. Prior host run remains unverified."
+}
