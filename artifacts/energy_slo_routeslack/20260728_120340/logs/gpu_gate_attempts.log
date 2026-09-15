@@ -1,0 +1,19 @@
+[Observed] 2026-07-28 Asia/Shanghai local GPU capability and fail-closed probes
+
+$ command -v nvidia-smi
+exit_code=1
+stdout=<empty>
+
+$ ./.venv/bin/python -B -c 'import torch; print({"torch": torch.__version__, "cuda_available": torch.cuda.is_available(), "cuda_version": torch.version.cuda, "device_count": torch.cuda.device_count()})'
+exit_code=0
+{'torch': '2.8.0', 'cuda_available': False, 'cuda_version': None, 'device_count': 0}
+
+$ ./.venv/bin/python -B docs/ideas/bcrd/experiments/benchmark_expert_service_curve.py --model jamesdborin/tiny-mixtral --model-key tiny-gpu-gate --rows 1 --warmups 1 --trials 1 --dtype float32 --offline --output /tmp/routeslack_gpu_gate_curve.csv
+exit_code=1
+core.ProtocolError: CUDA is mandatory; this benchmark never falls back to CPU
+
+$ ./.venv/bin/python -B docs/ideas/bcrd/experiments/capture_native_routes.py --model jamesdborin/tiny-mixtral --model-key tiny-gpu-gate --dataset builtin --samples 1 --seq-len 8 --decode-steps 1 --dtype float32 --phase decode --offline --output /tmp/routeslack_gpu_gate_routes.csv
+exit_code=1
+core.ProtocolError: CUDA is required for native formal capture; --allow-cpu is development-only
+
+No GPU formal artifact was created.

@@ -1,0 +1,83 @@
+{
+  "resources": {
+    "kv_bytes": 536870912,
+    "expert_cap": 16,
+    "max_num_seqs": 3,
+    "max_num_batched_tokens": 64,
+    "cpu_affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "gpu_numa_node": 0,
+    "memory_binding": "Unchanged: no explicit membind; taskset CPU0-7 plus external NUMA page observation",
+    "OMP_NUM_THREADS": 8
+  },
+  "cells": [
+    {
+      "cell": "r0-static8",
+      "repeat": 0,
+      "policy": "static8",
+      "chunk": 8,
+      "new_prompt_length": 128,
+      "map_mode": "batched"
+    },
+    {
+      "cell": "r0-phase8",
+      "repeat": 0,
+      "policy": "phase8",
+      "chunk": 8,
+      "new_prompt_length": 128,
+      "map_mode": "batched"
+    },
+    {
+      "cell": "r1-phase8",
+      "repeat": 1,
+      "policy": "phase8",
+      "chunk": 8,
+      "new_prompt_length": 128,
+      "map_mode": "batched"
+    },
+    {
+      "cell": "r1-static8",
+      "repeat": 1,
+      "policy": "static8",
+      "chunk": 8,
+      "new_prompt_length": 128,
+      "map_mode": "batched"
+    }
+  ],
+  "runtime": "vLLM0.11.2 fixed WiSP cap16 BF16 with map-write-only intervention; prefetch/dynamic off",
+  "holdout_scope": "Documents disjoint from current injection calibration; existing project preparation, not globally fresh project data",
+  "first_action_payload": {
+    "status": "NOT_MEASURABLE_IN_THIS_UNTRACED_PROTOCOL",
+    "reason": "Original snapshot counters do not isolate first-step demand loads; no payload prediction is claimed verified"
+  },
+  "total_payload": "Sum final_worker pager_layers weight_copy_payload_bytes after measurement counter reset; complete episode includes preaction prefix; bytes are copied tensor bytes, not PCIe wire bytes",
+  "status": "PREPARED_UNRUN",
+  "question": "On independent documents and a common optimized pager, does releasing the prefill limit only after ready decodes finish improve the static8 tradeoff?",
+  "remote_root": "/root/autodl-tmp/wisp-runtime-0112-r01",
+  "remote_reference": "phase-baseline8-r01",
+  "remote_output": "phase-optimized-holdout-r01",
+  "model": "/root/autodl-tmp/hf-cache/hub/models--allenai--OLMoE-1B-7B-0924/snapshots/6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+  "preaction_sha256": null,
+  "reference_rule": "First declared static8 episode with new documents; exactprestate allfollowing, never selectbyoutcome",
+  "source_sha256": {
+    "run_wisp_injection_probe.py": "11b438d7392fc07c2a2cd328176f5f9bc7c02251bf1d240d98dcd304f1749ade",
+    "run_wisp_olmoe_probe.py": "7c8dfdb5d4a6f0663954d5d2beab2f517ac0caf12abf36a223d7d10ead30d678",
+    "phase_prefill_policy.py": "6cc3384dd91258245c7bcb04306b9de1f7823e3d339ba5df93b6b4825fd8e775",
+    "wisp_paging_trace.py": "bcbf61e7c6233e741961101968eebefe2cf460d937cddb24b8fef1676d6fa2d5",
+    "workload.json": "41f649143a6bfcdc3f902423cd2a395575016ec3f6a26076f93a7d4a8d954305",
+    "run_campaign.py": "9a627de5732d6402ef703a758fe64bdabf30df16d92620aff74bef063ddd9b07"
+  },
+  "retention": "Keep every episode including first; stop on first failure; all raw remote; safe numeric/hash export only",
+  "measurement_control": "Same LLM/CUDA context/pinned-master/scratch/map/KV allocations, native schedule restored, drained KV queue sorted and pager state emptied before identical warmup; all control costs retained separately and excluded from episode by original measurement boundary; same tiny pinned map buffers/events in both arms; no profiler; map stats reset before measurement and final GPU map validation after wall receipt; actual expert bytes/LRU/output hashes compared",
+  "interpretation": "Phase policy residual above a shared map-batched pager; retain both paired signs, no whole-project holdout or SLO claim",
+  "map_source_sha256": "5572d4f05593a5a9fc4adaa14421cc596886a435b6f5f51f476a1dae6e521857",
+  "input_selection": "independent_input.json"
+}

@@ -1,0 +1,90 @@
+{
+  "audit_skill": "experiment-audit",
+  "date": "2026-09-13",
+  "verdict": "WARN",
+  "overall_verdict": "warn",
+  "integrity_status": "warn",
+  "P0": 0,
+  "P1": 0,
+  "reviewer_model": "gpt-5.6-sol",
+  "reviewer_reasoning": "ultra",
+  "reviewer_family": "openai",
+  "review_independence": "same-family",
+  "acceptance_status": "provisional",
+  "agent_id": "/root/decode_width_integrity",
+  "scope": "One targeted review of new RR action and its actual results; prior pager history not expanded.",
+  "checks": {
+    "A": {
+      "status": "PASS",
+      "detail": "Native timing and actual pager counters; no GT or accuracy claim.",
+      "evidence": [
+        "protocol.json:124",
+        "readback_completion.json:9"
+      ]
+    },
+    "B": {
+      "status": "PASS",
+      "detail": "Independent request/wall/bytes/groups recomputation matched; mutually exclusive phase reconstruction residual0, no self-max normalization.",
+      "evidence": [
+        "analyze_decode_width_rr.py:26",
+        "source/native_capture.py:281",
+        "phase_cost_diagnostic.json:10868"
+      ]
+    },
+    "C": {
+      "status": "PASS",
+      "detail": "8 cells,24 request executions,320 outputs;18,272 total pager calls,2,624 measurement calls,856392990720 measurement payload bytes; r01 GPU_BUSY retained.",
+      "evidence": [
+        "readback_completion.json:2",
+        "readback_r02/results/pager_summary.json:926"
+      ]
+    },
+    "D": {
+      "status": "PASS",
+      "detail": "Actual native budget/selection/held-state/rotation; every held request served next nonempty step; policy-specific state and no future routing.",
+      "evidence": [
+        "decode_width_rr.py:18",
+        "decode_width_rr.py:34",
+        "readback_r02/results/repeat_3_rr32/raw.json:1013"
+      ]
+    },
+    "E": {
+      "status": "WARN",
+      "detail": "One triplet,two counterbalanced observations per arm,22.83% RR wall drift,physical KV IDs differ and tensor bytes untested,admission cap2 baseline missing at review. Current report already bounds claims.",
+      "evidence": [
+        "summary.json:34425",
+        "REPORT.md:24"
+      ]
+    },
+    "F": {
+      "status": "PASS",
+      "detail": "Real single-GPU native vLLM eager pager integration measurement without GT; artificial cap16, not simulation, quality or true-over-HBM validation.",
+      "evidence": [
+        "readback_r02/launch/run.log:1"
+      ]
+    }
+  },
+  "claim_impact": "MEASUREMENT_ONLY / NO_ADVANTAGE_DEMONSTRATED_FOR_RR2 supported within the recorded scope; no stable causal slowdown size or family NO-GO.",
+  "first_action_step": 8,
+  "first_output_divergence": {
+    "request_suffix": "0000507",
+    "generated_token_1_based": 14,
+    "static_token": 281,
+    "rr_token": 20453
+  },
+  "pre_action_metrics": [
+    "new TTFT",
+    "both RR cells old maximum ITL: generated-token7->8 gap"
+  ],
+  "audited_input_hashes": {
+    "protocol.json": "e2621974d4796a173e1d4532669ee9504e309949ebfc33d3a10f78d52471ac46",
+    "decode_width_rr.py": "a7c8b6324c3f5d87d954b6528aa8858ac26c6d20e6e7dad7b7ac7cf9da46cd26",
+    "analyze_decode_width_rr.py": "a1062762312bb309135e373c7c3ba7d2335198f372f94e232f1fc78d9b112776",
+    "summary.json": "904b288d0a5e0c623514b01d98197484ae450a9ffa60cf95b3c87d7bbfe4ad53",
+    "phase_cost_diagnostic.json": "c86fb2208c56ba245a537b901ee13cc6346354e679bf24f53d2342c880a8c816",
+    "REPORT.md": "dba2607cc3cdf79c7918565d70d32fd528a1bf76e9da9ff24b2deff76f58cb17",
+    "readback_r02.tar.gz": "b83dada617d2e4f5f79ec557226d80f992addfae43a638c591a640f05473e3fc"
+  },
+  "trace_path": null,
+  "trace_scope": "AGENTS/user instructions: no .aris without an explicit request; review response summarized here."
+}

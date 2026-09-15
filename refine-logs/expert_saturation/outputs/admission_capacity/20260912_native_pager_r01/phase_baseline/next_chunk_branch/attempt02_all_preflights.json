@@ -1,0 +1,132 @@
+{
+  "next-chunk-branch-r01/execution.json": {
+    "status": "ABORT",
+    "pid": 56291,
+    "cells": [],
+    "start_unix": 1789239555.351913,
+    "reference_rule": "All cells use common incumbent prefix; within each document, six prebranch request histories, scheduler/KV metadata and pager slot/LRU states must hash identically. No K/V tensor byte-equality claim.",
+    "last_preflight": "/root/autodl-tmp/wisp-runtime-0112-r01/next-chunk-branch-r01/gpu_preflight/before_r0-new-next32.json",
+    "map_selftest": {
+      "status": "PASS",
+      "cases": 5,
+      "dtype": "bfloat16",
+      "checked": "all-hit, fill, eviction; maps, full scratch, LRU and upstream counters"
+    },
+    "error": "SystemExit: 91",
+    "end_unix": 1789239561.2963018
+  },
+  "next-chunk-branch-r01/gpu_preflight/before_selftest.json": {
+    "start_utc": "2026-09-12T18:59:15.352424+00:00",
+    "start_unix": 1789239555.352439,
+    "start_pid": 56291,
+    "allow_pid": 56291,
+    "status": "PASS",
+    "gpus": [
+      {
+        "index": "0",
+        "uuid": "GPU-389be666-aeaa-c602-1504-85bf1dd3ac9f",
+        "name": "NVIDIA GeForce RTX 5090",
+        "pstate": "P8",
+        "memory.used": "4",
+        "memory.total": "32607",
+        "utilization.gpu": "0",
+        "temperature.gpu": "40"
+      }
+    ],
+    "compute_processes": [],
+    "queries": [
+      {
+        "command": [
+          "nvidia-smi",
+          "--query-gpu=index,uuid,name,pstate,memory.used,memory.total,utilization.gpu,temperature.gpu",
+          "--format=csv,noheader,nounits"
+        ],
+        "returncode": 0,
+        "stdout": "0, GPU-389be666-aeaa-c602-1504-85bf1dd3ac9f, NVIDIA GeForce RTX 5090, P8, 4, 32607, 0, 40\n",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "nvidia-smi",
+          "--query-compute-apps=gpu_uuid,pid,process_name,used_gpu_memory",
+          "--format=csv,noheader,nounits"
+        ],
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    ],
+    "errors": [],
+    "foreign_processes": [],
+    "end_utc": "2026-09-12T18:59:15.562009+00:00",
+    "reason": "NO_FOREIGN_GPU_PROCESS",
+    "exit_code": 0
+  },
+  "next-chunk-branch-r01/gpu_preflight/before_r0-new-next32.json": {
+    "start_utc": "2026-09-12T18:59:21.185016+00:00",
+    "start_unix": 1789239561.1850278,
+    "start_pid": 56291,
+    "allow_pid": 56291,
+    "status": "ABORT",
+    "gpus": [
+      {
+        "index": "0",
+        "uuid": "GPU-389be666-aeaa-c602-1504-85bf1dd3ac9f",
+        "name": "NVIDIA GeForce RTX 5090",
+        "pstate": "P1",
+        "memory.used": "14539",
+        "memory.total": "32607",
+        "utilization.gpu": "0",
+        "temperature.gpu": "41"
+      }
+    ],
+    "compute_processes": [
+      {
+        "gpu_uuid": "GPU-389be666-aeaa-c602-1504-85bf1dd3ac9f",
+        "pid": 56066,
+        "process_name": "/root/autodl-tmp/expert-saturation/vllm-0.26/bin/python",
+        "used_gpu_memory": "13844"
+      },
+      {
+        "gpu_uuid": "GPU-389be666-aeaa-c602-1504-85bf1dd3ac9f",
+        "pid": 56291,
+        "process_name": "/root/autodl-tmp/wisp-runtime-0112-r01/venv/bin/python",
+        "used_gpu_memory": "680"
+      }
+    ],
+    "queries": [
+      {
+        "command": [
+          "nvidia-smi",
+          "--query-gpu=index,uuid,name,pstate,memory.used,memory.total,utilization.gpu,temperature.gpu",
+          "--format=csv,noheader,nounits"
+        ],
+        "returncode": 0,
+        "stdout": "0, GPU-389be666-aeaa-c602-1504-85bf1dd3ac9f, NVIDIA GeForce RTX 5090, P1, 14539, 32607, 0, 41\n",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "nvidia-smi",
+          "--query-compute-apps=gpu_uuid,pid,process_name,used_gpu_memory",
+          "--format=csv,noheader,nounits"
+        ],
+        "returncode": 0,
+        "stdout": "GPU-389be666-aeaa-c602-1504-85bf1dd3ac9f, 56066, /root/autodl-tmp/expert-saturation/vllm-0.26/bin/python, 13844\nGPU-389be666-aeaa-c602-1504-85bf1dd3ac9f, 56291, /root/autodl-tmp/wisp-runtime-0112-r01/venv/bin/python, 680\n",
+        "stderr": ""
+      }
+    ],
+    "errors": [],
+    "foreign_processes": [
+      {
+        "gpu_uuid": "GPU-389be666-aeaa-c602-1504-85bf1dd3ac9f",
+        "pid": 56066,
+        "process_name": "/root/autodl-tmp/expert-saturation/vllm-0.26/bin/python",
+        "used_gpu_memory": "13844"
+      }
+    ],
+    "end_utc": "2026-09-12T18:59:21.295930+00:00",
+    "reason": "GPU_BUSY",
+    "exit_code": 91
+  }
+}

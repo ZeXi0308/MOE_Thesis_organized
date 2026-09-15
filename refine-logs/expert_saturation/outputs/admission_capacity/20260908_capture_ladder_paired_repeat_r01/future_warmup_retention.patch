@@ -1,0 +1,14 @@
+--- frozen-executed/run_native_capacity.py
++++ future-source/run_native_capacity.py
+@@ -203,9 +203,8 @@
+                                   monotonic_s=time.perf_counter())), flush=True)
+             warm = capture_episode(engine, workload, dict(config, cap=cap), regime=regime, arrival_scale=scale,
+                                    run_id=f"warmup{index}", max_seconds=args.max_cell_seconds)
+-            if args.compare_feedback_ladders:
+-                dump(out / f"warmup-{index:03d}-raw.json", dict(warm, phase="warmup", warmup_index=index,
+-                    regime=regime, arrival_scale=scale, admission_cap_state=cap_state))
++            dump(out / f"warmup-{index:03d}-raw.json", dict(warm, phase="warmup", warmup_index=index,
++                regime=regime, arrival_scale=scale, admission_cap_state=cap_state))
+             dump(out / f"warmup-{index:03d}-summary.json", dict(status=warm["status"], error=warm["error"],
+                 regime=regime, arrival_scale=scale, cap_state=cap_state, observation_end_s=warm["observation_end_s"],
+                 requests_completed=sum(r["status"] == "completed" for r in warm["requests"]),

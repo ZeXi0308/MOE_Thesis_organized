@@ -1,0 +1,36 @@
+{
+  "status": "PASS",
+  "evidence_type": "CPU_ALLOCATOR_FIXTURE_NOT_GPU",
+  "rows": [
+    {
+      "fundable": true,
+      "victim_order": "least_progress",
+      "steps": 7,
+      "status": "PASS"
+    },
+    {
+      "fundable": false,
+      "victim_order": "least_progress",
+      "steps": 3,
+      "status": "PASS"
+    },
+    {
+      "fundable": true,
+      "victim_order": "most_output",
+      "steps": 7,
+      "status": "PASS"
+    },
+    {
+      "fundable": true,
+      "victim_order": "first_most_then_least",
+      "steps": 7,
+      "status": "PASS"
+    }
+  ],
+  "selector_tests": {
+    "status": "PASS",
+    "tests": 25,
+    "command": "python3 -B -m unittest test_absence_rotation -q"
+  },
+  "fixture_correction": "The older unfunded fixture specifically makes the smaller least-progress victim insufficient. Applying that fixture label to the larger most-output victim was rejected; its prior failed assertion was a fixture-scope error, not a native execution result."
+}

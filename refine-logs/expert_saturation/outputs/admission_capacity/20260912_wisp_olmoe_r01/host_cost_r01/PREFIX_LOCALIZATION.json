@@ -1,0 +1,1693 @@
+{
+  "schema": "host_cost_prefix_localization_v1",
+  "status": "SOURCE_LOCATION_CEILING",
+  "question": "Locate first-prefix host CPU/GC intervals on two actual observer-on X trajectories; not a main audit or performance reanalysis.",
+  "inputs": [
+    "attempt01/results/1_observer_on/host_cost_observation.json",
+    "attempt01/results/1_observer_on/raw.json",
+    "attempt01/results/1_observer_on/pager/calls.jsonl",
+    "attempt01/results/1_observer_on/pager_summary.json",
+    "attempt01/results/2_observer_on/host_cost_observation.json",
+    "attempt01/results/2_observer_on/raw.json",
+    "attempt01/results/2_observer_on/pager/calls.jsonl",
+    "attempt01/results/2_observer_on/pager_summary.json"
+  ],
+  "formulas": {
+    "gc_overlap_ms": "length(union([span_start,span_end] intersect complete GC intervals on same/other native thread))/1e6; gc_index is zero-based array position, not an intrinsic event ID",
+    "cpu": "End minus start of thread/process counters; their sampling endpoints lie inside perf envelope and CPU categories overlap",
+    "prefix_difference": "Observed on2 minus on1; planner and kernel host spans are disjoint siblings. Engine contains both, so kind totals are not additive. GC complements describe interval coverage, never recoverable savings."
+  },
+  "source_boundaries": {
+    "attempt01/instrumentation/run_host_cost.py": "35-73 narrow spans, 143-148 accounting scope",
+    "attempt01/source/native_capture.py": "272-296 wide CPU/snapshot envelope outside immediate engine start/return",
+    "attempt01/source/runtime_variation_observer.py": "30-55 GC callback timestamps;83-98 snapshot includes CPU/sysfs/RSS/GC metadata without internal timing",
+    "attempt01/source/run_shared_pool_pager.py": "121-124 outer planner envelope includes metadata;164-167 kernel span is asynchronous host call;136-162 CUDA load events include D2D/H2D/map and submission gaps"
+  },
+  "cells": [
+    {
+      "label": "1_observer_on",
+      "first_three_steps": [
+        {
+          "step": 0,
+          "engine_event_id": 0,
+          "rows": 32,
+          "start_s": 0.01725998893380165,
+          "return_s": 0.18707234412431717,
+          "kinds": {
+            "engine": {
+              "wall_ms": 169.80185,
+              "thread_cpu_ms": 169.800562,
+              "process_cpu_ms": 171.549526,
+              "same_thread_gc_overlap_ms": 0.254289,
+              "other_thread_gc_overlap_ms": 0.0
+            },
+            "planner": {
+              "wall_ms": 3.870148,
+              "thread_cpu_ms": 3.853929,
+              "process_cpu_ms": 3.853054,
+              "same_thread_gc_overlap_ms": 0.075461,
+              "other_thread_gc_overlap_ms": 0.0
+            },
+            "kernel": {
+              "wall_ms": 11.179234,
+              "thread_cpu_ms": 11.167349999999999,
+              "process_cpu_ms": 11.25725,
+              "same_thread_gc_overlap_ms": 0.178828,
+              "other_thread_gc_overlap_ms": 0.0
+            }
+          },
+          "native_wide_cpu_delta": {
+            "thread_cpu_ns": 170150672,
+            "process_cpu_ns": 172072162,
+            "user_s": 0.171165000000002,
+            "system_s": 0.0009230000000002292,
+            "voluntary_switches": 149,
+            "involuntary_switches": 0,
+            "minor_faults": 382,
+            "major_faults": 0,
+            "sched_cpu_ns": 170149455,
+            "runqueue_wait_ns": 1915,
+            "timeslices": 1
+          },
+          "observation_envelope_ms": 16.870638355612755
+        },
+        {
+          "step": 1,
+          "engine_event_id": 33,
+          "rows": 32,
+          "start_s": 0.18734676018357277,
+          "return_s": 0.36967410519719124,
+          "kinds": {
+            "engine": {
+              "wall_ms": 182.318809,
+              "thread_cpu_ms": 182.30864,
+              "process_cpu_ms": 183.751264,
+              "same_thread_gc_overlap_ms": 14.97355,
+              "other_thread_gc_overlap_ms": 0.0
+            },
+            "planner": {
+              "wall_ms": 25.339367,
+              "thread_cpu_ms": 25.31452,
+              "process_cpu_ms": 25.427145999999997,
+              "same_thread_gc_overlap_ms": 14.914279,
+              "other_thread_gc_overlap_ms": 0.0
+            },
+            "kernel": {
+              "wall_ms": 6.8333450000000004,
+              "thread_cpu_ms": 6.823209,
+              "process_cpu_ms": 6.83655,
+              "same_thread_gc_overlap_ms": 0.059271,
+              "other_thread_gc_overlap_ms": 0.0
+            }
+          },
+          "native_wide_cpu_delta": {
+            "thread_cpu_ns": 182535930,
+            "process_cpu_ns": 184004424,
+            "user_s": 0.18013299999999788,
+            "system_s": 0.003869999999999152,
+            "voluntary_switches": 149,
+            "involuntary_switches": 1,
+            "minor_faults": 1192,
+            "major_faults": 0,
+            "sched_cpu_ns": 182535981,
+            "runqueue_wait_ns": 9196,
+            "timeslices": 1
+          },
+          "observation_envelope_ms": 0.2567693591117859
+        },
+        {
+          "step": 2,
+          "engine_event_id": 66,
+          "rows": 64,
+          "start_s": 0.37023062631487846,
+          "return_s": 0.5389330368489027,
+          "kinds": {
+            "engine": {
+              "wall_ms": 168.694703,
+              "thread_cpu_ms": 168.693702,
+              "process_cpu_ms": 170.00737,
+              "same_thread_gc_overlap_ms": 0.300617,
+              "other_thread_gc_overlap_ms": 0.0
+            },
+            "planner": {
+              "wall_ms": 4.056916,
+              "thread_cpu_ms": 4.040823,
+              "process_cpu_ms": 4.066635,
+              "same_thread_gc_overlap_ms": 0.155213,
+              "other_thread_gc_overlap_ms": 0.0
+            },
+            "kernel": {
+              "wall_ms": 6.934532,
+              "thread_cpu_ms": 6.924013,
+              "process_cpu_ms": 6.892874,
+              "same_thread_gc_overlap_ms": 0.14540399999999998,
+              "other_thread_gc_overlap_ms": 0.0
+            }
+          },
+          "native_wide_cpu_delta": {
+            "thread_cpu_ns": 168956015,
+            "process_cpu_ns": 170275578,
+            "user_s": 0.1668379999999985,
+            "system_s": 0.0034380000000009403,
+            "voluntary_switches": 132,
+            "involuntary_switches": 0,
+            "minor_faults": 1096,
+            "major_faults": 0,
+            "sched_cpu_ns": 168955983,
+            "runqueue_wait_ns": 0,
+            "timeslices": 0
+          },
+          "observation_envelope_ms": 0.2964325249195099
+        }
+      ],
+      "focus_spans": [
+        {
+          "kind": "kernel",
+          "event_id": 18,
+          "engine_call": 0,
+          "call_id": 120,
+          "layer": "model.layers.8.mlp.experts",
+          "rows": 32,
+          "native_thread_id": 35761,
+          "start_perf_ns": 10237152703107107,
+          "end_perf_ns": 10237152707811876,
+          "start_thread_cpu_ns": 39147121999,
+          "end_thread_cpu_ns": 39151824727,
+          "start_process_cpu_ns": 60540993831,
+          "end_process_cpu_ns": 60545788313,
+          "step": 0,
+          "metrics": {
+            "wall_ms": 4.704769,
+            "thread_cpu_ms": 4.702728,
+            "process_cpu_ms": 4.794482,
+            "same_thread_gc_overlap_ms": 0.0,
+            "other_thread_gc_overlap_ms": 0.0
+          },
+          "gc_overlaps": [],
+          "existing_pager_timing_ms": {
+            "host_apply_ms": 14.02740366756916,
+            "host_plan_ms": 0.2507343888282776,
+            "route_to_host_ms": 0.06576254963874817,
+            "load_cuda_span_ms": 8.855999946594238,
+            "host_ensure_ms": 8.859001100063324
+          }
+        },
+        {
+          "kind": "planner",
+          "event_id": 27,
+          "engine_call": 0,
+          "call_id": 125,
+          "layer": "model.layers.13.mlp.experts",
+          "rows": 32,
+          "native_thread_id": 35761,
+          "start_perf_ns": 10237152761238101,
+          "end_perf_ns": 10237152761485296,
+          "start_thread_cpu_ns": 39205253126,
+          "end_thread_cpu_ns": 39205499389,
+          "start_process_cpu_ns": 60600004981,
+          "end_process_cpu_ns": 60600257974,
+          "step": 0,
+          "metrics": {
+            "wall_ms": 0.247195,
+            "thread_cpu_ms": 0.246263,
+            "process_cpu_ms": 0.252993,
+            "same_thread_gc_overlap_ms": 0.0,
+            "other_thread_gc_overlap_ms": 0.0
+          },
+          "gc_overlaps": [],
+          "existing_pager_timing_ms": {
+            "host_apply_ms": 8.736846968531609,
+            "host_plan_ms": 0.26015937328338623,
+            "route_to_host_ms": 0.06613880395889282,
+            "load_cuda_span_ms": 7.926591873168945,
+            "host_ensure_ms": 7.926436141133308
+          }
+        },
+        {
+          "kind": "kernel",
+          "event_id": 28,
+          "engine_call": 0,
+          "call_id": 125,
+          "layer": "model.layers.13.mlp.experts",
+          "rows": 32,
+          "native_thread_id": 35761,
+          "start_perf_ns": 10237152769457123,
+          "end_perf_ns": 10237152769876188,
+          "start_thread_cpu_ns": 39213471813,
+          "end_thread_cpu_ns": 39213890269,
+          "start_process_cpu_ns": 60608289614,
+          "end_process_cpu_ns": 60608718889,
+          "step": 0,
+          "metrics": {
+            "wall_ms": 0.419065,
+            "thread_cpu_ms": 0.418456,
+            "process_cpu_ms": 0.429275,
+            "same_thread_gc_overlap_ms": 0.0,
+            "other_thread_gc_overlap_ms": 0.0
+          },
+          "gc_overlaps": [],
+          "existing_pager_timing_ms": {
+            "host_apply_ms": 8.736846968531609,
+            "host_plan_ms": 0.26015937328338623,
+            "route_to_host_ms": 0.06613880395889282,
+            "load_cuda_span_ms": 7.926591873168945,
+            "host_ensure_ms": 7.926436141133308
+          }
+        },
+        {
+          "kind": "planner",
+          "event_id": 29,
+          "engine_call": 0,
+          "call_id": 126,
+          "layer": "model.layers.14.mlp.experts",
+          "rows": 32,
+          "native_thread_id": 35761,
+          "start_perf_ns": 10237152770533738,
+          "end_perf_ns": 10237152770775519,
+          "start_thread_cpu_ns": 39214548777,
+          "end_thread_cpu_ns": 39214789597,
+          "start_process_cpu_ns": 60609393682,
+          "end_process_cpu_ns": 60609632099,
+          "step": 0,
+          "metrics": {
+            "wall_ms": 0.241781,
+            "thread_cpu_ms": 0.24082,
+            "process_cpu_ms": 0.238417,
+            "same_thread_gc_overlap_ms": 0.0,
+            "other_thread_gc_overlap_ms": 0.0
+          },
+          "gc_overlaps": [],
+          "existing_pager_timing_ms": {
+            "host_apply_ms": 8.742397651076317,
+            "host_plan_ms": 0.254044309258461,
+            "route_to_host_ms": 0.06260350346565247,
+            "load_cuda_span_ms": 7.844480037689209,
+            "host_ensure_ms": 7.844453677535057
+          }
+        },
+        {
+          "kind": "kernel",
+          "event_id": 30,
+          "engine_call": 0,
+          "call_id": 126,
+          "layer": "model.layers.14.mlp.experts",
+          "rows": 32,
+          "native_thread_id": 35761,
+          "start_perf_ns": 10237152778664247,
+          "end_perf_ns": 10237152779182821,
+          "start_thread_cpu_ns": 39222678923,
+          "end_thread_cpu_ns": 39223196863,
+          "start_process_cpu_ns": 60617582025,
+          "end_process_cpu_ns": 60618095604,
+          "step": 0,
+          "metrics": {
+            "wall_ms": 0.518574,
+            "thread_cpu_ms": 0.51794,
+            "process_cpu_ms": 0.513579,
+            "same_thread_gc_overlap_ms": 0.083879,
+            "other_thread_gc_overlap_ms": 0.0
+          },
+          "gc_overlaps": [
+            {
+              "gc_index": 3,
+              "generation": 0,
+              "native_thread_id": 35761,
+              "same_thread": true,
+              "start_perf_ns": 10237152778874883,
+              "stop_perf_ns": 10237152778958762,
+              "collected": 0,
+              "uncollectable": 0,
+              "overlap_ms": 0.083879
+            }
+          ],
+          "existing_pager_timing_ms": {
+            "host_apply_ms": 8.742397651076317,
+            "host_plan_ms": 0.254044309258461,
+            "route_to_host_ms": 0.06260350346565247,
+            "load_cuda_span_ms": 7.844480037689209,
+            "host_ensure_ms": 7.844453677535057
+          }
+        },
+        {
+          "kind": "planner",
+          "event_id": 52,
+          "engine_call": 1,
+          "call_id": 137,
+          "layer": "model.layers.9.mlp.experts",
+          "rows": 32,
+          "native_thread_id": 35761,
+          "start_perf_ns": 10237152877210499,
+          "end_perf_ns": 10237152898133754,
+          "start_thread_cpu_ns": 39321225211,
+          "end_thread_cpu_ns": 39342138270,
+          "start_process_cpu_ns": 60716882460,
+          "end_process_cpu_ns": 60737940379,
+          "step": 1,
+          "metrics": {
+            "wall_ms": 20.923255,
+            "thread_cpu_ms": 20.913059,
+            "process_cpu_ms": 21.057919,
+            "same_thread_gc_overlap_ms": 14.096518,
+            "other_thread_gc_overlap_ms": 0.0
+          },
+          "gc_overlaps": [
+            {
+              "gc_index": 5,
+              "generation": 2,
+              "native_thread_id": 35761,
+              "same_thread": true,
+              "start_perf_ns": 10237152877227968,
+              "stop_perf_ns": 10237152891324486,
+              "collected": 9361,
+              "uncollectable": 0,
+              "overlap_ms": 14.096518
+            }
+          ],
+          "existing_pager_timing_ms": {
+            "host_apply_ms": 31.285829842090607,
+            "host_plan_ms": 20.93622274696827,
+            "route_to_host_ms": 0.06749667227268219,
+            "load_cuda_span_ms": 9.721280097961426,
+            "host_ensure_ms": 9.720031172037125
+          },
+          "gc_overlap_fraction": 0.6737249056133952,
+          "wall_outside_recorded_gc_ms": 6.826737000000001
+        },
+        {
+          "kind": "kernel",
+          "event_id": 53,
+          "engine_call": 1,
+          "call_id": 137,
+          "layer": "model.layers.9.mlp.experts",
+          "rows": 32,
+          "native_thread_id": 35761,
+          "start_perf_ns": 10237152907935046,
+          "end_perf_ns": 10237152908398976,
+          "start_thread_cpu_ns": 39351940247,
+          "end_thread_cpu_ns": 39352403493,
+          "start_process_cpu_ns": 60747888726,
+          "end_process_cpu_ns": 60748347997,
+          "step": 1,
+          "metrics": {
+            "wall_ms": 0.46393,
+            "thread_cpu_ms": 0.463246,
+            "process_cpu_ms": 0.459271,
+            "same_thread_gc_overlap_ms": 0.0,
+            "other_thread_gc_overlap_ms": 0.0
+          },
+          "gc_overlaps": [],
+          "existing_pager_timing_ms": {
+            "host_apply_ms": 31.285829842090607,
+            "host_plan_ms": 20.93622274696827,
+            "route_to_host_ms": 0.06749667227268219,
+            "load_cuda_span_ms": 9.721280097961426,
+            "host_ensure_ms": 9.720031172037125
+          }
+        },
+        {
+          "kind": "planner",
+          "event_id": 56,
+          "engine_call": 1,
+          "call_id": 139,
+          "layer": "model.layers.11.mlp.experts",
+          "rows": 32,
+          "native_thread_id": 35761,
+          "start_perf_ns": 10237152920251625,
+          "end_perf_ns": 10237152920487822,
+          "start_thread_cpu_ns": 39364257033,
+          "end_thread_cpu_ns": 39364492347,
+          "start_process_cpu_ns": 60760318875,
+          "end_process_cpu_ns": 60760551756,
+          "step": 1,
+          "metrics": {
+            "wall_ms": 0.236197,
+            "thread_cpu_ms": 0.235314,
+            "process_cpu_ms": 0.232881,
+            "same_thread_gc_overlap_ms": 0.0,
+            "other_thread_gc_overlap_ms": 0.0
+          },
+          "gc_overlaps": [],
+          "existing_pager_timing_ms": {
+            "host_apply_ms": 9.151240810751915,
+            "host_plan_ms": 0.24821236729621887,
+            "route_to_host_ms": 0.06444379687309265,
+            "load_cuda_span_ms": 8.353856086730957,
+            "host_ensure_ms": 8.353393524885178
+          }
+        },
+        {
+          "kind": "kernel",
+          "event_id": 57,
+          "engine_call": 1,
+          "call_id": 139,
+          "layer": "model.layers.11.mlp.experts",
+          "rows": 32,
+          "native_thread_id": 35761,
+          "start_perf_ns": 10237152928886741,
+          "end_perf_ns": 10237152929308471,
+          "start_thread_cpu_ns": 39372891885,
+          "end_thread_cpu_ns": 39373312959,
+          "start_process_cpu_ns": 60768992605,
+          "end_process_cpu_ns": 60769432555,
+          "step": 1,
+          "metrics": {
+            "wall_ms": 0.42173,
+            "thread_cpu_ms": 0.421074,
+            "process_cpu_ms": 0.43995,
+            "same_thread_gc_overlap_ms": 0.0,
+            "other_thread_gc_overlap_ms": 0.0
+          },
+          "gc_overlaps": [],
+          "existing_pager_timing_ms": {
+            "host_apply_ms": 9.151240810751915,
+            "host_plan_ms": 0.24821236729621887,
+            "route_to_host_ms": 0.06444379687309265,
+            "load_cuda_span_ms": 8.353856086730957,
+            "host_ensure_ms": 8.353393524885178
+          }
+        },
+        {
+          "kind": "planner",
+          "event_id": 60,
+          "engine_call": 1,
+          "call_id": 141,
+          "layer": "model.layers.13.mlp.experts",
+          "rows": 32,
+          "native_thread_id": 35761,
+          "start_perf_ns": 10237152940805252,
+          "end_perf_ns": 10237152941052242,
+          "start_thread_cpu_ns": 39384810556,
+          "end_thread_cpu_ns": 39385056737,
+          "start_process_cpu_ns": 60781009664,
+          "end_process_cpu_ns": 60781253601,
+          "step": 1,
+          "metrics": {
+            "wall_ms": 0.24699,
+            "thread_cpu_ms": 0.246181,
+            "process_cpu_ms": 0.243937,
+            "same_thread_gc_overlap_ms": 0.0,
+            "other_thread_gc_overlap_ms": 0.0
+          },
+          "gc_overlaps": [],
+          "existing_pager_timing_ms": {
+            "host_apply_ms": 10.108532384037971,
+            "host_plan_ms": 0.2589356154203415,
+            "route_to_host_ms": 0.06366148591041565,
+            "load_cuda_span_ms": 9.244511604309082,
+            "host_ensure_ms": 9.244229644536972
+          }
+        },
+        {
+          "kind": "kernel",
+          "event_id": 61,
+          "engine_call": 1,
+          "call_id": 141,
+          "layer": "model.layers.13.mlp.experts",
+          "rows": 32,
+          "native_thread_id": 35761,
+          "start_perf_ns": 10237152950338724,
+          "end_perf_ns": 10237152950820532,
+          "start_thread_cpu_ns": 39394343733,
+          "end_thread_cpu_ns": 39394824961,
+          "start_process_cpu_ns": 60790608457,
+          "end_process_cpu_ns": 60791085135,
+          "step": 1,
+          "metrics": {
+            "wall_ms": 0.481808,
+            "thread_cpu_ms": 0.481228,
+            "process_cpu_ms": 0.476678,
+            "same_thread_gc_overlap_ms": 0.059271,
+            "other_thread_gc_overlap_ms": 0.0
+          },
+          "gc_overlaps": [
+            {
+              "gc_index": 6,
+              "generation": 0,
+              "native_thread_id": 35761,
+              "same_thread": true,
+              "start_perf_ns": 10237152950418330,
+              "stop_perf_ns": 10237152950477601,
+              "collected": 0,
+              "uncollectable": 0,
+              "overlap_ms": 0.059271
+            }
+          ],
+          "existing_pager_timing_ms": {
+            "host_apply_ms": 10.108532384037971,
+            "host_plan_ms": 0.2589356154203415,
+            "route_to_host_ms": 0.06366148591041565,
+            "load_cuda_span_ms": 9.244511604309082,
+            "host_ensure_ms": 9.244229644536972
+          }
+        },
+        {
+          "kind": "planner",
+          "event_id": 62,
+          "engine_call": 1,
+          "call_id": 142,
+          "layer": "model.layers.14.mlp.experts",
+          "rows": 32,
+          "native_thread_id": 35761,
+          "start_perf_ns": 10237152951505991,
+          "end_perf_ns": 10237152951751515,
+          "start_thread_cpu_ns": 39395511355,
+          "end_thread_cpu_ns": 39395755971,
+          "start_process_cpu_ns": 60791776802,
+          "end_process_cpu_ns": 60792019015,
+          "step": 1,
+          "metrics": {
+            "wall_ms": 0.245524,
+            "thread_cpu_ms": 0.244616,
+            "process_cpu_ms": 0.242213,
+            "same_thread_gc_overlap_ms": 0.0,
+            "other_thread_gc_overlap_ms": 0.0
+          },
+          "gc_overlaps": [],
+          "existing_pager_timing_ms": {
+            "host_apply_ms": 9.755484759807587,
+            "host_plan_ms": 0.25735609233379364,
+            "route_to_host_ms": 0.06545707583427429,
+            "load_cuda_span_ms": 8.958144187927246,
+            "host_ensure_ms": 8.95802117884159
+          }
+        },
+        {
+          "kind": "kernel",
+          "event_id": 63,
+          "engine_call": 1,
+          "call_id": 142,
+          "layer": "model.layers.14.mlp.experts",
+          "rows": 32,
+          "native_thread_id": 35761,
+          "start_perf_ns": 10237152960754701,
+          "end_perf_ns": 10237152961165831,
+          "start_thread_cpu_ns": 39404759787,
+          "end_thread_cpu_ns": 39405170271,
+          "start_process_cpu_ns": 60801091034,
+          "end_process_cpu_ns": 60801498290,
+          "step": 1,
+          "metrics": {
+            "wall_ms": 0.41113,
+            "thread_cpu_ms": 0.410484,
+            "process_cpu_ms": 0.407256,
+            "same_thread_gc_overlap_ms": 0.0,
+            "other_thread_gc_overlap_ms": 0.0
+          },
+          "gc_overlaps": [],
+          "existing_pager_timing_ms": {
+            "host_apply_ms": 9.755484759807587,
+            "host_plan_ms": 0.25735609233379364,
+            "route_to_host_ms": 0.06545707583427429,
+            "load_cuda_span_ms": 8.958144187927246,
+            "host_ensure_ms": 8.95802117884159
+          }
+        },
+        {
+          "kind": "planner",
+          "event_id": 93,
+          "engine_call": 2,
+          "call_id": 157,
+          "layer": "model.layers.13.mlp.experts",
+          "rows": 64,
+          "native_thread_id": 35761,
+          "start_perf_ns": 10237153109668475,
+          "end_perf_ns": 10237153109925299,
+          "start_thread_cpu_ns": 39553673434,
+          "end_thread_cpu_ns": 39553929367,
+          "start_process_cpu_ns": 60951221385,
+          "end_process_cpu_ns": 60951486666,
+          "step": 2,
+          "metrics": {
+            "wall_ms": 0.256824,
+            "thread_cpu_ms": 0.255933,
+            "process_cpu_ms": 0.265281,
+            "same_thread_gc_overlap_ms": 0.0,
+            "other_thread_gc_overlap_ms": 0.0
+          },
+          "gc_overlaps": [],
+          "existing_pager_timing_ms": {
+            "host_apply_ms": 9.938180446624756,
+            "host_plan_ms": 0.26860833168029785,
+            "route_to_host_ms": 0.0760350376367569,
+            "load_cuda_span_ms": 9.034144401550293,
+            "host_ensure_ms": 9.034086018800735
+          }
+        },
+        {
+          "kind": "kernel",
+          "event_id": 94,
+          "engine_call": 2,
+          "call_id": 157,
+          "layer": "model.layers.13.mlp.experts",
+          "rows": 64,
+          "native_thread_id": 35761,
+          "start_perf_ns": 10237153119004546,
+          "end_perf_ns": 10237153119500563,
+          "start_thread_cpu_ns": 39563009225,
+          "end_thread_cpu_ns": 39563504586,
+          "start_process_cpu_ns": 60960622098,
+          "end_process_cpu_ns": 60961113134,
+          "step": 2,
+          "metrics": {
+            "wall_ms": 0.496017,
+            "thread_cpu_ms": 0.495361,
+            "process_cpu_ms": 0.491036,
+            "same_thread_gc_overlap_ms": 0.065882,
+            "other_thread_gc_overlap_ms": 0.0
+          },
+          "gc_overlaps": [
+            {
+              "gc_index": 10,
+              "generation": 0,
+              "native_thread_id": 35761,
+              "same_thread": true,
+              "start_perf_ns": 10237153119161170,
+              "stop_perf_ns": 10237153119227052,
+              "collected": 0,
+              "uncollectable": 0,
+              "overlap_ms": 0.065882
+            }
+          ],
+          "existing_pager_timing_ms": {
+            "host_apply_ms": 9.938180446624756,
+            "host_plan_ms": 0.26860833168029785,
+            "route_to_host_ms": 0.0760350376367569,
+            "load_cuda_span_ms": 9.034144401550293,
+            "host_ensure_ms": 9.034086018800735
+          }
+        },
+        {
+          "kind": "planner",
+          "event_id": 95,
+          "engine_call": 2,
+          "call_id": 158,
+          "layer": "model.layers.14.mlp.experts",
+          "rows": 64,
+          "native_thread_id": 35761,
+          "start_perf_ns": 10237153120208707,
+          "end_perf_ns": 10237153120458093,
+          "start_thread_cpu_ns": 39564213623,
+          "end_thread_cpu_ns": 39564462127,
+          "start_process_cpu_ns": 60961846790,
+          "end_process_cpu_ns": 60962112973,
+          "step": 2,
+          "metrics": {
+            "wall_ms": 0.249386,
+            "thread_cpu_ms": 0.248504,
+            "process_cpu_ms": 0.266183,
+            "same_thread_gc_overlap_ms": 0.0,
+            "other_thread_gc_overlap_ms": 0.0
+          },
+          "gc_overlaps": [],
+          "existing_pager_timing_ms": {
+            "host_apply_ms": 9.625919163227081,
+            "host_plan_ms": 0.2613477408885956,
+            "route_to_host_ms": 0.07779151201248169,
+            "load_cuda_span_ms": 8.80998420715332,
+            "host_ensure_ms": 8.809879422187805
+          }
+        },
+        {
+          "kind": "kernel",
+          "event_id": 96,
+          "engine_call": 2,
+          "call_id": 158,
+          "layer": "model.layers.14.mlp.experts",
+          "rows": 64,
+          "native_thread_id": 35761,
+          "start_perf_ns": 10237153129312338,
+          "end_perf_ns": 10237153129726850,
+          "start_thread_cpu_ns": 39573317000,
+          "end_thread_cpu_ns": 39573730905,
+          "start_process_cpu_ns": 60970993714,
+          "end_process_cpu_ns": 60971404238,
+          "step": 2,
+          "metrics": {
+            "wall_ms": 0.414512,
+            "thread_cpu_ms": 0.413905,
+            "process_cpu_ms": 0.410524,
+            "same_thread_gc_overlap_ms": 0.0,
+            "other_thread_gc_overlap_ms": 0.0
+          },
+          "gc_overlaps": [],
+          "existing_pager_timing_ms": {
+            "host_apply_ms": 9.625919163227081,
+            "host_plan_ms": 0.2613477408885956,
+            "route_to_host_ms": 0.07779151201248169,
+            "load_cuda_span_ms": 8.80998420715332,
+            "host_ensure_ms": 8.809879422187805
+          }
+        }
+      ],
+      "first_before_snapshot": {
+        "start_perf_ns": 10237152601280708,
+        "end_perf_ns": 10237152617856082,
+        "wall_ms": 16.575374,
+        "gc_overlaps": [],
+        "thread_cpu_scope": "UNMEASURED for snapshot alone; native wide interval includes engine and surrounding work"
+      },
+      "sched_schedstats": {
+        "status": "observed",
+        "value": "0"
+      }
+    },
+    {
+      "label": "2_observer_on",
+      "first_three_steps": [
+        {
+          "step": 0,
+          "engine_event_id": 0,
+          "rows": 32,
+          "start_s": 0.0007843486964702606,
+          "return_s": 0.16861058585345745,
+          "kinds": {
+            "engine": {
+              "wall_ms": 167.816745,
+              "thread_cpu_ms": 167.81572,
+              "process_cpu_ms": 169.384901,
+              "same_thread_gc_overlap_ms": 0.253023,
+              "other_thread_gc_overlap_ms": 0.0
+            },
+            "planner": {
+              "wall_ms": 4.25165,
+              "thread_cpu_ms": 4.2351019999999995,
+              "process_cpu_ms": 4.20366,
+              "same_thread_gc_overlap_ms": 0.075458,
+              "other_thread_gc_overlap_ms": 0.0
+            },
+            "kernel": {
+              "wall_ms": 14.907163,
+              "thread_cpu_ms": 14.892882,
+              "process_cpu_ms": 15.048373999999999,
+              "same_thread_gc_overlap_ms": 0.177565,
+              "other_thread_gc_overlap_ms": 0.0
+            }
+          },
+          "native_wide_cpu_delta": {
+            "thread_cpu_ns": 168185477,
+            "process_cpu_ns": 169759918,
+            "user_s": 0.16548099999999977,
+            "system_s": 0.004293999999999798,
+            "voluntary_switches": 132,
+            "involuntary_switches": 0,
+            "minor_faults": 1295,
+            "major_faults": 0,
+            "sched_cpu_ns": 168184767,
+            "runqueue_wait_ns": 0,
+            "timeslices": 0
+          },
+          "observation_envelope_ms": 0.42267516255378723
+        },
+        {
+          "step": 1,
+          "engine_event_id": 33,
+          "rows": 32,
+          "start_s": 0.16892236843705177,
+          "return_s": 0.35863733291625977,
+          "kinds": {
+            "engine": {
+              "wall_ms": 189.705532,
+              "thread_cpu_ms": 189.704483,
+              "process_cpu_ms": 191.390906,
+              "same_thread_gc_overlap_ms": 15.062916,
+              "other_thread_gc_overlap_ms": 0.0
+            },
+            "planner": {
+              "wall_ms": 25.36607,
+              "thread_cpu_ms": 25.349678,
+              "process_cpu_ms": 25.418114,
+              "same_thread_gc_overlap_ms": 15.001183,
+              "other_thread_gc_overlap_ms": 0.0
+            },
+            "kernel": {
+              "wall_ms": 11.956543,
+              "thread_cpu_ms": 11.924596,
+              "process_cpu_ms": 12.031638,
+              "same_thread_gc_overlap_ms": 0.061733,
+              "other_thread_gc_overlap_ms": 0.0
+            }
+          },
+          "native_wide_cpu_delta": {
+            "thread_cpu_ns": 189937443,
+            "process_cpu_ns": 191630215,
+            "user_s": 0.1828700000000012,
+            "system_s": 0.008759000000001294,
+            "voluntary_switches": 151,
+            "involuntary_switches": 0,
+            "minor_faults": 1503,
+            "major_faults": 0,
+            "sched_cpu_ns": 189937537,
+            "runqueue_wait_ns": 0,
+            "timeslices": 0
+          },
+          "observation_envelope_ms": 0.2621728926897049
+        },
+        {
+          "step": 2,
+          "engine_event_id": 66,
+          "rows": 64,
+          "start_s": 0.3594270311295986,
+          "return_s": 0.5548982303589582,
+          "kinds": {
+            "engine": {
+              "wall_ms": 195.463115,
+              "thread_cpu_ms": 195.462012,
+              "process_cpu_ms": 197.525236,
+              "same_thread_gc_overlap_ms": 0.303093,
+              "other_thread_gc_overlap_ms": 0.0
+            },
+            "planner": {
+              "wall_ms": 6.719763,
+              "thread_cpu_ms": 6.673068,
+              "process_cpu_ms": 6.653195,
+              "same_thread_gc_overlap_ms": 0.156712,
+              "other_thread_gc_overlap_ms": 0.0
+            },
+            "kernel": {
+              "wall_ms": 7.830052,
+              "thread_cpu_ms": 7.818466,
+              "process_cpu_ms": 7.799729,
+              "same_thread_gc_overlap_ms": 0.14638099999999998,
+              "other_thread_gc_overlap_ms": 0.0
+            }
+          },
+          "native_wide_cpu_delta": {
+            "thread_cpu_ns": 195727053,
+            "process_cpu_ns": 197796536,
+            "user_s": 0.19754800000000472,
+            "system_s": 0.00024900000000016576,
+            "voluntary_switches": 154,
+            "involuntary_switches": 0,
+            "minor_faults": 432,
+            "major_faults": 0,
+            "sched_cpu_ns": 195727005,
+            "runqueue_wait_ns": 0,
+            "timeslices": 0
+          },
+          "observation_envelope_ms": 0.2985280007123947
+        }
+      ],
+      "focus_spans": [
+        {
+          "kind": "kernel",
+          "event_id": 24,
+          "engine_call": 0,
+          "call_id": 123,
+          "layer": "model.layers.11.mlp.experts",
+          "rows": 32,
+          "native_thread_id": 35973,
+          "start_perf_ns": 10237214196506987,
+          "end_perf_ns": 10237214204706487,
+          "start_thread_cpu_ns": 40389507937,
+          "end_thread_cpu_ns": 40397703886,
+          "start_process_cpu_ns": 62131508695,
+          "end_process_cpu_ns": 62139918807,
+          "step": 0,
+          "metrics": {
+            "wall_ms": 8.1995,
+            "thread_cpu_ms": 8.195949,
+            "process_cpu_ms": 8.410112,
+            "same_thread_gc_overlap_ms": 0.0,
+            "other_thread_gc_overlap_ms": 0.0
+          },
+          "gc_overlaps": [],
+          "existing_pager_timing_ms": {
+            "host_apply_ms": 18.40212382376194,
+            "host_plan_ms": 0.2514217048883438,
+            "route_to_host_ms": 0.06454624235630035,
+            "load_cuda_span_ms": 9.580767631530762,
+            "host_ensure_ms": 9.594293311238289
+          }
+        },
+        {
+          "kind": "planner",
+          "event_id": 27,
+          "engine_call": 0,
+          "call_id": 125,
+          "layer": "model.layers.13.mlp.experts",
+          "rows": 32,
+          "native_thread_id": 35973,
+          "start_perf_ns": 10237214219674820,
+          "end_perf_ns": 10237214219918192,
+          "start_thread_cpu_ns": 40412675447,
+          "end_thread_cpu_ns": 40412917846,
+          "start_process_cpu_ns": 62155027244,
+          "end_process_cpu_ns": 62155267493,
+          "step": 0,
+          "metrics": {
+            "wall_ms": 0.243372,
+            "thread_cpu_ms": 0.242399,
+            "process_cpu_ms": 0.240249,
+            "same_thread_gc_overlap_ms": 0.0,
+            "other_thread_gc_overlap_ms": 0.0
+          },
+          "gc_overlaps": [],
+          "existing_pager_timing_ms": {
+            "host_apply_ms": 8.744396269321442,
+            "host_plan_ms": 0.26056356728076935,
+            "route_to_host_ms": 0.06447732448577881,
+            "load_cuda_span_ms": 7.9352641105651855,
+            "host_ensure_ms": 7.935024797916412
+          }
+        },
+        {
+          "kind": "kernel",
+          "event_id": 28,
+          "engine_call": 0,
+          "call_id": 125,
+          "layer": "model.layers.13.mlp.experts",
+          "rows": 32,
+          "native_thread_id": 35973,
+          "start_perf_ns": 10237214227898884,
+          "end_perf_ns": 10237214228317475,
+          "start_thread_cpu_ns": 40420899229,
+          "end_thread_cpu_ns": 40421317097,
+          "start_process_cpu_ns": 62163311937,
+          "end_process_cpu_ns": 62163726361,
+          "step": 0,
+          "metrics": {
+            "wall_ms": 0.418591,
+            "thread_cpu_ms": 0.417868,
+            "process_cpu_ms": 0.414424,
+            "same_thread_gc_overlap_ms": 0.0,
+            "other_thread_gc_overlap_ms": 0.0
+          },
+          "gc_overlaps": [],
+          "existing_pager_timing_ms": {
+            "host_apply_ms": 8.744396269321442,
+            "host_plan_ms": 0.26056356728076935,
+            "route_to_host_ms": 0.06447732448577881,
+            "load_cuda_span_ms": 7.9352641105651855,
+            "host_ensure_ms": 7.935024797916412
+          }
+        },
+        {
+          "kind": "planner",
+          "event_id": 29,
+          "engine_call": 0,
+          "call_id": 126,
+          "layer": "model.layers.14.mlp.experts",
+          "rows": 32,
+          "native_thread_id": 35973,
+          "start_perf_ns": 10237214229014434,
+          "end_perf_ns": 10237214229254647,
+          "start_thread_cpu_ns": 40422015025,
+          "end_thread_cpu_ns": 40422254262,
+          "start_process_cpu_ns": 62164428299,
+          "end_process_cpu_ns": 62164665099,
+          "step": 0,
+          "metrics": {
+            "wall_ms": 0.240213,
+            "thread_cpu_ms": 0.239237,
+            "process_cpu_ms": 0.2368,
+            "same_thread_gc_overlap_ms": 0.0,
+            "other_thread_gc_overlap_ms": 0.0
+          },
+          "gc_overlaps": [],
+          "existing_pager_timing_ms": {
+            "host_apply_ms": 8.754493668675423,
+            "host_plan_ms": 0.25289691984653473,
+            "route_to_host_ms": 0.0637546181678772,
+            "load_cuda_span_ms": 7.849088191986084,
+            "host_ensure_ms": 7.84895196557045
+          }
+        },
+        {
+          "kind": "kernel",
+          "event_id": 30,
+          "engine_call": 0,
+          "call_id": 126,
+          "layer": "model.layers.14.mlp.experts",
+          "rows": 32,
+          "native_thread_id": 35973,
+          "start_perf_ns": 10237214237149760,
+          "end_perf_ns": 10237214237673821,
+          "start_thread_cpu_ns": 40430149993,
+          "end_thread_cpu_ns": 40430673458,
+          "start_process_cpu_ns": 62172624061,
+          "end_process_cpu_ns": 62173143145,
+          "step": 0,
+          "metrics": {
+            "wall_ms": 0.524061,
+            "thread_cpu_ms": 0.523465,
+            "process_cpu_ms": 0.519084,
+            "same_thread_gc_overlap_ms": 0.081165,
+            "other_thread_gc_overlap_ms": 0.0
+          },
+          "gc_overlaps": [
+            {
+              "gc_index": 3,
+              "generation": 0,
+              "native_thread_id": 35973,
+              "same_thread": true,
+              "start_perf_ns": 10237214237367492,
+              "stop_perf_ns": 10237214237448657,
+              "collected": 0,
+              "uncollectable": 0,
+              "overlap_ms": 0.081165
+            }
+          ],
+          "existing_pager_timing_ms": {
+            "host_apply_ms": 8.754493668675423,
+            "host_plan_ms": 0.25289691984653473,
+            "route_to_host_ms": 0.0637546181678772,
+            "load_cuda_span_ms": 7.849088191986084,
+            "host_ensure_ms": 7.84895196557045
+          }
+        },
+        {
+          "kind": "kernel",
+          "event_id": 47,
+          "engine_call": 1,
+          "call_id": 134,
+          "layer": "model.layers.6.mlp.experts",
+          "rows": 32,
+          "native_thread_id": 35973,
+          "start_perf_ns": 10237214317553143,
+          "end_perf_ns": 10237214323026217,
+          "start_thread_cpu_ns": 40510568598,
+          "end_thread_cpu_ns": 40516025558,
+          "start_process_cpu_ns": 62253810297,
+          "end_process_cpu_ns": 62259403250,
+          "step": 1,
+          "metrics": {
+            "wall_ms": 5.473074,
+            "thread_cpu_ms": 5.45696,
+            "process_cpu_ms": 5.592953,
+            "same_thread_gc_overlap_ms": 0.0,
+            "other_thread_gc_overlap_ms": 0.0
+          },
+          "gc_overlaps": [],
+          "existing_pager_timing_ms": {
+            "host_apply_ms": 15.008483082056046,
+            "host_plan_ms": 0.23924000561237335,
+            "route_to_host_ms": 0.06401538848876953,
+            "load_cuda_span_ms": 8.840991973876953,
+            "host_ensure_ms": 8.88899341225624
+          }
+        },
+        {
+          "kind": "planner",
+          "event_id": 52,
+          "engine_call": 1,
+          "call_id": 137,
+          "layer": "model.layers.9.mlp.experts",
+          "rows": 32,
+          "native_thread_id": 35973,
+          "start_perf_ns": 10237214343493241,
+          "end_perf_ns": 10237214364383485,
+          "start_thread_cpu_ns": 40536493507,
+          "end_thread_cpu_ns": 40557382754,
+          "start_process_cpu_ns": 62280072423,
+          "end_process_cpu_ns": 62301072291,
+          "step": 1,
+          "metrics": {
+            "wall_ms": 20.890244,
+            "thread_cpu_ms": 20.889247,
+            "process_cpu_ms": 20.999868,
+            "same_thread_gc_overlap_ms": 14.102331,
+            "other_thread_gc_overlap_ms": 0.0
+          },
+          "gc_overlaps": [
+            {
+              "gc_index": 5,
+              "generation": 2,
+              "native_thread_id": 35973,
+              "same_thread": true,
+              "start_perf_ns": 10237214343512130,
+              "stop_perf_ns": 10237214357614461,
+              "collected": 9361,
+              "uncollectable": 0,
+              "overlap_ms": 14.102331
+            }
+          ],
+          "existing_pager_timing_ms": {
+            "host_apply_ms": 31.234320253133774,
+            "host_plan_ms": 20.90422809123993,
+            "route_to_host_ms": 0.06103143095970154,
+            "load_cuda_span_ms": 9.71571159362793,
+            "host_ensure_ms": 9.714838117361069
+          },
+          "gc_overlap_fraction": 0.6750677971975818,
+          "wall_outside_recorded_gc_ms": 6.787913
+        },
+        {
+          "kind": "kernel",
+          "event_id": 53,
+          "engine_call": 1,
+          "call_id": 137,
+          "layer": "model.layers.9.mlp.experts",
+          "rows": 32,
+          "native_thread_id": 35973,
+          "start_perf_ns": 10237214374176667,
+          "end_perf_ns": 10237214374634518,
+          "start_thread_cpu_ns": 40567176711,
+          "end_thread_cpu_ns": 40567633778,
+          "start_process_cpu_ns": 62311015797,
+          "end_process_cpu_ns": 62311469139,
+          "step": 1,
+          "metrics": {
+            "wall_ms": 0.457851,
+            "thread_cpu_ms": 0.457067,
+            "process_cpu_ms": 0.453342,
+            "same_thread_gc_overlap_ms": 0.0,
+            "other_thread_gc_overlap_ms": 0.0
+          },
+          "gc_overlaps": [],
+          "existing_pager_timing_ms": {
+            "host_apply_ms": 31.234320253133774,
+            "host_plan_ms": 20.90422809123993,
+            "route_to_host_ms": 0.06103143095970154,
+            "load_cuda_span_ms": 9.71571159362793,
+            "host_ensure_ms": 9.714838117361069
+          }
+        },
+        {
+          "kind": "planner",
+          "event_id": 56,
+          "engine_call": 1,
+          "call_id": 139,
+          "layer": "model.layers.11.mlp.experts",
+          "rows": 32,
+          "native_thread_id": 35973,
+          "start_perf_ns": 10237214386515539,
+          "end_perf_ns": 10237214386743328,
+          "start_thread_cpu_ns": 40579515783,
+          "end_thread_cpu_ns": 40579742538,
+          "start_process_cpu_ns": 62323472914,
+          "end_process_cpu_ns": 62323697340,
+          "step": 1,
+          "metrics": {
+            "wall_ms": 0.227789,
+            "thread_cpu_ms": 0.226755,
+            "process_cpu_ms": 0.224426,
+            "same_thread_gc_overlap_ms": 0.0,
+            "other_thread_gc_overlap_ms": 0.0
+          },
+          "gc_overlaps": [],
+          "existing_pager_timing_ms": {
+            "host_apply_ms": 9.135045111179352,
+            "host_plan_ms": 0.24041533470153809,
+            "route_to_host_ms": 0.061025843024253845,
+            "load_cuda_span_ms": 8.344160079956055,
+            "host_ensure_ms": 8.34403745830059
+          }
+        },
+        {
+          "kind": "kernel",
+          "event_id": 57,
+          "engine_call": 1,
+          "call_id": 139,
+          "layer": "model.layers.11.mlp.experts",
+          "rows": 32,
+          "native_thread_id": 35973,
+          "start_perf_ns": 10237214395132365,
+          "end_perf_ns": 10237214395557749,
+          "start_thread_cpu_ns": 40588132205,
+          "end_thread_cpu_ns": 40588556969,
+          "start_process_cpu_ns": 62332141528,
+          "end_process_cpu_ns": 62332570497,
+          "step": 1,
+          "metrics": {
+            "wall_ms": 0.425384,
+            "thread_cpu_ms": 0.424764,
+            "process_cpu_ms": 0.428969,
+            "same_thread_gc_overlap_ms": 0.0,
+            "other_thread_gc_overlap_ms": 0.0
+          },
+          "gc_overlaps": [],
+          "existing_pager_timing_ms": {
+            "host_apply_ms": 9.135045111179352,
+            "host_plan_ms": 0.24041533470153809,
+            "route_to_host_ms": 0.061025843024253845,
+            "load_cuda_span_ms": 8.344160079956055,
+            "host_ensure_ms": 8.34403745830059
+          }
+        },
+        {
+          "kind": "planner",
+          "event_id": 60,
+          "engine_call": 1,
+          "call_id": 141,
+          "layer": "model.layers.13.mlp.experts",
+          "rows": 32,
+          "native_thread_id": 35973,
+          "start_perf_ns": 10237214407066529,
+          "end_perf_ns": 10237214407305585,
+          "start_thread_cpu_ns": 40600066641,
+          "end_thread_cpu_ns": 40600304789,
+          "start_process_cpu_ns": 62344144403,
+          "end_process_cpu_ns": 62344380132,
+          "step": 1,
+          "metrics": {
+            "wall_ms": 0.239056,
+            "thread_cpu_ms": 0.238148,
+            "process_cpu_ms": 0.235729,
+            "same_thread_gc_overlap_ms": 0.0,
+            "other_thread_gc_overlap_ms": 0.0
+          },
+          "gc_overlaps": [],
+          "existing_pager_timing_ms": {
+            "host_apply_ms": 10.120125487446785,
+            "host_plan_ms": 0.2517346292734146,
+            "route_to_host_ms": 0.06026960909366608,
+            "load_cuda_span_ms": 9.252320289611816,
+            "host_ensure_ms": 9.252121672034264
+          }
+        },
+        {
+          "kind": "kernel",
+          "event_id": 61,
+          "engine_call": 1,
+          "call_id": 141,
+          "layer": "model.layers.13.mlp.experts",
+          "rows": 32,
+          "native_thread_id": 35973,
+          "start_perf_ns": 10237214416601219,
+          "end_perf_ns": 10237214417095194,
+          "start_thread_cpu_ns": 40609601021,
+          "end_thread_cpu_ns": 40610094346,
+          "start_process_cpu_ns": 62353738007,
+          "end_process_cpu_ns": 62354226927,
+          "step": 1,
+          "metrics": {
+            "wall_ms": 0.493975,
+            "thread_cpu_ms": 0.493325,
+            "process_cpu_ms": 0.48892,
+            "same_thread_gc_overlap_ms": 0.061733,
+            "other_thread_gc_overlap_ms": 0.0
+          },
+          "gc_overlaps": [
+            {
+              "gc_index": 6,
+              "generation": 0,
+              "native_thread_id": 35973,
+              "same_thread": true,
+              "start_perf_ns": 10237214416684732,
+              "stop_perf_ns": 10237214416746465,
+              "collected": 0,
+              "uncollectable": 0,
+              "overlap_ms": 0.061733
+            }
+          ],
+          "existing_pager_timing_ms": {
+            "host_apply_ms": 10.120125487446785,
+            "host_plan_ms": 0.2517346292734146,
+            "route_to_host_ms": 0.06026960909366608,
+            "load_cuda_span_ms": 9.252320289611816,
+            "host_ensure_ms": 9.252121672034264
+          }
+        },
+        {
+          "kind": "planner",
+          "event_id": 62,
+          "engine_call": 1,
+          "call_id": 142,
+          "layer": "model.layers.14.mlp.experts",
+          "rows": 32,
+          "native_thread_id": 35973,
+          "start_perf_ns": 10237214417785635,
+          "end_perf_ns": 10237214418030678,
+          "start_thread_cpu_ns": 40610785651,
+          "end_thread_cpu_ns": 40611029809,
+          "start_process_cpu_ns": 62354923259,
+          "end_process_cpu_ns": 62355165091,
+          "step": 1,
+          "metrics": {
+            "wall_ms": 0.245043,
+            "thread_cpu_ms": 0.244158,
+            "process_cpu_ms": 0.241832,
+            "same_thread_gc_overlap_ms": 0.0,
+            "other_thread_gc_overlap_ms": 0.0
+          },
+          "gc_overlaps": [],
+          "existing_pager_timing_ms": {
+            "host_apply_ms": 9.740442037582397,
+            "host_plan_ms": 0.2576056867837906,
+            "route_to_host_ms": 0.06256252527236938,
+            "load_cuda_span_ms": 8.940383911132812,
+            "host_ensure_ms": 8.940150961279869
+          }
+        },
+        {
+          "kind": "kernel",
+          "event_id": 63,
+          "engine_call": 1,
+          "call_id": 142,
+          "layer": "model.layers.14.mlp.experts",
+          "rows": 32,
+          "native_thread_id": 35973,
+          "start_perf_ns": 10237214427015559,
+          "end_perf_ns": 10237214427431924,
+          "start_thread_cpu_ns": 40620015317,
+          "end_thread_cpu_ns": 40620431062,
+          "start_process_cpu_ns": 62364212135,
+          "end_process_cpu_ns": 62364623957,
+          "step": 1,
+          "metrics": {
+            "wall_ms": 0.416365,
+            "thread_cpu_ms": 0.415745,
+            "process_cpu_ms": 0.411822,
+            "same_thread_gc_overlap_ms": 0.0,
+            "other_thread_gc_overlap_ms": 0.0
+          },
+          "gc_overlaps": [],
+          "existing_pager_timing_ms": {
+            "host_apply_ms": 9.740442037582397,
+            "host_plan_ms": 0.2576056867837906,
+            "route_to_host_ms": 0.06256252527236938,
+            "load_cuda_span_ms": 8.940383911132812,
+            "host_ensure_ms": 8.940150961279869
+          }
+        },
+        {
+          "kind": "planner",
+          "event_id": 93,
+          "engine_call": 2,
+          "call_id": 157,
+          "layer": "model.layers.13.mlp.experts",
+          "rows": 64,
+          "native_thread_id": 35973,
+          "start_perf_ns": 10237214584486485,
+          "end_perf_ns": 10237214584738530,
+          "start_thread_cpu_ns": 40777486186,
+          "end_thread_cpu_ns": 40777737270,
+          "start_process_cpu_ns": 62523253666,
+          "end_process_cpu_ns": 62523502091,
+          "step": 2,
+          "metrics": {
+            "wall_ms": 0.252045,
+            "thread_cpu_ms": 0.251084,
+            "process_cpu_ms": 0.248425,
+            "same_thread_gc_overlap_ms": 0.0,
+            "other_thread_gc_overlap_ms": 0.0
+          },
+          "gc_overlaps": [],
+          "existing_pager_timing_ms": {
+            "host_apply_ms": 9.922822937369347,
+            "host_plan_ms": 0.26526302099227905,
+            "route_to_host_ms": 0.07007457315921783,
+            "load_cuda_span_ms": 9.0250883102417,
+            "host_ensure_ms": 9.02477651834488
+          }
+        },
+        {
+          "kind": "kernel",
+          "event_id": 94,
+          "engine_call": 2,
+          "call_id": 157,
+          "layer": "model.layers.13.mlp.experts",
+          "rows": 64,
+          "native_thread_id": 35973,
+          "start_perf_ns": 10237214593808695,
+          "end_perf_ns": 10237214594305110,
+          "start_thread_cpu_ns": 40786807982,
+          "end_thread_cpu_ns": 40787303803,
+          "start_process_cpu_ns": 62532615541,
+          "end_process_cpu_ns": 62533124646,
+          "step": 2,
+          "metrics": {
+            "wall_ms": 0.496415,
+            "thread_cpu_ms": 0.495821,
+            "process_cpu_ms": 0.509105,
+            "same_thread_gc_overlap_ms": 0.068823,
+            "other_thread_gc_overlap_ms": 0.0
+          },
+          "gc_overlaps": [
+            {
+              "gc_index": 10,
+              "generation": 0,
+              "native_thread_id": 35973,
+              "same_thread": true,
+              "start_perf_ns": 10237214593960157,
+              "stop_perf_ns": 10237214594028980,
+              "collected": 0,
+              "uncollectable": 0,
+              "overlap_ms": 0.068823
+            }
+          ],
+          "existing_pager_timing_ms": {
+            "host_apply_ms": 9.922822937369347,
+            "host_plan_ms": 0.26526302099227905,
+            "route_to_host_ms": 0.07007457315921783,
+            "load_cuda_span_ms": 9.0250883102417,
+            "host_ensure_ms": 9.02477651834488
+          }
+        },
+        {
+          "kind": "planner",
+          "event_id": 95,
+          "engine_call": 2,
+          "call_id": 158,
+          "layer": "model.layers.14.mlp.experts",
+          "rows": 64,
+          "native_thread_id": 35973,
+          "start_perf_ns": 10237214595013663,
+          "end_perf_ns": 10237214595265841,
+          "start_thread_cpu_ns": 40788013286,
+          "end_thread_cpu_ns": 40788264527,
+          "start_process_cpu_ns": 62533839128,
+          "end_process_cpu_ns": 62534087931,
+          "step": 2,
+          "metrics": {
+            "wall_ms": 0.252178,
+            "thread_cpu_ms": 0.251241,
+            "process_cpu_ms": 0.248803,
+            "same_thread_gc_overlap_ms": 0.0,
+            "other_thread_gc_overlap_ms": 0.0
+          },
+          "gc_overlaps": [],
+          "existing_pager_timing_ms": {
+            "host_apply_ms": 10.712185874581337,
+            "host_plan_ms": 0.26539526879787445,
+            "route_to_host_ms": 0.07351115345954895,
+            "load_cuda_span_ms": 9.011296272277832,
+            "host_ensure_ms": 9.011799469590187
+          }
+        },
+        {
+          "kind": "kernel",
+          "event_id": 96,
+          "engine_call": 2,
+          "call_id": 158,
+          "layer": "model.layers.14.mlp.experts",
+          "rows": 64,
+          "native_thread_id": 35973,
+          "start_perf_ns": 10237214604324977,
+          "end_perf_ns": 10237214605575904,
+          "start_thread_cpu_ns": 40797324447,
+          "end_thread_cpu_ns": 40798574504,
+          "start_process_cpu_ns": 62543231798,
+          "end_process_cpu_ns": 62544409644,
+          "step": 2,
+          "metrics": {
+            "wall_ms": 1.250927,
+            "thread_cpu_ms": 1.250057,
+            "process_cpu_ms": 1.177846,
+            "same_thread_gc_overlap_ms": 0.0,
+            "other_thread_gc_overlap_ms": 0.0
+          },
+          "gc_overlaps": [],
+          "existing_pager_timing_ms": {
+            "host_apply_ms": 10.712185874581337,
+            "host_plan_ms": 0.26539526879787445,
+            "route_to_host_ms": 0.07351115345954895,
+            "load_cuda_span_ms": 9.011296272277832,
+            "host_ensure_ms": 9.011799469590187
+          }
+        }
+      ],
+      "first_before_snapshot": {
+        "start_perf_ns": 10237214078576531,
+        "end_perf_ns": 10237214078675902,
+        "wall_ms": 0.099371,
+        "gc_overlaps": [],
+        "thread_cpu_scope": "UNMEASURED for snapshot alone; native wide interval includes engine and surrounding work"
+      },
+      "sched_schedstats": {
+        "status": "observed",
+        "value": "0"
+      }
+    }
+  ],
+  "actual_state_comparison": {
+    "initial_slots_lru_clock_exact_equal": true,
+    "all_16_last_warmup_final_slot_map_lru_device_map_equal": true,
+    "schedule_first_difference_step": 11,
+    "first_field_differences": {
+      "context": {
+        "call_id": 288,
+        "step": 11,
+        "layer": "model.layers.0.mlp.experts"
+      },
+      "row_topk_experts": {
+        "call_id": 288,
+        "step": 11,
+        "layer": "model.layers.0.mlp.experts"
+      },
+      "active_experts": {
+        "call_id": 288,
+        "step": 11,
+        "layer": "model.layers.0.mlp.experts"
+      },
+      "entry_resident_experts": {
+        "call_id": 304,
+        "step": 12,
+        "layer": "model.layers.0.mlp.experts"
+      },
+      "shared_plan": {
+        "call_id": 288,
+        "step": 11,
+        "layer": "model.layers.0.mlp.experts"
+      },
+      "weight_copy_bytes": {
+        "call_id": 289,
+        "step": 11,
+        "layer": "model.layers.1.mlp.experts"
+      },
+      "d2d_copy_bytes": {
+        "call_id": 288,
+        "step": 11,
+        "layer": "model.layers.0.mlp.experts"
+      }
+    },
+    "steps0_to10_normalized_rows_routes_copyplans_final_cache_equal": true,
+    "corresponding_output_events_through_step10_equal": true,
+    "output_events_through_step10_count": [
+      25,
+      25
+    ],
+    "arrival_boundary_s": 2.0,
+    "new_at_boundary": "memory-train-article-0007009",
+    "boundary": [
+      {
+        "label": "1_observer_on",
+        "step10_return_s": 1.9751391801983118,
+        "step11_start_s": 1.97544058971107,
+        "step11_rows": 70,
+        "step11_scheduled": [
+          {
+            "request_id": "memory-train-article-0006141",
+            "computed_before": 135,
+            "scheduled_tokens": 1
+          },
+          {
+            "request_id": "memory-train-article-0006256",
+            "computed_before": 133,
+            "scheduled_tokens": 1
+          },
+          {
+            "request_id": "memory-train-article-0006307",
+            "computed_before": 132,
+            "scheduled_tokens": 1
+          },
+          {
+            "request_id": "memory-train-article-0006409",
+            "computed_before": 130,
+            "scheduled_tokens": 1
+          },
+          {
+            "request_id": "memory-train-article-0006475",
+            "computed_before": 129,
+            "scheduled_tokens": 1
+          },
+          {
+            "request_id": "memory-train-article-0006542",
+            "computed_before": 128,
+            "scheduled_tokens": 1
+          },
+          {
+            "request_id": "memory-train-article-0006699",
+            "computed_before": 64,
+            "scheduled_tokens": 32
+          },
+          {
+            "request_id": "memory-train-article-0006821",
+            "computed_before": 32,
+            "scheduled_tokens": 32
+          }
+        ]
+      },
+      {
+        "label": "2_observer_on",
+        "step10_return_s": 2.0667884573340416,
+        "step11_start_s": 2.0673298183828592,
+        "step11_rows": 102,
+        "step11_scheduled": [
+          {
+            "request_id": "memory-train-article-0006141",
+            "computed_before": 135,
+            "scheduled_tokens": 1
+          },
+          {
+            "request_id": "memory-train-article-0006256",
+            "computed_before": 133,
+            "scheduled_tokens": 1
+          },
+          {
+            "request_id": "memory-train-article-0006307",
+            "computed_before": 132,
+            "scheduled_tokens": 1
+          },
+          {
+            "request_id": "memory-train-article-0006409",
+            "computed_before": 130,
+            "scheduled_tokens": 1
+          },
+          {
+            "request_id": "memory-train-article-0006475",
+            "computed_before": 129,
+            "scheduled_tokens": 1
+          },
+          {
+            "request_id": "memory-train-article-0006542",
+            "computed_before": 128,
+            "scheduled_tokens": 1
+          },
+          {
+            "request_id": "memory-train-article-0006699",
+            "computed_before": 64,
+            "scheduled_tokens": 32
+          },
+          {
+            "request_id": "memory-train-article-0006821",
+            "computed_before": 32,
+            "scheduled_tokens": 32
+          },
+          {
+            "request_id": "memory-train-article-0007009",
+            "computed_before": 0,
+            "scheduled_tokens": 32
+          }
+        ]
+      }
+    ],
+    "unmeasured": "No bytewise equality claim for hidden states or KV tensor contents; no assumption that GC/allocator/driver state is identical."
+  },
+  "first_three_step_differences": {
+    "engine": {
+      "wall_ms": 32.17003,
+      "thread_cpu_ms": 32.179310999999984,
+      "process_cpu_ms": 32.992883000000006,
+      "same_thread_gc_overlap_ms": 0.09057599999999866,
+      "other_thread_gc_overlap_ms": 0.0
+    },
+    "planner": {
+      "wall_ms": 3.0710520000000017,
+      "thread_cpu_ms": 3.048576000000004,
+      "process_cpu_ms": 2.928134,
+      "same_thread_gc_overlap_ms": 0.08839999999999826,
+      "other_thread_gc_overlap_ms": 0.0
+    },
+    "kernel": {
+      "wall_ms": 9.746647000000003,
+      "thread_cpu_ms": 9.721372000000002,
+      "process_cpu_ms": 9.893066999999995,
+      "same_thread_gc_overlap_ms": 0.0021760000000000113,
+      "other_thread_gc_overlap_ms": 0.0
+    },
+    "engine_outside_planner_kernel_wall_ms": 19.352330999999992
+  },
+  "conclusion": "Both long step1/layer9 planners overlap about14.1ms generation2 GC within20.9ms host calls. The overlap is repeatable here but cannot explain the32.17ms prefix engine difference (GC overlap difference0.091ms). Other host spans and an initial observer snapshot differ; exact driver/GPU/wait causes remain unmeasured.",
+  "next_action": "STOP at source-location ceiling: no new GPU, selector, GC disabling or time subtraction justified by these observations; no retrospective r02 attribution."
+}

@@ -1,0 +1,46 @@
+{
+  "status": "PASS",
+  "severity_counts": {"P0": 0, "P1": 0},
+  "reviewer": {
+    "agent": "/root/recovery_integrity",
+    "model": "gpt-5.6-sol",
+    "reasoning_effort": "ultra",
+    "fork_turns": "none",
+    "independence": "same-family / provisional",
+    "raw_recompute_agent": "/root/recovery_integrity/raw_recompute"
+  },
+  "scope": "Four fresh recovery admission cells; execution, identity, raw metrics, work accounting, config fairness, causal localization, and claim boundaries.",
+  "labels": ["repeat0-full", "repeat0-chunk", "repeat1-chunk", "repeat1-full"],
+  "checks": {
+    "execution_and_request_identity": "PASS",
+    "archive_raw_hashes": "PASS",
+    "warmups": "PASS",
+    "resource_and_config_fairness": "PASS",
+    "independent_policy_state": "PASS",
+    "raw_metric_recomputation": "PASS",
+    "work_conservation": "PASS",
+    "recovery_cause": "PASS",
+    "output_and_claim_boundaries": "PASS"
+  },
+  "completed_requests": 128,
+  "completed_warmups": 12,
+  "resolved_findings": [{
+    "severity": "P2",
+    "issue": "Analyzer referenced an older byte-identical prepared input directory.",
+    "resolution": "Analyzer now reads the current frozen bundle. Recompute changed only four provenance paths; all other fields and the table are identical. Original analysis retained.",
+    "evidence": "analysis/INPUT_PROVENANCE_ADDENDUM.json"
+  }],
+  "limitations": [
+    "GPU external-process isolation has three snapshots per cell, not continuous monitoring.",
+    "Two paired repeats of one cohort support descriptive results, not population significance or production tails.",
+    "Timing includes capture cost.",
+    "One generated sequence differs per pair; quality equivalence is unmeasured.",
+    "Cross-run 1348-step comparison against the older KV campaign was separately localized and is outside this four-cell metric audit."
+  ],
+  "claim_ceiling": "In this fixed single-model, single-GPU native in-process regime, disabling full-history fit checks causes repeated recovery failures and worsens request results in both pairs. Only this exact gate-relaxation formulation is falsified.",
+  "method_go": false,
+  "problem_family_no_go": false,
+  "oracle_status": "UNRUN",
+  "new_gpu_runs_by_audit": 0,
+  "raw_artifacts_modified": false
+}

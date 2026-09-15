@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "status": "FROZEN_FOR_IMPLEMENTATION",
+  "gpu_exact_name": "NVIDIA GeForce RTX 5090",
+  "dtype": "bfloat16",
+  "layers": [0, 15],
+  "tokens_per_tenant": [8, 16, 32, 64],
+  "overlap_fractions": [0.0, 0.5, 1.0],
+  "histogram_regimes": ["balanced", "skewed"],
+  "calibration_seeds": [0, 1, 2, 3],
+  "sealed_seeds": [100, 101, 102, 103],
+  "warmup_calls": 5,
+  "paired_trials": 30,
+  "minimum_cuda_ms_per_trial": 100.0,
+  "maximum_inner_repeats": 1048576,
+  "bootstrap_resamples": 2000,
+  "bootstrap_seed": 2026072303,
+  "row_bins": ["1", "2", "3-4", "5-8", "9-16", "17-32", "33-64", "65-128", ">=129"],
+  "models": {
+    "olmoe": {
+      "model_id": "allenai/OLMoE-1B-7B-0924",
+      "revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+      "num_layers": 16,
+      "num_experts": 64,
+      "top_k": 8,
+      "hidden_size": 2048
+    },
+    "llm_jp": {
+      "model_id": "llm-jp/optimal-sparsity-math-d512-E32-k16-920M-A520M",
+      "revision": "1d5983076dfc67aee4a77ec06a27027f5bab6055",
+      "num_layers": 16,
+      "num_experts": 32,
+      "top_k": 16,
+      "hidden_size": 512
+    }
+  },
+  "gate": {
+    "matched_contrast_lcb_min": 0.10,
+    "m1_oracle_gap_explained_max": 0.90,
+    "m2_gap_recovery_lcb_min": 0.30,
+    "sham_relative_difference_ucb_max": 0.03,
+    "output_max_abs": 0.02,
+    "output_max_rel": 0.02
+  }
+}

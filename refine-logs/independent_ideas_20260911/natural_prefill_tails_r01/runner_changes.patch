@@ -1,0 +1,96 @@
+--- previous/run_prefill_share.py
++++ run_natural_prefill.py
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""One fresh engine: global budget versus per-request prefill sharing, FCFS."""
++"""One fresh engine: native FCFS on complete natural-length prompts."""
+ import argparse
+ import csv
+ import hashlib
+@@ -16,7 +16,7 @@
+ from native_capture import capture_episode
+ from metrics import summarize_episode_requests
+ 
+-ARMS = {"native1024": (1024, 0), "global512": (512, 0), "per_request512": (1024, 512)}
++ARMS = {"native1024": (1024, 0)}
+ 
+ def dump(path, value):
+     path.write_text(json.dumps(value, indent=2, allow_nan=False) + "\n")
+@@ -55,24 +55,27 @@
+         long_prefill_token_threshold=threshold, compiled_token_capacity=1024, cap=8)
+ 
+ def prepare(block):
+-    inputs = {}
+-    for cohort in ("all_short", "mixed"):
+-        folder = ROOT / "prepared" / cohort
+-        config = json.loads((folder / "config.json").read_text())
+-        workload = json.loads((folder / "workload.json").read_text())
+-        if hashlib.sha256(json.dumps(workload, sort_keys=True).encode()).hexdigest() != config["workload_sha256"]:
+-            raise ValueError("prepared workload hash differs")
+-        lengths = [len(p) for p in workload["actual_prompt_token_ids"]]
+-        expected = [128 if cohort == "all_short" or i % 2 == 0 else 2048 for i in range(16)]
+-        if lengths != expected or config["output_tokens"] != 128 or config["requests"] != 16:
+-            raise ValueError("prepared cohort differs from frozen 16-request 128/2048 contract")
+-        arrivals = workload["arrival_traces_s"]["steady"]
+-        if len(arrivals) != 16 or any(abs(a - i * 0.05) > 1e-12 for i, a in enumerate(arrivals)):
+-            raise ValueError("prepared arrival sequence differs")
+-        inputs[cohort] = (config, workload)
+-    original = inputs["mixed"][0]
+-    if any(c["model"] != original["model"] or c["seed"] != original["seed"] for c, _ in inputs.values()):
+-        raise ValueError("model or seed differs between cohorts")
++    folder = ROOT / "prepared" / "natural"
++    config = json.loads((folder / "config.json").read_text())
++    workload = json.loads((folder / "workload.json").read_text())
++    if hashlib.sha256(json.dumps(workload, sort_keys=True).encode()).hexdigest() != config["workload_sha256"]:
++        raise ValueError("prepared workload hash differs")
++    sources = workload["source_requests"]
++    prompts = workload["actual_prompt_token_ids"]
++    if len(sources) != 16 or len(prompts) != 16 or config["requests"] != 16 or config["output_tokens"] != 128:
++        raise ValueError("expected 16 complete prompts and fixed128 outputs")
++    for source, tokens in zip(sources, prompts):
++        if not 1 <= len(tokens) <= 3968 or source["prompt_token_count"] != len(tokens):
++            raise ValueError("prompt identity or context capacity mismatch")
++        if source["original_document_token_count"] != len(tokens):
++            raise ValueError("natural cohort must use each complete article without truncation")
++        if hashlib.sha256(json.dumps(tokens, separators=(",", ":")).encode()).hexdigest() != source["prompt_token_ids_sha256"]:
++            raise ValueError("prompt token hash mismatch")
++    arrivals = workload["arrival_traces_s"]["steady"]
++    if len(arrivals) != 16 or any(abs(a - i * 0.05) > 1e-12 for i, a in enumerate(arrivals)):
++        raise ValueError("prepared arrival sequence differs")
++    inputs = {"natural": (config, workload)}
++    original = config
+     model = original["model"]
+     engine_args = dict(model=model["id"], revision=model["revision"], tokenizer_revision=model["tokenizer_revision"],
+         dtype="bfloat16", seed=original["seed"], max_model_len=4096, max_num_seqs=8,
+@@ -80,15 +83,16 @@
+         enable_prefix_caching=False, scheduling_policy="fcfs", async_scheduling=False,
+         stream_interval=1, enforce_eager=False, enable_return_routed_experts=False, disable_log_stats=False)
+     warmups = [dict(cohort=c, prefill_policy=p, budget=budget, long_prefill_token_threshold=threshold,
+-                    waiting_order="fcfs") for c in ("all_short", "mixed") for p, (budget, threshold) in ARMS.items()]
+-    plans = warmups[:] if block == "forward" else list(reversed(warmups))
++                    waiting_order="fcfs") for c in ("natural",) for p, (budget, threshold) in ARMS.items()]
++    plans = warmups[:]  # forward/reverse are retained transport labels for two identical baseline repeats
+     files = [Path(__file__).resolve(), ROOT / "runtime_reference.json", *(ROOT / "runtime").glob("*.py"), *ROOT.glob("prepared/*/*.json")]
+     return inputs, dict(block=block, warmups=warmups, plans=plans, engine_args=engine_args,
+         reference_slo=dict(ttft_slo_s=5.0, tpot_slo_s=0.2), max_seconds=180,
+-        action="Only drained-engine global scheduled-token budget and per-request long-prefill threshold; FCFS unchanged",
+-        all_short_control="Ordering and threshold are no-op; global512 may still bind the aggregate token budget",
++        action="Native FCFS budget1024 threshold0 only; no policy intervention",
++        repeat_semantics="Two fresh engines, each one common warmup and one formal natural episode",
++        tiny_tail_definition=dict(max_final_prefill_tokens=32, minimum_prefill_chunks=2),
+         source_and_input_sha256={str(p.relative_to(ROOT)): sha(p) for p in sorted(files)},
+-        evidence_ceiling="REQUEST_LEVEL_EXPLORATORY_INTERVENTION_NO_METHOD_GO")
++        evidence_ceiling="REQUEST_LEVEL_BASELINE_MEASUREMENT_NO_CAUSAL_SPEEDUP")
+ 
+ def execute(inputs, frozen, out):
+     engine, completed, attempted = None, 0, 0
+@@ -140,8 +144,7 @@
+                 if raw["status"] != "COMPLETE":
+                     raise RuntimeError(f"{stem} incomplete: {raw['error']}")
+                 dump(out / (stem + "-checks.json"), dict(gpu_after=gpu_state(), drained_budget=set_empty_policy(engine, plan["prefill_policy"])))
+-                groups = {"all": raw["requests"], "short": [r for r in raw["requests"] if r["prompt_tokens"] == 128],
+-                          "long": [r for r in raw["requests"] if r["prompt_tokens"] == 2048]}
++                groups = {"all": raw["requests"]}
+                 dump(out / (stem + "-metrics.json"), dict(reference_slo_only=True, plan=plan,
+                     by_prompt_length={g: summarize_episode_requests(rows, observation_end_s=raw["observation_end_s"],
+                         **frozen["reference_slo"]) for g, rows in groups.items()}, host_chunk_diagnostics=raw["host_chunk_diagnostics"]))

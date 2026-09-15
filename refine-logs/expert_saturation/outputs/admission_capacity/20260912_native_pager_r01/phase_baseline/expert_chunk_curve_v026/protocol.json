@@ -1,0 +1,118 @@
+{
+  "status": "PREPARED_UNRUN",
+  "question": "After expert-major execution removes within-layer reload amplification, how does static prefill chunk alter incumbent max-ITL and complete request cost?",
+  "hypothesis": "Chunk still changes current expert demand and number of full model steps, but token-group cost slopes must not be reused. Measure both effects on the actual stronger executor.",
+  "source_indices": [
+    4,
+    5,
+    10
+  ],
+  "prompt_tokens": [
+    32,
+    32,
+    128
+  ],
+  "output_tokens": [
+    16,
+    16,
+    8
+  ],
+  "random_seed": 2026091303,
+  "cells": [
+    {
+      "block": 0,
+      "order": 0,
+      "order_in_block": 0,
+      "chunk": 32
+    },
+    {
+      "block": 0,
+      "order": 1,
+      "order_in_block": 1,
+      "chunk": 16
+    },
+    {
+      "block": 0,
+      "order": 2,
+      "order_in_block": 2,
+      "chunk": 8
+    },
+    {
+      "block": 1,
+      "order": 3,
+      "order_in_block": 0,
+      "chunk": 8
+    },
+    {
+      "block": 1,
+      "order": 4,
+      "order_in_block": 1,
+      "chunk": 16
+    },
+    {
+      "block": 1,
+      "order": 5,
+      "order_in_block": 2,
+      "chunk": 32
+    }
+  ],
+  "runtime": {
+    "vllm": "0.26.0",
+    "dtype": "BF16",
+    "model_revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "expert_cap": 16,
+    "kv_bytes": 536870912,
+    "token_budget": 64,
+    "max_num_seqs": 3,
+    "chunk": "cell:8/16/32",
+    "map_mode": "batched",
+    "retention": "none",
+    "release_after_old": false,
+    "execution": "expert_after_injection"
+  },
+  "warmup": [
+    "token16_before",
+    "expert8",
+    "expert16",
+    "expert32",
+    "token16_after"
+  ],
+  "event": "Common token prefix; inject third request after four old outputs and switch to expert with cell chunk8/16/32. No release after old completion.",
+  "prepared_source": {
+    "remote": "/root/autodl-tmp/expert-union/inputs_preparation/prepared/short/workload.json",
+    "sha256": "2c08f17c8edef382e6aacb4f1321d35c3f386a60ec840c95c922fbd7e0a25a53"
+  },
+  "primary": [
+    "capture wall",
+    "old-request maximum ITL and completion",
+    "new TTFT and completion"
+  ],
+  "costs": "Same instrumentation, both warmups, episode trace flush and parent/engine cycle. Actual peak memory and expert partial output/workspace separately retained; map validation after capture.",
+  "prestate": "Source-ID normalized logical metadata including output tokens, positions, KV counts and pager slots/LRU. Physical KV IDs retained separately; no KV tensor equality claim.",
+  "scope": "Calibration on an already viewed source triplet, not fresh holdout. Six same-engine episodes, two observations per chunk. Independent policy state execution, no fixed future routes.",
+  "stops": "Foreign GPU or query failure, incomplete requests, bad state or accounting abort and retain all attempts. No post-hoc favorable-cell selection.",
+  "comparison": "In each predeclared block, compare chunk8 and chunk32 against16; show all metrics, same-action repeats, output differences, and full costs. No observed max drift converted into a noise bound.",
+  "continuation": "The result defines the stronger baseline and remaining tradeoff. An actionable residual leads to continuous arrivals using ordinary state feedback before expert features. An absent residual here limits this tested regime, not the problem family.",
+  "randomization": "Seed2026091303 shuffles first block once; second block is its reverse. Same mean global position for each chunk.",
+  "pre_execution_design_note": "Before GPU, changed the second independent shuffle [16,32,8] to [8,16,32] because both independent shuffles placed chunk8 last. No measurement outcomes existed or were inspected.",
+  "base_source_sha256": {
+    "runtime_variation_observer.py": "ee70ee8bb1c76901ad92d61daac9724855710889264bd8fb30e12a4cc7c3178a",
+    "wisp_expert_groups.py": "d22fa5d0b1ced552556fab5209f4e55a4ecae24b658f043ef0bc35e7fd90f6f2",
+    "run_native_pager.py": "a325e38528b041105836e98ac3e71604f7734c6db9a3c5e03951dd6f2dd83f3a",
+    "wisp_v026_adapter.py": "b6c25e2656678636a596403fba7d9318465a4bee5b0eaf9c7b457dadcbafdd93",
+    "native_pager_context.py": "cef0fc3ea112b2099d586a2ccb89c94253cecc6f5f4d9c97a22c9e22b2821008",
+    "admission_feedback.py": "279c3e0ef44f8d9a0dec9bfeffe4dea72e657f24c637d9111f6712eb7ee0ece7",
+    "batched_expert_map.py": "746367a1d68afb28ad3ba6b3a4694be00ba2579a19ecae3216f700c5daff968e",
+    "native_capture.py": "7e981d3ea2d0d206908ceaab568471d7923e2db0fc1b4f38fe6b2a73ebc5d9da"
+  },
+  "source_sha256": {
+    "runtime_variation_observer.py": "ee70ee8bb1c76901ad92d61daac9724855710889264bd8fb30e12a4cc7c3178a",
+    "wisp_expert_groups.py": "d22fa5d0b1ced552556fab5209f4e55a4ecae24b658f043ef0bc35e7fd90f6f2",
+    "run_native_pager.py": "555fb35fe5fd97eb4e8080804f3da14db2099c8733d1a649b06c5df8cf0e8160",
+    "wisp_v026_adapter.py": "b6c25e2656678636a596403fba7d9318465a4bee5b0eaf9c7b457dadcbafdd93",
+    "native_pager_context.py": "cef0fc3ea112b2099d586a2ccb89c94253cecc6f5f4d9c97a22c9e22b2821008",
+    "admission_feedback.py": "279c3e0ef44f8d9a0dec9bfeffe4dea72e657f24c637d9111f6712eb7ee0ece7",
+    "batched_expert_map.py": "746367a1d68afb28ad3ba6b3a4694be00ba2579a19ecae3216f700c5daff968e",
+    "native_capture.py": "7e981d3ea2d0d206908ceaab568471d7923e2db0fc1b4f38fe6b2a73ebc5d9da"
+  }
+}

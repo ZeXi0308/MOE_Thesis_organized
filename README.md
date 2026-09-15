@@ -1,12 +1,18 @@
-# 仓库根目录
+# MoE 毕设研究仓库
 
-| 路径 | 用途 |
+## 入口
+
+| 路径 | 内容 |
 |---|---|
-| [`docs/ideas/全部Idea设计总览.md`](docs/ideas/全部Idea设计总览.md) | 各 idea 思想/实验/代码/演进 |
-| [`docs/`](docs/README.md) | 文档入口 |
-| [`experiments/shared/`](experiments/shared/) | 公共库 |
-| [`literature/`](literature/) | PDF |
-| [`docs/99_archive/killed_ideas/`](docs/99_archive/killed_ideas/) | 判死 idea |
+| [当前研究状态](docs/current/README.md) | 唯一权威结论、证据边界与下一 Gate |
+| [研究方向](docs/ideas/README.md) | 每个 idea 的文档、代码和结果入口 |
+| [公共实验库](experiments/shared/README.md) | 多个 idea 共用的模型、量化和指标代码 |
+| [文献](literature/README.md) | 论文、提案和阅读笔记 |
+| [会议记录](docs/meetings/) | 选题与导师讨论材料 |
+| [归档](docs/archive/README.md) | 历史跨方向汇总、已停止和非活动 formulation |
 
-GitHub：https://github.com/ZeXi0308/MOE_Thesis.git  
-现状：[`docs/01_current_status/研究现状与Idea演进_2026-07-21.md`](docs/01_current_status/研究现状与Idea演进_2026-07-21.md)
+## 当前结论
+
+尚无正式验证通过的系统主机制。当前只推进 BCRD/DEPA 共用的自然 continuous-decode expert-pressure 现象 Gate；不并行实现多个 controller。
+
+GitHub：https://github.com/ZeXi0308/MOE_Thesis.git

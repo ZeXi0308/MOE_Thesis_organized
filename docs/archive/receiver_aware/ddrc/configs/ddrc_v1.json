@@ -1,0 +1,156 @@
+{
+  "schema_version": 1,
+  "protocol_id": "DDRC_PHASE2_FROZEN_2026-07-22",
+  "scientific_status": "NO_RESULT_PHASE3_IMPLEMENTATION_ONLY",
+  "topology": {
+    "ep_size": 8,
+    "node_by_rank": [0, 0, 0, 0, 1, 1, 1, 1],
+    "receive_resource_by_rank": [
+      "node0_nic0",
+      "node0_nic0",
+      "node0_nic0",
+      "node0_nic0",
+      "node1_nic0",
+      "node1_nic0",
+      "node1_nic0",
+      "node1_nic0"
+    ],
+    "link_gbps": 200.0,
+    "placement": "contiguous",
+    "boundary": "virtual EP topology; not an actual NIC, rail, QP, NCCL, or RDMA measurement"
+  },
+  "accounting": {
+    "high_bits": 8,
+    "low_bits": 4,
+    "high_scale_bytes_per_row": 4,
+    "low_scale_bytes_per_row": 4,
+    "lane_descriptor_bytes": 16,
+    "lane_alignment_bytes": 16,
+    "codec_tile_rows": 32,
+    "codec_tax_mode": "serialized_tiles",
+    "sensitivity_codec_tax_modes": ["amortized_once_per_step_proxy"],
+    "credit_header_bytes": 16,
+    "credit_record_bytes": 8,
+    "credit_alignment_bytes": 16,
+    "evidence_boundary": "NOT_RDMA / host-staging proxy"
+  },
+  "credit_timing": {
+    "build_us": 1.0,
+    "aggregate_us": 1.0,
+    "transfer_us": 1.0,
+    "parse_us": 1.0,
+    "pack_deadline_slack_us": 10.0,
+    "overlap_proven": false,
+    "source": "assumed",
+    "formal_effect": "formal execution may run, but assumed timing prevents a GO verdict"
+  },
+  "models": {
+    "olmoe": {
+      "checkpoint": "allenai/OLMoE-1B-7B-0924",
+      "revision": "MUST_BE_RECORDED_BY_FORMAL_DATA_MANIFEST",
+      "num_experts": 64,
+      "top_k": 8,
+      "hidden_dim": 2048,
+      "high_timing": {
+        "pack_us": 23.968,
+        "unpack_us": 23.296,
+        "h2d_us": 11.072,
+        "measured_rows": 128,
+        "source": "measured_other_gpu",
+        "boundary": "RTX 5090 single-GPU pack plus pinned H2D plus unpack; NOT_RDMA"
+      },
+      "low_timing": {
+        "pack_us": 23.424,
+        "unpack_us": 23.44,
+        "h2d_us": 11.232,
+        "measured_rows": 128,
+        "source": "measured_other_gpu",
+        "boundary": "RTX 5090 single-GPU pack plus pinned H2D plus unpack; NOT_RDMA"
+      }
+    },
+    "llmjp": {
+      "checkpoint": "llm-jp/optimal-sparsity-math-d512-E32-k16-920M-A520M",
+      "revision": "MUST_BE_RECORDED_BY_FORMAL_DATA_MANIFEST",
+      "num_experts": 32,
+      "top_k": 16,
+      "hidden_dim": 512,
+      "high_timing": {
+        "pack_us": 23.984,
+        "unpack_us": 23.392,
+        "h2d_us": 11.392,
+        "measured_rows": 128,
+        "source": "measured_other_gpu",
+        "boundary": "RTX 5090 single-GPU pack plus pinned H2D plus unpack; NOT_RDMA"
+      },
+      "low_timing": {
+        "pack_us": 23.328,
+        "unpack_us": 23.296,
+        "h2d_us": 11.232,
+        "measured_rows": 128,
+        "source": "measured_other_gpu",
+        "boundary": "RTX 5090 single-GPU pack plus pinned H2D plus unpack; NOT_RDMA"
+      }
+    }
+  },
+  "selection": {
+    "threshold_quantile": 0.6,
+    "lane_order": "saved_remote_bytes_desc_then_sender_receiver",
+    "request_origin_balancing": "scheduler_visible_token_count_lpt",
+    "forbidden_inputs": [
+      "future_routes",
+      "future_requests",
+      "current_combine_completion_time",
+      "test_labels"
+    ]
+  },
+  "data": {
+    "dataset": "cais/mmlu",
+    "config": "all",
+    "calibration_split": "validation",
+    "sealed_split": "test",
+    "calibration_per_subject": 4,
+    "sealed_per_subject": 12,
+    "seed": 20260722,
+    "batch_size": 8,
+    "max_sequence_length": 320,
+    "subjects": [
+      "college_biology",
+      "college_chemistry",
+      "college_medicine",
+      "college_physics",
+      "elementary_mathematics",
+      "global_facts",
+      "high_school_biology",
+      "high_school_chemistry",
+      "high_school_computer_science",
+      "high_school_european_history"
+    ]
+  },
+  "decision": {
+    "utility_margin_pp": 0.03,
+    "lambdas": [0.0, 0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0],
+    "n_bootstrap": 2000,
+    "seed": 20260722,
+    "require_adjacent_lambda_points": 2,
+    "required_models": ["olmoe", "llmjp"],
+    "main_origin_mode": "balanced"
+  },
+  "formal": {
+    "required_review_status": "SIGNED-OFF",
+    "required_hashes": [
+      "protocol_sha256",
+      "config_sha256",
+      "source_sha256",
+      "data_manifest_sha256"
+    ],
+    "dev_status": "NOT_TESTED",
+    "partial_status": "PARTIAL",
+    "capabilities": {
+      "native_route_capture": false,
+      "native_action_matched_gpu_quality": false,
+      "measured_credit_timing": false,
+      "burst_block_bootstrap": false
+    },
+    "fail_closed_note": "Phase 3 trace/accounting implementation cannot emit formal GO or scientific NO-GO until Phase 4 confirms all capabilities true after implementation"
+  }
+}

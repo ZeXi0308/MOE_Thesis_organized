@@ -1,0 +1,63 @@
+{
+  "status": "SINGLE_GPU_CHARACTERIZATION_ONLY_NOT_RECEIVER_CONGESTION",
+  "evidence_boundary": "Real CUDA timing of full prefill, KV-cache decode, and local MoE blocks on one RTX 5090. No EP ranks, NCCL, NVLink/RDMA return traffic, receiver queue, continuous arrivals, TPOT/P99 serving claim, or RankLane comparison.",
+  "args": {
+    "model": "jamesdborin/tiny-mixtral",
+    "revision": null,
+    "output_dir": "/root/autodl-tmp/receiver_multi_moe_tiny_formal_20260727",
+    "cache_dir": "/root/autodl-tmp/hf-cache",
+    "dtype": "bfloat16",
+    "batch_sizes": [
+      1,
+      4,
+      8,
+      16
+    ],
+    "prompt_len": 128,
+    "decode_steps": 32,
+    "warmup_decode_steps": 4,
+    "repeats": 5,
+    "route_census_steps": 16,
+    "seed": 20260727,
+    "local_files_only": true
+  },
+  "model": {
+    "name": "jamesdborin/tiny-mixtral",
+    "revision_requested": null,
+    "config_commit_hash": "fa41eeceac446bc43fccc3e868a8fad85c7bd101",
+    "architectures": [
+      "MixtralForCausalLM"
+    ],
+    "num_hidden_layers": 2,
+    "num_experts": null,
+    "num_experts_per_tok": 2,
+    "moe_block_count": 2,
+    "moe_block_names": [
+      "model.layers.0.block_sparse_moe",
+      "model.layers.1.block_sparse_moe"
+    ],
+    "load_seconds": 0.6941800117492676
+  },
+  "environment": {
+    "created_at_utc": "2026-07-27T12:59:02Z",
+    "python": "3.12.3 | packaged by Anaconda, Inc. | (main, May  6 2024, 19:46:43) [GCC 11.2.0]",
+    "platform": "Linux-5.15.0-78-generic-x86_64-with-glibc2.35",
+    "torch": "2.8.0+cu128",
+    "torch_cuda": "12.8",
+    "transformers": "4.57.6",
+    "huggingface_hub": "0.36.2",
+    "nvidia_smi": "NVIDIA GeForce RTX 5090, 32607 MiB, 580.95.05, 38, 575.00 W",
+    "cuda_device": "NVIDIA GeForce RTX 5090",
+    "peak_allocated_bytes": 642984448,
+    "peak_reserved_bytes": 905969664
+  },
+  "source": {
+    "path": "/root/autodl-tmp/receiver_multi_moe_code/profile_multi_moe_inference.py",
+    "sha256": "67bdfb02f5e3039255d919df7a08de4100a8527d3913d7ec36cf46ed9ab664f8"
+  },
+  "row_counts": {
+    "timings_raw": 1320,
+    "moe_layers_raw": 1320,
+    "route_census_untimed": 136
+  }
+}

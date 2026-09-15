@@ -1,0 +1,118 @@
+--- before/run_native_capacity.py
++++ after/run_native_capacity.py
+@@ -28,6 +28,15 @@
+     return dict(compute_processes=query, gpu=subprocess.check_output(["nvidia-smi",
+         "--query-gpu=name,uuid,memory.total,memory.used,temperature.gpu,power.draw,clocks.sm",
+         "--format=csv,noheader"], text=True).strip())
++
++
++def episode_config(config, plan):
++    """Each episode gets its own policy settings, including its ladder override."""
++    result = dict(config, cap=plan["cap"], policy=plan.get("policy", "static"))
++    if "ladder_name" in plan:
++        result["ladder_name"] = plan["ladder_name"]
++        result["feedback_caps"] = list(plan["feedback_caps"])
++    return result
+ 
+ 
+ def main():
+@@ -44,6 +53,8 @@
+     feedback_option = parser.add_mutually_exclusive_group()
+     feedback_option.add_argument("--include-feedback", action="store_true", help="append shadow and ordinary-ITL feedback arms at max cap")
+     feedback_option.add_argument("--single-action-probe", action="store_true", help="hold32 / one-time down16 / static16 with unchanged warmup caps")
++    feedback_option.add_argument("--compare-feedback-ladders", action="store_true", help="paired old/new feedback ladders plus common static and shadow arms")
++    parser.add_argument("--prepare-only", action="store_true", help="freeze inputs and plans without GPU initialization or execution")
+     parser.add_argument("--ttft-slo-s", type=float)
+     parser.add_argument("--tpot-slo-s", type=float)
+     parser.add_argument("--warmup-condition-rounds", type=int, default=0)
+@@ -66,6 +77,9 @@
+         parser.error("engine capacity must cover admission cap; warmup rounds must be nonnegative")
+     if args.single_action_probe and (sorted(caps) != [8, 12, 16, 32] or engine_max_seqs != 32):
+         parser.error("single-action probe freezes engine32 and warmup caps8/12/16/32")
++    if args.compare_feedback_ladders and (caps != [8, 12, 16, 24, 32] or engine_max_seqs != 32
++            or args.repeats != 1 or len(scales) != 1 or args.underload_scale is not None):
++        parser.error("paired ladders freeze caps8/12/16/24/32, engine32, repeats1, one arrival scale and no underload arm")
+     if any(v is not None and (not math.isfinite(v) or v <= 0) for v in (args.ttft_slo_s, args.tpot_slo_s)):
+         parser.error("SLO overrides must be finite and positive")
+     if args.underload_scale is not None and (not math.isfinite(args.underload_scale) or args.underload_scale <= max(scales)):
+@@ -86,7 +100,7 @@
+     plans = []
+     for repeat in range(args.repeats):
+         conditions = [(scale, regime) for scale in scales for regime in ("steady", "bursty")]
+-        if args.reverse_conditions:
++        if args.reverse_conditions and not args.compare_feedback_ladders:
+             conditions.reverse()
+         arms = [(cap, "static") for cap in caps]
+         if args.single_action_probe:
+@@ -96,15 +110,23 @@
+         if args.include_feedback:
+             extra = [(max(caps), "shadow"), (max(caps), "feedback")]
+             arms = list(reversed(extra)) + arms if args.reverse_conditions else arms + extra
+-        for cap, policy in (arms if repeat % 2 == 0 else list(reversed(arms))):
++        if args.compare_feedback_ladders:
++            arms += [(32, "shadow"), (32, "feedback"), (32, "feedback")]
++        for arm_index, (cap, policy) in enumerate(arms if repeat % 2 == 0 else list(reversed(arms))):
+             for scale, regime in (conditions if repeat % 2 == 0 else list(reversed(conditions))):
+                 plan = dict(repeat=repeat, arrival_scale=scale, regime=regime, cap=cap)
+-                if args.include_feedback or args.single_action_probe:
++                if args.include_feedback or args.single_action_probe or args.compare_feedback_ladders:
+                     plan["policy"] = policy
++                if args.compare_feedback_ladders:
++                    ladder_name = "static" if policy == "static" else ("aligned" if arm_index == 7 else "legacy")
++                    plan.update(ladder_name=ladder_name,
++                                feedback_caps=[8, 16, 24, 32] if ladder_name == "aligned" else [8, 12, 16, 32])
+                 plans.append(plan)
+         if args.underload_scale is not None:
+             for cap in (caps[0], caps[-1]):
+                 plans.append(dict(repeat=repeat, arrival_scale=args.underload_scale, regime="steady", cap=cap))
++    if args.compare_feedback_ladders and args.reverse_conditions:
++        plans.reverse()
+     config = dict(model=original["model"], output_tokens=original["output_tokens"],
+         prompt_tokens=original["prompt_tokens"], requests=len(rows), cap=args.cap,
+         ttft_slo_s=original["ttft_slo_s"] if args.ttft_slo_s is None else args.ttft_slo_s,
+@@ -120,11 +142,17 @@
+     config.update(caps=caps, underload_scale=args.underload_scale, reverse_conditions=args.reverse_conditions,
+                   include_feedback=args.include_feedback, feedback_caps=sorted(caps),
+                   single_action_probe=args.single_action_probe, single_down_target=16)
++    if args.compare_feedback_ladders:
++        config.update(compare_feedback_ladders=True, feedback_caps=[8, 12, 16, 32])
+     out = args.output_dir
+     out.mkdir(parents=True, exist_ok=False)
+     dump(out / "config.json", config)
+     dump(out / "workload.json", workload)
+     (out / "commands.txt").write_text(shlex.join([sys.executable, *sys.argv]) + "\n")
++    if args.prepare_only:
++        dump(out / "status.json", dict(status="PREPARED", cells_completed=0, cells_planned=len(plans),
++            gpu_initialized=False, evidence_type="PREPARATION_ONLY_NO_GPU_EXECUTION"))
++        return
+     dump(out / "status.json", dict(status="INITIALIZING", cells_completed=0))
+     engine = None
+     completed = 0
+@@ -145,7 +173,7 @@
+         package = Path(vllm.__file__).parent
+         sources = [Path(__file__), Path(__file__).with_name("native_capture.py"),
+                    Path(__file__).with_name("metrics.py")]
+-        if args.include_feedback or args.single_action_probe:
++        if args.include_feedback or args.single_action_probe or args.compare_feedback_ladders:
+             sources.append(Path(__file__).with_name("admission_feedback.py"))
+         environment = dict(python=sys.version, torch=torch.__version__, cuda=torch.version.cuda,
+             vllm=vllm.__version__, transformers=version("transformers"), gpu_before_init=before,
+@@ -175,6 +203,9 @@
+                                   monotonic_s=time.perf_counter())), flush=True)
+             warm = capture_episode(engine, workload, dict(config, cap=cap), regime=regime, arrival_scale=scale,
+                                    run_id=f"warmup{index}", max_seconds=args.max_cell_seconds)
++            if args.compare_feedback_ladders:
++                dump(out / f"warmup-{index:03d}-raw.json", dict(warm, phase="warmup", warmup_index=index,
++                    regime=regime, arrival_scale=scale, admission_cap_state=cap_state))
+             dump(out / f"warmup-{index:03d}-summary.json", dict(status=warm["status"], error=warm["error"],
+                 regime=regime, arrival_scale=scale, cap_state=cap_state, observation_end_s=warm["observation_end_s"],
+                 requests_completed=sum(r["status"] == "completed" for r in warm["requests"]),
+@@ -190,7 +221,7 @@
+             cap_state = set_empty_admission_cap(engine, plan["cap"])
+             print(json.dumps(dict(phase="CELL_START", index=index, plan=plan,
+                                   monotonic_s=time.perf_counter())), flush=True)
+-            raw = capture_episode(engine, workload, dict(config, cap=plan["cap"], policy=plan.get("policy", "static")), regime=plan["regime"],
++            raw = capture_episode(engine, workload, episode_config(config, plan), regime=plan["regime"],
+                 arrival_scale=plan["arrival_scale"], run_id=f"cell{index}", max_seconds=args.max_cell_seconds)
+             raw.update(plan=plan, gpu_before=before, admission_cap_state=cap_state)
+             print(json.dumps(dict(phase="CELL_END", index=index, status=raw["status"],

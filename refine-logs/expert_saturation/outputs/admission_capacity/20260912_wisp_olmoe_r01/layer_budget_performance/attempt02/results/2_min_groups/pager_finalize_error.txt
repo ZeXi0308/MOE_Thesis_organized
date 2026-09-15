@@ -1,0 +1,68 @@
+Traceback (most recent call last):
+  File "/root/autodl-tmp/layer-budget-performance-20260913-root-r02/source/run_native_pager.py", line 299, in main
+    engine = LLMEngine.from_engine_args(EngineArgs(**kwargs), enable_multiprocessing=False)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/engine/llm_engine.py", line 179, in from_engine_args
+    return cls(
+           ^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/engine/llm_engine.py", line 105, in __init__
+    self.engine_core = EngineCoreClient.make_client(
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/engine/core_client.py", line 105, in make_client
+    return InprocClient(vllm_config, executor_class, log_stats)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/engine/core_client.py", line 287, in __init__
+    self.engine_core = EngineCore(*args, **kwargs)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/engine/core.py", line 125, in __init__
+    self.model_executor = executor_class(vllm_config)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/tracing/otel.py", line 178, in sync_wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/executor/abstract.py", line 109, in __init__
+    self._init_executor()
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/executor/uniproc_executor.py", line 68, in _init_executor
+    self.driver_worker.load_model()
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/worker/gpu_worker.py", line 431, in load_model
+    self.model_runner.load_model(load_dummy_weights=load_dummy_weights)
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/tracing/otel.py", line 178, in sync_wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/worker/gpu_model_runner.py", line 5346, in load_model
+    raise e
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/worker/gpu_model_runner.py", line 5266, in load_model
+    self.model = model_loader.load_model(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/tracing/otel.py", line 178, in sync_wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/model_executor/model_loader/base_loader.py", line 80, in load_model
+    process_weights_after_loading(model, model_config, target_device)
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/model_executor/model_loader/utils.py", line 113, in process_weights_after_loading
+    quant_method.process_weights_after_loading(module)
+  File "/root/autodl-tmp/layer-budget-performance-20260913-root-r02/source/wisp_v026_adapter.py", line 101, in postload
+    upstream._patched_process_weights_after_loading(self, layer)
+  File "/root/autodl-tmp/wisp-pager-smoke-20260912/source/src/wisp/integrations/vllm/fused_moe.py", line 860, in _patched_process_weights_after_loading
+    state = WispMoEState(
+            ^^^^^^^^^^^^^
+  File "/root/autodl-tmp/wisp-pager-smoke-20260912/source/src/wisp/integrations/vllm/fused_moe.py", line 179, in __init__
+    self.scratch_w13 = torch.empty(
+                       ^^^^^^^^^^^^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 216.00 MiB. GPU 0 has a total capacity of 31.36 GiB of which 188.38 MiB is free. Including non-PyTorch memory, this process has 6.26 GiB memory in use. Process 74507 has 24.88 GiB memory in use. Of the allocated memory 5.57 GiB is allocated by PyTorch, and 32.03 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/autodl-tmp/layer-budget-performance-20260913-root-r02/source/run_native_pager.py", line 578, in main
+    dump(out / "pager_failure_summary.json", pager.finalize(status="failed"))
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/layer-budget-performance-20260913-root-r02/source/wisp_v026_adapter.py", line 426, in finalize
+    return _runtime.finalize(status)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/layer-budget-performance-20260913-root-r02/source/wisp_v026_adapter.py", line 406, in finalize
+    summary.update(self.validate_layer_allocations())
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/layer-budget-performance-20260913-root-r02/source/wisp_v026_adapter.py", line 155, in validate_layer_allocations
+    raise RuntimeError("actual expert layers/caps differ from the complete configured mapping")
+RuntimeError: actual expert layers/caps differ from the complete configured mapping

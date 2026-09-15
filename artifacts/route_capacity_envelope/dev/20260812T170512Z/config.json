@@ -1,0 +1,109 @@
+{
+  "schema": "route-capacity-envelope-dev-capture-v1",
+  "status": "READY_FOR_DEV_CAPTURE",
+  "run_class": "development_custom_transformers",
+  "scientific_result_eligible": false,
+  "producer": "docs/ideas/bcrd/experiments/capture_continuous_decode.py",
+  "development_capture_runner": "docs/ideas/route_shape_slo/v2_capacity_envelope/experiments/capture_dev_continuous_decode.py",
+  "preregistration": "docs/ideas/bcrd/experiments/configs/gate0_continuous_decode_v1.json",
+  "workload_spec": "docs/ideas/route_shape_slo/v2_capacity_envelope/experiments/olmoe_dev_workload.json",
+  "environment": {
+    "device": "cuda",
+    "visible_gpu_count": 1,
+    "target_gpu": "RTX 5090",
+    "offline_only": true,
+    "gpu_time_budget_minutes": 60,
+    "recommended_free_memory_mib": 24576
+  },
+  "runtime_semantics": {
+    "kind": "custom_transformers_continuous_decode",
+    "one_token_per_scheduled_request_per_decode_call": true,
+    "native_serving_queue": false,
+    "waiting_field_name": "custom_waiting_count",
+    "running_field_name": "custom_running_set",
+    "pending_request_count_semantics": "not_yet_arrived_requests_not_queue_depth",
+    "timing_boundary": "cuda_synchronized_whole_model_call",
+    "per_layer_timing_available": false,
+    "physical_kv_bytes_available": false
+  },
+  "action": {
+    "active_token_action_degenerates": true,
+    "reason": "pure decode executes one token per scheduled request, so active tokens equal scheduled request count",
+    "candidate_if_stage_d_is_authorized": "running_set_budget",
+    "current_actuator": "static_max_batch_size_proxy",
+    "depa_style_action": true,
+    "dynamic_actuator_implemented": false,
+    "stage_d_frozen": false,
+    "stage_d_authorized": false
+  },
+  "analysis_contract": {
+    "model": {
+      "id": "allenai/OLMoE-1B-7B-0924",
+      "revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5"
+    },
+    "methods": {
+      "M0": "constant",
+      "M1": "workload-only",
+      "M2": "workload plus current max/mean expert load, CV, HHI, top1 share, and active experts",
+      "M3": "M2 plus completed route-shape history",
+      "M4": "M3 plus t+1 route; future-route diagnostic only"
+    },
+    "primary_metric": "P95 pinball loss",
+    "quantile_l2_alpha": 1.0,
+    "ridge_alpha": 1.0,
+    "target_quantile": 0.95,
+    "dangerous_underprediction_margin_fraction": 0.10,
+    "slo_multiplier": 1.10,
+    "signal_thresholds": {
+      "promising_pinball_improvement": 0.03,
+      "promising_dangerous_reduction": 0.10,
+      "weak_pinball_improvement": 0.01
+    },
+    "secondary_metrics": [
+      "dangerous underprediction rate",
+      "SLO-risk false-negative rate",
+      "MAE diagnostic"
+    ],
+    "causal_cutoff": "M0-M3 may read only state available by the end of window t",
+    "split": "leave one complete arrival episode out; request and document identities cannot overlap",
+    "p1_authorized_if_p0_status": [
+      "P0_DEV_READY",
+      "P0_READY_WITH_PROXY_RUNTIME"
+    ]
+  },
+  "telemetry_overhead_contract": {
+    "required_status": "TELEMETRY_OVERHEAD_OK",
+    "comparison": "native output_router_logits ON versus OFF",
+    "sample_request_count": 8,
+    "same_requests": true,
+    "same_arrival_trace": false,
+    "same_seed": true,
+    "same_batch_schedule": true,
+    "same_decode_steps": true,
+    "same_dtype": true,
+    "same_timing_boundary": "cuda_synchronized_whole_model_call",
+    "max_relative_overhead": 0.02,
+    "token_output_must_match": true,
+    "logit_output_must_match": true,
+    "on_route_trace_must_be_stable": true,
+    "completion_trace_must_match": true,
+    "route_hook_installed": false,
+    "note": "the check replays identical fixed scheduled batches ON/OFF and does not replay manifest arrival timing; the producer installs no Python hook"
+  },
+  "output_contract": {
+    "canonical_root": "artifacts/route_capacity_envelope/dev/<timestamp>",
+    "files": [
+      "config.json",
+      "windows.csv",
+      "metrics.json",
+      "report.md",
+      "commands.sh",
+      "run.log"
+    ],
+    "canonical_bundle_limit": 1,
+    "raw_capture_locations": [
+      "/tmp/bcrd-gate0-smoke-rce-steady-<timestamp>",
+      "/tmp/bcrd-gate0-smoke-rce-bursty-<timestamp>"
+    ]
+  }
+}

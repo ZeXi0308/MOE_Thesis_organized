@@ -1,0 +1,132 @@
+{
+  "status": "FROZEN_GPU_UNRUN",
+  "created_unix_s": 1789323852.965348,
+  "evidence_type": "DESCRIPTIVE_NATIVE_FINITE_ARRIVAL_COHORT",
+  "question": "After source-declared MoE compiler/handle-domain coverage with full startup cost retained, does X retain complete-request advantage over ordinary full-stage F in a fresh finite arrival cohort?",
+  "sequence": [
+    "0_fullstage",
+    "1_oneshot",
+    "2_oneshot",
+    "3_fullstage"
+  ],
+  "modes": {
+    "fullstage": "F: private20x16+full64 stage, ordinary20 endstate",
+    "oneshot": "X: private21x16+shared48, ordinary21 endstate"
+  },
+  "resources": {
+    "expert_slots": 384,
+    "expert_weight_bytes": 4831838208,
+    "kv_bytes": 1073741824,
+    "token_budget": 160,
+    "max_num_seqs": 16,
+    "cpu_affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "omp_threads": 8,
+    "static_prefill_limit": 32
+  },
+  "workload": {
+    "requests": 16,
+    "prompt_tokens": 128,
+    "output_tokens": 32,
+    "measurement_output_tokens": 512,
+    "measurement_prompt_tokens": 2048,
+    "arrival_interval_s": 0.25,
+    "arrival_horizon_s": 3.75,
+    "all_cells_same_documents": true
+  },
+  "warmup": {
+    "episodes_per_engine": 1,
+    "requests": 1,
+    "prompt_tokens": 128,
+    "output_tokens": 2,
+    "document_id": "memory-train-article-0006141",
+    "state": "Default non-injection/non-same-engine first-request warmup, full completion before measurement; per-policy expert cache retained, no measurement reset. Warmup requests/KV drain; completed request KV is naturally freed, prefix caching disabled.",
+    "jit_scope": "Original single request warmup follows explicit compile-domain preparation. Validate actual measurement compiler events; do not infer all-runtime warmness."
+  },
+  "experiment_unit": "Four fresh engines, F/X/X/F, same new16 documents from unused second half of frozen input pool; two engines per mode, fixed order, descriptive pilot.",
+  "primary": [
+    "first planned arrival to final completion of all16 requests",
+    "complete capture observation_end_s"
+  ],
+  "secondary": [
+    "arrival-based per-request TTFT and completion latency",
+    "TPOT and maximum ITL",
+    "planned-arrival to actual submission lag",
+    "native queue/scheduler telemetry",
+    "H2D and D2D payload separately",
+    "actual expert+KV bytes and CUDA peak allocated/reserved",
+    "entire subprocess wall including initialization,warmup,capture,finalize,IO and shutdown"
+  ],
+  "accounting": [
+    "Capture excludes prior warmup/setup and following finalization/shutdown; full subprocess wall retains all.",
+    "No cycle_complete or runtime GC observer in reused single-capture branch; memory trace retention stays until finalize, with cost retained.",
+    "Do not sum nested host/CUDA/apply spans into wall. Include actual preemption/recomputation, failures and every cell; no subtraction of warmup/observer/IO costs.",
+    "Clock arrivals are submitted between synchronous engine steps. Arrival lag is distinct from native queue waiting; cohort capture includes the initial arrival transient and final drain, but excludes engine startup. This finite cohort is not steady-state."
+  ],
+  "boundaries": [
+    "Same frozen runtime and actual384expert slots/1GiBKV in F and X; proposed helper changes compiler state only.",
+    "All four cells and every output retained; timing-derived actual batching/route remains endogenous. No significance/quality/SLO or method GO from two repeats.",
+    "F is ordinary full-stage same-budget strong simple baseline, not optimized FreeToken reproduction.",
+    "Compiler-domain validation is distinct from performance. Any measurement compilation remains in time and marks that coverage assumption unfulfilled.",
+    "Latest queue owner must finish/release before this new group; shared advisory flock plus per-cell UUID/process queries. No kill or automatic waiter."
+  ],
+  "runtime_source_bundle": "refine-logs/expert_saturation/outputs/admission_capacity/20260912_wisp_olmoe_r01/full_stage_performance",
+  "model": "/root/autodl-tmp/hf-cache/hub/models--allenai--OLMoE-1B-7B-0924/snapshots/6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+  "python": "/root/autodl-tmp/expert-saturation/vllm-0.26/bin/python",
+  "wisp_src": "/root/autodl-tmp/wisp-pager-smoke-20260912/source/src",
+  "expected_external_wisp": {
+    "wisp/__init__.py": "82a2bb29b65c9995ab0ca592bcfe710ebf2b9906060f12ca9f7e466161c8d293",
+    "wisp/integrations/__init__.py": "2bd523bca0c5b7574446d97559a7f2cafafd0a949e3d156684a8b0bddfa253fa",
+    "wisp/integrations/vllm/__init__.py": "5997ed3e6ec51ac84befbabbacd17a7b971927a25696d401088708e6b77c30c1",
+    "wisp/integrations/vllm/fused_moe.py": "5572d4f05593a5a9fc4adaa14421cc596886a435b6f5f51f476a1dae6e521857"
+  },
+  "expected_gpu_uuid": "GPU-70fa1c0a-77d4-c14a-9daf-7e685874eef9",
+  "expected_packages": {
+    "torch": "2.11.0",
+    "vllm": "0.26.0",
+    "transformers": "5.15.1",
+    "triton": "3.6.0",
+    "tokenizers": "0.22.2",
+    "flashinfer-python": "0.6.14"
+  },
+  "limits": {
+    "capture_max_seconds": 600,
+    "subprocess_timeout_seconds": 900
+  },
+  "required_analysis_files": [
+    "analyze_covered.py",
+    "finite_metrics.py"
+  ],
+  "created_at_utc": "2026-09-13T17:52:54.533326+00:00",
+  "gpu_group_lock": "/root/autodl-tmp/moe-research-gpu.lock",
+  "compiler_domain": {
+    "position": "After original engine initialization, before the sole 128->2 request warmup",
+    "domain": "M=1..160 x two actual BF16 MoE GEMM interfaces; F E64/global64/mapNone, X E384/global384/mapped. Enumerate full integer M domain with source exact config and alignment/EM rules.",
+    "action": "Compile-only warmup=True via original invoke helper and explicit CompiledKernel._init_handles; no expert/GPU kernel launch, pager ensure/LRU/KV or weight mutation.",
+    "cache": "Every fresh engine starts with its own empty private Triton disk cache. Other backend caches retain current environment and are not declared cold.",
+    "coverage_rule": "All source declared invocations complete; pager state unchanged; zero actual compiler_pipeline events during request measurement. Preserve any failure or miss as coverage failure, never delete or retry a cell.",
+    "claim_boundary": "Only this MoE Triton family compile/handles are covered, not all runtime paths. Monitor other compilers; full precompile/startup/memory cost retained. No subtraction or claim of full steady-state based on precompile alone.",
+    "completion_status": "COMPLETE_COMPILE_AND_LOAD_ONLY",
+    "failure_policy": "Stop after first completed cell whose coverage is false, keep its actual COMPLETE request status and all measurements; no automatic retry. Pending cells stay unrun."
+  },
+  "frozen_at_utc": "2026-09-13T18:12:49.107434+00:00",
+  "repository_head": "c4ae4f5daaea929e1a4358862296d832f1cc67ab",
+  "attempt": "compile_domain_r02",
+  "previous_attempt": {
+    "directory": "compile_domain_r01",
+    "status": "INVALID_EXPERIMENT_BEFORE_MEASUREMENT",
+    "archive_sha256": "b822c24a80f9f97b74a1bcc67f2b4221062d5c88781bc238f568bdeb6584b79b",
+    "reason": "snapshot vars on slotted WispMoEState",
+    "process_wall_s": 42.951954032,
+    "compile_domain_invocations": 0
+  },
+  "implementation_fix": "Read six pinned WispMoEState stats fields explicitly; CPU check uses actual slots. All original runtime, resources, sequence and workload preserved."
+}

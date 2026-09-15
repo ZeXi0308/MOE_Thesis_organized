@@ -1,0 +1,63 @@
+{
+  "cells": [
+    {
+      "cell": "r0-static8",
+      "repeat": 0,
+      "policy": "static8",
+      "chunk": 8,
+      "new_prompt_length": 128
+    },
+    {
+      "cell": "r0-phase8",
+      "repeat": 0,
+      "policy": "phase8",
+      "chunk": 8,
+      "new_prompt_length": 128
+    },
+    {
+      "cell": "r1-phase8",
+      "repeat": 1,
+      "policy": "phase8",
+      "chunk": 8,
+      "new_prompt_length": 128
+    },
+    {
+      "cell": "r1-static8",
+      "repeat": 1,
+      "policy": "static8",
+      "chunk": 8,
+      "new_prompt_length": 128
+    }
+  ],
+  "trace": false,
+  "source": "unmodified pinned WiSP",
+  "reason": "Does cap8 while any ready decode exists, then full remaining token budget, improve full-request tradeoffs relative to static8 with identical wrapper costs?",
+  "telemetry": "NVML outside model process every100ms; cgroup CPU counters; all cells same instrumentation",
+  "no_metric_reselection": "all request latency/ITL/completion and wall retained; no unified SLO selected",
+  "cpu_affinity": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "gpu_numa_node": 0,
+  "cgroup_cpu_quota_cores": 16,
+  "resource_boundary": "8 same physical CPU cores in both arms; cannot count improvement over earlier unpinned runs as scheduler gain",
+  "phase_policy": {
+    "modes": [
+      "static8",
+      "phase8"
+    ],
+    "common_preaction_threshold": 32,
+    "protected_threshold": 8,
+    "phase8": "At pre-KV schedule entry: threshold8 while ANY current running request is ready for synchronous decode; otherwise threshold0 (native global token budget64 still applies).",
+    "static8": "Same wrapper, state checks and logging; threshold8 after action boundary in every call.",
+    "enabled_boundary": "Existing action key is created only after both original requests have exactly4output tokens.",
+    "unsupported": "Fail on async, speculative/prefix/preemption state, progress mismatch or any ready decode not scheduled exactly once."
+  },
+  "holdout_scope": "Same three documents and previously explored action regime; controlled simple-baseline comparison, not independent document holdout."
+}

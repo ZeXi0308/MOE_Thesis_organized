@@ -1,0 +1,147 @@
+{
+  "status": "FROZEN_UNRUN",
+  "created_unix_s": 1789250750.451013,
+  "evidence_type": "DESCRIPTIVE_NATIVE_SHARED_POOL_EXECUTION",
+  "question": "At the same 384 expert slots and 1GiB KV, does one-shot shared staging improve complete request costs over strong private-cache baselines, after accounting for smaller long-term cache and D2D?",
+  "inputs": [
+    {
+      "label": "block0",
+      "source_indices": [
+        12,
+        13,
+        14
+      ],
+      "documents": [
+        "memory-train-article-0001274",
+        "memory-train-article-0001401",
+        "memory-train-article-0001487"
+      ],
+      "prepared_sha256": "5aab25d981c2753d12bcaae2847178814869238b37e27764fd68204c18e2da68"
+    },
+    {
+      "label": "block1",
+      "source_indices": [
+        15,
+        16,
+        17
+      ],
+      "documents": [
+        "memory-train-article-0001710",
+        "memory-train-article-0001856",
+        "memory-train-article-0001988"
+      ],
+      "prepared_sha256": "184696d824a063bf6cfc8834bdc54d9875b95584d77b7ea63efa34f9ea7e68ba"
+    }
+  ],
+  "source_workload": "refine-logs/expert_saturation/outputs/admission_capacity/20260906_native_memory_pressure_r01/inputs_preparation/prepared/short/workload.json",
+  "source_sha256": "2c08f17c8edef382e6aacb4f1321d35c3f386a60ec840c95c922fbd7e0a25a53",
+  "arms": {
+    "uniform": "16 private24, previous ordinary expert groups",
+    "selected": "previous calibration min-miss fixed384 allocation, unchanged",
+    "split": "16 private21 plus unused shared48; ordinary expert groups",
+    "oneshot": "16 private21 plus shared48, ordinary21 endstate on own current rows, D2D then H2D then full active union kernel"
+  },
+  "sequence": [
+    {
+      "label": "0_uniform",
+      "mode": "uniform",
+      "block": 0,
+      "prepared": "block0"
+    },
+    {
+      "label": "1_selected",
+      "mode": "selected",
+      "block": 0,
+      "prepared": "block0"
+    },
+    {
+      "label": "2_split",
+      "mode": "split",
+      "block": 0,
+      "prepared": "block0"
+    },
+    {
+      "label": "3_oneshot",
+      "mode": "oneshot",
+      "block": 0,
+      "prepared": "block0"
+    },
+    {
+      "label": "4_oneshot",
+      "mode": "oneshot",
+      "block": 1,
+      "prepared": "block1"
+    },
+    {
+      "label": "5_split",
+      "mode": "split",
+      "block": 1,
+      "prepared": "block1"
+    },
+    {
+      "label": "6_selected",
+      "mode": "selected",
+      "block": 1,
+      "prepared": "block1"
+    },
+    {
+      "label": "7_uniform",
+      "mode": "uniform",
+      "block": 1,
+      "prepared": "block1"
+    }
+  ],
+  "resources": {
+    "expert_slots": 384,
+    "expert_weight_bytes": 4831838208,
+    "kv_bytes": 1073741824,
+    "CPU": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "OMP": 8,
+    "token_budget": 160,
+    "max_num_seqs": 16
+  },
+  "workload": {
+    "prompts": [
+      32,
+      32,
+      128
+    ],
+    "outputs": [
+      16,
+      16,
+      8
+    ],
+    "injection": "third request when both old have4 outputs",
+    "prefill_chunk": 8,
+    "release": "after both old complete",
+    "episodes_per_fresh_engine": 8
+  },
+  "objectives": [
+    "complete capture wall",
+    "old maximum ITL and completion",
+    "new TTFT and completion",
+    "full reset/warmup/observation/write/flush cycle and parent process wall"
+  ],
+  "boundaries": [
+    "Two disjoint new document triples; eight episodes inside each engine are dependent repeats, not independent requests/CI samples.",
+    "Opposite order also changes document block, so effect drift cannot be assigned solely to order or text. Pair within each block and report both, all slow/failure rows retained.",
+    "No SLO selected from results, no maximum-control noise floor or arbitrary multiplier acceptance. Improved requests with offsetting cycle or old-request costs stay tradeoff, not net GO.",
+    "Static allocation selected from original calibration remains fixed; no fit to these new inputs or best-run selection.",
+    "Each arm has its own real route/output/cache evolution. No assertion of cross-arm bitwise state or output equality. All fixed requested token work and outputs retained; quality unmeasured.",
+    "Common runner retains original five warmup episodes. Shared modes use ordinary private21 for protected warmup phases, selected pool mode for none warmups; protection forbidden in measurement. Full warmup/cycle costs retained.",
+    "Resource compare uses expert_scratch_bytes unique384 total. Legacy scratch_bytes in shared arms means private336 views only. D2D is separate from H2D weight_copy_bytes.",
+    "Qualification refs/poison/readback disabled, same tracing/observer/episode flush categories in all arms. New planner/map/event/trace overhead is included, not subtracted.",
+    "GPU preflight perinit/repeat/finish; no claim of continuous exclusivity. Stop on any failed cell, inspect; preserve all attempts. Canonical is first complete valid cell per predeclared label, never outcome-selected."
+  ],
+  "continue_if": "Actual lower complete request wall with acceptable old/new costs versus all simple baselines; then independent workloads/repeats and actual beyond-resident regime before method claim.",
+  "stop_or_localize": "If wrong bytes/state or incomplete accounting, stop validity. If D2D/reduced residence/new execution work offsets savings, localize measured cost; do not kill whole problem."
+}

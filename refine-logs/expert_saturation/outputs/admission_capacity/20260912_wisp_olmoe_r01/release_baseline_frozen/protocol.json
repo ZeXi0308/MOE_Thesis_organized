@@ -1,0 +1,59 @@
+{
+  "created_unix_s": 1789228379.481787,
+  "state": "FROZEN_UNRUN",
+  "question": "After all old decoding requests complete, does lifting the prefill chunk8 limit reduce the new request completion cost while preserving the entire old-request execution prefix?",
+  "hypothesis": "A fixed chunk cap continues to fragment remaining prefill even after its old-request protection purpose ends; ordinary phase feedback should remove this avoidable work.",
+  "basis": "Both native chunk8 repeats finish old requests at call15 with new prompt96/128; calls16..19 copy14,180,941,824bytes with no old decode.",
+  "actions": [
+    "fixed8",
+    "release8",
+    "release8",
+    "fixed8"
+  ],
+  "runtime": "single vLLM0.26 engine with WiSP fixed-cap expert groups",
+  "resources": {
+    "expert_cap": 24,
+    "expert_scratch_bytes": 4831838208,
+    "kv_bytes": 1073741824,
+    "token_budget": 160,
+    "cpu_affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "omp_threads": 8
+  },
+  "warmup": "Each repeat: drained reset preserving allocations/free queue, short32, fixed8 full episode, release8 full episode; all policy actions use current completed statuses.",
+  "release": "After event injection and both old rows marked completed, set scheduler long_prefill_token_threshold=0 once before next engine.step. Native total budget160 remains fixed.",
+  "predicted_action": "First post-old call should process all remaining32 prompt tokens vs8. Later route/KV/output state independently regenerated; do not assume identical new output.",
+  "primary_metrics": [
+    "new TTFT",
+    "new completion latency",
+    "whole episode wall"
+  ],
+  "mandatory_costs": [
+    "old complete token/timing trajectory",
+    "new max ITL",
+    "all copy/group counts",
+    "actual KV/scratch/allocator allocations",
+    "action and CPU observation time"
+  ],
+  "interpretation": "Known ordinary phase baseline, not expert-history contribution or novelty. No arbitrary SLO imposed; report tradeoffs.",
+  "stop": "Foreign GPU at launch, incomplete requests, pre-release behavior differences or release before all old complete require diagnosis; preserve all attempts.",
+  "ceiling": "Three-document exploratory native-serving comparison under artificial expert cap; no production, quality or capacity claim",
+  "frozen_unix_s": 1789228843.7957041,
+  "source_sha256": {
+    "run_native_pager.py": "b5a1b87841ceca51a63a6c879e74d6a4d8a61d4a2e361ea1e4744878e546ccc3",
+    "native_capture.py": "76620d80957f43f336af2021a3377c60988b95cc3485eb571d26aaf669f4a672",
+    "wisp_v026_adapter.py": "0a721624d4e713b46c470e58de6517c0ed5b88da55056a8ecaa80024d0ee032c",
+    "wisp_expert_groups.py": "5e66ba2ab98d08be99e81db2ce9082e1d753bd42bf9dfbcd4e5500119a030ec6",
+    "native_pager_context.py": "162dd65e8727c1b69008394395c20fb61dd2a9f0706fe90249dc61f91d62fb0a",
+    "admission_feedback.py": "279c3e0ef44f8d9a0dec9bfeffe4dea72e657f24c637d9111f6712eb7ee0ece7"
+  },
+  "validation": "8 CPU tests including complete event mock; py_compile; root narrow review; GPU UNRUN"
+}

@@ -1,0 +1,9 @@
+# 原生offload主机调用定位
+
+前序两组共同32decode调用中offload-on额外窗口约204–219ms，GPU活动约512ms基本不变。首次API前和同步返回后的份额漂移，包含一次66.6ms尖峰，尚不知实际Python路径或GC。
+
+仅一次native offload-on16GiB，复用旧d6资源/输入/窗口500..531。将该窗口Torch profiler替换为cProfile主线程调用树和gc.callbacks起止，不主动collect、不禁用GC、不改阈值。其余trace/运行完整保留。cProfile会改变开销与分配/GC时机，只定位函数，不据其时间估算可移除成本，也不与前次CUDA trace逐事件强行对齐。无CUDA trace不是CUDA时间为零。
+
+资格：实际32调用签名匹配expected_window，记录完整输出与旧on是否一致，profile调用边界准确，GC事件完整性/跨边界事件显式记录。一次异常停止并保留。函数self和cumulative不可相加；callback本身有成本。若没有集中且可消融的执行路径，不继续加第三种全栈profiler，回到已确认的元数据路径设计单一因果消融。
+
+CPU正常/异常生命周期通过、GC回调恢复、没有已有Python profiler时才安装。新GPU执行UNRUN。排B已登记logical-alignment资格之后，整组共同锁和现场检查；不启动后台候卡。证据上限NATIVE_HOST_PROFILE_DIAGNOSTIC。

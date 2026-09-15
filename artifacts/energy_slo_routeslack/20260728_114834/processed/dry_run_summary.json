@@ -1,0 +1,163 @@
+{
+  "baselines_exercised": [
+    "immediate_execution",
+    "fixed_row_threshold",
+    "fixed_timeout",
+    "earliest_deadline_first",
+    "least_loaded_replica",
+    "min_predicted_finish",
+    "lplb_like_token_balancing",
+    "two_tier_static_power",
+    "min_finish_plus_two_tier_power",
+    "route_unaware_batch_kv_phase_energy_controller"
+  ],
+  "confidence_intervals": null,
+  "evidence_boundary": "Synthetic audit fixture only. It verifies pipeline and fail-closed invariants, not a model, GPU, energy, latency, SLO, or Oracle result.",
+  "formal_result": false,
+  "gate0": "FAIL",
+  "gate0_open_items": [
+    "native_continuous_decode",
+    "kv_advances_one",
+    "latency_window_aligned",
+    "energy_window_aligned",
+    "thermal_state_logged"
+  ],
+  "identity_stages": 4,
+  "included_development_artifacts": [
+    "raw/development_tiny_cached_decode_v2.csv",
+    "raw/development_tiny_cached_decode_v2.meta.json"
+  ],
+  "noop_host_tax": {
+    "independent_unit": "timed outer trial",
+    "operations": {
+      "decision_framework": {
+        "host_mean_ci95_us_per_call": [
+          0.11748663750000002,
+          0.137521961
+        ],
+        "host_mean_us_per_call": 0.12548166,
+        "host_p50_us_per_call": 0.1162915,
+        "host_p99_us_per_call": 0.2197635399999998,
+        "iterations_per_trial": 2000,
+        "p50_increment_over_empty_loop_us": 0.089354,
+        "paired_mean_increment_ci95_us": [
+          0.09055239949999999,
+          0.10933324649999998
+        ],
+        "paired_mean_increment_over_empty_loop_us": 0.09828413999999999,
+        "trials": 25
+      },
+      "empty_loop": {
+        "host_mean_ci95_us_per_call": [
+          0.026934997500000002,
+          0.027598402999999997
+        ],
+        "host_mean_us_per_call": 0.027197520000000003,
+        "host_p50_us_per_call": 0.0269375,
+        "host_p99_us_per_call": 0.030356959999999995,
+        "iterations_per_trial": 2000,
+        "p50_increment_over_empty_loop_us": 0.0,
+        "paired_mean_increment_ci95_us": [
+          0.0,
+          0.0
+        ],
+        "paired_mean_increment_over_empty_loop_us": 0.0,
+        "trials": 25
+      },
+      "instrumentation": {
+        "host_mean_ci95_us_per_call": [
+          0.041595801500000015,
+          0.0419841605
+        ],
+        "host_mean_us_per_call": 0.04178584,
+        "host_p50_us_per_call": 0.0416045,
+        "host_p99_us_per_call": 0.04277158,
+        "iterations_per_trial": 2000,
+        "p50_increment_over_empty_loop_us": 0.014667000000000003,
+        "paired_mean_increment_ci95_us": [
+          0.014192514000000002,
+          0.014944981999999997
+        ],
+        "paired_mean_increment_over_empty_loop_us": 0.014588320000000002,
+        "trials": 25
+      },
+      "logging": {
+        "host_mean_ci95_us_per_call": [
+          2.834923395500001,
+          2.895244062
+        ],
+        "host_mean_us_per_call": 2.8618191800000004,
+        "host_p50_us_per_call": 2.849021,
+        "host_p99_us_per_call": 3.1223690399999997,
+        "iterations_per_trial": 2000,
+        "p50_increment_over_empty_loop_us": 2.8220835,
+        "paired_mean_increment_ci95_us": [
+          2.8077109129999998,
+          2.8713272619999994
+        ],
+        "paired_mean_increment_over_empty_loop_us": 2.8346216600000003,
+        "trials": 25
+      },
+      "route_hook": {
+        "host_mean_ci95_us_per_call": [
+          0.0610132795,
+          0.06164918050000001
+        ],
+        "host_mean_us_per_call": 0.06133414000000001,
+        "host_p50_us_per_call": 0.0615205,
+        "host_p99_us_per_call": 0.062631,
+        "iterations_per_trial": 2000,
+        "p50_increment_over_empty_loop_us": 0.034583,
+        "paired_mean_increment_ci95_us": [
+          0.033665776499999994,
+          0.0345400425
+        ],
+        "paired_mean_increment_over_empty_loop_us": 0.034136620000000006,
+        "trials": 25
+      }
+    },
+    "scope": "local CPU host-only; no CUDA, NVML, route hook, or GPU energy"
+  },
+  "oracle_exercised": "future_known_oracle",
+  "out_of_range_fallback": {
+    "action_eligible": false,
+    "status": "FALLBACK_DEFAULT",
+    "tier": "default"
+  },
+  "physical_energy_samples": 0,
+  "physical_latency_samples": 0,
+  "schema": "routeslack-dry-run-v1",
+  "status": "DRY_RUN_COMPLETE",
+  "synthetic_contributions_per_stage": 16,
+  "unit_tests": {
+    "all_passed": true,
+    "failed_suites": 0,
+    "suites": [
+      {
+        "exit_code": 0,
+        "passed": true,
+        "suite": "bcrd",
+        "tests": 20
+      },
+      {
+        "exit_code": 0,
+        "passed": true,
+        "suite": "routeslack",
+        "tests": 30
+      },
+      {
+        "exit_code": 0,
+        "passed": true,
+        "suite": "route-row-contracts",
+        "tests": 17
+      },
+      {
+        "exit_code": 0,
+        "passed": true,
+        "suite": "joulequeue",
+        "tests": 28
+      }
+    ],
+    "tests": 95
+  }
+}

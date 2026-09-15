@@ -1,0 +1,298 @@
+{
+  "status": "STRUCTURAL_MODEL_ONLY",
+  "synthetic_state": {
+    "target": {
+      "name": "target",
+      "history_tokens": 32,
+      "computed_tokens": 16,
+      "gpu_blocks": 1,
+      "output_age_ms": 3,
+      "host_prefix_tokens": 0,
+      "host_valid": false
+    },
+    "peers": [
+      {
+        "name": "peer",
+        "history_tokens": 31,
+        "computed_tokens": 30,
+        "gpu_blocks": 2,
+        "output_age_ms": 4,
+        "host_prefix_tokens": 0,
+        "host_valid": false
+      }
+    ],
+    "block_tokens": 16,
+    "free_gpu_blocks": 4,
+    "host_used_bytes": 100,
+    "host_budget_bytes": 120
+  },
+  "synthetic_action": {
+    "name": "mixed-4",
+    "tokens": 4,
+    "first_output_path": [
+      {
+        "name": "queue",
+        "duration_ms": 1,
+        "after": []
+      },
+      {
+        "name": "restore",
+        "duration_ms": 5,
+        "after": [
+          "queue"
+        ]
+      }
+    ],
+    "batch_ms": 1,
+    "co_batch": [
+      "peer"
+    ],
+    "recovery_peer_outputs": [
+      [
+        "peer",
+        [
+          2,
+          4
+        ]
+      ]
+    ],
+    "transfer_prefix_tokens": 0,
+    "recompute_tokens": 16,
+    "restore_scratch_blocks": 0,
+    "staging_bytes": 0,
+    "prospective_tax_ms": 4
+  },
+  "synthetic_budgets": {
+    "gap_ms": 10,
+    "tax_ms_per_output": 1
+  },
+  "support": [
+    {
+      "action": "mixed-1",
+      "source_ok": true,
+      "resource_ok": true,
+      "urgency_ok": true,
+      "amortized": false,
+      "min_opportunity_tokens": 4,
+      "eligible": false,
+      "first_output_ms": 6,
+      "window_end_ms": 6,
+      "peak_extra_blocks": 1,
+      "free_at_peak": 3,
+      "maximum_ages_ms": {
+        "target": 9,
+        "peer": 6
+      },
+      "evidence": "STRUCTURAL_MODEL_ONLY_CONDITIONAL_ON_NO_EARLY_EOS"
+    },
+    {
+      "action": "mixed-4",
+      "source_ok": true,
+      "resource_ok": true,
+      "urgency_ok": true,
+      "amortized": true,
+      "min_opportunity_tokens": 4,
+      "eligible": true,
+      "first_output_ms": 6,
+      "window_end_ms": 9,
+      "peak_extra_blocks": 3,
+      "free_at_peak": 1,
+      "maximum_ages_ms": {
+        "target": 9,
+        "peer": 6
+      },
+      "evidence": "STRUCTURAL_MODEL_ONLY_CONDITIONAL_ON_NO_EARLY_EOS"
+    },
+    {
+      "action": "solo-4",
+      "source_ok": true,
+      "resource_ok": true,
+      "urgency_ok": false,
+      "amortized": true,
+      "min_opportunity_tokens": 4,
+      "eligible": false,
+      "first_output_ms": 6,
+      "window_end_ms": 9,
+      "peak_extra_blocks": 2,
+      "free_at_peak": 2,
+      "maximum_ages_ms": {
+        "target": 9,
+        "peer": 13
+      },
+      "evidence": "STRUCTURAL_MODEL_ONLY_CONDITIONAL_ON_NO_EARLY_EOS"
+    }
+  ],
+  "counterexample": {
+    "state": {
+      "target": {
+        "name": "target",
+        "history_tokens": 32,
+        "computed_tokens": 16,
+        "gpu_blocks": 1,
+        "output_age_ms": 3,
+        "host_prefix_tokens": 0,
+        "host_valid": false
+      },
+      "peers": [
+        {
+          "name": "peer",
+          "history_tokens": 31,
+          "computed_tokens": 30,
+          "gpu_blocks": 2,
+          "output_age_ms": 4,
+          "host_prefix_tokens": 0,
+          "host_valid": false
+        }
+      ],
+      "block_tokens": 16,
+      "free_gpu_blocks": 2,
+      "host_used_bytes": 100,
+      "host_budget_bytes": 120
+    },
+    "actions": [
+      {
+        "action": "mixed-1",
+        "source_ok": true,
+        "resource_ok": true,
+        "urgency_ok": true,
+        "amortized": false,
+        "min_opportunity_tokens": 4,
+        "eligible": false,
+        "first_output_ms": 6,
+        "window_end_ms": 6,
+        "peak_extra_blocks": 1,
+        "free_at_peak": 1,
+        "maximum_ages_ms": {
+          "target": 9,
+          "peer": 10
+        },
+        "evidence": "STRUCTURAL_MODEL_ONLY_CONDITIONAL_ON_NO_EARLY_EOS"
+      },
+      {
+        "action": "mixed-2",
+        "source_ok": true,
+        "resource_ok": true,
+        "urgency_ok": false,
+        "amortized": false,
+        "min_opportunity_tokens": 4,
+        "eligible": false,
+        "first_output_ms": 6,
+        "window_end_ms": 7,
+        "peak_extra_blocks": 2,
+        "free_at_peak": 0,
+        "maximum_ages_ms": {
+          "target": 9,
+          "peer": 11
+        },
+        "evidence": "STRUCTURAL_MODEL_ONLY_CONDITIONAL_ON_NO_EARLY_EOS"
+      },
+      {
+        "action": "mixed-3",
+        "source_ok": true,
+        "resource_ok": true,
+        "urgency_ok": false,
+        "amortized": false,
+        "min_opportunity_tokens": 4,
+        "eligible": false,
+        "first_output_ms": 6,
+        "window_end_ms": 8,
+        "peak_extra_blocks": 2,
+        "free_at_peak": 0,
+        "maximum_ages_ms": {
+          "target": 9,
+          "peer": 11
+        },
+        "evidence": "STRUCTURAL_MODEL_ONLY_CONDITIONAL_ON_NO_EARLY_EOS"
+      },
+      {
+        "action": "mixed-4",
+        "source_ok": true,
+        "resource_ok": false,
+        "urgency_ok": false,
+        "amortized": true,
+        "min_opportunity_tokens": 4,
+        "eligible": false,
+        "first_output_ms": 6,
+        "window_end_ms": 9,
+        "peak_extra_blocks": 3,
+        "free_at_peak": -1,
+        "maximum_ages_ms": {
+          "target": 9,
+          "peer": 11
+        },
+        "evidence": "STRUCTURAL_MODEL_ONLY_CONDITIONAL_ON_NO_EARLY_EOS"
+      },
+      {
+        "action": "mixed-8",
+        "source_ok": true,
+        "resource_ok": false,
+        "urgency_ok": false,
+        "amortized": true,
+        "min_opportunity_tokens": 4,
+        "eligible": false,
+        "first_output_ms": 6,
+        "window_end_ms": 13,
+        "peak_extra_blocks": 3,
+        "free_at_peak": -1,
+        "maximum_ages_ms": {
+          "target": 9,
+          "peer": 11
+        },
+        "evidence": "STRUCTURAL_MODEL_ONLY_CONDITIONAL_ON_NO_EARLY_EOS"
+      }
+    ]
+  },
+  "retention_examples": [
+    {
+      "efficiency_preference": "SWITCH",
+      "switch_cost_ms_interval": [
+        1,
+        1
+      ],
+      "keep_cost_ms": 3,
+      "peer_delay_constraints_still_required": true
+    },
+    {
+      "efficiency_preference": "KEEP",
+      "switch_cost_ms_interval": [
+        11,
+        11
+      ],
+      "keep_cost_ms": 3,
+      "peer_delay_constraints_still_required": true
+    },
+    {
+      "efficiency_preference": "UNRESOLVED",
+      "switch_cost_ms_interval": [
+        1,
+        11
+      ],
+      "keep_cost_ms": 3,
+      "peer_delay_constraints_still_required": true
+    }
+  ],
+  "observed_source": "/Users/leandrozhao/Desktop/\u3001++++++++/refine-logs/expert_saturation/outputs/admission_capacity/20260914_restore_completion_r01/analysis/localization/first_dispatch.json",
+  "observed_step406": [
+    {
+      "label": "block0-d6-restore-on",
+      "raw_sha256": "e153796a1597762b2b71b172f04fcededa010572acb25e45667f1fbc89f72dfe",
+      "free_blocks": 148,
+      "recovery_reservation": 142,
+      "peer_growth": 3,
+      "slack": 3,
+      "token_budget": 1024,
+      "scope": "ONE_ACTION_ONLY; future service window, tax and timing not established"
+    },
+    {
+      "label": "block1-d6-restore-on",
+      "raw_sha256": "41821c1bc3fd456a145fa2b321f40b9da6f9938f8af102bec38d3f078cb5dfae",
+      "free_blocks": 148,
+      "recovery_reservation": 142,
+      "peer_growth": 3,
+      "slack": 3,
+      "token_budget": 1024,
+      "scope": "ONE_ACTION_ONLY; future service window, tax and timing not established"
+    }
+  ],
+  "boundary": "Synthetic milliseconds are not measurements; no actual EOS or future trace is used."
+}

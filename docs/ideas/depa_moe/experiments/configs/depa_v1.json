@@ -1,0 +1,55 @@
+{
+  "protocol_version": "depa-moe-v1",
+  "scientific_result_eligible": false,
+  "gate1": {
+    "required_models": ["olmoe-dev", "llmjp-dev"],
+    "minimum_seeds_per_model_cell": 5,
+    "bootstrap_replicates": 2000,
+    "bootstrap_seed": 2026072501,
+    "pass_mean_share_min": 0.20,
+    "pass_lcb95_min": 0.10,
+    "kill_mean_share_below": 0.10
+  },
+  "gate2": {
+    "required_models": ["olmoe-dev", "llmjp-dev"],
+    "minimum_seeds_per_model_cell": 5,
+    "bootstrap_replicates": 2000,
+    "bootstrap_seed": 2026072502,
+    "pass_mean_gain_min": 0.20,
+    "pass_lcb95_min": 0.10,
+    "kill_mean_gain_below": 0.10
+  },
+  "gate3": {
+    "required_models": ["olmoe-dev", "llmjp-dev"],
+    "simple_arms": ["random", "threshold", "edf", "least_laxity", "greedy_pressure_slack"],
+    "simple_capture_abandon_at": 0.90,
+    "depa_gain_min": 0.10,
+    "depa_oracle_capture_min": 0.70,
+    "depa_minus_simple_min": 0.10,
+    "decision_overhead_fraction_max": 0.01,
+    "p99_ratio_max": 1.03,
+    "fairness_delta_min": -0.01
+  },
+  "policy": {
+    "max_batch": 4,
+    "threshold_batch": 3,
+    "threshold_wait_us": 8.0,
+    "depa_max_candidates": 10,
+    "depa_min_batch": 2,
+    "depa_max_wait_us": 8.0,
+    "depa_reject_infeasible": true
+  },
+  "oracle": {
+    "algorithm": "exact_dynamic_programming",
+    "max_exact_requests": 12,
+    "future_information_allowed": true,
+    "purpose": "necessity_upper_bound_only"
+  },
+  "formal_capabilities": {
+    "native_continuous_decode_route_producer": false,
+    "measured_5090_expert_service_surface": false,
+    "identity_complete_exact_output_replay": false,
+    "reviewed_natural_workload_manifest": false
+  },
+  "result_boundary": "Development logic only. Synthetic fixtures and modeled completion times are not 5090 serving, TPOT, P99, or multi-GPU evidence."
+}

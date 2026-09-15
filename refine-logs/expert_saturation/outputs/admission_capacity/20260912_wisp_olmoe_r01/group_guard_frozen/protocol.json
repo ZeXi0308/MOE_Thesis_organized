@@ -1,0 +1,88 @@
+{
+  "state": "FROZEN_UNRUN",
+  "frozen_unix_s": 1789241724.3976781,
+  "repository_head": "7059fc98e0d98a127ff4edda86d44f7f634d26f4",
+  "question": "Keeping current frequency-selected expert identities unchanged, does allowing protection only when its minimum current-call group count equals ordinary execution preserve transfer savings while improving complete requests?",
+  "basis": "Full frequency late retention saved 2.395% payload but added 12.264% groups without stable request benefit. Structural reanalysis found nonempty opportunities with no extra current-call groups; no counterfactual latency or future cache outcome inferred.",
+  "runtime": {
+    "vllm": "0.26.0",
+    "model": "OLMoE-1B-7B-0924",
+    "revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "dtype": "BF16",
+    "expert_cap": 24,
+    "kv_bytes": 1073741824,
+    "token_budget": 160,
+    "execution": "expert",
+    "cpu_affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "omp_threads": 8
+  },
+  "workload": "Same3 documents P32/P32/P128, outputs16/16/8; inject new request after4 old outputs; release chunk8 only after both old requests complete",
+  "warmup": [
+    "short32",
+    "none_early_release8",
+    "frequency_early_release8",
+    "frequency_late_release8",
+    "decode_late_release8"
+  ],
+  "engines": 2,
+  "episodes_per_engine": 6,
+  "engine_sequences": {
+    "0_forward": [
+      "none_early",
+      "frequency_late",
+      "frequency_late_no_extra_groups",
+      "frequency_late_no_extra_groups",
+      "frequency_late",
+      "none_early"
+    ],
+    "1_rotated": [
+      "frequency_late_no_extra_groups",
+      "none_early",
+      "frequency_late",
+      "frequency_late",
+      "none_early",
+      "frequency_late_no_extra_groups"
+    ]
+  },
+  "intervention": "Guard compares gP=max(1,ceil((|A|-|P intersection C|)/(K-|P intersection C|))) with g0=ceil(|A|/K), using only the actual current layer A/C and original frequency P. If unequal, actual P is empty. No change to selected candidate identities, precision, cache cap or kernel; each policy independently evolves future state.",
+  "trace_retention": "episode",
+  "reset": "Existing drained pager metadata reset plus same five warmups. Each measured episode is drained before all its and warmup records/events are written/released. Allocations/KV free queue preserved, KV contents not compared.",
+  "primary": "Complete capture wall including in-window observations plus old per-request max-ITL/completion and new TTFT/completion; preserve the full tradeoff, no selected scalar SLO.",
+  "accounting": {
+    "per_repeat": "From before GPU preflight/reset through all warmups, requests, snapshots/raw writes and flush/decref. Excludes its own cycle_progress write and shared final tail; both are covered by whole engine cycle/process.",
+    "engine": "Post-init cycle through shutdown, with own final marker covered by parent process wall. Mixed-policy engine totals are total cost, not attributable arm speedups. Tar/readback outside these clocks.",
+    "gc": "Observed callback intervals only; observer closes before event export/shutdown. Never subtract GC or sum overlapping CUDA/CPU spans."
+  },
+  "comparison": "Each consecutive three-episode block includes all arms; report guard versus none, guard versus full frequency, and full frequency versus none in every block (12 comparisons). Preserve four dependent repeats per arm, per-engine summaries and order. No sample maximum is a population noise bound.",
+  "integrity": "All measurement/warmup requests retained; consecutive global call IDs across flushes; row/request/time joins; source/GPU boundary checks; actual resources and common logical pre-action state. Compare trace equality within mode, not across distinct policies.",
+  "qualification": "One standalone frequency/late/no_extra_groups episode with verify-kernel, before performance. Verify the first actually applied retained mixed layer against full-expert computation from the same layer input/top-k; a rejected guard call cannot satisfy qualification. Bounded finite/allclose validation, not bitwise full trajectory equality or task quality. Common warmups are retained and qualification timing is excluded from performance comparisons.",
+  "stop": "Foreign GPU process/query failure, incomplete requests or corrupt evidence abort and retain files. No automatic retry or additional outcome-selected runs.",
+  "interpretation": "If the guard actually limits its current-state groups and consistently improves requests across both engines and block orders without transferring delay to old requests, proceed to independent workload evaluation. If local groups/bytes improve but requests do not, narrow this mechanism cost model; keep the shared research problem OPEN. Sign changes or pre-action drift remain unresolved, not automatically noise.",
+  "ceiling": "Two fresh engines, same three documents, four dependent performance episodes per arm, artificial cap24 native eager BF16 paging. No population significance, calibrated noise bound, production p99/SLO, task quality, generality or novelty claim.",
+  "source_sha256": {
+    "runtime_variation_observer.py": "ee70ee8bb1c76901ad92d61daac9724855710889264bd8fb30e12a4cc7c3178a",
+    "wisp_expert_groups.py": "4dd2df4c919138eac6a195c64b41ef3f471f8e647cc12684381922d722209f4d",
+    "run_native_pager.py": "49ae948cfe09cb6440debaa0827c963ef99f843291ac21391ff9a7730a81a504",
+    "wisp_v026_adapter.py": "b6c25e2656678636a596403fba7d9318465a4bee5b0eaf9c7b457dadcbafdd93",
+    "native_pager_context.py": "cef0fc3ea112b2099d586a2ccb89c94253cecc6f5f4d9c97a22c9e22b2821008",
+    "admission_feedback.py": "279c3e0ef44f8d9a0dec9bfeffe4dea72e657f24c637d9111f6712eb7ee0ece7",
+    "native_capture.py": "7e981d3ea2d0d206908ceaab568471d7923e2db0fc1b4f38fe6b2a73ebc5d9da"
+  },
+  "analysis_sha256": {
+    "analyze_runtime_variance.py": "b718e9b2933d3c457975eb7329071e54988d9344e1c98b60919d70eca64d74ec",
+    "analyze_group_guard.py": "27717f845de79091a73db74af1b27aafdb0a1cb97b0e77e88bcb55bcf83a85b3",
+    "analyze_retention_lifecycle.py": "4a339a41ed90a983f9842eb814f132b0f196617fec6b2ef219c2820ec28d7f47",
+    "analyze_native_phases.py": "642980a6e4c17f64c4162cf626bcfd3a7db26664e185fd709c81b455b3a7d3e4",
+    "analyze_native_pager_transfer.py": "14f8717960b6667f51d9eb127a66f6d7d732ca4213e229be68a3505b1608523e"
+  },
+  "cpu_checks": "13 grouping tests passed including current-state reconstruction of 6144 old calls with accept/reject, capacity, coverage and entry-miss-once checks; old default planner unchanged. Syntax, invalid CLI combinations, backward-compatible phase reader on 3072 prior measured calls and git diff --check passed."
+}

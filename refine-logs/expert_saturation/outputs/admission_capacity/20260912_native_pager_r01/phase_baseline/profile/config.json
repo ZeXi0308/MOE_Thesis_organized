@@ -1,0 +1,78 @@
+{
+  "resources": {
+    "kv_bytes": 536870912,
+    "expert_cap": 16,
+    "max_num_seqs": 3,
+    "max_num_batched_tokens": 64,
+    "cpu_affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "gpu_numa_node": 0,
+    "memory_binding": "Unchanged: no explicit membind; taskset CPU0-7 plus external NUMA page observation",
+    "OMP_NUM_THREADS": 8
+  },
+  "cells": [
+    {
+      "cell": "p0-static8",
+      "repeat": 0,
+      "policy": "static8",
+      "chunk": 8,
+      "new_prompt_length": 128
+    },
+    {
+      "cell": "p1-static8",
+      "repeat": 1,
+      "policy": "static8",
+      "chunk": 8,
+      "new_prompt_length": 128
+    },
+    {
+      "cell": "p2-static8",
+      "repeat": 2,
+      "policy": "static8",
+      "chunk": 8,
+      "new_prompt_length": 128
+    },
+    {
+      "cell": "p3-static8",
+      "repeat": 3,
+      "policy": "static8",
+      "chunk": 8,
+      "new_prompt_length": 128
+    }
+  ],
+  "runtime": "vLLM0.11.2 with unmodified pinned WiSP cap16 BF16; independent from vLLM0.26 absolute timings",
+  "holdout_scope": "Same three documents and previously explored action regime; controlled simple-baseline comparison, not independent document holdout.",
+  "first_action_payload": {
+    "status": "NOT_MEASURABLE_IN_THIS_UNTRACED_PROTOCOL",
+    "reason": "Original snapshot counters do not isolate first-step demand loads; no payload prediction is claimed verified"
+  },
+  "total_payload": "Sum final_worker pager_layers weight_copy_payload_bytes after measurement counter reset; complete episode includes preaction prefix; bytes are copied tensor bytes, not PCIe wire bytes",
+  "status": "PREPARED_UNRUN",
+  "question": "Where does the repeated static8 timing variation occur: actual CUDA copies, kernels, or gaps between recorded GPU activities?",
+  "remote_root": "/root/autodl-tmp/wisp-runtime-0112-r01",
+  "remote_reference": "phase-baseline8-r01",
+  "remote_output": "phase-profile-r01",
+  "model": "/root/autodl-tmp/hf-cache/hub/models--allenai--OLMoE-1B-7B-0924/snapshots/6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+  "preaction_sha256": null,
+  "reference_rule": "First declared static8 episode; require exact token,KV blockID,pager state equality for all following episodes; no post-hoc selection",
+  "source_sha256": {
+    "run_wisp_injection_probe.py": "11b438d7392fc07c2a2cd328176f5f9bc7c02251bf1d240d98dcd304f1749ade",
+    "run_wisp_olmoe_probe.py": "7c8dfdb5d4a6f0663954d5d2beab2f517ac0caf12abf36a223d7d10ead30d678",
+    "phase_prefill_policy.py": "6cc3384dd91258245c7bcb04306b9de1f7823e3d339ba5df93b6b4825fd8e775",
+    "wisp_paging_trace.py": "bcbf61e7c6233e741961101968eebefe2cf460d937cddb24b8fef1676d6fa2d5",
+    "workload.json": "41f649143a6bfcdc3f902423cd2a395575016ec3f6a26076f93a7d4a8d954305",
+    "run_campaign.py": "9a627de5732d6402ef703a758fe64bdabf30df16d92620aff74bef063ddd9b07"
+  },
+  "retention": "Keep every episode including first; stop on first failure; all raw remote; safe numeric/hash export only",
+  "measurement_control": "Same LLM/CUDA context/pinned-master/scratch/map/KV allocations, native schedule restored, drained KV queue sorted and pager state emptied before identical warmup; all control costs retained separately and excluded from episode by original measurement boundary",
+  "interpretation": "Profiler overhead is included. These episodes classify runtime costs and cannot establish scheduler performance benefit.",
+  "diagnostic_only": true
+}

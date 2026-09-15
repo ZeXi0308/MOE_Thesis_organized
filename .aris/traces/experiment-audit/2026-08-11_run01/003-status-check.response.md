@@ -1,0 +1,1 @@
+Progressing, not blocked. Core runner, protocol, artifacts, original audit, model-intervention path, and claim surfaces are covered. I am now reading the newly added raw-ledger verifier/test/receipt line by line, then I’ll finalize A–F and state exactly which same-code-audit concerns it does or does not close.

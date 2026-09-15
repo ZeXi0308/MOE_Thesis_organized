@@ -1,0 +1,323 @@
+{
+  "schema": "moe-execution-conformance-events-v1",
+  "model": {
+    "id": "allenai/OLMoE-1B-7B-0924",
+    "revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "tokenizer_revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "dtype": "bfloat16"
+  },
+  "selection_rule": {
+    "source": "serial_audit.difference_examples from the retained 20260812T170512Z development capture",
+    "scope": "recorded examples only; the producer retained at most 16 examples per episode",
+    "rule": "three steady and three bursty request-step events, ranked first by number of recorded mismatching layers and then by request/decode identity",
+    "claim_boundary": "these are not claimed to be the global maximum-mismatch events because unretained serial differences cannot be reconstructed from the canonical six-file bundle"
+  },
+  "arm_c": {
+    "kind": "deterministic_original_companion_shuffle",
+    "rule": "keep the target at its original row and reverse the other three original companion rows",
+    "preserves": [
+      "target logical pre-step state",
+      "companion identities as a set",
+      "batch width",
+      "KV-length multiset",
+      "left-padding multiset"
+    ],
+    "does_not_test": "replacement-companion identity externality"
+  },
+  "captures": {
+    "steady": {
+      "episode_id": "olmoe-dev-steady",
+      "arrival_regime": "steady",
+      "files_sha256": {
+        "routes.csv": "6f6faf981d6d0318b9e3038e29785c5f350ef3a02f16bebe93e7bc002776538a",
+        "decode_batches.jsonl": "093b24964c9a4735548462505ba71cbfd1f766cca18a0326e729dd1e1d424ba4",
+        "request_ledger.jsonl": "191a261a2a9204df993fc4ad67f72060530e1dd0c3510ade6633c981a1c33464",
+        "workload_manifest.json": "47babe9d8f875fda3457a68ca83ee7d1274866ebc47013622691d1fc1b556a6d",
+        "preregistration.json": "1896af295658e2554c1a9b05e8da7b3ac16d4c472c0f91048a853e164b0fa1a9",
+        "environment.json": "13402145423468e28f02d4d1351859bbbfb6d316c0314ab02fb322e189666930",
+        "serial_audit.json": "111ccad1dfacede7c3b9788c9a8fe913cdbcf272c19cea29afed07a63b0733a7"
+      }
+    },
+    "bursty": {
+      "episode_id": "olmoe-dev-bursty",
+      "arrival_regime": "bursty",
+      "files_sha256": {
+        "routes.csv": "f684effde4981a4cba64b3992ee3e5b7aa5224eb8d3e96c171fdb278f9923a2a",
+        "decode_batches.jsonl": "beaae4f9ecfa22a3dc30039b70fb26b5115c5f22cf53b29745c7cbaefb52dc48",
+        "request_ledger.jsonl": "8dc1b35576fe9191db2e54b70fd7cccb8010ceb17a2c420d7262e4e37e3f0f5f",
+        "workload_manifest.json": "6a62efbe43e4494c194662d997396b6040c6f69a1f063e5d278211e29c473e79",
+        "preregistration.json": "1896af295658e2554c1a9b05e8da7b3ac16d4c472c0f91048a853e164b0fa1a9",
+        "environment.json": "13402145423468e28f02d4d1351859bbbfb6d316c0314ab02fb322e189666930",
+        "serial_audit.json": "2c61c39d7f30f7b97dd1c06f3c8a8897a9af018887e7943a1b4cf362feb850a5"
+      }
+    }
+  },
+  "profiles": {
+    "smoke": [
+      "steady-002-step-005",
+      "bursty-002-step-000"
+    ],
+    "pilot": [
+      "steady-002-step-005",
+      "steady-000-step-001",
+      "steady-003-step-006",
+      "bursty-002-step-000",
+      "bursty-001-step-003",
+      "bursty-000-step-001"
+    ]
+  },
+  "events": [
+    {
+      "event_id": "steady-002-step-005",
+      "arrival_regime": "steady",
+      "episode_id": "olmoe-dev-steady",
+      "target_request_id": "olmoe-dev-steady-002",
+      "decode_step": 5,
+      "batch_index": 5,
+      "target_row_index": 2,
+      "original_batch_request_ids": [
+        "olmoe-dev-steady-000",
+        "olmoe-dev-steady-001",
+        "olmoe-dev-steady-002",
+        "olmoe-dev-steady-003"
+      ],
+      "recorded_mismatch_count": 4,
+      "recorded_difference_examples": [
+        {
+          "layer": 4,
+          "batched_experts": [22, 60, 38, 20, 39, 40, 50, 47],
+          "serial_experts": [22, 60, 38, 20, 39, 40, 50, 44]
+        },
+        {
+          "layer": 9,
+          "batched_experts": [19, 2, 56, 3, 5, 25, 62, 22],
+          "serial_experts": [19, 2, 56, 3, 5, 25, 29, 62]
+        },
+        {
+          "layer": 10,
+          "batched_experts": [25, 26, 52, 15, 21, 22, 51, 63],
+          "serial_experts": [25, 26, 52, 63, 32, 22, 51, 21]
+        },
+        {
+          "layer": 11,
+          "batched_experts": [3, 39, 35, 60, 19, 29, 36, 21],
+          "serial_experts": [3, 39, 35, 60, 19, 29, 2, 36]
+        }
+      ],
+      "source_rows": {
+        "decode_batches_jsonl_line": 6,
+        "request_ledger_jsonl_line": 3,
+        "request_ledger_step_index": 5,
+        "routes_csv_rows_by_layer": {
+          "4": [2706, 2713],
+          "9": [2866, 2873],
+          "10": [2898, 2905],
+          "11": [2930, 2937]
+        }
+      }
+    },
+    {
+      "event_id": "steady-000-step-001",
+      "arrival_regime": "steady",
+      "episode_id": "olmoe-dev-steady",
+      "target_request_id": "olmoe-dev-steady-000",
+      "decode_step": 1,
+      "batch_index": 1,
+      "target_row_index": 0,
+      "original_batch_request_ids": [
+        "olmoe-dev-steady-000",
+        "olmoe-dev-steady-001",
+        "olmoe-dev-steady-002",
+        "olmoe-dev-steady-003"
+      ],
+      "recorded_mismatch_count": 3,
+      "recorded_difference_examples": [
+        {
+          "layer": 3,
+          "batched_experts": [56, 51, 37, 61, 19, 39, 62, 23],
+          "serial_experts": [56, 51, 37, 61, 19, 39, 40, 23]
+        },
+        {
+          "layer": 7,
+          "batched_experts": [61, 36, 13, 38, 47, 1, 45, 11],
+          "serial_experts": [61, 36, 13, 38, 47, 1, 45, 43]
+        },
+        {
+          "layer": 8,
+          "batched_experts": [18, 53, 23, 32, 22, 15, 31, 33],
+          "serial_experts": [18, 53, 23, 32, 22, 15, 5, 31]
+        }
+      ],
+      "source_rows": {
+        "decode_batches_jsonl_line": 2,
+        "request_ledger_jsonl_line": 1,
+        "request_ledger_step_index": 1,
+        "routes_csv_rows_by_layer": {
+          "3": [610, 617],
+          "7": [738, 745],
+          "8": [770, 777]
+        }
+      }
+    },
+    {
+      "event_id": "steady-003-step-006",
+      "arrival_regime": "steady",
+      "episode_id": "olmoe-dev-steady",
+      "target_request_id": "olmoe-dev-steady-003",
+      "decode_step": 6,
+      "batch_index": 6,
+      "target_row_index": 3,
+      "original_batch_request_ids": [
+        "olmoe-dev-steady-000",
+        "olmoe-dev-steady-001",
+        "olmoe-dev-steady-002",
+        "olmoe-dev-steady-003"
+      ],
+      "recorded_mismatch_count": 3,
+      "recorded_difference_examples": [
+        {
+          "layer": 1,
+          "batched_experts": [53, 37, 41, 42, 48, 2, 45, 36],
+          "serial_experts": [53, 37, 41, 42, 48, 2, 45, 46]
+        },
+        {
+          "layer": 5,
+          "batched_experts": [44, 10, 6, 49, 13, 33, 57, 40],
+          "serial_experts": [44, 10, 6, 49, 33, 13, 57, 27]
+        },
+        {
+          "layer": 6,
+          "batched_experts": [20, 35, 9, 28, 61, 45, 26, 42],
+          "serial_experts": [20, 35, 9, 28, 61, 45, 26, 23]
+        }
+      ],
+      "source_rows": {
+        "decode_batches_jsonl_line": 7,
+        "request_ledger_jsonl_line": 4,
+        "request_ledger_step_index": 6,
+        "routes_csv_rows_by_layer": {
+          "1": [3130, 3137],
+          "5": [3258, 3265],
+          "6": [3290, 3297]
+        }
+      }
+    },
+    {
+      "event_id": "bursty-002-step-000",
+      "arrival_regime": "bursty",
+      "episode_id": "olmoe-dev-bursty",
+      "target_request_id": "olmoe-dev-bursty-002",
+      "decode_step": 0,
+      "batch_index": 0,
+      "target_row_index": 2,
+      "original_batch_request_ids": [
+        "olmoe-dev-bursty-000",
+        "olmoe-dev-bursty-001",
+        "olmoe-dev-bursty-002",
+        "olmoe-dev-bursty-003"
+      ],
+      "recorded_mismatch_count": 3,
+      "recorded_difference_examples": [
+        {
+          "layer": 4,
+          "batched_experts": [45, 11, 34, 26, 62, 8, 49, 51],
+          "serial_experts": [45, 11, 34, 26, 62, 8, 49, 37]
+        },
+        {
+          "layer": 5,
+          "batched_experts": [28, 23, 63, 27, 45, 10, 26, 14],
+          "serial_experts": [28, 23, 63, 27, 45, 10, 26, 11]
+        },
+        {
+          "layer": 9,
+          "batched_experts": [27, 41, 63, 7, 37, 11, 26, 50],
+          "serial_experts": [27, 63, 41, 7, 37, 11, 26, 55]
+        }
+      ],
+      "source_rows": {
+        "decode_batches_jsonl_line": 1,
+        "request_ledger_jsonl_line": 3,
+        "request_ledger_step_index": 0,
+        "routes_csv_rows_by_layer": {
+          "4": [146, 153],
+          "5": [178, 185],
+          "9": [306, 313]
+        }
+      }
+    },
+    {
+      "event_id": "bursty-001-step-003",
+      "arrival_regime": "bursty",
+      "episode_id": "olmoe-dev-bursty",
+      "target_request_id": "olmoe-dev-bursty-001",
+      "decode_step": 3,
+      "batch_index": 3,
+      "target_row_index": 1,
+      "original_batch_request_ids": [
+        "olmoe-dev-bursty-000",
+        "olmoe-dev-bursty-001",
+        "olmoe-dev-bursty-002",
+        "olmoe-dev-bursty-003"
+      ],
+      "recorded_mismatch_count": 2,
+      "recorded_difference_examples": [
+        {
+          "layer": 11,
+          "batched_experts": [51, 40, 12, 17, 25, 55, 41, 28],
+          "serial_experts": [51, 40, 12, 17, 55, 25, 41, 29]
+        },
+        {
+          "layer": 12,
+          "batched_experts": [20, 57, 10, 29, 51, 24, 56, 26],
+          "serial_experts": [20, 57, 10, 29, 51, 24, 56, 12]
+        }
+      ],
+      "source_rows": {
+        "decode_batches_jsonl_line": 4,
+        "request_ledger_jsonl_line": 2,
+        "request_ledger_step_index": 3,
+        "routes_csv_rows_by_layer": {
+          "11": [1898, 1905],
+          "12": [1930, 1937]
+        }
+      }
+    },
+    {
+      "event_id": "bursty-000-step-001",
+      "arrival_regime": "bursty",
+      "episode_id": "olmoe-dev-bursty",
+      "target_request_id": "olmoe-dev-bursty-000",
+      "decode_step": 1,
+      "batch_index": 1,
+      "target_row_index": 0,
+      "original_batch_request_ids": [
+        "olmoe-dev-bursty-000",
+        "olmoe-dev-bursty-001",
+        "olmoe-dev-bursty-002",
+        "olmoe-dev-bursty-003"
+      ],
+      "recorded_mismatch_count": 2,
+      "recorded_difference_examples": [
+        {
+          "layer": 1,
+          "batched_experts": [21, 25, 47, 18, 15, 39, 5, 22],
+          "serial_experts": [21, 25, 47, 18, 15, 39, 5, 41]
+        },
+        {
+          "layer": 13,
+          "batched_experts": [42, 29, 0, 21, 25, 16, 46, 45],
+          "serial_experts": [42, 29, 0, 21, 16, 25, 46, 54]
+        }
+      ],
+      "source_rows": {
+        "decode_batches_jsonl_line": 2,
+        "request_ledger_jsonl_line": 1,
+        "request_ledger_step_index": 1,
+        "routes_csv_rows_by_layer": {
+          "1": [546, 553],
+          "13": [930, 937]
+        }
+      }
+    }
+  ]
+}

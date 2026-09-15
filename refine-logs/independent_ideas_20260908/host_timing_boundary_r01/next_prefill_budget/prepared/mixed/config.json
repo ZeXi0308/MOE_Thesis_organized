@@ -1,0 +1,66 @@
+{
+  "status": "GPU_UNRUN",
+  "model": {
+    "dtype": "bfloat16",
+    "id": "allenai/OLMoE-1B-7B-0924",
+    "key": "olmoe",
+    "revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "tokenizer_revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5"
+  },
+  "requests": 16,
+  "prompt_tokens": null,
+  "prompt_tokens_by_request": [
+    128,
+    2048,
+    128,
+    2048,
+    128,
+    2048,
+    128,
+    2048,
+    128,
+    2048,
+    128,
+    2048,
+    128,
+    2048,
+    128,
+    2048
+  ],
+  "output_tokens": 128,
+  "seed": 20260905,
+  "arrival_gap_s": 0.05,
+  "cohort": "mixed",
+  "source": {
+    "dataset_id": "wikitext",
+    "dataset_config": "wikitext-103-raw-v1",
+    "split": "train",
+    "dataset_revision": "b08601e04326c79dfdd32d625aee71d232d685c3",
+    "arrow_file": "wikitext-train-00000-of-00002.arrow",
+    "arrow_sha256": "0c22278eac8186f5dd6060fcf84e4bcb4aa2266c51c77a279169764814f9a99e",
+    "observed_dataset_fingerprint": "2b0a0a8d61b6bc5e",
+    "model_config_sha256": "3643aa880d2f1c9b418156269ae791c73e5612d6b6b6fde0724d927cf89b6335",
+    "model_max_position_embeddings": 4096,
+    "tokenizer_files_sha256": {
+      "special_tokens_map.json": "b77491e270c6fcc5b2ecf22370f7318a6a18d3cabea09ba7bab92e9bf12656c2",
+      "tokenizer.json": "a094266ac6c4982efba277bc251349a5a6d6ad37efb39a2a90f53d8be2a40a40",
+      "tokenizer_config.json": "78a839c7851f14f9fb30e664c2b46166dc0628f2900679e5ec160656f702edff"
+    },
+    "selection_rule": "first 32 complete articles with >=3072 tokens in train shard 0, in source row order",
+    "pre_run_length_rationale": "3072 prompt +1024 output retains active requests longer while later long prefills are admitted; 3968+128 could drain before 32 requests become active. This is regime qualification, chosen before GPU results.",
+    "reconstruction_rule": "concatenate original row strings exactly from one top-level title to before the next; no added separators",
+    "identity_scope": "article identities within this probe; operating-regime qualification, not a fresh holdout"
+  },
+  "source_root": "/Users/leandrozhao/Desktop/、++++++++/refine-logs/expert_saturation/outputs/admission_capacity/20260906_native_memory_pressure_r01/inputs_preparation/prepared",
+  "sources_sha256": {
+    "short/config.json": "65ae7a395b25c9762e75dfff683cf01082c5f485d2651b7bbfceb0402bcc1be7",
+    "short/workload.json": "2c08f17c8edef382e6aacb4f1321d35c3f386a60ec840c95c922fbd7e0a25a53",
+    "long/config.json": "004a81d89c852fcb67d53fdf1ea62ce7ca0fdb2c9eea84a29bf1d04dc1b21cad",
+    "long/workload.json": "270d6e1ebc0022319915a25e3714debdab4388c6d5288b634193815087beaa53"
+  },
+  "workload_sha256": "2aad6351be79ad3a7460500fb402eae474f587a2c1cbb9eae1ce7891fd72b44d",
+  "token_input_rule": "Actual token IDs are authoritative; truncate existing single-article prefixes only; no concatenation, replication, padding, or re-tokenization",
+  "token_hash_rule": "SHA256 of compact JSON token ID array using separators=(',', ':')",
+  "cohort_rule": "first 16 source articles; mixed: zero-based even index 128, odd index 2048; all_short: all 128",
+  "input_preparation": "offline only; no GPU execution or performance measurement; runner declares SLO and engine settings"
+}

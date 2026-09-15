@@ -1,0 +1,47 @@
+{
+  "schema_version": "triage-audit-v1",
+  "status": "FROZEN_FOR_IMPLEMENTATION",
+  "seed": 2026072302,
+  "dataset": {
+    "name": "wikitext103_docs",
+    "config": "wikitext-103-raw-v1",
+    "split": "train",
+    "prompt_len": 64,
+    "decode_steps": 32,
+    "calibration_documents": 32,
+    "sealed_documents": 64
+  },
+  "models": {
+    "olmoe": {
+      "repo_id": "allenai/OLMoE-1B-7B-0924",
+      "expected_expert_linears": 3072
+    },
+    "llmjp": {
+      "repo_id": "llm-jp/optimal-sparsity-math-d512-E32-k16-920M-A520M",
+      "expected_expert_linears": 1536
+    }
+  },
+  "action": {
+    "name": "int4_weight_only_rtn_per_output_channel_proxy",
+    "expert_scope": "all",
+    "native_kernel": false
+  },
+  "predictor": {
+    "ridge_alpha": 1.0,
+    "target": "log10_document_cvar90_same_state_discrepancy",
+    "quantiles": [0.3333333333333333, 0.6666666666666666],
+    "periods": [8, 4, 2]
+  },
+  "controller": {
+    "audit_threshold_quantile": 0.9,
+    "lockout_following_steps": 3,
+    "max_unaudited_steps": 8
+  },
+  "statistics": {
+    "bootstrap_replicates": 5000,
+    "quality_ratio_ucb": 1.05,
+    "audit_reduction_lcb": 0.2,
+    "forward_reduction_lcb": 0.1,
+    "dangerous_recall_margin_pp": 5.0
+  }
+}

@@ -34,6 +34,15 @@ tmp_energy_search/
 **/outputs/**/calibration_routes.csv
 **/outputs/**/*_raw.csv
 **/outputs/**/pair_interventions.csv
+# Large, regenerable SemanticFence calibration traces.  Keep summary cards and
+# manifests trackable; exclude only the high-volume raw call/numeric logs.
+docs/ideas/semanticfence/experiments/outputs/semanticfence_pilot_*/calibration_calls.jsonl
+docs/ideas/semanticfence/experiments/outputs/semanticfence_pilot_*/calibration_numeric.jsonl
+docs/ideas/semanticfence/experiments/outputs/semanticfence_pilot_*/calibration_reference_rows.jsonl
+docs/ideas/semanticfence/experiments/outputs/semanticfence_pilot_*/calibration_cublaslt_*.log
+# Parent recomputation is represented by the compact raw-output index and
+# hashes.  Keep the per-pair BF16 tensors local; together they exceed 1 GiB.
+docs/ideas/semanticfence/experiments/outputs/semanticfence_pilot_*/evaluation_raw_bf16/
 experiments/**/*.pt
 experiments/**/*.safetensors
 experiments/**/*.bin
@@ -41,7 +50,72 @@ docs/**/*.pt
 docs/**/*.safetensors
 **/checkpoints.jsonl
 
+# Oversized raw ledgers retained locally.  Their compact summaries, manifests,
+# recomputations, and audit cards remain trackable.
+docs/ideas/spectatorroute/experiments/outputs/phase0a_5090_*/regime_cells.jsonl
+docs/ideas/stablebatch/experiments/outputs/shape_lane_continuous_cost_*/expert_call_ledger.jsonl
+
+# Raw experiment payloads remain local.  Compact JSON/Markdown summaries,
+# manifests, hashes, and audit cards under the same run directories stay
+# trackable and are committed separately.
+docs/ideas/*/experiments/outputs/**/*.jsonl
+docs/ideas/*/experiments/outputs/**/*.log
+docs/ideas/*/experiments/outputs/**/*.log.gz
+docs/ideas/*/experiments/outputs/**/*.exit
+docs/ideas/*/experiments/outputs/**/frozen_inputs/*.py
+docs/ideas/semanticfence/experiments/outputs/semanticfence_pilot_*/evaluation_arm_results.json
+
+# Materialized vLLM runtime packages are local and represented in Git by their
+# compact runtime-package manifests.
+refine-logs/expert_saturation/outputs/native_route_shape/*/runtime/
+
 # Resume / incomplete run leftovers
 **/*.partial.csv
 **/outputs/**/_smoke*/
 **/outputs/**/*_smoke_*/
+
+# Generated experiment bundles are local/external by default.  Keep only the
+# repository policy and the canonical routing index in Git going forward.
+/artifacts/**
+!/artifacts/README.md
+!/artifacts/index.json
+
+# Per-step engine traces recorded after 2026-09-12.  These are the raw scheduler
+# and pager ledgers; the 2026-09-13 admission_capacity runs alone hold 23.9 GB of
+# them, with single files above 1.5 GB.  Every scientific claim is carried by the
+# compact metrics/analysis/summary JSON and the Markdown reports committed beside
+# them, so the ledgers stay local and are republished as adjacent .gz files under
+# the docs/GITHUB_DATA.md procedure when a specific run needs to be shared.
+refine-logs/expert_saturation/outputs/**/raw.json
+refine-logs/expert_saturation/outputs/**/pager/calls.jsonl
+
+# Tokenizer and vocabulary snapshots copied into model_metadata/ during Qwen3 and
+# OLMoE launches.  These are upstream model assets retrievable from their original
+# source, duplicated once per launch directory; the launch manifests record their
+# digests, which is what the experiments actually verify against.
+**/model_metadata/tokenizer.json
+**/model_metadata/vocab.json
+**/model_metadata/merges.txt
+
+# Execution bundles and result archives shipped to or retrieved from GPU hosts.
+# Their extracted contents are already tracked where they matter.
+refine-logs/expert_saturation/outputs/**/*.tar.gz
+
+# Oversized raw JSON files are published losslessly as adjacent .gz files.
+# Restore and verify using docs/GITHUB_DATA.md; local originals stay unchanged.
+/refine-logs/expert_saturation/outputs/admission_capacity/20260906_native_memory_pressure_r01/gpu_results/repeat0-long-cap16/raw.json
+/refine-logs/expert_saturation/outputs/admission_capacity/20260906_native_memory_pressure_r01/gpu_results/repeat0-long-cap32/raw.json
+/refine-logs/expert_saturation/outputs/admission_capacity/20260906_native_memory_pressure_r01/gpu_results/repeat0-short-cap16/raw.json
+/refine-logs/expert_saturation/outputs/admission_capacity/20260906_native_memory_pressure_r01/gpu_results/repeat0-short-cap32/raw.json
+/refine-logs/expert_saturation/outputs/admission_capacity/20260906_native_memory_pressure_r01/gpu_results/repeat1-long-cap16/raw.json
+/refine-logs/expert_saturation/outputs/admission_capacity/20260906_native_memory_pressure_r01/gpu_results/repeat1-long-cap32/raw.json
+/refine-logs/expert_saturation/outputs/admission_capacity/20260906_native_memory_pressure_r01/gpu_results/repeat1-short-cap16/raw.json
+/refine-logs/expert_saturation/outputs/admission_capacity/20260906_native_memory_pressure_r01/gpu_results/repeat1-short-cap32/raw.json
+/refine-logs/expert_saturation/outputs/admission_capacity/20260908_kv_safe_static_r02/gpu_results/repeat0-baseline16/raw.json
+/refine-logs/expert_saturation/outputs/admission_capacity/20260908_kv_safe_static_r02/gpu_results/repeat0-safe/raw.json
+/refine-logs/expert_saturation/outputs/admission_capacity/20260908_kv_safe_static_r02/gpu_results/repeat1-baseline16/raw.json
+/refine-logs/expert_saturation/outputs/admission_capacity/20260908_kv_safe_static_r02/gpu_results/repeat1-safe/raw.json
+/refine-logs/expert_saturation/outputs/admission_capacity/20260908_native_preemption_r01/gpu_results/repeat0-native32/raw.json
+/refine-logs/expert_saturation/outputs/admission_capacity/20260908_native_preemption_r01/gpu_results/repeat0-safe/raw.json
+/refine-logs/expert_saturation/outputs/admission_capacity/20260908_native_preemption_r01/gpu_results/repeat1-native32/raw.json
+/refine-logs/expert_saturation/outputs/admission_capacity/20260908_native_preemption_r01/gpu_results/repeat1-safe/raw.json

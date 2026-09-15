@@ -1,0 +1,72 @@
+{
+  "schema_version": "semanticfence-p0-config-v1",
+  "status": "FROZEN",
+  "evidence_boundary": "single_rtx5090_pretrained_olmoe_decode_style_expert_stage_only_not_full_layer_not_serving_not_ep_not_formal_correctness",
+  "model": {
+    "repo_id": "allenai/OLMoE-1B-7B-0924",
+    "revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "local_path_candidates": [
+      "~/.cache/huggingface/hub/models--allenai--OLMoE-1B-7B-0924/snapshots/6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+      "/root/autodl-tmp/models/olmoe"
+    ],
+    "dtype": "bfloat16",
+    "num_hidden_layers": 16,
+    "hidden_size": 2048,
+    "intermediate_size": 1024,
+    "num_experts": 64,
+    "num_experts_per_tok": 8,
+    "file_sha256": {
+      "config.json": "3643aa880d2f1c9b418156269ae791c73e5612d6b6b6fde0724d927cf89b6335",
+      "model.safetensors.index.json": "0e2e1e0d8d357ac7af817cff28410c3dbad398f060c517a433e4076b2aae5579",
+      "model-00001-of-00003.safetensors": "5e3cff7e367794685c241169072c940d200918617d5e2813f1c387dff52d845e",
+      "model-00002-of-00003.safetensors": "15ef5c730ee3cfed7199498788cd2faf337203fc74b529625e7502cdd759f4a7",
+      "model-00003-of-00003.safetensors": "a9abac4ac1b55c9adabac721a02fa39971f103eea9a65c310972b1246de76e04",
+      "tokenizer.json": "a094266ac6c4982efba277bc251349a5a6d6ad37efb39a2a90f53d8be2a40a40",
+      "tokenizer_config.json": "78a839c7851f14f9fb30e664c2b46166dc0628f2900679e5ec160656f702edff",
+      "special_tokens_map.json": "b77491e270c6fcc5b2ecf22370f7318a6a18d3cabea09ba7bab92e9bf12656c2"
+    }
+  },
+  "data": {
+    "calibration_manifest": "docs/ideas/routeguard_kv/experiments/data/r0a_5090_v1/calibration_manifest.jsonl",
+    "calibration_manifest_sha256": "bfb8912539806d2948595eb7ba42cfb7d09aae0b31c7c00dfbc62136abc82630",
+    "calibration_document_count": 8,
+    "calibration_provenance": "docs/ideas/routeguard_kv/experiments/data/r0a_5090_v1/provenance.json",
+    "calibration_provenance_sha256": "20ad389a694972b2b6895bb8479e1dec444e4a1d846668cf8ccba90a0cce4811",
+    "historical_hash_registry": "docs/ideas/routeguard_kv/experiments/data/r0a_5090_v1/historical_hash_registry.json",
+    "historical_hash_registry_sha256": "e3cb17d1a4649a6012b7394402fc083792607300418c42e28f76b2afc3c273c0",
+    "evaluation_manifest": "docs/ideas/semanticfence/experiments/data/fresh_eval_20260809_v1/eval_manifest.jsonl",
+    "evaluation_manifest_sha256": "2608ef5d93a9da36b816eddfb8e3bf495631f0f19934a703bc813757443695d7",
+    "evaluation_document_count": 32,
+    "evaluation_provenance": "docs/ideas/semanticfence/experiments/data/fresh_eval_20260809_v1/provenance.json",
+    "evaluation_provenance_sha256": "d9f0e1918a9754cc041030e313e95181d6a1480871304fe632ee5f3707e55f9a",
+    "evaluation_exclusion_report": "docs/ideas/semanticfence/experiments/data/fresh_eval_20260809_v1/exclusion_report.json",
+    "evaluation_exclusion_report_sha256": "32584b7506edec204d7379aab841badc22bd543fdfd4dc402c89a2468191ef85",
+    "evaluation_artifact_hashes": "docs/ideas/semanticfence/experiments/data/fresh_eval_20260809_v1/artifact_hashes.json",
+    "evaluation_artifact_hashes_sha256": "ec962592c61f04262248b4e34242d9c76e4d2aaa56b687ebd0ad09da82b21060",
+    "token_offsets": [0, 256],
+    "window_tokens": 16,
+    "add_special_tokens": false,
+    "calibration_positions": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+    "evaluation_position": 15
+  },
+  "intervention": {
+    "m_values": [1, 2, 4, 8, 16, 32, 64],
+    "reference_m": 1,
+    "fixed_padding_m": 64,
+    "repeats": 10,
+    "warmups": 3,
+    "min_calibration_packs": 3,
+    "min_calibration_documents": 3,
+    "cublaslt_log_level": 5,
+    "cublaslt_log_mask": 31
+  },
+  "decision": {
+    "minimum_unrestricted_mismatch_victims": 8,
+    "minimum_semanticfence_covered_victims": 8,
+    "minimum_distinct_admitted_m_gt_1": 2,
+    "minimum_latency_reduction_fraction": 0.10
+  },
+  "budget": {
+    "max_gpu_seconds": 5400
+  }
+}

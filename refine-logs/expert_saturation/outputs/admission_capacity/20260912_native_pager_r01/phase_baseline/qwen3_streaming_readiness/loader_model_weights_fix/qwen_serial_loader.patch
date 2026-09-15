@@ -1,0 +1,17 @@
+--- r01/qwen_serial_loader.py
++++ r02/qwen_serial_loader.py
+@@ -56,7 +56,13 @@
+                 == manifest["config_sha256"], "model config differs from frozen revision")
+         require(model_config.revision in (None, manifest["revision"]), "model revision mismatch")
+         require(model_config.dtype == torch.bfloat16 and model_config.quantization is None, "BF16 unquantized only")
+-        require(getattr(model_config, "model_weights", None) is None, "model_weights override unsupported")
++        model_weights = getattr(model_config, "model_weights", None)
++        if model_weights == "":  # vLLM 0.26 local-model default: no override
++            model_weights = model_config.model
++        require(model_weights is None or (
++            isinstance(model_weights, (str, Path)) and bool(str(model_weights))
++            and Path(model_weights).expanduser().resolve() == model_dir.resolve()),
++            "model_weights must be None or the validated local model directory")
+ 
+     def load_weights(self, model, model_config):
+         self.download_model(model_config)

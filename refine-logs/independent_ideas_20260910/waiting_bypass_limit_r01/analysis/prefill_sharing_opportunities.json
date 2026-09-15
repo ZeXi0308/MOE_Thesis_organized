@@ -1,0 +1,161 @@
+{
+  "classification": "STRUCTURAL_OBSERVED_STATE_NO_COUNTERFACTUAL",
+  "question": "Does one running prefill consume the remaining token budget while a request slot and an arrived short FCFS head are available?",
+  "threshold_for_identifying_large_steps": 512,
+  "source_reference": "runtime_reference.json::v1/core/sched/scheduler.py",
+  "per_request_limit_source_lines": [
+    507,
+    508,
+    861,
+    863
+  ],
+  "records": [
+    {
+      "source": "readback/results/forward/cell-000-raw.json",
+      "block": "forward",
+      "cohort": "all_short",
+      "large_prefill_steps": 0,
+      "budget_exhausted_with_spare_slot_and_short_waiter": 0,
+      "events": []
+    },
+    {
+      "source": "readback/results/forward/cell-003-raw.json",
+      "block": "forward",
+      "cohort": "mixed",
+      "large_prefill_steps": 16,
+      "budget_exhausted_with_spare_slot_and_short_waiter": 3,
+      "events": [
+        {
+          "step": 142,
+          "time_s": 1.2089057927951217,
+          "running_count": 7,
+          "cap": 8,
+          "budget": 1024,
+          "actual_scheduled_tokens": 1024,
+          "waiting_count": 6,
+          "waiting_head": "memory-train-article-0001157",
+          "waiting_head_prompt_tokens": 128,
+          "running_prefills": [
+            {
+              "request_id": "memory-train-article-0001107",
+              "computed_before": 1017,
+              "actual_prefill_tokens": 1018
+            }
+          ]
+        },
+        {
+          "step": 152,
+          "time_s": 1.3190604811534286,
+          "running_count": 7,
+          "cap": 8,
+          "budget": 1024,
+          "actual_scheduled_tokens": 1024,
+          "waiting_count": 4,
+          "waiting_head": "memory-train-article-0001274",
+          "waiting_head_prompt_tokens": 128,
+          "running_prefills": [
+            {
+              "request_id": "memory-train-article-0001244",
+              "computed_before": 1017,
+              "actual_prefill_tokens": 1018
+            }
+          ]
+        },
+        {
+          "step": 161,
+          "time_s": 1.4197082808241248,
+          "running_count": 7,
+          "cap": 8,
+          "budget": 1024,
+          "actual_scheduled_tokens": 1024,
+          "waiting_count": 2,
+          "waiting_head": "memory-train-article-0001487",
+          "waiting_head_prompt_tokens": 128,
+          "running_prefills": [
+            {
+              "request_id": "memory-train-article-0001401",
+              "computed_before": 1017,
+              "actual_prefill_tokens": 1018
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source": "readback/results/reverse/cell-002-raw.json",
+      "block": "reverse",
+      "cohort": "mixed",
+      "large_prefill_steps": 16,
+      "budget_exhausted_with_spare_slot_and_short_waiter": 3,
+      "events": [
+        {
+          "step": 134,
+          "time_s": 1.224688938818872,
+          "running_count": 7,
+          "cap": 8,
+          "budget": 1024,
+          "actual_scheduled_tokens": 1024,
+          "waiting_count": 6,
+          "waiting_head": "memory-train-article-0001157",
+          "waiting_head_prompt_tokens": 128,
+          "running_prefills": [
+            {
+              "request_id": "memory-train-article-0001107",
+              "computed_before": 1017,
+              "actual_prefill_tokens": 1018
+            }
+          ]
+        },
+        {
+          "step": 144,
+          "time_s": 1.3345198351889849,
+          "running_count": 7,
+          "cap": 8,
+          "budget": 1024,
+          "actual_scheduled_tokens": 1024,
+          "waiting_count": 4,
+          "waiting_head": "memory-train-article-0001274",
+          "waiting_head_prompt_tokens": 128,
+          "running_prefills": [
+            {
+              "request_id": "memory-train-article-0001244",
+              "computed_before": 1017,
+              "actual_prefill_tokens": 1018
+            }
+          ]
+        },
+        {
+          "step": 152,
+          "time_s": 1.425444945693016,
+          "running_count": 7,
+          "cap": 8,
+          "budget": 1024,
+          "actual_scheduled_tokens": 1024,
+          "waiting_count": 2,
+          "waiting_head": "memory-train-article-0001487",
+          "waiting_head_prompt_tokens": 128,
+          "running_prefills": [
+            {
+              "request_id": "memory-train-article-0001401",
+              "computed_before": 1017,
+              "actual_prefill_tokens": 1018
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source": "readback/results/reverse/cell-005-raw.json",
+      "block": "reverse",
+      "cohort": "all_short",
+      "large_prefill_steps": 0,
+      "budget_exhausted_with_spare_slot_and_short_waiter": 0,
+      "events": []
+    }
+  ],
+  "limitations": [
+    "No alternative-policy execution or regenerated future state.",
+    "An unused request slot does not by itself prove KV allocation would succeed.",
+    "Observed event count is neither a latency saving nor a policy-wide headroom bound."
+  ]
+}

@@ -1,0 +1,727 @@
+{
+  "schema_version": "ric-clean-config-v2",
+  "protocol_version": "ric-clean-v2",
+  "status": "PHASE2_FROZEN_NO_SCIENTIFIC_RESULT",
+  "frozen_date": "2026-07-23",
+  "formal_execution_requires": {
+    "phase4_status": "SIGNED-OFF",
+    "open_p0": 0
+  },
+  "artifact_self_hash_contract": {
+    "normalize_via_json_roundtrip_before_hash": true,
+    "allow_nan": false,
+    "reject_duplicate_keys_after_normalization_at_every_depth": true,
+    "producer_and_validator_share_identical_normalization": true,
+    "strict_duplicate_key_load_required": true
+  },
+  "claim_scope": {
+    "actuator": "sender_local_ready_result_egress_ordering",
+    "fixed": [
+      "routing",
+      "top_k",
+      "precision",
+      "payload_bytes",
+      "canonical_reduction"
+    ],
+    "maximum_verdict": "GO_TO_IMPLEMENT_CONTROLLER_PROTOTYPE",
+    "forbidden_claims": [
+      "measured_rdma_benefit",
+      "measured_nccl_benefit",
+      "continuous_serving_ttft_tpot_p99",
+      "production_generalization",
+      "online_policy_hot_path_overhead_is_acceptable"
+    ]
+  },
+  "models": {
+    "olmoe": {
+      "repo_id": "allenai/OLMoE-1B-7B-0924",
+      "revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+      "expected_local_model_tree_manifest_sha256": "909942c554a983a7929a8e2cf7d3326b007ed4c694f3a28c825c1f846e86267e",
+      "native_moe_class": "transformers.models.olmoe.modeling_olmoe.OlmoeSparseMoeBlock",
+      "native_moe_forward_source_sha256": "e124b2dc9d922f2e0c8a86d268ebf7036b2d8c62b1738dd8add15dbc73fd3315",
+      "num_experts": 64,
+      "top_k": 8
+    },
+    "llmjp": {
+      "repo_id": "llm-jp/optimal-sparsity-math-d512-E32-k16-920M-A520M",
+      "revision": "1d5983076dfc67aee4a77ec06a27027f5bab6055",
+      "expected_local_model_tree_manifest_sha256": "2f9dd01bc3009ef09d5eb03be9052ea7f7b01bf78eaed9f06c9ac480aecf4915",
+      "native_moe_class": "transformers.models.mixtral.modeling_mixtral.MixtralSparseMoeBlock",
+      "native_moe_forward_source_sha256": "0c7f433f6e5726796f0b49c08aa3664618495a5333a224e80fbddd40e1b793ff",
+      "num_experts": 32,
+      "top_k": 16
+    }
+  },
+  "data": {
+    "dataset": "wikitext-103-raw-v1",
+    "config": "wikitext-103-raw-v1",
+    "split": "train",
+    "formal_dataset_identity": {
+      "producer": "prepare_clean_v2_data.py",
+    "python_environment": "/root/autodl-tmp/ric_clean_v2_env/bin/python",
+    "datasets_library_version": "4.5.0",
+    "transformers_library_version": "4.53.3",
+    "tokenizers_library_version": "0.21.4",
+      "dataset_repo_id": "wikitext",
+      "dataset_revision": "b08601e04326c79dfdd32d625aee71d232d685c3",
+      "calibration": {
+        "dataset_slice_fingerprint": "CAPTURE_ON_FIRST_FORMAL_OPEN",
+        "dataset_slice_canonical_content_sha256": "CAPTURE_ON_FIRST_FORMAL_OPEN"
+      },
+      "sealed": {
+        "dataset_slice_fingerprint": "CAPTURE_ON_FIRST_FORMAL_OPEN",
+        "dataset_slice_canonical_content_sha256": "CAPTURE_ON_FIRST_FORMAL_OPEN"
+      }
+    },
+    "selection_seed": 2026072301,
+    "selection_method": "sha256(str(selection_seed)||canonical_text_sha256)",
+    "canonical_text_definition": "replace_CRLF_and_CR_with_LF_only_then_UTF8_no_trim_no_unicode_normalization",
+    "min_tokens_both_frozen_tokenizers": 129,
+    "sequence_length": 128,
+    "batch_size": 1,
+    "padding_allowed": false,
+    "calibration": {
+      "candidate_row_start_inclusive": 100000,
+      "candidate_row_end_exclusive": 104000,
+      "document_count": 64
+    },
+    "sealed": {
+      "candidate_row_start_inclusive": 120000,
+      "candidate_row_end_exclusive": 124000,
+      "document_count": 128,
+      "one_shot": true,
+      "output_must_not_exist": true
+    },
+    "historical_exclusion_registry_required": true,
+    "historical_exclusion_expected_json_file_count": 148,
+    "historical_exclusion_expected_inventory_sha256": "e6f25d59332521ca287c3e596a529c055fd9405a0234384ad1843025f8e4dd59",
+    "sealed_requires_formal_calibration_manifest_sha256": true,
+    "sealed_calibration_manifest_validation_fields": [
+      "role=calibration",
+      "protocol_sha256",
+      "config_sha256",
+      "producer_source_sha256",
+      "formal_dataset_identity"
+    ],
+    "sealed_calibration_disjoint_fields": [
+      "selected_text_sha256",
+      "selected_request_ids"
+    ],
+    "historical_scan_does_not_replace_current_split_isolation": true,
+    "sealed_exclusion_union": [
+      "validated_calibration_selected_text_sha256",
+      "historical_exclusion_registry_selected_text_sha256"
+    ],
+    "collision_skip_or_replacement_allowed": false,
+    "sealed_manifest_must_bind": [
+      "calibration_manifest_file_sha256",
+      "calibration_manifest_sha256",
+      "calibration_selected_list_sha256"
+    ],
+    "automatic_window_fallback_allowed": false
+  },
+  "route_capture": {
+    "capture_all_moe_layers": true,
+    "expected_layer_set_source": "model_config_plus_independent_hook",
+    "native_unpatched_parity_required": true,
+    "native_topk_selection_rule": "torch.topk(torch.softmax(raw_gate_logits,dim=-1,dtype=torch.float32),k,dim=-1);preserve_returned_slot_order",
+    "native_topk_dispatch_capture_required": true,
+    "route_rows_use_captured_native_topk": true,
+    "effective_route_weight": "topk_fp32_then_optional_renorm_then_cast_native_hidden_dtype",
+    "stable_sort_substitution_allowed": false,
+    "native_moe_output_tolerance": {
+      "rule": "finfo_scaled_source_only",
+      "rtol_finfo_eps_multiplier": 4.0,
+      "atol_finfo_eps_multiplier": 4.0,
+      "atol_scale": "max(1,max_abs_native_layer_output)",
+      "topk_indexes_must_match_exactly": true,
+      "outcome_tuning_allowed": false
+    },
+    "valid_tokens_per_request": 128,
+    "token_drop_allowed": false,
+    "selected_layer_count_per_model": 4,
+    "layer_selection": "sha256(2026072301||model_revision||layer_id)",
+    "request_layer_assignment": "sha256(request_id)%4",
+    "cross_layer_dag_claim_allowed": false
+  },
+  "identity_fields": [
+    "request_id",
+    "forward_id",
+    "batch_id",
+    "phase",
+    "decode_step",
+    "layer_id",
+    "token_id",
+    "token_block_id",
+    "topk_slot",
+    "expert_id",
+    "sender_rank",
+    "receiver_rank",
+    "epoch"
+  ],
+  "topology_proxy": {
+    "evidence_level": "L2_CALIBRATED_VIRTUAL_EP",
+    "ep_size": 8,
+    "virtual_nodes": 2,
+    "ranks_per_node": 4,
+    "expert_placement": "contiguous",
+    "request_origin": "route_blind_token_count_lpt",
+    "request_origin_scope": "entire_model_split_before_cell_materialization",
+    "request_origin_order": "canonical_request_sha256",
+    "request_origin_rank_tie_break": "sha256(request_id||rank)",
+    "request_origin_same_route_group_reuse_across_cells": true,
+    "request_origin_reuse_within_model_cell": false,
+    "receiver_coverage_required": "all_ranks_and_both_virtual_nodes_per_model_split",
+    "receiver_load_validation": "report_per_rank_and_per_node_token_counts",
+    "resources": [
+      "per_sender_egress",
+      "per_node_shared_cut",
+      "per_receiver_unpack_ingress",
+      "per_receiver_join_combine"
+    ],
+    "primary_link_gbps": 200,
+    "link_sensitivity_gbps": [100, 400],
+    "link_sensitivity_causal_world": {
+      "reference_link_gbps": 200,
+      "reuse_exact_arrival_by_block": true,
+      "reuse_task_route_and_expert_ready": true,
+      "recompute_only": [
+        "contribution_shared_cut_service",
+        "contract_analytic_transfer"
+      ],
+      "target_utilization_recalibration_allowed": false,
+      "report_realized_utilization_only": true
+    },
+    "is_rdma_measurement": false
+  },
+  "contribution_transport_accounting": {
+    "payload_bytes_source": "measured_weighted_expert_output_tensor_descriptor",
+    "descriptor_bytes_per_contribution": 16,
+    "alignment_boundary_bytes": 16,
+    "alignment_padding_formula": "(16 - ((payload_bytes + descriptor_bytes) % 16)) % 16",
+    "descriptor_and_alignment_source": "analytic_network",
+    "primary_scope": "calibrated_virtual_ep_payload_plus_fixed_descriptor_proxy",
+    "is_measured_rdma_framing": false
+  },
+  "workloads": {
+        "requests_per_complete_trace": 4,
+        "token_blocks_per_request": 128,
+        "token_blocks_per_complete_trace": 512,
+        "arrival_unit": "token_block_microcoflow_with_shared_topk_arrival",
+    "request_reuse_within_model_cell_allowed": false,
+    "same_fixed_route_trace_group_reuse_across_cells_allowed": true,
+    "statistics_remain_cellwise_without_pooling": true,
+        "calibration_complete_trace_clusters": 16,
+        "complete_trace_clusters_per_model_cell": 32,
+    "role_seed_ranges": {
+      "calibration": {
+        "seed_start_inclusive": 202607233001,
+        "seed_count": 16,
+        "derivation_salt": "ric-clean-v2-calibration-arrival"
+      },
+      "sealed": {
+        "seed_start_inclusive": 202607234001,
+        "seed_count": 32,
+        "derivation_salt": "ric-clean-v2-sealed-arrival"
+      }
+    },
+    "role_seed_sets_must_be_disjoint": true,
+    "base_seed_semantics": "literal_python_random_seed",
+    "derivation_salt_semantics": "provenance_namespace_only_not_prng_input",
+    "link_variants_reuse_primary_seed_and_arrivals_within_role_trace": true,
+    "main_cells": {
+      "poisson_rho60": {
+        "arrival_process": "poisson",
+        "target_utilization": 0.6
+      },
+      "ctmc_mmpp_rho85": {
+        "arrival_process": "continuous_time_two_state_mmpp",
+        "target_utilization": 0.85,
+        "lambda_low_over_mu": 0.25,
+        "lambda_high_over_mu": 1.6,
+        "mean_high_dwell_service_units": 8.0,
+        "mean_low_dwell_service_units": 10.0
+      }
+    },
+    "negative_control": {
+      "poisson_rho30": {
+        "arrival_process": "poisson",
+        "target_utilization": 0.3
+      }
+    },
+    "finite_horizon_load_normalization": {
+      "claim_label": "exact_load_time_normalized_process_shaped_replay",
+      "scope": "one_common_scalar_per_role_and_cell",
+      "applies_to_all_main_and_negative_control_cells": true,
+      "raw_schedule_space": "dimensionless_mu_equals_1",
+      "raw_schedule_count": 512,
+      "factor_formula": "mean_i(raw_count/raw_last_arrival_i)/target_utilization",
+      "normalized_arrival_formula": "raw_dimensionless_arrival*factor/model_reference_mu",
+      "normalized_transition_formula": "raw_dimensionless_transition*factor/model_reference_mu",
+      "factor_inputs": [
+        "role",
+        "cell",
+        "sorted_frozen_base_seeds",
+        "raw_dimensionless_arrivals",
+        "target_utilization"
+      ],
+      "forbidden_factor_inputs": [
+        "model",
+        "route",
+        "link_variant",
+        "arm",
+        "policy",
+        "oracle",
+        "latency",
+        "quality",
+        "experiment_outcome"
+      ],
+      "scale_arrivals_and_ctmc_transitions_together": true,
+      "normalized_arithmetic_aggregate_abs_tolerance": 1e-12,
+      "raw_aggregate_is_diagnostic_not_gate": true,
+      "primary_reference_link_gbps": 200,
+      "sensitivity_reuses_normalized_schedule_without_rng_or_renormalization": true,
+      "metadata_requires_raw_and_normalized_fingerprints": true,
+      "no_policy_or_oracle_input": true
+    },
+    "outcome_dependent_resampling_allowed": false,
+    "full_drain_required": true
+  },
+  "information_levels": {
+    "S": "sender_local_ready_bytes_service_receiver_slack_age_fairness",
+    "B": "S_plus_aggregate_qdepth_port_shared_cut_topology_no_keyed_join_state",
+    "R0": "B_plus_full_current_keyed_receiver_join_state_zero_delay_zero_tax",
+    "C": "clairvoyant_future_release_service_arrival_lower_bound_only"
+  },
+  "matched_world_milp": {
+    "pairs_per_model": 16,
+    "pair_selection": "outcome_blind_hash_from_calibration_pool",
+    "sender_local_observation_equal": true,
+    "aggregate_port_state_equal": true,
+    "matched_world_difference": "last_missing_status_swapped_via_valid_prior_history",
+    "contribution_join_key_or_identity_relabel_allowed": false,
+    "both_prior_histories_must_be_reachable_and_replayable": true,
+    "current_sender_and_B_observation_must_be_byte_identical": true,
+    "nonanticipativity_scope": "per_sender_observation_history_node",
+    "objective": [
+      "lexicographic_min_closure_budget_violations",
+      "lexicographic_min_cvar99",
+      "lexicographic_min_mean_closure"
+    ],
+    "max_solver_optimality_gap": 0.000001,
+    "min_r0_optimal_first_action_flip_rate": 0.25,
+    "first_action_flip_definition": "different_unique_optimal_first_action_singletons_across_two_worlds",
+    "ambiguous_optimal_first_action_action": "BLOCKED_AMBIGUOUS_FIRST_ACTION_OPTIMUM",
+    "normalized_gap_definition": "(B_empirical_cvar99-R0_empirical_cvar99)/B_empirical_cvar99",
+    "nonpositive_normalized_gap_denominator_action": "BLOCKED_NORMALIZED_GAP_DENOMINATOR",
+    "min_exact_oracle_median_normalized_cvar_gap": 0.05,
+    "required_models": ["olmoe", "llmjp"]
+  },
+  "capability_probes": {
+    "artifact_boolean_self_attestation_allowed": false,
+    "formal_block_rows": 32,
+    "formal_warmups": 10,
+    "measured_trials": 30,
+    "persistent_sender_local_cuda_stream_across_all_arms": true,
+    "counterbalance_schedule": {
+      "period": 4,
+      "trial_mod_4": {
+        "0": ["early_then_barrier", "baseline_then_candidate"],
+        "1": ["barrier_then_early", "candidate_then_baseline"],
+        "2": ["early_then_barrier", "candidate_then_baseline"],
+        "3": ["barrier_then_early", "baseline_then_candidate"]
+      },
+      "order_must_be_recorded_per_trial": true
+    },
+    "paired_existence_gate": {
+      "effect_definitions_us": {
+        "frontier_advance": "baseline_frontier_release_us-candidate_frontier_release_us",
+        "downstream_start_advance": "baseline_downstream_start_us-candidate_downstream_start_us",
+        "release_interaction": "(baseline-candidate)_streaming_release-(baseline-candidate)_barrier_release",
+        "downstream_interaction": "(baseline-candidate)_streaming_downstream-(baseline-candidate)_barrier_downstream"
+      },
+      "estimator": "mean_of_30_within_trial_paired_differences",
+      "bootstrap_unit": "within_trial_pair",
+      "bootstrap_replicates": 10000,
+      "bootstrap_seed": 2026072306,
+      "one_sided_confidence": 0.95,
+      "quantile": "type1_nearest_rank",
+      "lcb_order_statistic_one_based": 500,
+      "each_effect_lcb_must_be_strictly_greater_than_us": 0.0,
+      "logical_operator": "AND"
+    },
+    "event_precedence_gate": {
+      "same_policy_cross_release_task_identity_queue_payload_and_order_exact": true,
+      "barrier_release_after_both_task_service_end": true,
+      "barrier_downstream_not_before_release": true,
+      "streaming_release_at_or_after_physical_frontier": true,
+      "streaming_downstream_not_before_release": true,
+      "physical_frontier_within_closing_service": true,
+      "candidate_streaming_release_and_downstream_before_nonclosing_service": true,
+      "candidate_barrier_frontier_before_nonclosing_service": true,
+      "baseline_nonclosing_service_before_closing_service": true,
+      "all_trials_and_policies_required": true
+    },
+    "barrier_cross_policy_timing_is_diagnostic_only": true,
+    "profiler_diagnostics_required_release_modes": [
+      "streaming",
+      "full_layer_barrier"
+    ],
+    "required": [
+      "ready_result_reorderability",
+      "early_closure_frontier_advance",
+      "buffer_release_or_hol_unblock_or_downstream_advance",
+      "streaming_minus_barrier_interaction_positive",
+      "full_layer_barrier_event_precedence",
+      "canonical_reduction_bitwise_hash_match"
+    ],
+    "raw_repeats_required": true,
+    "gpu_environment_fields": [
+      "gpu_environment.gpu_uuid",
+      "gpu_environment.gpu_name",
+      "gpu_environment.driver_version",
+      "gpu_environment.cuda_version",
+      "gpu_environment.pytorch_version",
+      "gpu_environment.clock_sm_mhz",
+      "gpu_environment.power_draw_w",
+      "gpu_environment.memory_used_mib",
+      "gpu_environment.background_gpu_util_percent",
+      "gpu_environment.compute_apps_before",
+      "gpu_environment.compute_apps_after",
+      "transformers_version",
+      "model_tree_manifest_sha256"
+    ],
+    "formal_gpu_environment_gate": {
+      "gpu_name_exact": "NVIDIA GeForce RTX 5090",
+      "nvidia_smi_required_fields": [
+        "gpu_uuid",
+        "gpu_name",
+        "driver_version",
+        "cuda_version"
+      ],
+      "runtime_required_fields": [
+        "gpu_environment.pytorch_version",
+        "transformers_version",
+        "model_tree_manifest_sha256"
+      ],
+      "same_model_route_capability_lut_fields_must_match": [
+        "gpu_environment.gpu_uuid",
+        "gpu_environment.gpu_name",
+        "gpu_environment.driver_version",
+        "gpu_environment.cuda_version",
+        "gpu_environment.pytorch_version",
+        "transformers_version",
+        "model_tree_manifest_sha256"
+      ],
+      "compute_app_process_check": "before_and_after_measurement",
+      "foreign_gpu_processes_allowed": false,
+      "current_producer_pid_allowed": true,
+      "instant_gpu_utilization": "record_only_no_threshold",
+      "failure_verdict": "BLOCKED_GPU_ENVIRONMENT"
+    }
+  },
+  "source_tags": [
+    "measured_5090_cuda",
+    "measured_5090_host",
+    "measured_5090_h2d_not_rdma",
+    "derived_from_measured_lut",
+    "analytic_network",
+    "synthetic_delay"
+  ],
+  "joinblind_arms": [
+    "sender_fcfs",
+    "sender_edf",
+    "sender_srpt",
+    "sender_age_service_drr",
+    "sender_remaining_work",
+    "sync_token_order",
+    "receiver_qdepth",
+    "topology_projected_finish",
+    "receiver_contention_joinblind"
+  ],
+  "calibration_selected_baseline_alias": "calib_best_joinblind",
+  "information_and_deployment_arms": [
+    "info_S_oracle",
+    "info_B_oracle",
+    "info_R0_oracle",
+    "info_C_clairvoyant",
+    "ric_full_zero_delay",
+    "ric_compressed_zero_delay",
+    "ric_compressed_delayed",
+    "ric_wire_charged"
+  ],
+  "baseline_selection": {
+    "split": "calibration_only",
+    "metric": "mean_complete_trace_cvar99",
+    "exact_tie_break": "frozen_joinblind_arms_list_order",
+    "selection_uses_closure_budget_violation": false,
+    "sealed_reselection_allowed": false,
+    "candidate_must_not_be_significantly_worse_than_any_frozen_joinblind_arm": true,
+    "aggregate_receiver_baseline_information": "exact_current_zero_tax_baseline_favoring_B_oracle",
+    "aggregate_telemetry_deployment_claim": false
+  },
+    "closure_and_fairness": {
+        "closure_budget": "calibration_best_joinblind_pooled_p95_per_model_cell",
+        "decision_deadline_source": "arrival_plus_multiplier_times_route_lut_isolated_path",
+        "decision_deadline_multiplier": 2.0,
+        "isolated_path_definition": "max_sibling(expert_ready_offset+sender_pack+shared_cut+receiver_unpack)+once_per_join_canonical_combine_without_queue_outcome",
+        "starvation_threshold": "4*calibration_route_lut_median_isolated_path_per_model",
+        "starvation_multiplier": 4.0,
+        "deadline_budget_starvation_fields_must_be_distinct": true,
+        "starvation_fallback": "oldest_ready_task",
+        "same_semantics_calibration_and_sealed": true,
+        "sender_age_service_drr": {
+          "flow_key": "request_id",
+          "ring_order": "canonical_request_id_ascending",
+          "head_order": ["enqueue_us", "stable_full_task_id"],
+          "quantum_rule": "calibration_service_lut_per_contribution_sender_pack_us",
+          "quantum_carried_explicitly_in_replay_config": true,
+          "quantum_bound_to_service_fingerprint": true,
+          "inactive_flow_deficit_reset_us": 0.0,
+          "visit_rule": "add_quantum_then_require_deficit_ge_sender_pack_service",
+          "service_rule": "subtract_sender_pack_service_us",
+          "cursor_rule": "stay_only_if_same_flow_next_head_is_ready_and_affordable_else_advance"
+        },
+        "candidate_fairness_debt": {
+          "definition": "max_cumulative_sender_service_us_among_current_or_seen_flows_minus_flow_cumulative_sender_service_us",
+          "update_event": "sender_egress_completion",
+          "larger_value_has_priority": true,
+          "task_age_alias_forbidden": true
+        }
+    },
+    "contract": {
+        "header_bytes": 16,
+        "record_bytes": 16,
+        "alignment_bytes": 16,
+        "endianness": "little",
+        "header_struct": "<4sBBBBII",
+        "record_struct": "<QHHHBB",
+        "header_fields": [
+            "magic_RIC1",
+            "version_u8",
+            "sender_rank_u8",
+            "receiver_rank_u8",
+            "record_count_u8",
+            "epoch_u32",
+            "sequence_u32"
+        ],
+        "record_fields": [
+            "join_key_hash64_u64",
+            "layer_id_u16",
+            "missing_slot_mask_u16",
+            "identity_tag16_u16",
+            "slack_bucket_u8",
+            "flags_u8"
+        ],
+        "missing_count_definition": "popcount(missing_slot_mask)",
+        "missing_count_bucket_definition": "exact_popcount_no_coarsening",
+        "missing_count_bucket_domain": "1_to_model_top_k",
+        "last_sibling_definition": "missing_slot_mask_equals_one_shift_chosen_topk_slot",
+        "slack_bucket_definition": {
+          "remaining_fraction": "(decision_deadline_us-now_us)/(decision_deadline_us-arrival_us)",
+          "bucket_0": "r_le_0",
+          "bucket_1": "0_lt_r_le_0.25",
+          "bucket_2": "0.25_lt_r_le_0.50",
+          "bucket_3": "r_gt_0.50",
+          "elapsed_fraction_transition_events": [0.5, 0.75, 1.0],
+          "same_timestamp_order": "apply_transition_and_zero_delay_contract_before_sender_schedule"
+        },
+        "implicit_initial_sender_state": "full_model_top_k_mask_same_epoch_and_locally_computable_slack_bucket",
+        "emission_signature": ["exact_missing_count", "slack_bucket"],
+        "max_records_per_message": 255,
+        "record_count_tax_measurement_grid": "all_integers_1_to_255",
+        "record_count_tax_lookup": "exact_only_no_interpolation_or_extrapolation",
+        "host_tax_adjustment": "component_median_minus_same_record_count_empty_harness_median",
+        "nonpositive_adjusted_host_component_action": "BLOCKED_CONTROL_TAX_MEASUREMENT",
+        "end_to_end_apply_diagnostic_is_additive": false,
+        "collision_lookup_checks": [
+            "join_key_hash64",
+            "identity_tag16",
+            "layer_id",
+            "epoch"
+        ],
+    "record_on_priority_bucket_change_only": true,
+    "primary_delay_us": 5.0,
+    "delay_sensitivity_us": [0.0, 5.0, 20.0, 50.0],
+    "priority_lexicographic": [
+      "valid_last_sibling_credit",
+      "smaller_missing_count_bucket",
+      "smaller_slack_bucket",
+      "sender_local_fairness_debt",
+      "srpt",
+      "stable_full_task_id"
+    ],
+    "wire_path": [
+      "receiver_state_update",
+      "full_identity_hash",
+      "encode",
+      "wire_event",
+      "decode",
+      "collision_checked_lookup",
+      "epoch_sequence_apply",
+      "sender_cache",
+      "sender_local_policy_lookup"
+    ],
+    "sequence_scope": "per_receiver_to_sender_stream_keyed_by_sender_receiver_epoch",
+    "same_timestamp_microsteps": [
+      "resource_completions_and_task_releases_stable_id_order",
+      "atomic_receiver_state_update_and_once_only_combine_enqueue",
+      "slack_timer_transitions",
+      "coalesced_final_record_per_join_sender_for_this_timestamp",
+      "zero_delay_encode_decode_apply",
+      "sender_scheduling"
+    ],
+    "same_timestamp_receiver_update_coalescing": "one_final_state_record_per_join_sender_atomic_batch",
+    "charged_host_control_resources": {
+      "receiver_encode": "per_receiver_fcfs_state_build_hash_encode",
+      "sender_apply": "per_sender_fcfs_decode_lookup_apply_policy_lookup",
+      "transfer": "configured_delay_plus_measured_or_analytic_transfer_between_the_two_resources"
+    },
+    "policy_lookup_tax_semantics": "per_message_eager_N_record_priority_cache_refresh",
+    "per_sender_decision_ready_queue_scan_taxed": false,
+    "g3_interpretation": "charged_feedback_path_upper_bound_not_end_to_end_controller_deployability",
+    "fault_fallback_arm": "calib_best_joinblind",
+    "fault_tax_refunded": false,
+    "fault_fallback_scope": "affected_join_until_valid_resync_or_sender_receiver_epoch_when_identity_unavailable",
+    "bounded_comparison_arms_use_canonical_wire_identity_apply": true,
+    "allowed_flags": [0]
+  },
+  "statistics": {
+    "independent_unit": "complete_workload_trace_seed",
+    "request_token_contribution_iid_bootstrap_allowed": false,
+    "paired_across_arms": true,
+    "paired_binding_fields": [
+      "trace_id",
+      "workload_seed",
+      "task_fingerprint",
+      "service_fingerprint",
+      "resource_demand_fingerprint",
+      "score_mask_fingerprint",
+      "closure_count",
+      "closure_budget_us",
+      "contract_tax_surface_fingerprint"
+    ],
+    "bootstrap_scope": "complete_trace_cluster",
+    "cellwise_one_sided_confidence": 0.99375,
+    "primary_gate_multiplicity": "bonferroni_2_metrics_x_2_models_x_2_cells",
+    "familywise_alpha": 0.05,
+    "baseline_noninferiority": {
+      "scope": "candidate_vs_each_frozen_joinblind_baseline_per_model_main_cell",
+      "confidence": 0.9993055555555556,
+      "multiplicity": "bonferroni_2_metrics_x_2_models_x_2_cells_x_9_frozen_joinblind_arms",
+      "cvar_relative_increase_ucb_max": 0.0,
+      "violation_absolute_increase_ucb_max": 0.0,
+      "logical_operator": "AND_for_every_baseline"
+    },
+    "pooled_verdict_allowed": false,
+    "primary_metrics": [
+      "token_block_cvar99",
+      "closure_budget_violation_rate"
+    ],
+    "report_metrics": [
+      "p50",
+      "p95",
+      "p99",
+      "control_bytes_over_payload",
+      "stale_rate",
+      "fallback_rate",
+      "sender_ready_wait",
+      "starvation_count",
+      "full_drain_goodput",
+      "queue_utilization",
+      "action_flip_rate",
+      "action_collapse_matrix"
+    ]
+  },
+  "formal_artifact_compaction": {
+    "action_trace_csv_scope": "sender_egress_policy_decisions_only",
+    "full_four_stage_action_trace_required_in_acceptance_fixture": true,
+    "expected_completion_count": "3*num_contributions+num_joins",
+    "accounting_must_retain_completed_stage_count_and_resource_busy_time": true,
+    "accounting_must_retain_contract_header_record_alignment_and_produced_received_bytes": true,
+    "accounting_must_retain_score_and_resource_fingerprints": true,
+    "compaction_may_change_metrics_or_fingerprints": false
+  },
+  "go_no_go": {
+    "required_models": ["olmoe", "llmjp"],
+    "required_main_cells": ["poisson_rho60", "ctmc_mmpp_rho85"],
+    "all_model_cells_must_pass": true,
+    "primary_double_gate": {
+      "cvar99_relative_reduction_lcb_min": 0.05,
+      "violation_absolute_reduction_lcb_percentage_points_min": 3.0,
+      "logical_operator": "AND"
+    },
+    "g0": "identity_data_route_full_background_load_and_provenance",
+    "g1": "executable_reorder_early_release_and_canonical_exactness",
+    "g2": "matched_world_information_necessity_plus_full_load_zero_tax_double_gate",
+    "g3": {
+      "charged_candidate_must_pass_same_double_gate": true,
+      "retention_metric": "cvar99",
+      "charged_retention_lcb_min": 0.5,
+      "control_bytes_over_payload_max": 0.02,
+      "control_bytes_over_payload_cell_aggregation": "maximum_complete_trace_ratio",
+      "staleness_20us_cvar_improvement_lcb_min": 0.0,
+      "staleness_20us_violation_improvement_lcb_min": 0.0,
+      "all_delay_sensitivities_must_be_reported": [0.0, 5.0, 20.0, 50.0],
+      "link_sensitivity_cvar_improvement_lcb_min": 0.0,
+      "link_sensitivity_violation_improvement_lcb_min": 0.0,
+      "link_sensitivity_uses_primary_calibration_baseline_and_budget": true,
+      "link_sensitivity_scales_data_and_contract_analytic_transfer": true,
+      "full_drain_required": true,
+      "canonical_equality_required": true
+    },
+  "pass_verdict": "GO_TO_IMPLEMENT_CONTROLLER_PROTOTYPE",
+    "g1_scientific_fail_verdict": "NO_GO_CURRENT_ACTUATOR",
+  "g2_scientific_fail_verdict": "NO_GO_RECEIVER_INFORMATION_VALUE_FOR_RIC_V1_ACTUATOR_POLICY",
+    "g3_scientific_fail_verdict": "INFORMATION_VALUE_ONLY_NO_GO_RIC_V1_DEPLOYMENT",
+    "invalid_artifact_verdict_prefix": "BLOCKED"
+  },
+  "formal_state_machine": [
+    "PROTOCOL_FROZEN",
+    "PHASE3_CODE_COMPLETE",
+    "PHASE4_SIGNED_OFF_P0_EQ_0",
+    "CALIBRATION_CAPABILITY",
+    "CALIBRATION_LOCKED",
+    "SEALED_ONE_SHOT_CONSUMED",
+    "G2_INFORMATION_DECISION",
+    "G3_CHARGED_DECISION_IF_G2_PASS",
+    "FINAL_DECISION"
+  ],
+  "forbidden_rescue_actions": [
+    "change_score_or_tiebreak_after_sealed",
+    "remove_strong_baseline",
+    "lower_5pct_3pp_50pct_gates",
+    "report_only_pooled_or_best_seed_or_single_model_cell",
+    "add_precision_codec_reroute_replica_drop_bandit_predictor",
+    "replace_causal_candidate_with_clairvoyant_or_free_global_control"
+  ],
+  "required_formal_artifacts": [
+    "protocol.json",
+    "environment.json",
+    "source_manifest.json",
+    "data_manifest_calibration.json",
+    "data_manifest_sealed.json",
+    "historical_exclusion_registry.json",
+    "placement.json",
+    "route_trace.jsonl",
+    "route_parity.json",
+    "capability_probe.json",
+    "capability_raw.csv",
+    "service_lut.csv",
+    "service_lut_raw.csv",
+    "scenario_tree.json",
+    "milp_instances.jsonl",
+    "milp_solutions.jsonl",
+    "task_trace.jsonl",
+    "contract_wire_trace.bin",
+    "action_trace.csv",
+    "accounting.csv",
+    "per_trace_metrics.csv",
+    "paired_bootstrap.json",
+    "gate_matrix.json",
+    "decision.json",
+    "status.json",
+    "sealed_consumption_record.json",
+    "report.md"
+  ]
+}

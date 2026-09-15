@@ -1,0 +1,105 @@
+{
+  "action_space": {
+    "arm_order_seed": "stablebatch-c8-action-transfer-v1|20260810",
+    "c8_candidate": "one_fixed_C8_at_candidate_rank_plus_seven_M64",
+    "c8_context": {
+      "focal_slot": 5,
+      "kind": "zero",
+      "name": "zero_pad_slot5",
+      "segment": null
+    },
+    "c8_sidecall_repeats": 3,
+    "candidate_ranks": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "canonical_m": 8,
+    "confirm_same_rank_repeat": true,
+    "m1": 1,
+    "m1_same_rank": "one_M1_at_frozen_M1_rank_plus_seven_M64",
+    "m64": 64,
+    "nonprotected_ranks_must_be_M64_not_native": true,
+    "reference": "all_8_contributions_M1",
+    "reference_is_self_supervised_proxy_not_ground_truth": true,
+    "replace_all_target_token_topk_raw_outputs_before_gate_weight": true,
+    "unprotected": "all_8_contributions_M64"
+  },
+  "cohort": {
+    "expected_documents": 8,
+    "expected_raw_positive_rank_actions": 139,
+    "expected_unique_cells": 33,
+    "path": "docs/ideas/stablebatch/experiments/configs/C8_ACTION_TRANSFER_COHORT_V1.json",
+    "primary_unit": "one_unique_victim_layer_cell",
+    "selection_rule": "M1 route recovered descending, route harmed ascending, rank ascending; no C8 outcome",
+    "sha256": "369106423a66236c35efebf4f1c1ad92d9c153fb732093abb77ae53b119fdfd3"
+  },
+  "evaluation_type": "self_supervised_proxy_m1_positive_cohort_c8_action_transfer",
+  "frozen_at": "2026-08-10T19:58:00+08:00",
+  "hypothesis": "On the frozen M1-positive unique-cell cohort, replacing the frozen M1-protected rank with one zero-padded fixed-C8 contribution inside the same seven-M64 background retains route recovery, and the retained value is greater at the frozen M1 rank than under an exact uniform C8 rank.",
+  "implementation": {
+    "base_runner": "docs/ideas/stablebatch/experiments/run_single_contribution_pilot.py",
+    "cohort_builder": "docs/ideas/stablebatch/experiments/build_c8_action_transfer_cohort.py",
+    "frozen_lock": "docs/ideas/stablebatch/experiments/configs/FROZEN_C8_ACTION_TRANSFER_LOCK_V1.json",
+    "observable_runner": "docs/ideas/stablebatch/experiments/run_observable_selector_pilot.py",
+    "oracle_runner": "docs/ideas/stablebatch/experiments/run_oracle_action_sweep.py",
+    "recompute": "docs/ideas/stablebatch/experiments/recompute_c8_action_transfer.py",
+    "runner": "docs/ideas/stablebatch/experiments/run_c8_action_transfer.py",
+    "shape_lane_runner": "docs/ideas/stablebatch/experiments/run_shape_lane_correctness_pilot.py",
+    "test": "docs/ideas/stablebatch/experiments/test_c8_action_transfer.py"
+  },
+  "metrics": {
+    "final_logit_mismatch_unit": "bitwise_element_difference_from_all_M1_reference",
+    "primary": [
+      "c8_transfer_ratio",
+      "rank_specificity_gap",
+      "c8_oracle_gap"
+    ],
+    "required_aggregations": [
+      "action_level",
+      "unique_cell_level",
+      "per_document",
+      "leave_one_document_out"
+    ],
+    "route_mismatch_unit": "downstream_layer_where_topk_membership_set_differs_from_all_M1_reference"
+  },
+  "oracle": {
+    "assignment_ledger": {
+      "path": "docs/ideas/stablebatch/experiments/outputs/observable_selector_20260810_run01/assignment_ledger.json",
+      "sha256": "075133bdbf4986562a7c164b450bd57c556999e691d5937a7d5c7e788424a843"
+    },
+    "cell_results": {
+      "path": "docs/ideas/stablebatch/experiments/outputs/oracle_action_sweep_20260810_run01/cell_results.jsonl",
+      "sha256": "2ab83c452ec41b0e949bb13c0bdf4f599e9d3e0d201e86f800c6dbbd72981654"
+    },
+    "config": {
+      "path": "docs/ideas/stablebatch/experiments/configs/oracle_action_sweep_v1.json",
+      "sha256": "2c0110d17fb8f0c8cf6e09a587fd9b8ce2eb4664ce3cda57edb8e6979b7a400a"
+    },
+    "frozen_lock": {
+      "path": "docs/ideas/stablebatch/experiments/configs/FROZEN_ORACLE_ACTION_SWEEP_LOCK_V1.json",
+      "sha256": "472209031b90d6b0419b71a6d226dd7af6a4a14b212f935c6353657baa5d02c3"
+    },
+    "summary": {
+      "path": "docs/ideas/stablebatch/experiments/outputs/oracle_action_sweep_20260810_run01/summary.json",
+      "sha256": "fde35cfb609e07ae2d9439a0227fd30e97807e05df4456fe7c300e4f12f6bd80"
+    }
+  },
+  "research_boundary": "one_olmoe_revision_single_rtx5090_bf16_eager_33_m1_positive_unique_cells_8_documents_same_cell_prompt_forward_zero_pad_slot5_fixed_c8_not_unbiased_prevalence_not_quality_not_serving_not_online_selector",
+  "schema_version": "stablebatch-c8-action-transfer-v1",
+  "scope_of_failure": "A negative result kills fixed-C8 zero-pad-slot5 as the single-contribution implementation of the M1 oracle action on this M1-positive cohort. It does not kill the frozen M1 action space, M1-like precision or state isolation, WitnessPatch, or global fixed-shape execution as a cost-only mechanism.",
+  "source_config": {
+    "path": "docs/ideas/stablebatch/experiments/configs/observable_selector_pilot_v1.json",
+    "sha256": "ad66441d7b0bb542f00de36d090b4a3e69c7fc6f31194b9bdbb1ff9e14c5ed65"
+  },
+  "status": "FROZEN_PRE_RUN",
+  "thresholds": {
+    "go_transfer_ratio": 0.7,
+    "low_transfer_ratio": 0.3
+  }
+}

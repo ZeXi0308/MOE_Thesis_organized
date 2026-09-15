@@ -1,0 +1,47 @@
+{
+  "question": "Did the model warn against selecting eager solely for fewer calls?",
+  "sources": [
+    "refine-logs/expert_saturation/outputs/admission_capacity/20260915_repeated_kv_service_r01/start_timing_screen/analysis.json",
+    "refine-logs/expert_saturation/outputs/admission_capacity/20260915_saved_recovery_start_r01/execution_weste_26862/analysis.json"
+  ],
+  "evidence": "CROSS_REFERENCE_OF_EXISTING_MODEL_AND_OWNER_ANALYSIS",
+  "model": {
+    "total_calls": {
+      "current": 1312,
+      "eager": 1270
+    },
+    "mean_completion_step": {
+      "current": 1167.125,
+      "eager": 1177.15625
+    },
+    "load_jobs": {
+      "current": 43,
+      "eager": 89
+    }
+  },
+  "measured_pairs": [
+    {
+      "block": 0,
+      "eager_relative_to_current_percent": {
+        "mean_completion_s": 2.041671803816425,
+        "output_token_rate_s": -0.5020857601905404,
+        "max_engine_return_gap_s": -9.797507552383722
+      }
+    },
+    {
+      "block": 1,
+      "eager_relative_to_current_percent": {
+        "mean_completion_s": 1.4103928359933349,
+        "output_token_rate_s": 0.12436354107381309,
+        "max_engine_return_gap_s": -10.413289729235743
+      }
+    }
+  ],
+  "completion_cost_warning_supported": true,
+  "limits": [
+    "Directional decision warning, not a calibrated second-level prediction.",
+    "Model suffix gap and full-episode measured gap have different windows; no error ratio computed.",
+    "No new runs, independent samples, significance test, or causal transfer-cost decomposition.",
+    "Fewer calls alone cannot select the policy; required pause/efficiency tradeoff remains primary-owner decision."
+  ]
+}

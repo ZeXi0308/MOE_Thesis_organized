@@ -1,0 +1,288 @@
+{
+  "schema_version": 1,
+  "study_question": "固定GPU资源与明确host预算下，怎样安排恢复和后续执行，降低生成长停顿，同时控制完整服务效率损失？",
+  "group_id": "20260915_natural_cadence_holdout_r01",
+  "status": "INCOMPLETE_ARCHIVED_ANALYZED_AND_RELEASED",
+  "source_head": "de64dae5ea4fa3c92ec605e9847e817d8e68f3ac",
+  "source_state": "shared dirty workspace; accepted payload hashes identify executed code",
+  "execution_owner": "/root/prepare_start_contrast; sole foreground execution, archive and primary analysis",
+  "root_research_owner": "long-task root / 01a09ba8-3b21-7853-89fd-83c41e309c07",
+  "collaboration_roles": {
+    "root": "own objective, accepted baseline, representative domains, GPU order and paper claims; integrate evidence and decide stop/continue",
+    "prepare_start_contrast": "own reusable recovery execution/measurement and one accepted group at a time; unique raw/archive/main analysis; autonomous bounded CPU preparation",
+    "recovery_gap_decision": "own visible-state resource/cost predictions and real action-value verification; stop predictors covered by simple rules; may reject root hypotheses",
+    "ltr_integrity": "own direct prior-art/official-runtime baseline coverage and precise claim boundaries; no repeated general literature audit"
+  },
+  "question": "独立128完整文章和较长有限到达episode中，selected/eager相对current能否在预声明服务代价预算内继续降低最大生成停顿？",
+  "accepted_execution_archive_sha256": "f6bd54bacf78dd8b351fadf80dcd67ef7abbb4583f57d9db2704711742c3ff58",
+  "payload_manifest": "outputs/admission_capacity/20260915_natural_cadence_holdout_r01/manifest.json",
+  "execution_contract": "outputs/admission_capacity/20260915_natural_cadence_holdout_r01/README.md",
+  "accepted_payload_count": 34,
+  "accepted_order": [
+    "block0-native_full_native",
+    "block0-current",
+    "block0-eager",
+    "block1-eager",
+    "block1-current",
+    "block1-native_full_native"
+  ],
+  "diagnostic_cells": [],
+  "primary_cells": [
+    "block0-native_full_native",
+    "block0-current",
+    "block0-eager",
+    "block1-eager",
+    "block1-current",
+    "block1-native_full_native"
+  ],
+  "only_treatment_in_primary_cadence_pair": "selected/current20 vs selected/eager0; only global cooldown differs",
+  "system_reference": "native_full_native skips rotation installation, retains full native offload; separate system contrast, not cooldown attribution",
+  "common_policy": {
+    "model_semantics": "same dtype/seed/EOS allowance/output cap; no equal-output claim",
+    "running_cap": 32,
+    "token_budget": 1024,
+    "apc": false,
+    "native_offload_flag": 0,
+    "full_initial_history_reservation": true,
+    "current_eager_shared": {
+      "save_scope": "selected",
+      "victim": "most_output",
+      "target": "longest_absence",
+      "min_absence_steps": 30,
+      "min_residency_steps": 30,
+      "protection": "first actual new output or terminal",
+      "commit_recheck": false
+    }
+  },
+  "resources": {
+    "host": "connect.weste.seetacloud.com:26862",
+    "gpu_uuid": "GPU-4015b79d-bed6-3a4b-9d2b-0c17be96d0e5",
+    "gpu_count_used": 1,
+    "gpu_kv_bytes": 8592031744,
+    "usable_gpu_blocks": 4096,
+    "block_tokens": 16,
+    "host_kv_bytes_configured_and_observed": 17179869184,
+    "host_kv_blocks": 8192,
+    "parent_cgroup_memory_max_bytes": 197568495616,
+    "parent_swap_max_bytes": 0,
+    "process_tree_hard_memory_limit": null,
+    "isolation": "whole-group flock; both GPUs checked empty at boundaries; second GPU unused"
+  },
+  "workload": {
+    "model": "allenai/OLMoE-1B-7B-0924",
+    "revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "runtime": "vLLM 0.26.0 / PyTorch 2.11.0+cu130 / Transformers 5.15.1",
+    "requests_per_cell": 128,
+    "prompt_tokens": "unaltered complete new articles,460–3064; total247295",
+    "forced_output_tokens": null,
+    "arrival_spacing_s": 0.2,
+    "domain": "independent document input and longer finite arrival episode",
+    "declared_output_cap": 1024,
+    "eos_allowed": true,
+    "arrival_span_s": 25.4,
+    "input_workload_sha256": "dd8ac6566059c655e7311ac3b4a706c12d0e9d32233d7be7cedde7422d975b56",
+    "excluded_prior_train_articles": 224,
+    "input_rule": "First128 eligible unused source-ordered complete articles under existing256–3072token bounds; no outcome reselection"
+  },
+  "evaluation": {
+    "objective": "maximum and per-request engine-return generation gaps",
+    "necessary_costs": [
+      "throughput in requests and actual output tokens",
+      "mean completion",
+      "TTFT",
+      "actual EOS/length and total output quantities",
+      "actual host allocation/occupancy/HWM",
+      "post-request native drain"
+    ],
+    "performance_comparison": true,
+    "comparison_contract": "retain both eager/current pairs and both native reference comparisons in each block; native reference is a system contrast",
+    "measurement": "six identical lightweight sparse-preemption cells; all path qualification reused from G",
+    "cost_boundary": "arrival through last completion; non-overlapping drain separately and capture+drain view; init/warmups outside",
+    "no_posthoc_slo_or_better_repeat_selection": true,
+    "research_cost_budget_vs_current": {
+      "output_tokens_per_second_min_ratio": 0.97,
+      "mean_completion_max_ratio": 1.05
+    },
+    "transfer_rule": "Both paired blocks meet both cost budgets and lower maximum gap; mixed outcomes remain unconfirmed. Not SLO/noise/significance bounds."
+  },
+  "budget": {
+    "maximum_cells": 6,
+    "maximum_measured_requests": 768,
+    "max_capture_seconds_per_cell": 180,
+    "warmup_requests_per_cell": 66
+  },
+  "qualification_stop": "G native saved-recovery qualification reused; H source/resources/lifecycle checks mandatory; incomplete cells stop remainder and preserve raw; no H action is a valid outcome.",
+  "stop_conditions": [
+    "Physical occupancy query fails or another GPU process/lock owner: abort without interfering",
+    "Incomplete cell: preserve raw and remaining UNRUN; no invalid performance ranking or automatic extra repeat"
+  ],
+  "model_prediction": {
+    "source": "outputs/admission_capacity/20260915_joint_growth_decision_r01/H_PREDICTION_PREDECLARED.md",
+    "test": "eager max-gap advantage persists for requests with scheduled arrival>=12.8s in both paired blocks",
+    "boundary": "secondary predeclared analysis; cannot substitute for all-request objective or establish host-cache turnover"
+  },
+  "previous_group": {
+    "group_id": "20260915_natural_recovery_cadence_r01",
+    "result": "outputs/admission_capacity/20260915_natural_recovery_cadence_r01/RESULTS.md",
+    "archive": "outputs/admission_capacity/20260915_natural_recovery_cadence_r01/EXPERIMENT_COMPLETED.json"
+  },
+  "accepted_unix_s": 1789419842.192944,
+  "execution": {
+    "status": "INCOMPLETE_ARCHIVED_ANALYZED_AND_RELEASED",
+    "owner": "/root/prepare_start_contrast",
+    "remote_dir": "/root/autodl-tmp/natural-cadence-holdout-20260915-r01",
+    "controller_pid": 28488,
+    "shell_pid": 28489,
+    "foreground_session": 28614,
+    "started_unix_s": 1789420002.6458929,
+    "started_utc": "2026-09-14T21:06:42.645893+00:00",
+    "archive_sha256": "f6bd54bacf78dd8b351fadf80dcd67ef7abbb4583f57d9db2704711742c3ff58",
+    "prelaunch": "Both GPUs empty, common flock available,34payload and installedsources verified before launch; group has since stopped and released",
+    "artifact_dir": "refine-logs/expert_saturation/outputs/admission_capacity/20260915_natural_cadence_holdout_r01/execution_weste_26862",
+    "group_status": {
+      "status": "STOPPED",
+      "pid": 28488,
+      "started": 1789420002.6458929,
+      "shell_pid": 28489,
+      "returncode": 1,
+      "cells": {
+        "block0-native_full_native": {
+          "status": "INCOMPLETE",
+          "error": "RuntimeError: actual KV pool/storage or initial-history reservation differs from fixed budget"
+        },
+        "block0-current": {
+          "status": "UNRUN"
+        },
+        "block0-eager": {
+          "status": "UNRUN"
+        },
+        "block1-eager": {
+          "status": "UNRUN"
+        },
+        "block1-current": {
+          "status": "UNRUN"
+        },
+        "block1-native_full_native": {
+          "status": "UNRUN"
+        }
+      },
+      "finished": 1789420032.9479415
+    },
+    "measured_requests": 0,
+    "application_warmup_requests": 0,
+    "stop_cause": "Inherited safe_static request-count64 guard rejects accepted128; actual GPU/host resource fields match",
+    "archive": {
+      "status": "ARCHIVED_AND_RELEASED",
+      "remote_archive": "/root/autodl-tmp/natural-cadence-holdout-20260915-r01.readback.tar.gz",
+      "sha256": "e76af1d1d2422ea98c1b3c4b52dfa0fd4804a099483bf77f95f392d084c21824",
+      "bytes": 3592960,
+      "files_including_inventory": 67,
+      "release_unix_s": 1789420128.4709442,
+      "release_utc": "2026-09-14T21:08:48.470944+00:00",
+      "controller_and_shell_gone": true,
+      "compute_processes": "",
+      "lock_released": true
+    },
+    "readback_verification": {
+      "status": "COMPLETE_ARCHIVE_READBACK_VERIFIED",
+      "verified_unix_s": 1789420164.428948,
+      "archive_sha256": "e76af1d1d2422ea98c1b3c4b52dfa0fd4804a099483bf77f95f392d084c21824",
+      "archive_bytes": 3592960,
+      "all_files": 67,
+      "accepted_payload_count": 34
+    },
+    "analysis": {
+      "path": "refine-logs/expert_saturation/outputs/admission_capacity/20260915_natural_cadence_holdout_r01/execution_weste_26862/analysis.json",
+      "sha256": "329a5f09ea699057dbbbc780c55c711829613abb2278ad3e323edf51ce52ba9d",
+      "transfer_budget_status": "NOT_ASSESSABLE"
+    },
+    "report": {
+      "path": "refine-logs/expert_saturation/outputs/admission_capacity/20260915_natural_cadence_holdout_r01/RESULTS.md",
+      "sha256": "d6886b502087cbe3df8009e929aa8722cf082f6edd46ae1c079399bb74e5fef9"
+    },
+    "write_ownership": "returned to root; preparing separate r02 only"
+  },
+  "delegation": {
+    "sole_executor": "/root/prepare_start_contrast",
+    "scope": "stage exact accepted archive; check actual hardware/flock; foreground serial group; unique archive/readback/release and main analysis",
+    "no_root_duplicate_execution_or_reanalysis": true,
+    "allowed_current_writes": "execution/status/analysis completion only; do not revise accepted identity midflight"
+  },
+  "root_research_decision": {
+    "status": "PENDING_H_RESULTS; goal remains open",
+    "single_question": "独立128完整文章和较长有限到达episode中，selected/eager相对current能否在预声明服务代价预算内继续降低最大生成停顿？",
+    "accepted_baseline": "G selected/eager pause-priority reference; current and native full retain other objective advantages",
+    "paper_boundary": "Input transfer does not establish a novel method, host-cache turnover, recovery-time EOS, quality or production SLO; calibrated compatible LTR-style comparison remains missing",
+    "next_group": null
+  },
+  "inherited_research_decision": {
+    "status": "MEASUREMENT_ONLY; iteration closed, research goal still open",
+    "accepted_result": "outputs/admission_capacity/20260915_natural_recovery_cadence_r01/RESULTS.md",
+    "pause_priority_baseline": "selected saving + eager/global cooldown0 in the measured natural domain",
+    "retained_references": [
+      "selected/current20",
+      "native_full without custom rotation",
+      "F native_full with current rotation, original group only"
+    ],
+    "evidence_change": "eager/current max gaps down63.43%/53.12%; output rate +1.066%/-0.706%; mean completion -1.473%/+1.443%; every paired request has the same output length, not necessarily the same output content",
+    "necessary_tradeoffs": "gap worsened for37/36 of64 requests; native reference has lower median/p90 and some completion/TTFT advantages; no distribution-wide dominance",
+    "model_verdict": "action-opportunity prediction supported; internal start timing and peer-versus-load cause not identified",
+    "stop_design": [
+      "third cooldown value",
+      "expanded protection window",
+      "joint-growth predictor",
+      "new cadence controller"
+    ],
+    "remaining_decision": "Does the simple eager tradeoff transfer to unseen inputs over a longer arrival episode at the same host budget, when host KV histories turn over?",
+    "next_smallest_experiment": {
+      "status": "CPU_PREPARATION_INPUT_PROVENANCE_PENDING_GPU_UNRUN",
+      "purpose": "independent input and longer-arrival validation; no new mechanism or pressure tuning",
+      "inputs": "128 source-ordered complete natural articles excluding all documents already used; provenance must be recovered before packaging",
+      "arrival_gap_s": 0.2,
+      "declared_output_cap": 1024,
+      "eos_allowed": true,
+      "gpu_usable_blocks": 4096,
+      "host_kv_bytes": 17179869184,
+      "arms": [
+        "native_full_native",
+        "selected/current20",
+        "selected/eager0"
+      ],
+      "order": "native/current/eager/eager/current/native; same qualification and measurement contracts reused where applicable",
+      "maximum_timing_cells": 6,
+      "maximum_measured_requests": 768,
+      "selection_rule": "source-order eligibility only; retain no-action/no-EOS outcomes, no resampling to force an effect",
+      "claim_boundary": "independent inputs and longer finite arrival episode; neither steady-state service, recovery-time EOS qualification nor observed host-history turnover is guaranteed",
+      "predeclared_transfer_evaluation": {
+        "primary": "maximum engine-return generation gap; keep all per-request distributions",
+        "research_cost_budget_vs_current": {
+          "output_tokens_per_second_min_ratio": 0.97,
+          "mean_completion_max_ratio": 1.05
+        },
+        "acceptance": "both independently executed paired blocks meet both cost bounds and have lower max gap; mixed outcomes are not confirmed transfer",
+        "rationale": "development G motivates a modest allowed efficiency cost for tail-pause reduction; these are research cost budgets, not noise bounds or a business SLO",
+        "native_reference": "retain complete system tradeoff, actual output differences and all harmed requests; no all-baseline dominance from current-only comparison",
+        "null_action": "retain no-action outcome; no workload reselection or extra pressure to force a result"
+      },
+      "model_prediction": {
+        "source": "outputs/admission_capacity/20260915_joint_growth_decision_r01/H_PREDICTION_PREDECLARED.md",
+        "test": "eager max-gap advantage persists for requests with scheduled arrival>=12.8s in both paired blocks",
+        "boundary": "secondary predeclared analysis; cannot substitute for all-request objective or establish host-cache turnover"
+      }
+    },
+    "unverified": [
+      "recovery-time natural EOS",
+      "task quality",
+      "independent input/longer-arrival transfer",
+      "process-tree independent host hard limit",
+      "general or novel method contribution",
+      "production SLO or performance Oracle"
+    ],
+    "new_cpu_evidence_reused": {
+      "source": "outputs/admission_capacity/20260915_recovery_execution_share_r01/REPORT.md#新诊断及同前态分支",
+      "finding": "G two cold recoveries admit one fewer target compute call at 15/35 delayed peer output opportunities; native-method CPU branches only, no wall-time gain",
+      "decision": "retain default-off component; do not add to independent-input cadence comparison or infer full-service value from calls"
+    },
+    "paper_residual": "Independent-input cadence replication remains baseline characterization. A calibrated, frozen LTR-style action-level comparison under compatible saving and the same resource/objective budget is still missing; no precondition that an existing algorithm must have a bug or all metrics must improve. Existing LTR adapter is connector-incompatible and uses a different whole-batch/multi-victim action space; only its causal counters directly transfer. Prior d6 data are not a saved-recovery nearest-neighbor comparison."
+  }
+}

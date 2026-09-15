@@ -1,30 +1,18 @@
-# 毕设论文资料 · 文档入口
+# 文档导航
 
-> 只保留活/条件 idea 与必要证据；重复副本已删。设计说明与原文在各 idea 目录内。
-
-## 先读
-
-| # | 文档 |
-|---|---|
-| 0 | [全部 Idea 设计总览](ideas/全部Idea设计总览.md) |
-| 1 | [研究现状与 Idea 演进](01_current_status/研究现状与Idea演进_2026-07-21.md) |
-| 2 | [Receiver Codec 硬门槛](01_current_status/Receiver_Codec硬门槛测量结论_2026-07-21.md) |
-| 3 | [Next-direction](04_research_plans/research_report_moe_next_direction_2026-07-21.md) |
-| 4 | [脚本索引](../experiments/SCRIPTS_BY_IDEA.md) |
-| — | [判死归档](99_archive/killed_ideas/思路总览.md) |
-
-禁止再引用 **3.77×**（`errata/`）。备份：https://github.com/ZeXi0308/MOE_Thesis.git
-
-## 结构
-
+```text
+docs/
+├── current/          当前唯一权威状态
+├── ideas/            按研究方向归档文档、代码和结果
+├── meetings/         会议与汇报记录
+└── archive/          已停止方向和非活动候选
 ```
-docs/ideas/<idea>/     设计说明.md · 原文/ · experiments/ · outputs/
-docs/01_current_status/  演进总览 · codec
-docs/02_gpu_audits/      GPU 汇编（唯一副本）
-docs/04_research_plans/  next_direction
-docs/06_meetings_notes/  会议
-docs/07_literature/      文献
-docs/99_archive/killed_ideas/<idea>/
-  设计说明.md · 思路与判死.md · scripts/ · run_conclusions/
-experiments/shared/
-```
+
+## 阅读顺序
+
+1. [当前研究状态](current/README.md)
+2. [Idea 状态索引](ideas/README.md)
+3. 进入对应 idea 目录阅读 `README.md`、设计文档、`experiments/` 和 `outputs/`
+4. 需要追溯旧裁决或负结果时再看[归档](archive/README.md)
+
+正式/机器可读 decision 的优先级高于叙述性文档。禁止再引用已勘误的 **3.77× / 94× additive-KL** 叙事；见[判死结论勘误](archive/killed_ideas/errata/判死结论勘误_2026-07-21.md)。

@@ -1,0 +1,91 @@
+{
+  "action_space": {
+    "action_budget_per_cell": 1,
+    "arm_order_seed": "stablebatch-oracle-action-sweep-v1|20260810",
+    "candidate_action": "exactly_one_rank_M1_plus_seven_ranks_M64",
+    "candidate_ranks": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "confirm_selected_positive_oracle_action": true,
+    "full_forward_input_shape_changes": false,
+    "full_forward_repeats_per_candidate": 1,
+    "oracle_may_abstain": true,
+    "oracle_tie_break": "lowest_topk_rank",
+    "reference": "all_8_contributions_M1",
+    "reference_is_self_supervised_proxy_not_ground_truth": true,
+    "replace_all_target_token_topk_raw_outputs_before_gate_weight": true,
+    "sidecall_schedule": "reuse_each_cells_preoutcome_frozen_M1_M64_schedule_from_source_assignment_ledger",
+    "unprotected": "all_8_contributions_M64"
+  },
+  "budget_curve": {
+    "budgets_in_protected_cells": [
+      1,
+      4,
+      8,
+      16,
+      32,
+      60,
+      120,
+      240
+    ],
+    "selection": "sort_positive_best_cell_actions_by_reward_desc_then_cell_key",
+    "unit": "one_protected_contribution_in_one_victim_layer_cell"
+  },
+  "comparisons": {
+    "abstaining_oracle": "max_of_no_intervention_and_best_rank_per_cell",
+    "budget_matched_conditional_random": "on_the_exact_cells_selected_by_oracle_choose_one_rank_uniformly_per_cell",
+    "budget_matched_global_random": "for_oracle_actions_used_B_select_B_distinct_cells_uniformly_then_one_rank_uniformly_per_selected_cell",
+    "forced_oracle": "best_rank_per_cell_even_when_all_rewards_nonpositive",
+    "frozen_shuffle": "reuse_preoutcome_balanced_hash_rank_from_source_ledger",
+    "maxgate_v1": "rank_0_closure_only",
+    "no_intervention_reward": 0,
+    "uniform_random_one_action_per_cell": "exact_expected_reward_of_uniform_rank_in_each_of_all_240_cells"
+  },
+  "evaluation_type": "retrospective_oracle_upper_bound_same_cell_causal_action_sweep",
+  "frozen_at": "2026-08-10T17:45:00+08:00",
+  "hypothesis": "With hindsight knowledge of downstream outcomes, one protected M1 contribution inside the same seven-M64 background can recover materially more route agreement than no intervention or a uniform-random protected rank.",
+  "implementation": {
+    "base_runner": "docs/ideas/stablebatch/experiments/run_single_contribution_pilot.py",
+    "frozen_lock": "docs/ideas/stablebatch/experiments/configs/FROZEN_ORACLE_ACTION_SWEEP_LOCK_V1.json",
+    "observable_runner": "docs/ideas/stablebatch/experiments/run_observable_selector_pilot.py",
+    "runner": "docs/ideas/stablebatch/experiments/run_oracle_action_sweep.py",
+    "test": "docs/ideas/stablebatch/experiments/test_oracle_action_sweep.py"
+  },
+  "research_boundary": "single_rtx5090_one_olmoe_revision_16_documents_240_cells_prompt_forward_same_cell_oracle_not_online_selector_not_serving_not_ep_not_prevalence",
+  "schema_version": "stablebatch-oracle-action-sweep-v1",
+  "scope_of_failure": "A negative result weakens only the single-protected-contribution M1-inside-M64 action space on these same-cell prompt-forward surfaces. It does not reject shape canonicalization, multi-action protection, pack surgery, route-aware batching, stable kernels, or selective stabilization in general.",
+  "signal": {
+    "negative_if": "abstaining_oracle_has_zero_or_negligible_positive_reward_or_positive_actions_do_not_span_multiple_victims",
+    "strong_if": {
+      "min_abstaining_oracle_advantage_over_each_budget_matched_random_expected_reward": 8.0,
+      "min_abstaining_oracle_recovery_fraction": 0.25,
+      "min_distinct_victims_with_positive_oracle_reward": 4
+    },
+    "weak_if": "oracle_is_above_random_but_below_one_or_more_strong_signal_thresholds"
+  },
+  "source": {
+    "assignment_ledger": "docs/ideas/stablebatch/experiments/outputs/observable_selector_20260810_run01/assignment_ledger.json",
+    "assignment_ledger_sha256": "075133bdbf4986562a7c164b450bd57c556999e691d5937a7d5c7e788424a843",
+    "config": "docs/ideas/stablebatch/experiments/configs/observable_selector_pilot_v1.json",
+    "config_sha256": "ad66441d7b0bb542f00de36d090b4a3e69c7fc6f31194b9bdbb1ff9e14c5ed65",
+    "expected_closure": {
+      "cell_count": 240,
+      "frozen_shuffle_total_reward": 3,
+      "independent_documents": 16,
+      "maxgate_rank": 0,
+      "maxgate_total_reward": -3
+    },
+    "observable_cells": "docs/ideas/stablebatch/experiments/outputs/observable_selector_20260810_run01/observable_cells.jsonl",
+    "observable_cells_sha256": "9095343e2793d2c19c2116c2e426b2fab97e31a7eb2e4c8b217129eed31314c2",
+    "summary": "docs/ideas/stablebatch/experiments/outputs/observable_selector_20260810_run01/summary.json",
+    "summary_sha256": "700a4bc41932881f440a79bf5143932a4570107e8f86ce9e932bdaab979b6c76"
+  },
+  "status": "FROZEN_PRE_RUN"
+}

@@ -1,0 +1,51 @@
+{
+  "audit_skill": "experiment-audit",
+  "verdict": "PASS",
+  "review_independence": "same-family",
+  "acceptance_status": "provisional",
+  "reviewer_model": "gpt-5.6-sol",
+  "reviewer_reasoning": "ultra",
+  "agent_id": "/root/selective_fidelity_audit",
+  "generated_at": "2026-09-14T03:12:18.955921+00:00",
+  "checks": {
+    "gt_provenance": {
+      "status": "pass",
+      "details": "Actual native GPU KV snapshot at call328 versus first completed target load; paired state invariant, not quality GT. pkg/selective_kv_roundtrip_check.py:44-58."
+    },
+    "score_normalization": {
+      "status": "pass",
+      "details": "Raw BF16 bytes in logical block/token order. 3296*16*256*2=27000832 per layer, 16 layers=432013312. pkg/recovery_kv_fingerprint.py:9-33."
+    },
+    "result_existence": {
+      "status": "pass",
+      "details": "Independent analyzer reproduction equals analysis.json. First target load115; later116 excluded. No target compute329-331; first resumed step332 starts3296. analysis.json:2-13; offload-events.json:5382-5414."
+    },
+    "dead_code": {
+      "status": "pass",
+      "details": "Hooks installed before measured capture; recorded1867 calls. pkg/run_probe.py:170-183; pkg/selective_kv_roundtrip_check.py:36-67."
+    },
+    "scope": {
+      "status": "pass",
+      "details": "Only first saved full-block prefix. Excludes10-token computed tail, untouched requests, second load, quality and performance. REPORT.md:7-17."
+    },
+    "eval_type": "self_supervised paired-state invariant"
+  },
+  "audited_input_hashes": {
+    "pkg/run_probe.py": "be14656bbca55231be36efb7b9ea9fe87f8db60e172993695a6c4ec1fa4e21d2",
+    "pkg/selective_kv_roundtrip_check.py": "0673454ee4ec2066dc88aaf68f9dbc0358c53b856ef795b33ad7df7629986466",
+    "pkg/recovery_kv_fingerprint.py": "7b6dc283481b4b2712cd1f9e466c3b9e91717a8305a6f93643ead7744d3649ce",
+    "pkg/selective_store_once.py": "e0f2f1add6d906a1c092a7b5fd75a1f7d1be11b7dd54dce502971f51714a26cf",
+    "pkg/native_offload_observer.py": "274be96633bad4d3327d69bd94ebaf08c797774dbe0550550b7be1eb521ba69e",
+    "analysis.json": "64e95d9f9db0ac2258052a6cdc4209dd80e6ec602527dc46af331fc38998cd04",
+    "REPORT.md": "9bfc858ee95d50c05dad0543b143e496ef1e7f5568af580e75ce7bc8149ccb1c",
+    "DECISIONS.md": "3611385a51b18dfb5df412c3d5519e395d7b724fd1e4f858a6183aff01f287fe",
+    "readback/group-status.json": "98a4fb3e261728f10fd47d1cad876ff150e116ef97b033686914ce5f8a3ade9e",
+    "readback/results/selective-on/kv-roundtrip.json": "e57a45928d38b6cfccb6b848b910be9140077dff5e5d73bf61a83f8bb17ee204",
+    "readback/results/selective-on/selective-store.json": "2109510968a86a9c7ce8337eebf9e6213ae602a90db5de08c920143d81a84237",
+    "readback/results/selective-on/offload-events.json": "261cc69de3822426af3be2b2ad2de197d601051c65db12e4a00f30061633d4ad",
+    "readback/results/selective-on/raw.json": "8bbc05b8cdb62c2c064b2061885b1aca4740884eed6ea9b639df335c00f0bfa6"
+  },
+  "material_issues": [],
+  "claim_supported": "FIRST_RESTORED_PREFIX_MATCH only",
+  "trace_status": "No .aris trace requested; repository instruction respected"
+}

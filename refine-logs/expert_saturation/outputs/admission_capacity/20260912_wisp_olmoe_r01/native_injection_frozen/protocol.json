@@ -1,0 +1,81 @@
+{
+  "question": "After removing within-layer expert reloads, how much old-generation delay remains from a new prefill, and does smaller prefill work reduce it at a complete-request benefit or only shift the wait?",
+  "scope": "one controlled event-arrival diagnostic; strongest measured expert grouping substrate; no new controller or novelty claim",
+  "runtime": "vLLM0.26 eager Triton BF16, WiSP LRU fixedcap24, expert-major disjoint groups",
+  "resources": {
+    "expert_scratch_bytes": 4831838208,
+    "kv_storage_bytes": 1073741824,
+    "host_pinned_master_bytes": 12884901888,
+    "engine_token_budget": 160,
+    "engine_max_num_seqs": 16,
+    "admission_cap": 3,
+    "cpu_affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "OMP_NUM_THREADS": 8
+  },
+  "requests": {
+    "old": {
+      "count": 2,
+      "prompt_tokens": 32,
+      "output_tokens": 16,
+      "arrival_s": 0.0
+    },
+    "new": {
+      "count": 1,
+      "prompt_tokens": 128,
+      "output_tokens": 8,
+      "arrival": "host receipt of fourth output from both old requests"
+    },
+    "source": "first three existing prepared/short WikiText documents; shared calibration inputs, not independent document holdout"
+  },
+  "actions": {
+    "hold": "same virtual boundary snapshot, do not submit new request; only direct interference negative control",
+    "chunk8": "add new request, set prefill threshold8 at boundary",
+    "chunk128": "add new request, set prefill threshold128 at boundary"
+  },
+  "prefix": "all arms use threshold32 and identical two-old execution before action; compare complete slots/map/LRU, KV logical blocks/free, old output prefix and computed counters. Logical state equality is not a KV tensor bitwise claim.",
+  "warmup": "same initial one-request/two-output warmup, then expert injection8 then expert injection128 in every fresh process; prefix threshold32 reset before each episode; all raw retained; check measured shapes occurred in warmup",
+  "expected_first_step_tokens": {
+    "hold": 2,
+    "chunk8": 10,
+    "chunk128": 130
+  },
+  "execution_checks": [
+    "each live old decode advances one token per engine call",
+    "no preemption/recompute or computed adjustment",
+    "third request is submitted exactly once after both old outputs equal4",
+    "each expert call loads its own initial missing experts once",
+    "full input-output/request and physical-row alignment; no trace reuse across actions"
+  ],
+  "timing": "event arrival is the old fourth-token receipt, before snapshot/callback; observation and action overhead remain in old ITL and new TTFT. Record explicit engine.step start/end and scheduler step indices. Warmup and validation costs kept separate.",
+  "primary_metrics": [
+    "old boundary ITL",
+    "old post-action maxITL",
+    "all request completion latency",
+    "new TTFT",
+    "full episode wall",
+    "actual expert payload and unique-entry lower bound",
+    "post-action decode cost and final logical cache"
+  ],
+  "run_order": [
+    "hold_r0",
+    "chunk8_r0",
+    "chunk128_r0",
+    "chunk128_r1",
+    "chunk8_r1",
+    "hold_r1"
+  ],
+  "retention": "all attempts and repeats retained, no selection by outcome",
+  "continue": "Use measured cost decomposition to choose one simple next action/execution refinement; a failed threshold does not falsify the problem.",
+  "stop_to_diagnose": "semantic/identity failure or incomplete old progression, missing event, wrong action effect or resource mismatch invalidates corresponding measurement.",
+  "claim_ceiling": "single GPU controlled-cap OLMoE event injection; no production SLO, natural-arrival capacity, general task-quality or true out-of-HBM deployment claim",
+  "next": "One adjustment determined by the measured dominant residual; do not add a predictor before checking ordinary length/queue and decode execution cost."
+}

@@ -1,0 +1,100 @@
+{
+  "audit_skill": "experiment-audit",
+  "date": "2026-09-14",
+  "auditor": "fresh same-family Codex reviewer",
+  "review_independence": "same-family",
+  "acceptance_status": "provisional",
+  "overall_verdict": "pass",
+  "integrity_status": "pass",
+  "reason_code": "none",
+  "summary": "Eight raw captures, all lifecycle rows, and the report's bounded accounting claims independently reproduced; no P0 or P1 finding.",
+  "scope": {
+    "included": "new lifecycle accounting over the eight cells enumerated by lifecycle/analysis.json",
+    "excluded": [
+      "service-window model",
+      "neighbor literature",
+      "prior performance-method claims",
+      "later six-cell run",
+      "quality claims"
+    ]
+  },
+  "trace_path": null,
+  "trace_note": "No .aris trace was created under the explicitly bounded audit instruction.",
+  "audited_input_hashes": {
+    "analyze_effective_recovery_service.py": "sha256:a6b5630bc29870200afadb0ca7376f8acd11dcc755b4e73e91ab5d3e25c7acf0",
+    "test_effective_recovery_service.py": "sha256:c568e4a722dd98147eb986803159b58fdf0eed4a293386f528063044723b59e1",
+    "lifecycle/analysis.json": "sha256:28e2b0cf033f72b72e7a394a692f541a49835fc5ff8f966514a86839100208d0",
+    "REPORT.md": "sha256:b9b3b8f12edebbb463ef5245a6de022f6ccff7d54bce9868097be5269bb23b86",
+    "packing/native_capture.py": "sha256:9b0b825992d9417b58947e744a16fdf033117f24c2e116cb394210238edd5952",
+    "packing/memory_telemetry.py": "sha256:393cc9e42b76b8f1bfae57127ca8fc153242eb1e6dfd74ede6c5873e1f99d2ab",
+    "restore/native_capture.py": "sha256:9b0b825992d9417b58947e744a16fdf033117f24c2e116cb394210238edd5952",
+    "restore/memory_telemetry.py": "sha256:393cc9e42b76b8f1bfae57127ca8fc153242eb1e6dfd74ede6c5873e1f99d2ab"
+  },
+  "verified_raw_hashes": {
+    "block0-d6-packing-fit_scan": "22a643acc39c5fed19551a58597cd3dcdc40c8f2e080566ec5a1354e1c31e403",
+    "block0-d6-packing-rank_prefix": "44e74b63ea52c926409fef9939a74c64dd99410cdb990967d5a17f17bd61ba0b",
+    "block1-d6-packing-fit_scan": "ea50c0d157a1f637ba7936bec8720618e01cce55d2c6f1e7ebcf5aae2e98c58c",
+    "block1-d6-packing-rank_prefix": "c149efc1c0f352ba7810bcb4e8af9d403fb0722c4b07c3bb60050cd4fa1cdf48",
+    "block0-d6-restore-off": "d45ae8572f10d8168a5ece8738dca0e8980307484ef24b85b1e8d8ecccca69f0",
+    "block0-d6-restore-on": "e153796a1597762b2b71b172f04fcededa010572acb25e45667f1fbc89f72dfe",
+    "block1-d6-restore-off": "d0e46d1b75b182d0308e0dea585560deda5f9fe07c2be22a1a3329e537daa10f",
+    "block1-d6-restore-on": "41821c1bc3fd456a145fa2b321f40b9da6f9938f8af102bec38d3f078cb5dfae"
+  },
+  "independent_recompute": {
+    "raw_files": 8,
+    "scheduler_engine_receipts": 14984,
+    "residencies": 198,
+    "completed_request_executions": 256,
+    "shared_unique_requests": 32,
+    "shared_unique_documents": 32,
+    "token_receipts": 262144,
+    "raw_hashes_match": true,
+    "summaries_match": true,
+    "histograms_match": true,
+    "all_residency_fields_match": true,
+    "targeted_tests": "4/4 passed"
+  },
+  "checks": {
+    "reference_provenance": {
+      "status": "pass",
+      "details": "Synchronous engine-step returns, rather than successful scheduling alone, provide the execution receipts."
+    },
+    "accounting": {
+      "status": "pass",
+      "details": "Outcome buckets are disjoint and conserve recompute positions; short service and next-residency prefix are explicitly overlapping diagnostics."
+    },
+    "result_existence": {
+      "status": "pass",
+      "details": "All raw paths and hashes exist and all generated lifecycle values independently reproduce."
+    },
+    "dead_code": {
+      "status": "pass",
+      "details": "All lifecycle metric functions are called; four targeted regressions pass."
+    },
+    "scope": {
+      "status": "pass",
+      "details": "Eight executions reuse one 32-document cohort; the report explicitly avoids treating repeats as independent workload samples."
+    },
+    "evaluation_type": {
+      "status": "pass",
+      "classification": "REANALYSIS_OF_NATIVE_SERVING",
+      "details": "Real native-serving in-process host capture, offline lifecycle reanalysis, MEASUREMENT_ONLY."
+    }
+  },
+  "p0_findings": [],
+  "p1_findings": [],
+  "claim_impact": [
+    {
+      "claim": "bounded lifecycle ledgers and concrete examples",
+      "impact": "supported"
+    },
+    {
+      "claim": "next-residency prefix reexecution in the checked adapter",
+      "impact": "supported with no-APC/no-connector boundary"
+    },
+    {
+      "claim": "saved milliseconds, quality, or performance-method benefit",
+      "impact": "unsupported and out of scope"
+    }
+  ]
+}
