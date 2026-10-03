@@ -1,0 +1,149 @@
+--- a/pkg/staged_store_rotation.py
++++ b/pkg/staged_store_rotation.py
+@@ -38,8 +38,49 @@
+             last_swap_step=tracker.last_swap_step, config=asdict(tracker.config)))
+ 
+ 
++def _direct_resume_reason(scheduler, manager, pool, owned, cs, target):
++    """Conservative, read-only commit-time gate; native still admits the target."""
++    if target.status.name!='PREEMPTED' or target not in scheduler.waiting:
++        return 'KEEP_TARGET_NOT_WAITING'
++    if target.is_finished() or scheduler.skipped_waiting:
++        return 'KEEP_TERMINAL_OR_PENDING_QUEUE'
++    slots=getattr(scheduler,'max_num_running_reqs',None)
++    streaming=getattr(scheduler,'num_waiting_for_streaming_input',None)
++    if (type(slots) is not int or type(streaming) is not int
++            or streaming<0 or len(scheduler.running)+streaming>=slots):
++        return 'KEEP_NO_SEQUENCE_SLOT'
++    if owned.get(target.request_id):
++        return 'KEEP_PARTIAL_TARGET_KV'
++    need=(target.num_prompt_tokens+target.num_output_tokens+15)//16
++    if pool.get_num_free_blocks()<need:
++        return 'KEEP_INSUFFICIENT_FREE_BLOCKS'
++    status=cs._req_status.get(target.request_id)
++    if status is None or getattr(status,'transfer_jobs',None) is None:
++        return 'KEEP_UNKNOWN_TARGET_TRANSFER'
++    if status.transfer_jobs:
++        return 'KEEP_PENDING_TARGET_TRANSFER'
++    seen=set();running_ids={request.request_id for request in scheduler.running}
++    if any(blocks for rid,blocks in owned.items() if rid not in running_ids):
++        return 'KEEP_NONRUNNING_BLOCKS'
++    try:
++        for request in scheduler.running:
++            blocks=owned[request.request_id]
++            ids=[block.block_id for block in blocks]
++            if ids!=manager.get_blocks(request.request_id).get_block_ids()[0]:
++                return 'KEEP_MANAGER_OWNERSHIP_MISMATCH'
++            for block in blocks:
++                if (block.is_null or block.ref_cnt!=1 or block.block_id in seen
++                        or pool.blocks[block.block_id] is not block):
++                    return 'KEEP_SHARED_OR_INVALID_BLOCK'
++                seen.add(block.block_id)
++    except (AttributeError,IndexError,KeyError,TypeError):
++        return 'KEEP_UNKNOWN_OWNERSHIP'
++    return 'DIRECT_READY'
++
++
+ def install(scheduler, *, vllm_config, save, block_size, expected_requests=32,
+-            diagnostic=False, global_cooldown_steps=20, population_mode="closed", store_scope="selected"):
++            diagnostic=False, global_cooldown_steps=20, population_mode="closed", store_scope="selected",
++            commit_recheck=False):
+     if block_size!=16:raise ValueError('Qualification requires 16-token blocks')
+     if store_scope not in ('selected','native_full'):raise ValueError('Unsupported native store scope')
+     if population_mode not in ('closed','open'):raise ValueError('Unsupported population mode')
+@@ -81,13 +122,14 @@
+     hadcalc='_calc_num_offloadable_tokens' in vars(cs)
+     if store_scope=='native_full' and hadcalc:
+         raise ValueError('Full baseline requires the unmodified native class method')
+-    step=0;plan=None;protected=None;output_start=None;cohort=None;phase=None
++    step=0;plan=None;plan_request_refs=None;protected=None;output_start=None;cohort=None;phase=None
+     pending_flush=set();cancelled=False
+     if open_population:cohort=set()
+     tracker=AbsenceRotation(config=RotationConfig(min_steps_between_swaps=global_cooldown_steps),
+         victim_order='most_output')
+     data=dict(save=save,store_scope=store_scope,native_calc_overridden=store_scope=='selected',
+-        events=[],status='INSTALLED',applied_rotations=0,
++        events=[],status='INSTALLED',applied_rotations=0,direct_commits=0,
++        commit_recheck=commit_recheck,
+         diagnostic=diagnostic, population_mode=population_mode, gate_observations=[],
+         rotation_config=asdict(tracker.config),
+         eligibility_snapshots=[], selector_decisions=[],
+@@ -108,7 +150,7 @@
+         return min(oldcalc(rs,n),plan.saved_tokens)
+ 
+     def begin(preempted,timestamp):
+-        nonlocal plan,protected,output_start,phase,pending_flush,cancelled,cohort
++        nonlocal plan,plan_request_refs,protected,output_start,phase,pending_flush,cancelled,cohort
+         scheduler._rotation_forced_count=0;phase=None;pending_flush=set();cancelled=False
+         rows=[view(r) for r in scheduler.running]
+         if open_population:
+@@ -141,21 +183,32 @@
+             # New-store coverage was checked at prepare. Older host residency
+             # is intentionally unknown; native lookup/recompute handles misses.
+             reason=commit_reason(plan,step,view(victim),view(target),pool.get_num_free_blocks(),None,save_enabled=False)
++            if reason=='READY' and (plan_request_refs is None
++                    or plan_request_refs[0] is not victim or plan_request_refs[1] is not target):
++                reason='CANCEL_REQUEST_IDENTITY_CHANGED'
+             if open_population and reason=='READY':
+                 if scheduler.skipped_waiting:reason='CANCEL_OPEN_SKIPPED_WAITING'
+                 elif any(not r.pure_decode for r in rows):reason='CANCEL_OPEN_MIXED_PREFILL_OR_RECOVERY'
++            if reason=='READY':
++                rs=cs._req_status.get(victim.request_id)
++                pending_flush=set(rs.transfer_jobs) if rs else set()
++                if any(j not in cs._jobs or not cs._jobs[j].is_store for j in pending_flush):
++                    reason='CANCEL_VICTIM_PENDING_OR_UNKNOWN_TRANSFER'
+             data['events'].append(dict(event='commit_check',step=step,reason=reason,victim=plan.victim.request_id,target=plan.target.request_id))
+             if reason!='READY':
+-                cancelled=True;plan=None
++                cancelled=True;plan=None;plan_request_refs=None
+             else:
+-                rs=cs._req_status.get(victim.request_id)
+-                pending_flush=set(rs.transfer_jobs) if rs else set()
+-                if any(not cs._jobs[j].is_store for j in pending_flush):
+-                    raise RuntimeError('Victim still has an in-flight load')
+-                scheduler.running.remove(victim);scheduler._preempt_request(victim,timestamp)
+-                preempted.append(victim);scheduler._rotation_forced_count=1
++                disposition=(_direct_resume_reason(scheduler,manager,pool,owned,cs,target)
++                    if commit_recheck else 'KEEP_RECHECK_OFF')
++                data['events'].append(dict(event='commit_recheck',step=step,reason=disposition,
++                    target=target.request_id,planned_victim=victim.request_id))
++                if disposition=='DIRECT_READY':
++                    phase='direct_resume'
++                else:
++                    scheduler.running.remove(victim);scheduler._preempt_request(victim,timestamp)
++                    preempted.append(victim);scheduler._rotation_forced_count=1
++                    data['applied_rotations']+=1
+                 protected=target;output_start=target.num_output_tokens
+-                data['applied_rotations']+=1
+         elif cohort is not None and protected is None and not scheduler.skipped_waiting and all(r.pure_decode for r in rows):
+             waiting=[r for r in scheduler.waiting if r.status.name=='PREEMPTED']
+             old_swap=tracker.last_swap_step
+@@ -171,6 +224,7 @@
+                     data['events'].append(dict(event='prepare_rejected',step=step,reason=str(exc)))
+                 else:
+                     phase='prepare'
++                    plan_request_refs=(scheduler.requests[victim.request_id],scheduler.requests[target.request_id])
+                     data['events'].append(dict(event='prepare',step=step,victim=victim.request_id,target=target.request_id,saved_tokens=plan.saved_tokens))
+         if protected is not None:
+             if any(r is not protected for r in scheduler.skipped_waiting):
+@@ -186,7 +240,7 @@
+         return not recovery_guard(view(protected),pool.get_num_free_blocks(),r.remaining_blocks)['other_growth_allowed']
+ 
+     def schedule(*args,**kwargs):
+-        nonlocal step,protected,plan
++        nonlocal step,protected,plan,plan_request_refs
+         if open_population and protected is not None and protected.is_finished():
+             data['events'].append(dict(event='target_terminal',step=step,request=protected.request_id,
+                 new_output_tokens=protected.num_output_tokens-output_start,status=protected.status.name))
+@@ -241,7 +295,10 @@
+                         for jid in sorted(set(meta.store_jobs)|set(meta.load_jobs)|set(meta.jobs_to_flush))
+                         if jid in cs._jobs]
+                 data['events'].append(event)
+-            if phase=='commit':plan=None
++            if phase=='direct_resume':
++                data['direct_commits']+=1
++                data['events'].append(dict(event='direct_commit',step=step,target=plan.target.request_id))
++            if phase in ('commit','direct_resume'):plan=None;plan_request_refs=None
+             step+=1;data['status']='EXECUTING'
+             return result
+         except Exception as exc:

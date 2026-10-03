@@ -1,0 +1,1 @@
+Frozen native residence-density confirmation. Identical policy payload to candidate_native_residency_victim_r01; only the three input files differ. Two same-input opposite-order primary-host blocks, both retained. No claims of cross-model or globally unseen inputs.

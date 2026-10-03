@@ -781,3 +781,400 @@ O/20260915_natural_ltr_style_component_r01 接受包4fc166e8…709837/30文件�
 当前最强参照仍为G/H selected/eager的停顿取舍以及原生full的效率前沿。唯一未决决策：同后端上合理校准的兼容LTR-style是否覆盖该取舍，而不是先假设新算法必要。模型已核G2650次引擎调用与调度一一对应，阈值单位为调用而非固定墙钟。60个正分配之间的无分配段有55个达到30、0个达到200；未证明全是PREEMPTED，且受既有策略动作截断，不能当LTR反事实。58次真实加载首输出均需1次正分配，两个无加载事件需4次；后两次为同一请求，不是独立文档。
 
 root事前固定T{30,200}×Q{1,10}至多四点，以同窗口eager作发展参照；吞吐≥97%且均完成≤105%才按maxgap选，平手依吞吐、均完成、低T、低Q，不合格不扩网格。预测固定Q10时T30比T200轮转更多且maxgap更小，频率和服务分开核验；未承诺效率方向。H不用于LTR参数选择但已见过，不称盲测。当前只接受r02单格G64/T30/Q10、180s诊断；性能组未接受。入口恢复并核实共享资源及固定源码后由prepare_start_contrast唯一执行。PAPER/STUDY/CURRENT同步，科学状态仍MEASUREMENT_ONLY，长期goal未完成。
+
+
+### 2026-09-29 主线接续与唯一执行权
+
+当前 checkout 为 `agent/publish-current-moe-code` / `76d6d888de42081c63cd440a8a67623161d8181f`，启动时 clean。root 新建 `E/20260929_commit_recheck/README.md`，统一 B/C 可读状态/动作、独占写入目录和补丁交付方式；B 只读分析，C 只交隔离补丁，root 唯一维护此台账与 CURRENT、集成共享代码并执行 GPU。单一待证假说是：已接受恢复目标在 commit 当刻若实时 GPU KV、空闲序列槽和 connector 状态均允许直接恢复，取消原计划 victim 抢占是否能改善完整服务。此为台账 608/618/673/683 行既有 CPU 组件与成本证据的接续，旧 D859/E1399 两例只记录 KV 足额，未记录 commit 空闲槽；故目前不是已证明可执行的 direct 动作。0.112/0.261 秒 victim gap 也不预告最大 gap 收益。当前 partial clone 索引列有旧 `commit_recheck/` 原件和补丁，但 sparse 工作树未物化且 blob 不在本地，按需网络抓取失败；先核可复用性，再做最小集成，不并行推进另一 controller。
+
+用户提供 `connect.westd.seetacloud.com:45495` 新入口；GPU 身份/数量、host 内存及时间或费用预算仍待明确授权。本轮尚未连接、上传、初始化或运行 GPU。已接受 LTR-style r02 包、G/H 原件和旧合同不变；r02 诊断及 H1 完整服务对照均 `UNRUN`，资源状态 `UNKNOWN`。旧 endpoint 失败仍是历史状态，不外推新入口。root 是后续唯一 GPU 执行者；任何运行先核实际机器、共同锁、源码和预算，再串行执行。
+
+### 2026-09-29 B/C CPU 交付与 root 单补丁集成
+
+`E/20260929_commit_recheck/{MODEL.md,RUN_PLAN.md,RESULTS.md}` 为本轮主模型、执行合同与结果；B 的 `b/EVIDENCE.md`/只读脚本重算旧 D/E 即时 KV 余额 98/171 块，提醒空闲序列槽/ownership/connector 原件不可见。G/H 既有 selected 强制轮转 870 次的同类 H1 合法机会只能界定 `0..870`，非发生率。C 的 default-off patch 经 root 检查清洁基底 SHA `d1002357…e63697` 后仅应用到共同 `E/staged_store_rotation.py`，新 SHA `aeca25d6…69f7bc`；direct 强门禁含槽位、物理独占、target transfer/队列和旧 commit 身份，未触已接受 G/H/r02 package。4 项针对性 CPU fixture 在应用前后 PASS；通用 goodput 分析器编译及合成失败样例 PASS。旧两个 closure/contract 检查在读到未物化 `20260914_recovery_progress_model_r01/input.json` 前失败，非补丁断言失败。另一进程未合并 LTR-style 基线 25 项和 CPU 动作模型 8 项由 root 只读测试通过，未修改或当作 GPU 结果；模型不进入热路径，不并行控制。
+
+`CPU_COMPONENT_CHECKED / GPU_UNRUN / METHOD_UNPROVEN`。partial clone 缺 r02 manifest/run 脚本/核心 adapter 等 22 个本地 blob，G/H 原始 raw 未跟踪也不在本机；不能逐字启动旧接受包或重验旧逐请求结果。新入口未连接，现场 GPU/host/锁 UNKNOWN，用户资源与预算范围待明确。下一唯一执行是取得授权与可核源码后单格 LTR-style 原生生命周期，再按新合同串行同资源强基线及 H1 off/on；无合法 direct 即停，无完整请求增量即吸收简单修正，不作算法 GO。
+
+### 2026-09-29 隔离恢复原件，纠正槽位与 payload 状态
+
+在共享 sparse partial clone 之外，从同一公开远端分支 HEAD `76d6d888de42081c63cd440a8a67623161d8181f` 建立 `/private/tmp/moe-recovery-source-20260929-r01`。已接受 LTR-style r02 的 manifest 所列 30/30 文件 SHA-256 均匹配；原 tar 归档字节不可得，历史接受归档 SHA `6888c318…dbe7ec4c9e73` 不重新宣称已验。原 r02 的 `check_lifecycle.py` 用 Python 3.13 和共享 CPU harness 复跑 `PASS_CPU_ONLY`，涵盖 adapter closures 与固定 native 调度循环模拟；实际 vLLM 安装、GPU tensor、异步 load 完成与 EOS 仍 `UNRUN`。新机器模型/runtime/GPU/共同锁未核，未连接新 SSH。
+
+旧 `commit_recheck/selected.json` 和 `full.json` 的保存 CPU 决策快照各有 25 次 commit，D859/E1399 各 1 次 `RESUME_WITHOUT_VICTIM` 候选。两例分别 free−need 98/171 块、running 26/22；同档 cap32，故静态空槽为 6/10。更正前述“旧事件槽位 UNKNOWN”：保存快照里有数量证据，但旧纯 CPU 规则和候选 adapter 未现场检查 `max_num_running_reqs`，原始 selective-store/raw、真实 ownership/admission/connector 及 direct 后完整服务未重放。不能升级为已执行 direct 或净收益。G/H selected 870 次旧强制轮转仍只有 `0..870` 的合法 H1 机会界，不能把 D/E 频率外推。
+
+共同 `E/staged_store_rotation.py` 已集成的 default-off C patch 保留原旧 closure 行为；旧 `check_staged_rotation_closures.py` 的 AST fixture 加上 `commit_recheck=False` 后，用恢复的 `input.json` 在隔离测试树五分支 `ACTUAL_CLOSURE_FIXTURES_PASS`。`check_staged_save_contract.py` 另依赖未跟踪 D6 raw，仍 `UNRUN`。已接受 F/G/H adapter 同字节但与共同源码不同；共同补丁不构成 H1 GPU 包，C 正在仅其私有目录审查准确版本并准备候选差分。唯一机制、GPU 执行者及资源授权要求不变；无 GPU 测量、后台 controller、提交或推送。
+
+### 2026-09-29 提交时 token 预算反例与公平包门禁
+
+root 建立 git common-dir 下共享 `research_coord/STATE.md` 与 B/C 独立 worktree；B/C 分别写自己的交付，不碰主台账或 GPU。B 的 [CPU 反例](20260929_commit_recheck/H1_TOKEN_BUDGET_ADDENDUM.md)执行共同版和候选包的实际 direct gate：31 个 pure-decode running、32 槽、空闲块 100、无 host 命中的目标需 994 token/63 块时，gate 均返回 `DIRECT_READY`，但 1024 token 调度预算使 direct 仅给目标 993、off 驱逐一个 victim 后可给 994。物理可恢复不保证目标首新输出不晚；这是条件 CPU 反例，不是 native/GPU 后果。旧 D859/E1399 派生快照缺精确 token/host 命中，不能从其块数确认首输出差异或新机制价值。H1 gate 仍默认关闭、未加参数；后续真实对照必须计目标延期与 peer/host 代价，并与同后端简单 direct 和 LTR-style 比较。
+
+C 的 [静态包兼容检查](20260929_commit_recheck/check_package_compatibility.py)核了 r02 LTR 30/30、H 35/35、H1 候选 25/25 payload；H128 与 H1 的输入/公共后端匹配，LTR r02 是 G64，不能直接对 H1 H128 排性能。LTR fair 组件虽有 27 项 CPU 通过，和已接受 r02 的优先级/hold 行为不同，须独立原生资格和同输入封包。root 复跑兼容门禁与 B 脚本均通过；原生生命周期、完整 H1 请求收益与强基线性能仍 `UNRUN`。新 SSH 主机名 `connect.westd.seetacloud.com` 本地 DNS 无记录，未认证/上传/GPU 初始化；机器身份及时间/费用授权尚未确认，本轮 GPU 使用 0。
+
+### 2026-09-29 G 原始诊断收紧 H1 动作界；精确 H 底座候选封包
+
+隔离检出补齐 G 原生详细诊断 `selective-store.json`（仍缺请求级 raw）。B 独立核对 2650 次 schedule 与 2650 个即时 eligibility snapshot 一一对应；54 个 prepare 和下一步 54 个 `READY` commit 的 target/victim/plan 一致，目标均 PREEMPTED 且在 waiting。按同包 16-token full-history 缺口公式，54 次 commit 全部 `free < need`，缺 2–193 块；因此这条真实旧轨迹的 H1 直接 KV 资助机会**精确 0/54**，不是 H1 GPU 执行负收益。G 轻量格 126 次、H 轻量格 690 次有 commit 事件却无逐次资源快照，其合计合法 H1 机会仍只能界定 `0..816`；原先 `0..870` 上界在此更正。D/E 的两个保存 CPU 候选不能外推发生率或补 G/H 轻量快照。
+
+已接受 H r02 manifest 的 35/35 文件与隔离检出匹配，原 H/G/LTR 包不改。C 对 F/G/H 同字节 adapter SHA `24629c0b…a56e31c` 交独立 default-off patch；root 在新 `E/20260929_commit_recheck/candidate_h1/` 只复制 H `pkg/`，应用该精确补丁并增单格 runner 开关与 fail-closed shell。24 原 pkg 文件中仅 adapter、runner、shell 三文件改变，21 文件逐字不变；候选 manifest 含 24 pkg 文件和校验器共 25 文件，逐个 SHA 通过，provenance 记录基底和补丁 SHA。GH 专用 closure fixture 4/4、runner 的 128 输入身份及 off/on 参数传递、非法 native/on 拒绝、shell 语法均 CPU PASS。此包是开发/资格候选，不是已接受 GPU 性能结果；H128 输入已见过，不能标盲确认。
+
+候选单格运行入口要求显式 GPU UUID、pinned Python、现有离线模型缓存、共享锁、单格墙钟和可读的进程树 cgroup host 硬限，并在启动前验 payload/runtime SHA。新 SSH 入口仍未连接；用户授权的 GPU 数量/身份、host 上限、总时长或费用范围尚待明确，实际新机器资源、模型/runtime/锁皆 UNKNOWN。LTR 原生单格、强基线、H1 资格与完整请求均 `UNRUN`；没有上传、模型初始化、GPU 作业、后台 controller、提交或推送。
+
+### 2026-09-29 C 补强原生槽位与延期准入边界
+
+固定 vLLM 0.26 scheduler 源码在 waiting 准入时把 `len(running)+num_waiting_for_streaming_input` 与 cap 比较；此前只查 running 会漏掉 streaming session 保留槽。C 仅改两个独立补丁及 CPU fixture，root 再将精确差分顺序同步到共同 `E/staged_store_rotation.py` 和独立 H1 候选包。两者均与从各自原 SHA 基底应用最新补丁的字节完全一致：共同 SHA `8dc692e0…a50be31`，H 候选 adapter SHA `8aa05c3c…da850d`。shared/GH 各 4 项 CPU 测试重跑 PASS，含 running=1、streaming=1、cap2 的无槽反例和缺字段保守回退；H 候选 25 文件 manifest 已重验，原 G/H 包未动。
+
+官方 vLLM v0.26.0 connector 参考源码说明活跃 PREEMPTED request 的 `_req_status` 正常保持直到 finished；包内该 connector scheduler 完整字节尚未本地物化，故仍以现场状态为准。`free>=need` 和槽位只是 commit 前筛选：原生先排 running、再问 connector lookup/真正分配，可能出现 defer/异步 load/额外 KV 增长。当前候选故意将“前置 direct 决策后 target 无同次准入或进展”判为资格 `INCOMPLETE` 并停止，不伪造 `direct_commit` 或性能收益；若自然域出现该边界，先保存原件再考虑同一机制的最小修正，不即时扩第二 controller。GPU/现场资源仍 `UNRUN/UNKNOWN`。
+
+### 2026-09-29 LTR-style fair 后继 runner CPU 接线
+
+C 在独立 worktree 交 [fair 后继 overlay](20260929_commit_recheck/candidate_ltr_fair_overlay/README.md)，root 将其复制到主研究目录，未碰已接受 r02 包。overlay 将已有 `ltr_fair_native.py`/`ltr_fair_policy.py` 接入 r02 的 G64 runner；两源码复制件与共享 CPU 组件 SHA 相同，runner 补丁在全新 r02 原件上精确应用且输出字节等于候选 runner。root 复跑定向安装顺序/接口测试 **1/1 PASS**：warmup、offload drain、cache reset 与空 admission 检查在安装之前，测量在安装之后。该 fair adapter 不等价于 r02 的 target-only hold/优先级语义；旧 CPU receipt 和原生资格不能转给它。overlay 没有 successor manifest/controller/机器路径，也不是已接受执行包；GPU 资格、性能与本轮资源使用仍 `UNRUN/0`。
+
+### 2026-09-29 H1 异步收据闭合、host 硬限绑定与 LTR 同输入审查
+
+root 重跑静态包兼容门禁：H r02 35/35 与 H1 候选 25/25 manifest 匹配；两包 H128 workload 文件 SHA `dd8ac656…75b56`、逻辑 SHA `606f71fd…c9c5a` 相同，模型/资源配置、六项共同后端与四个 warmup 文件逐字一致，结果 `COMPATIBLE_INPUT_AND_BACKEND`。这不证明现场资源或效果。前态 token 预算反例已写回 [最小模型](20260929_commit_recheck/MODEL.md)：撤销目标首新输出必不晚预测，固定报告目标实际调度、首输出与 peer 成本。
+
+C 的 [候选专用异步收据补丁](20260929_commit_recheck/c/INTEGRATION.md)由 root 从精确 SHA `8aa05c3c…da850d` 应用到独立 H1 adapter，得到 SHA `5c6825cd…129241`；已接受 G/H/LTR 包与共享旧版 adapter 不变。`direct_commit` 现仅在目标有正调度 token，或异步 load 同时具备匹配的原生 load job 和目标物理块时递增；缺收据立即 `INCOMPLETE`。异步准入不等于 load 完成或首新输出。GH 门禁与异步收据分别 4/4 CPU fixture PASS，候选 25/25 manifest 与 shell 语法 PASS。候选单格 shell 又要求传入的有限 `memory.max` 属于当前进程的 cgroup v2、且不超过明确批准的 host 字节数；现场仍须核机器、源、模型、共同锁与整组预算。
+
+[LTR 同输入只读审查](20260929_commit_recheck/ltr_audit/REPORT.md)确认原已接受 r02 仅为 G64/T30/Q10 诊断。H128 输入能由 r02 loader 在 CPU 上校验，底层测量/warmup 字节兼容；H128 LTR 性能仍需**新包身份**，其三项 LTR 策略模块可保留原字节，输入、安全上界、runner、环境入口与 manifest 独立冻结。G64 真实 native store/load/flush/ready/输出/量子/EOS 资格通过前不把 H128 LTR 当有效性能强基线。所有 GPU 格仍 `UNRUN`；新 SSH 主机名本地 DNS 未解析且授权 GPU 身份、host 与时间/费用范围未明确，远端未连接或上传，无 GPU 初始化/后台 controller。
+
+### 2026-09-29 r02 环境入口单格封包与共同锁/墙钟门禁
+
+root 从已恢复并逐项验证的已接受 LTR-style r02 G64/T30/Q10 单格诊断包复制 25 个 `pkg/` 文件到 [独立环境入口候选](20260929_commit_recheck/candidate_ltr_r02_env/README.md)，仅更换写死旧 GPU/路径的 `pkg/run.sh`；runner、三项策略、输入、warmup、safe cap 与公共 native 后端等其余 **24/24 文件原字节不变**。旧接受包和归档 SHA 不变，新候选 manifest SHA-256 为 `f58340cd5228ea7339f0d4081176aab265583cb824a26026d19b8f7ae93cc8a7`，精确文件集合及内容 **26/26 PASS**。H1 H128 候选同样加强启动门，最终 manifest SHA-256 `04ad1217287491813be3c85839de00ff80ee2ec60011bdf762c58e52b3e3a6d4`，**25/25 PASS**；两包 shell 语法 PASS。最终 shell 又禁止 package-local bytecode 写入，使 H1 后续格的精确文件集合可继续校验。
+
+两个单格入口均要求 root 先固定外部 manifest SHA、显式获授权 GPU UUID、已存在的共同锁文件、有限且属于当前进程 cgroup v2 的 host `memory.max`、离线缓存目录、固定 Python 和单格墙钟。锁文件以不截断方式打开，继承 fd9 时核同 inode，允许 root 在外层持锁覆盖串行换格与归档；锁内核本机物理 UUID。哈希预检、源码预检和 runner 各受同一已消耗墙钟的剩余 `timeout` 约束，同一 staging 的格子用 `launch-once` 标记防换输出目录重跑。原 `preflight.py` 的断言由 `PYTHONOPTIMIZE=0` 保持有效。[独立最终 QA](20260929_commit_recheck/r02_env_audit/FINAL_CANDIDATE_QA.md)确认 r02 24/24 未改、26/26 清单与这些代码门；仍不能替代 Linux 现场 cgroup/锁/GPU、固定 revision 缓存及失败日志验证。
+
+执行顺序未变：先 G64 r02 原生生命周期资格，才允许冻结 H128 强基线性能包，之后在同一资源/输入上串行 native、eager、LTR-style 与 H1 off/on。外部 fair LTR successor overlay 不在此序列，不能沿用 r02 资格。2026-09-29 本地 DNS 再查 `connect.westd.seetacloud.com:45495` 仍为 `gaierror`；用户的 GPU 身份/数量、host 硬限和总时间或费用范围尚未明确。无 SSH 认证、上传、GPU 初始化、后台 controller 或测量；所有 GPU 结果 `UNRUN`。
+
+### 2026-09-29 整组串行锁与总预算封装（CPU only）
+
+审查指出两个候选 `run.sh` 各自只能保护单格，不能单独保证格间检查、归档与整组总时长。root 在候选包之外新增 [`serial_group.py`](20260929_commit_recheck/serial_group.py) 与[使用合同](20260929_commit_recheck/SERIAL_GROUP.md)，不改变 r02 的 `f58340cd…` 或 H1 的 `04ad1217…` manifest 身份。执行封装仅接受这两种固定候选、单前台格顺序、同一预存锁 inode/fd 9、从用户批准范围换算的总墙钟上限、每格余量及唯一输出目录；锁内复制输出并核双侧 SHA，失败/超时/归档错误停后续格。格前和格后查询 GPU compute process，异常路径仍尽力留检查收据。根执行者还须现场确认完整 GPU/worker/host 空闲，不能把该查询当全部占用证明。
+
+本地 CPU 替身验证正常单格和归档通过；含 symlink 的故障输出使归档拒绝，格后空闲检查仍执行、会话标 `ABORTED`；指向候选包内部的父目录 symlink 被拒绝；超时子进程有界终止。Python AST 和 `git diff --check` 通过。未冻结真实授权计划，未连接远端或运行 GPU；此变更只缩小未来串行执行的操作风险，**不增加机制或性能证据**。
+
+### 2026-09-30 新 SSH 地址连通性与只读资源快照
+
+用户再次要求尝试 `connect.westd.seetacloud.com:45495`。受限本地沙箱 DNS 仍返回 `gaierror`，但经允许的网络环境连接并使用用户提供的凭据完成 SSH 认证；远端只读 `hostname` 得 `autodl-container-2f174fa28a-eee4789c`。因此此前“本机 DNS 无记录”**不是远端不可达的证据**，连接阻碍已解除。未将凭据写入仓库、命令行或收据。
+
+[只读检查收据](20260929_commit_recheck/REMOTE_READ_ONLY_20260930.json)：主机显示 1 张 RTX 5090，物理 UUID `GPU-3fc910c2-bf65-5273-e6b5-6c0d8b6ce03e`；查询时总显存 32607 MiB、已用 2 MiB，compute process 清单为空。当前 shell `0::/` cgroup 的 `memory.max=96636764160` 字节（90 GiB）。这些只是当时的现场快照，不代表用户已批准占卡、host 预算、总时长/费用，也不证明未来启动时仍空闲。无上传、模型加载、GPU 初始化、controller 或测量，r02/H1 仍 `UNRUN`、本轮新测量请求 0。下一步需用户明确该物理 GPU、host 硬限及总时间/费用范围后，再在锁内复核现场并串行执行单格资格。
+
+随后同一主机只读核环境：预期 `/root/autodl-tmp/moe-research-gpu.lock` 不存在，数据盘顶层仅 `.autodl`；默认 `/root/miniconda3/bin/python3` 的 `find_spec('vllm')` 为未安装，`/root/miniconda3/envs` 为空；`HF_HOME` 未设置，默认 Hugging Face OLMoE 缓存目录不存在。未穷举其它运行时/缓存位置，但**当前已检路径不能直接启动候选包**。这也不是原生生命周期失败；如需在此机准备固定运行时与模型，必须先核来源、存储/下载及用户授权，不能自动安装或下载大型模型。
+### 2026-09-30 A 线 G64 LTR-style 原生生命周期资格
+
+A 在同一 RTX 5090 UUID `GPU-3fc910c2-bf65-5273-e6b5-6c0d8b6ce03e` 和共同锁 inode `2304:25841682495` 下，运行 SHA 固定的单个 G64/T30/Q10 诊断。控制器先独立核对固定 OLMoE 元数据/三权重分片，从 C 只读源向 A 的系统盘私有 HF_HOME 做完整非 reflink 复制并再次逐文件核对，离线解析成功才初始化 GPU。会话 `CELLS_COMPLETE`，cell 退出 0、归档 `VERIFIED`、结束 GPU compute 列表空；本地独立核对归档 27/27 文件哈希。原件与详细边界见 [A_G64_NATIVE_LIFECYCLE_RESULT_20260930.md](20260929_commit_recheck/A_G64_NATIVE_LIFECYCLE_RESULT_20260930.md)。
+
+修正的只读审计 `OBSERVED_CHAIN` / `issues=[]`：64/64 自然生成请求完成；53 个 selected native store 和 53 个 native load job 的 worker 回执完成，42 个 recovery episode 连到首次新输出与之后正向调度；104 个 WAIT_LOAD 意图中 52 次本步零调度不扣 quantum，52 次本步正调度扣一次。诊断日志不能与旧机器 G/H 性能直接排名，也不证明独立 KV tensor-value 相等、恢复目标自然 EOS 或方法收益。容器 `memory.peak` 缺失，仅能核当时的 cgroup current/max 与 KV 容量。下一实验身份须是同机 G64 真实完整服务的 native full、selected/eager、LTR-style 校准，先冻结并串行运行，再按既定四点上限决定是否迁移到 H128。
+
+### 2026-09-30 A 线 G64 同机完整服务三格首组
+
+新 [A 线首组报告](20260929_commit_recheck/A_G64_PERF_PILOT_RESULT_20260930.md)保留 SHA 固定计划 `2f192a20…37`、候选包 manifest `27559451…89e0eb9`、完整远端会话取回和 [V2 只读审计](20260929_commit_recheck/A_G64_PERF_THREE_ARM_AUDIT_R01_20260930_V2.json) `af8685aa…bf44a96`。同一 RTX 5090、4096 个可用 GPU KV 块、16 GiB host KV、90 GiB cgroup 下串行运行 native full、selected/eager、LTR-style T30/Q10；三格退出 0、64/64 完成、各自 27/27 归档 SHA 匹配、退出 GPU compute 为空。实际输出率 1474.96/1528.65/1494.66 token/s，平均完成 21.237/20.991/21.445 s，最大单请求生成间隔 11.165/2.634/7.044 s。T30/Q10 相对 eager 为 97.78% 输出率、102.16% 平均完成，通过该点服务预算，但 gap 更差；goodput 前沿交叉。两格有 28/64 请求输出 token 序列不同，不能外推等工作量或质量。`PILOT_THREE_ARM_COMPLETE_PARTIAL_TQ_GRID`，未完成 T30/Q1、T200/Q1、T200/Q10，**G 开发点未选定、H128 选定点未运行、方法 GO 未成立**。
+
+### 2026-09-30 A 线 T30/Q1 活性失败，剩余网格未启动
+
+r02 首格原冻结 T30/Q1 `runtime_limit`，64 到达、6 自然 stop 完成、58 未完成；180.001 s 时共 19173 token，最后新输出在 15.711 s。严格 [V2 审计](20260929_commit_recheck/A_G64_PERF_R02_PARTIAL_AUDIT_20260930_V2.json) SHA `e7cca906…30aef96` 核 27/27 文件、模型、源码、资源与全部请求。step 833–105050 的同一目标反复优先/未准入/释放共 104218 次；这是实现活性失败，具体 native 拒绝原因未记录。组内 cell exit1、archive VERIFIED、GPU EMPTY 后 ABORT，T200 两点未启动。未完成带罚项平均 flow 163.208 s，不能用完成者 flow 或截断的 observed gap 排名。下一单元为原生拒绝原因诊断，未执行的 r03 两格草案及上传的 T200/Q10 计划不计测量。
+
+| A-G64-native-circular-wait / 2026-09-30 | 新T30/Q1诊断实际full-fit 86≤86通过，async分配85>free86−inflight132=-46拒绝；27/27 running held，pending0，662次全局空调度/1.001s；主动停机时6/64完成 | `20260929_commit_recheck/moe-a-g64-liveness-diag-session-r02-20260930/`，28/28archive哈希通过 | [定位与修复边界](20260929_commit_recheck/A_G64_LIVENESS_RESULT_20260930.md)。SOURCE_LOCALIZATION_ONLY；旧性能运行精确拒绝分支仍未知，禁性能排名。8项CPU回归的最小准入修复已上传，GPU资格首申请锁忙未执行；不计算法贡献。 |
+
+| A-G64-inflight-guard-qualification / 2026-09-30 | 修复版T30/Q1 64/64完成、59564输出、58length/6stop；22次不同step/target检查，3次guard拒绝，首F147/N89/R136；无停滞快照或observer错误 | `20260929_commit_recheck/moe-a-g64-inflight-guard-qual-session-r01-20260930/`，29/29归档哈希通过 | [审计V2](20260929_commit_recheck/A_G64_INFLIGHT_GUARD_QUAL_R01_AUDIT_20260930_V2.json)。NATIVE_GUARD_QUALIFICATION；不作性能排名/全局活性证明/算法贡献。V1结束原因字段回退错误已在V2更正，原件未改。下一为修复基线T30Q1/eager/T30Q10轻量组。 |
+
+| A-G64-guarded-T30-performance / 2026-09-30 | Q1/eager/Q10均64/64，1441.894/1611.285/1500.548 token/s，mean flow23.822/19.563/21.111s，maxgap1.343/2.652/7.256s；Q1/Q10均失败固定97%/105%预算 | `20260929_commit_recheck/moe-a-g64-perf-inflight-guard-t30-session-r02-20260930/`，各27/27归档哈希通过，409.732s，GPU EMPTY | [完整审计](20260929_commit_recheck/A_G64_GUARDED_T30_PERFORMANCE_AUDIT_R02_20260930.json)。TWO_OF_FOUR_POINTS_NO_SELECTION；自然输出有差异，无等工作量或统计稳定性声明。T200原定余下组已提交。 |
+
+| A-G64-guarded-T200-and-selection / 2026-09-30 | Q10/eager/Q1均64/64；1503.710/1553.823/1575.183 token/s；mean flow21.462/19.807/19.590s；maxgap4.017/1.598/3.289s。四点唯一预算合格T200Q1，但gap更差 | `20260929_commit_recheck/moe-a-g64-perf-guard-t200-session-r01-20260930/`，各27/27哈希，407.311s，GPU EMPTY | [冻结选择](20260929_commit_recheck/A_G64_GUARDED_FOUR_POINT_SELECTION_20260930.json) SHA `b0f4761c…e7c986`。只允许该点H128迁移，不扩网格、不宣称方法收益。自然输出/EOS不同，无等工作量或统计稳定性声明。 |
+
+| A-H128-frozen-guarded-transfer / 2026-09-30 | native/eager/T200Q1各128/128；1504.458/1435.104/1308.168 token/s；mean flow35.706/38.222/42.561s；maxgap13.346/3.773/3.963s。LTR预算/最坏gap迁移失败，92请求自身gap改善/36恶化 | `20260929_commit_recheck/moe-a-h128-perf-guard-session-r02-20260930/`；各27/27，584.089s，GPU EMPTY | [审计](20260929_commit_recheck/A_H128_GUARDED_TRANSFER_AUDIT_R02_20260930.json) SHA `e5c5ae27…8415376`；不再调T/Q。H已见，输出不同，单次块无稳定性声明。下一仅H1动作资格。 |
+
+| A-H1-native-direct-qualification / 2026-10-01 | 128/128、121length/7stop；269次commit检查中2次直接async接纳、267次空闲块不足沿用victim；2条匹配load完成/后续输出链，计划victim当步未抢占 | `20260929_commit_recheck/moe-a-h1-guard-qual-session-r02-20260930/`；27/27哈希、346.286s、GPU EMPTY | [资格结论](20260929_commit_recheck/A_H1_NATIVE_DIRECT_QUALIFICATION_RESULT_20261001.md)，审计SHA `7a3b3236…75437f08`。仅动作存在，两个目标均length，off/on净收益未测。固定两反序pair，SSH最新认证前reset，性能未启动。 |
+
+| A-H1-performance-B1 / 2026-10-01 | off/on各128/128；on率108.40%、flow91.08%、maxgap3.176比3.699s，数值达标但两格direct=0，on254次均资源不足回退；60输出序列/4终止原因不同 | `20260929_commit_recheck/moe-a-h1-perf-b1-session-r01-20261001/`，各27/27、444.636s、GPU EMPTY | [结果](20260929_commit_recheck/A_H1_PERFORMANCE_PAIRED_RESULT_R01_20261001.md)，审计SHA `cde40968…790fb962`。不能归因H1动作；预定B2首申请锁忙exit75、未初始化，分析后自然断点重试，不追加网格。 |
+
+### 2026-10-01 H1两个反序配对完成
+
+[完整结果](20260929_commit_recheck/A_H1_PERFORMANCE_PAIRED_RESULT_R01_20261001.md)：四格512/512。B1 on direct0但数值达标；B2 on direct5，输出率100.78%、mean flow104.91%、maxgap3.499比2.743s，未通过停顿判据。两个块的预定共同判据失败，停止本次H1性能扩展。原始会话均已本地归档，退出GPU EMPTY。新的prepare分析揭示40个已有等待阈值合格的数值fit替代状态，后续仅作一次实际改选的简单规则探索，不宣称新算法。
+
+### 2026-10-01 Fit-first原生探索失败于长尾
+
+[结果](20260929_commit_recheck/A_FIT_FIRST_PAIR_RESULT_R01_20261001.md)：off/on各128/128，47次真实fit-first接纳及后续输出，率+2.35%/flow−5.05%，maxgap3.795→12.186s，未通过停顿判据。全部抢占265→237、强制轮转229→157，压力转移保留。原件已回本地，退出GPU EMPTY；停止此无条件规则扩展，先定位具体尾部。
+
+
+## 2026-10-01 A 线容量合格 victim 原生首组
+
+同一 H128 off/on 两格256/256完成。79次容量改选准备、78次真实新victim抢占→目标新输出、1次提交资源不足取消。率1428.855→1502.684、mean flow39.447→35.368、最大gap3.764→2.273；首组有利。prepare资金不足拒绝703→0，但总抢占230→350、强制192→302，必须同时报告代价。逐请求gap87改善41恶化，20点goodput均提高；66输出序列不同、0终止原因不同，总token124469/124470。结果`A_CAPACITY_VICTIM_PAIR_RESULT_R01_20261001.json`，原始会话`moe-a-capacity-victim-session-r01-20261001/`（均在20260929_commit_recheck目录）。容量可行性筛选是加强简单基线，不是新算法。固定原包与阈值的反序on/off块已准备，首次try-lock忙而未启动；不把首组当确认，不扩参数。
+
+
+## 2026-10-01 容量筛选反序结果与唯一下一步
+
+反序B2 on/off全部256/256完成，83真实容量替换均有后续输出；on/off率99.96%、mean flow105.09%、maxgap3.690/3.468s，两块共同判据失败。全抢占off/on268/363，强制231/324；prepare资金不足事件440/0，但零拒绝不等于零容量等待，性能记录没有selector不可行noop。64输出序列、1终止原因不同；保留首组正向结果，不宣称稳定收益。主报告`A_CAPACITY_VICTIM_TWO_PAIRS_RESULT_R01_20261001.md`（20260929_commit_recheck目录）。
+
+新唯一实验为同capacity=true/q1策略first/second A/A，沿用相同输入/资源/预热/缓存流程，回答无策略变化时差异的量级。最近5个不同策略配对第二格meanflow都较低仅是线索，不能归因于顺序。A/A已启动，尚无结果。条件q10 CPU候选需首输出时未来增长预算可用且R=0，持续留出预算，否则回退；3fixture通过，未跑GPU。B2短服务19对中18有保护释放后再次native抢占，但不覆盖前三最大gap，所以不能拿它解释整体长尾。
+
+
+## 2026-10-01 同策略 A/A：正式服务中的缓存不对称
+
+相同 capacity=true/q1 两格256/256完成；first/second率1440.868/1455.358 token/s、mean flow39.689/36.666s、maxgap2.694/3.537s。第二格flow低7.62%但尾部更差；62输出序列不同、0终止原因不同。同策略也有相当幅度差异，单个策略配对不能直接归因，且不能据一次A/A估计总体方差或扣除其它配对效应。结果见`A_CAPACITY_IDENTICAL_PAIR_RESULT_R01_20261001.json`。
+
+阶段定位`A_CAPACITY_IDENTICAL_PHASES_R01_20261001.json`：第一个token的最早内容分歧在1.176/0.844s，早于两格首次原生抢占6.383/6.457s；0–5s均26到达、2完成、0抢占，第二格已多978token。缓存元数据`A_CAPACITY_IDENTICAL_CACHE_PHASES_R01_20261001.json`显示first正式计时内64个Triton文件写入（2,867,515B），second为0；这与早期分歧重叠，尚非全部差异的因果解释。
+
+唯一下一项：同策略暖缓存A/A，用已完成缓存的两个独立副本作相同起点，保持候选、输入及资源不变。检验正式阶段是否仍写编译缓存、0–5s输出差距及完整分布是否收敛；一组仍非统计确认。条件q10仅CPU就绪，未在GPU运行；本轮不以额外审计扩展门槛。
+
+
+## 2026-10-01 新设备上的同缓存起点 A/A 完成
+
+用户更新SSH端口后，原环境/模型/数据保留，但物理5090与容器已更换。r02两格在同一新GPU上完成256/256请求；first/second率1436.930/1412.287 token/s、mean flow37.857/38.596s、maxgap2.840/2.210s。59输出序列与1终止原因不同，总token125418/124444。前5s输出4333/4297，最早序列分叉在第39个token且早于首次抢占。两格正式阶段各有16个缓存文件写入（655329/822659B）；只是相同种子缓存的独立副本，不能称完全无JIT。该组描述同策略波动，旧冷缓存与新卡暖缓存不可作缓存因果比较，也不据一组估计总体方差。完整结果：`A_CAPACITY_WARM_IDENTICAL_PAIR_RESULT_R02_20261001.json`、`A_CAPACITY_WARM_IDENTICAL_PHASES_R02_20261001.json`，原始session已取回；541.365s，退出GPU EMPTY。
+
+下一唯一机制实验为资源合格的Q1/Q10保护原生pilot，同新GPU/同H128/同capacity-victim，仅延长恢复后的有效输出保护；已完成second cache作为两格各自相同副本。Q10仅在首输出后已知R=0、纯decode、无pending queue、未来增长块可用时延长；状态改变回退。全部128请求、实际扩展→输出、释放后再次抢占和最终完成均入账。原固定探索预算rate≥97%/flow≤105%/maxgap下降保留，单配对不作确认。`CAPACITY_PROTECTION_PAIR_PLAN_R03_20261001.json`及新包已上传，首次try-lock忙（exec81781 exit75），未启动GPU；不扩A/A矩阵，不扫q。
+
+
+### 2026-10-01 原生传输日志的可计量范围
+
+`A_PRINTED_TRANSFER_INTERVALS_R01_20261001.json`及`analyze_printed_transfer_intervals_r01.py`补齐8格已打印区间的原生copy证据。每格正式阶段8次打印，首条可能混warmup而单列排除，后7个完整日志区间相加；vLLM每次打印后清零，不能拿末行当累计量或再次累加size_sum。CV B1 off/on的store为31.701/39.326 GB、load70.118/124.187 GB；B2分别store36.834/39.934、load92.164/121.289 GB。新卡同策略A/A first/second store38.372/39.307、load125.842/122.627 GB。这里GB为十进制，只覆盖已打印区间完成的实际搬运；未打印首尾未知，CUDA事件时间不含前置stream等待，也不能相加当请求暴露延迟。它补充容量筛选增加传输的观测代价，仍不是完整episode成本或单动作因果增量。
+
+
+## 2026-10-01 Q1/Q10 原生保护探索失败及唯一定位实验
+
+完整结果 `A_CAPACITY_PROTECTION_PAIR_RESULT_R03_20261001.json`：同新GPU、同H128、capacity=true，两格128/128完成；Q1/Q10输出123519/124468，率1491.394/1415.183 token/s（94.890%），mean flow37.340/38.116s（102.080%），maxgap2.243/2.529s；原定rate≥97%且maxgap下降未通过。60输出序列、1终止原因不同；flow51改善77恶化、gap54改善74恶化、TTFT27改善101恶化。实际206次延长均产出10个新token、8次未来增长不足退回首输出保护；全抢占375→263、短服务1–2输出后再次抢占22→11，局部现象改善未转化为完整服务收益。停止该Q10实现的性能扩展，不扫q、不自动追加反序块。
+
+`A_CAPACITY_PROTECTION_EXPOSURE_R03_20261001.json`：206个不重叠延长区间共29.661s，其间其它请求仍输出42945token；不是独占GPU或可直接相加的损失。137个延长episode释放后仍有后续抢占，69个直至完成没有。最早内容分歧在1.587s，早于首次抢占；正式缓存写入16/0，因此不能作精确单动作归因或等工作量比较。`A_CAPACITY_PROTECTION_PRINTED_TRANSFERS_R03_20261001.json`：各7个完整打印区间的store39.548/35.316GB、load123.619/85.656GB，CUDA copy时间不等于请求暴露等待，首尾未覆盖仍unknown。
+
+新的唯一问题：延长保护不仅保留目标未来增长，还沿用全局非目标waiting-loop break；是否实际阻挡了当时数值足够的其它等待请求？下一单格保持同Q10策略，只记录实际命中该break、held peers、空闲与目标增长/等待头需求及调度预算，避免全栈诊断。若没有真实命中的可容纳状态，不基于结构猜测放开准入；若存在，再检验一个保护范围更窄的实际动作。该诊断不与旧格做性能排名，也不将数值fit等同原生准入。完整贡献与新输入确认仍缺，未READY。
+
+
+## 2026-10-01 Q10 全局保护范围：实际队列阻挡成立
+
+同Q10稀疏原生诊断128/128完整完成，168.058s，exit0/GPU EMPTY。1755个延长步全部命中waiting break；174步涉及24个队首、22个保护目标，R0/无transfer job/无skipped queue/pending pushFalse，free足够队首完整历史及目标未来增长，余量5–354块。另123步有peer hold，共1029请求步。首个反例0008645需185块、free235、目标growth0，仍被保护分支挡住；数值可容纳不是原生准入证明。见`A_PROTECTION_SCOPE_DIAG_RESULT_R01_20261001.md`及完整rawsession。
+
+唯一下一项为实际waiting边界的条件提前释放，未知/不足保留Q10；用Q1/条件释放Q10/普通Q10三格同时保留强简单参照和消融。真实原生接纳、首新输出、原目标及peer直到完成均入账。仍为简单基线延伸，无独立贡献主张，不扫q/seed，不把诊断时间与旧性能比较。计划`PROTECTION_YIELD_TRIPLET_PLAN_R01_20261001.json`尚未冻结/上传。
+
+
+### 条件提前释放三格已固定、首次资源申请延后
+
+`candidate_protection_yield_r01`在实际waiting-loop gate尝试提前释放：复用已有 `_direct_resume_reason` 的状态/slot/真实所有权检查，并要求R0、无注册transfer/未知push、full-history+目标future-growth有资金；其它情况保留原break。记录`protection_yield_to_ready_head`与`yield_head_admission`（包括NO_NATIVE_ADMISSION）。释放不因未接纳而回滚，不承诺10输出。四个实际closure CPU例通过，只是实现检查。
+
+同包Q1/q10_yield/普通Q10顺序，计划`PROTECTION_YIELD_TRIPLET_PLAN_R01_20261001.json` SHA85560f9904fc29d1dde5098c5e9456b3e2e1ecc61a7ec34458713662c34b3022，包manifest b77bdf94bcea2b98fbb7e191a379ba199ad8fd782f50b7b1b26af521ab757503。已上传解压，exec38476首次flock EAGAIN/exit75，无测量session或A GPU作业。下次仅运行既有controller，不重解压，不改策略/输入。GPU未运行，不能声称接纳或性能收益。
+
+
+## 2026-10-01 条件提前释放三格完成：实际动作成立，尾部判据失败
+
+Q1 / 条件释放Q10 / 普通Q10三格均128/128完成，组445.759s、全部exit0/GPU EMPTY。率1419.121 / 1413.993 / 1404.383 token/s，mean flow37.704 / 38.153 / 38.041s，每请求最大gap的p95为1.772 / 2.857 / 1.924s，cohort maxgap2.038 / 3.656 / 2.313s。条件释放相对Q1率99.639%、meanflow101.189%，但停顿下降判据失败；不能因与普通Q10吞吐略高而替换Q1强参照。
+
+25次提前释放均为真实ASYNC_LOAD_ADMITTED，并有后续新输出及最终完成；admission→新输出中位46.5ms。原保护对象全部完成，10个动作之后原对象还有后续抢占（相关事件，不是因果增量）。总抢占332 / 266 / 249，短1–2输出再次抢占18 / 10 / 12；局部减少没有转成尾部收益。条件释放相对Q1/普通Q10有57/65输出序列不同、均0终止原因差异，输出总数124464 / 124445 / 124464，不能称等工作量加速。
+
+主结果`A_PROTECTION_YIELD_TRIPLET_RESULT_R01_20261001.json`；raw为`moe-a-protection-yield-session-r01-20261001/`。已打印7个完整区间store39.781 / 33.643 / 34.152GB、load115.402 / 87.323 / 85.788GB，首尾未知，CUDAcopy时间不等于暴露请求等待，见`A_PROTECTION_YIELD_PRINTED_TRANSFERS_R01_20261001.json`。停止此条件释放规则的性能扩展，不扫q/seed或自动追加反序块。下一步只从现有raw定位最差停顿的抢占→准入→新输出和原对象/peer代价，再决定有依据的实际动作；全论文仍未READY。
+
+
+### 最差停顿定位及工作稿
+
+`A_PROTECTION_YIELD_TRIPLET_TARGET_PEER_R01_20261001.json`：最长六个gap共同落在73.97–78.49s，抢占后到记录准入前占各gap的98.36–98.66%，准入到输出48.3–55.5ms。起始抢占五个匹配强制victim交换，一个跟随普通Q10保护释放；联合区间13个保护开始、12个十输出释放、0提前yield。不能严格把整个前段归为单一排队原因或作相同前态因果结论。停止扩展Q10/提前释放，下一唯一可检验线索：一次victim回收后的空闲是否足以同时恢复原target和另一个实际等待者，以及该余量是否在首target新输出前消失；先使用已有H1完整诊断，不新跑审计格。
+
+工作稿已编译 `paper_a/output/pdf/A_recovery_working_draft_20261001.pdf`（10页，保留NOT SUBMISSION READY），主源码`paper_a/draft.tex`，重建`bash paper_a/build.sh`。已检查全页排版及最新图表，无未解析引用/越界。PDF只是当前证据的可读版本，不改变独立贡献/新数据确认缺口。
+
+
+### 有界 follow-up 已固定，首次 GPU 申请延后
+
+Root完成新私有包，仅三文件改动：Q1原target首输出后，仅当当前PREEMPTED队首完整历史超过free时，按既有年龄规则选择一个真实门禁合格的额外等待者；复用原生单目标恢复，origin保证每正常rotation最多一个且不链式触发。7个实际closure CPU用例通过（含off、未知R、pending、资金不足、无head阻挡、真实scheduled回执/不链式和NO_NATIVE_ADMISSION留痕），不作GPU证据。
+
+包25文件manifest SHA `cc171a26feeb57c719b73d3788d8531a0c3ab5f295457d594a7670301f3cc6de`；controller `run_spare_followup_pair_r01.py` SHA `547c85aebc8fcacd3bca4bcb91ce7be88058425791e569aa9f54e1c141d9ad6a`；plan `SPARE_FOLLOWUP_PAIR_PLAN_R01_20261001.json` SHA `2343699e5d5d43bb604dbdc5c8425242e12514fb14e2ecc816d902c14c21b735`。两臂同包off/on，900s每格/3200s组，与既有90GiB及共同锁；首阶段cache由已完成yieldtriplet第一格独立复制。
+
+3,428,009B tar已上传/解压 `/root/moe-a-spare-followup-stage-r01-20261001`。exec31795首次controller退出75/flock EAGAIN，GPU_DEFERRED、无A测量启动。分析脚本 `analyze_spare_followup_pair_r01.py` 已对齐事件字段并通过语法/CLI检查，等待真实原件；不造输出。下个自然断点先查session/精确controller进程，若不存在只启动既有包；不要再次解压、快速轮询或改q/seed。主研究未完成，工作稿PDF不等于可投稿。
+
+
+## 2026-10-01 A spare-followup first pair: exploratory positive
+
+Canonical `20260929_commit_recheck/A_SPARE_FOLLOWUP_PAIR_RESULT_R01_20261001.json`: off/on128+128 complete,24 native async-admission→output→completion chains after original primary output, zero same-step extra preemption/nonrecursive. Rate1435.944/1425.151 token/s,mean flow38.066/38.091s,maxgap2.967/1.566s; all predeclared conditions pass. Actual preemptions357/400,short1–2output pairs20/33;60 changed output sequences and1 stop change.82 request gaps improve46 worsen;flow57 improve71 worsen, including a +21.147s individual. Retain full actor costs. Strong simple baseline extension only; no method/fresh-input claim. Fixed reverse-order r02 running, both blocks must independently pass.
+
+
+## 2026-10-01 Spare-followup two blocks: both pass, new-input test pending
+
+Reverse on/off block completed256 requests,24 true chains; off/on rate1431.062/1405.295,meanflow37.673/38.743s,maxgap2.346/1.866s. Original rate97%/flow105%/lowermax conditions pass in each retained block; combined512 completions,48 action chains are not independent samples. Reverse block flow24better104worse,gap71better57worse;57 sequence/0stop differences,preempts326/379. `A_SPARE_FOLLOWUP_TWO_PAIRS_RESULT_R01_20261001.json` indexes both canonical sources. General backfill and one-release/multiple-admission are established prior art; no independent novelty claim. Freeze code and test new source-order full articles with same criteria and native system reference; no third seen-input rescue.
+
+
+## 2026-10-01 Frozen new-input spare-followup triplet: original conditions pass
+
+`20260929_commit_recheck/A_SPARE_FOLLOWUP_FRESH_RESULT_R01_20261001.json`: fixed policy/input selection/order/criteria, off/on/native each128/128 complete,18 native async chains after actual primary output, no recursive origin or same-step extra preemption. off/on rate1472.515/1463.713 token/s (99.402%),meanflow39.216/39.524s (100.785%),maxgap2.387/1.844s; all original criteria pass. on/off gap88better40worse,flow39better89worse,TTFT30better98worse;62 sequence and3 stop differences; preemptions359/465,forced322/403,short13/35. Native rate1497.949,meanflow35.977s,maxgap12.586s; on/native flow109.858%, not a claim of passing the5%budget against native. Fixed20point goodput on/off13up7down, on/native12up8down. All formal cache-final-mtime writes0,not zeroJIT proof. New source-order full articles cover known A input exclusions; one episode, no statistical significance/global novelty/universal gap guarantee. Completed440.298s,allGPUEMPTY,109rawfiles local; no A GPU job, backup plan unrun. Full report/target-peer/transfers/figure in same directory. Independent contribution remains open; no seed/parameter rescue.
+
+
+## 2026-10-01 A：普通 eligible backfill 强简单对照已完成
+
+- 原22937锁忙，冻结三臂完整迁到授权45495，同GPU/相同私有cache种子/同输入/相同selected backend与预算，Q1→ordinary→primary-first各128/128完成；110份原件已本地归档，所有退出0/VERIFIED/GPU EMPTY。原22937同stage保持UNRUN且被已完成备用整组取代，禁止重复启动。
+- [权威JSON](20260929_commit_recheck/A_WAITER_BACKFILL_TRIPLET_RESULT_R01_20261001.json) SHA c76107abf47fef8410010a197bd6cdaf975f9a46442570f721c1ad93081a2973；[报告](20260929_commit_recheck/A_WAITER_BACKFILL_TRIPLET_RESULT_R01_20261001.md)。ordinary/primary-first各自通过相对Q1全部冻结判据，44/19实际ASYNC_LOAD→新输出→完成，ordinary36次在同step REGULAR输出事件外。
+- Q1/ordinary/primary率1547.549/1532.668/1545.904；flow36.606/36.412/36.932s；maxgap3.407/1.894/1.711s；抢占348/496/433。primary对ordinary仅33请求gap更好、95更差，全部20固定goodput点更低，但maxgap低0.182s且率高0.864%，不称全指标支配。ordinary已覆盖本块原目标，撤销primary输出触发独立贡献/必要性暗示。
+- 成本与边界：三组比较60/57/66输出序列和3/4/3stop不同；正式期cache32/16/32文件，非零JIT证明；七个完整已打印区间load111.734/164.098/142.684GB非episode总量，CUDAcopy非请求延迟。一次已见输入顺序块，不与原机时延拼表。
+- 下一小问题：native full-save + ordinary合法backfill、关闭主动强制轮转是否存在实际动作及更低代价；可行性检查中，尚未冻结或运行。当前无A GPU任务。
+
+
+## 2026-10-01 A：native full-save ordinary-only 对照冻结，GPU UNRUN
+
+原生full参考与同full后端ordinary-only两臂，显式关闭整个主动轮转提案/prepare入口，保留既有合法准入与Q1首输出保护。仅3个私有payload文件修改，25文件verify/3项CPU闭包/bash语法通过；candidate_native_backfill_only_r01 manifest ffa9dc592ec9c3c14aa4db2d9d8978b745695196dcb591e1f03f4185738392bc。事前固定相对native97%率/105%flow/lowermaxgap/全128完成/实际动作且无forced条件；零动作单独NO_ACTION，不放松门禁救场。两端已stage，备用90527和原机59719均现有commonlockEAGAIN，session未创建，未跑GPU；不存在效用结论。当前CURRENT af入口与恢复命令文件保留下一安全启动路径，禁止重复firstlaunch解包或跨卡拆分。
+
+
+## 2026-10-01 A：native full-save ordinary-only 两臂实际完成，效率判据失败
+
+原22937 resume45045在既有锁2304:29005388732执行整组，311.239s；78份原件已回读，tar SHA eb825f5f2a6564399d8b72b7110371adfdc51c08dc337de57e6872a1c4b8cdc9，GPU已释放。备用同组永久UNRUN/被原机完成取代，不得启动。两臂各128完成，23条实际ASYNC恢复输出链、0主动forced。native/candidate率1511.666/1422.598（94.108%），flow35.924/37.801s（105.225%），maxgap13.101/11.844；率97%和flow105%条件失败，maxgap条件通过。原生抢占51/64；gap69好59坏、flow9好119坏、TTFT18好110坏；goodput5高15低，63输出序列/2stop变化。canonical `A_NATIVE_BACKFILL_ONLY_PAIR_RESULT_R01_20261001.json` SHA29e853f0b449c629f329624737f8753ed06423f2d1a02c51b9162862b106ae71。真实动作不等于联合完整服务收益；一次已见顺序块，无统计稳定性，不据此否定所有backfill。CPU策略开销尚未隔离，下一步由实际actor代价与可测开销决定，不扩参数救场。
+
+
+## 2026-10-02 A：原生 ordinary-only 主机成本诊断完成
+
+授权45495单格156.630s结束，exit0/VERIFIED/GPU EMPTY，46份原件已本地回读（含补充3份缓存元数据）。`A_NATIVE_BACKFILL_CPU_DIAG_RESULT_R01_20261001.json`：128/128完成，20条实际ASYNC恢复→输出→完成，0forced。正式83.160s，互斥begin/hold/schedule_pre/schedule_post累计wall分别2.534779/0.130115/0.022328/0.033352s，总2.720574s（3.27149%），threadCPU总2.655059s，其中begin2.530850s。measurement-end快照与final一致，drain calls0。此为同策略带计时单轨迹，不与原机旧pair作吞吐比较或从4.048s差直接扣除。原native-only失败仍有效。
+
+源码证据：当前open/non-diagnostic/no-forced路径每步创建全running view，通常仅被已禁用分支需要；普通合法动作仍有独立必要扫描。下一项仅按需构造view，保留动作边界owned/transfer/free门禁和保护检查；无动作异常所有权的早失败时点可能延后，不能称全部异常语义等价。同机同cache原timed/lazy timed两臂待冻结，不改变种子/阈值，不作新算法贡献。
+
+
+## 2026-10-02 A：按需 running view 的同机计时配对完成
+
+`A_NATIVE_BACKFILL_LAZY_PAIR_RESULT_R01_20261002.json` SHA4b64e1990a84a6823f9ad95c6b8ad00a308fd9870bb48d913b2f3e6e51d10a7e。原/lazy各128完成、19/27真实异步输出完成链、0forced，312.167s整组/GPU已释放，78原件本地完整。begin CPU/call736.983→113.571us（15.410%），四段wall4.325838→0.998584s，占自身正式区间4.738%→1.122%；主CPU减半目标及97%率/105%flow服务护栏均过。率比103.225%、flow比100.519%，maxgap11.690→11.731并未改善。gap77好51坏，flow53好75坏，TTFT26好102坏，goodput7高13低；68序列/1stop变化，输出126626/127483，非等工作量加速。
+
+保留较低开销的实现，但不能宣布此前native-relative失败修复。仅去掉无消费者的running view构造；普通动作/保护检查仍在，无动作异常owned的发现时点可能延后。下一项只做去掉计时器的lazy ordinary→native参考同机配对，沿用最初97%率/105%flow/lowermaxgap/真实动作条件；当前未冻结未运行，不改变seed或参数。所有旧失败保留，独立机制贡献仍缺，工作稿NOT READY。
+
+
+## 2026-10-02 A：去掉计时器的优化 ordinary / 原生参考配对通过原条件
+
+授权45495同组lazy ordinary→native，exec74808整组304.564s、两格退出0/归档VERIFIED/GPU EMPTY。78原件已本地；`A_NATIVE_BACKFILL_LAZY_PERF_PAIR_RESULT_R01_20261002.json` SHA3516ec54f09e4cacdc52a0bad011c351afb9a644502754e11a94966986f65646。两格各128完成，优化ordinary有17/17真实ASYNC准入→新输出→完成、0forced、动作同step无抢占。native/ordinary输出率1444.756/1527.506（105.728%），meanflow37.827/33.688s（89.058%），maxgap14.927/12.916s，最初97%率/105%flow/lowermaxgap等全部9条件通过。
+
+native/ordinary抢占49/59，输出126565/124886，75输出序列及2stop变化；gap111好17坏、flow127好1坏、TTFT123好5坏，全部20固定goodput点更高。两臂459file同cache种子独立副本，init32各、正式/预热finalmtime0（非零编译证明）。printed成本只累计实打印字段：ordinary/native store38.504/37.948GB各7interval；load16.444/13.348GB分别6/7interval，未打印load保留missing不补0；不称全episode成本或请求等待。
+
+这是较低开销实现的一次反序、已见输入配对资格结果，无方差/等工作量/独立新方法/新数据确认主张。此前原版native-only失败保留，不能把不同机器旧差异直接全归CPU修复。下一步只分析本组17个更差gap和唯一flow恶化及17动作后续代价，再选择有自然证据的实质问题；当前无新GPU任务。
+
+## A — 2026-10-02 native pressure victim selection
+
+Completed tail/arrival/residence-density triple (all128, nativefullsave, forced0). Result `20260929_commit_recheck/A_NATIVE_RESIDENCY_VICTIM_TRIPLET_RESULT_R01_20261002.json`: all12 fixedconditionspass; maxgap12.172/8.415/6.222s at rates1571.383/1568.270/1554.088 andmeanflow33.910/33.740/34.062. Density improvesworstgap butworsens74individualgaps/99flows versusarrival, only7/20goodputhigher; naturaloutputs differ. All204victimdecisions correspond torawnativepreemptions. Simplepressurepointheuristic, notnovelty/freshconfirmation. Nextfactor ablation isrunningprimary36984; backupablationunrunpermanentlysuperseded. Existingpublishedfailuresretained.
+
+
+## A native residence/KV factor ablation — 2026-10-02
+
+Primary3arm completed128 each; full density/residence-only/lifetime-density rate1498.711/1475.048/1468.987,flow36.098/37.270/36.606s,maxgap5.020/8.533/9.081s. All fixed criteria pass, but fullscore goodput higher only12/20 and11/20 points and TTFT regressions persist. Simple factors do not cover this within-block joint result; no novelty/stability/equal-work claim. Canonical A_NATIVE_RESIDENCY_ABLATION_PRIMARY_TRIPLET_RESULT_R01_20261002.json (4d28303883dc9328d8804fd990e2e487a1577feb2f1ba47ab6d112c15c89bc09). Next unchangedrule new128articles37452..54660, two opposite-order primary blocks frozen; first14921 lockbusy before stage/GPU, no accepted job.
+
+### 2026-10-02 A — residence-density fresh two-block confirmation FAILED
+Both predeclared opposite-order blocks completed all128 requests per arm. Block1 density/tail maxgap10.071457/8.390893s, rate ratio0.986414, meanflow ratio1.025246; block2 density/tail9.033967/8.357038s,rate0.988446,flow1.008087. Both fail only the original lower-maxgap-vs-tail criterion; neither replaces the other. Goodput density vs tail2higher18lower and9higher11lower across20points. Full outputs differ and are retained. Combined result A_NATIVE_RESIDENCY_FRESH_TWO_BLOCKS_RESULT_R01_20261002.json; both113-file sessions verified locally. Development successes do not support a stable method claim.
+Next one actual action is guarded continuation after current-request self-preemption; frozen triplet tail_break,density_break,density_continue nowRUNNING PTY11180 primary22937. Same now-seen128 inputs; requires actual useful successor work AND service criteria against both controls. This is new FCFS bypass behavior, not proof that one skipped call caused the entire long stall. BidKV source-pinned score adaptation implemented/tested locally, GPUUNRUN; not full reproduction or novelty evidence.
+
+### 2026-10-02 A — native self-preempt continuation executes but service objective FAILED
+Frozen same-input triple tail_break / density_break / density_continue completed128each. Native actualpreemptions61/85/75; noforcedrotation; allrawdecisions matched. Continuation29applied, all29originalsuccessorsvisited,319deduplicated(step,request) positive suffix tokens joined to319same-call newoutputs; source0, no suffixpreemptionsattheseactions. Thus action exists.
+Actual outputrate1493.782/1494.581/1495.991 token/s, meanflow37.515/37.285/37.650s, maxgap10.535/7.776/10.750s. Continue fails lowermaxgap againstboth controls;goodput6higher14lowerof20 versusboth. Outputtotals127169/127428/128211 and stop4/4/3: not equalwork. Result A_NATIVE_SELF_PREEMPT_CONTINUE_TRIPLET_RESULT_R01_20261002.json. No independentmethodclaim; structural continuation does not explain/cure longstalls.
+Next closestofficialdefaultBidKVscore adaptation is implemented (241exactscore/tie checks), frozenone3armqualification withnative tail and separate continuationcontrol. Sourcecommit5ee80256d263d58b1e512d9d436d47e9bac564ba; not fullsystemreproduction. No tuning andsamealreadyseeninputs.
+
+### 2026-10-02 A — closest BidKV default-score adaptation qualifies in one seen block
+Tail / BidKV break / BidKV continue: rate1513.237/1480.460/1485.885; meanflow37.301/37.137/37.722s; maxgap8.781/8.366/7.181s. All128complete, preempts60/53/59,stop3/4/3;nativefull/forced0/rawmatches. Breakvstail passes original97/105/lowergap and20pointgoodput17higher3lower. Continue8applied89samecalloutputs; its criteria pass vsboth, butgoodput5higher15lower vsbreak,11/9vstail. Single seen-input block; restrictedofficialscoreadaptation, notfullBidKVreproduction orourmethod. Canonical A_NATIVE_BIDKV_SCORE_TRIPLET_RESULT_R01_20261002.json;116rawfilesverified.
+Nextdirectaction current_victim_guard excludes allocation-failedcurrent onlywhenotherqualifiedsuffixcandidateexists; sameBidKVscore andtwo completedstrongcontrols. Motivation actual193held/194readmission first-preemptedrequeststall10.75s; priordurationhistorycannotdistinguishit. Candidatea9d0f1d18428149955bf6678a767a25e9dbfb9567ac774cb60812d0dea5ec5ef. R01abort25.172s beforeanycell due2GiB-aftercache diskreserve; policy/inputuntouched. R02sameplancriteria usesmeasured1.5GiB reserve; pending56379.
+
+
+## 2026-10-02 — current-request guard: seen-input action pilot PASS
+R02 completed437.187873s,all3exit0/archivesVERIFIED/GPUEMPTY;119rawfiles/186186834B verified locally, tarSHA ac15034d30de78236d738c010865f79ea7cfe0b51a867550b67290f04e600abc. Canonical A_NATIVE_CURRENT_GUARD_TRIPLET_RESULT_R02_20261002.json SHA54d61acacd7001370502e7275739a906714791469749daa2d9d4ae08559eb314.
+BidKV break/continue/guard rates1491.630664/1481.869200/1479.547462,meanflow37.157290/37.966441/36.750537s,maxgap9.861232/8.382358/7.763851s. All128complete,forced0,nativefull,all15frozencriteriaPASS. Fourguardselections actually preempt alternatives and givecurrent samecalloutput; currentneverpreempted andalternative scheduled0. Thefourdisplacedrequests allresume/output/complete; preempt→nextoutput1.450/1.936/.641/1.687s. Mosthaveworsegapthancontrols; policy-levelassociation,notcounterfactualcausality. Goodput14higher6lower vsbreak;19higher1lower vscontinue. Outputsequence64/63different,stop3/2different; no equal-work claim.
+Pinned BidKV selector has no failed-current parameter and repository tree has no completehostscheduler; fullupstreamnative-loopbehaviorunknown. Currentguard is adapterfeasibilityaction,notanewscore/fullBidKVreproduction. No independentmethod/stabilityconfirmationclaim.
+Next frozen new128articles54660..71070,full lengths616..3040,mean1958.40625,same0.2arrivals/1024naturalEOScap,only3payloadinputfileschanged. Two oppositeorder4arms include samebackend nativetail,BidKVbreak,continue,guard; eachblock18criteria vsall3controls,allrequests20pointsretained,nopooling. Descriptor NATIVE_CURRENT_GUARD_FRESH_FROZEN_R01_20261002.json. FirstB1attempt6753 LOCK_BUSYbeforemutation,archiveuploaded butstage/sessionabsent; noAjob. B2frozennotuploaded. CompletedpilotandR01diskabortimmutable.
+
+
+### 2026-10-02 — current guard fresh first block fails the strong-score comparison
+Fresh B1R02 completed569.999s,all4exit0/archivesVERIFIED/GPUEMPTY;154rawfiles/247830974Bverifiedlocally,readbackSHA be93979a0e613710727c79a10310c5dd563ebcc62156df56eb5c481e0f8a0dd7. Canonical A_NATIVE_CURRENT_GUARD_FRESH_B1_RESULT_R02_20261002.json SHA cb4e70341413f55713000f0b06523c78e6342e20de21b5f5598a02bd5a04b732. All128/armcompleted,forced0. Tail/BidKVbreak/continue/guard rates1525.683/1494.663/1491.013/1492.263,meanflow37.362/37.367/37.405/37.257s,maxgap8.606/5.997/8.654/6.870s. All7guardchanges real,all7current samecalloutput/displacedvictimlatercompletion.17/18criteriaPASS;FAILonlylowermaxgapvsBidKVbreak. GoodputguardvsTail16higher4lower,vsBreak11/9,vsContinue15/5;outputsequence52/55/58 andstop3/2/2differ. No equalwork orstablemethodclaim.
+Longest0059158: ordinaryBidKVdecision step1760 selects anotherrequest,guardineligible/unapplied; firstpreemption at304outputs,206heldblocks. Preempt26.459951→recordedrunning33.313752→newoutput33.329497s,maximumgap6.870386s. Current-onlyguard doesnotcoverthisobservedfailure; exactqueue/loadsplitunknown andnoalternativeactioncausalclaim. See A_NATIVE_CURRENT_GUARD_FRESH_B1_FAILURE_CHAIN_R02_20261002.json. The originalfrozenreverseB2remainsrequired,notarescueblock; samepolicy/input/18criteria. Resource-onlyR02uses1.25GiBafter4x228492707Bcache,900s/cell4800group90GiB. B2R02archiveuploaded,attempt45430LOCK_BUSYbeforestage/session/dedup/compaction. NoAjob.
+Closestbaselinegap confirmed in identicalpinned vLLM0.26scheduler: nativePRIORITYcanrollbackalreadyscheduledprefix token/block/spec/encoderplanandindex,while currentFCFSBidKVadapterqualifiesonlysuffix. A separatefullrunningbaselinecandidateisbeingimplementedlocally; UNRUN,notanewscore andnotpartofthese frozenfourarms. PaperNOTREADY.
+
+
+### 2026-10-02 — frozen current guard: both blocks fail; stop unchanged rule
+B2 completed all four arms, 128/128 each, native full saving, zero forced rotation; 574.160 s, all exit0/VERIFIED/GPU EMPTY. Its 154 raw files (250019533 bytes) are verified locally, readback SHA 06cb9645b24fdbfec93780f7ca80e7c38a2b107fed1a1ef4bfd48d17073c446d. Tail/BidKV break/continue/current guard: output rates 1537.946/1503.199/1499.825/1489.107 token/s; mean flow 38.095/38.458/37.698/37.077 s; maximum gaps 8.850/9.549/7.060/9.111 s. Guard executes five real victim changes with same-call current outputs and all displaced victims later complete. It fails three service conditions: rate >=97% of tail (observed96.824%), lower maxgap than tail, and lower maxgap than continue. Goodput guard improves19/20,20/20,13/20 fixed points versus tail/break/continue; output sequences differ63/60/58 and stops6/5/5. These favorable subsets do not replace frozen criteria.
+B1 previously failed lower maxgap than BidKV break (guard6.870 vsbreak5.997). Combined A_NATIVE_CURRENT_GUARD_FRESH_TWO_BLOCKS_RESULT_R02_20261002.json retains both independent blocks and all complete-request frontiers; both fail. Stop performance expansion of unchanged current-only guard. No pooling, threshold, seed, or best-block rescue.
+Next concrete unit: qualify the stronger full-running BidKV-score adaptation that can roll back already scheduled native decode requests. candidate_native_bidkv_full_running_r01 manifest844caa2fa985d6101ecf74b2f5aae76a778711868f96dd8bd67df0b3d97855e2; only3payloads changed, CPU3/3 pass and pinned native branch AST compiles. Analyzer analyze_native_bidkv_full_running_triplet_r01.py separates rollback/real-preemption qualification from service budget and checks raw same-call absence of victim output. Both are GPU UNRUN; not new method or complete upstream reproduction. One native tail/suffix score/full-running score triplet being prepared, guard and continuation OFF. Paper updated with both frozen failures, still NOT READY. No own GPU job at this checkpoint.
+
+
+### 2026-10-02 — full-running BidKV native triplet executed; readback deferred
+Native tail / suffix BidKV / full-running BidKV completed in440.250820s, all3exit0/VERIFIED/GPUEMPTY, each128/128complete,0forced. Plan8b8332b9ba36deaac12dd121cb1e05e3733513afb8fb1c73f0b2f522d586fdc2; controller005333a079871e487cd693a9685fac408aa8909b4c3a4754670eb18535eace58; candidate844caa2fa985d6101ecf74b2f5aae76a778711868f96dd8bd67df0b3d97855e2. Guard/continue OFFall, fullrunning OFF/OFF/ON. Lightweight completion metadata shows62/46/52nativevictimdecisions; fullarm17prefix choices,17tokenrefunds,all17absentfromnativeoutputplan/inpreemptedIDs. Independent rawpreemption/output joins and complete-serviceperformance still UNANALYZED. Do not infer benefit from these action counts.
+Remote /root/moe-a-native-bidkv-full-running-session-r01-20261002 complete; controllerPTY96980 and monitor75748 ended. Export95851 and9517 each LOCK_BUSY before anymutation; no tar created. Local export_native_bidkv_full_running_r01.py retains exact boundednextaction; next naturalbreak try commonlock once, archive thenlocallyanalyzeusing frozen analyze_native_bidkv_full_running_triplet_r01.py. No current A GPUjob, goalACTIVE. Fullrawisremote; allpreviousfreshnegative rawretainedlocal+remotecompressed. Neverrepeat completedprepare/cleanup/run.
+
+
+### 2026-10-02 — full-running baseline qualified; service objective failed
+A_NATIVE_BIDKV_FULL_RUNNING_TRIPLET_RESULT_R01_20261002.json SHA1c72e389f3c0a6315357be4b3004b8e04a842b6b38409076aea96a25446014d2. All124files/188008598B verified locally, readbackSHA675a63c8863b7549a66a4cf038d91ebcbd657b0189ed6a2332481499e4f7483a. Tail/suffix/full all128complete,0forced; rates1498.437/1479.641/1467.100 token/s,meanflow36.881/37.690/37.180s,maxgap8.627/6.138/9.364s,outputs126617/128154/127200,preempts62/46/52. All17prefixchoices have positive rollback, same-step rawactualpreemption, absentnativeplan, no same-callrawoutput, lateroutput andcompletion. All10 qualificationconditions pass. Service fails lowermaxgapagainstbothcontrols; fullgoodput7higher13lower vsTail and9/11vsSuffix;70/67outputsequences,3/1stopdifferences. This closes a baseline action-space gap; it is not our optimization or complete BidKV reproduction. No stablebenefitclaim.
+Fullarm longest0048279 was selected as a nonprefixvictim atstep2929:preempt45.647159→recordedrunning54.994146→output55.009528s. Its laterprefixpreemptionstep3569 after75furtheroutputs causes only0.111431s outputgap. Membershipin17prefixvictims doesnotattributeits earlier9.363532s worstgap to prefixrollback. Rawchain A_NATIVE_BIDKV_FULL_RUNNING_FAILURE_OR_TAIL_CHAIN_R01_20261002.json.
+Next single hypothesis differsfromvictimscoring: at allocationfailure, defergrowers onlyif a knownrunningrequest can reach hardoutputcap usingalreadyownedKVslots (computed+remainingcap<=heldcapacity), permittingnearcompletiontofreecapacity withoutwhole-requesteviction. First checknaturalopportunity inall52fullcandidatepressurestates. NofutureEOS orcoefficients; noGPUplan/newclaimyet. Strong simplecomparisonwillbe ordinary useful-work deferral and nativeTail, with closestscorecontrolrequiredifpilotwarrantsconfirmation.
+
+
+## 2026-10-02 A — native capacity-deferral pilot completed, service failed
+
+Seen-input three-arm pilot, native tail / generic prefix-work deferral / hard-cap capacity-qualified prefix-finish deferral. All 128 requests per arm completed, no forced rotations. Actual actions: 0 / 9091 / 276; all logged actions joined independent raw output/preemption and final native plans. Every finish witness satisfied its predecision remaining-cap/owned-capacity gate. All witnesses later completed at the hard cap, none by EOS and none re-preempted; these are event counts, not distinct requests.
+
+Tail / work / finish output rate: 1504.284 / 1435.459 / 1487.673 tokens/s; mean flow: 36.441 / 38.896 / 37.362 s; max gap: 8.729 / 7.877 / 9.026 s; native preemptions: 55 / 55 / 56. Mechanism qualification passes. Finish fails the maximum-gap comparison against BOTH controls; work vs tail also exceeds the predeclared rate/flow cost limits (0.954247x / 1.067386x). Goodput points higher/lower: work vs tail 4/16, finish vs tail 1/19, finish vs work 9/11. Sequence differences: 58 / 51 / 63; stop differences: 4 / 1 / 3; actual output totals: 126428 / 126247 / 127286. No equal-work speedup claim.
+
+Canonical: 20260929_commit_recheck/A_NATIVE_COMPLETION_DEFERRAL_TRIPLET_RESULT_R01_20261002.json, SHA 6568a67977a3074a4ee4dd609f484d4a666406b32be5593ba3ecf4c88ed8b2f0. Raw 127 files / 198420782 bytes verified locally; compressed archive SHA 06d13953da68c1615ef399d14c071b66a1445f29ff027f69a487e9ca895b13a7. Block completed in 438.169 s; GPU released. Unchanged gate will not be expanded to fresh confirmation. Next action is to locate concrete delay/release chains, not tune a threshold or seed. CacheOPT already uses predicted completion releases, so this pilot does not establish novelty by invoking completion alone.
+
+
+## 2026-10-02 A — physical victim-size pilot completed; both extremes fail tail
+
+Natural tail trace had55 single-page deficits at free=0, while tail victims held a median132 pages and smallest qualified other victims81. This motivated a direct three-arm seen-input test of native tail / minimum sufficient other victim / maximum sufficient other victim, with all other interventions off.
+
+All128 per arm completed, zero forced rotations;47 minimum and28 maximum choices differed from tail and executed as verified same-call native preemption with current output. Rate1514.360/1506.869/1497.840 tokens/s; mean flow37.375/37.785/37.876s; maximum gap8.490/10.723/10.244s; native preemptions67/127/36. Minimum passes rate/flow budgets but fails maximum-gap versus both controls. Maximum also has worse maximum-gap than tail despite fewer preemptions. Goodput higher/lower: minimum-tail8/12,maximum-tail9/11,minimum-maximum11/9. Sequence differences55/54/63, stop differences0/0/0; actual outputs128296/128294/128287. Not equal-work speedups.
+
+Canonical A_NATIVE_VICTIM_SIZE_TRIPLET_RESULT_R02_20261002.json, SHA5df34b60a0690b84bf27a0314550937b2eb6201bc5106055ec5c89209ad4cab2. All127rawfiles/188672808B verified locally, tarSHAca9f24caab4997a736ad22639bb424c9998362e138fd3832472e8b9d01915a4b. R01 exited before any cell after25.014s at disk-space gate. R02 reused unchanged frozen packages and kept the same1.25GiB reserve/scientific settings, retiring only verified duplicate source-upload archives; completed in438.551s. Experiment cells all exit0; the lingering SSH connection was closed after successful locked export and local raw verification.
+
+Decision: stop unchanged size-only expansion. Fewer native preemptions do not establish shorter recovery stalls, and smaller victims can greatly increase repeated preemption. Analyze concrete worst-request chains. The only next interface check is whether native external-prefix restoration can truthfully load a shorter prefix when the full match cannot be admitted; no new GPU candidate or benefit claim exists yet.
+
+
+### 2026-10-02 A — one-shot oldest recovery admission: valid triplet, NO FUNDED ACTION
+R01 three arms completed128each in433.741s; all exit0/VERIFIED/GPUEMPTY.127files/187940882B local verified,81output hashes. Canonical A_NATIVE_OLDEST_ADMISSION_TRIPLET_RESULT_R01_20261002.json SHA4cc7d53c906294eae7c6219397a14b57b56ff9ebb981c8c174e1944bfa564684. Native/queue-only/fund-design rate1508.103/1506.574/1512.962,meanflow37.467/37.729/36.997,maxgap12.922/11.433/12.708s; outputs128154/128300/127444,preempts47/47/42. Goodput4/16,17/3,18/2 across20points; natural seq57/49/64 andstop2/1/3 differences retained.
+All select source0042224 but at6/15/4outputs,not same physical state. Target gaps10.497/10.885/10.142s. Queue-only target already head; fund mode moves head at609, then610 CANCEL_OLDEST_KEEP_OTHER_OR_UNKNOWN_TRANSFER_JOBS. Actual forced0/Q1holds0,so numerical service pass cannot establish funding benefit. No executed-funded mechanism service falsification. R01 does not retain those commit job identities.
+Followup A_NATIVE_OLDEST_ADMISSION_ACTION_FOLLOWUP_R01_20261002.json: target later native async→output→1024complete,no repeatedpreemption. Planned victim not evicted by this action; later unrelated native-tail step674 after173outputs causes7.498s pause. No observed funded cost transfer.
+Next only refine commit transfer gate based on pinned job source-block ownership and native per-preempted-request flush; known disjoint running STORE jobs may be safe,LOAD/unknown/alias remaincancel. NewR02 candidate pending; no changedthreshold/seed/servicecriterion and no GPU job. CacheOPT/UniBoost already contain close priority/funding/protection actions; no novelty claim. Paper28pagesupdated.
+
+
+### 2026-10-02 A — R03 actual funded oldest recovery: one-shot criteria pass
+Native/queue-only/fund all128 complete,0 failures; block435.047s,GPU released. Gate correction permits4 evidenced private disjoint running STORE jobs; one actual planned-victim native preemption and Q1 native target restoration executed. Canonical A_NATIVE_OLDEST_ADMISSION_TRIPLET_RESULT_R03_20261002.json SHAf76147d85e97cd2885554bee50767987696d6cee6ba6711e9af48c8e35ad9940. Target0042224 gap10.508/10.256/1.713s; anchor-to-output9.155/8.930/.0673s. Different pre-states6/7/71 outputs, so these are descriptive independent trajectories, not same-state causal effects. Victim postpreempt-to-output7.236s, retained in cohort costs. Rates1513.008/1517.654/1509.396; meanflow37.471/37.308/36.135; globalmaxgap11.827/12.756/11.643. Output128148/128154/126304, naturalstops3/3/5; no equal-work speedup. All predeclared one-shot criteria pass, not repeated policy/stability/novelty. R02 zero-cell disk abort and R01 no-action retained. Raw130files/187450903B and81 output hashesverified; tarSHA5d8b90d43f6c7253c7707353d0c0c7237efeb8c335dfd32367f0317ace5f65d3. Next one direct experiment: repeated fixed1s oldest policy native/queue/fund, at most one active episode, actual victim costs/all128 and20goodput points; no threshold search.
+
+
+### 2026-10-02 A — repeated oldest recovery R02: positive full-cohort pilot
+All128 in native/queue-only/fund completed,0failed/unfinished; all20 frozen criteria PASS. Native/queue/fund P95 perrequest maxgap7.938750/9.581802/1.552190s; globalmax12.066355/12.883049/2.187850s; actual rate1507.069617/1507.384391/1497.005644token/s; meanflow37.055118/37.590503/37.487052s. Fund vsnative rate99.3322%,meanflow101.1657%; p95gap~80.45%lower. Complete natural output127401/128154/127286;stops4/3/4; sequence differences59/66/54,stop3/4/1 retained. No equal-work speedup.
+Fund58recoveryepisodes,57actualforcednativepreemptions across21targetsources,1DIRECT_READY,0cancel. Everyepisode retired, no samepause retry, all actualcommitnativeadmission/firstoutput/Q1/victimcompletion verified. Native/queue/fund preempts46/48/103. More preemptions accompanied shorter stalls in this observed policy; this is not a universal theorem. Native/queue anchors4/7; independent trajectories, no samephysicalcounterfactual. Fund goodput14higher6lower vs eachcontrol; maxgap57requests improve71worsen vsnative,median.041560→.055986s; full frontier preventsuniform-winclaim.
+Canonical A_NATIVE_OLDEST_REPEAT_TRIPLET_RESULT_R02_20261002.json SHA b1cc9b0487e3ed372f277606fd763c750d9c3aecc1948aa06dbd58da4482f5da; frozenanalyzer7e954006f8a7028f8a92461d14bdb7360a4e9b04ffe0c77952015d4b799a2d33, candidatebfe6858307624b09dcac0d4e57a47ee965c9279e643b4d98c002ae3fde0a4946. Raw130files/188411114B,81outputhashesverified; tar0cbe2ff369943c43bada213deece807006874ba9b289d4b3aabb3f38c230b47c. Block436.408824s, allGPUEMPTY. R01 zero-cell25.071082s diskabort retained; R02 only deduplicated immutable own completed source paths, preserving allscientificsettings and1.25GiBreserve.
+Next unique experiment: challenge against existing strong free-fit ordinary-backfill, native and unchanged repeatedfund. Currentresult is one seen exploratory block, not stable/fresh/new-method/READY evidence; closest priority/funding/protection overlap remains.
+
+### 2026-10-02 — repeated recovery residual and strong baseline frozen
+
+No new GPU outcome. Strong ordinary/fund/native package is frozen in `NATIVE_OLDEST_STRONG_TRIPLET_PLAN_R01_20261002.json` (SHA81840eb19c2378958b31f624c92e8c0ed09e7a50b5dcc63c796eb409c46077a4). Both authorized SSH ports22937/45495 refused connections; upload/launch not performed. The exact code and analysis remain ready to run on restored access.
+
+`A_NATIVE_OLDEST_REPEAT_GAP_SEGMENTS_R02_20261002.json` describes all128 request maxima and58 selected episodes. Anchor→firstoutput median67.735ms, maximum79.495ms; worst2.187850s gap has2.117076s beforeanchor and70.774ms after. All21 requestmaxima above1s includeactualpreemption,20 includea fundedanchor.71 maxima worsen versusnative: medianincrease4.350ms,11 exceed100ms and7 exceed1s. Aggregate546 pending-transfer gate rejects cannot locate individual delay. This supports studying admission timing; it does not identify a particular causal gate.
+
+`A_NATIVE_OLDEST_REPEAT_TRANSFER_FOLLOWUP_R02_20261002.json` (SHA172aebdbcf8e4c1280e4c9349e2e5ad0d88ac785a866fa57d994860c6ce4579e) records58/58 nativeASYNC_LOAD_ADMITTED; samehostperf accepted→running median32.702ms and accepted→firstoutput-observation median49.061ms/p9554.454ms. Global partial logger totals cannot identify per-episode bytes, overlap or exposed transfer cost. No extra candidate, threshold adjustment or novelty claim is introduced.
+
+
+### 2026-10-02 — descriptive residency result, no new GPU run
+
+58 funded recovery episodes/21 sources in existing R02:48 reevicted,32 funding others/16 ordinary native;12 receive at most9 outputs (6/6). All6 short native events retain owned unused KV slots. The2 one-output cases have12/9 slots, next gaps1.233/.152s. Exact raw joins in recovery_quantum_20261002/recovery_residencies.json; reproduce with analyze_recovery_residencies.py. Episodes are not independent repetitions, and unused slots do not mean free full-system service. Joint quantum/capacity/peer-age model and native adapter under development, no new benefit claim. New endpoint41307 authorized login, separate file-egress review pending; strong3arm scientific candidate unchanged and UNRUN.
+
+## 2026-10-02 healthy low-pressure recovery lease r02 — complete
+
+Same newhost RTX5090, pinned Instruct, dev16 burst,4096 usablepages,512cap, same-path q1/fixed4/adaptive. Each16/16 completed with terminal EOS50279, zero cap,7/16 strict and legacy EM,1541 total outputtokens; all16 complete sequences identical acrossarms. Real native_stop_reason remains explicitnull, so EOS identity is established from captured lasttoken plus resolved EOS id, not that field. Outputs31–181tokens.
+
+q1/fixed4/adaptive actualrate720.872/709.399/707.200token/s; meanflow1.67520/1.70938/1.71698s; request-max-gapP95 .419166/.454470/.458363s. Allpreemptions/recoveryepisodes/lease_execution0;186schedulecalls each. Adaptivevsq1 rate−1.90%,meanflow+2.49%, single short no-action block, not stablecost or benefit. All compilationwarnings occurred duringwarmup beforemeasurement. Two-arm native/ordinary low reference is prepared for frameworkcost, unrun.
+
+Raw:20260929_commit_recheck/recovery_quantum_20261002/session-dev16-low-r02; output:output/healthy_dev16_low_r02_quality_service.json in sameQdirectory; archive0c450a522bcba7b3c2508a3e1a007717bddac73e6e08e684e4e37dd911d47dce andeveryoutput hashverified. r01 failedbeforeGPU/requestgeneration on libnvrtc.so.13 loaderpath and isretained; r02 setsinstalledcu13/torchLD_LIBRARY_PATH only, no policychange. Strong ordinary/fund/native128request comparison currentlyRUNNING separately; no crossmodel/hostpooling.
+
+## 2026-10-02 newhost strong ordinary/fund/native r01 — complete
+
+Frozen strong plan scientificpayload unchanged. Same newRTX5090/base checkpoint,128article requests each; coldprivatecaches/warmups identical; no old-machine timingpooling. All384complete, source/actionchains/allpredeclaredcriteria pass. Ordinary performs20actualasyncload admissions withraw output/completion; zero forced. Fund59forced,102totalpreemptions; ordinary59/native43totalpreemptions.
+
+Native/ordinary/fund: request-max-gapP95 6.965449690/3.885312583/1.574938716s; actualrate1581.772531/1604.171889/1579.722168token/s; meanflow34.706583270/34.513149111/35.151725710s. Fundvsordinary rate−1.524%,meanflow+1.850%. Ordinarydoesnotcoveralltailbenefit, butfunding/Q1knownactionsremainnotnovel.
+
+Distributiontradeoff: fundvsordinary requestswithgap>2s12→2,>4s7→0, but>1s16→23 andmediangap.3618→.4803s. Flowworse86/128;gapworse89/128;TTFTworse61/128. Worstflow+6.1955s (0049714),worstTTFT+12.5862s (0050783). Goodputwins11/20loses9/20predefinedpoints. Capsnative123/ordinary124/fund124;fund/ordinary63sequencesdiffer,onecountdiff−6tokens. Noequal-work/stability/independent-eventclaims.
+
+RawQ/strong-session-r01; frozenanalysisQ/output/STRONG_NEWHOST_RESULT_R01_20261002.json; perrequestinterpretationSTRONG_NEWHOST_INTERPRETATION_R01_20261002.json. Archivec6624f6d12ddf3274f037742038fb0d0209ff2354ac6f84773f5d9464cd0a176 andallrawoutputhashesverified. Runtimecostreport available; no completephysicaltransfercounters inoriginalperformance mode, explicitlyUNAVAILABLE. New samepath q1/fixed4/adaptive nativeprototype groupcurrentlyRUNNING, notyetmethodresult.
+
+## 2026-10-02 recovery lease same-path r01 — mechanism valid, adaptive loses to fixed4
+
+128/128 each; q1/fixed4/adaptive primary P95maxgap2.001742254/1.492154435/1.707649871s; actualrates1554.985752/1553.397717/1537.810415token/s;meanflows35.041679601/35.263507507/35.387344760s. Adaptiveimprovesq1gapbutisworsethansimplefixed4ingap,rateandmeanflow. Single-runexploration; reverseorderrepeatneededforstablecomparison, noquantum/rho tuning.
+
+Allactionchecksqualified. q1/fixed4/adaptiveleases35/94/104;forcedvictims34/94/102;totalpreemptions94/180/192. Adaptivechosenquanta1:14,2:6,3:84;desiredqbecame3afterinitialunknowncostandstayedthere. Twoallowedpeerageearlyreleases. Everyforcedvictim/admittedpeerlateroutput+complete;all469adaptiveexecutioncallsrespectgrowthreservation/endpoints, noprotectedtargetorunplannedpreemptions. DecisionCPU3.645/9.221/10.399ms arechooserworkonly. Completearticletransfercountersunavailable; nooverlappingcopytimeasexposedcost.
+
+RawQ/lease-session-r01 andoutput/LEASE_SERVICE_VS_Q1_R01_20261002.json,VS_FIXED4,LEASE_ACTIONS_{Q1,FIXED4,ADAPTIVE}_R01_20261002.json; archive73c67e9fa369066bb84914f406c6ab7917b1622ed996cadc943751c275e8f484/allhashverified. Originalplanretainsstalestrong-gateprosefields; actualkind/arms/action/model_policy andarchivedconfig/storedefineleaseexperiment. No claimofstrongtripletpredeclaredcriteriaforleasegroup.
+
+## 2026-10-02 healthy dev16 KV512 cost r02 — complete, recovery inactive
+
+Fivearmsnative/ordinary/q1/fixed4/adaptive each16/16EOS,8/16strictEM,1426outputtokens,0caps; withinblock16fullsequencesidentical. Each1nativepreemption,0forcedrotations/leaseepisodes/ordinaryactions/chooserCPU. Longest/P95 gaps .557981/.567331/.563118/.562690/.552591s, below1sactivation; rate437.253/434.665/437.086/438.429/448.156;meanflow2.56742/2.58257/2.56446/2.55904/2.49475s. One shortno-actionepisode perpolicy: quality/costdomain, notrestorationbenefit.
+
+Sameaggregateobserverall5arms; nativeload1,239,416,832B/15records,store402,653,184B/104records;0missingstats/errors;postcapturedrain0calls. Loadcopywork~.02224–.02279s andstore~.00886–.00899s, possiblyoverlapping, notexposedservicecost. KV512+nullactual1,075,838,976B. Comparedwithseparatelow4096Q1block,9/16sequenceschange,total−115tokens,EM7→8(task0036onlywrong→right); observer/configblocksalsodiffer, notcausalcapacity-onlyqualityimprovement.
+
+Q/session-dev16-kv512-comparison-cost-r02; output/HEALTHY_DEV16_KV512_COST_R02_QUALITY_SERVICE.json andHEALTHY_DEV16_KV512_RUNTIME_COSTS_R02_20261002.json. Archive2b2f3d107f7928558e57c7964945ccb7f97ab6ef2e536dcf575bd67b12dbb31c/allhashverified. KV768plansretainedUNRUN;512chosenbecauseobservedlowtrajectory-derivedconservativepeak734fitwithin768.
+
+
+### 2026-10-02T09:37:49.016845+00:00 A recovery quantum reverse-order R02 complete
+
+All3x128 complete, archives verified. Adaptive/fixed4/q1 P95 gap1.400646/1.570257/1.681664s; rates1559.267/1547.816/1571.205; meanflow35.917170/35.344560/34.707871s. Adaptive-v-fixed4 P95/rate sign reverses R01, completion remains worse. No stable method superiority; no event-level replication. Raw lease-session-r02.tar.gz SHA502f621d4fc6a80430568a584531c631c3b9729bba64d65094a291aa1b614cdc. Original R01 retained. Holdout steady512 five-arm group pending common lock.
+
+
+### 2026-10-02T09:56:32.962404+00:00 A holdout steady KV512 complete; current quantum formulation stops
+
+All5x16 natural EOS,0cap; native/ordinary/q1/fixed4/adaptive strictcorrect10/8/8/9/8, tokens1348/1266/1266/1265/1281. P95gaps0.5693/0.5524/0.5603/0.5722/0.5746s; preempts2/2/2/2/1 but0recoveryactions. Eachnon-nativearm differs fromnative on10/16sequences. Noqualityequivalence orcausalquantumqualityclaim. AggregatecostallCOMPLETE, no missingack; capture/drain separatelyreported, overlappingcopyworknotexposedwallcost. Archive02f4af71...5e133 and135outputhashes verified. Controller35189 exited/commonlockreleased at1790934663.1462655; noownGPUjob.
+
+Decision: STOP_CURRENT_COST_RATIO_QUANTUM_DEVELOPMENT, limitedto h/d/rho0.5/qmax16 andtestedregime. Nativeactionsvalid, butadaptive/fixed4gap+rate rankingflips betweenR01/R02,meanflowworseboth;knowncostdesiredq3 throughoutboth. Preserveprototype andallruns; shiftquestion toobservablepeer/victimcompletioncost, notparameterrescue. Canonicalcompactreport recovery_quantum_20261002/output/RESEARCH_DECISION_20261002.json. Noindependentmethod/paperreadiness/general-familyNO-GO.

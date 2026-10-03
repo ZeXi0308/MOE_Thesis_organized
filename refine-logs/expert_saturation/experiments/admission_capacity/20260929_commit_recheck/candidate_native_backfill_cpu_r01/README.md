@@ -1,0 +1,9 @@
+# Private ordinary-backfill adapter CPU timing diagnostic (GPU unrun)
+
+This candidate copies `candidate_native_backfill_only_r01`. The frozen input, policy, thresholds, guards, Q1 protection, native full-save connector calculation, model/runtime pins, and `pkg/run.sh` CLI remain byte-identical. Only `pkg/staged_store_rotation.py` and `pkg/run_recovery_cadence.py` change; `manifest.json` verifies the exact 25-file payload.
+
+Use the single diagnostic cell `pkg/run.sh native_full_ordinary_only performance ordinary ABSOLUTE_OUTPUT_DIR`. Its output remains a complete 128-request service trace, but **instrumentation makes this a CPU-path diagnostic, not a repeat for performance ranking**. The previously archived uninstrumented native-full pair is the performance result, including its failed rate and flow budgets.
+
+`selective-store.json.adapter_host_timing` has four disjoint aggregate segments: `begin`, `hold`, `schedule_pre`, and `schedule_post`. Each contains `calls`, `wall_ns`, `thread_cpu_ns`, `max_wall_ns`, and `max_thread_cpu_ns`. The thin begin/hold wrappers run inside the native scheduler; schedule_pre ends before `native()` and schedule_post starts after it returns. The native scheduler body, GPU execution, and asynchronous device/worker work are not counted as adapter CPU time. The clocks and aggregation themselves add overhead; there is no per-call event log.
+
+The runner deep-copies those four aggregates into `adapter_host_timing_at_measurement_end` immediately when the 128-request measurement returns, before post-request drain. Final aggregates include any later adapter calls, so final minus measurement-end is a separately visible drain/shutdown interval rather than capture cost. No diagnostic timing difference is subtracted from the previous pair's output rate or mean flow, and no cross-host causal claim follows from one instrumented trajectory.

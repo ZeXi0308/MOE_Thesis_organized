@@ -1,0 +1,13 @@
+# A 线接续与最小判别（2026-09-30）
+
+**版本与完成事实。** 当前工作树是 `agent/publish-current-moe-code@76d6d88`，有本线未提交的 H1、LTR 基线和记录；不覆盖它们。G/H 已用 OLMoE、vLLM 0.26、单 RTX 5090、4096 个可用 GPU KV 块和 16 GiB host KV，完成自然输入上的原生请求对照。selected/eager 相对 selected/current 降低最大生成间隔，但原生完整保存的吞吐、平均完成及多数请求自身间隔更好；状态仍为 `NATIVE_SERVING / MEASUREMENT_ONLY`。H1 提交时免除计划 victim 的门禁仅 CPU 检查过；G 详细诊断的 54 次 READY 提交均 `free<need`，所以该轨迹的 H1 直接恢复机会为 0/54。LTR 风格等待提权/服务量子的 CPU 接入和 G64/T30/Q10 单格资格包已准备，原生 GPU 生命周期未运行。
+
+**本轮最弱因果环节。** [复算数据](NATURAL_RESIDUAL_20260930.json)从保留的 G/H `analysis.json` 读取全部六臂请求与恢复段。H 的 eager 在两个块中分别有 5/8 个仅产出 1–2 个新 token 后再抢占的段，G 为 1/0；H 原生为 1/1。这个现象存在，但样本稀疏，不能推成频繁无效恢复。H block1 的文章 `0018772` 在 eager 下第二次抢占前仅 0.556 ms 刚输出一个 token，之后到下次新输出为 3.698 s；同文章 current 为 3.024 s、原生为 4.376 s，三臂均产出 1024 个 token。它是事后定位的不同轨迹，不能删去该抢占并声称会获益。尤其输出 age 在抢占前很小，不能用此例支持“输出已经过久，所以应保护”的在线触发器。当前没有可归因且已计 peer 代价的新动作残差。
+
+**强基线与单一下一判别。** 保留 pinned native full、selected/eager 和合理校准的 LTR 风格等待提权＋固定量子；若观察到持续服务量残差，再核固定/几何量子。最接近的 [Andes](https://arxiv.org/pdf/2404.16283) 已计恢复收益和 peer QoE 代价，[TokenFlow](https://arxiv.org/pdf/2510.02758) 已按缓冲/消费状态决定恢复，[FastServe](https://arxiv.org/pdf/2305.05920) 已使用等待提权及量子。当前唯一高信息量原生单元仍是 G64/T30/Q10 的真实 store→load→新输出→后续量子资格；通过后才能冻结同后端完整请求比较。若简单/LTR 规则覆盖效果，吸收 H1 的合法性修正，不申报独立方法。
+
+**资源与主张边界。** 新主机原始检查见[收据](REMOTE_READ_ONLY_20260930.json)与[环境补查](REMOTE_ENV_SURVEY_20260930.json)：同一张 RTX 5090，cgroup 硬限 90 GiB；用户已授权单卡及环境/模型准备。A 的 G64 固定包在远端 26/26 校验通过。C 会话完成的 Python 3.12.3、Torch 2.11.0+cu130、vLLM 0.26.0、Transformers 5.15.1 环境，其八处 vLLM 源码哈希与 A 候选完全匹配。A 随后在共同锁内以 reflink 复制为私有环境，私有 `sys.prefix`、模块路径、精确版本及八处源码均核验通过；A 不修改 C 环境。数据盘 50 GiB，复制后剩余约 13 GiB。固定 OLMoE revision 保持只读共享，A 已在共同锁内核验六个配置/分词文件和三个权重分片的预定字节数与 SHA-256，状态为 `VERIFIED_READ_ONLY`。新 [单格控制器](serial_group_model_guard.py)和 [1860 秒计划](G64_LTR_NATIVE_PLAN_PRIVATE_MODEL_20260930.json)已固定哈希并在远端返回 `VALID_CPU_ONLY`；它将在持锁状态下重新核验 C 模型并以 reflink 复制到 A 私有缓存，随后复核副本哈希和离线解析，才加载模型。最新只读现场检查显示另一会话占用 GPU 约 14 GiB，A 因此延后单格。新只读审计器的六项合成测试通过，但还没有真实 GPU 输出可审。A 已复制环境，尚无 GPU 初始化或请求测量。当前最高主张是描述性自然轨迹与 CPU 组件，`GPU_UNRUN / METHOD_UNPROVEN`；原始 `raw.json` 仍未在本地恢复，复算使用已跟踪的派生 `analysis.json`，不能冒称重放原始请求。
+
+**本次预启动结果。** 后续现场 GPU 空闲时，A 的控制器非阻塞取得同一锁并再次核验共享模型哈希；然而私有 reflink 模型副本有两个权重分片短于源文件，[收据与定位](A_G64_PRELAUNCH_FAILURE_20260930.md)记录了全部尺寸和磁盘状态。控制器在加载前退出，`cells=[]`。A 已清理自己的不完整副本，数据盘仍几乎满额；在磁盘空间和复制一致性查明前，不重复本格。这个基础设施失败没有提供 LTR 动作、生命周期或性能的正负证据。
+
+**新断点。** 系统盘约有 30 GiB 空闲，已冻新的 [完整复制控制器](serial_group_system_model_copy.py)和 [R02 单格计划](G64_LTR_NATIVE_PLAN_SYSTEM_MODEL_R02_20260930.json)：先在共同锁内复核 C 源哈希，再在独立系统盘完整复制到 A 私有 `HF_HOME`，复核所有六个元数据和三个分片，并离线解析后才启动原生 cell。远端 SHA-256 一致且 `VALID_CPU_ONLY`。首次非阻塞锁尝试返回 `Errno 11`，未创建新 session 或输出，状态 `GPU_DEFERRED`。下次自然接续先复核占用和路径，再尝试这一固定身份；不快速轮询抢锁。

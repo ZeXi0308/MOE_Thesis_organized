@@ -1,0 +1,100 @@
+{
+  "archived_observations": {
+    "backend_censored_repeat_count": 104218,
+    "backend_censored_repeat_steps": [
+      833,
+      105050
+    ],
+    "cell_status": "INCOMPLETE",
+    "completed_of_planned": [
+      6,
+      64
+    ],
+    "engine_calls": 105051,
+    "engine_returns": 105051,
+    "first_repeat_action": "PRIORITIZE_WAITING",
+    "last_any_returned_output_at_s": 15.710792113095522,
+    "previous_target_commit_at_s": 14.848027784377337,
+    "previous_target_last_returned_output_at_s": 14.307564344257116,
+    "previous_target_q1_expired_at_s": 14.875635771080852,
+    "repeat_target": "measured/memory-train-article-0000464-bc945a3d",
+    "runtime_error": "RuntimeError: runtime_limit",
+    "schedule_calls": 105051,
+    "unmeasured_runtime_fields": [
+      "per-step free KV blocks",
+      "in-flight prefill reservation blocks",
+      "whether target load_kv_async was true",
+      "native allocation failure branch",
+      "waiting and skipped queue head at rejection"
+    ]
+  },
+  "cpu_counterexample": {
+    "q1_non_output_compute": {
+      "priority_at_next_begin": 0,
+      "quantum_after_one_positive_schedule": 0
+    },
+    "repeat_cycles": [
+      {
+        "adapter_reserves_target": true,
+        "intent": "PRIORITIZE_WAITING",
+        "native_async_admit": false,
+        "native_full_fit": true,
+        "peer_growth_held": true,
+        "target_priority": -1,
+        "target_quantum_remaining": 1
+      },
+      {
+        "adapter_reserves_target": true,
+        "intent": "PRIORITIZE_WAITING",
+        "native_async_admit": false,
+        "native_full_fit": true,
+        "peer_growth_held": true,
+        "target_priority": -1,
+        "target_quantum_remaining": 1
+      },
+      {
+        "adapter_reserves_target": true,
+        "intent": "PRIORITIZE_WAITING",
+        "native_async_admit": false,
+        "native_full_fit": true,
+        "peer_growth_held": true,
+        "target_priority": -1,
+        "target_quantum_remaining": 1
+      },
+      {
+        "adapter_reserves_target": true,
+        "intent": "PRIORITIZE_WAITING",
+        "native_async_admit": false,
+        "native_full_fit": true,
+        "peer_growth_held": true,
+        "target_priority": -1,
+        "target_quantum_remaining": 1
+      },
+      {
+        "adapter_reserves_target": true,
+        "intent": "PRIORITIZE_WAITING",
+        "native_async_admit": false,
+        "native_full_fit": true,
+        "peer_growth_held": true,
+        "target_priority": -1,
+        "target_quantum_remaining": 1
+      }
+    ],
+    "synthetic_allocator_state": {
+      "async_load_assumed": true,
+      "free_blocks": 6,
+      "free_slots": 31,
+      "inflight_prefill_reserved_blocks": 1,
+      "other_growth_blocks": 1,
+      "target_required_blocks": 6
+    }
+  },
+  "frozen_source_sha256": {
+    "kv_cache_manager": "3f4af8d247f3fe9570b0132818b832b66ae6a2ac12942588828f899f6ff77ccf",
+    "package_manifest": "2755945122e3c346ca7e7e5ceda0d4668a8e1d3c90ba5c8d9d7b6ab3e89e0eb9",
+    "scheduler": "2ed2a550b6558b2495eda845a97ae38bcf0225027b9e25fbf00fc3880c1d3941"
+  },
+  "inference": "The accepted PRIORITIZE_WAITING intent need not imply native async KV admission: the adapter compares required blocks with raw free blocks, while the pinned native allocator can subtract other in-flight prefill reservations. With Q1, a positive recompute/prefill turn can also expire the quantum before any new output. The archive confirms the repeated accept/censor/release loop but does not record the exact native allocator or queue branch that caused its first rejection.",
+  "schema_version": 1,
+  "scope": "CPU causal counterexample plus archived observations; not an observed exact native rejection branch"
+}

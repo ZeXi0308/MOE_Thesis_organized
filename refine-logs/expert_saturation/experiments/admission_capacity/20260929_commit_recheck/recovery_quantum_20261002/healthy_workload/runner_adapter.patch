@@ -1,0 +1,90 @@
+--- a/run_recovery_cadence.py
++++ b/run_recovery_cadence.py
+@@ -194,18 +194,28 @@
+         config, workload = load_inputs(args.inputs)
+         warmups = {d: load_inputs(args.warmup_inputs/d) for d in ('short', 'long')}
+         lengths = [len(ids) for ids in workload['actual_prompt_token_ids']]
+-        if len(lengths) != 128 or not all(256 <= n <= 3072 for n in lengths) or workload['arrival_traces_s']['steady'] != [i * .2 for i in range(128)]:
+-            raise ValueError('requires the frozen128 complete holdout prompts and steady0.2s arrivals')
++        healthy_sampling = dict(ignore_eos=False, min_tokens=0, max_tokens=config['output_tokens'],
++                                temperature=0.0, stop=[], stop_token_ids=[])
++        if (workload.get('schema') != 'a-healthy-gsm8k-tokenized-v1'
++                or len(lengths) not in (16,32) or config['requests'] != len(lengths)
++                or workload.get('sampling') != healthy_sampling
++                or not all(1 <= n and n + config['output_tokens'] <= 4096 for n in lengths)
++                or len(workload['arrival_traces_s']['steady']) != len(lengths)):
++            raise ValueError('healthy task/count/full-prompt/natural-EOS input contract differs')
++        kv_bytes = config['fixed_kv_cache_memory_bytes']
++        usable_blocks = config['target_usable_kv_blocks']
++        if kv_bytes != (usable_blocks + 1) * 2097152:
++            raise ValueError('healthy KV page/byte budget differs')
+         if any(wc['model'] != config['model'] for wc, _ in warmups.values()):
+             raise ValueError('warmup and measurement model identities differ')
+-        config.update(requests=128, prompt_tokens=max(lengths), output_tokens=1024, output_mode='eos',
++        config.update(requests=len(lengths), prompt_tokens=max(lengths), output_tokens=config['output_tokens'], output_mode='eos',
+             output_tokens_by_request={}, cap=32, engine_max_num_seqs=32, policy='static', max_seconds=180,
+             variant=args.variant, commit_recheck=args.commit_recheck, fit_first_resume=args.fit_first_resume, capacity_victim=args.capacity_victim, recovery_min_outputs=args.recovery_min_outputs,
+             global_cooldown_steps=cooldown, population_mode='open' if rotation_enabled else 'native', preemption_mode='native_recompute_or_external_kv',
+             measurement_mode='diagnostic' if diagnostic else 'performance_sparse_preemptions',
+             selective_save='on', store_scope='selected' if selected_store else 'native_full', offload_gib=16,
+             ignore_eos=False, min_tokens=0,
+-            fixed_kv_cache_memory_bytes=KV_BYTES, gpu_memory_utilization=.90, reservation_policy='full',
++            fixed_kv_cache_memory_bytes=kv_bytes, gpu_memory_utilization=.90, reservation_policy='full',
+             rotation_config=vars(RotationConfig(min_steps_between_swaps=cooldown)) if rotation_enabled else None,
+             rotation_victim_order='most_output' if selected_store else None,
+             prompt_tokens_role='maximum observed input length; output_tokens is requested cap',
+@@ -250,7 +260,7 @@
+             dtype='bfloat16', seed=config['seed'], max_model_len=4096, max_num_seqs=32,
+             max_num_batched_tokens=1024, gpu_memory_utilization=.90, enable_chunked_prefill=True,
+             enable_prefix_caching=False, scheduling_policy='fcfs', async_scheduling=False,
+-            kv_cache_memory_bytes=KV_BYTES, scheduler_reserve_full_isl=True, stream_interval=1,
++            kv_cache_memory_bytes=kv_bytes, scheduler_reserve_full_isl=True, stream_interval=1,
+             enforce_eager=False, enable_return_routed_experts=False)
+         kwargs.update(kv_offloading_size=16, kv_offloading_backend='native',
+             kv_transfer_config={'kv_connector_extra_config': {'offload_prompt_only': False}})
+@@ -269,8 +279,8 @@
+         qualification = qualify_safe_cap(engine, config)
+         qualification['observed_scheduler_reserve_full_isl'] = engine.engine_core.engine_core.scheduler.scheduler_reserve_full_isl
+         dump(out/'safe-cap-qualification.json', qualification)
+-        if (qualification['status'] != 'QUALIFIED' or qualification['usable_blocks'] != 4096
+-                or not qualification['observed_scheduler_reserve_full_isl'] or memory['kv_storage_bytes'] != KV_BYTES):
++        if (qualification['status'] != 'QUALIFIED' or qualification['usable_blocks'] != usable_blocks
++                or not qualification['observed_scheduler_reserve_full_isl'] or memory['kv_storage_bytes'] != kv_bytes):
+             raise RuntimeError('actual KV pool/storage or initial-history reservation differs from fixed budget')
+         timing['warmup_start_perf_s']=time.perf_counter()
+         print('PHASE APPLICATION_WARMUP_BEGIN', flush=True)
+--- a/safe_static.py
++++ b/safe_static.py
+@@ -50,8 +50,9 @@
+                 'pool layout mismatch or pool not empty')
+         require(not scheduler.requests and scheduler.get_request_counts() == (0, 0)
+                 and not engine.has_unfinished_requests(), 'engine not drained')
+-        require(1 <= config['prompt_tokens'] <= 3072 and config['output_tokens'] == 1024
+-                and config['requests'] == 128, 'open episode upper bounds differ')
++        require(1 <= config['prompt_tokens'] and config['output_tokens'] in (256,512,1024)
++                and config['prompt_tokens'] + config['output_tokens'] <= 4096
++                and config['requests'] in (16,32), 'healthy episode upper bounds differ')
+         maximum = engine.vllm_config.scheduler_config.max_num_seqs
+         require(maximum == 32 and engine.vllm_config.model_config.max_model_len == 4096, 'engine bounds differ')
+         per_request = (config['prompt_tokens'] + config['output_tokens'] + block_size - 1) // block_size
+--- a/request_measurement.py
++++ b/request_measurement.py
+@@ -91,7 +91,7 @@
+                 if row["arrival_s"] > now():
+                     break
+                 params = SamplingParams(n=1, temperature=0.0, max_tokens=limits[rid],
+-                    min_tokens=minima[rid], ignore_eos=ignore_eos, detokenize=False,
++                    min_tokens=minima[rid], ignore_eos=ignore_eos, stop=[], stop_token_ids=[], detokenize=False,
+                     output_kind=RequestOutputKind.CUMULATIVE)
+                 external_id = f"{run_id}/{rid}"
+                 row.update(external_request_id=external_id, admission_s=now())
+@@ -137,7 +137,8 @@
+                         valid |= minima[rid] <= len(tokens) <= limits[rid] and completion.finish_reason == "stop"
+                     if not valid:
+                         raise ValueError("native completion violated configured output limits")
+-                    row.update(status="completed", completion_s=received, stop_reason=completion.finish_reason)
++                    row.update(status="completed", completion_s=received, stop_reason=completion.finish_reason,
++                               finish_reason=completion.finish_reason, native_stop_reason=completion.stop_reason)
+         if error is None and any(row["status"] != "completed" for row in rows.values()):
+             error = "engine drained before every planned request completed"
+     except Exception as exc:

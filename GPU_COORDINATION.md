@@ -1306,3 +1306,42 @@ CURRENT接受20260915_natural_recovery_cadence_r01，包f1a3bda1…727027/30payl
 ### LTR-style r02 已接受；外部连接未知，未领取资源
 
 2026-09-14T22:22:34.860172+00:00：CURRENT改为20260915_natural_ltr_style_component_r02，6888c318…4c9e73/30payload，唯一runtime变化删除CPU反例证伪的全体增长prepare预筛；原r01接受包/零测量/连接失败完整保留。两入口26862和53036有界诊断均在SSH认证前关闭，未提交凭据或执行远端命令，不能推断GPU/锁空闲。r02状态ACCEPTED_GPU_UNRUN_RESOURCE_UNKNOWN，零连接尝试、无上传/初始化/PID/锁或后台任务。唯一执行方仍prepare_start_contrast；仅在获得当前有效入口或外部状态变化后，现场核验两GPU/共同flock及安装源码，再前台执行固定G64/T30/Q10一个诊断。无性能组或自动重试，未领取任何资源。
+
+
+### 2026-10-02 A new endpoint41307 setup (no GPU job yet)
+
+User directly authorizes A login/experiments on root@connect.weste.seetacloud.com:41307. Observed RTX5090 GPU-273c48a6-cbbb-f4e4-ae0e-78f1876a0f51, cgroup98784247808B, empty GPU. Another session is already installing vLLM0.26 in /root/miniconda3 and downloading OLMoE-Instruct under /root/autodl-tmp/moe-research-20261002; A does not modify these. A private workspace /root/autodl-tmp/moe-a-20261002; common /root/autodl-tmp/moe-research-gpu.lock created without replacing any existing file (2304:8591222084). A will use whole-group nonblocking flock and GPU boundaries for ordinary/fund/native comparison; no GPU controller launched yet. Base-model download and local prototype work can proceed. SSH control socket is A-owned /tmp/moe-a-41307.sock.
+
+### 2026-10-02T07:20:36.187695+00:00 A healthy low r02 takes whole-group lock
+
+A controller7694, SSH exec45135, session `/root/autodl-tmp/moe-a-20261002/healthy/session-dev16-low-r02`; q1/fixed4/adaptive,16 natural-ending requests each,4096pages, private cold caches. Commonlock2304:8591222084 held for whole3arm group; observedGPUempty before start. r01 failed beforeGPU/requestgeneration on libnvrtc loaderpath, archived locally and released; r02 only adds installed cu13/torch libraries to LD_LIBRARY_PATH. No other process modified. Strongbase model download continues onCPU/network.
+
+### 2026-10-02T07:29:43.985384+00:00 A healthy low complete; strong baseline starts
+
+Healthy r02 all3cells exit0/archiveVERIFIED; whole-group released, archive0c450a52…d47dce read back locally and alloutput hashes match. Strong controller10207/SSHexec8080 now holds samecommonlock for ordinary/queue_fund/native in `/root/autodl-tmp/moe-a-20261002/strong/session-r01`. Exact original128inputs, newmachineprivatecoldcaches, unchanged frozenmanifest7c5221fb…01. Base model9files verified. No inter-cell release; controller retains lock through fullgroup.
+
+### 2026-10-02T07:45:12.063442+00:00 A strong complete; lease waits other whole-group
+
+Strong3cells exit0/all384requestscomplete, controller10207 exited, GPUemptyatgroupend, commonlockreleased. Archivec6624f6d…0a176 localreadback andalloutputsha verified; frozenanalysis allcriteria true. Lease launch subsequently failednonblockingflock beforecreating session: othercontroller13500 holdslockfor8arms results_suffix_compact_r01. A hasnoGPUcontroller/queuedwaiter anddoesnotusecellgaps; willrecheckwholegroupterminal.
+
+### 2026-10-02T08:44:46.703526+00:00 A lease triplet active
+
+Other8armgroup13500 observedCOMPLETE; noAcontrollerfrompriorbrokenSSHattempt. ReconnectedusingAownsocket/tmp/moe-a-41307-r2.sock, thenlaunchedlease/session-r01 foregroundSSHexec76477. Whole-groupcommonlock unchanged; q1/fixed4/adaptive originalmanifest582bd…cc72,128articleinputs,samebase/RTX5090. KV512healthyruns remainpreparedonly.
+
+### 2026-10-02T09:05:38.019971+00:00 A lease complete; healthy KV512 cost groupactive
+
+Lease3arms384/384complete, exit0all, controller19043ended/commonlockreleased. Archive73c67e9f…e8f484 +alloutputhashesverifiedlocally. HealthyKV5125armnowcontroller21847/SSHexec6291, sessionhealthy/session-dev16-kv512-comparison-cost-r02; samecommonlockheldwholegroup. Costmanifest1cccd7f0…34f34 allpolicypayloadunchanged, aggregatecompletioncountersenabledidenticallyall5arms. No intercellresourcehandoff.
+
+### 2026-10-02T09:19:12.787915+00:00 Healthy KV512 complete; reverse lease repeat active
+
+Healthy5arms80/80complete, controller21847exit0/released. Archive2b2f3d10…2dbb31c andalloutputsha locallyverified. Initialreverseprelaunchencounteredotherpartitiongroup24228lockandcreatednoAexperiment; observedthat6armgroupCOMPLETE beforelaunch. A SSHexec28300 nowrunslease/session-r02, reverseadaptive/fixed4/q1, identicalpackage/inputs/policy/noaggregateobserver, whole-groupcommonlockheld.
+
+
+### 2026-10-02T09:40:38.884308+00:00 A reverse lease complete; holdout healthy512 cost group active
+
+Lease R02 all384requestscomplete, controller29298exit0/commonlockreleased, tar502f621d...14cdc and81outputhashes locallyverified. Neighborpartitionholdout group32074 observed COMPLETE at1790933919.2274752. A then launched healthy/session-holdout16-steady-kv512-comparison-cost-r02 controller35189/SSHexec47026; native/ordinary/q1/fixed4/adaptive, disjoint16tasks/steady0.2s arrivals. Same commonlock2304:8591222084 heldwhole5armgroup, GPUemptyatstart. No additional queued A experiment.
+
+
+### 2026-10-02T09:56:32.962404+00:00 A final holdout complete and released
+
+Controller35189/SSHexec47026 exited0; all5cells archiveVERIFIED,80/80complete. Group ended1790934663.1462655 with GPUempty, commonlockreleased. Localarchive02f4af71...5e133 plus135outputhashesverified. Remote followup confirms /proc/35189 absent and no A healthy/lease/strong controller. No queued A experiment; onlylocalanalysis/paperQA. This is A release, not a claim that other research will leave GPUidle.

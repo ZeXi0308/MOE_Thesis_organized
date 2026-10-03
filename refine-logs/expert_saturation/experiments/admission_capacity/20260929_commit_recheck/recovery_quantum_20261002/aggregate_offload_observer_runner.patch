@@ -1,0 +1,61 @@
+--- a/pkg/run_recovery_cadence.py
++++ b/pkg/run_recovery_cadence.py
+@@ -108,6 +108,12 @@
+     parser.add_argument('--recovery-min-outputs', type=int, choices=(1,10), default=1)
+     parser.add_argument('--output-dir', type=Path, required=True)
+     args = parser.parse_args()
++    aggregate_mode=os.environ.get('A_AGGREGATE_OFFLOAD_COSTS','0')
++    if aggregate_mode not in ('0','1'):
++        parser.error('A_AGGREGATE_OFFLOAD_COSTS must be 0 or 1')
++    aggregate_costs=aggregate_mode=='1'
++    if aggregate_costs and args.measurement_mode=='diagnostic':
++        parser.error('aggregate observer is a performance-cell option; do not stack observers')
+     if args.commit_recheck and args.variant != 'eager':
+         parser.error('--commit-recheck is qualified only for the eager selected-save arm')
+     if args.fit_first_resume and (args.variant != 'eager' or args.commit_recheck):
+@@ -228,6 +234,7 @@
+             evidence_ceiling='NATIVE_SERVING_INPROCESS_HOST_MEASUREMENT',
+             metric_role='Native combination qualification; no performance contrast' if diagnostic else
+                 'natural complete-service tradeoff; same sparse preemption recording included in all timing arms')
++        config['aggregate_offload_costs_enabled']=aggregate_costs
+         config['recovery_lease_mode']=lease_mode
+         config['recovery_lease_config']=dict(max_quantum=16,overhead_fraction=.5,interruption_floor_s=1.)
+         config['recovery_lease_cost_semantics']='past host first-output interval minus median pure-decode begin interval; no added overlapping DMA'
+@@ -260,7 +267,7 @@
+             cpu_threads=torch.get_num_threads(), vllm_source_sha256=runtime_hashes,
+             source_sha256={name: sha(root/name) for name in ['run_recovery_cadence.py', 'request_measurement.py', 'native_capture.py',
+                 'memory_telemetry.py', 'metrics.py', 'safe_static.py', 'rotation_native.py', 'absence_rotation.py',
+-                'staged_store_rotation.py', 'staged_save_contract.py', 'recovery_lease.py', 'native_offload_observer.py',
++                'staged_store_rotation.py', 'staged_save_contract.py', 'recovery_lease.py', 'native_offload_observer.py', 'aggregate_offload_observer.py',
+                 'native_host_snapshot.py', 'native_store_delta.py', 'native_full_store_evidence.py']}))
+         if runtime_hashes['v1/core/sched/scheduler.py'] != '2ed2a550b6558b2495eda845a97ae38bcf0225027b9e25fbf00fc3880c1d3941' or runtime_hashes['v1/core/kv_cache_manager.py'] != '3f4af8d247f3fe9570b0132818b832b66ae6a2ac12942588828f899f6ff77ccf':
+             raise RuntimeError('pinned runtime source changed')
+@@ -322,6 +329,11 @@
+         offload_data=dict(status='NOT_MEASURED',diagnostic=False,completed_jobs=None,dispatch=None,transfers=None,
+             scope='No lookup/worker/completion observer in either timing arm; saving and transfer qualification are reused from D/E.')
+         uninstall_offload=lambda:None
++        mark_capture_end=lambda:None
++        if aggregate_costs:
++            # Warmup has drained and connector reset has succeeded above.
++            from aggregate_offload_observer import install as observe_aggregate_offload
++            offload_data,mark_capture_end,uninstall_offload=observe_aggregate_offload(scheduler.connector)
+         if diagnostic:
+             offload_data, uninstall_offload = observe_offload(scheduler.connector, diagnostic=True,
+                 host_snapshot=lambda: host_snapshot(engine))
+@@ -369,14 +381,15 @@
+                     raw = measure_episode(engine, workload, config,
+                         regime='steady', arrival_scale=1., run_id='measured', max_seconds=180, record_preemptions=True)
+                 timing['measurement_return_perf_s']=time.perf_counter()
++                mark_capture_end()
+                 print('PHASE MEASUREMENT_END', flush=True)
+                 dump(out/'host-request-end.json', host_snapshot(engine))
+                 dump(out/'post-request-drain.json', drain_offload(engine))
+                 timing['post_request_drain_end_perf_s']=time.perf_counter()
+             finally:
+                 dump(out/'selective-store.json', uninstall())
++                uninstall_offload()
+                 dump(out/'offload-events.json', offload_data)
+-                uninstall_offload()
+         finally:
+             if raw is not None:
+                 raw['gpu_before'] = before

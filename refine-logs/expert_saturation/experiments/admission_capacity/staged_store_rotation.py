@@ -12,7 +12,50 @@ from absence_rotation import AbsenceRotation, RequestView
 from native_store_delta import inspect_store_delta
 
 
-def install(scheduler, *, vllm_config, save, block_size, expected_requests=32):
+def _direct_resume_reason(scheduler, manager, pool, owned, cs, target):
+    """Read current native resources before omitting the planned preemption."""
+    if target.status.name != 'PREEMPTED' or target not in scheduler.waiting:
+        return 'KEEP_TARGET_NOT_WAITING'
+    if scheduler.skipped_waiting:
+        return 'KEEP_PENDING_QUEUE'
+    slots = getattr(scheduler, 'max_num_running_reqs', None)
+    streaming = getattr(scheduler, 'num_waiting_for_streaming_input', None)
+    if (type(slots) is not int or type(streaming) is not int
+            or streaming < 0 or len(scheduler.running) + streaming >= slots):
+        return 'KEEP_NO_SEQUENCE_SLOT'
+    if owned.get(target.request_id):
+        return 'KEEP_PARTIAL_TARGET_KV'
+    required = (target.num_prompt_tokens + target.num_output_tokens + 15) // 16
+    if pool.get_num_free_blocks() < required:
+        return 'KEEP_INSUFFICIENT_FREE_BLOCKS'
+    status = cs._req_status.get(target.request_id)
+    if status is None or getattr(status, 'transfer_jobs', None) is None:
+        return 'KEEP_UNKNOWN_TARGET_TRANSFER'
+    if status.transfer_jobs:
+        return 'KEEP_PENDING_TARGET_TRANSFER'
+    # The installer already restricts this to uncached, single-group full attention.
+    # Recheck actual ownership because prepare and commit are separate calls.
+    seen = set()
+    running_ids = {request.request_id for request in scheduler.running}
+    if any(blocks for rid, blocks in owned.items() if rid not in running_ids):
+        return 'KEEP_NONRUNNING_BLOCKS'
+    try:
+        for request in scheduler.running:
+            blocks = owned[request.request_id]
+            ids = [block.block_id for block in blocks]
+            if ids != manager.get_blocks(request.request_id).get_block_ids()[0]:
+                return 'KEEP_MANAGER_OWNERSHIP_MISMATCH'
+            for block in blocks:
+                if (block.is_null or block.ref_cnt != 1 or block.block_id in seen
+                        or pool.blocks[block.block_id] is not block):
+                    return 'KEEP_SHARED_OR_INVALID_BLOCK'
+                seen.add(block.block_id)
+    except (AttributeError, IndexError, KeyError, TypeError):
+        return 'KEEP_UNKNOWN_OWNERSHIP'
+    return 'DIRECT_READY'
+
+
+def install(scheduler, *, vllm_config, save, block_size, expected_requests=32, commit_recheck=False):
     if block_size!=16:raise ValueError('Qualification requires 16-token blocks')
     manager=scheduler.kv_cache_manager
     connector=scheduler.connector
@@ -45,10 +88,10 @@ def install(scheduler, *, vllm_config, save, block_size, expected_requests=32):
     pool=manager.block_pool; owned=singles[0].req_to_blocks
     oldcalc=cs._calc_num_offloadable_tokens
     hadcalc='_calc_num_offloadable_tokens' in vars(cs)
-    step=0;plan=None;protected=None;output_start=None;cohort=None;phase=None
+    step=0;plan=None;plan_request_refs=None;protected=None;output_start=None;cohort=None;phase=None
     pending_flush=set();cancelled=False
     tracker=AbsenceRotation(victim_order='most_output')
-    data=dict(save=save,events=[],status='INSTALLED',applied_rotations=0)
+    data=dict(save=save,commit_recheck=commit_recheck,events=[],status='INSTALLED',applied_rotations=0,direct_commits=0)
     hooks=('_rotation_begin','_rotation_hold','_rotation_target','_rotation_forced_count')
     if any(k in vars(scheduler) for k in hooks):raise ValueError('Existing rotation hook')
 
@@ -65,7 +108,7 @@ def install(scheduler, *, vllm_config, save, block_size, expected_requests=32):
         return min(oldcalc(rs,n),plan.saved_tokens)
 
     def begin(preempted,timestamp):
-        nonlocal plan,protected,output_start,phase,pending_flush,cancelled,cohort
+        nonlocal plan,plan_request_refs,protected,output_start,phase,pending_flush,cancelled,cohort
         scheduler._rotation_forced_count=0;phase=None;pending_flush=set();cancelled=False
         rows=[view(r) for r in scheduler.running]
         if cohort is None and len(rows)==expected_requests and not scheduler.waiting and not scheduler.skipped_waiting and all(r.pure_decode for r in rows):
@@ -78,18 +121,31 @@ def install(scheduler, *, vllm_config, save, block_size, expected_requests=32):
             # New-store coverage was checked at prepare. Older host residency
             # is intentionally unknown; native lookup/recompute handles misses.
             reason=commit_reason(plan,step,view(victim),view(target),pool.get_num_free_blocks(),None,save_enabled=False)
-            data['events'].append(dict(event='commit_check',step=step,reason=reason,victim=plan.victim.request_id,target=plan.target.request_id))
-            if reason!='READY':
-                cancelled=True;plan=None
-            else:
+            if reason=='READY' and (plan_request_refs is None
+                    or plan_request_refs[0] is not victim or plan_request_refs[1] is not target):
+                reason='CANCEL_REQUEST_IDENTITY_CHANGED'
+            if reason=='READY' and scheduler.skipped_waiting:
+                reason='CANCEL_FOREIGN_PENDING_QUEUE'
+            if reason=='READY':
                 rs=cs._req_status.get(victim.request_id)
                 pending_flush=set(rs.transfer_jobs) if rs else set()
-                if any(not cs._jobs[j].is_store for j in pending_flush):
-                    raise RuntimeError('Victim still has an in-flight load')
-                scheduler.running.remove(victim);scheduler._preempt_request(victim,timestamp)
-                preempted.append(victim);scheduler._rotation_forced_count=1
+                if any(j not in cs._jobs or not cs._jobs[j].is_store for j in pending_flush):
+                    reason='CANCEL_VICTIM_PENDING_OR_UNKNOWN_TRANSFER'
+            data['events'].append(dict(event='commit_check',step=step,reason=reason,victim=plan.victim.request_id,target=plan.target.request_id))
+            if reason!='READY':
+                cancelled=True;plan=None;plan_request_refs=None
+            else:
+                disposition = (_direct_resume_reason(scheduler,manager,pool,owned,cs,target)
+                    if commit_recheck else 'KEEP_RECHECK_OFF')
+                data['events'].append(dict(event='commit_recheck',step=step,reason=disposition,
+                    target=target.request_id,planned_victim=victim.request_id))
+                if disposition=='DIRECT_READY':
+                    phase='direct'
+                else:
+                    scheduler.running.remove(victim);scheduler._preempt_request(victim,timestamp)
+                    preempted.append(victim);scheduler._rotation_forced_count=1
+                    data['applied_rotations']+=1
                 protected=target;output_start=target.num_output_tokens
-                data['applied_rotations']+=1
         elif cohort is not None and protected is None and not scheduler.skipped_waiting and all(r.pure_decode for r in rows):
             waiting=[r for r in scheduler.waiting if r.status.name=='PREEMPTED']
             old_swap=tracker.last_swap_step
@@ -103,6 +159,7 @@ def install(scheduler, *, vllm_config, save, block_size, expected_requests=32):
                     data['events'].append(dict(event='prepare_rejected',step=step,reason=str(exc)))
                 else:
                     phase='prepare'
+                    plan_request_refs=(scheduler.requests[victim.request_id],scheduler.requests[target.request_id])
                     data['events'].append(dict(event='prepare',step=step,victim=victim.request_id,target=target.request_id,saved_tokens=plan.saved_tokens))
         if protected is not None:
             if any(r is not protected for r in scheduler.skipped_waiting):
@@ -118,10 +175,14 @@ def install(scheduler, *, vllm_config, save, block_size, expected_requests=32):
         return not recovery_guard(view(protected),pool.get_num_free_blocks(),r.remaining_blocks)['other_growth_allowed']
 
     def schedule(*args,**kwargs):
-        nonlocal step,protected,plan
-        if protected is not None and protected.num_output_tokens>output_start:
-            data['events'].append(dict(event='target_new_output',step=step,request=protected.request_id))
-            protected=None
+        nonlocal step,protected,plan,plan_request_refs
+        if protected is not None:
+            terminal = (scheduler.requests.get(protected.request_id) is not protected
+                or protected.status.name.startswith('FINISHED'))
+            if terminal or protected.num_output_tokens>output_start:
+                event = 'target_terminal_release' if terminal else 'target_new_output'
+                data['events'].append(dict(event=event,step=step,request=protected.request_id))
+                protected=None
         try:
             result=native(*args,**kwargs);meta=result.kv_connector_metadata
             if phase=='prepare':
@@ -137,6 +198,10 @@ def install(scheduler, *, vllm_config, save, block_size, expected_requests=32):
                 if not pending_flush<=set(meta.jobs_to_flush):
                     raise RuntimeError('Native flush omitted pending stores')
                 tracker.note_rotation_applied()
+            if protected is not None and (scheduler.requests.get(protected.request_id) is not protected
+                    or protected.status.name.startswith('FINISHED')):
+                data['events'].append(dict(event='target_terminal_release',step=step,request=protected.request_id))
+                protected=None
             if protected is not None:
                 allowed={plan.victim.request_id} if phase=='commit' and plan else set()
                 if set(result.preempted_req_ids or ())-allowed:
@@ -150,7 +215,10 @@ def install(scheduler, *, vllm_config, save, block_size, expected_requests=32):
             tracker.note_resumed(step,sorted(result.scheduled_cached_reqs.resumed_req_ids))
             if meta.store_jobs or meta.load_jobs or meta.jobs_to_flush or phase:
                 data['events'].append(dict(event='metadata',step=step,stores=sorted(meta.store_jobs),loads=sorted(meta.load_jobs),flush=sorted(meta.jobs_to_flush)))
-            if phase=='commit':plan=None
+            if phase=='direct':
+                data['direct_commits']+=1
+                data['events'].append(dict(event='direct_commit',step=step,target=plan.target.request_id))
+            if phase in ('commit','direct'):plan=None;plan_request_refs=None
             step+=1;data['status']='EXECUTING'
             return result
         except Exception as exc:

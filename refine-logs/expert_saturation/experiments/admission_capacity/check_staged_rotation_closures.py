@@ -19,7 +19,7 @@ def factory():
     source=Path(adapter.__file__).read_text();tree=ast.parse(source)
     install=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='install')
     start=next(i for i,n in enumerate(install.body) if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='step' for t in n.targets))
-    fn=ast.parse('def fixture(scheduler,native,owned,pool,cs,save):\n expected_requests=32\n oldcalc=cs._calc_num_offloadable_tokens\n hadcalc=False\n').body[0]
+    fn=ast.parse('def fixture(scheduler,native,owned,pool,cs,save):\n expected_requests=32\n commit_recheck=False\n oldcalc=cs._calc_num_offloadable_tokens\n hadcalc=False\n').body[0]
     fn.body+=deepcopy(install.body[start:])
     env=dict(vars(adapter));exec(compile(ast.fix_missing_locations(ast.Module(body=[fn],type_ignores=[])),'<actual-staged-closures>','exec'),env)
     return env['fixture']

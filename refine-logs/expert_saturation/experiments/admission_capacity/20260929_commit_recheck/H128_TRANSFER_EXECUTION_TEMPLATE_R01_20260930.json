@@ -1,0 +1,82 @@
+{
+  "schema_version": "h128_transfer_template_v1",
+  "status": "WAIT_G64_FOUR_POINT_AUDIT_AND_SELECTION",
+  "executable_plan": false,
+  "purpose": "Same RTX 5090 H128 transfer of exactly one G64-selected LTR-style point against H128 native full and selected/eager; H128 was previously viewed and is not a blind holdout.",
+  "h128_candidate": {
+    "local_package": "candidate_h128_perf_r01",
+    "manifest_sha256": "24e0e0b927971569fb4cceb2e66cce44d31e0dfd3d99a94680bf1917a5739a0e",
+    "remote_package_dir": "/root/autodl-tmp/moe-a-pkg-20260930/candidate_h128_perf_r01",
+    "input_workload_sha256": "dd8ac6566059c655e7311ac3b4a706c12d0e9d32233d7be7cedde7422d975b56",
+    "input_config_sha256": "116fb4bc8d2dc415277e483da75075dbbeb24df831e1e3d9ab08bf6547aea63f",
+    "input_stats_sha256": "8e3f594ec5ccdd1e93c983ab9d563ddcc918b6d84e2ec06c550fa1e12434069d",
+    "requests_per_cell": 128,
+    "arrival_gap_seconds": 0.2,
+    "capture_limit_seconds": 180
+  },
+  "g64_selection_gate": {
+    "required_pilot_status": "PILOT_THREE_ARM_COMPLETE_PARTIAL_TQ_GRID",
+    "pilot_audit_sha256": "af8685aa75d8123ea704017aea7280b80274d7c61b2ba78a97e185602bf44a96",
+    "required_audited_ltr_arm_dispositions": [
+      "ltr_t30_q1",
+      "ltr_t30_q10",
+      "ltr_t200_q1",
+      "ltr_t200_q10"
+    ],
+    "eligible_candidate_requirement": "Only arms with 64/64 completed requests and independently audited resources, source, and archive may enter service-budget selection; retain incomplete and failed arms in the four-point disposition.",
+    "remaining_grid_audit_sha256": null,
+    "combined_selection_report_sha256": null,
+    "selected_ltr_arm": null,
+    "service_budget_relative_to_same_window_eager": {
+      "minimum_actual_output_tokens_per_second_ratio": 0.97,
+      "maximum_mean_completion_time_ratio": 1.05
+    },
+    "selection_order": [
+      "minimum_all_request_maximum_generation_gap_seconds",
+      "maximum_actual_output_tokens_per_second",
+      "minimum_mean_completion_time_seconds",
+      "minimum_threshold_calls",
+      "minimum_quantum_positive_schedule_calls"
+    ],
+    "if_no_qualifying_point": "NO_H128_LTR_TRANSFER_GROUP"
+  },
+  "machine_and_environment": {
+    "authorized_gpu_uuid": "GPU-3fc910c2-bf65-5273-e6b5-6c0d8b6ce03e",
+    "approved_host_bytes": 96636764160,
+    "approved_total_wall_seconds": 4200,
+    "lock_path": "/root/autodl-tmp/moe-research-gpu.lock",
+    "expected_lock_device_inode": "2304:25841682495",
+    "python": "/root/autodl-tmp/moe-a-runtime-20260930/venv/bin/python",
+    "hf_cache_dir": "/root/moe-a-model-cache-20260930-r02/hf",
+    "shared_model_source_cache": "/root/autodl-tmp/c-research-20260930/hf-cache",
+    "model_revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "model_verifier_path": "/root/autodl-tmp/moe-a-shared-assets-launch-20260930-v2/verify_shared_model_20260930.py",
+    "model_verifier_sha256": "d78c6726a8d010f3a02d50c79220084520c186f9b05f4b4a10c1598ac5fe9a90",
+    "cgroup_memory_max_file": "/sys/fs/cgroup/memory.max",
+    "target_usable_gpu_kv_blocks": 4096,
+    "host_kv_bytes": 17179869184
+  },
+  "new_identity": {
+    "session_dir": "/root/autodl-tmp/moe-a-h128-perf-transfer-session-r01-20260930",
+    "controller_path": null,
+    "controller_sha256": null,
+    "cells_in_order": [
+      {
+        "arm": "native_full_native",
+        "output_dir": "/root/autodl-tmp/moe-a-h128-perf-transfer-output-native_full_native-r01-20260930",
+        "max_wall_seconds": 900
+      },
+      {
+        "arm": "eager",
+        "output_dir": "/root/autodl-tmp/moe-a-h128-perf-transfer-output-eager-r01-20260930",
+        "max_wall_seconds": 900
+      },
+      {
+        "arm": null,
+        "arm_source": "g64_selection_gate.selected_ltr_arm",
+        "output_dir": "/root/autodl-tmp/moe-a-h128-perf-transfer-output-selected_ltr-r01-20260930",
+        "max_wall_seconds": 900
+      }
+    ]
+  }
+}

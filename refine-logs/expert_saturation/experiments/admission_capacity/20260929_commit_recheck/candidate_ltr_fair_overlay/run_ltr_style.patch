@@ -1,0 +1,74 @@
+--- a/pkg/run_ltr_style.py
++++ b/pkg/run_ltr_style.py
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""Recovery-only LTR-style T30/Q10: one native diagnostic, no timing contrast."""
++"""Candidate fair LTR T30/Q10 native diagnostic; CPU wiring only, GPU unrun."""
+ import argparse
+ import csv
+ import hashlib
+@@ -66,6 +66,24 @@
+         return dict(status='UNAVAILABLE', error=f'{type(error).__name__}: {error}')
+ 
+ 
++def install_fair_selected(scheduler, *, vllm_config, block_size, threshold, quantum, install):
++    """Connect the fair adapter to the unchanged selected-save runner contract."""
++    cs = scheduler.connector.connector_scheduler
++    selective, uninstall = install(scheduler, vllm_config=vllm_config,
++        block_size=block_size, threshold=threshold, quantum=quantum)
++    if (selective.get('status') != 'INSTALLED'
++            or selective.get('threshold') != threshold
++            or selective.get('quantum') != quantum
++            or 'schedule' not in vars(scheduler)
++            or '_calc_num_offloadable_tokens' not in vars(cs)
++            or '_rotation_begin' not in vars(scheduler)):
++        uninstall()
++        raise RuntimeError('Fair adapter did not install selected native save and schedule')
++    selective.update(store_scope='selected', native_calc_overridden=True,
++        ltr_config=dict(threshold=threshold, quantum=quantum))
++    return selective, uninstall
++
++
+ 
+ 
+ def main():
+@@ -76,7 +94,7 @@
+     parser.add_argument('--ltr-quantum', type=int, choices=[10], default=10)
+     parser.add_argument('--output-dir', type=Path, required=True)
+     args = parser.parse_args()
+-    args.variant='ltr_style_selected';diagnostic=True
++    args.variant='ltr_fair_selected';diagnostic=True
+     root, out, engine = Path(__file__).resolve().parent, args.output_dir, None
+     timing = dict(process_start_unix_s=time.time(), process_start_perf_s=time.perf_counter())
+     out.mkdir(parents=True, exist_ok=False)
+@@ -88,7 +106,7 @@
+         from request_measurement import measure_episode
+         from memory_telemetry import capture_with_memory, memory_snapshot
+         from safe_static import qualify_safe_cap
+-        from ltr_style_native import install as install_ltr
++        from ltr_fair_native import install as install_ltr
+         from native_offload_observer import drain as drain_offload, install as observe_offload
+         from native_host_snapshot import snapshot as host_snapshot
+         config, workload = load_inputs(args.inputs)
+@@ -127,7 +145,7 @@
+             cpu_threads=torch.get_num_threads(), vllm_source_sha256=runtime_hashes,
+             source_sha256={name: sha(root/name) for name in ['run_ltr_style.py', 'request_measurement.py', 'native_capture.py',
+                 'memory_telemetry.py', 'metrics.py', 'safe_static.py', 'rotation_native.py', 'absence_rotation.py',
+-                'ltr_style_native.py', 'ltr_style_selected.py', 'recovery_service_components.py', 'staged_save_contract.py', 'native_offload_observer.py',
++                'ltr_fair_native.py', 'ltr_fair_policy.py', 'staged_save_contract.py', 'native_offload_observer.py',
+                 'native_host_snapshot.py', 'native_store_delta.py', 'native_full_store_evidence.py']}))
+         if runtime_hashes['v1/core/sched/scheduler.py'] != '2ed2a550b6558b2495eda845a97ae38bcf0225027b9e25fbf00fc3880c1d3941' or runtime_hashes['v1/core/kv_cache_manager.py'] != '3f4af8d247f3fe9570b0132818b832b66ae6a2ac12942588828f899f6ff77ccf':
+             raise RuntimeError('pinned runtime source changed')
+@@ -192,9 +210,9 @@
+         if diagnostic:
+             offload_data, uninstall_offload = observe_offload(scheduler.connector, diagnostic=True,
+                 host_snapshot=lambda: host_snapshot(engine))
+-        selective, uninstall = install_ltr(scheduler,vllm_config=engine.vllm_config,
+-            block_size=qualification['block_size'],save=True,diagnostic=True,
+-            threshold=args.ltr_threshold,quantum=args.ltr_quantum)
++        selective, uninstall = install_fair_selected(scheduler,
++            vllm_config=engine.vllm_config, block_size=qualification['block_size'],
++            threshold=args.ltr_threshold, quantum=args.ltr_quantum, install=install_ltr)
+         if selective['store_scope']!='selected' or not selective['native_calc_overridden']:
+             raise RuntimeError('Applied selected native saving differs')
+         if selective['ltr_config']!=config['ltr_config']:

@@ -1,0 +1,41 @@
+{
+  "status": "NEXT_HYPOTHESIS_NOT_IMPLEMENTED_OR_FROZEN",
+  "created_utc": "2026-10-01T22:42:28.441507+00:00",
+  "evidence": [
+    "A_NATIVE_VICTIM_SIZE_TRIPLET_RESULT_R02_20261002.json",
+    "A_NATIVE_VICTIM_SIZE_WORST_CHAINS_R02_20261002.json"
+  ],
+  "hypothesis": "When a paused request waits a long time before native readmission, changing its waiting position alone may be insufficient. Compare queue ordering with actual capacity funding of that same online-selected request.",
+  "proposed_controls": [
+    "native waiting order",
+    "oldest already-output paused request first, queue movement only",
+    "same online queue order plus bounded funding of one complete native restoration"
+  ],
+  "available_interfaces": {
+    "queue": "waiting.remove_request / prepend_request, with target override disabled for queue-only",
+    "forced": "existing staged_store_rotation begin prepare -> commit_reason recheck -> running.remove(victim) -> scheduler._preempt_request -> start_protection(target)",
+    "admission": "No force-admit API. Existing patched waiting loop targets request, native scheduler/connector performs actual allocation/load/admission; post-native receipts and first real output required."
+  },
+  "differences": {
+    "fit_first": "Previous fit-first changed target to another currently free-fit waiter; this proposal funds the same oldest paused target.",
+    "current_guard": "Previous current guard chose a different victim only after a running allocation failed; it neither reordered nor funded waiting requests.",
+    "capacity_victim": "Existing capacity-victim prepare/commit is the nearest reusable action, but used tracker-proposed targets instead of a fixed oldest-paused comparison. This reuse does not establish novelty."
+  },
+  "minimum_safety": [
+    "Target still PREEMPTED/waiting with prior real outputs and no partial owned KV",
+    "Known full-history allocation requirement and current physical free blocks",
+    "At most one qualified running victim with sufficient uniquely owned blocks for the bounded first implementation",
+    "Recheck target/victim status, physical ownership, transfer completion, pending work and native in-flight reservations at commit",
+    "Native full saving backend retained; no selective-save clipping hidden in the new policy",
+    "No claim from a plan: verify actual preempt, native admission, new output and all affected-request costs",
+    "Short protection through first real output is part of the intervention cost, not attributed solely to victim eviction"
+  ],
+  "unresolved_before_freeze": [
+    "Pick one justified activation condition and service target without a parameter sweep",
+    "Confirm native full-save adaptation of old forced prepare/commit path does not change backend or transfer semantics",
+    "Explicitly freeze whether this is one-action mechanism pilot or repeated policy; no retrospective choice"
+  ],
+  "rejected_shortcut": "Truthful partial host match is structurally supported, but short load alone does not reduce full-history KV residency required before first new output and can be preempted again; do not launch that as a standalone optimization based on interface feasibility.",
+  "gpu_status": "UNRUN_NO_PLAN_NO_PROCESS",
+  "claim": "Research design checkpoint, not a new algorithm or positive result."
+}
