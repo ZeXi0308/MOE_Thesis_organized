@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "status": "PHASE3_BLOCKED_PENDING_INTEGRATED_CONTINUOUS_DYNAMIC_EXPERT_HOT_PATH",
+  "artifact_scope": "CAPABILITY_AND_CALIBRATION_PROXY_ONLY",
+  "frozen_protocol": "docs/ideas/energy_slo/route_row_fp8/Phase2_RouteRow_FP8_BreakEven_冻结协议_2026-07-22.md",
+  "fp8_recipe": "E4M3FN_weight_per_tensor_absmax_once_activation_per_projection_absmax_scaled_mm_bf16",
+  "fixed_row_bins": [
+    "1",
+    "2",
+    "3-4",
+    "5-8",
+    "9-16",
+    "17-32",
+    "33-64",
+    "65-128",
+    ">=129"
+  ],
+  "models": {
+    "olmoe": {
+      "model_id": "allenai/OLMoE-1B-7B-0924",
+      "revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+      "num_layers": 16,
+      "num_experts": 64,
+      "top_k": 8,
+      "hidden_size": 2048,
+      "expected_target_linears": 3072,
+      "trust_remote_code": false
+    },
+    "llm_jp": {
+      "model_id": "llm-jp/optimal-sparsity-math-d512-E32-k16-920M-A520M",
+      "revision": "1d5983076dfc67aee4a77ec06a27027f5bab6055",
+      "num_layers": 16,
+      "num_experts": 32,
+      "top_k": 16,
+      "hidden_size": 512,
+      "expected_target_linears": 1536,
+      "trust_remote_code": false
+    }
+  },
+  "data": {
+    "dataset": "wikitext-103-raw-v1:test",
+    "shuffle": false,
+    "calibration_candidate_window": [1024, 1536],
+    "calibration_documents": 128,
+    "sealed_candidate_window": [2048, 3072],
+    "sealed_documents": 256,
+    "minimum_tokens_under_both_tokenizers": 129,
+    "prompt_tokens": 64,
+    "teacher_forced_decode_steps": 64,
+    "require_disjoint_canonical_text_sha256": true
+  },
+  "capture_contract": {
+    "schema_version": 1,
+    "capture_kind": "continuous_decode_expert_inputs",
+    "phase": "decode",
+    "decode_input_length": 1,
+    "prefill_once_per_request": true,
+    "kv_reused": true,
+    "kv_monotonic": true,
+    "independent_policy_state": true,
+    "route_replay": false,
+    "future_information_used": false,
+    "cache_repack_complexity": "O(1)_metadata_only",
+    "require_active_batch_increase_and_decrease": true,
+    "forbidden_capture_kinds": [
+      "full_forward",
+      "isolated_precast_gemm",
+      "analytical_simulation",
+      "random_activation"
+    ]
+  },
+  "surface": {
+    "warmup_calls": 5,
+    "paired_trials_per_event": 5,
+    "minimum_measurement_seconds_per_arm": 0.25,
+    "maximum_inner_repeats": 1048576,
+    "power_sampling_interval_seconds": 0.01,
+    "bootstrap_resamples": 2000,
+    "bootstrap_seed": 2026072201,
+    "min_independent_iteration_clusters_per_bin": 30,
+    "max_profiled_events_per_bin": 64,
+    "event_subsampling": "smallest_sha256_of_seed_and_event_id",
+    "alternate_arm_order": true
+  },
+  "quality_gate": {
+    "metric": "mean_token_KL_reference_to_candidate",
+    "ci": 0.95,
+    "maximum_ci_upper": 0.05,
+    "require_in_loop_decode": true,
+    "require_independent_kv": true
+  },
+  "existence_gate": {
+    "minimum_bf16_expert_energy_mass_fraction_per_region": 0.1,
+    "require_fp8_safe_region": true,
+    "require_bf16_fallback_region": true
+  },
+  "formal_gate": {
+    "required_status": "SIGNED-OFF",
+    "required_phase": "Phase4",
+    "default_signoff_path": "docs/ideas/energy_slo/run_conclusions/route_row_break_even_phase4_signoff.json",
+    "hash_manifest": [
+      "docs/ideas/energy_slo/route_row_fp8/experiments/continuous_decode_harness.py",
+      "docs/ideas/energy_slo/route_row_fp8/experiments/power_accounting.py",
+      "docs/ideas/energy_slo/route_row_fp8/experiments/route_row_policy.py",
+      "docs/ideas/energy_slo/route_row_fp8/experiments/run_route_row_surface.py",
+      "docs/ideas/energy_slo/route_row_fp8/experiments/test_continuous_decode_harness.py",
+      "docs/ideas/energy_slo/route_row_fp8/experiments/test_power_accounting.py",
+      "docs/ideas/energy_slo/route_row_fp8/experiments/test_route_row_policy.py",
+      "docs/ideas/energy_slo/route_row_fp8/experiments/configs/route_row_break_even_v1.json"
+    ]
+  },
+  "blocked_fallbacks": [
+    "Transformers full-forward as continuous decode substitute",
+    "experiments/shared/run_serving_sim.py",
+    "pre-cast isolated GEMM energy as full FP8 expert energy",
+    "BF16 route replay or lock_routing",
+    "CPU or non-native-FP8 execution"
+  ]
+}

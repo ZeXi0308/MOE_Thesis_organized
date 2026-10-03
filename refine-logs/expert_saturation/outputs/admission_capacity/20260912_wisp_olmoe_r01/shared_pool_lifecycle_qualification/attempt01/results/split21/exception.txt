@@ -1,0 +1,109 @@
+Traceback (most recent call last):
+  File "/root/autodl-tmp/shared-pool-lifecycle-qualification-20260913-root-r01/source/run_native_pager.py", line 299, in main
+    engine = LLMEngine.from_engine_args(EngineArgs(**kwargs), enable_multiprocessing=False)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/engine/llm_engine.py", line 179, in from_engine_args
+    return cls(
+           ^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/engine/llm_engine.py", line 105, in __init__
+    self.engine_core = EngineCoreClient.make_client(
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/engine/core_client.py", line 105, in make_client
+    return InprocClient(vllm_config, executor_class, log_stats)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/engine/core_client.py", line 287, in __init__
+    self.engine_core = EngineCore(*args, **kwargs)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/engine/core.py", line 136, in __init__
+    kv_cache_config = self._initialize_kv_caches(vllm_config)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/tracing/otel.py", line 178, in sync_wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/engine/core.py", line 324, in _initialize_kv_caches
+    self.model_executor.initialize_from_config(kv_cache_configs)
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/executor/abstract.py", line 124, in initialize_from_config
+    compilation_times: list[CompilationTimes] = self.collective_rpc(
+                                                ^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/executor/uniproc_executor.py", line 92, in collective_rpc
+    result = run_method(self.driver_worker, method, args, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/serial_utils.py", line 510, in run_method
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/tracing/otel.py", line 178, in sync_wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/worker/gpu_worker.py", line 876, in compile_or_warm_up_model
+    hidden_states, last_hidden_states = self.model_runner._dummy_run(
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/worker/gpu_model_runner.py", line 6084, in _dummy_run
+    outputs = self.model(
+              ^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/model_executor/models/olmoe.py", line 396, in forward
+    hidden_states = self.model(
+                    ^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/compilation/decorators.py", line 507, in __call__
+    return self.forward(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/model_executor/models/olmoe.py", line 322, in forward
+    hidden_states, residual = layer(
+                              ^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/model_executor/models/olmoe.py", line 264, in forward
+    hidden_states = self.mlp(hidden_states)
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/model_executor/models/olmoe.py", line 115, in forward
+    final_hidden_states = self.experts(
+                          ^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/model_executor/layers/fused_moe/runner/moe_runner.py", line 685, in forward
+    result = self._forward_entry(
+             ^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/torch/_ops.py", line 1269, in __call__
+    return self._op(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/model_executor/layers/fused_moe/runner/moe_runner.py", line 127, in _moe_forward
+    return layer._forward_impl(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/model_executor/layers/fused_moe/runner/moe_runner.py", line 830, in _forward_impl
+    shared_output, hidden_states = self._apply_quant_method(
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/model_executor/layers/fused_moe/runner/moe_runner.py", line 580, in _apply_quant_method
+    fused_out = self.routed_experts.forward_modular(
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/model_executor/layers/fused_moe/routed_experts.py", line 1179, in forward_modular
+    return self.quant_method.apply(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/shared-pool-lifecycle-qualification-20260913-root-r01/source/wisp_v026_adapter.py", line 116, in apply
+    return runtime.apply(self, layer, x, topk_weights, topk_ids)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/shared-pool-lifecycle-qualification-20260913-root-r01/source/run_shared_pool_pager.py", line 199, in dispatch
+    if self.torch.cuda.current_stream().cuda_stream!=self.shared_stream:raise RuntimeError('shared stream changed')
+                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: shared stream changed

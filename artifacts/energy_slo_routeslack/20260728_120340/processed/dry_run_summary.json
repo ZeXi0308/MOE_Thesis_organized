@@ -1,0 +1,196 @@
+{
+  "baselines_exercised": [
+    "immediate_execution",
+    "fixed_row_threshold",
+    "fixed_timeout",
+    "earliest_deadline_first",
+    "least_loaded_replica",
+    "min_predicted_finish",
+    "lplb_like_token_balancing",
+    "two_tier_static_power",
+    "min_finish_plus_two_tier_power",
+    "route_unaware_batch_kv_phase_energy_controller"
+  ],
+  "confidence_intervals": null,
+  "evidence_boundary": "Synthetic audit fixture only. It verifies pipeline and fail-closed invariants, not a model, GPU, energy, latency, SLO, or Oracle result.",
+  "formal_result": false,
+  "gate0": "FAIL",
+  "gate0_open_items": [
+    "native_continuous_decode",
+    "kv_advances_one",
+    "latency_window_aligned",
+    "energy_window_aligned",
+    "thermal_state_logged"
+  ],
+  "identity_stages": 4,
+  "included_development_artifacts": [
+    "raw/development_tiny_cached_decode_v2.csv",
+    "raw/development_tiny_cached_decode_v2.meta.json",
+    "logs/gpu_gate_attempts.log",
+    "source_snapshot/docs/current/routeslack_research_audit.md",
+    "source_snapshot/docs/current/routeslack_experiment_protocol.md",
+    "source_snapshot/docs/current/routeslack_code_review.md",
+    "source_snapshot/docs/current/routeslack_gate_results.md",
+    "source_snapshot/docs/current/routeslack_final_verdict.md",
+    "source_snapshot/docs/current/README.md",
+    "source_snapshot/docs/ideas/energy_slo/README.md",
+    "source_snapshot/docs/meetings/first_meeting.md",
+    "source_snapshot/docs/ideas/bcrd/experiments/capture_native_routes.py",
+    "source_snapshot/docs/ideas/bcrd/experiments/core.py",
+    "source_snapshot/docs/ideas/bcrd/experiments/benchmark_expert_service_curve.py",
+    "source_snapshot/docs/ideas/bcrd/experiments/census_fragmentation.py",
+    "source_snapshot/docs/ideas/bcrd/experiments/build_fixed_replica_instances.py",
+    "source_snapshot/docs/ideas/bcrd/experiments/solve_assignment_oracle.py",
+    "source_snapshot/docs/ideas/bcrd/experiments/compare_policies.py",
+    "source_snapshot/docs/ideas/bcrd/experiments/compute_captured_headroom.py",
+    "source_snapshot/docs/ideas/bcrd/experiments/policies.py",
+    "source_snapshot/docs/ideas/bcrd/experiments/test_cached_decode.py",
+    "source_snapshot/docs/ideas/bcrd/experiments/test_identity_conservation.py",
+    "source_snapshot/docs/ideas/bcrd/experiments/test_bcrd_gate.py",
+    "source_snapshot/docs/ideas/energy_slo/route_row_fp8/experiments/power_accounting.py",
+    "source_snapshot/docs/ideas/energy_slo/route_row_fp8/experiments/test_power_accounting.py",
+    "source_snapshot/docs/ideas/energy_slo/route_row_fp8/experiments/continuous_decode_harness.py",
+    "source_snapshot/docs/ideas/energy_slo/joulequeue/experiments/capture_joulequeue_expert_inputs_gpu.py",
+    "source_snapshot/docs/ideas/energy_slo/joulequeue/experiments/run_joulequeue_expert_surface.py",
+    "source_snapshot/docs/ideas/energy_slo/joulequeue/experiments/test_capture_joulequeue_expert_inputs_gpu.py",
+    "source_snapshot/docs/ideas/energy_slo/routeslack/experiments/gate0_contracts.py",
+    "source_snapshot/docs/ideas/energy_slo/routeslack/experiments/routeslack_protocol.py",
+    "source_snapshot/docs/ideas/energy_slo/routeslack/experiments/run_routeslack_dry_run.py",
+    "source_snapshot/docs/ideas/energy_slo/routeslack/experiments/test_gate0_contracts.py",
+    "source_snapshot/docs/ideas/energy_slo/routeslack/experiments/test_routeslack_protocol.py",
+    "source_snapshot/experiments/shared/prompts.py"
+  ],
+  "noop_host_tax": {
+    "independent_unit": "timed outer trial",
+    "operations": {
+      "decision_framework": {
+        "host_mean_ci95_us_per_call": [
+          0.10623175850000001,
+          0.10936088250000003
+        ],
+        "host_mean_us_per_call": 0.10780668,
+        "host_p50_us_per_call": 0.1073335,
+        "host_p99_us_per_call": 0.11476688,
+        "iterations_per_trial": 2000,
+        "p50_increment_over_empty_loop_us": 0.081771,
+        "paired_mean_increment_ci95_us": [
+          0.07989830049999998,
+          0.083642071
+        ],
+        "paired_mean_increment_over_empty_loop_us": 0.08181583999999999,
+        "trials": 25
+      },
+      "empty_loop": {
+        "host_mean_ci95_us_per_call": [
+          0.025509918500000003,
+          0.026649281999999996
+        ],
+        "host_mean_us_per_call": 0.025990840000000005,
+        "host_p50_us_per_call": 0.0255625,
+        "host_p99_us_per_call": 0.03146941999999999,
+        "iterations_per_trial": 2000,
+        "p50_increment_over_empty_loop_us": 0.0,
+        "paired_mean_increment_ci95_us": [
+          0.0,
+          0.0
+        ],
+        "paired_mean_increment_over_empty_loop_us": 0.0,
+        "trials": 25
+      },
+      "instrumentation": {
+        "host_mean_ci95_us_per_call": [
+          0.0384633575,
+          0.03914848049999999
+        ],
+        "host_mean_us_per_call": 0.0388251,
+        "host_p50_us_per_call": 0.039292,
+        "host_p99_us_per_call": 0.03970442,
+        "iterations_per_trial": 2000,
+        "p50_increment_over_empty_loop_us": 0.013729500000000002,
+        "paired_mean_increment_ci95_us": [
+          0.012115777500000001,
+          0.013383523
+        ],
+        "paired_mean_increment_over_empty_loop_us": 0.01283426,
+        "trials": 25
+      },
+      "logging": {
+        "host_mean_ci95_us_per_call": [
+          2.6280841775000003,
+          2.6962940774999997
+        ],
+        "host_mean_us_per_call": 2.6598199599999997,
+        "host_p50_us_per_call": 2.6257914999999996,
+        "host_p99_us_per_call": 2.9080805,
+        "iterations_per_trial": 2000,
+        "p50_increment_over_empty_loop_us": 2.6002289999999997,
+        "paired_mean_increment_ci95_us": [
+          2.6007181499999996,
+          2.6707153354999997
+        ],
+        "paired_mean_increment_over_empty_loop_us": 2.6338291199999997,
+        "trials": 25
+      },
+      "route_hook": {
+        "host_mean_ci95_us_per_call": [
+          0.058905720999999994,
+          0.05980084050000001
+        ],
+        "host_mean_us_per_call": 0.059345820000000014,
+        "host_p50_us_per_call": 0.0591875,
+        "host_p99_us_per_call": 0.061125,
+        "iterations_per_trial": 2000,
+        "p50_increment_over_empty_loop_us": 0.033625,
+        "paired_mean_increment_ci95_us": [
+          0.0325858195,
+          0.0339459005
+        ],
+        "paired_mean_increment_over_empty_loop_us": 0.03335498,
+        "trials": 25
+      }
+    },
+    "scope": "local CPU host-only; no CUDA, NVML, route hook, or GPU energy"
+  },
+  "oracle_exercised": "future_known_oracle",
+  "out_of_range_fallback": {
+    "action_eligible": false,
+    "status": "FALLBACK_DEFAULT",
+    "tier": "default"
+  },
+  "physical_energy_samples": 0,
+  "physical_latency_samples": 0,
+  "schema": "routeslack-dry-run-v1",
+  "status": "DRY_RUN_COMPLETE",
+  "synthetic_contributions_per_stage": 16,
+  "unit_tests": {
+    "all_passed": true,
+    "failed_suites": 0,
+    "suites": [
+      {
+        "exit_code": 0,
+        "passed": true,
+        "suite": "bcrd",
+        "tests": 20
+      },
+      {
+        "exit_code": 0,
+        "passed": true,
+        "suite": "routeslack",
+        "tests": 31
+      },
+      {
+        "exit_code": 0,
+        "passed": true,
+        "suite": "route-row-contracts",
+        "tests": 17
+      },
+      {
+        "exit_code": 0,
+        "passed": true,
+        "suite": "joulequeue",
+        "tests": 28
+      }
+    ],
+    "tests": 96
+  }
+}

@@ -1,0 +1,114 @@
+{
+  "claim_ceiling": "PROVISIONAL_SUPPORT_VS_SERIAL / EXTERNAL_BI_OPEN / NOT_A_SERVING_RESULT",
+  "environment": {
+    "allow_bf16_reduced_precision_reduction": true,
+    "allow_tf32": false,
+    "attn_implementation": "eager",
+    "cublaslt": {
+      "path": "/root/miniconda3/lib/python3.12/site-packages/nvidia/cublas/lib/libcublasLt.so.12",
+      "sha256": "10b5e6631cf8115c661eb895ed1533826308b58f7956466f53d236a40c9b622c",
+      "version": 120804
+    },
+    "driver_version": "595.71.05",
+    "dtype": "bfloat16",
+    "gpu_exact_name": "NVIDIA GeForce RTX 5090",
+    "gpu_uuid": "GPU-64c06fb4-79b3-0d5b-4294-431e7afac4d7",
+    "torch": "2.8.0+cu128",
+    "transformers": "4.57.6",
+    "transformers_olmoe_source": {
+      "path": "/root/miniconda3/lib/python3.12/site-packages/transformers/models/olmoe/modeling_olmoe.py",
+      "sha256": "248717a8477fbcb4b16ce648a9ace829b6b2f4a002191a7f64ee720eb65f4c0d"
+    }
+  },
+  "execution": {
+    "arms": [
+      "native_variable_m",
+      "serial_m1",
+      "fixed_c8"
+    ],
+    "canonical_m": 8,
+    "cross_step_wait": false,
+    "immediate_flush": true,
+    "maximum_wall_seconds": 2700,
+    "measured_arm_orders": [
+      [
+        "native_variable_m",
+        "serial_m1",
+        "fixed_c8"
+      ],
+      [
+        "serial_m1",
+        "fixed_c8",
+        "native_variable_m"
+      ]
+    ],
+    "measured_replays_per_arm": 2,
+    "native_roster_serial_equivalence_audit": "NOT_EXECUTED_NOT_PART_OF_D10_GATE",
+    "warmup_arm_order": [
+      "native_variable_m",
+      "serial_m1",
+      "fixed_c8"
+    ],
+    "warmup_replays_per_arm": 1
+  },
+  "frozen_at": "2026-08-10T18:39:31+08:00",
+  "gate": {
+    "correctness_fail": "NO_GO_D10_C8_CURRENT_STACK",
+    "cost_fail": "NO_GO_D10_HEADLINE_COST",
+    "invalid": "INVALID_D10_CONTINUOUS_COST_GATE",
+    "maximum_c8_over_native_token_step_p99_ratio": 1.05,
+    "maximum_c8_over_serial_expert_gpu_time_ratio": 0.8,
+    "pass": "PROVISIONAL_SUPPORT_VS_SERIAL / EXTERNAL_BI_OPEN",
+    "require_fixed_c8_final_logits_repeat_mismatches": 0,
+    "require_fixed_c8_raw_repeat_mismatches": 0,
+    "require_fixed_c8_route_repeat_mismatches": 0
+  },
+  "model": {
+    "file_sha256": {
+      "config.json": "3643aa880d2f1c9b418156269ae791c73e5612d6b6b6fde0724d927cf89b6335",
+      "model-00001-of-00003.safetensors": "5e3cff7e367794685c241169072c940d200918617d5e2813f1c387dff52d845e",
+      "model-00002-of-00003.safetensors": "15ef5c730ee3cfed7199498788cd2faf337203fc74b529625e7502cdd759f4a7",
+      "model-00003-of-00003.safetensors": "a9abac4ac1b55c9adabac721a02fa39971f103eea9a65c310972b1246de76e04",
+      "model.safetensors.index.json": "0e2e1e0d8d357ac7af817cff28410c3dbad398f060c517a433e4076b2aae5579",
+      "special_tokens_map.json": "b77491e270c6fcc5b2ecf22370f7318a6a18d3cabea09ba7bab92e9bf12656c2",
+      "tokenizer.json": "a094266ac6c4982efba277bc251349a5a6d6ad37efb39a2a90f53d8be2a40a40",
+      "tokenizer_config.json": "78a839c7851f14f9fb30e664c2b46166dc0628f2900679e5ec160656f702edff"
+    },
+    "hidden_size": 2048,
+    "intermediate_size": 1024,
+    "local_path": "/root/autodl-tmp/models/olmoe",
+    "num_experts": 64,
+    "num_experts_per_tok": 8,
+    "num_hidden_layers": 16,
+    "repo_id": "allenai/OLMoE-1B-7B-0924",
+    "revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5"
+  },
+  "official_batch_invariance": {
+    "reason": "official_vllm_batch_invariance_not_installed_or_bound_in_current_environment",
+    "required_before_bounded_go": true,
+    "status": "NOT_EXECUTABLE"
+  },
+  "plan": {
+    "path": "refine-logs/EXPERIMENT_PLAN_20260810_183931.md",
+    "sha256": "7d4833b1fd241c9ce37fbac8ec4df88b7ae7863e8e8929a6cd0174ed025197ae"
+  },
+  "research_boundary": "single_rtx5090_olmoe_bf16_eager_frozen_roster_teacher_forced_mechanism_cost_not_serving_not_vllm_batch_invariance",
+  "schema_version": "stablebatch-shape-lane-continuous-cost-gate-v1",
+  "source_bindings": {
+    "docs/ideas/bcrd/experiments/capture_continuous_decode.py": "564d9fb6734462789eaca9bf0cf5cfd1ff8a04271a923cacf021015c6893b2db",
+    "docs/ideas/bcrd/experiments/core.py": "9115acf75ab60eeb9145521e1de7fb8be14455c85b7d1d85a4ad6ac7ab8be575",
+    "docs/ideas/stablebatch/experiments/run_single_contribution_pilot.py": "97df486292265f256e6df47821ebf049aa96b68cad0e3b9b1193c12b3df3cd57",
+    "experiments/shared/modeling.py": "f98269bd3084988cc952a272c8d6eec97f50e189d7689b9c581c2c170c4a623e"
+  },
+  "status": "FROZEN_PRE_RUN",
+  "workload": {
+    "expected_decode_steps_per_request": 16,
+    "expected_request_steps": 2048,
+    "expected_requests": 128,
+    "generation_mode": "greedy",
+    "max_batch_size": 8,
+    "path": "docs/ideas/bcrd/experiments/configs/workloads/olmoe.formal.json",
+    "sha256": "2bf4b4897c15b165fea90d730ed9136d0777535daab7f6807336c09a7c70cdbe",
+    "teacher_force_frozen_native_tokens": true
+  }
+}

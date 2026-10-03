@@ -1,0 +1,190 @@
+{
+  "audit_skill": "experiment-audit",
+  "verdict": "WARN",
+  "reason_code": "bounded_scope_and_unexercised_hold_branch",
+  "summary": "No P0/P1 integrity issue. Four native APC-on cells and the reported pause-versus-completion tradeoff independently reproduce; scope remains one previously observed cohort, and the hold branch, quality, Oracle, and full APC-on baseline ladder are untested.",
+  "severity_counts": {
+    "p0": 0,
+    "p1": 0
+  },
+  "audited_input_hashes": {
+    "REPORT.md": "sha256:34522516f0bf139c90a16c688cefceab0d49bbb17c2ad63ebbd7d25ae7aaa1c1",
+    "preparation/status.json": "sha256:60e59e8cd2bc1a7ff066828249adc23d2cc6d93f52aac2882c290ec47321c56a",
+    "preparation/inheritance.json": "sha256:2982a1e561b322b0d6cdbbbac1737fe4a69ddfc1189b10a170c042c44d697566",
+    "preparation/cpu-checks.json": "sha256:efc4c42fb56764cb6be28e336c4399eac33d576644549034617e5e4e575a5131",
+    "execution/execution.tar.gz": "sha256:eb40e068a70cc185587159dfaf1b13839dc49be7c46f0df0c1896ba46d0adf3d",
+    "execution/execution.json": "sha256:2ea49189c0ab66f6df0c77ccd08b1cbca578204bab8fff64d9850edf6806abda",
+    "execution/group-readback.tar.gz": "sha256:91d4936121aa6c5e34ae02b1a020a380e0d033e24c332eda1e396c83611df009",
+    "execution/group_readback/group-execution.json": "sha256:de5659c39bff1556af655db5a301e474e4e4fb2e7b249eeb89c3587aea5585e0",
+    "execution/gpu_results/cohort2-block0-native_apc/raw.json": "sha256:357939e1dc75a894ed86289319938c6104ae9f9cc9565febe009afbdcdb202ae",
+    "execution/gpu_results/cohort2-block0-most_apc/raw.json": "sha256:397cfd04ffe3a56002cc3e6ce8262d69e2d27d0c1d25e92df31624ef6f801fd6",
+    "execution/gpu_results/cohort2-block1-most_apc/raw.json": "sha256:60042e157a5326ab97141ccaf1817938cbc4f5ae09ef2c5d96c653ad9ec0a961",
+    "execution/gpu_results/cohort2-block1-native_apc/raw.json": "sha256:d8ddf171644c083611b92b8552fbb49d295cbaabf46e384943f9d0463f3f3403",
+    "analysis/analysis.json": "sha256:27b1458c751b7f769c38dd78ed438a575f5b34e4462a075fb1ed3e2da73e0420",
+    "analysis/REPORT.md": "sha256:2654ad77f5d23de99b288cb2592b1a9413d8f3b60efa89641b32415fc637d820",
+    "RESULTS_ADDENDUM.md": "sha256:ccb4b4837f97bb8ef0de5f474ea80d74d054b8b4005954b1a1300144eccf0e1e",
+    "experiments/admission_capacity/analyze_apc_rotation.py": "sha256:1c728ec89fef52c3e908ba17ce0ee1e51bcdd5e4094793d7b06436f1076b5074",
+    "experiments/admission_capacity/analyze_prefix_cache_baseline.py": "sha256:590ee20ee3648bb097abf82f29b23ac1e249ca588216bba4b0b13d713d18a473",
+    "experiments/admission_capacity/run_staged_gpu_group.py": "sha256:ca37c8f518a05696b9bc9bbb0e8a46c3c455f56c488e808709dd7e71e6c4d92d"
+  },
+  "trace_path": null,
+  "trace_disabled_reason": "Explicit user instruction prohibited .aris output and repeated audit traces.",
+  "agent_id": "/root/apc_rotation_audit",
+  "verdict_id": "apc-rotation-audit-20260914-r01",
+  "executor_model": "codex-session-model",
+  "executor_family": "openai",
+  "reviewer_model": "codex-session-model",
+  "reviewer_family": "openai",
+  "reviewer_reasoning": "fresh bounded integrity review",
+  "review_independence": "same-family",
+  "acceptance_status": "provisional",
+  "generated_at": "2026-09-13T17:55:35Z",
+  "date": "2026-09-14",
+  "auditor": "fresh-codex-same-family",
+  "overall_verdict": "warn",
+  "integrity_status": "warn",
+  "checks": {
+    "identity_alignment": {
+      "status": "pass",
+      "details": "Four serial independent-engine cells, frozen input identities, request/output receipts, timestamps, archive readback, and GPU boundary metadata all close."
+    },
+    "causal_cutoff": {
+      "status": "pass",
+      "details": "Every selected proposal replays from the step before-state and prior actual events; no future completion data enters the selector. This is not an unchosen-action Oracle."
+    },
+    "accounting": {
+      "status": "pass",
+      "details": "Independent raw recomputation reproduced wall, throughput, mean completion, max ITL, token-position conservation, and mutually exclusive timing buckets."
+    },
+    "action_state": {
+      "status": "warn",
+      "details": "Native preemption, resumed execution, exclusive-live-block assertions, and actual release deltas executed and close; held_request_steps is zero, and per-block refcounts cannot be replayed offline."
+    },
+    "gt_provenance": {
+      "status": "pass",
+      "details": "Performance ground truth is direct native runtime telemetry. Semantic quality ground truth is absent and no quality claim is made."
+    },
+    "score_normalization": {
+      "status": "pass",
+      "details": "Raw metrics are retained; relative changes use the matched native baseline rather than prediction-derived extrema."
+    },
+    "result_existence": {
+      "status": "pass",
+      "details": "All claimed files and keys exist, raw hashes match, and published numbers independently reproduce."
+    },
+    "dead_code": {
+      "status": "pass",
+      "details": "All claimed metric and replay paths are called. The unexercised hold condition supports no claim."
+    },
+    "scope": {
+      "status": "warn",
+      "details": "One model, one previously observed cohort, one fixed regime, and two correlated same-input executions per policy; no quality, Oracle, holdout, or full APC-on baseline ladder."
+    },
+    "eval_type": {
+      "performance": "native_runtime_measurement",
+      "policy_validation": "executed_path_causal_replay",
+      "output_identity": "consistency_diagnostic",
+      "quality": "unrun",
+      "counterfactual_oracle": "unrun"
+    }
+  },
+  "independent_recompute": {
+    "status": "PASS",
+    "readback_regular_files_checked": 86,
+    "readback_uncompressed_bytes_checked": 1214217785,
+    "readback_mismatches": 0,
+    "cells": [
+      {
+        "label": "cohort2-block0-native_apc",
+        "wall_s": 23.8838722538203,
+        "throughput_rps": 1.339816243359847,
+        "mean_completion_s": 21.429086528043264,
+        "max_itl_s": 4.760487167164683,
+        "actual_preemptions": 2,
+        "forced_preemptions": 0,
+        "repeated_executed_positions": 6677
+      },
+      {
+        "label": "cohort2-block0-most_apc",
+        "wall_s": 23.486378327012062,
+        "throughput_rps": 1.3624918901692171,
+        "mean_completion_s": 21.983279433299323,
+        "max_itl_s": 1.0474178530275822,
+        "actual_preemptions": 11,
+        "forced_preemptions": 9,
+        "forced_release_blocks": [245, 246, 248, 250, 250, 250, 250, 250, 249],
+        "held_request_steps": 0,
+        "repeated_executed_positions": 36272
+      },
+      {
+        "label": "cohort2-block1-most_apc",
+        "wall_s": 23.819228077307343,
+        "throughput_rps": 1.3434524366676057,
+        "mean_completion_s": 22.312623034778518,
+        "max_itl_s": 1.041837764903903,
+        "actual_preemptions": 11,
+        "forced_preemptions": 9,
+        "forced_release_blocks": [245, 246, 248, 250, 250, 250, 250, 250, 249],
+        "held_request_steps": 0,
+        "repeated_executed_positions": 36272
+      },
+      {
+        "label": "cohort2-block1-native_apc",
+        "wall_s": 23.739649832248688,
+        "throughput_rps": 1.347955855546369,
+        "mean_completion_s": 21.292560003837572,
+        "max_itl_s": 4.67263632081449,
+        "actual_preemptions": 2,
+        "forced_preemptions": 0,
+        "repeated_executed_positions": 6677
+      }
+    ],
+    "pair_results": [
+      {
+        "block": 0,
+        "throughput_relative_change": 0.016924445364616902,
+        "mean_completion_relative_change": 0.025861713915374507,
+        "max_itl_delta_s": -3.713069314137101,
+        "completion_slower_requests": 31,
+        "request_max_itl_worse_requests": 7,
+        "output_equal_requests": 32
+      },
+      {
+        "block": 1,
+        "throughput_relative_change": -0.003340924600930606,
+        "mean_completion_relative_change": 0.047907016852698714,
+        "max_itl_delta_s": -3.6307985559105873,
+        "completion_slower_requests": 32,
+        "request_max_itl_worse_requests": 7,
+        "output_equal_requests": 32
+      }
+    ]
+  },
+  "claims": [
+    {
+      "id": "C1_four_cells_complete",
+      "impact": "supported"
+    },
+    {
+      "id": "C2_rotation_reduces_max_itl_in_fixed_cohort",
+      "impact": "supported_as_descriptive_measurement"
+    },
+    {
+      "id": "C3_three_primary_metrics_jointly_preserved",
+      "impact": "unsupported"
+    },
+    {
+      "id": "C4_output_equality_proves_quality",
+      "impact": "unsupported_unrun"
+    },
+    {
+      "id": "C5_stepwise_replay_is_counterfactual_oracle",
+      "impact": "unsupported_unrun"
+    },
+    {
+      "id": "C6_method_go_or_family_no_go",
+      "impact": "unsupported"
+    }
+  ],
+  "claim_ceiling": "NATIVE_SERVING / MEASUREMENT_ONLY: single fixed APC-on cohort; longest-pause reduction with higher repeated execution and worse mean completion, while throughput changes sign across correlated repeats."
+}

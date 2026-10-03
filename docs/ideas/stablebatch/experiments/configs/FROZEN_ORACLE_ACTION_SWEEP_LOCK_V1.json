@@ -1,0 +1,44 @@
+{
+  "schema_version": "stablebatch-oracle-action-sweep-frozen-lock-v1",
+  "status": "FROZEN_PRE_RUN",
+  "frozen_at": "2026-08-10T17:48:00+08:00",
+  "hypothesis_sha256": "6e497245dfa363370ce0a8131aa35966aab902fb95cab7ea5825fca2bcc4210a",
+  "action_space": {
+    "reference": "all_8_contributions_M1",
+    "unprotected": "all_8_contributions_M64",
+    "candidate_action": "exactly_one_rank_M1_plus_seven_ranks_M64",
+    "candidate_ranks": [0, 1, 2, 3, 4, 5, 6, 7],
+    "action_budget_per_cell": 1,
+    "oracle_may_abstain": true,
+    "oracle_tie_break": "lowest_topk_rank",
+    "full_forward_repeats_per_candidate": 1,
+    "confirm_selected_positive_oracle_action": true,
+    "sidecall_schedule": "reuse_each_cells_preoutcome_frozen_M1_M64_schedule_from_source_assignment_ledger",
+    "arm_order_seed": "stablebatch-oracle-action-sweep-v1|20260810",
+    "full_forward_input_shape_changes": false,
+    "replace_all_target_token_topk_raw_outputs_before_gate_weight": true,
+    "reference_is_self_supervised_proxy_not_ground_truth": true
+  },
+  "signal": {
+    "strong_if": {
+      "min_abstaining_oracle_recovery_fraction": 0.25,
+      "min_abstaining_oracle_advantage_over_each_budget_matched_random_expected_reward": 8.0,
+      "min_distinct_victims_with_positive_oracle_reward": 4
+    },
+    "weak_if": "oracle_is_above_random_but_below_one_or_more_strong_signal_thresholds",
+    "negative_if": "abstaining_oracle_has_zero_or_negligible_positive_reward_or_positive_actions_do_not_span_multiple_victims"
+  },
+  "claim_boundary": "retrospective oracle upper bound for the frozen one-contribution action space only; not an online selector, serving result, EP result, or generalization claim",
+  "files": {
+    "docs/ideas/routeguard_kv/experiments/data/r0a_5090_v1/sealed_manifest.jsonl": "469e5da28dc794e50f9e3d8b1d6b2b13dfb7079d1bb6fdf9d00cd41b7c4d0d11",
+    "docs/ideas/stablebatch/experiments/configs/observable_selector_pilot_v1.json": "ad66441d7b0bb542f00de36d090b4a3e69c7fc6f31194b9bdbb1ff9e14c5ed65",
+    "docs/ideas/stablebatch/experiments/configs/oracle_action_sweep_v1.json": "2c0110d17fb8f0c8cf6e09a587fd9b8ce2eb4664ce3cda57edb8e6979b7a400a",
+    "docs/ideas/stablebatch/experiments/outputs/observable_selector_20260810_run01/assignment_ledger.json": "075133bdbf4986562a7c164b450bd57c556999e691d5937a7d5c7e788424a843",
+    "docs/ideas/stablebatch/experiments/outputs/observable_selector_20260810_run01/observable_cells.jsonl": "9095343e2793d2c19c2116c2e426b2fab97e31a7eb2e4c8b217129eed31314c2",
+    "docs/ideas/stablebatch/experiments/outputs/observable_selector_20260810_run01/summary.json": "700a4bc41932881f440a79bf5143932a4570107e8f86ce9e932bdaab979b6c76",
+    "docs/ideas/stablebatch/experiments/run_observable_selector_pilot.py": "22781d92c0503f4cfefaa56ebab52cf6cba18988b5d5d3309e42ed86aca6eab8",
+    "docs/ideas/stablebatch/experiments/run_oracle_action_sweep.py": "949b35e16f722452b397e66b867d0f3f9ad17f2fa0b18eb91c1e4cf4b7da12e8",
+    "docs/ideas/stablebatch/experiments/run_single_contribution_pilot.py": "97df486292265f256e6df47821ebf049aa96b68cad0e3b9b1193c12b3df3cd57",
+    "docs/ideas/stablebatch/experiments/test_oracle_action_sweep.py": "0d639b4288fff2e683798a39544e6a83635388d2fb2bca683499b07cefa0c269"
+  }
+}

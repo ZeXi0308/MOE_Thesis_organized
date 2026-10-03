@@ -1,0 +1,2 @@
+# Run from repository root after all eight cells complete; output must be new.
+python3 -B refine-logs/expert_saturation/experiments/admission_capacity/analyze_rotation_strong_baseline.py --run-dir '/Users/leandrozhao/Desktop/、++++++++/refine-logs/expert_saturation/outputs/admission_capacity/20260913_rotation_strong_baseline_r01/execution02_westc_53036' --output-dir '/Users/leandrozhao/Desktop/、++++++++/refine-logs/expert_saturation/outputs/admission_capacity/20260913_rotation_strong_baseline_r01/analysis02_westc_53036'

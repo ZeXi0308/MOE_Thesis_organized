@@ -1,0 +1,51 @@
+{
+  "kind": "HEALTHY_OPTIONAL_AGGREGATE_COST_ONLY_R02",
+  "parent_package": "candidate_native_recovery_lease_healthy_r01",
+  "parent_manifest_sha256": "cf7fdee22ac327ec54ef0d02135bccc65bd17ea2e7cf99bea2d01fb19fc8e0b9",
+  "parent_provenance_sha256": "0004c34fafefaf5dffebde16a3d7d5343b2556d872b663b4a78060b68f16ff58",
+  "manifest_sha256": "1cccd7f0865fd7104a98a2a42e9a1c0b841a44733b9bb9ac84773c30f7f34f34",
+  "added_payload": [
+    "pkg/aggregate_offload_observer.py"
+  ],
+  "changed_existing_payload": [
+    "pkg/run_recovery_cadence.py",
+    "verify_package.py"
+  ],
+  "unchanged_existing_payload": {
+    "pkg/absence_rotation.py": "bda966bfe0e0904981324b86fa700f39b1830eeba669dd37dd761f9f4a900299",
+    "pkg/bidkv_score.py": "01d8fb2b0cfa9e4e13f28026c542b099f7fc042d7788b6ba19fff83de88aa7a1",
+    "pkg/inputs/INPUT_STATS.json": "91a7650bf9e80400739b6e4f4762463457fc52a8c07c28c6bf85a90d7e2b6061",
+    "pkg/inputs/config.json": "0a1f61d101f2aee08be67e59f81368e9dac4262071b451c05f1a998792bb30aa",
+    "pkg/inputs/workload.json": "d802457b26ddcf24b19e5c1f8771892311300420925c96af0b137ba90dc66965",
+    "pkg/memory_telemetry.py": "393cc9e42b76b8f1bfae57127ca8fc153242eb1e6dfd74ede6c5873e1f99d2ab",
+    "pkg/metrics.py": "1ca4874d718402ad149e26abd1b109eadf50afabb7aadc9e562e244aeb594b11",
+    "pkg/native_capture.py": "df88bdc2d759b3b97dc7970d41f695b648e131858abd5a3050ff2dbed0ecf62d",
+    "pkg/native_full_store_evidence.py": "8e39776a048352d6a194dc1072f700617b61ac48a5bb30cef6dbf3f8ed1e8686",
+    "pkg/native_host_snapshot.py": "95c6ae6ec6a0f5c0fd9ce2bf83cc8400527f5e01624bbd1e9ec212ff9cf059df",
+    "pkg/native_offload_observer.py": "5818a519ad33abaa40ca8552ffd158f75e5616e8f8263e93a93282b15131a77a",
+    "pkg/native_store_delta.py": "7fb3bfb6fb031d44e3d663e9f39a900ad65a668473406065c62a2d4a6a844202",
+    "pkg/preflight.py": "4b834f2e3e96152f31e2c88524d5420401887e3f3b56e2c0df4ef826b3537cf8",
+    "pkg/recovery_lease.py": "49b6543cb9d476149a302faaa3a11379d53ee06c964f37b40b620f83c9c14ea6",
+    "pkg/request_measurement.py": "2d0b666c23f5498b30e1e1b639ff1d3b5bb54964ad1d61f768cc28d6613e2b04",
+    "pkg/rotation_native.py": "822b22d283ecd2bc0d1ab4782fe3afa3e8d7266e61a6021b73f475fc9c468535",
+    "pkg/run.sh": "3ecb63087b7e0ff6581728393de2931e4823d9b0c43b179c26706f48d30f2958",
+    "pkg/runtime_source_hashes.json": "7a6855a5d08932fac53bff67149655d2159a9075d149fe10b823af6afdba917e",
+    "pkg/safe_static.py": "06a9c5c19a1f9fc51598d7f656a38d6c3d7d437327fff39c0f6103d1ccd77d68",
+    "pkg/staged_save_contract.py": "6d7c32541ffcf8c990042edf2836523a81a511a5a740a1211493c9cc88c7c69a",
+    "pkg/staged_store_rotation.py": "11b986fe0a28fc8931e6785229935cd98027cbe8475a3d61c2ac792f29c428cb",
+    "pkg/warmups/long/config.json": "1bf75adb785c4b87c21687dda9564c824b4b52d493461dbcfaa62817f1b8c07e",
+    "pkg/warmups/long/workload.json": "0a06caa54a36b2484f2086ba70c83dadb17238cedff8cb784233061020421404",
+    "pkg/warmups/short/config.json": "f1cf4f77f093c3c06052cca4d1f742a30f558bd6daf615793caa3f3c611e29c2",
+    "pkg/warmups/short/workload.json": "4b67d939a13dbcb38aa9ca904a326f8ae20e56bfb54d581eb1ba7d6227388ccb"
+  },
+  "adapter_patch_sha256": "57b78184c9b157da06404a243e4efa078f2f7a3dbfa95bd1c913d01804067f83",
+  "observer_source_sha256": "0f0714ad08ac66c8f32e29a98cc0f73601af13e707c0e73078422b2c03005ae7",
+  "observer_enable_environment": {
+    "A_AGGREGATE_OFFLOAD_COSTS": "1"
+  },
+  "default": "Disabled when A_AGGREGATE_OFFLOAD_COSTS is absent or 0; no observer is installed. Diagnostic mode rejects stacking the aggregate observer.",
+  "scope": "Install after successful warmup drain/cache reset. Separate capture and post-capture drain by metadata observation time; report completed native load/store bytes, records, worker acknowledgements and summed native copy time. No worker wrapper, per-transfer logs or extra host snapshots.",
+  "time_interpretation": "Summed native copy time is potentially overlapping copy work, never exposed wall latency; warmup traffic is excluded by installation point. Full aggregate observer CPU overhead is included in timing but not independently instrumented.",
+  "policy_integrity": "Every parent payload except the runner and manifest verifier is byte-identical. No policy, input, measurement, resource or scheduler source changes.",
+  "controller_copy_directory_note": "Unchanged base controller retains the historical cell subdirectory name candidate_native_recovery_lease_healthy_r01; manifest hash and cost receipt identify the actual r02 source bytes."
+}

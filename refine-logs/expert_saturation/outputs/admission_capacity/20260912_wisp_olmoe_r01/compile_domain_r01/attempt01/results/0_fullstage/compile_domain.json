@@ -1,0 +1,27 @@
+{
+  "schema": "moe_compile_domain_v1",
+  "status": "FAILED",
+  "start_perf_ns": 10234534055781229,
+  "requested_mode": "fullstage",
+  "expected_invocations": 320,
+  "calls": [],
+  "sources": {
+    "fused_moe": {
+      "path": "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/model_executor/layers/fused_moe/fused_moe.py",
+      "sha256": "a8015d90908883d3dc459e7a508d2de56bfbdff678c5f36e23d0410ef5a04683",
+      "bytes": 60428
+    },
+    "moe_align_block_size": {
+      "path": "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/model_executor/layers/fused_moe/moe_align_block_size.py",
+      "sha256": "c3f7fc2087836f0160a32ab99ceb1d8f6e87c793679da34dd672e225cb7fa31b",
+      "bytes": 8339
+    }
+  },
+  "scope": "Fixed M=1..160, two BF16 GEMMs, actual mode weight layout. Compile and initialize handles only; no kernel launches, expert copies, pager ensure, KV writes, synchronization or peak reset. Covers this MoE Triton family only; other runtime warmup remains required. Setup time includes allocation and release; final JSON write is outside its own interval. Full process cost must retain setup and output. CUDA peaks are since prior owner reset.",
+  "mode": "fullstage",
+  "error": "Traceback (most recent call last):\n  File \"/root/autodl-tmp/compile-domain-20260914-root-r01/instrumentation/compile_domain.py\", line 89, in precompile\n    device = w1.device; report['before'] = snapshot(runtime); report['memory_before'] = memory(torch, device)\n                                           ^^^^^^^^^^^^^^^^^\n  File \"/root/autodl-tmp/compile-domain-20260914-root-r01/instrumentation/compile_domain.py\", line 42, in snapshot\n    stats={k: v for k, v in vars(state).items() if k.startswith('stats_')},\n                            ^^^^^^^^^^^\nTypeError: vars() argument must have __dict__ attribute\n",
+  "actual_invocations": 0,
+  "unique_cache_keys": [],
+  "end_perf_ns": 10234534056535151,
+  "setup_wall_s": 0.000753922
+}

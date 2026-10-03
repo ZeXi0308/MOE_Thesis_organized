@@ -1,0 +1,209 @@
+{
+  "status": "PREPARED_UNRUN_DEPENDS_ON_QWEN_QUALIFICATION",
+  "question": "On the real-over-HBM Qwen BF16 model, does reducing fixed prefill32 to16 change the tradeoff among existing generation gaps, arriving-request delay and full-cost transfer amortization?",
+  "evidence_tier": "NATIVE_SERVING_EXPLORATORY_SAME_BUDGET_REQUEST_COMPARISON",
+  "prerequisite": "Root must obtain and independently analyze successful Qwen48-layer numerical/loading/request qualification before uploading or running this performance campaign. No performance numbers from the qualification reference run.",
+  "model": {
+    "repository": "Qwen/Qwen3-30B-A3B",
+    "revision": "ad44e777bcd18fa416d9da3bd8f70d33ebb85d39",
+    "dtype": "BF16",
+    "layers": 48,
+    "experts": 128,
+    "topk": 8,
+    "hidden": 2048,
+    "moe_intermediate": 768
+  },
+  "runtime": {
+    "vllm": "0.26.0",
+    "execution": "expert",
+    "expert_cap": 48,
+    "kv_bytes": 536870912,
+    "token_budget": 64,
+    "max_num_seqs": 4,
+    "prefill_limit": 32,
+    "eager": true,
+    "prefix_cache": false,
+    "async_scheduling": false,
+    "preemption": false,
+    "observer": "nested",
+    "retention": "none",
+    "prefetch": false,
+    "dynamic": false,
+    "omp_threads": 8,
+    "cpu_affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "reference_validation": false
+  },
+  "workload": {
+    "source_indices": [
+      4,
+      5,
+      6,
+      7
+    ],
+    "prompt_tokens": [
+      64,
+      64,
+      128,
+      32
+    ],
+    "output_tokens": [
+      32,
+      32,
+      16,
+      24
+    ],
+    "arrival_times_s": [
+      0,
+      0,
+      2,
+      4
+    ],
+    "computed_positions": 388,
+    "outputs": 104,
+    "source_workload_sha256": "2c08f17c8edef382e6aacb4f1321d35c3f386a60ec840c95c922fbd7e0a25a53",
+    "scope": "Four existing public sources outside Qwen qualification0..3, retokenized using same frozen Qwen tokenizer; not a globally untouched dataset or quality holdout. Prefixes, output limits and absolute arrivals frozen before Qwen performance outcomes; no clock selected from reference-run timing."
+  },
+  "cells": [
+    {
+      "order": 0,
+      "block": 0,
+      "chunk": 32,
+      "name": "repeat_0_static32"
+    },
+    {
+      "order": 1,
+      "block": 0,
+      "chunk": 16,
+      "name": "repeat_1_static16"
+    },
+    {
+      "order": 2,
+      "block": 1,
+      "chunk": 16,
+      "name": "repeat_2_static16"
+    },
+    {
+      "order": 3,
+      "block": 1,
+      "chunk": 32,
+      "name": "repeat_3_static32"
+    }
+  ],
+  "ordering": "Single engine32/16/16/32 ABBA; two observations per arm with run-order dependence. Descriptive exploratory comparisons, not independently randomized repetitions.",
+  "warmup": {
+    "per_cell": [
+      16,
+      32
+    ],
+    "source": "same four complete prepared prefixes",
+    "outputs_per_request": 2,
+    "arrivals_s": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "reset_after_both": true,
+    "scope": "Both static shapes warm every cell; same prompts reused for warmup and measurement. Pager slots/maps/LRU reset and engine/KV drained after warmup; KV free-block queue not rewritten, allocations remain common."
+  },
+  "accounting": "TTFT equals declared-arrival-to-submission lag plus native queue until first schedule plus first-schedule-to-first-token. Entire cohort wall includes queueing and synchronous-submit lag; do not add them again. Independent policy state/routes/free outputs; payload measured from actual copy requests, not wire bytes. Group count alone is not total cost. Host/GPU spans may overlap.",
+  "metrics": [
+    "each request TTFT/TPOT/maxITL/completion",
+    "whole finite-cohort wall and output throughput",
+    "declared arrival/submission/queue/execution waiting",
+    "engine calls, scheduled positions, expert groups, actual tensor-copy payload",
+    "whole lifecycle and memory; separate setup/warmup/capture/flush/shutdown"
+  ],
+  "required_checks": [
+    "16 measured requests/416 outputs and4x388 positions; warmup32 requests/64 outputs separately",
+    "all layers48/request/position/top8 aligned",
+    "all ready decode scheduled once, no preemption",
+    "each16/32 threshold applied before native.schedule and actual prefill sizes recorded",
+    "cap48/sameKV/compiled runningcap4/no reference tax",
+    "pure decode unique<=32 and1expert group perlayer; this does not imply0misses",
+    "each policy own future KV/routes/output and all attempts retained",
+    "same-arm repeats and adverse metrics retained, no empirical maximum declared noise bound"
+  ],
+  "strongest_baseline": "The stronger measured ordinary static among16 and32 for each metric within this same resource configuration. Two points are not a globally optimized static or exact Oracle.",
+  "claim_ceiling": "Measured full-request tradeoffs on one finite clock episode, one true-over-HBM model and this backend. No new scheduler, production p99, statistical significance/noninferiority, sustained capacity, task quality/equivalence or expert-history decision-value claim.",
+  "stop": "GPU query/foreign process, source/input/resource mismatch, missing request/position, ready-decode omission, preemption, nonfinite or failed integrity stops with evidence retained. Do not tune seed, arrival times or thresholds on this episode.",
+  "closure": "Positive, negative or tradeoff result closes this bounded true-over-HBM comparison and supports a measurement synthesis with the prior OLMoE/artificial-budget results. Retain unproven online selector/history increment and quality/capacity limits; do not automatically launch another mechanism.",
+  "loading": "Single official BaseModelLoader lifecycle. Sixteen ordered frozen hash-checked shards streamed one at a time; clone each CPU tensor to break mmap ownership, native Qwen load_weights copies into target. Remove only owned successful consumed shard copies; preserve failed partial file and receipt. Strict source coverage and target return-name coverage; native postprocessing and eval retained.",
+  "transport_origin": "https://hf-mirror.com",
+  "memory_budget": {
+    "gpu_total_bytes": 34190917632,
+    "host_limit_bytes": 98784247808,
+    "expert_cpu_master_bytes": 57982058496,
+    "expert_gpu_scratch_bytes": 21743271936,
+    "nonexpert_tensor_bytes": 3082186752,
+    "kv_bytes": 536870912,
+    "one_layer_reference_or_postload_transient_bytes": 1207959552,
+    "largest_download_file_bytes": 3999975472,
+    "source_tensor_payload_bytes": 61064245248,
+    "memlock": "unlimited",
+    "boundary": "Sizing excludes CUDA context/attention/workspace/allocator and pinned-copy transients; actual whole lifecycle sampled. Host current includes reclaimable file pages. No claim theoretical subtotal guarantees fit."
+  },
+  "package_files": {
+    "admission_feedback.py": "279c3e0ef44f8d9a0dec9bfeffe4dea72e657f24c637d9111f6712eb7ee0ece7",
+    "admission_width.py": "dded8d7c3004551015177614ba3fde83c015426cf1c704b18b994dab8ccac7f2",
+    "batched_expert_map.py": "746367a1d68afb28ad3ba6b3a4694be00ba2579a19ecae3216f700c5daff968e",
+    "continuous_admission.py": "3536857e35f9b4fce5b4e9cf530e5cc424aada41b8b1e3ac17b687b7b2cfaba4",
+    "memory_observer.py": "33743f58c690214ae61e372916d33b177efe4a1d4199b570e422b3b59e96a3b5",
+    "native_capture.py": "50ae79b0683a2b112a7f8bfa1cfba113b25184427cb62135be49e5aa60d67250",
+    "native_pager_context.py": "cef0fc3ea112b2099d586a2ccb89c94253cecc6f5f4d9c97a22c9e22b2821008",
+    "qwen_serial_loader.py": "aad68ed9fd82a75aa82495b0762ecf74e19558b7c4571beac8dcc7eed34a275c",
+    "qwen_static_prefill.py": "1ce3f0c2f4cec829747a024ccae6a65ae10e26f7133bff12ccbe49b882e4e9d7",
+    "run_native_pager.py": "db7486a6aa5927d78e7187a8098629d5e89107e7abd87032799b1ecf0635b9c9",
+    "runtime_variation_observer.py": "ee70ee8bb1c76901ad92d61daac9724855710889264bd8fb30e12a4cc7c3178a",
+    "serial_shards.py": "9eb9ff882151d6bc368836371b987955fe384d19399db409f2d17c719dbb2234",
+    "wisp_expert_groups.py": "feb13bfe023fb36f6b171e74ce0882ee49d3f1df5d50f097759c5e5aa0f88410",
+    "wisp_v026_adapter.py": "b6c25e2656678636a596403fba7d9318465a4bee5b0eaf9c7b457dadcbafdd93",
+    "qwen3.manifest.json": "dc3710a91ad37c2f55a73d71543a761b5c9fecdf420e5988a2c6a0634d4df8a8",
+    "qwen3.index.json": "df0d481ec595c55a0ba58426d517390c6214a566ec4ff1c8fc4bbce9f57b3c24",
+    "prepared/workload.json": "714931e38ed05732c04a476e18e43124ab230ef0955ffdbd6d8a4c6cdf920780",
+    "model_metadata/config.json": "2850ddb3bf7aecad20b611e2d44f3077fc8193f4827c93beddd4c02ad63c2297",
+    "model_metadata/generation_config.json": "2325da0f15bb848e018c5ae071b7943332e9f871d6b60e2ed22ca97d4cb993d2",
+    "model_metadata/merges.txt": "8831e4f1a044471340f7c0a83d7bd71306a5b867e95fd870f74d0c5308a904d5",
+    "model_metadata/tokenizer.json": "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4",
+    "model_metadata/tokenizer_config.json": "d5d09f07b48c3086c508b30d1c9114bd1189145b74e982a265350c923acd8101",
+    "model_metadata/vocab.json": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+  },
+  "source_sha256": {
+    "admission_feedback.py": "279c3e0ef44f8d9a0dec9bfeffe4dea72e657f24c637d9111f6712eb7ee0ece7",
+    "admission_width.py": "dded8d7c3004551015177614ba3fde83c015426cf1c704b18b994dab8ccac7f2",
+    "batched_expert_map.py": "746367a1d68afb28ad3ba6b3a4694be00ba2579a19ecae3216f700c5daff968e",
+    "continuous_admission.py": "3536857e35f9b4fce5b4e9cf530e5cc424aada41b8b1e3ac17b687b7b2cfaba4",
+    "memory_observer.py": "33743f58c690214ae61e372916d33b177efe4a1d4199b570e422b3b59e96a3b5",
+    "native_capture.py": "50ae79b0683a2b112a7f8bfa1cfba113b25184427cb62135be49e5aa60d67250",
+    "native_pager_context.py": "cef0fc3ea112b2099d586a2ccb89c94253cecc6f5f4d9c97a22c9e22b2821008",
+    "qwen_serial_loader.py": "aad68ed9fd82a75aa82495b0762ecf74e19558b7c4571beac8dcc7eed34a275c",
+    "qwen_static_prefill.py": "1ce3f0c2f4cec829747a024ccae6a65ae10e26f7133bff12ccbe49b882e4e9d7",
+    "run_native_pager.py": "db7486a6aa5927d78e7187a8098629d5e89107e7abd87032799b1ecf0635b9c9",
+    "runtime_variation_observer.py": "ee70ee8bb1c76901ad92d61daac9724855710889264bd8fb30e12a4cc7c3178a",
+    "serial_shards.py": "9eb9ff882151d6bc368836371b987955fe384d19399db409f2d17c719dbb2234",
+    "wisp_expert_groups.py": "feb13bfe023fb36f6b171e74ce0882ee49d3f1df5d50f097759c5e5aa0f88410",
+    "wisp_v026_adapter.py": "b6c25e2656678636a596403fba7d9318465a4bee5b0eaf9c7b457dadcbafdd93"
+  },
+  "installed_source_sha256": {
+    "model_executor/models/qwen3_moe.py": "ea439daddb5e5c3c46f48f204e2f7a90612b349e33e63f2d5fc7e57916e5a415",
+    "model_executor/models/utils.py": "f06d1a1a8d92e6ab39ebf7931d3eb3d6688d212606b1c409d7bed8eed5ba1fc2",
+    "model_executor/model_loader/default_loader.py": "5d120c07b8eb4d08ce1d4e9759b832a07086dcc78d0df4cefe9beb5c29b7de4e",
+    "model_executor/model_loader/__init__.py": "139a92f930f3e508836932ea6eaacd63d9d4e9835f9bf545c59e84fce08a8aed",
+    "model_executor/model_loader/utils.py": "01b9e0bfc7bd9a0c94251cfb1c01ee733c4f57ce3d8e1df8ee9d2aa4df70e543",
+    "model_executor/model_loader/base_loader.py": "a7e925f232ad3eebbee7ab37d3aba724c24465c3078da29489da0438664c6b08",
+    "model_executor/layers/fused_moe/routed_experts.py": "aa8dd75adc7c2e69f1b1c999aaac9acd4db4a206afa45081e1ffd9c4c4fdb76c",
+    "model_executor/layers/fused_moe/layer.py": "c888133b47507d6dc0a8e74671ef6e6b2c60c53e615e27098e354ad5b961d725",
+    "model_executor/layers/fused_moe/runner/moe_runner.py": "3c000e17f726c9995a9a950db952415a4b2198d0778e3cedda96355421edfdae",
+    "v1/core/sched/scheduler.py": "2ed2a550b6558b2495eda845a97ae38bcf0225027b9e25fbf00fc3880c1d3941",
+    "config/model.py": "7d52e060db54067a21591882bd6e3c2dd2486ac9041dde1117f97023e71bf89f"
+  }
+}

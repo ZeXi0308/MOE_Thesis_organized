@@ -1,0 +1,62 @@
+{
+  "block": "forward",
+  "warmups": [
+    {
+      "cohort": "natural",
+      "prefill_policy": "native1024",
+      "budget": 1024,
+      "long_prefill_token_threshold": 0,
+      "waiting_order": "fcfs"
+    }
+  ],
+  "plans": [
+    {
+      "cohort": "natural",
+      "prefill_policy": "native1024",
+      "budget": 1024,
+      "long_prefill_token_threshold": 0,
+      "waiting_order": "fcfs"
+    }
+  ],
+  "engine_args": {
+    "model": "allenai/OLMoE-1B-7B-0924",
+    "revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "tokenizer_revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "dtype": "bfloat16",
+    "seed": 20260905,
+    "max_model_len": 4096,
+    "max_num_seqs": 8,
+    "max_num_batched_tokens": 1024,
+    "enable_chunked_prefill": true,
+    "gpu_memory_utilization": 0.7,
+    "enable_prefix_caching": false,
+    "scheduling_policy": "fcfs",
+    "async_scheduling": false,
+    "stream_interval": 1,
+    "enforce_eager": false,
+    "enable_return_routed_experts": false,
+    "disable_log_stats": false
+  },
+  "reference_slo": {
+    "ttft_slo_s": 5.0,
+    "tpot_slo_s": 0.2
+  },
+  "max_seconds": 180,
+  "action": "Native FCFS budget1024 threshold0 only; no policy intervention",
+  "repeat_semantics": "Two fresh engines, each one common warmup and one formal natural episode",
+  "tiny_tail_definition": {
+    "max_final_prefill_tokens": 32,
+    "minimum_prefill_chunks": 2
+  },
+  "source_and_input_sha256": {
+    "prepared/natural/config.json": "5d1d1ab648c51b7c5a80a40fb7eb05d87e0bdc00472f8d7c3dfb5781f91bca81",
+    "prepared/natural/workload.json": "08d2a54b1ab48f682f0298a66bf0f9c91e5505f0c314fba06e8ca03f29bb91a8",
+    "run_natural_prefill.py": "da04306285e7c39a68d13ed31eb700107137353e289c55faa4a1d7f0f0ce515e",
+    "runtime/admission_feedback.py": "279c3e0ef44f8d9a0dec9bfeffe4dea72e657f24c637d9111f6712eb7ee0ece7",
+    "runtime/metrics.py": "1ca4874d718402ad149e26abd1b109eadf50afabb7aadc9e562e244aeb594b11",
+    "runtime/native_capture.py": "8e96a613acb03a2d3856046d28792269989fc245d7d004e78e04d3dc5ef400f4",
+    "runtime/waiting_order.py": "95ebe7589b8822a7d6e43c4bc1fdfc5e04c81a30712ce9fb8ef28f7ed838fd0f",
+    "runtime_reference.json": "e9a886692f94de1308ec12cd7895aca09ed5be61f3d1b256006ae57c1cbba462"
+  },
+  "evidence_ceiling": "REQUEST_LEVEL_BASELINE_MEASUREMENT_NO_CAUSAL_SPEEDUP"
+}

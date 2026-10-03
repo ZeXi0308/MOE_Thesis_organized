@@ -1,0 +1,62 @@
+/root/miniconda3/lib/python3.12/site-packages/torch/cuda/__init__.py:63: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+`torch_dtype` is deprecated! Use `dtype` instead!
+Skipping import of cpp extensions due to incompatible torch version. Please upgrade to torch >= 2.11.0 (found 2.8.0+cu128).
+Loading checkpoint shards:   0%|          | 0/3 [00:00<?, ?it/s]Loading checkpoint shards:  33%|███▎      | 1/3 [00:01<00:02,  1.33s/it]Loading checkpoint shards:  67%|██████▋   | 2/3 [00:02<00:01,  1.35s/it]Loading checkpoint shards: 100%|██████████| 3/3 [00:03<00:00,  1.19s/it]Loading checkpoint shards: 100%|██████████| 3/3 [00:03<00:00,  1.23s/it]
+{
+  "schema": "routeslack-rtx5090-expert-energy-manifest-v1",
+  "created_at_utc": "2026-07-28T07:13:19.972819+00:00",
+  "status": "CHARACTERIZATION_COMPLETE",
+  "formal_result": false,
+  "scope": "RTX5090_BF16_EXPERT_STAGE_CHARACTERIZATION",
+  "model_revision": "allenai/OLMoE-1B-7B-0924@6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+  "capture_sha256": "f2fcadaff7e7587adfa5e0c1bb831985d193f1af58eaa2a3641e7ebab91347d9",
+  "source_sha256": {
+    "docs/ideas/energy_slo/routeslack/experiments/run_rtx5090_energy_characterization.py": "25632fe9121caf01f1c3aaac4bb50830f2ee72bd4db7ca8f8dd12bef134a475e",
+    "docs/ideas/energy_slo/joulequeue/experiments/capture_joulequeue_expert_inputs_gpu.py": "c3dcc0c3d600fe6a98db60f1b8e8541843d9dbac062f80123880b1f4132e1903",
+    "docs/archive/receiver_aware/cjc/experiments/capture_cjc_routes_gpu.py": "cb679e728ec3edd49e6693ce3b8de983737c6ae628ae38c5d87d2f70032f5c85",
+    "experiments/shared/capture_moe.py": "84bb2452c9634bfe530c5b0b4f43721bb0a47d37af4bd57fcaf5a72582bd706e"
+  },
+  "files": {
+    "commands.sh": {
+      "bytes": 513,
+      "sha256": "97d8c3ec72d82e7077533baae01109952105114ae693b6fcd1c32d28d7a7011f"
+    },
+    "config.json": {
+      "bytes": 1275,
+      "sha256": "608ec925bc3a8153b35ad1b56ea182c5f3646b9c48425037f62d3273c46fdb90"
+    },
+    "environment.json": {
+      "bytes": 635,
+      "sha256": "670f0ac15fcb13f5206b4c10a949e3e57ee6958f1204dd7165f7ca58ff3294d7"
+    },
+    "processed/summary.json": {
+      "bytes": 4328,
+      "sha256": "84338c29f02401254d940ea35524150dd0399acf4e4ce42535789c186c623b2e"
+    },
+    "raw/telemetry.jsonl": {
+      "bytes": 12256320,
+      "sha256": "80ddac5ab91e817e7b8eeb36e6d7353390296e96a5b2c6086a3688b6cc43ce88"
+    },
+    "raw/trials.jsonl": {
+      "bytes": 18077,
+      "sha256": "6a5e41e4fce0126ba52b658ebdef36b35dee754e4308b9eee44acf4316341c69"
+    },
+    "raw/warmup_telemetry.jsonl": {
+      "bytes": 4824530,
+      "sha256": "254fa69888c6f353b95f988fb296ee09b96ae15d7bdced30010c4cc7e815d19a"
+    },
+    "verdict.md": {
+      "bytes": 135,
+      "sha256": "9b5ce327672aa25ca751d70dfca1d861c3052e7c68e92e6ca1110c08e2126160"
+    }
+  },
+  "formal_blockers": [
+    "isolated expert execution is not a natural continuous-decode request window",
+    "activation source is calibration prefill rather than cached continuous decode",
+    "provider denies power-limit and graphics-clock actuator changes",
+    "denominator is processed expert rows, not matched SLO-completed output tokens",
+    "single-GPU execution has no expert-parallel dispatch, A2A, combine, or rank slack"
+  ],
+  "output_dir": "/root/autodl-tmp/routeslack_gpu_20260728_144300/artifacts/olmoe_energy_characterization_retry2"
+}

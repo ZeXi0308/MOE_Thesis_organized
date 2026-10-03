@@ -1,0 +1,116 @@
+[
+  {
+    "file": "1789231348895299377-36928-parent.json",
+    "record": {
+      "start_utc": "2026-09-12T16:42:28.895308+00:00",
+      "start_unix": 1789231348.8953168,
+      "start_pid": 36928,
+      "allow_pid": null,
+      "status": "PASS",
+      "gpus": [
+        {
+          "index": "0",
+          "uuid": "GPU-389be666-aeaa-c602-1504-85bf1dd3ac9f",
+          "name": "NVIDIA GeForce RTX 5090",
+          "pstate": "P8",
+          "memory.used": "2",
+          "memory.total": "32607",
+          "utilization.gpu": "0",
+          "temperature.gpu": "30"
+        }
+      ],
+      "compute_processes": [],
+      "queries": [
+        {
+          "command": [
+            "nvidia-smi",
+            "--query-gpu=index,uuid,name,pstate,memory.used,memory.total,utilization.gpu,temperature.gpu",
+            "--format=csv,noheader,nounits"
+          ],
+          "returncode": 0,
+          "stdout": "0, GPU-389be666-aeaa-c602-1504-85bf1dd3ac9f, NVIDIA GeForce RTX 5090, P8, 2, 32607, 0, 30\n",
+          "stderr": ""
+        },
+        {
+          "command": [
+            "nvidia-smi",
+            "--query-compute-apps=gpu_uuid,pid,process_name,used_gpu_memory",
+            "--format=csv,noheader,nounits"
+          ],
+          "returncode": 0,
+          "stdout": "",
+          "stderr": ""
+        }
+      ],
+      "errors": [],
+      "foreign_processes": [],
+      "end_utc": "2026-09-12T16:42:29.055825+00:00",
+      "reason": "NO_FOREIGN_GPU_PROCESS",
+      "exit_code": 0
+    }
+  },
+  {
+    "file": "1789231398287099671-37119-parent.json",
+    "record": {
+      "start_utc": "2026-09-12T16:43:18.287112+00:00",
+      "start_unix": 1789231398.2871232,
+      "start_pid": 37119,
+      "allow_pid": null,
+      "status": "ABORT",
+      "gpus": [
+        {
+          "index": "0",
+          "uuid": "GPU-389be666-aeaa-c602-1504-85bf1dd3ac9f",
+          "name": "NVIDIA GeForce RTX 5090",
+          "pstate": "P1",
+          "memory.used": "7350",
+          "memory.total": "32607",
+          "utilization.gpu": "72",
+          "temperature.gpu": "37"
+        }
+      ],
+      "compute_processes": [
+        {
+          "gpu_uuid": "GPU-389be666-aeaa-c602-1504-85bf1dd3ac9f",
+          "pid": 36942,
+          "process_name": "/root/autodl-tmp/expert-saturation/vllm-0.26/bin/python",
+          "used_gpu_memory": "7316"
+        }
+      ],
+      "queries": [
+        {
+          "command": [
+            "nvidia-smi",
+            "--query-gpu=index,uuid,name,pstate,memory.used,memory.total,utilization.gpu,temperature.gpu",
+            "--format=csv,noheader,nounits"
+          ],
+          "returncode": 0,
+          "stdout": "0, GPU-389be666-aeaa-c602-1504-85bf1dd3ac9f, NVIDIA GeForce RTX 5090, P1, 7350, 32607, 72, 37\n",
+          "stderr": ""
+        },
+        {
+          "command": [
+            "nvidia-smi",
+            "--query-compute-apps=gpu_uuid,pid,process_name,used_gpu_memory",
+            "--format=csv,noheader,nounits"
+          ],
+          "returncode": 0,
+          "stdout": "GPU-389be666-aeaa-c602-1504-85bf1dd3ac9f, 36942, /root/autodl-tmp/expert-saturation/vllm-0.26/bin/python, 7316\n",
+          "stderr": ""
+        }
+      ],
+      "errors": [],
+      "foreign_processes": [
+        {
+          "gpu_uuid": "GPU-389be666-aeaa-c602-1504-85bf1dd3ac9f",
+          "pid": 36942,
+          "process_name": "/root/autodl-tmp/expert-saturation/vllm-0.26/bin/python",
+          "used_gpu_memory": "7316"
+        }
+      ],
+      "end_utc": "2026-09-12T16:43:18.462875+00:00",
+      "reason": "GPU_BUSY",
+      "exit_code": 91
+    }
+  }
+]

@@ -1,0 +1,3 @@
+Local detached launch wrapper, CPU_PASS only. `detached_launch.py` preserves the frozen `run_remote.py`, checks entry/protocol/package hashes, logs to a unique receipt directory, and preserves virtual-environment interpreter paths. No remote upload or execution. CPU evidence is in `cpu_checks.json`; rerun `python3 cpu_check.py` from the repository root.
+
+The original Qwen r01 SSH connection closed during loading and subsequent connections fail before authentication. Its process state is unknown. This wrapper cannot attach to or repair that process. First reconcile the original remote state; only a future uniquely named campaign may use this wrapper. Host/container shutdown or cgroup cleanup remains outside its protection.

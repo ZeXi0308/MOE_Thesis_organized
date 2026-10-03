@@ -1,0 +1,67 @@
+{
+  "question": "Does resident-first expert grouping remove the measured within-call reload tax at a net complete-request gain over the current contiguous-token WiSP execution, before admission control is built?",
+  "status": "PREPARED_UNRUN",
+  "hypothesis": "Current token grouping reloads experts several times inside prefill. Disjoint active expert groups load each initially missing expert once, but partial output sums and repeated alignment/activation/kernel calls have a cost.",
+  "role": "strong known execution baseline; no novelty or admission-method claim",
+  "baseline": "current WiSP LRU state and contiguous token grouping, native vLLM0.26 Triton BF16",
+  "intervention": "first group contains active resident experts plus ascending missing experts to cap; remaining missing experts in ascending disjoint groups; independent expert_map has only current group mappings; native full-input partial kernels followed by addition",
+  "invariants": {
+    "expert_cap": 24,
+    "expert_scratch_bytes": 4831838208,
+    "kv_bytes": 1073741824,
+    "host_expert_master_bytes": 12884901888,
+    "dtype": "BF16",
+    "global_experts": 64,
+    "top_k": 8,
+    "cpu_affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "OMP_NUM_THREADS": 8,
+    "token_budget": 128,
+    "prefill_limit": 0,
+    "prefetch": false,
+    "dynamic_pool": false,
+    "native_backend": "vLLM0.26 Triton eager"
+  },
+  "workload": {
+    "source": "existing frozen WikiText prepared/short first four documents",
+    "prompt_tokens": 64,
+    "output_tokens": 8,
+    "nominal_arrival_interval_s": 0.05,
+    "evaluation_independence": "same four calibration documents; not new holdout; each policy generates its own future tokens/routes"
+  },
+  "warmup": "both arms use identical token short warmup, expert full-cohort warmup, token full-cohort warmup, then drain and switch measured execution; compare raw measurement_initial_cache including LRU",
+  "run_order": {
+    "qualification": [
+      "expert matched-layer reference validation; timing excluded"
+    ],
+    "performance": [
+      "token_r0",
+      "expert_r0",
+      "expert_r1",
+      "token_r1"
+    ]
+  },
+  "checks": [
+    "route slot coverage exactly once, unchanged weights and no renormalization",
+    "each call loaded set equals initial missing set and no repeats for expert grouping",
+    "same-input full-weight reference across 16 layers with all-finite and numerical error values; downstream token sequences compared, no bit equality presumption",
+    "complete request counts and arrival/token/completion timeline; all repeats retained",
+    "actual expert/KV/peak CUDA allocation and own later cache/state"
+  ],
+  "accounting": "copy bytes count actual weight rows; extra within-call reloads separate; host_apply and CUDA load spans overlap and are not added; request wall includes Python, mapping, repeated alignment/activation/sum, and add kernels; loading/warmup/validation retained separately",
+  "interpretation": {
+    "positive": "use this as the execution baseline, then test remaining request-level admission/prefill tradeoff",
+    "negative": "locate reduction, activation, mapping or other execution tax; do not falsify the research problem",
+    "invalid": "duplicate/missing contributions, nonfinite results or broken request mapping stop performance claim and trigger implementation diagnosis"
+  },
+  "claim_ceiling": "single-GPU artificial-cache OLMoE native eager request experiment; no production SLO, general quality, out-of-HBM deployment, or EP claim",
+  "next_if_success": "one fixed-substrate controlled new-prefill injection to determine the residual old-generation/new-request tradeoff"
+}

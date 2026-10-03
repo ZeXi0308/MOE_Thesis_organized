@@ -1,0 +1,252 @@
+{
+  "action_space": {
+    "arm_order_seed": "stablebatch-selectability-action-order-v1|20260810",
+    "candidate_action": "exactly_one_rank_M1_plus_seven_ranks_M64",
+    "candidate_ranks": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "confirm_selected_positive_oracle_action": true,
+    "full_forward_input_shape_changes": false,
+    "full_forward_repeats_per_candidate": 1,
+    "oracle_budget_mode": "forced_exactly_33_unique_cells_no_abstention",
+    "oracle_tie_break": [
+      "reward_desc",
+      "harmed_asc",
+      "rank_asc",
+      "cell_identity"
+    ],
+    "reference": "all_8_contributions_M1",
+    "reference_is_self_supervised_proxy_not_ground_truth": true,
+    "replace_all_target_token_topk_raw_outputs_before_gate_weight": true,
+    "unprotected": "all_8_contributions_M64"
+  },
+  "calibration": {
+    "cell_results": "docs/ideas/stablebatch/experiments/outputs/oracle_action_sweep_20260810_run01/cell_results.jsonl",
+    "cell_results_sha256": "2ab83c452ec41b0e949bb13c0bdf4f599e9d3e0d201e86f800c6dbbd72981654",
+    "document_manifest": "docs/ideas/routeguard_kv/experiments/data/r0a_5090_v1/sealed_manifest.jsonl",
+    "document_manifest_sha256": "469e5da28dc794e50f9e3d8b1d6b2b13dfb7079d1bb6fdf9d00cd41b7c4d0d11",
+    "expected_actions": 1920,
+    "expected_cells": 240,
+    "manifest": "docs/ideas/stablebatch/experiments/outputs/oracle_action_sweep_20260810_run01/MANIFEST.json",
+    "manifest_sha256": "921ddee7a3b5147db76b147ba14e049241c62feabb27e16acedb59ec4cc491b2",
+    "positive_best_unique_cells": 33,
+    "role": "training_and_feature_candidate_generation_only_not_heldout",
+    "summary": "docs/ideas/stablebatch/experiments/outputs/oracle_action_sweep_20260810_run01/summary.json",
+    "summary_sha256": "fde35cfb609e07ae2d9439a0227fd30e97807e05df4456fe7c300e4f12f6bd80"
+  },
+  "data": {
+    "add_special_tokens": false,
+    "document_indices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+    ],
+    "freshness_qualifier": "globally_untouched_before_selectability_gate_full_document_exclusion_union_1169_overlap_zero",
+    "manifest": "docs/ideas/stablebatch/experiments/data/selectability_fresh_eval_20260810_v1/eval_manifest.jsonl",
+    "manifest_sha256": "30e1d366f6e3578660931ec586ccf58d3b3d1886b4c80c8da73898c5e3dfa6f3",
+    "ordered_window_hash_digest": "44321cf960c2903b2db143c9fe7a0530028591da8e3442dd6d919022fde81b67",
+    "ordered_window_hash_digest_method": "sha256_of_concatenated_window_sha256_hex_in_document_indices_order",
+    "provenance": "docs/ideas/stablebatch/experiments/data/selectability_fresh_eval_20260810_v1/provenance.json",
+    "provenance_sha256": "2bdc9abd05fa9bb6455eedc7b781b3f614cfdc413926f6da862cd2b9314c9b6f",
+    "token_offset": 512,
+    "victim_position": 15,
+    "window_tokens": 16
+  },
+  "environment": {
+    "allow_bf16_reduced_precision_reduction": true,
+    "allow_tf32": false,
+    "attn_implementation": "eager",
+    "cublaslt": {
+      "path": "/root/miniconda3/lib/python3.12/site-packages/nvidia/cublas/lib/libcublasLt.so.12",
+      "sha256": "10b5e6631cf8115c661eb895ed1533826308b58f7956466f53d236a40c9b622c",
+      "version": 120804
+    },
+    "driver_version": "595.71.05",
+    "dtype": "bfloat16",
+    "gpu_exact_name": "NVIDIA GeForce RTX 5090",
+    "gpu_uuid": "GPU-64c06fb4-79b3-0d5b-4294-431e7afac4d7",
+    "torch": "2.8.0+cu128",
+    "transformers": "4.57.6",
+    "transformers_olmoe_source": {
+      "path": "/root/miniconda3/lib/python3.12/site-packages/transformers/models/olmoe/modeling_olmoe.py",
+      "sha256": "248717a8477fbcb4b16ce648a9ace829b6b2f4a002191a7f64ee720eb65f4c0d"
+    }
+  },
+  "evaluation_type": "fresh_request_disjoint_preaction_selectability_decomposition",
+  "frozen_at": "2026-08-10T20:30:00+08:00",
+  "gate": {
+    "invalid_if": [
+      "heldout_outcome_before_selection_lock",
+      "document_or_window_overlap",
+      "budget_or_action_signature_mismatch",
+      "native_noop_failure",
+      "sidecall_instability",
+      "manifest_or_hash_failure"
+    ],
+    "oracle_opportunity": {
+      "min_positive_victims": 4,
+      "min_recovery_fraction": 0.25
+    },
+    "selector": {
+      "min_positive_net_victims": 4,
+      "min_recovered_oracle_gap": 0.3,
+      "require_above_deterministic_shuffle": true,
+      "require_all_16_budget_preserving_leave_one_victim_out": true,
+      "require_reward_positive": true
+    }
+  },
+  "hypothesis": "A request-transferable static compatibility map or a frozen shallow pre-action observable model can select exactly 33 one-M1-in-seven-M64 actions on globally untouched requests and recover at least 30 percent of the held-out Oracle-minus-shuffle route-reward gap.",
+  "interpretation": {
+    "GO_ROW_CONDITIONED": "static fails and online passes; rewrite mechanism as row-conditioned execution-risk scheduling",
+    "GO_STATIC_COMPATIBILITY": "static map passes; proceed only to a minimal partition planner",
+    "INVALID": "repair only conclusion-changing integrity defects and rerun the same frozen protocol",
+    "STOP_NO_FRESH_ORACLE_OPPORTUNITY": "fresh exact-budget Oracle opportunity is weak; stop StableBatch headline",
+    "STOP_PREACTION_STABLEBATCH": "fresh Oracle exists but both frozen pre-action selectors fail; stop original StableBatch mechanism"
+  },
+  "intervention": {
+    "baseline_m": 1,
+    "filler": "repeat_identical_target_hidden_row",
+    "full_forward_input_shape_changes": false,
+    "identity": [
+      "manifest_sha256",
+      "document_text_sha256",
+      "token_offset",
+      "window_tokens",
+      "window_token_ids_sha256",
+      "layer",
+      "topk_rank",
+      "expert_id"
+    ],
+    "repeats_per_arm": 3,
+    "replace_all_target_token_topk_raw_outputs_before_gate_weight": true,
+    "sidecall_schedule_seed": "stablebatch-selectability-sidecall-v1|20260810",
+    "treatment_m": 64,
+    "use_cache": false
+  },
+  "model": {
+    "file_sha256": {
+      "config.json": "3643aa880d2f1c9b418156269ae791c73e5612d6b6b6fde0724d927cf89b6335",
+      "model-00001-of-00003.safetensors": "5e3cff7e367794685c241169072c940d200918617d5e2813f1c387dff52d845e",
+      "model-00002-of-00003.safetensors": "15ef5c730ee3cfed7199498788cd2faf337203fc74b529625e7502cdd759f4a7",
+      "model-00003-of-00003.safetensors": "a9abac4ac1b55c9adabac721a02fa39971f103eea9a65c310972b1246de76e04",
+      "model.safetensors.index.json": "0e2e1e0d8d357ac7af817cff28410c3dbad398f060c517a433e4076b2aae5579",
+      "special_tokens_map.json": "b77491e270c6fcc5b2ecf22370f7318a6a18d3cabea09ba7bab92e9bf12656c2",
+      "tokenizer.json": "a094266ac6c4982efba277bc251349a5a6d6ad37efb39a2a90f53d8be2a40a40",
+      "tokenizer_config.json": "78a839c7851f14f9fb30e664c2b46166dc0628f2900679e5ec160656f702edff"
+    },
+    "hidden_size": 2048,
+    "intermediate_size": 1024,
+    "local_path": "/root/autodl-tmp/models/olmoe",
+    "num_experts": 64,
+    "num_experts_per_tok": 8,
+    "num_hidden_layers": 16,
+    "repo_id": "allenai/OLMoE-1B-7B-0924",
+    "revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5"
+  },
+  "research_boundary": "single_rtx5090_one_olmoe_revision_16_globally_untouched_documents_240_cells_1920_actions_self_supervised_all_M1_proxy_not_ground_truth_not_serving_not_EP_not_prevalence",
+  "schema_version": "stablebatch-selectability-decomposition-gate-v1",
+  "selection": {
+    "action_budget_cells": 33,
+    "candidate_action_count": 1920,
+    "cell_count": 240,
+    "max_actions_per_cell": 1,
+    "target_layers": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14
+    ],
+    "unselected_cell_action": "abstain_keep_all_M64"
+  },
+  "selectors": {
+    "forbidden_fields": [
+      "document_identity_as_feature",
+      "token_identity_as_feature",
+      "cell_identity_as_feature",
+      "local_m1_sha256",
+      "local_m64_sha256",
+      "local_changed_bf16_elements",
+      "local_l2",
+      "unprotected_distance_vs_R",
+      "action_changed_layers_vs_R",
+      "future_layer_route",
+      "final_logits",
+      "oracle_rank",
+      "oracle_reward"
+    ],
+    "online_ridge": {
+      "allowed_fields": [
+        "layer",
+        "expert_id",
+        "rank",
+        "static_score",
+        "gate_weights",
+        "current_layer_topk_cutoff_margin"
+      ],
+      "alpha": 1.0,
+      "derived_fields": [
+        "gate_weight",
+        "gate_share",
+        "gate_gap_to_min",
+        "topk_mass",
+        "topk_entropy"
+      ],
+      "model_search": false,
+      "name": "OnlineObservableRidge-v1",
+      "threshold_tuning": false,
+      "tie_seed": "stablebatch-online-ridge-tie-v1|20260810"
+    },
+    "shuffle": {
+      "deterministic_realization_is_primary": true,
+      "name": "ActionBudgetMatchedHashShuffle-v1",
+      "seed": "stablebatch-selectability-shuffle-v1|20260810",
+      "uniform_exact_expectation_is_diagnostic_only": true
+    },
+    "static_map": {
+      "algorithm": "three_pair_posteriors_mean_then_exact_tuple_posterior",
+      "allowed_fields": [
+        "layer",
+        "expert_id",
+        "rank",
+        "action_signature",
+        "kernel_signature"
+      ],
+      "hyperparameter_search": false,
+      "name": "StaticCompatibilityMap-v1",
+      "shrinkage_lambda": 4.0,
+      "tie_seed": "stablebatch-static-map-tie-v1|20260810"
+    }
+  },
+  "status": "FROZEN_PRE_RUN"
+}

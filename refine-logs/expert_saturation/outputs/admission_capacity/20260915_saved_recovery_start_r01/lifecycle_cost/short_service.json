@@ -1,0 +1,527 @@
+{
+  "status": "OBSERVED_SHORT_SERVICE_LOCALIZATION",
+  "sources": {
+    "raw": "refine-logs/expert_saturation/outputs/admission_capacity/20260915_saved_recovery_start_r01/execution_weste_26862/readback/results/diagnostic-eager/raw.json",
+    "selective_store": "refine-logs/expert_saturation/outputs/admission_capacity/20260915_saved_recovery_start_r01/execution_weste_26862/readback/results/diagnostic-eager/selective-store.json"
+  },
+  "rotation_config": {
+    "min_absence_steps": 30,
+    "min_steps_between_swaps": 0,
+    "free_block_slack": 0,
+    "min_residency_steps": 30,
+    "protect_progress_fraction": 0.9,
+    "max_absences_per_request": 8,
+    "enabled": true
+  },
+  "definition": "One request between consecutive preemptions, after it re-acquires positive GPU blocks or executes. Recovery start may be allocation before async ready. Count actual returned new outputs from that start through the call before the next preemption, verified against the two preemption output counters. Initial residencies and residencies ending in completion are excluded. Bands 0, 1-2 and 3-8 are reported separately.",
+  "recovered_then_preempted_segments": 58,
+  "minimum_new_outputs": 3,
+  "bins": {
+    "0": 0,
+    "1-2": 0,
+    "3-8": 3
+  },
+  "short_segments": [
+    {
+      "request_id": "memory-train-article-0001710",
+      "band": "3-8",
+      "previous_preempt_step": 630,
+      "recovery_start_step": 661,
+      "first_new_output_step": 663,
+      "last_new_output_step": 668,
+      "preempt_step": 669,
+      "new_outputs": 6,
+      "next_preempt_type": "native_capacity",
+      "protection_release_events": [
+        {
+          "event": "target_new_output",
+          "step": 664,
+          "request": "measured/memory-train-article-0001710-99b19605"
+        }
+      ],
+      "selector_decisions": [
+        {
+          "step": 669,
+          "action": "noop",
+          "reason": "absence 29 below threshold",
+          "resume_id": "measured/memory-train-article-0000507-83bbc71a",
+          "victim_id": null,
+          "absence_steps": 29,
+          "free_blocks": 0
+        }
+      ],
+      "eligibility": {
+        "step": 669,
+        "free_blocks": 0,
+        "plan_victim": null,
+        "plan_target": null,
+        "protected_id": null,
+        "protected_reserve": 0
+      },
+      "request_resource_rows": [
+        {
+          "request_id": "memory-train-article-0002270",
+          "internal_request_id": "measured/memory-train-article-0002270-bf0298a6",
+          "running_order": 2,
+          "before": {
+            "computed": 3680,
+            "prompt": 3072,
+            "output": 609,
+            "max_output": 1024,
+            "status": "RUNNING",
+            "held_blocks": 230
+          },
+          "next_output_extra_blocks": 1,
+          "after": {
+            "computed_tokens": 3681,
+            "prompt_tokens": 3072,
+            "output_tokens": 609,
+            "num_preemptions": 0,
+            "block_counts": [
+              231
+            ]
+          }
+        },
+        {
+          "request_id": "memory-train-article-0000976",
+          "internal_request_id": "measured/memory-train-article-0000976-ac79421e",
+          "running_order": 16,
+          "before": {
+            "computed": 3680,
+            "prompt": 3072,
+            "output": 609,
+            "max_output": 1024,
+            "status": "RUNNING",
+            "held_blocks": 230
+          },
+          "next_output_extra_blocks": 1,
+          "after": {
+            "computed_tokens": 3681,
+            "prompt_tokens": 3072,
+            "output_tokens": 609,
+            "num_preemptions": 1,
+            "block_counts": [
+              231
+            ]
+          }
+        },
+        {
+          "request_id": "memory-train-article-0001710",
+          "internal_request_id": "measured/memory-train-article-0001710-99b19605",
+          "running_order": 28,
+          "before": {
+            "computed": 3659,
+            "prompt": 3072,
+            "output": 588,
+            "max_output": 1024,
+            "status": "RUNNING",
+            "held_blocks": 229
+          },
+          "next_output_extra_blocks": 0,
+          "after": {
+            "computed_tokens": 0,
+            "prompt_tokens": 3072,
+            "output_tokens": 588,
+            "num_preemptions": 2,
+            "block_counts": [
+              0
+            ]
+          }
+        }
+      ],
+      "allocation_failures": [
+        {
+          "internal_request_id": "measured/memory-train-article-0002270-bf0298a6",
+          "requested_tokens": 1,
+          "before": {
+            "total_blocks": 6657,
+            "usable_blocks": 6656,
+            "free_blocks": 0,
+            "used_blocks": 6656
+          },
+          "after": {
+            "total_blocks": 6657,
+            "usable_blocks": 6656,
+            "free_blocks": 0,
+            "used_blocks": 6656
+          },
+          "computed_tokens": 3680
+        }
+      ],
+      "pool_after_schedule": {
+        "total_blocks": 6657,
+        "usable_blocks": 6656,
+        "free_blocks": 227,
+        "used_blocks": 6429
+      },
+      "preemption_event": {
+        "victim_internal_request_id": "measured/memory-train-article-0001710-99b19605",
+        "attempted_step": 669,
+        "native_timestamp": 4861252.128806646,
+        "host_perf_counter_s": 4861252.129804642,
+        "victim_state": {
+          "computed_tokens": 3659,
+          "prompt_tokens": 3072,
+          "output_tokens": 588,
+          "num_preemptions": 1,
+          "block_counts": [
+            229
+          ]
+        },
+        "pool": {
+          "total_blocks": 6657,
+          "usable_blocks": 6656,
+          "free_blocks": 0,
+          "used_blocks": 6656
+        },
+        "original_preemption_called": true,
+        "original_preemption_returned": true,
+        "hook_boundary": "Caller already removed victim from running; see schedule-before snapshot.",
+        "victim_state_after": {
+          "computed_tokens": 0,
+          "prompt_tokens": 3072,
+          "output_tokens": 588,
+          "num_preemptions": 2,
+          "block_counts": [
+            0
+          ]
+        },
+        "pool_after": {
+          "total_blocks": 6657,
+          "usable_blocks": 6656,
+          "free_blocks": 229,
+          "used_blocks": 6427
+        },
+        "returned_host_perf_counter_s": 4861252.129850613
+      }
+    },
+    {
+      "request_id": "memory-train-article-0000133",
+      "band": "3-8",
+      "previous_preempt_step": 785,
+      "recovery_start_step": 816,
+      "first_new_output_step": 818,
+      "last_new_output_step": 820,
+      "preempt_step": 821,
+      "new_outputs": 3,
+      "next_preempt_type": "native_capacity",
+      "protection_release_events": [
+        {
+          "event": "target_new_output",
+          "step": 819,
+          "request": "measured/memory-train-article-0000133-a573dca3"
+        }
+      ],
+      "selector_decisions": [
+        {
+          "step": 821,
+          "action": "noop",
+          "reason": "absence 28 below threshold",
+          "resume_id": "measured/memory-train-article-0001401-9ed584c5",
+          "victim_id": null,
+          "absence_steps": 28,
+          "free_blocks": 0
+        }
+      ],
+      "eligibility": {
+        "step": 821,
+        "free_blocks": 0,
+        "plan_victim": null,
+        "plan_target": null,
+        "protected_id": null,
+        "protected_reserve": 0
+      },
+      "request_resource_rows": [
+        {
+          "request_id": "memory-train-article-0000507",
+          "internal_request_id": "measured/memory-train-article-0000507-83bbc71a",
+          "running_order": 9,
+          "before": {
+            "computed": 3808,
+            "prompt": 3072,
+            "output": 737,
+            "max_output": 1024,
+            "status": "RUNNING",
+            "held_blocks": 238
+          },
+          "next_output_extra_blocks": 1,
+          "after": {
+            "computed_tokens": 3809,
+            "prompt_tokens": 3072,
+            "output_tokens": 737,
+            "num_preemptions": 2,
+            "block_counts": [
+              239
+            ]
+          }
+        },
+        {
+          "request_id": "memory-train-article-0001856",
+          "internal_request_id": "measured/memory-train-article-0001856-b647e132",
+          "running_order": 10,
+          "before": {
+            "computed": 3808,
+            "prompt": 3072,
+            "output": 737,
+            "max_output": 1024,
+            "status": "RUNNING",
+            "held_blocks": 238
+          },
+          "next_output_extra_blocks": 1,
+          "after": {
+            "computed_tokens": 3809,
+            "prompt_tokens": 3072,
+            "output_tokens": 737,
+            "num_preemptions": 1,
+            "block_counts": [
+              239
+            ]
+          }
+        },
+        {
+          "request_id": "memory-train-article-0000133",
+          "internal_request_id": "measured/memory-train-article-0000133-a573dca3",
+          "running_order": 27,
+          "before": {
+            "computed": 3784,
+            "prompt": 3072,
+            "output": 713,
+            "max_output": 1024,
+            "status": "RUNNING",
+            "held_blocks": 237
+          },
+          "next_output_extra_blocks": 0,
+          "after": {
+            "computed_tokens": 0,
+            "prompt_tokens": 3072,
+            "output_tokens": 713,
+            "num_preemptions": 4,
+            "block_counts": [
+              0
+            ]
+          }
+        }
+      ],
+      "allocation_failures": [
+        {
+          "internal_request_id": "measured/memory-train-article-0000507-83bbc71a",
+          "requested_tokens": 1,
+          "before": {
+            "total_blocks": 6657,
+            "usable_blocks": 6656,
+            "free_blocks": 0,
+            "used_blocks": 6656
+          },
+          "after": {
+            "total_blocks": 6657,
+            "usable_blocks": 6656,
+            "free_blocks": 0,
+            "used_blocks": 6656
+          },
+          "computed_tokens": 3808
+        }
+      ],
+      "pool_after_schedule": {
+        "total_blocks": 6657,
+        "usable_blocks": 6656,
+        "free_blocks": 235,
+        "used_blocks": 6421
+      },
+      "preemption_event": {
+        "victim_internal_request_id": "measured/memory-train-article-0000133-a573dca3",
+        "attempted_step": 821,
+        "native_timestamp": 4861255.28753252,
+        "host_perf_counter_s": 4861255.28864401,
+        "victim_state": {
+          "computed_tokens": 3784,
+          "prompt_tokens": 3072,
+          "output_tokens": 713,
+          "num_preemptions": 3,
+          "block_counts": [
+            237
+          ]
+        },
+        "pool": {
+          "total_blocks": 6657,
+          "usable_blocks": 6656,
+          "free_blocks": 0,
+          "used_blocks": 6656
+        },
+        "original_preemption_called": true,
+        "original_preemption_returned": true,
+        "hook_boundary": "Caller already removed victim from running; see schedule-before snapshot.",
+        "victim_state_after": {
+          "computed_tokens": 0,
+          "prompt_tokens": 3072,
+          "output_tokens": 713,
+          "num_preemptions": 4,
+          "block_counts": [
+            0
+          ]
+        },
+        "pool_after": {
+          "total_blocks": 6657,
+          "usable_blocks": 6656,
+          "free_blocks": 237,
+          "used_blocks": 6419
+        },
+        "returned_host_perf_counter_s": 4861255.288694177
+      }
+    },
+    {
+      "request_id": "memory-train-article-0002733",
+      "band": "3-8",
+      "previous_preempt_step": 953,
+      "recovery_start_step": 984,
+      "first_new_output_step": 986,
+      "last_new_output_step": 989,
+      "preempt_step": 990,
+      "new_outputs": 4,
+      "next_preempt_type": "native_capacity",
+      "protection_release_events": [
+        {
+          "event": "target_new_output",
+          "step": 987,
+          "request": "measured/memory-train-article-0002733-a594fb91"
+        }
+      ],
+      "selector_decisions": [
+        {
+          "step": 990,
+          "action": "noop",
+          "reason": "absence 23 below threshold",
+          "resume_id": "measured/memory-train-article-0000051-92a6b257",
+          "victim_id": null,
+          "absence_steps": 23,
+          "free_blocks": 0
+        }
+      ],
+      "eligibility": {
+        "step": 990,
+        "free_blocks": 0,
+        "plan_victim": null,
+        "plan_target": null,
+        "protected_id": null,
+        "protected_reserve": 0
+      },
+      "request_resource_rows": [
+        {
+          "request_id": "memory-train-article-0000133",
+          "internal_request_id": "measured/memory-train-article-0000133-a573dca3",
+          "running_order": 4,
+          "before": {
+            "computed": 3920,
+            "prompt": 3072,
+            "output": 849,
+            "max_output": 1024,
+            "status": "RUNNING",
+            "held_blocks": 245
+          },
+          "next_output_extra_blocks": 1,
+          "after": {
+            "computed_tokens": 3921,
+            "prompt_tokens": 3072,
+            "output_tokens": 849,
+            "num_preemptions": 4,
+            "block_counts": [
+              246
+            ]
+          }
+        },
+        {
+          "request_id": "memory-train-article-0002733",
+          "internal_request_id": "measured/memory-train-article-0002733-a594fb91",
+          "running_order": 26,
+          "before": {
+            "computed": 3926,
+            "prompt": 3072,
+            "output": 855,
+            "max_output": 1024,
+            "status": "RUNNING",
+            "held_blocks": 246
+          },
+          "next_output_extra_blocks": 0,
+          "after": {
+            "computed_tokens": 0,
+            "prompt_tokens": 3072,
+            "output_tokens": 855,
+            "num_preemptions": 3,
+            "block_counts": [
+              0
+            ]
+          }
+        }
+      ],
+      "allocation_failures": [
+        {
+          "internal_request_id": "measured/memory-train-article-0000133-a573dca3",
+          "requested_tokens": 1,
+          "before": {
+            "total_blocks": 6657,
+            "usable_blocks": 6656,
+            "free_blocks": 0,
+            "used_blocks": 6656
+          },
+          "after": {
+            "total_blocks": 6657,
+            "usable_blocks": 6656,
+            "free_blocks": 0,
+            "used_blocks": 6656
+          },
+          "computed_tokens": 3920
+        }
+      ],
+      "pool_after_schedule": {
+        "total_blocks": 6657,
+        "usable_blocks": 6656,
+        "free_blocks": 245,
+        "used_blocks": 6411
+      },
+      "preemption_event": {
+        "victim_internal_request_id": "measured/memory-train-article-0002733-a594fb91",
+        "attempted_step": 990,
+        "native_timestamp": 4861258.914705453,
+        "host_perf_counter_s": 4861258.916007933,
+        "victim_state": {
+          "computed_tokens": 3926,
+          "prompt_tokens": 3072,
+          "output_tokens": 855,
+          "num_preemptions": 2,
+          "block_counts": [
+            246
+          ]
+        },
+        "pool": {
+          "total_blocks": 6657,
+          "usable_blocks": 6656,
+          "free_blocks": 0,
+          "used_blocks": 6656
+        },
+        "original_preemption_called": true,
+        "original_preemption_returned": true,
+        "hook_boundary": "Caller already removed victim from running; see schedule-before snapshot.",
+        "victim_state_after": {
+          "computed_tokens": 0,
+          "prompt_tokens": 3072,
+          "output_tokens": 855,
+          "num_preemptions": 3,
+          "block_counts": [
+            0
+          ]
+        },
+        "pool_after": {
+          "total_blocks": 6657,
+          "usable_blocks": 6656,
+          "free_blocks": 246,
+          "used_blocks": 6410
+        },
+        "returned_host_perf_counter_s": 4861258.916060785
+      }
+    }
+  ],
+  "checks": {
+    "short_output_counts_match_engine_return_events": true,
+    "all_0_to_8_segments_listed": true
+  },
+  "boundary": "Only this diagnostic trajectory and these requested bands. No main lifecycle/performance reanalysis, no causal time saving or benefit of a longer protection window. Empty 0/1-2 bands do not become a positive short-window result by changing the threshold to 3-8."
+}

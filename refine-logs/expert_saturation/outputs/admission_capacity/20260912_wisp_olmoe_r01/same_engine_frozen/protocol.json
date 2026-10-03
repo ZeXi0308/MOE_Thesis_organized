@@ -1,0 +1,57 @@
+{
+  "created_unix_s": 1789227462.1586702,
+  "question": "Does large timing drift remain for the identical action within one engine and fixed allocations after identical cache reset/warmup?",
+  "state": "FROZEN_UNRUN",
+  "action": "expert execution with injection chunk128 only",
+  "episodes": 4,
+  "order": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "resources": {
+    "gpu": "RTX5090 GPU-389be666-aeaa-c602-1504-85bf1dd3ac9f",
+    "expert_cap": 24,
+    "expert_scratch_bytes": 4831838208,
+    "kv_bytes": 1073741824,
+    "pinned_master_bytes": 12884901888,
+    "cpu_affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "omp_threads": 8
+  },
+  "reset": "drained engine and CUDA sync; empty WiSP slot/map/LRU metadata; retain weight/KV/activation allocations; short warmup then injection8 then injection128 each episode",
+  "kv": "inspect empty pool and refs; do not modify physical free queue; report physical ID differences without bitwise state claim",
+  "diagnostics": [
+    "per engine step thread/process CPU and rusage",
+    "main-thread schedstat runtime/runqueue wait/timeslices",
+    "boundary cgroup CPU and affinity/thread counts",
+    "boundary GPU process/clock state"
+  ],
+  "expected_interpretation": {
+    "stable": "Across-process initialization or placement becomes a candidate; not proved to be the unique cause.",
+    "unstable": "Use paired CPU/runqueue and load sections to localize within-process drift; do not fit exact time thresholds.",
+    "state_mismatch": "Preserve the failed controlled-state assumption and all outputs; do not silently drop an episode."
+  },
+  "ceiling": "NATIVE_SERVING measurement under artificial expert cap, not scheduler gain",
+  "retention": "All 4 episodes, every warmup, failure, source/config, trace and request outcome retained; no chosen best repeat",
+  "stop": "Stop on foreign GPU process at launch, incomplete request or invalid reset invariant; no purchase, no unknown process termination",
+  "frozen_unix_s": 1789228010.199808,
+  "source_sha256": {
+    "run_native_pager.py": "0546498282d9199e0b6490d65b55a4da3d3a088ab72c04fe0974d5332966f3d5",
+    "native_capture.py": "54c3ddec2dd0a7564be063fdfb9c14f992f17a7e58e219df970a44a399c6999f",
+    "wisp_v026_adapter.py": "0a721624d4e713b46c470e58de6517c0ed5b88da55056a8ecaa80024d0ee032c",
+    "wisp_expert_groups.py": "5e66ba2ab98d08be99e81db2ce9082e1d753bd42bf9dfbcd4e5500119a030ec6",
+    "native_pager_context.py": "162dd65e8727c1b69008394395c20fb61dd2a9f0706fe90249dc61f91d62fb0a",
+    "admission_feedback.py": "279c3e0ef44f8d9a0dec9bfeffe4dea72e657f24c637d9111f6712eb7ee0ece7"
+  },
+  "validation": "7 existing CPU tests plus reset mock and py_compile pass; narrow review; no GPU evidence yet"
+}

@@ -1,0 +1,110 @@
+{
+  "status": "COMPLETE",
+  "started_unix_s": 1789241740.5409482,
+  "cells": [
+    {
+      "label": "0_guard_validation",
+      "command": [
+        "/root/autodl-tmp/expert-saturation/vllm-0.26/bin/python",
+        "-u",
+        "/root/autodl-tmp/group-guard-20260913-root-r01/qualification/source/run_native_pager.py",
+        "--output",
+        "/root/autodl-tmp/group-guard-20260913-root-r01/qualification/results/0_guard_validation",
+        "--expert-cap",
+        "24",
+        "--prepared",
+        "/root/autodl-tmp/expert-union/inputs_preparation/prepared/short",
+        "--model",
+        "/root/autodl-tmp/hf-cache/hub/models--allenai--OLMoE-1B-7B-0924/snapshots/6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+        "--execution",
+        "expert",
+        "--requests",
+        "3",
+        "--token-budget",
+        "160",
+        "--injection-chunk",
+        "8",
+        "--group-retention",
+        "frequency",
+        "--group-retention-order",
+        "late",
+        "--group-retention-guard",
+        "no_extra_groups",
+        "--verify-kernel"
+      ],
+      "cpu_affinity": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "started_unix_s": 1789241740.5411465,
+      "status": "COMPLETE",
+      "process_start_perf_ns": 5211751442140886,
+      "process_end_perf_ns": 5211794176472716,
+      "process_wall_s": 42.73433183,
+      "returncode": 0,
+      "finished_unix_s": 1789241783.2761004,
+      "terminal": {
+        "status": "COMPLETE",
+        "finished_unix_s": 1789241779.8888485,
+        "evidence_type": "MATCHED_LAYER_KERNEL_VALIDATION_ONLY",
+        "gpu_after": {
+          "utc": "2026-09-12T19:36:20.060772+00:00",
+          "unix_s": 1789241780.0608122,
+          "caller_pid": 59966,
+          "gpu": "GPU-389be666-aeaa-c602-1504-85bf1dd3ac9f, NVIDIA GeForce RTX 5090, 32607 MiB, 8118 MiB, 36, 105.86 W, 2872 MHz, 13801 MHz, P1",
+          "compute_pids": "59966",
+          "processes": [
+            {
+              "gpu_uuid": "GPU-389be666-aeaa-c602-1504-85bf1dd3ac9f",
+              "pid": 59966,
+              "process_name": "/root/autodl-tmp/expert-saturation/vllm-0.26/bin/python",
+              "used_memory": "8084 MiB"
+            }
+          ],
+          "queries": {
+            "gpu": {
+              "command": [
+                "nvidia-smi",
+                "--query-gpu=uuid,name,memory.total,memory.used,temperature.gpu,power.draw,clocks.current.sm,clocks.current.memory,pstate",
+                "--format=csv,noheader"
+              ],
+              "returncode": 0,
+              "stdout": "GPU-389be666-aeaa-c602-1504-85bf1dd3ac9f, NVIDIA GeForce RTX 5090, 32607 MiB, 8118 MiB, 36, 105.86 W, 2872 MHz, 13801 MHz, P1",
+              "stderr": ""
+            },
+            "processes": {
+              "command": [
+                "nvidia-smi",
+                "--query-compute-apps=gpu_uuid,pid,process_name,used_gpu_memory",
+                "--format=csv,noheader"
+              ],
+              "returncode": 0,
+              "stdout": "GPU-389be666-aeaa-c602-1504-85bf1dd3ac9f, 59966, /root/autodl-tmp/expert-saturation/vllm-0.26/bin/python, 8084 MiB",
+              "stderr": ""
+            }
+          },
+          "query_errors": [],
+          "stage": "after_run",
+          "allowed_pids": [
+            59966
+          ],
+          "foreign_pids": [],
+          "decision": "PASS"
+        },
+        "requests_completed": 3,
+        "generated_tokens": 40,
+        "episodes_completed": 1,
+        "request_count_scope": "last episode; each episode retained separately",
+        "hold_scope": null,
+        "observation_end_s": 2.0515263453125954
+      }
+    }
+  ],
+  "finished_unix_s": 1789241783.2768295
+}

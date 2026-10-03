@@ -1,0 +1,231 @@
+{
+  "anti_claims": [
+    "telemetry qualification is not pressure-latency evidence",
+    "telemetry qualification is not scheduling or admission headroom",
+    "single-GPU fixed batching is not online serving or Expert Parallel evidence"
+  ],
+  "batch_sizes": [
+    4,
+    8,
+    16
+  ],
+  "claim_ceiling": "NATIVE_OFFLINE_FIXED_BATCH_TELEMETRY_IMPLEMENTATION_ONLY",
+  "dtype": "bfloat16",
+  "environment_overrides": {
+    "CUDA_VISIBLE_DEVICES": "0",
+    "HF_HOME": "/root/autodl-tmp/hf-cache",
+    "HF_HUB_CACHE": "/root/autodl-tmp/hf-cache/hub",
+    "HF_HUB_OFFLINE": "1",
+    "PYTHONHASHSEED": "20260823",
+    "PYTHONNOUSERSITE": "1",
+    "TRANSFORMERS_OFFLINE": "1",
+    "VLLM_BATCH_INVARIANT": "0",
+    "VLLM_USE_FLASHINFER_SAMPLER": "0"
+  },
+  "frozen_input_sha256": {
+    "frozen/compare_vllm_route_probe_runs.py": "c6d16a1f219438a0525055096bd77278bc1a83119e9079fe37775abcc3b7013d",
+    "frozen/compare_vllm_telemetry_implementations.py": "505672a2835cf66e323ade4d0496420c300fb67c6d69c57843adfa34c7b46bb8",
+    "frozen/run_valid_window_telemetry_gate.py": "8fec1ffb2e5b99d8b0de0cacd4a88699da4fa2254b12a11903fa6d031d977f77",
+    "frozen/run_vllm_route_shape_probe.py": "9a83209363a0fb68568a3c85cc42dfb578c407f4ae8c4306d78f147ffe433e44",
+    "frozen/vllm_patches/validate_valid_window_patch.py": "55e4a1f7d2d51054213e3af78f8b4a09fe5d58e84d30619af7a422e43532aca7",
+    "frozen/vllm_patches/vllm-0.26-valid-route-window.patch": "862b3ff7732fd4ccac4ffeba923174ab3d662e57834a981eb329aba893e0d87b",
+    "frozen/workload_manifest.json": "2bf4b4897c15b165fea90d730ed9136d0777535daab7f6807336c09a7c70cdbe",
+    "runtime-package-manifest.json": "b44c562b64c9e11eda72ec5b56a664c166b59836bbb2e80ed70e5f01505abed2"
+  },
+  "gpu_memory_utilization": 0.8,
+  "groups": 6,
+  "max_model_len": 1024,
+  "max_num_batched_tokens": 8192,
+  "max_num_seqs": 32,
+  "max_p95_absolute_timing_deviation_pct": 5.0,
+  "model": "allenai/OLMoE-1B-7B-0924",
+  "order_seed": 20260823,
+  "output_tokens": 16,
+  "preflight": {
+    "compute_processes": [],
+    "exclusive_gpu_verified": true,
+    "model_cache": {
+      "cleared_cache_aliases": [
+        "HUGGINGFACE_HUB_CACHE",
+        "TRANSFORMERS_CACHE",
+        "PYTORCH_TRANSFORMERS_CACHE",
+        "PYTORCH_PRETRAINED_BERT_CACHE"
+      ],
+      "hf_home": "/root/autodl-tmp/hf-cache",
+      "hf_hub_cache": "/root/autodl-tmp/hf-cache/hub",
+      "snapshot_path": "/root/autodl-tmp/hf-cache/hub/models--allenai--OLMoE-1B-7B-0924/snapshots/6d84c48581ece794365f2b8e9cfb043c68ade9c5"
+    },
+    "python": "/root/autodl-tmp/expert-saturation/vllm-0.26/bin/python",
+    "source": {
+      "errors": [],
+      "patch_sha256": "862b3ff7732fd4ccac4ffeba923174ab3d662e57834a981eb329aba893e0d87b",
+      "schema": "vllm-valid-window-source-validation-v1",
+      "source_state": "original",
+      "sources": {
+        "vllm/model_executor/layers/fused_moe/routed_experts_capturer.py": {
+          "sha256": "a75c29de4425efcb97d0e215b988fec38cd16ee87e69c0c16d985e848c32021d",
+          "size_bytes": 15724,
+          "state": "original"
+        },
+        "vllm/v1/worker/gpu_model_runner.py": {
+          "sha256": "81b7627fbe81f7aaa2f77b4bf085faa353c69d03662ebfe369536a9773bb70d0",
+          "size_bytes": 348303,
+          "state": "original"
+        }
+      },
+      "valid": true
+    },
+    "vllm_import": {
+      "module_file": "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/__init__.py",
+      "source_root": "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages",
+      "version": "0.26.0"
+    },
+    "vllm_source_root": "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages"
+  },
+  "process_repeats": [
+    0,
+    1
+  ],
+  "prompt_lengths": [
+    128,
+    512
+  ],
+  "revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+  "runtime_snapshots": {
+    "differing_files": [
+      "vllm/model_executor/layers/fused_moe/routed_experts_capturer.py",
+      "vllm/v1/worker/gpu_model_runner.py"
+    ],
+    "optimized_before_patch_validation": {
+      "errors": [],
+      "patch_sha256": "862b3ff7732fd4ccac4ffeba923174ab3d662e57834a981eb329aba893e0d87b",
+      "schema": "vllm-valid-window-source-validation-v1",
+      "source_state": "original",
+      "sources": {
+        "vllm/model_executor/layers/fused_moe/routed_experts_capturer.py": {
+          "sha256": "a75c29de4425efcb97d0e215b988fec38cd16ee87e69c0c16d985e848c32021d",
+          "size_bytes": 15724,
+          "state": "original"
+        },
+        "vllm/v1/worker/gpu_model_runner.py": {
+          "sha256": "81b7627fbe81f7aaa2f77b4bf085faa353c69d03662ebfe369536a9773bb70d0",
+          "size_bytes": 348303,
+          "state": "original"
+        }
+      },
+      "valid": true
+    },
+    "optimized_import_probe": {
+      "module_file": "/root/autodl-tmp/expert-saturation/runs/n0b-valid-window-20260823-westd-r01/runtime/valid-window/vllm/__init__.py",
+      "source_root": "/root/autodl-tmp/expert-saturation/runs/n0b-valid-window-20260823-westd-r01/runtime/valid-window",
+      "version": "0.26.0"
+    },
+    "optimized_root": "/root/autodl-tmp/expert-saturation/runs/n0b-valid-window-20260823-westd-r01/runtime/valid-window",
+    "optimized_validation": {
+      "errors": [],
+      "patch_sha256": "862b3ff7732fd4ccac4ffeba923174ab3d662e57834a981eb329aba893e0d87b",
+      "schema": "vllm-valid-window-source-validation-v1",
+      "source_state": "patched",
+      "sources": {
+        "vllm/model_executor/layers/fused_moe/routed_experts_capturer.py": {
+          "sha256": "690de10ebd1ccb4ce156f8432ec351513d59702a1eacd9d1bf86dabb2b54226e",
+          "size_bytes": 16336,
+          "state": "patched"
+        },
+        "vllm/v1/worker/gpu_model_runner.py": {
+          "sha256": "1253bec5fafbc8e4ad0ea2735b50d2b6e6f4f97f02300fd489f4d29b2a2ee8ac",
+          "size_bytes": 348376,
+          "state": "patched"
+        }
+      },
+      "valid": true
+    },
+    "stock_import_probe": {
+      "module_file": "/root/autodl-tmp/expert-saturation/runs/n0b-valid-window-20260823-westd-r01/runtime/stock/vllm/__init__.py",
+      "source_root": "/root/autodl-tmp/expert-saturation/runs/n0b-valid-window-20260823-westd-r01/runtime/stock",
+      "version": "0.26.0"
+    },
+    "stock_root": "/root/autodl-tmp/expert-saturation/runs/n0b-valid-window-20260823-westd-r01/runtime/stock",
+    "stock_validation": {
+      "errors": [],
+      "patch_sha256": "862b3ff7732fd4ccac4ffeba923174ab3d662e57834a981eb329aba893e0d87b",
+      "schema": "vllm-valid-window-source-validation-v1",
+      "source_state": "original",
+      "sources": {
+        "vllm/model_executor/layers/fused_moe/routed_experts_capturer.py": {
+          "sha256": "a75c29de4425efcb97d0e215b988fec38cd16ee87e69c0c16d985e848c32021d",
+          "size_bytes": 15724,
+          "state": "original"
+        },
+        "vllm/v1/worker/gpu_model_runner.py": {
+          "sha256": "81b7627fbe81f7aaa2f77b4bf085faa353c69d03662ebfe369536a9773bb70d0",
+          "size_bytes": 348303,
+          "state": "original"
+        }
+      },
+      "valid": true
+    }
+  },
+  "schedule": [
+    {
+      "arm": "stock_off",
+      "capture_routes": false,
+      "process_repeat": 0,
+      "runtime_patch_id": "stock-vllm-0.26.0",
+      "source_state": "original"
+    },
+    {
+      "arm": "stock_on",
+      "capture_routes": true,
+      "process_repeat": 0,
+      "runtime_patch_id": "stock-vllm-0.26.0",
+      "source_state": "original"
+    },
+    {
+      "arm": "optimized_off",
+      "capture_routes": false,
+      "process_repeat": 0,
+      "runtime_patch_id": "valid-window-clear-v1",
+      "source_state": "patched"
+    },
+    {
+      "arm": "optimized_on",
+      "capture_routes": true,
+      "process_repeat": 0,
+      "runtime_patch_id": "valid-window-clear-v1",
+      "source_state": "patched"
+    },
+    {
+      "arm": "optimized_on",
+      "capture_routes": true,
+      "process_repeat": 1,
+      "runtime_patch_id": "valid-window-clear-v1",
+      "source_state": "patched"
+    },
+    {
+      "arm": "optimized_off",
+      "capture_routes": false,
+      "process_repeat": 1,
+      "runtime_patch_id": "valid-window-clear-v1",
+      "source_state": "patched"
+    },
+    {
+      "arm": "stock_on",
+      "capture_routes": true,
+      "process_repeat": 1,
+      "runtime_patch_id": "stock-vllm-0.26.0",
+      "source_state": "original"
+    },
+    {
+      "arm": "stock_off",
+      "capture_routes": false,
+      "process_repeat": 1,
+      "runtime_patch_id": "stock-vllm-0.26.0",
+      "source_state": "original"
+    }
+  ],
+  "schema": "vllm-valid-window-telemetry-orchestration-v1",
+  "seed": 20260823,
+  "within_process_repeats": 1,
+  "workload_sha256": "2bf4b4897c15b165fea90d730ed9136d0777535daab7f6807336c09a7c70cdbe"
+}

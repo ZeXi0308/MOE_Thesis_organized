@@ -1,0 +1,155 @@
+--- a/run_probe.py
++++ b/run_probe.py
+@@ -13,6 +13,7 @@
+ from metrics import summarize_episode_requests
+ from native_capture import capture_episode, set_empty_admission_cap
+ from memory_telemetry import capture_with_memory, memory_snapshot
++from safe_static import qualify_safe_cap
+ 
+ 
+ def dump(path, value):
+@@ -51,7 +52,8 @@
+ def main():
+     parser = argparse.ArgumentParser(description=__doc__)
+     parser.add_argument('--domain', choices=['short', 'long'], required=True)
+-    parser.add_argument('--cap', type=int, choices=[16, 32], required=True)
++    parser.add_argument('--cap', type=int, choices=[16], required=True)
++    parser.add_argument('--safe-static', action='store_true')
+     parser.add_argument('--output-dir', type=Path, required=True)
+     args = parser.parse_args()
+     root, out = Path(__file__).resolve().parent, args.output_dir
+@@ -60,6 +62,8 @@
+     config = dict(config, cap=args.cap, domain=args.domain, engine_max_num_seqs=32,
+         metric_role='continuous request metrics primary; SLO 5s/.2s reference only',
+         evidence_ceiling='NATIVE_INPROCESS_CAPACITY_QUALIFICATION', max_seconds=120)
++    config.update(requested_arm='safe' if args.safe_static else 'baseline16',
++                  cap=None if args.safe_static else 16)
+     out.mkdir(parents=True, exist_ok=False)
+     dump(out/'config.json', config)
+     (out/'commands.txt').write_text(shlex.join([sys.executable, *sys.argv])+'\n')
+@@ -79,7 +83,7 @@
+             cuda=torch.version.cuda, vllm=vllm.__version__, transformers=version('transformers'),
+             gpu_before=before, cpu_threads=torch.get_num_threads(),
+             source_sha256={n: hashlib.sha256((root/n).read_bytes()).hexdigest() for n in
+-                ['run_probe.py', 'memory_telemetry.py', 'native_capture.py', 'metrics.py']},
++                ['run_probe.py', 'memory_telemetry.py', 'native_capture.py', 'metrics.py', 'safe_static.py']},
+             vllm_source_sha256={n: hashlib.sha256((Path(vllm.__file__).parent/n).read_bytes()).hexdigest()
+                 for n in ['v1/core/sched/scheduler.py', 'v1/core/kv_cache_manager.py', 'v1/core/block_pool.py',
+                           'v1/worker/gpu_model_runner.py']}))
+@@ -92,6 +96,15 @@
+         dump(out/'engine_args.json', kwargs)
+         engine = LLMEngine.from_engine_args(EngineArgs(**kwargs), enable_multiprocessing=False)
+         dump(out/'memory-after-init.json', memory_snapshot(engine, torch))
++        qualification = qualify_safe_cap(engine, config)
++        dump(out/'safe-cap-qualification.json', qualification)
++        if qualification['status'] != 'QUALIFIED':
++            dump(out/'status.json', dict(status='UNRUN', qualification_status='QUALIFICATION_FAILED',
++                 error=qualification.get('error'), measurement_executed=False))
++            raise SystemExit(2)
++        args.cap = qualification['safe_cap'] if args.safe_static else 16
++        config.update(cap=args.cap)
++        dump(out/'config.json', config)
+         # Identical warmups in every process; do not run the pressure case as warmup.
+         for index, (domain, count, cap) in enumerate([('short', 32, 16), ('short', 32, 32), ('long', 2, 2)]):
+             wc, ww = inputs[domain]
+--- a/run_campaign.py
++++ b/run_campaign.py
+@@ -9,9 +9,8 @@
+ import sys
+ import time
+ 
+-CELLS = [('short', 16), ('long', 16), ('short', 32), ('long', 32)]
+-FROZEN_CELLS = [(f'repeat{repeat}-{domain}-cap{cap}', domain, cap)
+-    for repeat, plans in enumerate([CELLS, list(reversed(CELLS))]) for domain, cap in plans]
++FROZEN_CELLS = [('repeat0-baseline16', 'long', 16), ('repeat0-safe', 'long', 'safe'),
++                ('repeat1-safe', 'long', 'safe'), ('repeat1-baseline16', 'long', 16)]
+ CELL_BY_LABEL = {label: (domain, cap) for label, domain, cap in FROZEN_CELLS}
+ 
+ 
+@@ -23,8 +22,10 @@
+     metadata = out / f'{label}-execution.json'
+     if (out / label).exists():
+         raise FileExistsError(f'cell results already exist: {out / label}')
+-    command = [sys.executable, '-u', 'run_probe.py', '--domain', domain, '--cap', str(cap),
++    command = [sys.executable, '-u', 'run_probe.py', '--domain', domain, '--cap', '16',
+                '--output-dir', str(out / label)]
++    if cap == 'safe':
++        command.append('--safe-static')
+     env = dict(os.environ, HF_HUB_CACHE='/root/autodl-tmp/hf-cache/hub', HF_HUB_OFFLINE='1',
+         TRANSFORMERS_OFFLINE='1', CUDA_VISIBLE_DEVICES='0', VLLM_ENABLE_V1_MULTIPROCESSING='0',
+         VLLM_USE_FLASHINFER_SAMPLER='0')
+@@ -61,7 +62,7 @@
+ def main():
+     parser = argparse.ArgumentParser(description=__doc__)
+     mode = parser.add_mutually_exclusive_group(required=True)
+-    mode.add_argument('--list', action='store_true', help='print the unchanged eight-cell order')
++    mode.add_argument('--list', action='store_true', help='print the frozen four-cell order')
+     mode.add_argument('--cell', choices=list(CELL_BY_LABEL), help='run only this cell, then stop for readback')
+     args = parser.parse_args()
+     if args.list:
+--- /dev/null
++++ b/safe_static.py
+@@ -0,0 +1,63 @@
++"""Derive one static cap from the live, qualified full-attention KV block pool."""
++
++
++def qualify_safe_cap(engine, config):
++    result = dict(status='QUALIFICATION_FAILED', measurement_status='UNRUN',
++        formula='min(engine_max_num_seqs, usable_blocks // ceil((prompt_tokens + output_tokens) / block_size))')
++
++    def require(condition, message):
++        if not condition:
++            raise ValueError(message)
++
++    try:
++        from vllm.v1.kv_cache_interface import FullAttentionSpec
++        scheduler = engine.engine_core.engine_core.scheduler
++        manager = scheduler.kv_cache_manager
++        layout, pool, coordinator = scheduler.kv_cache_config, manager.block_pool, manager.coordinator
++        groups = layout.kv_cache_groups
++        result.update(group_count=len(groups), manager_group_count=manager.num_kv_cache_groups,
++            coordinator_type=type(coordinator).__name__, watermark_blocks=manager.watermark_blocks,
++            prefix_caching=manager.enable_caching, use_eagle=manager.use_eagle,
++            num_lookahead_tokens=scheduler.num_lookahead_tokens, num_spec_tokens=scheduler.num_spec_tokens,
++            dcp_world_size=scheduler.dcp_world_size, pcp_world_size=scheduler.pcp_world_size)
++        require(len(groups) == manager.num_kv_cache_groups == 1, 'requires one KV cache group')
++        require(type(coordinator).__name__ == 'UnitaryKVCacheCoordinator', 'unverified KV coordinator')
++        group, spec = groups[0], groups[0].kv_cache_spec
++        result.update(spec_type=type(spec).__name__, layer_names=list(group.layer_names),
++            is_eagle_group=group.is_eagle_group)
++        require(type(spec) is FullAttentionSpec and not group.is_eagle_group, 'requires plain FullAttentionSpec')
++        require(spec.sliding_window is None and spec.attention_chunk_size is None, 'window/chunk attention unsupported')
++        require(manager.watermark_blocks == 0, 'nonzero watermark unsupported')
++        require(not manager.enable_caching and not engine.vllm_config.cache_config.enable_prefix_caching,
++                'prefix sharing unsupported')
++        require(not manager.use_eagle and engine.vllm_config.speculative_config is None
++                and scheduler.num_spec_tokens == scheduler.num_lookahead_tokens == 0, 'speculative/lookahead unsupported')
++        require(scheduler.dcp_world_size == scheduler.pcp_world_size == 1, 'context parallel unsupported')
++        single = coordinator.single_type_managers
++        require(len(single) == 1 and single[0].block_pool is pool, 'group does not share the verified block pool')
++        block_size = spec.block_size
++        require(type(block_size) is int and block_size > 0 and coordinator.block_size == block_size,
++                'unverified logical block size')
++        total, free = int(pool.num_gpu_blocks), int(pool.get_num_free_blocks())
++        usable = total - 1
++        result.update(block_size=block_size, total_blocks=total, usable_blocks=usable, free_blocks=free,
++            null_block_id=pool.null_block.block_id, null_block_is_null=pool.null_block.is_null)
++        require(pool.null_block.block_id == 0 and pool.null_block.is_null, 'unverified null block reservation')
++        require(layout.num_blocks == manager.kv_cache_config.num_blocks == total and usable > 0 and free == usable,
++                'pool layout mismatch or pool not empty')
++        require(not scheduler.requests and scheduler.get_request_counts() == (0, 0)
++                and not engine.has_unfinished_requests(), 'engine not drained')
++        require(config['prompt_tokens'] == 3072 and config['output_tokens'] == 1024
++                and config['requests'] == 32, 'frozen request dimensions differ')
++        maximum = engine.vllm_config.scheduler_config.max_num_seqs
++        require(maximum == 32 and engine.vllm_config.model_config.max_model_len == 4096, 'engine bounds differ')
++        per_request = (config['prompt_tokens'] + config['output_tokens'] + block_size - 1) // block_size
++        safe = min(maximum, usable // per_request)
++        result.update(per_request_reserved_blocks=per_request, maximum_request_tokens=4096,
++            engine_max_num_seqs=maximum, safe_cap=safe, reserved_blocks_at_safe_cap=safe * per_request,
++            remaining_blocks_at_full_reservation=usable - safe * per_request)
++        require(safe > 16, 'derived cap does not exceed baseline16; comparison is UNRUN')
++        result.update(status='QUALIFIED', measurement_status='NOT_YET_RUN')
++    except (AttributeError, ImportError, IndexError, KeyError, TypeError, ValueError) as error:
++        result['error'] = f'{type(error).__name__}: {error}'
++    return result

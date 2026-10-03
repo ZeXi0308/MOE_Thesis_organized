@@ -1,0 +1,187 @@
+{
+  "verdict": "WARN",
+  "verdict_scope": "bounded targeted integrity audit",
+  "review_route": "same-family/provisional",
+  "trace_created": false,
+  "repository_modified": false,
+  "gpu_experiment_run": false,
+  "evaluation_classification": {
+    "evidence_tier": "REQUEST_LEVEL",
+    "runtime": "actual single-RTX5090 vLLM 0.26.0 in-process native scheduler capture",
+    "raw_evidence_type": "NATIVE_SERVING_INPROCESS_HOST_CAPTURE",
+    "simulated_timing": false,
+    "task_quality_evaluation": false,
+    "task_quality_ground_truth_available": false
+  },
+  "checked_scope": {
+    "formal_cells": 12,
+    "formal_requests": 192,
+    "completed_formal_requests": 192,
+    "formal_output_tokens": 24576,
+    "resolved_itl_intervals": 24384,
+    "scheduler_steps": 3674,
+    "warmup_cells_retained": 12,
+    "warmup_requests_retained": 192,
+    "checks": [
+      "native field reachability and live reads",
+      "actual per-step allocation",
+      "decode progress and nonpreemption",
+      "matched resources and input identity",
+      "policy-specific episode state",
+      "full-request denominators and core metric recomputation",
+      "preregistered decision gate",
+      "raw/archive existence and coverage",
+      "observed-state partition"
+    ]
+  },
+  "integrity_summary": {
+    "p0_findings": 0,
+    "p1_integrity_findings": 0,
+    "p2_integrity_findings": 1,
+    "independent_recompute_problems": [],
+    "all_formal_complete": true,
+    "all_formal_inputs_match_prepared": true,
+    "unique_internal_request_ids": 192,
+    "decode_obligations": 24384,
+    "decode_skips": 0,
+    "preemptions": 0,
+    "computed_or_kv_adjustments": 0
+  },
+  "action_evidence": {
+    "mixed_per_request512_per_block": {
+      "threshold_limited_rows": 24,
+      "threshold_limited_rows_with_other_same_step_work": 24,
+      "clipped_then_new_short_first_admitted": 3,
+      "partition": {
+        "no_waiter_after_schedule": 15,
+        "running_slots_full_with_waiters": 6,
+        "clipped_then_short_first_admitted": 3,
+        "spare_slot_with_waiters_unexplained": 0
+      }
+    },
+    "all_short_threshold_hits": 0,
+    "future_information_used": false,
+    "fcfs_changed": false,
+    "policy_state_shared": false
+  },
+  "scientific_result": {
+    "disposition": "MEASUREMENT_ONLY_STOP_CURRENT_THRESHOLD_SCAN",
+    "preregistered_positive_gate_passed": false,
+    "native1024_vs_per_request512_mixed_percent_change_positive_is_slower": {
+      "forward": {
+        "request_mean": 1.5692864761462255,
+        "request_p95": 1.4696436138941893,
+        "request_max": 2.1833572666817957,
+        "episode_wall": 1.1295875441110548,
+        "pooled_itl_p99": -20.858205220911795,
+        "per_request_max_itl_max": 6.434307754007418
+      },
+      "reverse": {
+        "request_mean": 0.5110687105624789,
+        "request_p95": 1.1475934782229968,
+        "request_max": 1.5669765630635712,
+        "episode_wall": 0.6420454877254178,
+        "pooled_itl_p99": -20.673940632864905,
+        "per_request_max_itl_max": -20.996532229221778
+      }
+    }
+  },
+  "findings": [
+    {
+      "id": "F1",
+      "priority": "INFO",
+      "category": "action_reachability",
+      "finding": "Both native fields are read by the executed scheduler and per_request512 produces actual 512-token long-prefill clips plus three same-step new-short admissions per mixed block.",
+      "claim_impact": "validates the intervention and a bounded observed action-space claim",
+      "evidence": [
+        "run_prefill_share.py:37-55",
+        "runtime/native_capture.py:78-143",
+        "runtime_reference.json:1 (embedded v1/core/sched/scheduler.py:445,507-509,861-875,1066)",
+        "readback/results/forward/cell-005-raw.json:20170-20292",
+        "readback/results/reverse/cell-000-raw.json:20536-20658"
+      ]
+    },
+    {
+      "id": "F2",
+      "priority": "INFO",
+      "category": "nonpreemption",
+      "finding": "24,384 existing-decode obligations all advanced; no preemption, skipped decode, or computed/KV adjustment occurred.",
+      "claim_impact": "supports the frozen nonpreemptive semantics",
+      "evidence": [
+        "runtime/native_capture.py:134-143",
+        "analysis/TABLE.md:48-103"
+      ]
+    },
+    {
+      "id": "F3",
+      "priority": "P2",
+      "category": "source_provenance_metadata",
+      "finding": "The fourth source record stores dataset_row_end_exclusive=378; the supplied source recheck reports the true endpoint as 406. Raw-to-prepared hashes match, and the supplied recheck reports all 16 frozen token prefixes match by request ID.",
+      "claim_impact": "requires a provenance metadata correction/addendum but does not invalidate input identity, source independence, or performance comparison; corrected endpoint was not independently rederived in this bounded audit",
+      "evidence": [
+        "prepared/mixed/workload.json:52-66",
+        "prepared/all_short/workload.json:52-66"
+      ]
+    },
+    {
+      "id": "F4",
+      "priority": "P1_CLAIM_IMPACT_NOT_INTEGRITY_DEFECT",
+      "category": "preregistered_gate",
+      "finding": "Complete-request latency and episode wall do not improve against native1024 in either mixed block; the positive continuation gate fails.",
+      "claim_impact": "blocks method GO, threshold tuning, and positive performance claims; permits a bounded measurement/negative pilot conclusion",
+      "evidence": [
+        "DECISIONS.md:54-63",
+        "analysis/TABLE.md:124-126",
+        "analysis/TABLE.md:142-144"
+      ]
+    },
+    {
+      "id": "F5",
+      "priority": "P2",
+      "category": "repeatability_and_noise",
+      "finding": "The allocation-no-op all-short control differs from native1024 by +3.389% request mean/+2.637% wall forward and +0.815%/+0.169% reverse; there is one formal episode per arm per block.",
+      "claim_impact": "keeps effect sizes descriptive and blocks significance or general regression claims",
+      "evidence": [
+        "analysis/TABLE.md:115-117",
+        "analysis/TABLE.md:133-135"
+      ]
+    },
+    {
+      "id": "F6",
+      "priority": "INFO",
+      "category": "retention",
+      "finding": "Both archives match their manifest SHA-256 and contain the declared 53 files; all formal raw/metrics/check files exist and parse.",
+      "claim_impact": "supports physical result existence and raw retention",
+      "evidence": [
+        "ARCHIVE-forward.json:4-6",
+        "ARCHIVE-reverse.json:4-6",
+        "TRANSFER-forward.json:3-12",
+        "TRANSFER-reverse.json:3-12",
+        "STATUS.json:15-18"
+      ]
+    }
+  ],
+  "permissible_claim_ceiling": "In two order-reversed, single-GPU, 16-request mixed episodes, vLLM's native 512-token long-prefill threshold was read on the executed scheduler path, clipped actual long-prefill allocations, and enabled three observed same-step short first admissions per block while all existing decodes advanced. Relative to native1024, it did not improve complete-request latency or episode wall in either block; this pilot does not justify continuing threshold tuning or claiming a method gain.",
+  "prohibited_claims": [
+    "task or output quality",
+    "output equivalence",
+    "causal millisecond recovery per clipped event",
+    "statistical significance",
+    "general performance regression",
+    "dynamic control",
+    "action-level novelty",
+    "production HTTP behavior",
+    "multi-GPU or EP behavior",
+    "Oracle or headroom"
+  ],
+  "not_covered": [
+    "independent per-step recomputation of warmup cells",
+    "fresh re-audit of unchanged runtime/metrics.py and runtime/waiting_order.py",
+    "fresh host rehash of model cache and full installed vLLM source",
+    "member-by-member archive versus extracted-readback byte comparison",
+    "task-quality ground truth or semantic output assessment",
+    "Oracle or action-conditioned counterfactual replay",
+    "statistical test or additional controlled repeats",
+    "new workload, HTTP server, multi-GPU, or production evaluation"
+  ]
+}

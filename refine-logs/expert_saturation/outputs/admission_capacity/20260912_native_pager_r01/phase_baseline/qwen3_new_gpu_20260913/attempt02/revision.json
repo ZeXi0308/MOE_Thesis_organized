@@ -1,0 +1,59 @@
+{
+  "status": "PASS_CPU_PREPARED_UNRUN",
+  "scope": "Only local parent/protocol copies; no packaging, network, process signal or GPU action.",
+  "reason": "Before any qualification/performance outcome: frozen61,066,575,648-byte download at approximately5MB/s needs12,213s before loading/qualification; extend only administrative whole-process deadline.",
+  "diff": "--- ../run_remote.py\n+++ run_remote.py\n@@ -5,7 +5,7 @@\n for name,sha in protocol['package_files'].items():assert hashlib.sha256((p/name).read_bytes()).hexdigest()==sha,name\n installed=Path('/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm')\n for name,sha in protocol['installed_source_sha256'].items():assert hashlib.sha256((installed/name).read_bytes()).hexdigest()==sha,name\n-out=Path('/root/autodl-tmp/qwen3-new-gpu-localized-static-v026-r01');out.mkdir(exist_ok=False)\n+out=Path('/root/autodl-tmp/qwen3-new-gpu-localized-static-v026-r02');out.mkdir(exist_ok=False)\n shards=out/'shard_workspace';shards.mkdir()\n python='/root/autodl-tmp/expert-saturation/vllm-0.26/bin/python'\n env=dict(os.environ,OMP_NUM_THREADS='8',TOKENIZERS_PARALLELISM='false',PYTHONUNBUFFERED='1',WISP_PLUGIN_DISABLE='1',WISP_PREFETCH='0',WISP_DYNAMIC='0',PYTHONPATH='/root/autodl-tmp/qwen3-research-wisp-86f69720/source/src:'+str(p))\n@@ -72,7 +72,7 @@\n             if foreign:raise RuntimeError('Foreign GPU process arrived; stopping only our process group')\n             if memory['stat']['anon']>82*2**30:raise RuntimeError('Host anonymous memory exceeds82GiB guard within90GiB cgroup')\n             if any(memory['events'].get(k,0)>memory_start['events'].get(k,0) for k in ('oom','oom_kill')):raise RuntimeError('Host OOM event increased')\n-            if time.time()-launch['child_start_unix_s']>7200:raise RuntimeError('7200s complete loading/localization/comparison process limit exceeded')\n+            if time.time()-launch['child_start_unix_s']>21600:raise RuntimeError('21600s complete loading/localization/comparison process limit exceeded')\n             if tick%40==0:\n                 receipt=out/'loader_receipt.jsonl'\n                 recent=receipt.read_text().splitlines()[-1:] if receipt.exists() else []\n",
+  "protocol_change": {
+    "added_key": "administrative_launch",
+    "all_existing_fields_identical": true
+  },
+  "checks": {
+    "parent_compiles": true,
+    "parent_AST_identical_after_two_authorized_normalizations": true,
+    "capture_limit_remains600": true,
+    "runtime17_SHA_unchanged": true,
+    "package_files_all_SHA_verified": true,
+    "original_parent_unchanged": true,
+    "original_protocol_unchanged": true
+  },
+  "sha256": {
+    "old_parent": "156c1bf3310a79231638de2c2e7e35e7742cacb8037d37565376cecc4804f88a",
+    "new_parent": "8e28ca95cc1e892b2d6c50848a3b8b23cd5785715e6ed924f76043ea815fe9e3",
+    "old_protocol": "4876cda7f3e6b10499bf1b95d1d7cfeaa6ccf5a0f49eb86c3c1673d5bfdee054",
+    "new_protocol": "877fe378a89e5729df426602efb52da840d1867e2ba580daf8083577d2a44c12"
+  },
+  "package_reuse": {
+    "instruction": "Copy attempt02 parent/protocol as new remote stage entry files. For each unchanged protocol.package_files entry, reuse ../source/<name> for the17 runtime source names, otherwise ../<name>; keep same destination name. Nothing is packaged by this preparation. Reuse ../detached_launch.py unchanged.",
+    "source_names": [
+      "admission_feedback.py",
+      "admission_width.py",
+      "batched_expert_map.py",
+      "continuous_admission.py",
+      "layer47_replay.py",
+      "localized_scope.py",
+      "memory_observer.py",
+      "native_capture.py",
+      "native_pager_context.py",
+      "qualification_native_capture.py",
+      "qwen_serial_loader.py",
+      "qwen_static_prefill.py",
+      "run_native_pager.py",
+      "runtime_variation_observer.py",
+      "serial_shards.py",
+      "wisp_expert_groups.py",
+      "wisp_v026_adapter.py"
+    ]
+  },
+  "administrative_stop": {
+    "source_verified": "Popen(start_new_session=True); exception cleanup targets only os.killpg(process.pid), TERM then20s wait then KILL. No custom SIGTERM handler on parent.",
+    "candidate_identity_only_not_fresh_observation": {
+      "parent_pid": 3314,
+      "worker_pid": 3326,
+      "expected_worker_pgid": 3326,
+      "expected_worker_sid": 3326,
+      "expected_results": "/root/autodl-tmp/qwen3-new-gpu-localized-static-v026-r01/comparison"
+    },
+    "safe_procedure": "Re-read launch.child_pid and /proc identity/start time; require live worker cmdline names this exact runner/output, PPid3314, PGID=SID=3326 and no unrelated group members. Send SIGTERM only to this verified worker group; retain parent/monitor to reap and save launch. If a surviving same-start-time group remains after20s, any SIGKILL must again be restricted to that verified group.",
+    "retention_boundary": "SIGTERM can interrupt worker before Python finally/COMPLETE receipt. Preserve raw logs, partial shard and loader receipt as administrative interruption, not scientific failure or successful qualification. Parent SIGTERM is not a cleanup request."
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "schema": "route-shape-slo-p1-config-v1",
+  "target_quantile": 0.95,
+  "ridge_alpha": 1.0,
+  "pinball_relative_improvement_gate": 0.05,
+  "underprediction_relative_reduction_gate": 0.15,
+  "stop_below_relative_improvement": 0.03,
+  "minimum_test_cell_train_coverage": 0.8,
+  "minimum_arrival_regimes_per_model": 2,
+  "required_arrival_regimes": ["steady", "bursty"],
+  "frozen_models": {
+    "allenai/OLMoE-1B-7B-0924": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "llm-jp/optimal-sparsity-math-d512-E32-k16-920M-A520M": "1d5983076dfc67aee4a77ec06a27027f5bab6055"
+  },
+  "dangerous_underprediction_margin": 0.10,
+  "matched_cell_bucket_widths": {
+    "active_tokens": 8,
+    "running_sequences": 8,
+    "queue_depth": 8,
+    "mean_kv_length": 128,
+    "max_kv_length": 128,
+    "prompt_tokens": 512,
+    "decode_tokens": 8,
+    "batch_size": 8,
+    "decode_stage": 8
+  },
+  "model_class": "fixed ridge plus validation residual P95 calibration",
+  "dangerous_underprediction_definition": "observed next-window step time exceeds predicted P95 by more than 10 percent",
+  "first_action": "next_window_active_token_budget",
+  "split_unit": "request/document overlap-connected component within arrival episode",
+  "fresh_holdout_policy": "predeclared only for scientific eligibility",
+  "feature_search": false,
+  "threshold_tuning_after_holdout": false
+}

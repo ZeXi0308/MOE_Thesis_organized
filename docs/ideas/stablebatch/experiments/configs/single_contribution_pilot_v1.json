@@ -1,0 +1,93 @@
+{
+  "schema_version": "stablebatch-single-contribution-pilot-v1",
+  "status": "FROZEN_PRE_RUN",
+  "frozen_at": "2026-08-10T15:45:00+08:00",
+  "research_boundary": "single_rtx5090_prompt_forward_execution_shape_M_intervention_only_not_kernel_algorithm_not_serving_not_EP",
+  "environment": {
+    "gpu_exact_name": "NVIDIA GeForce RTX 5090",
+    "gpu_uuid": "GPU-64c06fb4-79b3-0d5b-4294-431e7afac4d7",
+    "driver_version": "595.71.05",
+    "torch": "2.8.0+cu128",
+    "transformers": "4.57.6",
+    "dtype": "bfloat16",
+    "attn_implementation": "eager",
+    "allow_tf32": false,
+    "allow_bf16_reduced_precision_reduction": true,
+    "cublaslt": {
+      "path": "/root/miniconda3/lib/python3.12/site-packages/nvidia/cublas/lib/libcublasLt.so.12",
+      "version": 120804,
+      "sha256": "10b5e6631cf8115c661eb895ed1533826308b58f7956466f53d236a40c9b622c"
+    },
+    "transformers_olmoe_source": {
+      "path": "/root/miniconda3/lib/python3.12/site-packages/transformers/models/olmoe/modeling_olmoe.py",
+      "sha256": "248717a8477fbcb4b16ce648a9ace829b6b2f4a002191a7f64ee720eb65f4c0d"
+    }
+  },
+  "model": {
+    "repo_id": "allenai/OLMoE-1B-7B-0924",
+    "revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "local_path": "/root/autodl-tmp/models/olmoe",
+    "num_hidden_layers": 16,
+    "hidden_size": 2048,
+    "intermediate_size": 1024,
+    "num_experts": 64,
+    "num_experts_per_tok": 8,
+    "file_sha256": {
+      "config.json": "3643aa880d2f1c9b418156269ae791c73e5612d6b6b6fde0724d927cf89b6335",
+      "model.safetensors.index.json": "0e2e1e0d8d357ac7af817cff28410c3dbad398f060c517a433e4076b2aae5579",
+      "model-00001-of-00003.safetensors": "5e3cff7e367794685c241169072c940d200918617d5e2813f1c387dff52d845e",
+      "model-00002-of-00003.safetensors": "15ef5c730ee3cfed7199498788cd2faf337203fc74b529625e7502cdd759f4a7",
+      "model-00003-of-00003.safetensors": "a9abac4ac1b55c9adabac721a02fa39971f103eea9a65c310972b1246de76e04",
+      "tokenizer.json": "a094266ac6c4982efba277bc251349a5a6d6ad37efb39a2a90f53d8be2a40a40",
+      "tokenizer_config.json": "78a839c7851f14f9fb30e664c2b46166dc0628f2900679e5ec160656f702edff",
+      "special_tokens_map.json": "b77491e270c6fcc5b2ecf22370f7318a6a18d3cabea09ba7bab92e9bf12656c2"
+    }
+  },
+  "data": {
+    "manifest": "docs/ideas/routeguard_kv/experiments/data/r0a_5090_v1/sealed_manifest.jsonl",
+    "manifest_sha256": "469e5da28dc794e50f9e3d8b1d6b2b13dfb7079d1bb6fdf9d00cd41b7c4d0d11",
+    "document_indices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+    "token_offset": 0,
+    "window_tokens": 16,
+    "victim_position": 15,
+    "add_special_tokens": false
+  },
+  "selection": {
+    "target_layers": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
+    "layer_bands": [[0, 3], [4, 7], [8, 11], [12, 14]],
+    "targets_per_band": 8,
+    "target_count": 32,
+    "max_targets_per_victim": 2,
+    "score": "gate_weighted_local_l2_div_next_layer_topk_margin_plus_1e-6",
+    "offline_future_margin_is_enrichment_only": true
+  },
+  "intervention": {
+    "baseline_m": 1,
+    "treatment_m": 64,
+    "repeats_per_arm": 3,
+    "filler": "repeat_identical_target_hidden_row",
+    "identity": ["layer", "flat_token_idx", "topk_rank", "expert_id"],
+    "full_forward_input_shape_changes": false,
+    "replacement_is_raw_expert_output_before_gate_weight": true,
+    "use_cache": false
+  },
+  "gate": {
+    "support_min_reproducible_route_targets": 4,
+    "support_min_distinct_victims": 2,
+    "suggestive_min_reproducible_route_targets": 1,
+    "suggestive_max_reproducible_route_targets": 3,
+    "require_native_noop_final_logits_bitwise_equal": true,
+    "require_native_noop_target_moe_bitwise_equal": true,
+    "require_unique_target_pair": true,
+    "require_within_arm_bitwise_stability": true,
+    "require_target_input_and_router_identity_across_arms": true,
+    "token_flip_is_stronger_but_not_required": true
+  },
+  "interpretation": {
+    "support": "at_least_4_of_32_reproducible_downstream_topk_membership_changes_across_at_least_2_victims",
+    "suggestive": "1_to_3_reproducible_targets_requires_one_targeted_rerun",
+    "weakens": "0_of_32_with_local_delta_and_integrity_closed_weakens_post_route_coalescing_as_route_stability_mechanism_only",
+    "local_negative": "M_is_executed_but_local_M1_M64_outputs_do_not_change_is_valid_negative_not_integrity_failure",
+    "unable": "identity_mismatch_same_M_instability_unisolated_replacement_missing_measurement_or_artifact_corruption_only"
+  }
+}

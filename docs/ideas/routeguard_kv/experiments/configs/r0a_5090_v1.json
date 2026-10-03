@@ -1,0 +1,194 @@
+{
+  "schema_version": "routeguard-kv-r0a-5090-v1",
+  "status": "DESIGN_FROZEN_GPU_NOT_APPROVED_SEALED_PREPARED",
+  "seed": 2026072701,
+  "protocol": "docs/ideas/routeguard_kv/experiments/R0A_5090_冻结实验协议_2026-07-27.md",
+  "hardware": {
+    "gpu_exact_name": "NVIDIA GeForce RTX 5090",
+    "gpu_count": 1,
+    "compute_capability": "12.0",
+    "physical_memory_gib": 32.0,
+    "peak_allocated_gib_max": 30.25,
+    "guard_gib_min": 1.5,
+    "allow_scope_reduction_on_oom": false
+  },
+  "software": {
+    "python": "3.10-or-3.11",
+    "torch": "2.8.0+cu128",
+    "transformers": "4.57.6",
+    "datasets": "4.5.0",
+    "huggingface_hub": "0.36.2",
+    "attention_implementation": "eager",
+    "deterministic_algorithms": true,
+    "cublas_workspace_config": ":4096:8",
+    "allow_tf32": false
+  },
+  "model": {
+    "repo_id": "allenai/OLMoE-1B-7B-0924",
+    "revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "dtype": "bfloat16",
+    "expected": {
+      "num_hidden_layers": 16,
+      "hidden_size": 2048,
+      "num_attention_heads": 16,
+      "num_key_value_heads": 16,
+      "num_experts": 64,
+      "num_experts_per_tok": 8,
+      "norm_topk_prob": false,
+      "max_position_embeddings": 4096
+    }
+  },
+  "dataset": {
+    "repo_id": "wikitext",
+    "config": "wikitext-103-raw-v1",
+    "revision": "b08601e04326c79dfdd32d625aee71d232d685c3",
+    "split": "train",
+    "sampling_unit": "article_document",
+    "minimum_characters": 500,
+    "required_tokens": 2081,
+    "prompt_lengths": [512, 2048],
+    "decode_steps": 32,
+    "smoke_documents": 2,
+    "calibration_documents": 8,
+    "sealed_documents": 32,
+    "selection_salt": "routeguard-kv-r0a-20260727-v1",
+    "selection_key_format": "utf8(selection_salt)+ascii_pipe+ascii(text_sha256_hex)",
+    "historical_article_shuffle_seed": 20260720,
+    "historical_article_prefix_excluded": 1000,
+    "historical_hash_fields": [
+      "text_sha256",
+      "document_sha256",
+      "canonical_text_sha256"
+    ],
+    "same_documents_across_prompt_lengths": true,
+    "sealed_manifest_mode": "0600"
+  },
+  "execution": {
+    "batch_size": 1,
+    "teacher_forced": true,
+    "prefill_dtype": "bfloat16",
+    "prefill_once_per_document_length": true,
+    "prefill_quantized_attention": false,
+    "treatment_start": "deep_clone_of_bf16_prompt_cache_then_quantize_snapshot",
+    "quantize_new_cache_writes": true,
+    "independent_cache_per_arm": true,
+    "reference_first": true,
+    "treatment_order": "sha256_permutation_by_document_length",
+    "store_full_logits": false,
+    "stream_float32_kl": true,
+    "allow_silent_fallback": false,
+    "resume_requires_identical_bindings": true
+  },
+  "quantization": {
+    "primary": {
+      "name": "per_head_per_token_asymmetric_int4_qdq_proxy",
+      "backend_family": "lmdeploy_online_kv_int4",
+      "backend_bit_exact": false,
+      "bits": 4,
+      "qmin": 0,
+      "qmax": 15,
+      "group_axis": "head_dim",
+      "scale_compute_dtype": "float32",
+      "zero_point_compute_dtype": "float32",
+      "dequant_output_dtype": "bfloat16",
+      "constant_vector_rule": "return_input_exactly",
+      "key_quantization_after_rope": true
+    },
+    "targets": [
+      {
+        "name": "k_only",
+        "prompt_lengths": [512, 2048],
+        "authority": "primary_at_2048_secondary_domain_boundary_at_512"
+      },
+      {
+        "name": "v_only",
+        "prompt_lengths": [512, 2048],
+        "authority": "secondary_descriptive_only"
+      },
+      {
+        "name": "kv",
+        "prompt_lengths": [2048],
+        "authority": "secondary_descriptive_only"
+      }
+    ],
+    "diagnostic_quantizer": {
+      "name": "existing_symmetric_int4_proxy",
+      "scope": "calibration_only",
+      "can_rescue_primary": false
+    }
+  },
+  "arms": [
+    "bf16_reference",
+    "identity_free",
+    "free",
+    "set_locked",
+    "fully_locked"
+  ],
+  "route_lock": {
+    "key": ["text_sha256", "prompt_length", "decode_step", "layer"],
+    "set_locked_ids": "bf16_reference_topk_ids",
+    "set_locked_weights": "gather_full_treatment_softmax_at_reference_ids",
+    "set_locked_renormalization": false,
+    "fully_locked_ids": "bf16_reference_topk_ids",
+    "fully_locked_weights": "bf16_reference_native_gate_weights",
+    "tie_boundary_abs_margin_max": 0.000001
+  },
+  "integrity_gates": {
+    "patched_full_route_mismatch_max": 0,
+    "patched_full_max_token_kl": 0.0000001,
+    "patched_full_max_abs_logit_error": 0.02,
+    "identity_route_flip_max": 0,
+    "identity_max_token_kl": 0.0000001,
+    "cache_storage_aliases_max": 0,
+    "required_steps_per_trajectory": 32,
+    "required_moe_layers_per_step": 16
+  },
+  "statistics": {
+    "independent_unit": "document",
+    "bootstrap_replicates": 5000,
+    "bootstrap_seed": 2026072702,
+    "confidence_interval": 0.95,
+    "effect_estimator": "mean_of_document_level_paired_contrasts",
+    "share_estimator": "ratio_of_means_recomputed_inside_bootstrap",
+    "primary_cell": {
+      "target": "k_only",
+      "prompt_length": 2048,
+      "mean_free_kl_min": 0.0001,
+      "identity_kl_denominator_floor": 0.000000000001,
+      "free_kl_over_identity_min": 100.0,
+      "non_tie_set_flip_rate_min": 0.01,
+      "router_contrast_lcb_min_exclusive": 0.0,
+      "router_share_point_min": 0.4,
+      "router_share_lcb_min_exclusive": 0.25,
+      "leave_one_document_out_all_positive": true,
+      "non_tie_fraction_of_flips_min": 0.9
+    },
+    "length_boundary_cell": {
+      "target": "k_only",
+      "prompt_length": 512,
+      "authority": "secondary_descriptive_only_cannot_pass_or_fail_primary"
+    },
+    "secondary_cells_can_rescue_primary": false,
+    "holm_correction": false,
+    "holm_reason": "one_preregistered_primary_cell"
+  },
+  "decision_codes": [
+    "PASS_R0A_ROUTE_MEDIATED_KV_EFFECT_R0B_ONLY",
+    "NO_GO_TOTAL_KV_EFFECT_TOO_SMALL",
+    "NO_GO_ROUTESET_CHANGE_TOO_RARE",
+    "NO_GO_ROUTE_MEDIATION_TOO_SMALL",
+    "NO_GO_PROXY_FORMAT_DEPENDENT",
+    "INVALID_MODEL_OR_SOFTWARE_IDENTITY",
+    "INVALID_PATCH_EQUIVALENCE",
+    "INVALID_STATE_OR_NUMERICAL_CONTROL",
+    "INVALID_QUANTIZATION_PATH",
+    "INVALID_DATA_OR_BINDINGS",
+    "INVALID_INCOMPLETE_RUN"
+  ],
+  "approval": {
+    "required_literal": "GPU Run Approved",
+    "current": "NOT_APPROVED",
+    "approval_file": "approval.json"
+  },
+  "evidence_boundary": "single_rtx5090_bf16_weight_teacher_forced_decode_only_kv_qdq_mechanism_probe_not_native_int4_not_memory_not_throughput_not_serving_not_multi_gpu"
+}

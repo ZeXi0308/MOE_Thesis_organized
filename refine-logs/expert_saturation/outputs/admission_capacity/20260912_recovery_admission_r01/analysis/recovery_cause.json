@@ -1,0 +1,229 @@
+{
+  "status": "MEASUREMENT_ONLY",
+  "evidence_type": "NATIVE_SERVING",
+  "scope": "Source localization of existing fixed-pool native full-history-versus-chunk admission runs; no additional GPU experiment, controller, latency oracle, quality claim or policy-independent lower bound. Recomputed positions count executed work, not pure GPU time. Discarded partial KV positions cannot be converted directly into wall-time savings.",
+  "provenance": {
+    "analysis_path": "refine-logs/expert_saturation/outputs/admission_capacity/20260912_recovery_admission_r01/analysis/analysis.json",
+    "analysis_sha256": "b16a9350efc09d809030b05a49e91a608467866186dbf6d6cc19afbab4f581a7",
+    "raw_paths": {
+      "repeat0-full": "refine-logs/expert_saturation/outputs/admission_capacity/20260912_recovery_admission_r01/execution/gpu_results/repeat0-full/raw.json",
+      "repeat0-chunk": "refine-logs/expert_saturation/outputs/admission_capacity/20260912_recovery_admission_r01/execution/gpu_results/repeat0-chunk/raw.json",
+      "repeat1-chunk": "refine-logs/expert_saturation/outputs/admission_capacity/20260912_recovery_admission_r01/execution/gpu_results/repeat1-chunk/raw.json",
+      "repeat1-full": "refine-logs/expert_saturation/outputs/admission_capacity/20260912_recovery_admission_r01/execution/gpu_results/repeat1-full/raw.json"
+    },
+    "installed_vllm_source_sha256": {
+      "v1/core/sched/scheduler.py": "2ed2a550b6558b2495eda845a97ae38bcf0225027b9e25fbf00fc3880c1d3941",
+      "v1/core/kv_cache_manager.py": "3f4af8d247f3fe9570b0132818b832b66ae6a2ac12942588828f899f6ff77ccf",
+      "v1/core/block_pool.py": "202a13cb129174849d798019aaedc04c59775ec2a4b9dfcc7c1e3c563a43a661",
+      "v1/worker/gpu_model_runner.py": "81b7627fbe81f7aaa2f77b4bf085faa353c69d03662ebfe369536a9773bb70d0"
+    },
+    "all_four_cell_source_hashes_equal": true,
+    "direct_raw_checks_before_artifact_creation": [
+      "repeat0-full versus previous repeat0-budget90: all1348 scheduled token/computed states and before/after pool states equal; waiting-count differences reflect submission timing",
+      "repeat0-full versus repeat0-chunk: scheduled token/computed states first differ atstep807",
+      "repeat0-chunk step810 allocation failure requests802 tokens, computed2979, free41blocks; next history requires50newblocks",
+      "repeat0 output arrays differ only for article0000799, first atindex854"
+    ],
+    "repeat1_validation": "Reused complete analyzer preemption events, per-request output hashes and executed-work accounting; no full raw reread."
+  },
+  "source_locations": [
+    {
+      "path": "vllm/v1/core/sched/scheduler.py",
+      "line": 601,
+      "behavior": "FCFS failed allocation preempts running tail"
+    },
+    {
+      "path": "vllm/v1/core/sched/scheduler.py",
+      "line": 944,
+      "behavior": "waiting allocation uses scheduler_reserve_full_isl"
+    },
+    {
+      "path": "vllm/v1/core/sched/scheduler.py",
+      "line": 956,
+      "behavior": "failed waiting head stops waiting traversal"
+    },
+    {
+      "path": "vllm/v1/core/sched/scheduler.py",
+      "line": 1212,
+      "behavior": "preemption freesKV, resets computed, preserves output and prepends victim"
+    },
+    {
+      "path": "vllm/v1/core/kv_cache_manager.py",
+      "line": 411,
+      "behavior": "optional full-history capacity check precedes chunk allocation"
+    },
+    {
+      "path": "vllm/v1/core/kv_cache_manager.py",
+      "line": 463,
+      "behavior": "actual chunk capacity still enforced"
+    }
+  ],
+  "first_action_effect_repeat0": {
+    "last_equal_scheduling_step": 806,
+    "first_different_scheduling_step": 807,
+    "full_history_policy": "victim waits with zero computed KV",
+    "chunk_policy": "victim immediately schedules993 recompute positions",
+    "next_chunk_computed_highwaters": [
+      993,
+      1986,
+      2979
+    ],
+    "first_repreemption_step": 810,
+    "interpretation": "next recovery chunk fits initially; competing decode growth leaves insufficient capacity to complete recovery, and native tail preemption discards partial recovery"
+  },
+  "preemption_state_signature_equal_across_repeats": true,
+  "output_hashes_equal_across_same_policy_repeats": true,
+  "pairs": [
+    {
+      "repeat": 0,
+      "full_label": "repeat0-full",
+      "chunk_label": "repeat0-chunk",
+      "usable_blocks": 7671,
+      "physical_kv_storage_bytes": 16089350144,
+      "full_preemptions": 2,
+      "chunk_preemptions": 70,
+      "repreemptions_without_new_output": 68,
+      "full_recomputed_positions": 7685,
+      "chunk_recomputed_positions": 123927,
+      "additional_recomputed_positions": 116242,
+      "extra_positions_equal_discarded_partial_recompute": true,
+      "victims": [
+        {
+          "request_id": "memory-train-article-0003571",
+          "initial_preemption_step": 928,
+          "preemption_count": 36,
+          "repreemptions_without_new_output": 35,
+          "unchanged_output_token_count": 834,
+          "partial_recompute_positions_discarded": 60634,
+          "partial_recompute_at_repreemption_histogram": {
+            "994": 16,
+            "1988": 12,
+            "2982": 7
+          },
+          "first_repreemption": {
+            "step": 932,
+            "computed_tokens": 2982,
+            "held_blocks": 187,
+            "free_blocks_before_preemption": 50,
+            "remaining_history_tokens": 924,
+            "additional_blocks_for_remaining_history": 58
+          },
+          "prefix_preserved_at_every_preemption": true
+        },
+        {
+          "request_id": "memory-train-article-0003640",
+          "initial_preemption_step": 806,
+          "preemption_count": 34,
+          "repreemptions_without_new_output": 33,
+          "unchanged_output_token_count": 709,
+          "partial_recompute_positions_discarded": 55608,
+          "partial_recompute_at_repreemption_histogram": {
+            "993": 16,
+            "1986": 11,
+            "2979": 6
+          },
+          "first_repreemption": {
+            "step": 810,
+            "computed_tokens": 2979,
+            "held_blocks": 187,
+            "free_blocks_before_preemption": 41,
+            "remaining_history_tokens": 802,
+            "additional_blocks_for_remaining_history": 50
+          },
+          "prefix_preserved_at_every_preemption": true
+        }
+      ],
+      "output_comparison": {
+        "exact_sequence_matches": 31,
+        "requests": 32,
+        "different_request_ids": [
+          "memory-train-article-0000799"
+        ],
+        "first_difference": {
+          "request_id": "memory-train-article-0000799",
+          "output_index_zero_based": 854,
+          "full_token_id": 426,
+          "chunk_token_id": 5259,
+          "verification": "repeat0 token arrays compared directly in raw; repeat1 all output hashes match corresponding repeat0 arms"
+        },
+        "quality_verified": false
+      }
+    },
+    {
+      "repeat": 1,
+      "full_label": "repeat1-full",
+      "chunk_label": "repeat1-chunk",
+      "usable_blocks": 7671,
+      "physical_kv_storage_bytes": 16089350144,
+      "full_preemptions": 2,
+      "chunk_preemptions": 70,
+      "repreemptions_without_new_output": 68,
+      "full_recomputed_positions": 7685,
+      "chunk_recomputed_positions": 123927,
+      "additional_recomputed_positions": 116242,
+      "extra_positions_equal_discarded_partial_recompute": true,
+      "victims": [
+        {
+          "request_id": "memory-train-article-0003571",
+          "initial_preemption_step": 928,
+          "preemption_count": 36,
+          "repreemptions_without_new_output": 35,
+          "unchanged_output_token_count": 834,
+          "partial_recompute_positions_discarded": 60634,
+          "partial_recompute_at_repreemption_histogram": {
+            "994": 16,
+            "1988": 12,
+            "2982": 7
+          },
+          "first_repreemption": {
+            "step": 932,
+            "computed_tokens": 2982,
+            "held_blocks": 187,
+            "free_blocks_before_preemption": 50,
+            "remaining_history_tokens": 924,
+            "additional_blocks_for_remaining_history": 58
+          },
+          "prefix_preserved_at_every_preemption": true
+        },
+        {
+          "request_id": "memory-train-article-0003640",
+          "initial_preemption_step": 806,
+          "preemption_count": 34,
+          "repreemptions_without_new_output": 33,
+          "unchanged_output_token_count": 709,
+          "partial_recompute_positions_discarded": 55608,
+          "partial_recompute_at_repreemption_histogram": {
+            "993": 16,
+            "1986": 11,
+            "2979": 6
+          },
+          "first_repreemption": {
+            "step": 810,
+            "computed_tokens": 2979,
+            "held_blocks": 187,
+            "free_blocks_before_preemption": 41,
+            "remaining_history_tokens": 802,
+            "additional_blocks_for_remaining_history": 50
+          },
+          "prefix_preserved_at_every_preemption": true
+        }
+      ],
+      "output_comparison": {
+        "exact_sequence_matches": 31,
+        "requests": 32,
+        "different_request_ids": [
+          "memory-train-article-0000799"
+        ],
+        "first_difference": {
+          "request_id": "memory-train-article-0000799",
+          "output_index_zero_based": 854,
+          "full_token_id": 426,
+          "chunk_token_id": 5259,
+          "verification": "repeat0 token arrays compared directly in raw; repeat1 all output hashes match corresponding repeat0 arms"
+        },
+        "quality_verified": false
+      }
+    }
+  ],
+  "conclusion": "Disabling full-history admission repeatedly starts recovery that cannot finish before another allocation failure; same-output re-preemptions discard116242extra recomputed positions in each repeat. This falsifies a chunk-only gate relaxation benefit in this tested regime, not the fixed-resource scheduling research problem."
+}

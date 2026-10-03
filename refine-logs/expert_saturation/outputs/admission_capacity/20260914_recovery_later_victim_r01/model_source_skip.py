@@ -1,0 +1,108 @@
+"""Fixed-length, closed-cohort resource simulation. No model execution or timing.
+
+Only initial state and pre-cutoff controller history are inputs. Generated token
+identities are not modeled. Each candidate evolves its own requests and KV.
+"""
+from copy import deepcopy
+from math import ceil
+
+
+def simulate(initial, history, action, selector_class, view_class, max_steps=5000, start_step=329, first_victim=None, override_step=None, decision_log=None, skip_step=None):
+    states=deepcopy(initial['requests'])
+    for r in states.values():r['allocated']=len(r.pop('blocks'))
+    running=list(initial['running']);waiting=list(initial['waiting']);free=initial['free']
+    order={'most':'first_most_then_least','continuous_most':'most_output'}.get(action,'least_progress')
+    tracker=selector_class(victim_order=order)
+    tracker.config.enabled=action!='native'
+    capacity=free+sum(r['allocated'] for r in states.values())
+    for h in history:
+        tracker.note_preempted(h['step'],h['preempted'])
+        tracker.note_resumed(h['step'],h['resumed'])
+    protected=None;output_at_start=None;deferred=False;trace=[];completed={}
+    def total(r):return r['prompt']+r['output']
+    def need(r):return max(0,ceil(total(r)/16)-r['allocated'])
+    def pure(r):return r['output']>0 and r['computed']==total(r)-1
+    for step in range(start_step,max_steps):
+        if not states:break
+        pre_free=free;preempted=[];resumed=[];forced=None;scheduled={};budget=1024
+        def preempt(rid):
+            nonlocal free,budget
+            if rid in scheduled:budget+=scheduled.pop(rid)['tokens']
+            running.remove(rid);r=states[rid];free+=r['allocated']
+            r['allocated']=0;r['computed']=0;r['preemptions']+=1;r['status']='PREEMPTED'
+            waiting.insert(0,rid);preempted.append(rid)
+        if protected is not None and states[protected]['output']>output_at_start:
+            protected=None;output_at_start=None
+        if protected is None and all(pure(states[r]) for r in running):
+            rows=[view_class(r,states[r]['computed'],states[r]['prompt'],states[r]['prompt']+states[r]['max_tokens'],states[r]['output']) for r in running]
+            old_swap=tracker.last_swap_step
+            proposal=tracker.decide(step,rows,waiting,free,{r:need(states[r]) for r in waiting})
+            if proposal.action=='rotate':
+                target,victim=proposal.resume_id,proposal.victim_id
+                eligible=[r.request_id for r in rows if r.progress<tracker.config.protect_progress_fraction
+                    and tracker.absence_count.get(r.request_id,0)<tracker.config.max_absences_per_request
+                    and step-tracker.resident_since.get(r.request_id,-10**9)>=tracker.config.min_residency_steps]
+                fundable=[rid for rid in eligible if free+states[rid]['allocated']>=need(states[target])]
+                if decision_log is not None:
+                    decision_log.append(dict(step=step,target=target,default_victim=victim,
+                        fundable=fundable,outputs={rid:states[rid]['output'] for rid in running},
+                        free=free,target_need=need(states[target])))
+                apply_override=(step==override_step if override_step is not None else tracker.applied_rotations==0)
+                if first_victim is not None and apply_override:
+                    if override_step is None and step!=start_step:
+                        raise ValueError('explicit first-victim branch must apply at input state')
+                    if first_victim not in fundable:raise ValueError('ineligible or unfundable victim')
+                    victim=first_victim
+                if free+states[victim]['allocated']<need(states[target]):tracker.last_swap_step=old_swap
+                elif step==skip_step:
+                    pass  # suppress this swap; consume its normal cooldown
+                elif action=='defer' and not deferred:
+                    tracker.last_swap_step=old_swap;deferred=True
+                else:
+                    protected=target;output_at_start=states[target]['output'];forced=victim
+                    preempt(victim)
+                    waiting.remove(target);waiting.insert(0,target)
+        index=0
+        while index<len(running) and budget>0:
+            rid=running[index];r=states[rid]
+            tokens=min(total(r)-r['computed'],budget)
+            cost=max(0,ceil((r['computed']+tokens)/16)-r['allocated'])
+            if protected is not None and rid!=protected:
+                one_cost=max(0,ceil((r['computed']+1)/16)-r['allocated'])
+                if one_cost>free-need(states[protected]):index+=1;continue
+            while cost>free and running:
+                victim=running[-1];preempt(victim)
+                if victim==rid:break
+            if rid not in running:break
+            free-=cost;r['allocated']+=cost
+            scheduled[rid]=dict(computed=r['computed'],tokens=tokens,output=r['output'])
+            budget-=tokens;index+=1
+        if len(preempted)==(1 if forced else 0):
+            while waiting and budget>0:
+                rid=waiting[0];r=states[rid]
+                if protected is not None and rid!=protected:break
+                if free<need(r):break  # full-history admission check
+                tokens=min(total(r)-r['computed'],budget)
+                cost=max(0,ceil((r['computed']+tokens)/16)-r['allocated'])
+                free-=cost;r['allocated']+=cost
+                waiting.pop(0);running.append(rid);r['status']='RUNNING';resumed.append(rid)
+                scheduled[rid]=dict(computed=r['computed'],tokens=tokens,output=r['output'])
+                budget-=tokens
+        after_schedule=free
+        tracker.note_preempted(step,preempted);tracker.note_resumed(step,resumed)
+        if forced:tracker.note_rotation_applied()
+        outputs=[];finished=[]
+        for rid,s in scheduled.items():
+            r=states[rid];r['computed']+=s['tokens']
+            if r['computed']==total(r):
+                r['output']+=1;outputs.append(rid)
+                if r['output']==r['max_tokens']:
+                    free+=r['allocated'];running.remove(rid);finished.append(rid)
+                    completed[rid]=step;del states[rid]
+        trace.append(dict(step=step,free_before=pre_free,free_after_schedule=after_schedule,
+                          scheduled=scheduled,outputs=outputs,completed=finished,
+                          preempted=preempted,resumed=resumed,forced=forced))
+        if free<0 or free+sum(r['allocated'] for r in states.values())!=capacity:
+            raise ValueError('KV conservation failed')
+    return dict(status='COMPLETE' if not states else 'STEP_LIMIT',trace=trace,completed=completed,
+                last_step=trace[-1]['step'],scope='Structural token/block model only; no wall-clock, route, quality or serving gain prediction.')

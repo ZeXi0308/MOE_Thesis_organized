@@ -1,0 +1,110 @@
+Traceback (most recent call last):
+  File "/root/miniconda3/lib/python3.12/urllib/request.py", line 1344, in do_open
+    h.request(req.get_method(), req.selector, req.data, headers,
+  File "/root/miniconda3/lib/python3.12/http/client.py", line 1336, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "/root/miniconda3/lib/python3.12/http/client.py", line 1382, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "/root/miniconda3/lib/python3.12/http/client.py", line 1331, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/root/miniconda3/lib/python3.12/http/client.py", line 1091, in _send_output
+    self.send(msg)
+  File "/root/miniconda3/lib/python3.12/http/client.py", line 1035, in send
+    self.connect()
+  File "/root/miniconda3/lib/python3.12/http/client.py", line 1470, in connect
+    super().connect()
+  File "/root/miniconda3/lib/python3.12/http/client.py", line 1001, in connect
+    self.sock = self._create_connection(
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/socket.py", line 852, in create_connection
+    raise exceptions[0]
+  File "/root/miniconda3/lib/python3.12/socket.py", line 837, in create_connection
+    sock.connect(sa)
+OSError: [Errno 101] Network is unreachable
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/autodl-tmp/qwen3-native-qualification-v026-launch-r02/run_native_pager.py", line 320, in main
+    engine = LLMEngine.from_engine_args(EngineArgs(**kwargs), enable_multiprocessing=False)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/engine/llm_engine.py", line 179, in from_engine_args
+    return cls(
+           ^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/engine/llm_engine.py", line 105, in __init__
+    self.engine_core = EngineCoreClient.make_client(
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/engine/core_client.py", line 105, in make_client
+    return InprocClient(vllm_config, executor_class, log_stats)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/engine/core_client.py", line 287, in __init__
+    self.engine_core = EngineCore(*args, **kwargs)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/engine/core.py", line 125, in __init__
+    self.model_executor = executor_class(vllm_config)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/tracing/otel.py", line 178, in sync_wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/executor/abstract.py", line 109, in __init__
+    self._init_executor()
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/executor/uniproc_executor.py", line 68, in _init_executor
+    self.driver_worker.load_model()
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/worker/gpu_worker.py", line 431, in load_model
+    self.model_runner.load_model(load_dummy_weights=load_dummy_weights)
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/tracing/otel.py", line 178, in sync_wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/worker/gpu_model_runner.py", line 5266, in load_model
+    self.model = model_loader.load_model(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/tracing/otel.py", line 178, in sync_wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/model_executor/model_loader/base_loader.py", line 64, in load_model
+    self.load_weights(model, model_config)
+  File "/root/autodl-tmp/qwen3-native-qualification-v026-launch-r02/qwen_serial_loader.py", line 69, in load_weights
+    load_serial(model, self.paths["manifest"], self.paths["index"],
+  File "/root/autodl-tmp/qwen3-native-qualification-v026-launch-r02/serial_shards.py", line 89, in load_serial
+    loaded = model.load_weights(generator)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/model_executor/models/qwen3_moe.py", line 657, in load_weights
+    return loader.load_weights(weights)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/model_executor/model_loader/reload/torchao_decorator.py", line 50, in patched_model_load_weights
+    return original_load_weights(self, weights, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/model_executor/models/utils.py", line 424, in load_weights
+    autoloaded_weights = set(self._load_module("", self.module, weights))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/model_executor/models/utils.py", line 349, in _load_module
+    for child_prefix, child_weights in self._groupby_prefix(weights):
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/model_executor/models/utils.py", line 226, in _groupby_prefix
+    for prefix, group in itertools.groupby(weights_by_parts, key=lambda x: x[0][0]):
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/model_executor/models/utils.py", line 221, in <genexpr>
+    weights_by_parts = (
+                       ^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/model_executor/models/utils.py", line 420, in <genexpr>
+    weights = (
+              ^
+  File "/root/autodl-tmp/qwen3-native-qualification-v026-launch-r02/serial_shards.py", line 55, in stream
+    with path.open("xb") as sink, fetch(url) as source:
+                                  ^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/urllib/request.py", line 215, in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/urllib/request.py", line 515, in open
+    response = self._open(req, data)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/urllib/request.py", line 532, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/urllib/request.py", line 492, in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/urllib/request.py", line 1392, in https_open
+    return self.do_open(http.client.HTTPSConnection, req,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/urllib/request.py", line 1347, in do_open
+    raise URLError(err)
+urllib.error.URLError: <urlopen error [Errno 101] Network is unreachable>

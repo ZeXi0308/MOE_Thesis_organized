@@ -1,0 +1,1474 @@
+{
+  "schema": "optimized-static-transfer-safe-v1",
+  "status": "MEASUREMENT_ONLY",
+  "config": {
+    "resources": {
+      "kv_bytes": 536870912,
+      "expert_cap": 16,
+      "max_num_seqs": 3,
+      "max_num_batched_tokens": 64,
+      "cpu_affinity": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "gpu_numa_node": 0,
+      "memory_binding": "Unchanged: no explicit membind; taskset CPU0-7 plus external NUMA page observation",
+      "OMP_NUM_THREADS": 8
+    },
+    "cells": [
+      {
+        "cell": "r0-static8",
+        "repeat": 0,
+        "policy": "static8",
+        "chunk": 8,
+        "new_prompt_length": 128,
+        "map_mode": "batched"
+      },
+      {
+        "cell": "r0-static32",
+        "repeat": 0,
+        "policy": "static32",
+        "chunk": 32,
+        "new_prompt_length": 128,
+        "map_mode": "batched"
+      },
+      {
+        "cell": "r1-static32",
+        "repeat": 1,
+        "policy": "static32",
+        "chunk": 32,
+        "new_prompt_length": 128,
+        "map_mode": "batched"
+      },
+      {
+        "cell": "r1-static8",
+        "repeat": 1,
+        "policy": "static8",
+        "chunk": 8,
+        "new_prompt_length": 128,
+        "map_mode": "batched"
+      },
+      {
+        "cell": "r0-static16",
+        "repeat": 0,
+        "policy": "static16",
+        "chunk": 16,
+        "new_prompt_length": 128,
+        "map_mode": "batched"
+      },
+      {
+        "cell": "r1-static16",
+        "repeat": 1,
+        "policy": "static16",
+        "chunk": 16,
+        "new_prompt_length": 128,
+        "map_mode": "batched"
+      }
+    ],
+    "runtime": "vLLM0.11.2 fixed WiSP cap16 BF16 with map-write-only intervention; prefetch/dynamic off",
+    "holdout_scope": "Document-disjoint from this cost-model calibration; previously prepared project documents, not a whole-project fresh holdout",
+    "first_action_payload": {
+      "status": "NOT_MEASURABLE_IN_THIS_UNTRACED_PROTOCOL",
+      "reason": "Original snapshot counters do not isolate first-step demand loads; no payload prediction is claimed verified"
+    },
+    "total_payload": "Sum final_worker pager_layers weight_copy_payload_bytes after measurement counter reset; complete episode includes preaction prefix; bytes are copied tensor bytes, not PCIe wire bytes",
+    "status": "PREPARED_UNRUN",
+    "question": "Does the frozen work-only first-step cost curve transfer to three new documents at fixed resources?",
+    "remote_root": "/root/autodl-tmp/wisp-runtime-0112-r01",
+    "remote_reference": "phase-baseline8-r01",
+    "remote_output": "optimized-static-transfer-r01",
+    "model": "/root/autodl-tmp/hf-cache/hub/models--allenai--OLMoE-1B-7B-0924/snapshots/6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "preaction_sha256": null,
+    "reference_rule": "First declared transfer cell, not selected by outcome; new prestate is expected to differ from training documents",
+    "source_sha256": {
+      "run_wisp_injection_probe.py": "11b438d7392fc07c2a2cd328176f5f9bc7c02251bf1d240d98dcd304f1749ade",
+      "run_wisp_olmoe_probe.py": "7c8dfdb5d4a6f0663954d5d2beab2f517ac0caf12abf36a223d7d10ead30d678",
+      "phase_prefill_policy.py": "6cc3384dd91258245c7bcb04306b9de1f7823e3d339ba5df93b6b4825fd8e775",
+      "wisp_paging_trace.py": "bcbf61e7c6233e741961101968eebefe2cf460d937cddb24b8fef1676d6fa2d5",
+      "workload.json": "41f649143a6bfcdc3f902423cd2a395575016ec3f6a26076f93a7d4a8d954305",
+      "run_campaign.py": "9a627de5732d6402ef703a758fe64bdabf30df16d92620aff74bef063ddd9b07"
+    },
+    "retention": "Keep every episode including first; stop on first failure; all raw remote; safe numeric/hash export only",
+    "measurement_control": "Same LLM/CUDA context/pinned-master/scratch/map/KV allocations, native schedule restored, drained KV queue sorted and pager state emptied before identical warmup; all control costs retained separately and excluded from episode by original measurement boundary; same tiny pinned map buffers/events in both arms; no profiler; map stats reset before measurement and final GPU map validation after wall receipt; actual expert bytes/LRU/output hashes compared",
+    "interpretation": "Descriptive prediction errors and within-cap repeated differences; no inferential noise threshold, quality or SLO claim",
+    "map_source_sha256": "5572d4f05593a5a9fc4adaa14421cc596886a435b6f5f51f476a1dae6e521857",
+    "input_selection": "independent_input.json",
+    "prediction_rule": "All cap8/16/32 predictions fixed before any transfer execution; no refit on the six transfer cells",
+    "frozen_prediction_sha256": "4ed77e309fd503fc6dd5463a0988108610f5685338989177b5d178dc2e211700"
+  },
+  "config_sha256": "2462ef769d1679ce89632dd54effcbcd752cbce0081c4d20bd8c13cfa3cfd5a1",
+  "artifact_sha256": {
+    "config.json": "2462ef769d1679ce89632dd54effcbcd752cbce0081c4d20bd8c13cfa3cfd5a1",
+    "run_phase_repeated.py": "34b7f5c51f406b683435aa90f717f4ec1670a61f6400685c98edb609370b8a4c",
+    "freeze_prefill_midpoint.py": null,
+    "execution.json": "494a791af28fe1989bbf5e893c0f4877d96817a4bed93167e8241ce1387a37f3",
+    "source_manifest.json": "3a2f604dac16ccaecc1a105b0ff8f5d231ecab7edf670dda3d816a8b289011df",
+    "frozen_transfer_prediction.json": "4ed77e309fd503fc6dd5463a0988108610f5685338989177b5d178dc2e211700"
+  },
+  "execution": {
+    "status": "COMPLETED",
+    "pid": 37992,
+    "start_unix": 1789232868.961663,
+    "end_unix": 1789232914.2137418,
+    "reference_prestate_sha256": "9ab00a781cb654729a55520c03538e7894034ad99d25bd3d849609c4fca2bfdf"
+  },
+  "protocol": {
+    "declared_order_valid": true,
+    "engine_call_definition": "len(result.steps), distinct from MoE ensure calls and 16 per-layer calls"
+  },
+  "cells": {
+    "r0-static8": {
+      "status": "COMPLETED",
+      "cell_config": {
+        "cell": "r0-static8",
+        "repeat": 0,
+        "policy": "static8",
+        "chunk": 8,
+        "new_prompt_length": 128,
+        "map_mode": "batched"
+      },
+      "raw_sha256": "cf0360f62cc72de49fa37bbea1db61ed44fb158d981525f4992574797c3739d7",
+      "metrics": {
+        "wall_s": 3.725758643820882,
+        "old_done_s": 3.119725178927183,
+        "old_max_itl_s": 0.19953022990375757,
+        "new_ttft_s": 2.4955358328297734,
+        "copy_payload_bytes": 171240849408,
+        "engine_calls": 27,
+        "first_action_step_s": 0.1501196911558509,
+        "max_old_cross_action_itl_s": 0.15098750870674849
+      },
+      "checks": {
+        "requests_complete": true,
+        "identity": true,
+        "first_action_shape": true,
+        "timing": true,
+        "no_preemption_or_recompute": true,
+        "prestate_matches_reference": true,
+        "decisions": {
+          "valid": true,
+          "issue_engine_calls": [],
+          "enabled_engine_calls": 23,
+          "expected_cap": 8,
+          "ready_decode_observations": 31,
+          "ready_decode_advanced_once": true
+        },
+        "map_pass": true
+      },
+      "hashes": {
+        "prestate_sha256": "9ab00a781cb654729a55520c03538e7894034ad99d25bd3d849609c4fca2bfdf",
+        "workload_sha256": "9ec4dc9ebf3e775ab682b5b9d7fbaa2e5e3714a5a684b91bc05c5e78af87dd13",
+        "resources_sha256": "ce2caa2675a5db9a19b6d420265866e6e2793b461d4346007829e8f594b33f76",
+        "output_sha256": {
+          "independent-0": "6b3cab3d6ac38b26be0cdfaaef36d53a492f591cbf8a5b7ab07bf25f4e0c430c",
+          "independent-1": "908cb6c201e4b554b970180bbd7d317bd5ed09bf4fa47b5523fb56a05af2aae4",
+          "independent-2": "50bdfea84cd03a2544055b2592c316cdf724a667008035e55de80c8a4b7fa023"
+        }
+      },
+      "hardware": {
+        "status": "SAMPLED",
+        "samples": 19,
+        "measurement_start_unix_s": 1789232889.0013468,
+        "measurement_end_unix_s": 1789232892.7271054,
+        "mean_sample_interval_s": 0.1958534452650282,
+        "first_sample_unix_s": 1789232889.0189993,
+        "last_sample_unix_s": 1789232892.5443614,
+        "clocks": {
+          "sm_clock_mhz": {
+            "samples": 19,
+            "minimum": 2490,
+            "maximum": 2887,
+            "mean": 2855.842105263158
+          },
+          "memory_clock_mhz": {
+            "samples": 19,
+            "minimum": 13801,
+            "maximum": 13801,
+            "mean": 13801.0
+          },
+          "temperature_c": {
+            "samples": 19,
+            "minimum": 34,
+            "maximum": 36,
+            "mean": 35.0
+          },
+          "power_mw": {
+            "samples": 19,
+            "minimum": 72333,
+            "maximum": 113435,
+            "mean": 107210.57894736843
+          },
+          "gpu_util_pct": {
+            "samples": 19,
+            "minimum": 76,
+            "maximum": 94,
+            "mean": 89.94736842105263
+          }
+        },
+        "cgroup_cpu": {
+          "nr_throttled": {
+            "first": 177,
+            "last": 177,
+            "delta": 0
+          },
+          "throttled_usec": {
+            "first": 882486663,
+            "last": 882486663,
+            "delta": 0
+          },
+          "usage_usec": {
+            "first": 6626223066,
+            "last": 6631573593,
+            "delta": 5350527
+          }
+        },
+        "gpu_process_isolation": {
+          "expected_worker_pids": [
+            37992
+          ],
+          "worker_pids_unchanged": true,
+          "samples_with_pid_info": 19,
+          "unexpected_compute_pids": [],
+          "all_samples_exactly_expected": true
+        },
+        "process_placement": [
+          {
+            "pid": 37992,
+            "samples": 19,
+            "cpu_allowed_lists": [
+              "0-7"
+            ],
+            "mems_allowed_lists": [
+              "0-1"
+            ],
+            "expected_cpu_affinity": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "all_sampled_affinity_matches": true,
+            "anon_numa_pages": {
+              "N0": {
+                "minimum": 372406,
+                "maximum": 377216
+              },
+              "N1": {
+                "minimum": 10,
+                "maximum": 10
+              }
+            },
+            "first_anon_numa_pages": {
+              "N0": 372406,
+              "N1": 10
+            },
+            "last_anon_numa_pages": {
+              "N0": 377216,
+              "N1": 10
+            }
+          }
+        ],
+        "boundary": "Counter delta covers first-to-last samples inside measurement; unsampled edges remain. Clock/PID samples cannot exclude between-sample excursions. Anonymous pages are process totals, not tensor-specific pinned-master placement; affinity is sampled process allowlist."
+      }
+    },
+    "r0-static32": {
+      "status": "COMPLETED",
+      "cell_config": {
+        "cell": "r0-static32",
+        "repeat": 0,
+        "policy": "static32",
+        "chunk": 32,
+        "new_prompt_length": 128,
+        "map_mode": "batched"
+      },
+      "raw_sha256": "0613d2d6afcafe6fb58ea23d079ef75ac2e7325534d42c96b37cb4254a4611aa",
+      "metrics": {
+        "wall_s": 3.5309074325487018,
+        "old_done_s": 3.530893967486918,
+        "old_max_itl_s": 0.5608651638031006,
+        "new_ttft_s": 1.9635531408712268,
+        "copy_payload_bytes": 166610337792,
+        "engine_calls": 16,
+        "first_action_step_s": 0.4815415618941188,
+        "max_old_cross_action_itl_s": 0.4825788354501128
+      },
+      "checks": {
+        "requests_complete": true,
+        "identity": true,
+        "first_action_shape": true,
+        "timing": true,
+        "no_preemption_or_recompute": true,
+        "prestate_matches_reference": true,
+        "decisions": {
+          "valid": true,
+          "issue_engine_calls": [],
+          "enabled_engine_calls": 12,
+          "expected_cap": 32,
+          "ready_decode_observations": 31,
+          "ready_decode_advanced_once": true
+        },
+        "map_pass": true
+      },
+      "hashes": {
+        "prestate_sha256": "9ab00a781cb654729a55520c03538e7894034ad99d25bd3d849609c4fca2bfdf",
+        "workload_sha256": "9ec4dc9ebf3e775ab682b5b9d7fbaa2e5e3714a5a684b91bc05c5e78af87dd13",
+        "resources_sha256": "ce2caa2675a5db9a19b6d420265866e6e2793b461d4346007829e8f594b33f76",
+        "output_sha256": {
+          "independent-0": "6b3cab3d6ac38b26be0cdfaaef36d53a492f591cbf8a5b7ab07bf25f4e0c430c",
+          "independent-1": "908cb6c201e4b554b970180bbd7d317bd5ed09bf4fa47b5523fb56a05af2aae4",
+          "independent-2": "50bdfea84cd03a2544055b2592c316cdf724a667008035e55de80c8a4b7fa023"
+        }
+      },
+      "hardware": {
+        "status": "SAMPLED",
+        "samples": 18,
+        "measurement_start_unix_s": 1789232893.4434385,
+        "measurement_end_unix_s": 1789232896.974346,
+        "mean_sample_interval_s": 0.19547124469981475,
+        "first_sample_unix_s": 1789232893.5165615,
+        "last_sample_unix_s": 1789232896.8395727,
+        "clocks": {
+          "sm_clock_mhz": {
+            "samples": 18,
+            "minimum": 2872,
+            "maximum": 2872,
+            "mean": 2872.0
+          },
+          "memory_clock_mhz": {
+            "samples": 18,
+            "minimum": 13801,
+            "maximum": 13801,
+            "mean": 13801.0
+          },
+          "temperature_c": {
+            "samples": 18,
+            "minimum": 35,
+            "maximum": 36,
+            "mean": 35.94444444444444
+          },
+          "power_mw": {
+            "samples": 18,
+            "minimum": 108647,
+            "maximum": 114892,
+            "mean": 113193.11111111111
+          },
+          "gpu_util_pct": {
+            "samples": 18,
+            "minimum": 39,
+            "maximum": 95,
+            "mean": 88.72222222222223
+          }
+        },
+        "cgroup_cpu": {
+          "nr_throttled": {
+            "first": 177,
+            "last": 177,
+            "delta": 0
+          },
+          "throttled_usec": {
+            "first": 882486663,
+            "last": 882486663,
+            "delta": 0
+          },
+          "usage_usec": {
+            "first": 6632925536,
+            "last": 6637971909,
+            "delta": 5046373
+          }
+        },
+        "gpu_process_isolation": {
+          "expected_worker_pids": [
+            37992
+          ],
+          "worker_pids_unchanged": true,
+          "samples_with_pid_info": 18,
+          "unexpected_compute_pids": [],
+          "all_samples_exactly_expected": true
+        },
+        "process_placement": [
+          {
+            "pid": 37992,
+            "samples": 18,
+            "cpu_allowed_lists": [
+              "0-7"
+            ],
+            "mems_allowed_lists": [
+              "0-1"
+            ],
+            "expected_cpu_affinity": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "all_sampled_affinity_matches": true,
+            "anon_numa_pages": {
+              "N0": {
+                "minimum": 377672,
+                "maximum": 377673
+              },
+              "N1": {
+                "minimum": 10,
+                "maximum": 10
+              }
+            },
+            "first_anon_numa_pages": {
+              "N0": 377672,
+              "N1": 10
+            },
+            "last_anon_numa_pages": {
+              "N0": 377673,
+              "N1": 10
+            }
+          }
+        ],
+        "boundary": "Counter delta covers first-to-last samples inside measurement; unsampled edges remain. Clock/PID samples cannot exclude between-sample excursions. Anonymous pages are process totals, not tensor-specific pinned-master placement; affinity is sampled process allowlist."
+      }
+    },
+    "r1-static32": {
+      "status": "COMPLETED",
+      "cell_config": {
+        "cell": "r1-static32",
+        "repeat": 1,
+        "policy": "static32",
+        "chunk": 32,
+        "new_prompt_length": 128,
+        "map_mode": "batched"
+      },
+      "raw_sha256": "3c84f959f2f5b7dd31d356ee2317e419dfb71d6bd015df08608361bba7fe5138",
+      "metrics": {
+        "wall_s": 3.5303540965542197,
+        "old_done_s": 3.530333735048771,
+        "old_max_itl_s": 0.5595772275701165,
+        "new_ttft_s": 1.9647667407989502,
+        "copy_payload_bytes": 166610337792,
+        "engine_calls": 16,
+        "first_action_step_s": 0.4812479726970196,
+        "max_old_cross_action_itl_s": 0.4821438565850258
+      },
+      "checks": {
+        "requests_complete": true,
+        "identity": true,
+        "first_action_shape": true,
+        "timing": true,
+        "no_preemption_or_recompute": true,
+        "prestate_matches_reference": true,
+        "decisions": {
+          "valid": true,
+          "issue_engine_calls": [],
+          "enabled_engine_calls": 12,
+          "expected_cap": 32,
+          "ready_decode_observations": 31,
+          "ready_decode_advanced_once": true
+        },
+        "map_pass": true
+      },
+      "hashes": {
+        "prestate_sha256": "9ab00a781cb654729a55520c03538e7894034ad99d25bd3d849609c4fca2bfdf",
+        "workload_sha256": "9ec4dc9ebf3e775ab682b5b9d7fbaa2e5e3714a5a684b91bc05c5e78af87dd13",
+        "resources_sha256": "ce2caa2675a5db9a19b6d420265866e6e2793b461d4346007829e8f594b33f76",
+        "output_sha256": {
+          "independent-0": "6b3cab3d6ac38b26be0cdfaaef36d53a492f591cbf8a5b7ab07bf25f4e0c430c",
+          "independent-1": "908cb6c201e4b554b970180bbd7d317bd5ed09bf4fa47b5523fb56a05af2aae4",
+          "independent-2": "50bdfea84cd03a2544055b2592c316cdf724a667008035e55de80c8a4b7fa023"
+        }
+      },
+      "hardware": {
+        "status": "SAMPLED",
+        "samples": 18,
+        "measurement_start_unix_s": 1789232897.6873014,
+        "measurement_end_unix_s": 1789232901.2176554,
+        "mean_sample_interval_s": 0.1978292605456184,
+        "first_sample_unix_s": 1789232897.8144007,
+        "last_sample_unix_s": 1789232901.177498,
+        "clocks": {
+          "sm_clock_mhz": {
+            "samples": 18,
+            "minimum": 2872,
+            "maximum": 2872,
+            "mean": 2872.0
+          },
+          "memory_clock_mhz": {
+            "samples": 18,
+            "minimum": 13801,
+            "maximum": 13801,
+            "mean": 13801.0
+          },
+          "temperature_c": {
+            "samples": 18,
+            "minimum": 36,
+            "maximum": 37,
+            "mean": 36.333333333333336
+          },
+          "power_mw": {
+            "samples": 18,
+            "minimum": 108162,
+            "maximum": 114659,
+            "mean": 113159.22222222222
+          },
+          "gpu_util_pct": {
+            "samples": 18,
+            "minimum": 86,
+            "maximum": 95,
+            "mean": 92.94444444444444
+          }
+        },
+        "cgroup_cpu": {
+          "nr_throttled": {
+            "first": 177,
+            "last": 177,
+            "delta": 0
+          },
+          "throttled_usec": {
+            "first": 882486663,
+            "last": 882486663,
+            "delta": 0
+          },
+          "usage_usec": {
+            "first": 6639329634,
+            "last": 6644463365,
+            "delta": 5133731
+          }
+        },
+        "gpu_process_isolation": {
+          "expected_worker_pids": [
+            37992
+          ],
+          "worker_pids_unchanged": true,
+          "samples_with_pid_info": 18,
+          "unexpected_compute_pids": [],
+          "all_samples_exactly_expected": true
+        },
+        "process_placement": [
+          {
+            "pid": 37992,
+            "samples": 18,
+            "cpu_allowed_lists": [
+              "0-7"
+            ],
+            "mems_allowed_lists": [
+              "0-1"
+            ],
+            "expected_cpu_affinity": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "all_sampled_affinity_matches": true,
+            "anon_numa_pages": {
+              "N0": {
+                "minimum": 377794,
+                "maximum": 377795
+              },
+              "N1": {
+                "minimum": 9,
+                "maximum": 10
+              }
+            },
+            "first_anon_numa_pages": {
+              "N0": 377794,
+              "N1": 10
+            },
+            "last_anon_numa_pages": {
+              "N0": 377795,
+              "N1": 9
+            }
+          }
+        ],
+        "boundary": "Counter delta covers first-to-last samples inside measurement; unsampled edges remain. Clock/PID samples cannot exclude between-sample excursions. Anonymous pages are process totals, not tensor-specific pinned-master placement; affinity is sampled process allowlist."
+      }
+    },
+    "r1-static8": {
+      "status": "COMPLETED",
+      "cell_config": {
+        "cell": "r1-static8",
+        "repeat": 1,
+        "policy": "static8",
+        "chunk": 8,
+        "new_prompt_length": 128,
+        "map_mode": "batched"
+      },
+      "raw_sha256": "fcf369414a1ca5f593f32bf4c29a3766e059bac3e6fe1639bad94f5263f9856a",
+      "metrics": {
+        "wall_s": 3.7051374837756157,
+        "old_done_s": 3.114748876541853,
+        "old_max_itl_s": 0.19873987883329391,
+        "new_ttft_s": 2.477680819109082,
+        "copy_payload_bytes": 171240849408,
+        "engine_calls": 27,
+        "first_action_step_s": 0.15009786188602448,
+        "max_old_cross_action_itl_s": 0.15101929008960724
+      },
+      "checks": {
+        "requests_complete": true,
+        "identity": true,
+        "first_action_shape": true,
+        "timing": true,
+        "no_preemption_or_recompute": true,
+        "prestate_matches_reference": true,
+        "decisions": {
+          "valid": true,
+          "issue_engine_calls": [],
+          "enabled_engine_calls": 23,
+          "expected_cap": 8,
+          "ready_decode_observations": 31,
+          "ready_decode_advanced_once": true
+        },
+        "map_pass": true
+      },
+      "hashes": {
+        "prestate_sha256": "9ab00a781cb654729a55520c03538e7894034ad99d25bd3d849609c4fca2bfdf",
+        "workload_sha256": "9ec4dc9ebf3e775ab682b5b9d7fbaa2e5e3714a5a684b91bc05c5e78af87dd13",
+        "resources_sha256": "ce2caa2675a5db9a19b6d420265866e6e2793b461d4346007829e8f594b33f76",
+        "output_sha256": {
+          "independent-0": "6b3cab3d6ac38b26be0cdfaaef36d53a492f591cbf8a5b7ab07bf25f4e0c430c",
+          "independent-1": "908cb6c201e4b554b970180bbd7d317bd5ed09bf4fa47b5523fb56a05af2aae4",
+          "independent-2": "50bdfea84cd03a2544055b2592c316cdf724a667008035e55de80c8a4b7fa023"
+        }
+      },
+      "hardware": {
+        "status": "SAMPLED",
+        "samples": 18,
+        "measurement_start_unix_s": 1789232901.890207,
+        "measurement_end_unix_s": 1789232905.5953445,
+        "mean_sample_interval_s": 0.2018313968882841,
+        "first_sample_unix_s": 1789232901.9823115,
+        "last_sample_unix_s": 1789232905.4134452,
+        "clocks": {
+          "sm_clock_mhz": {
+            "samples": 18,
+            "minimum": 2872,
+            "maximum": 2872,
+            "mean": 2872.0
+          },
+          "memory_clock_mhz": {
+            "samples": 18,
+            "minimum": 13801,
+            "maximum": 13801,
+            "mean": 13801.0
+          },
+          "temperature_c": {
+            "samples": 18,
+            "minimum": 37,
+            "maximum": 37,
+            "mean": 37.0
+          },
+          "power_mw": {
+            "samples": 18,
+            "minimum": 109396,
+            "maximum": 114916,
+            "mean": 113272.0
+          },
+          "gpu_util_pct": {
+            "samples": 18,
+            "minimum": 80,
+            "maximum": 95,
+            "mean": 90.5
+          }
+        },
+        "cgroup_cpu": {
+          "nr_throttled": {
+            "first": 177,
+            "last": 177,
+            "delta": 0
+          },
+          "throttled_usec": {
+            "first": 882486663,
+            "last": 882486663,
+            "delta": 0
+          },
+          "usage_usec": {
+            "first": 6645620366,
+            "last": 6650881392,
+            "delta": 5261026
+          }
+        },
+        "gpu_process_isolation": {
+          "expected_worker_pids": [
+            37992
+          ],
+          "worker_pids_unchanged": true,
+          "samples_with_pid_info": 18,
+          "unexpected_compute_pids": [],
+          "all_samples_exactly_expected": true
+        },
+        "process_placement": [
+          {
+            "pid": 37992,
+            "samples": 18,
+            "cpu_allowed_lists": [
+              "0-7"
+            ],
+            "mems_allowed_lists": [
+              "0-1"
+            ],
+            "expected_cpu_affinity": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "all_sampled_affinity_matches": true,
+            "anon_numa_pages": {
+              "N0": {
+                "minimum": 377853,
+                "maximum": 377853
+              },
+              "N1": {
+                "minimum": 9,
+                "maximum": 9
+              }
+            },
+            "first_anon_numa_pages": {
+              "N0": 377853,
+              "N1": 9
+            },
+            "last_anon_numa_pages": {
+              "N0": 377853,
+              "N1": 9
+            }
+          }
+        ],
+        "boundary": "Counter delta covers first-to-last samples inside measurement; unsampled edges remain. Clock/PID samples cannot exclude between-sample excursions. Anonymous pages are process totals, not tensor-specific pinned-master placement; affinity is sampled process allowlist."
+      }
+    },
+    "r0-static16": {
+      "status": "COMPLETED",
+      "cell_config": {
+        "cell": "r0-static16",
+        "repeat": 0,
+        "policy": "static16",
+        "chunk": 16,
+        "new_prompt_length": 128,
+        "map_mode": "batched"
+      },
+      "raw_sha256": "2ed830b6ee5d6f90698771cfd94d6dcb802d06e3521bd712973752e1b433741c",
+      "metrics": {
+        "wall_s": 3.5988258216530085,
+        "old_done_s": 3.5457405326887965,
+        "old_max_itl_s": 0.3108506528660655,
+        "new_ttft_s": 2.1999824279919267,
+        "copy_payload_bytes": 169001091072,
+        "engine_calls": 19,
+        "first_action_step_s": 0.2677335739135742,
+        "max_old_cross_action_itl_s": 0.26889026165008545
+      },
+      "checks": {
+        "requests_complete": true,
+        "identity": true,
+        "first_action_shape": true,
+        "timing": true,
+        "no_preemption_or_recompute": true,
+        "prestate_matches_reference": true,
+        "decisions": {
+          "valid": true,
+          "issue_engine_calls": [],
+          "enabled_engine_calls": 15,
+          "expected_cap": 16,
+          "ready_decode_observations": 31,
+          "ready_decode_advanced_once": true
+        },
+        "map_pass": true
+      },
+      "hashes": {
+        "prestate_sha256": "9ab00a781cb654729a55520c03538e7894034ad99d25bd3d849609c4fca2bfdf",
+        "workload_sha256": "9ec4dc9ebf3e775ab682b5b9d7fbaa2e5e3714a5a684b91bc05c5e78af87dd13",
+        "resources_sha256": "ce2caa2675a5db9a19b6d420265866e6e2793b461d4346007829e8f594b33f76",
+        "output_sha256": {
+          "independent-0": "9beb5c353a2093c682009c62e90df96bfccebbe70f84691d6b7c11bc47496174",
+          "independent-1": "908cb6c201e4b554b970180bbd7d317bd5ed09bf4fa47b5523fb56a05af2aae4",
+          "independent-2": "50bdfea84cd03a2544055b2592c316cdf724a667008035e55de80c8a4b7fa023"
+        }
+      },
+      "hardware": {
+        "status": "SAMPLED",
+        "samples": 18,
+        "measurement_start_unix_s": 1789232906.2694485,
+        "measurement_end_unix_s": 1789232909.8682745,
+        "mean_sample_interval_s": 0.20260088584002325,
+        "first_sample_unix_s": 1789232906.4200838,
+        "last_sample_unix_s": 1789232909.8642988,
+        "clocks": {
+          "sm_clock_mhz": {
+            "samples": 18,
+            "minimum": 2872,
+            "maximum": 2872,
+            "mean": 2872.0
+          },
+          "memory_clock_mhz": {
+            "samples": 18,
+            "minimum": 13801,
+            "maximum": 13801,
+            "mean": 13801.0
+          },
+          "temperature_c": {
+            "samples": 18,
+            "minimum": 37,
+            "maximum": 37,
+            "mean": 37.0
+          },
+          "power_mw": {
+            "samples": 18,
+            "minimum": 110823,
+            "maximum": 115311,
+            "mean": 113909.94444444444
+          },
+          "gpu_util_pct": {
+            "samples": 18,
+            "minimum": 92,
+            "maximum": 95,
+            "mean": 93.22222222222223
+          }
+        },
+        "cgroup_cpu": {
+          "nr_throttled": {
+            "first": 177,
+            "last": 177,
+            "delta": 0
+          },
+          "throttled_usec": {
+            "first": 882486663,
+            "last": 882486663,
+            "delta": 0
+          },
+          "usage_usec": {
+            "first": 6652347568,
+            "last": 6657590021,
+            "delta": 5242453
+          }
+        },
+        "gpu_process_isolation": {
+          "expected_worker_pids": [
+            37992
+          ],
+          "worker_pids_unchanged": true,
+          "samples_with_pid_info": 18,
+          "unexpected_compute_pids": [],
+          "all_samples_exactly_expected": true
+        },
+        "process_placement": [
+          {
+            "pid": 37992,
+            "samples": 18,
+            "cpu_allowed_lists": [
+              "0-7"
+            ],
+            "mems_allowed_lists": [
+              "0-1"
+            ],
+            "expected_cpu_affinity": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "all_sampled_affinity_matches": true,
+            "anon_numa_pages": {
+              "N0": {
+                "minimum": 377935,
+                "maximum": 377936
+              },
+              "N1": {
+                "minimum": 9,
+                "maximum": 9
+              }
+            },
+            "first_anon_numa_pages": {
+              "N0": 377935,
+              "N1": 9
+            },
+            "last_anon_numa_pages": {
+              "N0": 377936,
+              "N1": 9
+            }
+          }
+        ],
+        "boundary": "Counter delta covers first-to-last samples inside measurement; unsampled edges remain. Clock/PID samples cannot exclude between-sample excursions. Anonymous pages are process totals, not tensor-specific pinned-master placement; affinity is sampled process allowlist."
+      }
+    },
+    "r1-static16": {
+      "status": "COMPLETED",
+      "cell_config": {
+        "cell": "r1-static16",
+        "repeat": 1,
+        "policy": "static16",
+        "chunk": 16,
+        "new_prompt_length": 128,
+        "map_mode": "batched"
+      },
+      "raw_sha256": "9b0f0fba7523fd192bf9b860e0ec892d40a5baf59dbe14685385a13e8abeb4a1",
+      "metrics": {
+        "wall_s": 3.5978613710030913,
+        "old_done_s": 3.5436596125364304,
+        "old_max_itl_s": 0.3109625019133091,
+        "new_ttft_s": 2.1985669462010264,
+        "copy_payload_bytes": 169001091072,
+        "engine_calls": 19,
+        "first_action_step_s": 0.2673330893740058,
+        "max_old_cross_action_itl_s": 0.2682683961465955
+      },
+      "checks": {
+        "requests_complete": true,
+        "identity": true,
+        "first_action_shape": true,
+        "timing": true,
+        "no_preemption_or_recompute": true,
+        "prestate_matches_reference": true,
+        "decisions": {
+          "valid": true,
+          "issue_engine_calls": [],
+          "enabled_engine_calls": 15,
+          "expected_cap": 16,
+          "ready_decode_observations": 31,
+          "ready_decode_advanced_once": true
+        },
+        "map_pass": true
+      },
+      "hashes": {
+        "prestate_sha256": "9ab00a781cb654729a55520c03538e7894034ad99d25bd3d849609c4fca2bfdf",
+        "workload_sha256": "9ec4dc9ebf3e775ab682b5b9d7fbaa2e5e3714a5a684b91bc05c5e78af87dd13",
+        "resources_sha256": "ce2caa2675a5db9a19b6d420265866e6e2793b461d4346007829e8f594b33f76",
+        "output_sha256": {
+          "independent-0": "9beb5c353a2093c682009c62e90df96bfccebbe70f84691d6b7c11bc47496174",
+          "independent-1": "908cb6c201e4b554b970180bbd7d317bd5ed09bf4fa47b5523fb56a05af2aae4",
+          "independent-2": "50bdfea84cd03a2544055b2592c316cdf724a667008035e55de80c8a4b7fa023"
+        }
+      },
+      "hardware": {
+        "status": "SAMPLED",
+        "samples": 18,
+        "measurement_start_unix_s": 1789232910.6007159,
+        "measurement_end_unix_s": 1789232914.1985772,
+        "mean_sample_interval_s": 0.20409239039701574,
+        "first_sample_unix_s": 1789232910.691845,
+        "last_sample_unix_s": 1789232914.1614156,
+        "clocks": {
+          "sm_clock_mhz": {
+            "samples": 18,
+            "minimum": 2872,
+            "maximum": 2872,
+            "mean": 2872.0
+          },
+          "memory_clock_mhz": {
+            "samples": 18,
+            "minimum": 13801,
+            "maximum": 13801,
+            "mean": 13801.0
+          },
+          "temperature_c": {
+            "samples": 18,
+            "minimum": 37,
+            "maximum": 38,
+            "mean": 37.888888888888886
+          },
+          "power_mw": {
+            "samples": 18,
+            "minimum": 108122,
+            "maximum": 115454,
+            "mean": 113610.72222222222
+          },
+          "gpu_util_pct": {
+            "samples": 18,
+            "minimum": 79,
+            "maximum": 94,
+            "mean": 91.05555555555556
+          }
+        },
+        "cgroup_cpu": {
+          "nr_throttled": {
+            "first": 177,
+            "last": 177,
+            "delta": 0
+          },
+          "throttled_usec": {
+            "first": 882486663,
+            "last": 882486663,
+            "delta": 0
+          },
+          "usage_usec": {
+            "first": 6658768640,
+            "last": 6664063917,
+            "delta": 5295277
+          }
+        },
+        "gpu_process_isolation": {
+          "expected_worker_pids": [
+            37992
+          ],
+          "worker_pids_unchanged": true,
+          "samples_with_pid_info": 18,
+          "unexpected_compute_pids": [],
+          "all_samples_exactly_expected": true
+        },
+        "process_placement": [
+          {
+            "pid": 37992,
+            "samples": 18,
+            "cpu_allowed_lists": [
+              "0-7"
+            ],
+            "mems_allowed_lists": [
+              "0-1"
+            ],
+            "expected_cpu_affinity": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "all_sampled_affinity_matches": true,
+            "anon_numa_pages": {
+              "N0": {
+                "minimum": 377978,
+                "maximum": 377978
+              },
+              "N1": {
+                "minimum": 9,
+                "maximum": 9
+              }
+            },
+            "first_anon_numa_pages": {
+              "N0": 377978,
+              "N1": 9
+            },
+            "last_anon_numa_pages": {
+              "N0": 377978,
+              "N1": 9
+            }
+          }
+        ],
+        "boundary": "Counter delta covers first-to-last samples inside measurement; unsampled edges remain. Clock/PID samples cannot exclude between-sample excursions. Anonymous pages are process totals, not tensor-specific pinned-master placement; affinity is sampled process allowlist."
+      }
+    }
+  },
+  "output_hash_boundary": "Hashes are record-only; different fixed caps may produce different outputs.",
+  "scope": "Document-disjoint from this cost-model calibration; previously prepared project documents, not a whole-project fresh holdout",
+  "consistency": {
+    "all_six_cells_completed": true,
+    "same_prestate": true,
+    "same_tasks": true,
+    "same_resources": true
+  },
+  "transfer_prediction": {
+    "status": "VALIDATED",
+    "file_sha256": "4ed77e309fd503fc6dd5463a0988108610f5685338989177b5d178dc2e211700",
+    "created_unix": 1789232632.0978072,
+    "source_reference": "../optimized_static_calibration",
+    "source_hashes": {
+      "source_analysis_sha256": "ff00f9c493987f5f08ae3b26f6496098e3e67585cbb69b3b78e6696d16fc2bf0",
+      "source_summary_sha256": "a1ec170d010022bd2677f40f0487064ecc0190d9afbeb3f9f8ab0fbf75274a9b",
+      "source_prestate_sha256": "134afb5418f2f2bf4fdf170aa69419dc01d9b50217ae0a60560fec9d478232b2"
+    },
+    "predictions": {
+      "8": {
+        "first_step_s": 0.17523551266640425,
+        "first_old_itl_s": 0.1761264898814261
+      },
+      "16": {
+        "first_step_s": 0.2998333840320508,
+        "first_old_itl_s": 0.3007372603751719
+      },
+      "32": {
+        "first_step_s": 0.5490291267633438,
+        "first_old_itl_s": 0.5499588013626635
+      }
+    },
+    "scope": "First mixed-step and incumbent cross-action interval prediction only; new documents were not used for this fit; no whole-request/SLO/route prediction",
+    "checks": {
+      "frozen_status": true,
+      "config_hash_matches": true,
+      "source_analysis_hash": true,
+      "source_summary_hash": true,
+      "source_reports_agree": true,
+      "source_prestate_matches": true,
+      "predictions_match_frozen_source": true,
+      "embedded_copy_matches": true,
+      "frozen_before_execution": true,
+      "frozen_before_all_cells": true,
+      "frozen_before_all_actions": true
+    },
+    "cells": [
+      {
+        "cell": "r0-static8",
+        "cap": 8,
+        "repeat": 0,
+        "frozen_before_cell_start": true,
+        "frozen_before_action_start": true,
+        "observed": {
+          "first_step_s": 0.1501196911558509,
+          "first_old_itl_s": 0.15098750870674849
+        },
+        "predicted": {
+          "first_step_s": 0.17523551266640425,
+          "first_old_itl_s": 0.1761264898814261
+        },
+        "errors": {
+          "first_step_s": {
+            "signed_s": -0.02511582151055336,
+            "absolute_s": 0.02511582151055336,
+            "relative": -0.1433260937146133
+          },
+          "first_old_itl_s": {
+            "signed_s": -0.02513898117467761,
+            "absolute_s": 0.02513898117467761,
+            "relative": -0.14273253950386433
+          }
+        }
+      },
+      {
+        "cell": "r0-static32",
+        "cap": 32,
+        "repeat": 0,
+        "frozen_before_cell_start": true,
+        "frozen_before_action_start": true,
+        "observed": {
+          "first_step_s": 0.4815415618941188,
+          "first_old_itl_s": 0.4825788354501128
+        },
+        "predicted": {
+          "first_step_s": 0.5490291267633438,
+          "first_old_itl_s": 0.5499588013626635
+        },
+        "errors": {
+          "first_step_s": {
+            "signed_s": -0.06748756486922503,
+            "absolute_s": 0.06748756486922503,
+            "relative": -0.12292164764933354
+          },
+          "first_old_itl_s": {
+            "signed_s": -0.06737996591255069,
+            "absolute_s": 0.06737996591255069,
+            "relative": -0.12251820635582084
+          }
+        }
+      },
+      {
+        "cell": "r1-static32",
+        "cap": 32,
+        "repeat": 1,
+        "frozen_before_cell_start": true,
+        "frozen_before_action_start": true,
+        "observed": {
+          "first_step_s": 0.4812479726970196,
+          "first_old_itl_s": 0.4821438565850258
+        },
+        "predicted": {
+          "first_step_s": 0.5490291267633438,
+          "first_old_itl_s": 0.5499588013626635
+        },
+        "errors": {
+          "first_step_s": {
+            "signed_s": -0.06778115406632423,
+            "absolute_s": 0.06778115406632423,
+            "relative": -0.12345639012980991
+          },
+          "first_old_itl_s": {
+            "signed_s": -0.06781494477763772,
+            "absolute_s": 0.06781494477763772,
+            "relative": -0.12330913626549636
+          }
+        }
+      },
+      {
+        "cell": "r1-static8",
+        "cap": 8,
+        "repeat": 1,
+        "frozen_before_cell_start": true,
+        "frozen_before_action_start": true,
+        "observed": {
+          "first_step_s": 0.15009786188602448,
+          "first_old_itl_s": 0.15101929008960724
+        },
+        "predicted": {
+          "first_step_s": 0.17523551266640425,
+          "first_old_itl_s": 0.1761264898814261
+        },
+        "errors": {
+          "first_step_s": {
+            "signed_s": -0.025137650780379772,
+            "absolute_s": 0.025137650780379772,
+            "relative": -0.14345066475329293
+          },
+          "first_old_itl_s": {
+            "signed_s": -0.025107199791818857,
+            "absolute_s": 0.025107199791818857,
+            "relative": -0.14255209315033654
+          }
+        }
+      },
+      {
+        "cell": "r0-static16",
+        "cap": 16,
+        "repeat": 0,
+        "frozen_before_cell_start": true,
+        "frozen_before_action_start": true,
+        "observed": {
+          "first_step_s": 0.2677335739135742,
+          "first_old_itl_s": 0.26889026165008545
+        },
+        "predicted": {
+          "first_step_s": 0.2998333840320508,
+          "first_old_itl_s": 0.3007372603751719
+        },
+        "errors": {
+          "first_step_s": {
+            "signed_s": -0.03209981011847657,
+            "absolute_s": 0.03209981011847657,
+            "relative": -0.10705882609471282
+          },
+          "first_old_itl_s": {
+            "signed_s": -0.03184699872508645,
+            "absolute_s": 0.03184699872508645,
+            "relative": -0.10589641830665442
+          }
+        }
+      },
+      {
+        "cell": "r1-static16",
+        "cap": 16,
+        "repeat": 1,
+        "frozen_before_cell_start": true,
+        "frozen_before_action_start": true,
+        "observed": {
+          "first_step_s": 0.2673330893740058,
+          "first_old_itl_s": 0.2682683961465955
+        },
+        "predicted": {
+          "first_step_s": 0.2998333840320508,
+          "first_old_itl_s": 0.3007372603751719
+        },
+        "errors": {
+          "first_step_s": {
+            "signed_s": -0.03250029465804499,
+            "absolute_s": 0.03250029465804499,
+            "relative": -0.10839451638437587
+          },
+          "first_old_itl_s": {
+            "signed_s": -0.03246886422857642,
+            "absolute_s": 0.03246886422857642,
+            "relative": -0.10796422162013207
+          }
+        }
+      }
+    ],
+    "repeat_changes": {
+      "8": {
+        "cells": [
+          "r0-static8",
+          "r1-static8"
+        ],
+        "r1_minus_r0": {
+          "wall_s": {
+            "signed": -0.02062116004526615,
+            "absolute": 0.02062116004526615,
+            "relative": -0.0055347546678757775
+          },
+          "old_done_s": {
+            "signed": -0.0049763023853302,
+            "absolute": 0.0049763023853302,
+            "relative": -0.001595109216332145
+          },
+          "old_max_itl_s": {
+            "signed": -0.0007903510704636574,
+            "absolute": 0.0007903510704636574,
+            "relative": -0.0039610592883338
+          },
+          "new_ttft_s": {
+            "signed": -0.017855013720691204,
+            "absolute": 0.017855013720691204,
+            "relative": -0.007154781544629152
+          },
+          "copy_payload_bytes": {
+            "signed": 0,
+            "absolute": 0,
+            "relative": 0.0
+          },
+          "engine_calls": {
+            "signed": 0,
+            "absolute": 0,
+            "relative": 0.0
+          },
+          "first_action_step_s": {
+            "signed": -2.18292698264122e-05,
+            "absolute": 2.18292698264122e-05,
+            "relative": -0.00014541243495997834
+          },
+          "max_old_cross_action_itl_s": {
+            "signed": 3.1781382858753204e-05,
+            "absolute": 3.1781382858753204e-05,
+            "relative": 0.00021049014670796218
+          }
+        }
+      },
+      "32": {
+        "cells": [
+          "r0-static32",
+          "r1-static32"
+        ],
+        "r1_minus_r0": {
+          "wall_s": {
+            "signed": -0.0005533359944820404,
+            "absolute": 0.0005533359944820404,
+            "relative": -0.0001567121214737221
+          },
+          "old_done_s": {
+            "signed": -0.000560232438147068,
+            "absolute": 0.000560232438147068,
+            "relative": -0.00015866589121785732
+          },
+          "old_max_itl_s": {
+            "signed": -0.001287936232984066,
+            "absolute": 0.001287936232984066,
+            "relative": -0.0022963384358744266
+          },
+          "new_ttft_s": {
+            "signed": 0.0012135999277234077,
+            "absolute": 0.0012135999277234077,
+            "relative": 0.0006180631949614232
+          },
+          "copy_payload_bytes": {
+            "signed": 0,
+            "absolute": 0,
+            "relative": 0.0
+          },
+          "engine_calls": {
+            "signed": 0,
+            "absolute": 0,
+            "relative": 0.0
+          },
+          "first_action_step_s": {
+            "signed": -0.00029358919709920883,
+            "absolute": 0.00029358919709920883,
+            "relative": -0.0006096861004985549
+          },
+          "max_old_cross_action_itl_s": {
+            "signed": -0.0004349788650870323,
+            "absolute": 0.0004349788650870323,
+            "relative": -0.0009013633278826187
+          }
+        }
+      },
+      "16": {
+        "cells": [
+          "r0-static16",
+          "r1-static16"
+        ],
+        "r1_minus_r0": {
+          "wall_s": {
+            "signed": -0.0009644506499171257,
+            "absolute": 0.0009644506499171257,
+            "relative": -0.00026799036622287414
+          },
+          "old_done_s": {
+            "signed": -0.0020809201523661613,
+            "absolute": 0.0020809201523661613,
+            "relative": -0.0005868788573731771
+          },
+          "old_max_itl_s": {
+            "signed": 0.00011184904724359512,
+            "absolute": 0.00011184904724359512,
+            "relative": 0.00035981602809046344
+          },
+          "new_ttft_s": {
+            "signed": -0.0014154817909002304,
+            "absolute": 0.0014154817909002304,
+            "relative": -0.0006434059531067422
+          },
+          "copy_payload_bytes": {
+            "signed": 0,
+            "absolute": 0,
+            "relative": 0.0
+          },
+          "engine_calls": {
+            "signed": 0,
+            "absolute": 0,
+            "relative": 0.0
+          },
+          "first_action_step_s": {
+            "signed": -0.0004004845395684242,
+            "absolute": 0.0004004845395684242,
+            "relative": -0.0014958323444996954
+          },
+          "max_old_cross_action_itl_s": {
+            "signed": -0.0006218655034899712,
+            "absolute": 0.0006218655034899712,
+            "relative": -0.0023127111397556765
+          }
+        }
+      }
+    },
+    "actual_repeat_means": {
+      "first_step_s": {
+        "8": 0.15010877652093768,
+        "32": 0.4813947672955692,
+        "16": 0.26753333164379
+      },
+      "first_old_itl_s": {
+        "8": 0.15100339939817786,
+        "32": 0.4823613460175693,
+        "16": 0.26857932889834046
+      }
+    },
+    "rank_order": {
+      "first_step_s": {
+        "predicted_low_to_high": [
+          8,
+          16,
+          32
+        ],
+        "actual_repeat_mean_low_to_high": [
+          8,
+          16,
+          32
+        ],
+        "matches_frozen_order": true,
+        "semantics": "Ordering of two-repeat means; descriptive only."
+      },
+      "first_old_itl_s": {
+        "predicted_low_to_high": [
+          8,
+          16,
+          32
+        ],
+        "actual_repeat_mean_low_to_high": [
+          8,
+          16,
+          32
+        ],
+        "matches_frozen_order": true,
+        "semantics": "Ordering of two-repeat means; descriptive only."
+      }
+    }
+  }
+}

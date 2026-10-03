@@ -1,0 +1,40 @@
+--- run_streaming_recovery.py
++++ run_streaming_recovery.py
+@@ -72,6 +72,7 @@
+     parser.add_argument('--warmup-inputs', type=Path, required=True)
+     parser.add_argument('--variant', choices=['current'], default='current')
+     parser.add_argument('--output-dir', type=Path, required=True)
++    parser.add_argument('--commit-recheck', action='store_true', help='Recheck direct target funding at commit; default retains existing swap')
+     args = parser.parse_args()
+     root, out, engine = Path(__file__).resolve().parent, args.output_dir, None
+     timing = dict(process_start_unix_s=time.time(), process_start_perf_s=time.perf_counter())
+@@ -96,7 +97,7 @@
+             raise ValueError('warmup and measurement model identities differ')
+         config.update(requests=64, prompt_tokens=max(lengths), output_tokens=1024, output_mode='eos',
+             output_tokens_by_request={}, cap=32, engine_max_num_seqs=32, policy='static', max_seconds=180,
+-            variant=args.variant, population_mode='open', preemption_mode='native_recompute_or_external_kv',
++            variant=args.variant, recheck_commit_funding=args.commit_recheck, population_mode='open', preemption_mode='native_recompute_or_external_kv',
+             measurement_mode='diagnostic', selective_save='on', store_scope='native_full', offload_gib=16,
+             fixed_kv_cache_memory_bytes=KV_BYTES, gpu_memory_utilization=.90, reservation_policy='full',
+             rotation_config=vars(RotationConfig()), rotation_victim_order='most_output',
+@@ -120,7 +121,7 @@
+             source_sha256={name: sha(root/name) for name in ['run_streaming_recovery.py', 'native_capture.py',
+                 'memory_telemetry.py', 'metrics.py', 'safe_static.py', 'rotation_native.py', 'absence_rotation.py',
+                 'staged_store_rotation.py', 'staged_save_contract.py', 'native_offload_observer.py',
+-                'native_host_snapshot.py', 'native_store_delta.py', 'native_full_store_evidence.py']}))
++                'native_host_snapshot.py', 'native_store_delta.py', 'native_full_store_evidence.py', 'commit_disposition.py']}))
+         if runtime_hashes['v1/core/sched/scheduler.py'] != '2ed2a550b6558b2495eda845a97ae38bcf0225027b9e25fbf00fc3880c1d3941' or runtime_hashes['v1/core/kv_cache_manager.py'] != '3f4af8d247f3fe9570b0132818b832b66ae6a2ac12942588828f899f6ff77ccf':
+             raise RuntimeError('pinned runtime source changed')
+         model = config['model']
+@@ -182,7 +183,10 @@
+             host_snapshot=lambda: host_snapshot(engine))
+         selective, uninstall = install_rotation(scheduler, vllm_config=engine.vllm_config,
+             block_size=qualification['block_size'], population_mode='open', save=True,
+-            global_cooldown_steps=20, diagnostic=True, store_scope='native_full')
++            global_cooldown_steps=20, diagnostic=True, store_scope='native_full',
++            recheck_commit_funding=args.commit_recheck)
++        if selective['recheck_commit_funding'] != config['recheck_commit_funding']:
++            raise RuntimeError('Applied commit recheck switch differs from recorded config')
+         if selective['store_scope']!='native_full' or selective['native_calc_overridden']:
+             raise RuntimeError('Full native saving must retain the original calculation method')
+         if selective['rotation_config'] != config['rotation_config']:

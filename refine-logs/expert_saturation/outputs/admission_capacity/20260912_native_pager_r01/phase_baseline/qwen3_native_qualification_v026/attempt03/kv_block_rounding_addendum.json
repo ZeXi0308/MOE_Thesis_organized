@@ -1,0 +1,40 @@
+{
+  "status": "ACCOUNTING_CORRECTION_ONLY",
+  "old_analyzer": "analyze_qualification.py",
+  "old_analyzer_sha256": "bffa6831c272c3a3addb31746263038aff16e4e7db8e80d533b31985d36af177",
+  "old_failure": "attempt03/analysis_attempt01.json",
+  "new_analyzer": "analyze_qualification_v2.py",
+  "new_analyzer_sha256": "003825e60fed5df18a9928eda89a2b2440b7066ced4e9fb78a153fd71b5ed260",
+  "analysis": "attempt03/analysis_v2.json",
+  "regression": "attempt03/kv_block_rounding_cpu_checks.json",
+  "correction": "Replace exact requested-byte equality with Qwen BF16 whole-block floor, exact pool count, and 48 actual allocation shape/byte checks.",
+  "formula": "floor(536870912 / (48 * 2 * 16 * 4 * 128 * 2)) = 341 blocks; 341 * 1572864 = 536346624 allocated bytes; remainder524288 bytes",
+  "kv_accounting": {
+    "requested_bytes": 536870912,
+    "block_size_tokens": 16,
+    "layers": 48,
+    "kv_heads": 4,
+    "head_dim": 128,
+    "dtype_bytes": 2,
+    "layer_block_bytes": 32768,
+    "model_block_bytes": 1572864,
+    "allocated_blocks": 341,
+    "allocated_bytes": 536346624,
+    "unallocated_remainder_bytes": 524288,
+    "reserved_null_blocks": 1,
+    "free_blocks_at_measurement": 340
+  },
+  "evidence_paths": [
+    "attempt03/readback_r01/results/qualification/resources.json",
+    "attempt03/readback_r01/results/qualification/repeat_0_qwen_qualification/measurement_resources.json",
+    "model_metadata/config.json"
+  ],
+  "raw_source_protocol_input_unchanged": true,
+  "numerical": {
+    "allfinite": true,
+    "allclose_layers": 47,
+    "total_layers": 48,
+    "allclose_diagnostic": false,
+    "scope": "Readback accounting PASS does not mean all layers passed the original allclose diagnostic; no tolerance changed."
+  }
+}

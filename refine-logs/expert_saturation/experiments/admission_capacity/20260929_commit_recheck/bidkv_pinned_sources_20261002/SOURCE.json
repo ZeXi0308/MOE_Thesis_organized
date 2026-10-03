@@ -1,0 +1,17 @@
+{
+  "source": "https://github.com/vLLM-HUST/vllm-ascend-hust-bidkv/blob/5ee80256d263d58b1e512d9d436d47e9bac564ba/vllm_ascend_bidkv/selector.py",
+  "commit": "5ee80256d263d58b1e512d9d436d47e9bac564ba",
+  "git_blob": "d53edb8051f4cf2ec187fc404ffb457e70826325",
+  "sha256": "3ad8af893f3693a5ffbe3b9367153cca14fed50fb1b195cdbab924b1e5849a99",
+  "formula": "max num_computed_tokens/(1 + 0.5*clip(output_tokens/max_tokens,0,1) + 0.3*num_preemptions + 1e-6)",
+  "tie": "minimum arrival_time, then request_id",
+  "default_gates": {
+    "kv_gate": 0,
+    "cooldown_s": 0,
+    "min_running": 1
+  },
+  "state": "cumulative request fields; no native readmission epoch reset; selector reads num_preemptions, maintains separate own metrics but does not reset or increment request field",
+  "scope": "Official selector candidate input is arbitrary running sequence; a restricted unscheduled suffix transplant would be a score adaptation, not complete BidKV reproduction.",
+  "publication": "Repository claims SC26; acceptance/track not independently verified here",
+  "comparison": "Our output-since-admission/physical-pages ordering and BidKV computed-tokens/disruption ordering are different; both are progress/KV victim heuristics, so category alone is not novelty."
+}

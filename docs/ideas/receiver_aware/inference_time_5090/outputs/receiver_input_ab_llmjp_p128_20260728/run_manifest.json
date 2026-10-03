@@ -1,0 +1,62 @@
+{
+  "status": "SINGLE_GPU_INTERLEAVED_INPUT_AB_ONLY_NOT_RECEIVER_CONGESTION",
+  "evidence_boundary": "Interleaved AB/BA CUDA timing for frozen contiguous natural text and deterministic synthetic token sequences on one GPU. No continuous arrivals, EP, NCCL, or receiver traffic.",
+  "args": {
+    "model": "llm-jp/optimal-sparsity-math-d512-E32-k16-920M-A520M",
+    "revision": null,
+    "output_dir": "/root/autodl-tmp/receiver_input_ab_llmjp_p128_20260728",
+    "cache_dir": "/root/autodl-tmp/hf-cache",
+    "prompt_file": "/root/autodl-tmp/alice_in_wonderland_gutenberg_11.txt",
+    "prompt_source_url": "https://www.gutenberg.org/files/11/11-0.txt",
+    "dtype": "bfloat16",
+    "batch_sizes": [
+      1,
+      4,
+      8
+    ],
+    "prompt_len": 128,
+    "decode_steps": 16,
+    "warmup_decode_steps": 4,
+    "repeats": 5,
+    "route_census_steps": 8,
+    "seed": 20260728,
+    "local_files_only": true
+  },
+  "workload": {
+    "natural_prompt_file": "/root/autodl-tmp/alice_in_wonderland_gutenberg_11.txt",
+    "natural_prompt_sha256": "a3a27f8edbf7fcd9b8ba8435494440e24952deaa3e2f2d65192d4cb7ca403754",
+    "natural_prompt_source_url": "https://www.gutenberg.org/files/11/11-0.txt",
+    "natural_corpus_tokens": 41232,
+    "natural_sampling": "deterministic contiguous spans",
+    "synthetic_sampling": "deterministic stride and wrap from frozen short corpus",
+    "arm_order": "AB/BA alternating by repeat"
+  },
+  "model": {
+    "name": "llm-jp/optimal-sparsity-math-d512-E32-k16-920M-A520M",
+    "config_commit_hash": "1d5983076dfc67aee4a77ec06a27027f5bab6055",
+    "num_hidden_layers": 16,
+    "num_experts_per_tok": 16,
+    "moe_block_count": 16,
+    "load_seconds": 1.3710658550262451
+  },
+  "environment": {
+    "created_at_utc": "2026-07-27T13:44:38Z",
+    "python": "3.12.3 | packaged by Anaconda, Inc. | (main, May  6 2024, 19:46:43) [GCC 11.2.0]",
+    "platform": "Linux-5.15.0-78-generic-x86_64-with-glibc2.35",
+    "torch": "2.8.0+cu128",
+    "torch_cuda": "12.8",
+    "nvidia_smi": "NVIDIA GeForce RTX 5090, 32607 MiB, 580.95.05, 40, 575.00 W",
+    "peak_allocated_bytes": 2099493376,
+    "peak_reserved_bytes": 2252341248
+  },
+  "source": {
+    "path": "/root/autodl-tmp/receiver_multi_moe_code/profile_input_workload_ab.py",
+    "sha256": "b44bdcc3399c2e21ff05307d5303db0ce68f33845400743527dc9575d612311f",
+    "base_profiler_sha256": "67bdfb02f5e3039255d919df7a08de4100a8527d3913d7ec36cf46ed9ab664f8",
+    "natural_builder_sha256": "606e1ac10cb266a24d561c98ad4375a58b60f5310283f0d7e1a0109cebb516f9"
+  },
+  "row_counts": {
+    "timings_raw": 510,
+    "route_census_untimed": 864
+  }
+}

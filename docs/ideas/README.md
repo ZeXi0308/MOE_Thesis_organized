@@ -1,24 +1,43 @@
-# 活 / 条件 Idea 总索引
+# 研究方向索引
 
-> 2026-07-21 整理。现行文档只保留下列路线；**纠错后仍判死的 idea 已全部归档**：  
-> [`../99_archive/killed_ideas/README.md`](../99_archive/killed_ideas/README.md)  
-> **现状与演进总览**：[`../01_current_status/研究现状与Idea演进_2026-07-21.md`](../01_current_status/研究现状与Idea演进_2026-07-21.md)  
-> **思想 / 实验设计 / 代码 / 演进（先读）**：[`全部Idea设计总览.md`](全部Idea设计总览.md)
+当前总裁决见[当前研究状态](../current/README.md)。目录存在只表示材料被保留，不表示方向已经 GO。
 
-| Idea | 状态 | 一句话 | 设计说明 |
-|---|---|---|---|
-| Rank 长尾 + FP8-first | 结构证据 GO | combine 尾部低比特远比头部安全；FP8-first Pareto | [设计说明](A_rank_tail_fp8/设计说明.md) |
-| Receiver-aware | 条件性 | 结构拥塞画像站得住；在线自适应待/未过 Existence Test | [设计说明](receiver_aware/设计说明.md) |
-| Verify, Don’t Predict（Idea B） | 条件 GO | 弱持续性杀预测器；固定周期影子验证在 OLMoE 过线 | [设计说明](B_verify_precision/设计说明.md) |
-| Energy-SLO Precision EP | 最稳备线 | batch×FP8 能效/吞吐杠杆真实；待联合 Pareto | [设计说明](energy_slo/设计说明.md) |
-| Quality debt / Isolation | 弱正 | predictor-free 债务公平有改善但未过强门槛 | [设计说明](quality_debt/设计说明.md) |
+## 下一研究问题
 
-每个 idea 目录下现含：
+`PRIMARY_NEXT_CANDIDATE = Route-Conditioned Barrier Amplification Boundary`，状态为 `ORACLE_FIRST / UNVALIDATED / SAME_FAMILY_PROVISIONAL / BLOCKED_PROTOCOL_AMBIGUITY`。它不是可直接实现的机制；本轮 protocol-first preparation 发现 common natural regime、removable barrier/dependency semantics 与 resource capacity 未唯一冻结，双模型 identity-complete trace 和 complete measured surface 也均为 `NO`，因此 evaluator 未实现、formal Gate 未运行。边界见 [RCBA README](rcba/)；原 Top 3、评分和停止门见 [Next-Idea Jury](../../idea-stage/NEXT_IDEA_JURY.md)。
 
-- `设计说明.md` — **思想、背景、实验设计、代码组织、演进**  
-- `原文/` — 从 GitHub 备份恢复的长文  
-- `experiments/` — 脚本 · `outputs/` — 产物  
+## 保留的历史 formulation / 实现资产
 
-共享库：[`../../experiments/shared/`](../../experiments/shared/)  
-脚本索引：[`../../experiments/SCRIPTS_BY_IDEA.md`](../../experiments/SCRIPTS_BY_IDEA.md)
+| Idea | 状态 | 文档与代码 |
+|---|---|---|
+| BCRD | `FORMULATION_ASSET / LOCAL_SIMULATOR_CORRECTED / REQUEST_DAG_OPEN / NOT_CURRENT_EXECUTION_LINE` | [目录](bcrd/) · [研究设计](bcrd/研究设计与三门验证协议.md) · [实验代码](bcrd/experiments/README.md) |
+| DEPA-MoE | `DEVELOPMENT_ASSET / NOT_SCIENTIFIC / NOT_CURRENT_EXECUTION_LINE` | [说明与代码](depa_moe/README.md) |
 
+BCRD 与 DEPA 不再是当前执行线。新 Primary 的 Oracle Gate 准备可以复用其 route、full-path breakdown、5090 service surface 和 frozen workload manifest，但不得运行旧 Gate、选择 action 或并行调参。
+
+## 新登记但未授权升格的候选
+
+| Idea | 状态 | 文档与边界 |
+|---|---|---|
+| RouteGuard-KV | `PROPOSED / KILL_PROBE_ONLY / NOT_CURRENT_MAINLINE` | [严格评审与收紧后 R0–R2 协议](routeguard_kv/README.md)；保留历史协议，不改变 Oracle-first Primary 的执行顺序 |
+| RouteShape-SLO | `BLOCKED_RUNTIME_NOT_REPRESENTATIVE / P1_SMOKE_ONLY / NOT_CURRENT_MAINLINE` | [状态、代码与唯一下一实验](route_shape_slo/)；只登记探索，不改变 Oracle-first Primary。 |
+
+## 保留的证据方向
+
+| Idea | 当前结论 | 目录 |
+|---|---|---|
+| Rank-tail / FP8-first | 仅结构性 evidence；不是系统 GO | [A_rank_tail_fp8](A_rank_tail_fp8/) |
+| Receiver-aware / CPR | fixed RankLane 冻结域停止；8×A100 existence 未测；FJRC/PhaseMap 已归档 | [receiver_aware](receiver_aware/) |
+| ConfidenceGuard / Verify precision | sealed scientific result 为 NO-GO | [B_verify_precision](B_verify_precision/) |
+| Energy-SLO | 单 GPU characterization；serving controller 未验证 | [energy_slo](energy_slo/) |
+| Quality debt | NO-GO | [quality_debt](quality_debt/) |
+| StableBatch | fresh Oracle opportunity 成立；static/online pre-action selector 双双失败，`STOP_PREACTION_STABLEBATCH` | [stablebatch](stablebatch/) |
+| JoinStream | `FROZEN / WEAKEN_UPPER_BOUND_TOO_SMALL / NO_MORE_EXPERIMENTS_FOR_CURRENT_FORMULATION`；三阶段证据保留，不得优化当前 formulation | [最终冻结](../current/JOINSTREAM_FINAL_FREEZE_2026-08-10.md) · [BCRD 记录](bcrd/) |
+
+## 归档
+
+- [已停止 ideas](../archive/killed_ideas/README.md)
+- [Receiver-aware 历史 formulation](../archive/receiver_aware/README.md)
+- [非活动但未形成正式科学结论的 ideas](../archive/inactive_ideas/README.md)
+
+开发夹具、smoke、逻辑 bytes、单卡 LUT/H2D 都不能升级为多卡 EP、NCCL、TPOT 或 P99 结论。

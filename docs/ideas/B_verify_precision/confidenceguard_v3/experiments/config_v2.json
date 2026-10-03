@@ -1,0 +1,87 @@
+{
+  "schema_version": "triage-audit-v2-design",
+  "status": "EXPERIMENT_DESIGN_FROZEN_GPU_NOT_APPROVED",
+  "seed": 2026072302,
+  "dataset": {
+    "name": "wikitext103_docs",
+    "config": "wikitext-103-raw-v1",
+    "revision": "b08601e04326c79dfdd32d625aee71d232d685c3",
+    "split": "train",
+    "prompt_len": 64,
+    "decode_steps": 32,
+    "calibration_documents": 32,
+    "sealed_documents": 64,
+    "historical_article_shuffle_seed": 20260720,
+    "historical_article_prefix_excluded": 1000
+  },
+  "models": {
+    "olmoe": {
+      "repo_id": "allenai/OLMoE-1B-7B-0924",
+      "revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+      "expected_expert_linears": 3072
+    },
+    "llmjp": {
+      "repo_id": "llm-jp/optimal-sparsity-math-d512-E32-k16-920M-A520M",
+      "revision": "1d5983076dfc67aee4a77ec06a27027f5bab6055",
+      "expected_expert_linears": 1536
+    }
+  },
+  "action": {
+    "name": "int4_weight_only_rtn_per_output_channel_proxy",
+    "expert_scope": "all",
+    "native_kernel": false
+  },
+  "predictor": {
+    "ridge_alpha": 1.0,
+    "target": "log10_document_cvar90_same_state_discrepancy",
+    "quantiles": [0.3333333333333333, 0.6666666666666666],
+    "periods": [8, 4, 2],
+    "feature_search": false
+  },
+  "budget_control": {
+    "name": "hash_budget_matched_2_4_8",
+    "exact_period_multiset_match": true,
+    "hash_domain": "budget-control",
+    "common_audit_phase_hash_domain": "audit-phase-v2",
+    "policy_name_in_phase_hash": false
+  },
+  "controller": {
+    "audit_threshold_quantile": 0.9,
+    "lockout_following_steps": 3,
+    "max_unaudited_steps": 8
+  },
+  "diagnostic_labels": {
+    "same_arm_same_state_every_step": true,
+    "visible_to_policy": false,
+    "separate_cost_counters": true,
+    "required_action_trace_invariance_when_disabled": true
+  },
+  "hook_equivalence": {
+    "patched_full_max_abs_logit_error": 0.02,
+    "patched_full_max_token_kl": 1e-7,
+    "int4_discrepancy_min_exclusive": 1e-12
+  },
+  "calibration_stability": {
+    "bootstrap_replicates": 2000,
+    "median_assignment_probability_min": 0.7,
+    "fraction_documents_probability_ge_0_6_min": 0.8,
+    "spearman_lcb_min_exclusive": 0.0
+  },
+  "statistics": {
+    "bootstrap_replicates": 5000,
+    "effect_estimator": "median_of_document_level_paired_effects",
+    "pareto_effect_estimator": "policy_level_mean_points_rebuilt_per_document_bootstrap",
+    "quality_ratio_ucb": 1.05,
+    "total_forward_reduction_lcb": 0.1,
+    "dangerous_recall_margin_pp": 5.0,
+    "holm_correction": true,
+    "independent_unit": "document"
+  },
+  "memory_gate": {
+    "gpu_exact_name": "NVIDIA GeForce RTX 5090",
+    "peak_gib_max_cap": 30.25,
+    "guard_gib_min": 1.5,
+    "allow_scope_reduction_on_oom": false
+  },
+  "evidence_boundary": "single_gpu_teacher_forced_mechanism_probe_not_native_int4_not_serving"
+}

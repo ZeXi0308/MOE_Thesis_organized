@@ -1,0 +1,798 @@
+{
+  "status": "COUNTEREXAMPLE_CONFIRMED_CPU_NATIVE_LOOP",
+  "evidence": "Pinned native scheduler/preempt/cache/post-schedule methods plus accepted I closures; fake allocator, outputs, connector job registration/flush; no GPU/native transfer/load result",
+  "scope": "Legality of staged prepare/commit only, not absence of peer cost or service advantage",
+  "sources": {
+    "adapter": "/Users/leandrozhao/Desktop/\u3001++++++++/refine-logs/expert_saturation/outputs/admission_capacity/20260915_natural_ltr_style_component_r01/pkg/ltr_style_native.py",
+    "native_sha256": "2ed2a550b6558b2495eda845a97ae38bcf0225027b9e25fbf00fc3880c1d3941",
+    "harness": "/Users/leandrozhao/Desktop/\u3001++++++++/refine-logs/expert_saturation/experiments/admission_capacity/verify_native_recovery_execution.py"
+  },
+  "arms": [
+    {
+      "remove_only_sum_guard": false,
+      "initial": {
+        "free": 0,
+        "running": [
+          "V",
+          "peer"
+        ],
+        "waiting": [
+          "target"
+        ],
+        "requests": {
+          "V": {
+            "request_id": "V",
+            "computed": 31,
+            "prompt": 16,
+            "output": 16,
+            "max_output": 1024,
+            "status": "RUNNING",
+            "blocks": [
+              1,
+              2
+            ]
+          },
+          "peer": {
+            "request_id": "peer",
+            "computed": 16,
+            "prompt": 8,
+            "output": 9,
+            "max_output": 1024,
+            "status": "RUNNING",
+            "blocks": [
+              3
+            ]
+          },
+          "target": {
+            "request_id": "target",
+            "computed": 0,
+            "prompt": 16,
+            "output": 1,
+            "max_output": 1024,
+            "status": "PREEMPTED",
+            "blocks": []
+          }
+        }
+      },
+      "prefilter": {
+        "all_running_remaining_blocks": 1,
+        "free": 0,
+        "rejects": true
+      },
+      "staged_plan": {
+        "step": 0,
+        "victim": {
+          "request_id": "V",
+          "computed": 31,
+          "prompt": 16,
+          "output": 16,
+          "max_output": 1024,
+          "status": "RUNNING",
+          "blocks": [
+            1,
+            2
+          ]
+        },
+        "target": {
+          "request_id": "target",
+          "computed": 0,
+          "prompt": 16,
+          "output": 1,
+          "max_output": 1024,
+          "status": "PREEMPTED",
+          "blocks": []
+        },
+        "saved_tokens": 16,
+        "source_blocks": [
+          1
+        ]
+      },
+      "store_evidence": null,
+      "shared_contract_commit_reason_after_first_return": "CANCEL_STORE_NOT_REGISTERED",
+      "native_calls": [
+        {
+          "scheduled": {
+            "V": 1
+          },
+          "preempted": [
+            "peer"
+          ],
+          "free_after_schedule": 1,
+          "store_jobs": [],
+          "flush_jobs": []
+        },
+        {
+          "scheduled": {
+            "V": 1
+          },
+          "preempted": [],
+          "free_after_schedule": 0,
+          "store_jobs": [
+            7
+          ],
+          "flush_jobs": []
+        }
+      ],
+      "trace": [
+        {
+          "call": 0,
+          "after_return": {
+            "free": 1,
+            "running": [
+              "V"
+            ],
+            "waiting": [
+              "peer",
+              "target"
+            ],
+            "requests": {
+              "V": {
+                "request_id": "V",
+                "computed": 32,
+                "prompt": 16,
+                "output": 17,
+                "max_output": 1024,
+                "status": "RUNNING",
+                "blocks": [
+                  1,
+                  2
+                ]
+              },
+              "peer": {
+                "request_id": "peer",
+                "computed": 0,
+                "prompt": 8,
+                "output": 9,
+                "max_output": 1024,
+                "status": "PREEMPTED",
+                "blocks": []
+              },
+              "target": {
+                "request_id": "target",
+                "computed": 0,
+                "prompt": 16,
+                "output": 1,
+                "max_output": 1024,
+                "status": "PREEMPTED",
+                "blocks": []
+              }
+            }
+          },
+          "outputs": [
+            "V"
+          ],
+          "completed": []
+        },
+        {
+          "call": 1,
+          "after_return": {
+            "free": 0,
+            "running": [
+              "V"
+            ],
+            "waiting": [
+              "peer",
+              "target"
+            ],
+            "requests": {
+              "V": {
+                "request_id": "V",
+                "computed": 33,
+                "prompt": 16,
+                "output": 18,
+                "max_output": 1024,
+                "status": "RUNNING",
+                "blocks": [
+                  1,
+                  2,
+                  3
+                ]
+              },
+              "peer": {
+                "request_id": "peer",
+                "computed": 0,
+                "prompt": 8,
+                "output": 9,
+                "max_output": 1024,
+                "status": "PREEMPTED",
+                "blocks": []
+              },
+              "target": {
+                "request_id": "target",
+                "computed": 0,
+                "prompt": 16,
+                "output": 1,
+                "max_output": 1024,
+                "status": "PREEMPTED",
+                "blocks": []
+              }
+            }
+          },
+          "outputs": [
+            "V"
+          ],
+          "completed": []
+        }
+      ],
+      "discarded": [
+        {
+          "request_id": "peer",
+          "computed": 16
+        }
+      ],
+      "failed_allocations": [
+        {
+          "request_id": "peer",
+          "required": 1,
+          "free": 0,
+          "computed": 16
+        },
+        {
+          "request_id": "peer",
+          "required": 2,
+          "free": 0,
+          "computed": 0
+        }
+      ],
+      "adapter_events": [
+        {
+          "event": "intent",
+          "step": 0,
+          "host_perf_counter_s": 2613284.313374625,
+          "action": "DEFER",
+          "reason": "no executable boosted recovery request",
+          "target_id": null,
+          "victim_id": null,
+          "quantum_remaining": 0,
+          "active_target": null,
+          "reserve_enabled": false,
+          "skipped": [
+            {
+              "target": "target",
+              "reason": "prepare growth not funded"
+            }
+          ],
+          "boosted": {
+            "target": {
+              "idle": 0,
+              "priority": -1,
+              "quantum_remaining": 10
+            }
+          }
+        },
+        {
+          "event": "native_preemption",
+          "step": 0,
+          "host_perf_counter_s": 2613284.313425041,
+          "requests": [
+            "peer"
+          ]
+        },
+        {
+          "event": "allocation",
+          "step": 0,
+          "host_perf_counter_s": 2613284.313433291,
+          "scheduled": {
+            "V": 1
+          },
+          "active_target": null,
+          "boosted": {
+            "target": {
+              "idle": 1,
+              "priority": -1,
+              "quantum_remaining": 10
+            }
+          }
+        },
+        {
+          "event": "prepare",
+          "step": 1,
+          "host_perf_counter_s": 2613284.313501625,
+          "victim": "V",
+          "target": "target",
+          "saved_tokens": 32,
+          "victim_output": 17,
+          "victim_declared_cap": 1024,
+          "target_output": 1,
+          "target_quantum_remaining": 10,
+          "slot_required": false,
+          "kv_funding_required": true
+        },
+        {
+          "event": "accept",
+          "step": 1,
+          "host_perf_counter_s": 2613284.313506,
+          "action": "PREPARE_SELECTED",
+          "reason": "fund KV and/or sequence slot through shared two-stage save",
+          "target_id": "target",
+          "victim_id": "V",
+          "quantum_remaining": 10
+        },
+        {
+          "event": "intent",
+          "step": 1,
+          "host_perf_counter_s": 2613284.313512625,
+          "action": "PREPARE_SELECTED",
+          "reason": "fund KV and/or sequence slot through shared two-stage save",
+          "target_id": "target",
+          "victim_id": "V",
+          "quantum_remaining": 10,
+          "active_target": "target",
+          "reserve_enabled": false,
+          "skipped": [],
+          "boosted": {
+            "target": {
+              "idle": 1,
+              "priority": -1,
+              "quantum_remaining": 10
+            }
+          }
+        },
+        {
+          "event": "store_delta",
+          "step": 1,
+          "host_perf_counter_s": 2613284.313562875,
+          "status": "NEW_STORES_VALID",
+          "jobs": [
+            {
+              "job": 7,
+              "logical_indices": [
+                0,
+                1
+              ],
+              "blocks": [
+                1,
+                2
+              ]
+            }
+          ],
+          "new_store_blocks": 2,
+          "prepared_prefix_blocks": 2,
+          "full_prefix_residency": "UNKNOWN",
+          "transfer_completion": "UNKNOWN"
+        },
+        {
+          "event": "allocation",
+          "step": 1,
+          "host_perf_counter_s": 2613284.313571291,
+          "scheduled": {
+            "V": 1
+          },
+          "active_target": "target",
+          "boosted": {
+            "target": {
+              "idle": 2,
+              "priority": -1,
+              "quantum_remaining": 10
+            }
+          }
+        },
+        {
+          "event": "metadata",
+          "step": 1,
+          "host_perf_counter_s": 2613284.313574708,
+          "stores": [
+            7
+          ],
+          "loads": [],
+          "flush": [],
+          "jobs": [
+            {
+              "job_id": 7,
+              "request": "V",
+              "is_store": true
+            }
+          ]
+        }
+      ],
+      "applied_rotations": 0
+    },
+    {
+      "remove_only_sum_guard": true,
+      "initial": {
+        "free": 0,
+        "running": [
+          "V",
+          "peer"
+        ],
+        "waiting": [
+          "target"
+        ],
+        "requests": {
+          "V": {
+            "request_id": "V",
+            "computed": 31,
+            "prompt": 16,
+            "output": 16,
+            "max_output": 1024,
+            "status": "RUNNING",
+            "blocks": [
+              1,
+              2
+            ]
+          },
+          "peer": {
+            "request_id": "peer",
+            "computed": 16,
+            "prompt": 8,
+            "output": 9,
+            "max_output": 1024,
+            "status": "RUNNING",
+            "blocks": [
+              3
+            ]
+          },
+          "target": {
+            "request_id": "target",
+            "computed": 0,
+            "prompt": 16,
+            "output": 1,
+            "max_output": 1024,
+            "status": "PREEMPTED",
+            "blocks": []
+          }
+        }
+      },
+      "prefilter": {
+        "all_running_remaining_blocks": 1,
+        "free": 0,
+        "rejects": true
+      },
+      "staged_plan": {
+        "step": 0,
+        "victim": {
+          "request_id": "V",
+          "computed": 31,
+          "prompt": 16,
+          "output": 16,
+          "max_output": 1024,
+          "status": "RUNNING",
+          "blocks": [
+            1,
+            2
+          ]
+        },
+        "target": {
+          "request_id": "target",
+          "computed": 0,
+          "prompt": 16,
+          "output": 1,
+          "max_output": 1024,
+          "status": "PREEMPTED",
+          "blocks": []
+        },
+        "saved_tokens": 16,
+        "source_blocks": [
+          1
+        ]
+      },
+      "store_evidence": {
+        "request_id": "V",
+        "prefix_tokens": 16,
+        "source_blocks": [
+          1
+        ],
+        "registered_job_ids": [
+          7
+        ]
+      },
+      "shared_contract_commit_reason_after_first_return": "READY",
+      "native_calls": [
+        {
+          "scheduled": {
+            "V": 1
+          },
+          "preempted": [
+            "peer"
+          ],
+          "free_after_schedule": 1,
+          "store_jobs": [
+            7
+          ],
+          "flush_jobs": []
+        },
+        {
+          "scheduled": {
+            "target": 17
+          },
+          "preempted": [
+            "V"
+          ],
+          "free_after_schedule": 1,
+          "store_jobs": [],
+          "flush_jobs": [
+            7
+          ]
+        }
+      ],
+      "trace": [
+        {
+          "call": 0,
+          "after_return": {
+            "free": 1,
+            "running": [
+              "V"
+            ],
+            "waiting": [
+              "peer",
+              "target"
+            ],
+            "requests": {
+              "V": {
+                "request_id": "V",
+                "computed": 32,
+                "prompt": 16,
+                "output": 17,
+                "max_output": 1024,
+                "status": "RUNNING",
+                "blocks": [
+                  1,
+                  2
+                ]
+              },
+              "peer": {
+                "request_id": "peer",
+                "computed": 0,
+                "prompt": 8,
+                "output": 9,
+                "max_output": 1024,
+                "status": "PREEMPTED",
+                "blocks": []
+              },
+              "target": {
+                "request_id": "target",
+                "computed": 0,
+                "prompt": 16,
+                "output": 1,
+                "max_output": 1024,
+                "status": "PREEMPTED",
+                "blocks": []
+              }
+            }
+          },
+          "outputs": [
+            "V"
+          ],
+          "completed": []
+        },
+        {
+          "call": 1,
+          "after_return": {
+            "free": 1,
+            "running": [
+              "target"
+            ],
+            "waiting": [
+              "V",
+              "peer"
+            ],
+            "requests": {
+              "V": {
+                "request_id": "V",
+                "computed": 0,
+                "prompt": 16,
+                "output": 17,
+                "max_output": 1024,
+                "status": "PREEMPTED",
+                "blocks": []
+              },
+              "peer": {
+                "request_id": "peer",
+                "computed": 0,
+                "prompt": 8,
+                "output": 9,
+                "max_output": 1024,
+                "status": "PREEMPTED",
+                "blocks": []
+              },
+              "target": {
+                "request_id": "target",
+                "computed": 17,
+                "prompt": 16,
+                "output": 2,
+                "max_output": 1024,
+                "status": "RUNNING",
+                "blocks": [
+                  3,
+                  1
+                ]
+              }
+            }
+          },
+          "outputs": [
+            "target"
+          ],
+          "completed": []
+        }
+      ],
+      "discarded": [
+        {
+          "request_id": "peer",
+          "computed": 16
+        },
+        {
+          "request_id": "V",
+          "computed": 32
+        }
+      ],
+      "failed_allocations": [
+        {
+          "request_id": "peer",
+          "required": 1,
+          "free": 0,
+          "computed": 16
+        }
+      ],
+      "adapter_events": [
+        {
+          "event": "prepare",
+          "step": 0,
+          "host_perf_counter_s": 2613284.347678708,
+          "victim": "V",
+          "target": "target",
+          "saved_tokens": 16,
+          "victim_output": 16,
+          "victim_declared_cap": 1024,
+          "target_output": 1,
+          "target_quantum_remaining": 10,
+          "slot_required": false,
+          "kv_funding_required": true
+        },
+        {
+          "event": "accept",
+          "step": 0,
+          "host_perf_counter_s": 2613284.347686041,
+          "action": "PREPARE_SELECTED",
+          "reason": "fund KV and/or sequence slot through shared two-stage save",
+          "target_id": "target",
+          "victim_id": "V",
+          "quantum_remaining": 10
+        },
+        {
+          "event": "intent",
+          "step": 0,
+          "host_perf_counter_s": 2613284.347694791,
+          "action": "PREPARE_SELECTED",
+          "reason": "fund KV and/or sequence slot through shared two-stage save",
+          "target_id": "target",
+          "victim_id": "V",
+          "quantum_remaining": 10,
+          "active_target": "target",
+          "reserve_enabled": false,
+          "skipped": [],
+          "boosted": {
+            "target": {
+              "idle": 0,
+              "priority": -1,
+              "quantum_remaining": 10
+            }
+          }
+        },
+        {
+          "event": "store_delta",
+          "step": 0,
+          "host_perf_counter_s": 2613284.347748166,
+          "status": "NEW_STORES_VALID",
+          "jobs": [
+            {
+              "job": 7,
+              "logical_indices": [
+                0
+              ],
+              "blocks": [
+                1
+              ]
+            }
+          ],
+          "new_store_blocks": 1,
+          "prepared_prefix_blocks": 1,
+          "full_prefix_residency": "UNKNOWN",
+          "transfer_completion": "UNKNOWN"
+        },
+        {
+          "event": "native_preemption",
+          "step": 0,
+          "host_perf_counter_s": 2613284.347750291,
+          "requests": [
+            "peer"
+          ]
+        },
+        {
+          "event": "allocation",
+          "step": 0,
+          "host_perf_counter_s": 2613284.34775775,
+          "scheduled": {
+            "V": 1
+          },
+          "active_target": "target",
+          "boosted": {
+            "target": {
+              "idle": 1,
+              "priority": -1,
+              "quantum_remaining": 10
+            }
+          }
+        },
+        {
+          "event": "metadata",
+          "step": 0,
+          "host_perf_counter_s": 2613284.347761125,
+          "stores": [
+            7
+          ],
+          "loads": [],
+          "flush": [],
+          "jobs": [
+            {
+              "job_id": 7,
+              "request": "V",
+              "is_store": true
+            }
+          ]
+        },
+        {
+          "event": "commit_check",
+          "step": 1,
+          "host_perf_counter_s": 2613284.347817833,
+          "reason": "READY",
+          "victim": "V",
+          "target": "target"
+        },
+        {
+          "event": "intent",
+          "step": 1,
+          "host_perf_counter_s": 2613284.347831083,
+          "action": "DEFER",
+          "reason": "another staged action owns the backend",
+          "target_id": "target",
+          "victim_id": null,
+          "quantum_remaining": 10,
+          "active_target": "target",
+          "reserve_enabled": true,
+          "skipped": [],
+          "boosted": {
+            "target": {
+              "idle": 1,
+              "priority": -1,
+              "quantum_remaining": 10
+            }
+          }
+        },
+        {
+          "event": "allocation",
+          "step": 1,
+          "host_perf_counter_s": 2613284.347870083,
+          "scheduled": {
+            "target": 17
+          },
+          "active_target": "target",
+          "boosted": {
+            "target": {
+              "idle": 0,
+              "priority": -1,
+              "quantum_remaining": 9
+            }
+          }
+        },
+        {
+          "event": "metadata",
+          "step": 1,
+          "host_perf_counter_s": 2613284.347873583,
+          "stores": [],
+          "loads": [],
+          "flush": [
+            7
+          ],
+          "jobs": [
+            {
+              "job_id": 7,
+              "request": "V",
+              "is_store": true
+            }
+          ]
+        }
+      ],
+      "applied_rotations": 1
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+--- a/safe_static.py
++++ b/safe_static.py
+@@ -21,7 +21,7 @@
+             num_lookahead_tokens=scheduler.num_lookahead_tokens, num_spec_tokens=scheduler.num_spec_tokens,
+             dcp_world_size=scheduler.dcp_world_size, pcp_world_size=scheduler.pcp_world_size)
+         require(len(groups) == manager.num_kv_cache_groups == 1, 'requires one KV cache group')
+-        require(type(coordinator).__name__ == 'UnitaryKVCacheCoordinator', 'unverified KV coordinator')
++        require(type(coordinator).__name__ == 'KVCacheCoordinatorNoPrefixCache', 'unverified KV coordinator')
+         group, spec = groups[0], groups[0].kv_cache_spec
+         result.update(spec_type=type(spec).__name__, layer_names=list(group.layer_names),
+             is_eagle_group=group.is_eagle_group)
+@@ -36,7 +36,10 @@
+         single = coordinator.single_type_managers
+         require(len(single) == 1 and single[0].block_pool is pool, 'group does not share the verified block pool')
+         block_size = spec.block_size
+-        require(type(block_size) is int and block_size > 0 and coordinator.block_size == block_size,
++        result.update(single_type_block_size=single[0].block_size,
++                      scheduler_block_size=coordinator.scheduler_block_size)
++        require(type(block_size) is int and block_size > 0
++                and single[0].block_size == coordinator.scheduler_block_size == block_size,
+                 'unverified logical block size')
+         total, free = int(pool.num_gpu_blocks), int(pool.get_num_free_blocks())
+         usable = total - 1

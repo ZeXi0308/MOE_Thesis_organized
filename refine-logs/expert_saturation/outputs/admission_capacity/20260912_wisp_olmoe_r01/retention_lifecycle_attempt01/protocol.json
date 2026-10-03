@@ -1,0 +1,91 @@
+{
+  "state": "FROZEN_UNRUN",
+  "frozen_unix_s": 1789239392.012095,
+  "repository_head": "7059fc98e0d98a127ff4edda86d44f7f634d26f4",
+  "question": "With episode trace flushing fixed, does the existing frequency/late retention reduce complete-request cost relative to none/early release8 after all extra grouping and lifecycle costs?",
+  "basis": "Late ordering attains its fixed-protected-set current-call group lower bound and lowers payload; old timing was inconclusive. A separate lifecycle intervention reduced observed GC cost, without proving old mechanism gains.",
+  "runtime": {
+    "vllm": "0.26.0",
+    "model": "OLMoE-1B-7B-0924",
+    "revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "dtype": "BF16",
+    "expert_cap": 24,
+    "kv_bytes": 1073741824,
+    "token_budget": 160,
+    "execution": "expert",
+    "cpu_affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "omp_threads": 8
+  },
+  "workload": "Same3 documents P32/P32/P128, outputs16/16/8; inject new request after4 old outputs; release chunk8 only after both old requests complete",
+  "warmup": [
+    "short32",
+    "none_early_release8",
+    "frequency_early_release8",
+    "frequency_late_release8",
+    "decode_late_release8"
+  ],
+  "engines": 2,
+  "episodes_per_engine": 8,
+  "engine_sequences": {
+    "0_forward": [
+      "none_early",
+      "frequency_late",
+      "frequency_late",
+      "none_early",
+      "frequency_late",
+      "none_early",
+      "none_early",
+      "frequency_late"
+    ],
+    "1_reverse": [
+      "frequency_late",
+      "none_early",
+      "none_early",
+      "frequency_late",
+      "none_early",
+      "frequency_late",
+      "frequency_late",
+      "none_early"
+    ]
+  },
+  "intervention": "Existing current-layer frequency protected set, loaded late; default none/early is the strongest measured complete-request baseline. Selector, capacity, kernel and precision unchanged; all policies independently execute their future state.",
+  "trace_retention": "episode",
+  "reset": "Existing drained pager metadata reset plus same five warmups. Each measured episode is drained before all its and warmup records/events are written/released. Allocations/KV free queue preserved, KV contents not compared.",
+  "primary": "Complete capture wall including in-window observations plus old per-request max-ITL/completion and new TTFT/completion; preserve the full tradeoff, no selected scalar SLO.",
+  "accounting": {
+    "per_repeat": "From before GPU preflight/reset through all warmups, requests, snapshots/raw writes and flush/decref. Excludes its own cycle_progress write and shared final tail; both are covered by whole engine cycle/process.",
+    "engine": "Post-init cycle through shutdown, with own final marker covered by parent process wall. Mixed-policy engine totals are total cost, not attributable arm speedups. Tar/readback outside these clocks.",
+    "gc": "Observed callback intervals only; observer closes before event export/shutdown. Never subtract GC or sum overlapping CUDA/CPU spans."
+  },
+  "comparison": "Within each engine adjacent pairs (0,1),(2,3),(4,5),(6,7), oriented frequency versus none; report all 8 pairs, order, per-engine mode summaries and same-mode repeats. No observed max-delta used as a noise bound.",
+  "integrity": "All measurement/warmup requests retained; consecutive global call IDs across flushes; row/request/time joins; source/GPU boundary checks; actual resources and common logical pre-action state. Compare trace equality within mode, not across distinct policies.",
+  "qualification": "No numerical or grouping implementation changed; inherits prior bounded frequency/late single-layer qualification. This is not full-model task quality validation.",
+  "stop": "Foreign GPU process/query failure, incomplete requests or corrupt evidence abort and retain files. No automatic retry or additional outcome-selected runs.",
+  "interpretation": "Consistent benefit across order and both engines with preserved old-request progress supports another independent workload evaluation, not method GO. If bytes fall but complete requests do not improve, retain the group/transfer tradeoff and narrow this formulation; do not falsify the problem family. Unresolved pre-action drift remains a measurement limitation.",
+  "ceiling": "Two engines on same three documents, single-model/artificial expert cap native eager paging. Dependent episodes; no population significance, production p99/SLO, quality or general novelty claim.",
+  "source_sha256": {
+    "runtime_variation_observer.py": "ee70ee8bb1c76901ad92d61daac9724855710889264bd8fb30e12a4cc7c3178a",
+    "wisp_expert_groups.py": "d22fa5d0b1ced552556fab5209f4e55a4ecae24b658f043ef0bc35e7fd90f6f2",
+    "run_native_pager.py": "e93accfdd6f16d8714cbc7f8e75795e6874cdd35df21e2c3dbe1c45ae31878d2",
+    "wisp_v026_adapter.py": "b6c25e2656678636a596403fba7d9318465a4bee5b0eaf9c7b457dadcbafdd93",
+    "native_pager_context.py": "cef0fc3ea112b2099d586a2ccb89c94253cecc6f5f4d9c97a22c9e22b2821008",
+    "admission_feedback.py": "279c3e0ef44f8d9a0dec9bfeffe4dea72e657f24c637d9111f6712eb7ee0ece7",
+    "native_capture.py": "7e981d3ea2d0d206908ceaab568471d7923e2db0fc1b4f38fe6b2a73ebc5d9da"
+  },
+  "analysis_sha256": {
+    "analyze_runtime_variance.py": "b718e9b2933d3c457975eb7329071e54988d9344e1c98b60919d70eca64d74ec",
+    "analyze_retention_lifecycle.py": "492537dd6989f49b5bd041a5351ca470a5f684eb5d8069620d6aed8790096b4f",
+    "analyze_native_phases.py": "9d1986414f07680647fc299bdf2cbf0ea24836a117d20027093576e6758a844b",
+    "analyze_native_pager_transfer.py": "14f8717960b6667f51d9eb127a66f6d7d732ca4213e229be68a3505b1608523e"
+  },
+  "cpu_checks": "Runner syntax and two invalid CLI combinations checked before GPU. Pager/grouping numerical implementation unchanged from previously qualified and tested lifecycle sources."
+}

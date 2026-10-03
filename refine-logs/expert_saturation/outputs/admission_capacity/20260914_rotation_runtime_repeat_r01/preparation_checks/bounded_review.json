@@ -1,0 +1,159 @@
+{
+  "status": "PASS_CODE_ONLY",
+  "reviewed_at_utc": "2026-09-13T16:23:10.262779+00:00",
+  "scope": "Bounded read-only preparation review of the new repeat wrapper and its current prepared package/driver integration. Not a review of original experimental raw or results.",
+  "reviewed_wrapper_lines": 138,
+  "reviewed_wrapper_sha256": "57890e0bc3493234ed33b360cbc9d6a0bc93fd5308a95dd735bab9e305f9600f",
+  "wrapper_matches_preparation_receipt": true,
+  "p0": [],
+  "p1": [],
+  "checks": [
+    {
+      "name": "four_cell_ABBA_manifest",
+      "status": "PASS",
+      "evidence": [
+        "rotation_runtime_repeat.py:46-56",
+        "preparation/source/campaign.json"
+      ],
+      "detail": "The immutable parent manifest is filtered by native/most_output, preserving native -> most_output -> most_output -> native. Exact manifest equality and launcher label equality require precisely four cells."
+    },
+    {
+      "name": "unchanged_parent_runtime_inputs_and_warmups",
+      "status": "PASS",
+      "evidence": [
+        "rotation_runtime_repeat.py:65-89",
+        "preparation/status.json"
+      ],
+      "detail": "Read-only byte/hash inspection found all 21 listed runtime/input/source files identical to the frozen parent and receipt. The archive contains 24 files and every archived file equals preparation/source. Only campaign.json and DECISIONS.md differ from parent; parent_campaign.json is added.",
+      "unchanged_files": 21,
+      "mismatches": [],
+      "archive_sha256": "2383b1738e7b8bd3e7da8460093896b12b7852f3d3749d8babc1b7ab405e7060"
+    },
+    {
+      "name": "no_legacy_eight_cell_result_gate",
+      "status": "PASS",
+      "evidence": [
+        "rotation_runtime_repeat.py:46-56",
+        "rotation_runtime_repeat.py:62-64",
+        "rotation_runtime_repeat.py:92-116"
+      ],
+      "detail": "Eight-cell validation is applied only to parent provenance in prepare/validate. The new analyze path iterates the four-cell manifest and never calls the old eight-cell analyze function. It calls recovery.cell directly with campaign=True, without invoking the older campaign_layout gate."
+    },
+    {
+      "name": "all_four_and_common_resource_gate_before_numeric_pairs",
+      "status": "PASS",
+      "evidence": [
+        "rotation_runtime_repeat.py:100-111",
+        "analyze_rotation_holdout.py:66-80",
+        "analyze_rotation_holdout.py:102-123",
+        "analyze_completion_headroom.py:123-160",
+        "analyze_completion_headroom.py:168-179"
+      ],
+      "detail": "Every cell must be complete, identity/accounting/action qualified, and share engine_args plus config excluding only completion_policy/rotation_victim_order. Cap remains in the common signature. Underlying cell checks pin cap 32, physical KV 16089350144 bytes, usable blocks 7671 and token budget 1024. compare receives common=False until all four qualify; it returns before numeric comparison. Two within-block native/most pairs and two same-role repeats are the only pairs."
+    },
+    {
+      "name": "current_driver_and_fresh_engine_compatibility",
+      "status": "PASS",
+      "evidence": [
+        "run_frozen_kv_remote.py:23-34",
+        "run_frozen_kv_remote.py:74-94",
+        "run_frozen_kv_remote.py:116-172",
+        "preparation/source/run_campaign.py:12-46",
+        "preparation/source/run_one_cell.py:4-11"
+      ],
+      "detail": "Provided stage/resume commands pass explicit four labels. Current driver validates their order against archive campaign, iterates args.labels, launches the unchanged one-cell entrypoint and reads each result before the next. Each cell spawns a fresh run_probe subprocess. Resume requires untouched STAGED state, matching source/host/GPU/archive and empty results; it cannot silently relaunch a started cell."
+    },
+    {
+      "name": "unique_source_and_output_selection",
+      "status": "PASS",
+      "evidence": [
+        "rotation_runtime_repeat.py:59-61",
+        "rotation_runtime_repeat.py:92-96",
+        "rotation_runtime_repeat.py:125-133",
+        "run_frozen_kv_remote.py:36-40",
+        "run_frozen_kv_remote.py:74-94",
+        "run_frozen_kv_remote.py:123-137",
+        "STAGE_COMMAND.sh",
+        "RESUME_COMMAND.sh",
+        "ANALYZE_COMMAND.sh"
+      ],
+      "detail": "Preparation and analysis refuse an existing output directory. Analysis selects run/frozen when present, otherwise only its sibling preparation/source. New run and remote directories are specific to 20260914_rotation_runtime_repeat_r01, distinct from parent results; driver validates stage/resume identity and frozen archive contents. No old result-directory glob or canonical selection is introduced."
+    },
+    {
+      "name": "existing_UNRUN_result_readback_only",
+      "status": "PASS",
+      "evidence": [
+        "preparation_checks/unrun_analysis/analysis.json"
+      ],
+      "detail": "The already generated result records four UNRUN cells, comparisons_eligible=false, common_execution_config=false, no recovery accounting and no numerical pairs. Reviewer read this result without rerunning the analyzer or adding tests."
+    }
+  ],
+  "inputs": [
+    {
+      "path": "/Users/leandrozhao/Desktop/、++++++++/refine-logs/expert_saturation/experiments/admission_capacity/rotation_runtime_repeat.py",
+      "sha256": "57890e0bc3493234ed33b360cbc9d6a0bc93fd5308a95dd735bab9e305f9600f"
+    },
+    {
+      "path": "/Users/leandrozhao/Desktop/、++++++++/refine-logs/expert_saturation/experiments/admission_capacity/analyze_rotation_strong_baseline.py",
+      "sha256": "3f269e71d10ae5ce5215f6a12ea8690e2c80de38b196f3a6a75d9a02d7c7d780"
+    },
+    {
+      "path": "/Users/leandrozhao/Desktop/、++++++++/refine-logs/expert_saturation/experiments/admission_capacity/analyze_rotation_holdout.py",
+      "sha256": "1b962a70b92e1b1496052feed21bfd94727972698aec9e44c6c97b57ccd13f93"
+    },
+    {
+      "path": "/Users/leandrozhao/Desktop/、++++++++/refine-logs/expert_saturation/experiments/admission_capacity/analyze_completion_headroom.py",
+      "sha256": "e23a33d1641b725bee12390f20c7d29220bd5f48f73c9888138b21a7a453126e"
+    },
+    {
+      "path": "/Users/leandrozhao/Desktop/、++++++++/refine-logs/expert_saturation/experiments/admission_capacity/analyze_rotation_recovery.py",
+      "sha256": "aed8bfd03541c70711aa799a5739740d24960cd32a43b7ce21a74a06970f8b40"
+    },
+    {
+      "path": "/Users/leandrozhao/Desktop/、++++++++/refine-logs/expert_saturation/experiments/admission_capacity/run_frozen_kv_remote.py",
+      "sha256": "5bed0643468a8de17122d1ff3855790db7a6755626dd494f9fbc608ecdc4d83f"
+    },
+    {
+      "path": "/Users/leandrozhao/Desktop/、++++++++/refine-logs/expert_saturation/outputs/admission_capacity/20260914_rotation_runtime_repeat_r01/preparation/status.json",
+      "sha256": "f58e2beb84442e78488b08c1d79ae8ed7fc5f9fc886442d90be46bc2007687ea"
+    },
+    {
+      "path": "/Users/leandrozhao/Desktop/、++++++++/refine-logs/expert_saturation/outputs/admission_capacity/20260914_rotation_runtime_repeat_r01/preparation/source/campaign.json",
+      "sha256": "c6870b45c0ee9cfe1e72d041aff5cc88b767cd9718e1147de6af315106a6c675"
+    },
+    {
+      "path": "/Users/leandrozhao/Desktop/、++++++++/refine-logs/expert_saturation/outputs/admission_capacity/20260914_rotation_runtime_repeat_r01/preparation/source/parent_campaign.json",
+      "sha256": "f25f34fd2d1869a8b9104a9828fb7a25cdd39cc18b3b20bbfd00a3bb4dc5d24e"
+    },
+    {
+      "path": "/Users/leandrozhao/Desktop/、++++++++/refine-logs/expert_saturation/outputs/admission_capacity/20260914_rotation_runtime_repeat_r01/preparation/source/run_campaign.py",
+      "sha256": "e6f6e14d0ecf8ff64b280c6be827ab7ab0e2384cf142081ff980c6ffcf1906e2"
+    },
+    {
+      "path": "/Users/leandrozhao/Desktop/、++++++++/refine-logs/expert_saturation/outputs/admission_capacity/20260914_rotation_runtime_repeat_r01/preparation/source/run_one_cell.py",
+      "sha256": "102d5c98f1888a810de3ac1679b46a0a3c5f44664c16afce993457a7ed9e56f6"
+    },
+    {
+      "path": "/Users/leandrozhao/Desktop/、++++++++/refine-logs/expert_saturation/outputs/admission_capacity/20260914_rotation_runtime_repeat_r01/preparation_checks/unrun_analysis/analysis.json",
+      "sha256": "73b16f5a1487785701f19e7e4bcf6085ed9927ec79dfdda5c42929a6a612604f"
+    },
+    {
+      "path": "/Users/leandrozhao/Desktop/、++++++++/refine-logs/expert_saturation/outputs/admission_capacity/20260914_rotation_runtime_repeat_r01/STAGE_COMMAND.sh",
+      "sha256": "7f808c2bf07e5141d37f1d469863d5c900ecb6b3c23f3689147d2583bf345ae0"
+    },
+    {
+      "path": "/Users/leandrozhao/Desktop/、++++++++/refine-logs/expert_saturation/outputs/admission_capacity/20260914_rotation_runtime_repeat_r01/RESUME_COMMAND.sh",
+      "sha256": "d4cb901ab80585add9908c8e9131f6121d949f4cd1371f156c47666e39097995"
+    },
+    {
+      "path": "/Users/leandrozhao/Desktop/、++++++++/refine-logs/expert_saturation/outputs/admission_capacity/20260914_rotation_runtime_repeat_r01/ANALYZE_COMMAND.sh",
+      "sha256": "de41011957848c39641eb0d66eb92e2c9fb1a7997c55b375a2a487e0ebb28ed0"
+    }
+  ],
+  "scientific_status": "UNRUN",
+  "limitations": [
+    "Code-only review does not assert that any new GPU cell ran or passed.",
+    "No new test suite, synthetic fixture, GPU command, SSH call, old raw analysis, or source mutation was performed.",
+    "Only this bounded_review.json was written by the reviewer."
+  ]
+}

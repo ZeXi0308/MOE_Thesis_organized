@@ -1,0 +1,131 @@
+{
+  "status": "PREPARED_UNRUN",
+  "question": "Does cap8 while any ready decode exists, then full remaining token budget, improve full-request tradeoffs relative to static8 with identical wrapper costs?",
+  "remote_root": "/root/autodl-tmp/wisp-runtime-0112-r01",
+  "remote_reference": "affinity",
+  "remote_output": "phase-baseline8-r01",
+  "prerequisite_campaigns": {
+    "injection": 8,
+    "plain": 4,
+    "affinity": 4,
+    "affinity-midpoint16-r01": 2
+  },
+  "runtime": "vLLM0.11.2 with unmodified pinned WiSP cap16 BF16; independent from vLLM0.26 absolute timings",
+  "resources": {
+    "kv_bytes": 536870912,
+    "expert_cap": 16,
+    "max_num_seqs": 3,
+    "max_num_batched_tokens": 64,
+    "cpu_affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "gpu_numa_node": 0,
+    "memory_binding": "Unchanged: no explicit membind; taskset CPU0-7 plus external NUMA page observation",
+    "OMP_NUM_THREADS": 8
+  },
+  "trace": false,
+  "telemetry": "Reuse affinity campaign: external 100ms NVML/CPU cgroup/NUMA observations; no new inline trace",
+  "policy": {
+    "modes": [
+      "static8",
+      "phase8"
+    ],
+    "common_preaction_threshold": 32,
+    "protected_threshold": 8,
+    "phase8": "At pre-KV schedule entry: threshold8 while ANY current running request is ready for synchronous decode; otherwise threshold0 (native global token budget64 still applies).",
+    "static8": "Same wrapper, state checks and logging; threshold8 after action boundary in every call.",
+    "enabled_boundary": "Existing action key is created only after both original requests have exactly4output tokens.",
+    "unsupported": "Fail on async, speculative/prefix/preemption state, progress mismatch or any ready decode not scheduled exactly once."
+  },
+  "preaction": "Two original requests exactly4outputs; same scheduler/KV blocks, old tokens and complete pager/LRU state as calibration; old decode continues every step; no preemption",
+  "preaction_sha256": "459ece52d36235b4370d0502224c9e8f7ffeb727a5f06bba033d670e12664b4a",
+  "source_sha256": {
+    "run_campaign.py": "52172856a61d7404e7d850fe4eba9a30548388aed9ed497b0ca79192cfd3f6ac",
+    "run_wisp_injection_probe.py": "9f0311b78f2dd8f04c0d4adab4ad7a19a80f8ac241613b28721207bf071c1293",
+    "run_wisp_olmoe_probe.py": "7c8dfdb5d4a6f0663954d5d2beab2f517ac0caf12abf36a223d7d10ead30d678",
+    "wisp_paging_trace.py": "bcbf61e7c6233e741961101968eebefe2cf460d937cddb24b8fef1676d6fa2d5",
+    "workload.json": "41f649143a6bfcdc3f902423cd2a395575016ec3f6a26076f93a7d4a8d954305",
+    "protocol.json": "f217fea8c3adc4c0f8c013fb615f92989d327131f3327c9bb0107bc55cfd6901"
+  },
+  "reference_result_sha256": {
+    "r4-long8": "0e54af79ba930b84dc807740ca9e731ed7f277efb3bc96b25b4e65f4121a1ec4",
+    "r4-long32": "8f53406f864e07eed18c1b5b28b533d27e5bba1ecbad0445bfc43a29e8c0c008",
+    "r5-long8": "61f19b3a9a04df2af20b2966b3fb3e4de49655e26e3ef73507239eae0c26918d",
+    "r5-long32": "8d6c62d43e84d1e34cbed375b779a1c0a93953fc191d149de9ae48c4adb12220"
+  },
+  "policy_sha256": "6cc3384dd91258245c7bcb04306b9de1f7823e3d339ba5df93b6b4825fd8e775",
+  "installed_source_checks": {
+    "vllm/v1/request.py": {
+      "class": "Request",
+      "initial_values": {
+        "num_output_placeholders": 0,
+        "spec_token_ids": [],
+        "num_preemptions": 0
+      }
+    },
+    "vllm/v1/core/sched/scheduler.py": {
+      "class": "Scheduler",
+      "initial_values": {
+        "num_lookahead_tokens": 0,
+        "num_spec_tokens": 0
+      }
+    }
+  },
+  "official_compatibility_sources": [
+    "https://github.com/vllm-project/vllm/blob/v0.11.2/vllm/v1/request.py#L88",
+    "https://github.com/vllm-project/vllm/blob/v0.11.2/vllm/v1/core/sched/scheduler.py#L155"
+  ],
+  "cells": [
+    {
+      "cell": "r0-static8",
+      "repeat": 0,
+      "policy": "static8",
+      "chunk": 8,
+      "new_prompt_length": 128
+    },
+    {
+      "cell": "r0-phase8",
+      "repeat": 0,
+      "policy": "phase8",
+      "chunk": 8,
+      "new_prompt_length": 128
+    },
+    {
+      "cell": "r1-phase8",
+      "repeat": 1,
+      "policy": "phase8",
+      "chunk": 8,
+      "new_prompt_length": 128
+    },
+    {
+      "cell": "r1-static8",
+      "repeat": 1,
+      "policy": "static8",
+      "chunk": 8,
+      "new_prompt_length": 128
+    }
+  ],
+  "holdout_scope": "Same three documents and previously explored action regime; controlled simple-baseline comparison, not independent document holdout.",
+  "first_action_payload": {
+    "status": "NOT_MEASURABLE_IN_THIS_UNTRACED_PROTOCOL",
+    "reason": "Original snapshot counters do not isolate first-step demand loads; no payload prediction is claimed verified"
+  },
+  "total_payload": "Sum final_worker pager_layers weight_copy_payload_bytes after measurement counter reset; complete episode includes preaction prefix; bytes are copied tensor bytes, not PCIe wire bytes",
+  "outcomes": [
+    "old first/max ITL and completion",
+    "new TTFT/completion",
+    "whole episode wall",
+    "whole episode tensor-copy payload",
+    "actual selected thresholds and scheduled rows"
+  ],
+  "interpretation": "Retain all four arms and request tradeoffs. No invented SLO or method GO; no first-step copy claim with trace=false.",
+  "retention": "New remote directory; all prerequisite campaigns must complete; GPU empty before directory creation and each cell; source hashes and preaction state checked per cell; first failure stops; no automatic retries.",
+  "transfer_contract": "Upload code/config only. Reuse existing workload by remote-to-remote copy. Safe readback excludes workload.json and every result.json, prompt text, prompt token IDs and output token IDs."
+}

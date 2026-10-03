@@ -1,0 +1,41 @@
+[rank0]: Traceback (most recent call last):
+[rank0]:   File "/root/autodl-tmp/moe-rotation-runtime-repeat-20260914-r01/run_probe.py", line 205, in <module>
+[rank0]:     main()
+[rank0]:   File "/root/autodl-tmp/moe-rotation-runtime-repeat-20260914-r01/run_probe.py", line 118, in main
+[rank0]:     engine = LLMEngine.from_engine_args(EngineArgs(**kwargs), enable_multiprocessing=False)
+[rank0]:              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/engine/llm_engine.py", line 179, in from_engine_args
+[rank0]:     return cls(
+[rank0]:            ^^^^
+[rank0]:   File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/engine/llm_engine.py", line 105, in __init__
+[rank0]:     self.engine_core = EngineCoreClient.make_client(
+[rank0]:                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/engine/core_client.py", line 105, in make_client
+[rank0]:     return InprocClient(vllm_config, executor_class, log_stats)
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/engine/core_client.py", line 287, in __init__
+[rank0]:     self.engine_core = EngineCore(*args, **kwargs)
+[rank0]:                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/engine/core.py", line 125, in __init__
+[rank0]:     self.model_executor = executor_class(vllm_config)
+[rank0]:                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/tracing/otel.py", line 178, in sync_wrapper
+[rank0]:     return func(*args, **kwargs)
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/executor/abstract.py", line 109, in __init__
+[rank0]:     self._init_executor()
+[rank0]:   File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/executor/uniproc_executor.py", line 63, in _init_executor
+[rank0]:     self.driver_worker.init_device()
+[rank0]:   File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/worker/worker_base.py", line 331, in init_device
+[rank0]:     self.worker.init_device()  # type: ignore
+[rank0]:     ^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/tracing/otel.py", line 178, in sync_wrapper
+[rank0]:     return func(*args, **kwargs)
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/worker/gpu_worker.py", line 389, in init_device
+[rank0]:     self.requested_memory = request_memory(init_snapshot, self.cache_config)
+[rank0]:                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/worker/utils.py", line 435, in request_memory
+[rank0]:     raise ValueError(
+[rank0]: ValueError: Free memory on device cuda:0 (27.91/31.36 GiB) on startup is less than desired GPU memory utilization (0.9, 28.22 GiB). Decrease GPU memory utilization or reduce GPU memory used by other processes.
+[rank0]:[W914 00:50:13.421293246 ProcessGroupNCCL.cpp:1575] Warning: WARNING: destroy_process_group() was not called before program exit, which can leak resources. For more info, please see https://pytorch.org/docs/stable/distributed.html#shutdown (function operator())

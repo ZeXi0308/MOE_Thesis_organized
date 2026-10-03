@@ -1,0 +1,255 @@
+{
+  "status": "STRUCTURAL",
+  "intervention_status": "NATIVE_GPU_UNRUN",
+  "question": "Does the observed native baseline expose a pre-preemption state in which retained-KV completion-headroom protection can legally begin?",
+  "formula": {
+    "terminal_computed_tokens": "min(prompt_tokens + declared_max_output_tokens, max_model_len) - 1",
+    "terminal_blocks": "ceil(terminal_computed_tokens / block_size)",
+    "headroom": "max(0, terminal_blocks - allocated_blocks)",
+    "next_allocation": "max(0, ceil((computed_tokens + 1) / block_size) - allocated_blocks)",
+    "candidate": "minimum declared_max_output_tokens - current_output_tokens; native running order breaks ties",
+    "first_pressure": "F - sum(next_allocation) < candidate_headroom - candidate_next_allocation",
+    "activation_feasible": "F >= candidate_headroom"
+  },
+  "decision_inputs": [
+    "current running request order",
+    "current computed/output token counts",
+    "current per-request allocated blocks",
+    "current free blocks",
+    "configured output cap and model context limit",
+    "initialized block size"
+  ],
+  "excluded_decision_inputs": [
+    "future route",
+    "actual eventual completion time",
+    "future preemption event",
+    "future emitted token sequence"
+  ],
+  "runs": [
+    {
+      "label": "repeat0-full",
+      "inputs": {
+        "raw": {
+          "path": "refine-logs/expert_saturation/outputs/admission_capacity/20260912_recovery_admission_r01/execution/gpu_results/repeat0-full/raw.json",
+          "sha256": "1a363f62cbff66991a26cd61511c8800bae132d4dc03828a6943b3bd540222bc"
+        },
+        "config": {
+          "path": "refine-logs/expert_saturation/outputs/admission_capacity/20260912_recovery_admission_r01/execution/gpu_results/repeat0-full/config.json",
+          "sha256": "cdc2a1120eb86d4f161a97600a0f682f19280494fe96372fc8bbe5183d11a73a"
+        },
+        "qualification": {
+          "path": "refine-logs/expert_saturation/outputs/admission_capacity/20260912_recovery_admission_r01/execution/gpu_results/repeat0-full/safe-cap-qualification.json",
+          "sha256": "b8d17535a28909b78c2761c3b27cfe02864432521abf04ec6fae2b7ff4830990"
+        },
+        "environment": {
+          "path": "refine-logs/expert_saturation/outputs/admission_capacity/20260912_recovery_admission_r01/execution/gpu_results/repeat0-full/environment.json",
+          "sha256": "c4a5e43ad225fb06ce3702f378835212b64060834a173006698045321aebd7a9"
+        },
+        "engine_args": {
+          "path": "refine-logs/expert_saturation/outputs/admission_capacity/20260912_recovery_admission_r01/execution/gpu_results/repeat0-full/engine_args.json",
+          "sha256": "d1ea9d74bde50c1cdcc127c5b5e5729315d9288d0cad6adcf9998a1e4937e593"
+        }
+      },
+      "block_size": 16,
+      "usable_blocks": 7671,
+      "first_pressure_state": {
+        "step": 799,
+        "current_running_count": 32,
+        "free_blocks": 16,
+        "leader_internal_request_id": "measured/memory-train-article-0000001-b7c01b4b",
+        "leader_source_request_id": "memory-train-article-0000001",
+        "leader_current_state": {
+          "computed_tokens": 3868,
+          "prompt_tokens": 3072,
+          "output_tokens": 797,
+          "num_preemptions": 0,
+          "block_counts": [
+            242
+          ]
+        },
+        "leader_declared_max_output_tokens": 1024,
+        "leader_remaining_output_upper_bound": 227,
+        "leader_terminal_computed_tokens": 4095,
+        "leader_terminal_blocks": 256,
+        "leader_headroom_blocks": 14,
+        "leader_next_allocation_blocks": 0,
+        "all_running_next_allocation_blocks": 3,
+        "native_next_free_without_completion_release": 13,
+        "leader_remaining_headroom_after_its_next_allocation": 14,
+        "activation_feasible": true,
+        "positive_allocation_requests": [
+          {
+            "source_request_id": "memory-train-article-0001107",
+            "blocks": 1
+          },
+          {
+            "source_request_id": "memory-train-article-0003128",
+            "blocks": 1
+          },
+          {
+            "source_request_id": "memory-train-article-0003571",
+            "blocks": 1
+          }
+        ],
+        "eligible_states_checked_through_trigger": 702
+      },
+      "baseline_comparison_only": {
+        "first_actual_preemption_step": 806,
+        "pressure_precedes_baseline_preemption_steps": 7,
+        "note": "Actual later preemption is reported only as a baseline comparison and is not used in the trigger calculation."
+      }
+    },
+    {
+      "label": "repeat1-full",
+      "inputs": {
+        "raw": {
+          "path": "refine-logs/expert_saturation/outputs/admission_capacity/20260912_recovery_admission_r01/execution/gpu_results/repeat1-full/raw.json",
+          "sha256": "f17a4837b8b7abbf7e4e37eb6a83a0c30a36cc6cad37117297f45460276c2f03"
+        },
+        "config": {
+          "path": "refine-logs/expert_saturation/outputs/admission_capacity/20260912_recovery_admission_r01/execution/gpu_results/repeat1-full/config.json",
+          "sha256": "cdc2a1120eb86d4f161a97600a0f682f19280494fe96372fc8bbe5183d11a73a"
+        },
+        "qualification": {
+          "path": "refine-logs/expert_saturation/outputs/admission_capacity/20260912_recovery_admission_r01/execution/gpu_results/repeat1-full/safe-cap-qualification.json",
+          "sha256": "b8d17535a28909b78c2761c3b27cfe02864432521abf04ec6fae2b7ff4830990"
+        },
+        "environment": {
+          "path": "refine-logs/expert_saturation/outputs/admission_capacity/20260912_recovery_admission_r01/execution/gpu_results/repeat1-full/environment.json",
+          "sha256": "3266894e3319335e37f422db70ceb62ec847ab5af51f79f171bb49008dda31ca"
+        },
+        "engine_args": {
+          "path": "refine-logs/expert_saturation/outputs/admission_capacity/20260912_recovery_admission_r01/execution/gpu_results/repeat1-full/engine_args.json",
+          "sha256": "d1ea9d74bde50c1cdcc127c5b5e5729315d9288d0cad6adcf9998a1e4937e593"
+        }
+      },
+      "block_size": 16,
+      "usable_blocks": 7671,
+      "first_pressure_state": {
+        "step": 799,
+        "current_running_count": 32,
+        "free_blocks": 16,
+        "leader_internal_request_id": "measured/memory-train-article-0000001-98195798",
+        "leader_source_request_id": "memory-train-article-0000001",
+        "leader_current_state": {
+          "computed_tokens": 3868,
+          "prompt_tokens": 3072,
+          "output_tokens": 797,
+          "num_preemptions": 0,
+          "block_counts": [
+            242
+          ]
+        },
+        "leader_declared_max_output_tokens": 1024,
+        "leader_remaining_output_upper_bound": 227,
+        "leader_terminal_computed_tokens": 4095,
+        "leader_terminal_blocks": 256,
+        "leader_headroom_blocks": 14,
+        "leader_next_allocation_blocks": 0,
+        "all_running_next_allocation_blocks": 3,
+        "native_next_free_without_completion_release": 13,
+        "leader_remaining_headroom_after_its_next_allocation": 14,
+        "activation_feasible": true,
+        "positive_allocation_requests": [
+          {
+            "source_request_id": "memory-train-article-0001107",
+            "blocks": 1
+          },
+          {
+            "source_request_id": "memory-train-article-0003128",
+            "blocks": 1
+          },
+          {
+            "source_request_id": "memory-train-article-0003571",
+            "blocks": 1
+          }
+        ],
+        "eligible_states_checked_through_trigger": 702
+      },
+      "baseline_comparison_only": {
+        "first_actual_preemption_step": 806,
+        "pressure_precedes_baseline_preemption_steps": 7,
+        "note": "Actual later preemption is reported only as a baseline comparison and is not used in the trigger calculation."
+      }
+    }
+  ],
+  "source_evidence": [
+    {
+      "name": "scheduler",
+      "local_path": "/private/tmp/moe-native-v026-recovery-source/scheduler.py",
+      "installed_relative_path": "v1/core/sched/scheduler.py",
+      "sha256": "2ed2a550b6558b2495eda845a97ae38bcf0225027b9e25fbf00fc3880c1d3941",
+      "matches_both_native_full_environments": true,
+      "line_ranges": {
+        "running_skip_hook": [
+          469,
+          500
+        ],
+        "scheduled_subset_supported": [
+          1070,
+          1075
+        ],
+        "preempt_frees_and_resets": [
+          1212,
+          1233
+        ],
+        "ordinary_cached_state_payload": [
+          1365,
+          1385
+        ]
+      }
+    },
+    {
+      "name": "kv_cache_manager",
+      "local_path": "/private/tmp/moe-native-v026-recovery-source/kv_cache_manager.py",
+      "installed_relative_path": "v1/core/kv_cache_manager.py",
+      "sha256": "3f4af8d247f3fe9570b0132818b832b66ae6a2ac12942588828f899f6ff77ccf",
+      "matches_both_native_full_environments": true,
+      "line_ranges": {
+        "full_history_gate": [
+          411,
+          427
+        ],
+        "allocation_capacity_check": [
+          429,
+          466
+        ]
+      }
+    },
+    {
+      "name": "gpu_model_runner",
+      "local_path": "/private/tmp/moe_vllm026_installed/v1/worker/gpu_model_runner.py",
+      "installed_relative_path": "v1/worker/gpu_model_runner.py",
+      "sha256": "81b7627fbe81f7aaa2f77b4bf085faa353c69d03662ebfe369536a9773bb70d0",
+      "matches_both_native_full_environments": true,
+      "line_ranges": {
+        "unscheduled_requests_keep_cached_state": [
+          1210,
+          1230
+        ],
+        "nonpreempted_block_table_append": [
+          1418,
+          1423
+        ],
+        "previously_unscheduled_cached_state_readded": [
+          1431,
+          1446
+        ]
+      }
+    }
+  ],
+  "state_invariants": [
+    "Held requests remain in scheduler.running with status RUNNING, unchanged num_computed_tokens and owned KV block IDs.",
+    "A held request is absent from this step num_scheduled_tokens; it must not be marked PREEMPTED or added to resumed_req_ids.",
+    "While protected, other requests can allocate only from free blocks minus all remaining leader growth; leader allocations decrease free blocks and required headroom together.",
+    "Leader must receive one decode token each step; waiting admissions must not spend reserved headroom.",
+    "The first pilot is limited to an already admitted pure-decode cohort with single full-attention cache group, no sharing/prefix/speculation/KV connector, and synchronous one-token steps."
+  ],
+  "claim_boundary": [
+    "This reads only observed native states and computes the first causal trigger; it is not an offline policy performance replay.",
+    "No action-conditioned route, KV evolution, request latency, throughput, or output correctness has been measured for the proposed mechanism.",
+    "The leader remaining-output upper bound is declared configuration, not a prediction of actual future stopping.",
+    "Maintaining KV can avoid recomputation but may redistribute or lengthen request pauses and reduce batching efficiency.",
+    "Requests arriving after cohort closure, speculative/async scheduling, sharing and sliding-window caches are outside this probe."
+  ]
+}

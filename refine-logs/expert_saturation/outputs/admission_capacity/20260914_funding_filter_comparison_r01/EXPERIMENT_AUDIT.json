@@ -1,0 +1,175 @@
+{
+  "audit_skill": "experiment-audit",
+  "verdict": "WARN",
+  "reason_code": "single_reused_cohort_and_uncalibrated_same_role_drift",
+  "summary": "The six GPU cells, request metrics, full work accounting, present-state actions, and KV-resource invariants are supported. No P0/P1 was found. Scope and noise permit only the reported MEASUREMENT_ONLY conclusion.",
+  "review_scope": {
+    "included": [
+      "six actual GPU cells and adjacent logs",
+      "packaged execution, metric, telemetry, rotation, and capture code",
+      "analysis_r02.json and its declared analyzer dependencies",
+      "REPORT.md measured addendum lines 32-66",
+      "replacement-device launch, completion, readback, and release receipts"
+    ],
+    "excluded": [
+      "REPORT.md lines 69-97",
+      "model_check_r01.json and validate_funding_progress_model.py",
+      "shared lifecycle localization",
+      "action_branches_r01.json, action_branches_r02.json, and branch diagnostics",
+      "task-quality, HTTP/network, production, multi-GPU, and cross-device timing claims"
+    ]
+  },
+  "audited_input_hashes": {
+    "REPORT.md:32-66": "sha256:78f05ad7bef8a394a9fe822c8aca27e943b7fffe873b7dea2ae0e512025c19c0",
+    "REPORT.md (full snapshot; lines 69 onward are outside scope)": "sha256:1b8e597bd5118fd5973f59327945f67f68bcb86ef7dffb5b1b1db2f5803fb71d",
+    "analysis_r02.json": "sha256:46e09b443b67f86612befdccf57404da4af3ffc14103c824010efc86641e5d02",
+    "preparation/preparation.json": "sha256:5a09ce2b36353057b79f8a38e13457e3e2b4c0f1f4632bd46311a4d05912023f",
+    "preparation/pkg/campaign.json": "sha256:a3c6a451c920676e2554d34ae029d0640d75738cf5c0bd4ae59d29596578cd7b",
+    "preparation/pkg/inputs_preparation/prepared/heterogeneous/config.json": "sha256:e88cab4e403d51c237156a5366f8302dc18f280437101af137078317e1105977",
+    "preparation/pkg/inputs_preparation/prepared/heterogeneous/workload.json": "sha256:054b4bb5aa0b23349e9130b039b3eae608451b619e8a239c9d21a1144ff42750",
+    "execution/execution.json": "sha256:5fcef288e50171e01194fe25bd9a2888424cc08ad83db55aa497a56a8249b131",
+    "execution/readback/group-status.json": "sha256:8f7a173beedb0c06f303295aa98d7b37861cb24d0934260f2f6a8470c680a980",
+    "execution/readback/pkg/run_probe.py": "sha256:05269f853a942961ab0709466ba5d25997ae0fb5572d3569f49f7bb931cf6ea1",
+    "execution/readback/pkg/metrics.py": "sha256:1ca4874d718402ad149e26abd1b109eadf50afabb7aadc9e562e244aeb594b11",
+    "refine-logs/expert_saturation/experiments/admission_capacity/analyze_funding_filter_comparison.py": "sha256:8137eebffa6e42567f3cc43dda79c414061bbfcc219e78d44dd69cebcf800b7b",
+    "execution/readback/results/funding-block0-most_output/raw.json": "sha256:888ce52a677bd9fb2dbbc902290265e9996a309e3ddd013f51ae6970039c2018",
+    "execution/readback/results/funding-block0-least_progress/raw.json": "sha256:2e8ebf8660c2e63f5fb8be28aa2d2084a06b0f99ffea35fcc84ae89cd43c402b",
+    "execution/readback/results/funding-block0-least_feasible/raw.json": "sha256:f223b0b70e57f7e242ff560377c68f35f1ffe6f7384225b3eba1ff99211a4c2e",
+    "execution/readback/results/funding-block1-least_feasible/raw.json": "sha256:3f2d1c1013262b07d36198a38871e4b3aa5684359d7fd1dbb993d67cc43c2c7a",
+    "execution/readback/results/funding-block1-least_progress/raw.json": "sha256:c8ebfd4feca819cf46fe1b07ef0887034a86f5652ca087d180dec8eb1a073a6a",
+    "execution/readback/results/funding-block1-most_output/raw.json": "sha256:d12c5207ed05b40a4cca5b93b11b9636fe1ebfaa68eed44a8662a302f4a4bb41"
+  },
+  "trace_path": null,
+  "trace_policy": "No .aris trace created because the review task explicitly prohibited new .aris files.",
+  "agent_id": "/root/funding_integrity_review",
+  "reviewer_model": "gpt-5.6-sol",
+  "reviewer_family": "openai",
+  "review_independence": "same-family",
+  "acceptance_status": "provisional",
+  "generated_at": "2026-09-14T15:09:50Z",
+  "date": "2026-09-14",
+  "auditor": "gpt-5.6-sol-fresh-same-family-read-only",
+  "overall_verdict": "warn",
+  "integrity_status": "warn",
+  "p0_findings": [],
+  "p1_findings": [],
+  "checks": {
+    "A_ground_truth_provenance": {
+      "status": "PASS",
+      "classification": "direct_system_measurement_without_task_ground_truth",
+      "details": "Pinned WikiText inputs feed actual native request execution. Timing, completion, action, and KV facts are directly observed. Output equality is explicitly limited to an execution-identity proxy and is not task quality.",
+      "evidence": [
+        "preparation/pkg/inputs_preparation/prepared/heterogeneous/config.json:17-40",
+        "execution/readback/pkg/native_capture.py:24-44",
+        "execution/readback/pkg/native_capture.py:104-177",
+        "execution/readback/pkg/native_capture.py:191-204",
+        "REPORT.md:64"
+      ]
+    },
+    "B_score_normalization_and_accounting": {
+      "status": "PASS",
+      "details": "No self-normalization was found. All arrived requests remain in the denominator. Independent raw recomputation matched request metrics, percentiles, wall time, six report rows, work conservation, and nested timing accounting.",
+      "evidence": [
+        "execution/readback/pkg/metrics.py:10-29",
+        "execution/readback/pkg/metrics.py:62-155",
+        "REPORT.md:34",
+        "REPORT.md:40-64",
+        "analysis_r02.json:33514-34591",
+        "analysis_r02.json:206181-207258"
+      ]
+    },
+    "C_result_file_and_number_existence": {
+      "status": "PASS",
+      "details": "All six predeclared cells, raw/metrics/config/environment/status/headroom files, adjacent logs, terminal receipts, and nine comparisons exist. All reported numbers match. Old analysis_r01 remains historical UNRUN.",
+      "evidence": [
+        "preparation/pkg/campaign.json:2-65",
+        "execution/execution.json:17-102",
+        "execution/readback/campaign.log:1-32",
+        "analysis_r01.json:2-3",
+        "analysis_r02.json:207301-209404",
+        "REPORT.md:34-66"
+      ],
+      "nonblocking_note": "safe-cap-qualification.json:3 retains the pre-measurement value NOT_YET_RUN while adjacent terminal status is COMPLETE; it is not used as terminal status."
+    },
+    "D_dead_code_and_actual_action_path": {
+      "status": "PASS",
+      "details": "Critical metric, capture, memory, and rotation functions are called. Every proposal replayed from policy-specific current state, every native preemption call/return reconciled, and live pool/request block conservation plus held-KV equality held. No future policy state was reused.",
+      "evidence": [
+        "execution/readback/pkg/run_probe.py:183-236",
+        "execution/readback/pkg/memory_telemetry.py:41-107",
+        "execution/readback/pkg/memory_telemetry.py:109-153",
+        "execution/readback/pkg/rotation_native.py:159-220",
+        "refine-logs/expert_saturation/experiments/admission_capacity/analyze_funding_filter_comparison.py:122-164",
+        "analysis_r02.json:103624-103648",
+        "analysis_r02.json:138180-138204"
+      ]
+    },
+    "E_scope_independence_and_noise": {
+      "status": "WARN",
+      "details": "One reused 32-document cohort and one execution per order position do not form independent workload repeats or a calibrated noise bound. Same-role throughput drift reaches 2.381 percent and overlaps the treatment-scale result. Within-group device/runtime/isolation receipts are consistent, and old-device timing is correctly excluded.",
+      "evidence": [
+        "preparation/pkg/campaign.json:46-65",
+        "preparation/pkg/inputs_preparation/prepared/heterogeneous/config.json:32-40",
+        "REPORT.md:36",
+        "REPORT.md:53-64",
+        "execution/execution.json:95-101",
+        "execution/readback/pkg/run.sh:6-25",
+        "execution/readback/results/funding-block0-least_feasible/environment.json:2-32",
+        "execution/readback/results/funding-block0-least_feasible.log:35,46-54"
+      ]
+    },
+    "F_evaluation_type_and_claim_ceiling": {
+      "status": "WARN",
+      "evaluation_type": "real_request_level_native_inprocess_system_measurement_no_task_gt; output_equality=self_supervised_proxy",
+      "evidence_tier": "REQUEST_LEVEL / NATIVE_SERVING_INPROCESS_HOST_CAPTURE",
+      "details": "The evidence supports a bounded single-device full-request systems result. It does not support semantic quality, significance, fresh-workload generalization, HTTP/network or production SLO, multi-GPU EP, cross-device timing, or an independent method contribution.",
+      "evidence": [
+        "execution/readback/pkg/native_capture.py:191-204",
+        "REPORT.md:34-36",
+        "REPORT.md:53-64"
+      ]
+    }
+  },
+  "verified_counts": {
+    "cells_complete": 6,
+    "requests_per_cell": 32,
+    "request_instances": 192,
+    "output_tokens_per_request": 1024,
+    "returned_output_token_ids": 196608,
+    "warmup_episodes_per_process": 3,
+    "fresh_prefill_positions_per_cell": 90112,
+    "fresh_decode_positions_per_cell": 32736,
+    "usable_kv_blocks": 6656
+  },
+  "independent_recomputation": {
+    "all_saved_metrics_match_raw": true,
+    "all_report_rows_match": true,
+    "all_nine_comparisons_match": true,
+    "all_recorded_proposals_match_present_state_replay": true,
+    "all_native_preemptions_reconcile": true,
+    "all_pool_and_owned_block_conservation_checks_pass": true,
+    "policy_specific_state": true,
+    "future_state_reused": false,
+    "cells": [
+      {"label": "funding-block0-most_output", "wall_s": 23.871103661, "throughput_rps": 1.340532908, "mean_completion_s": 21.981054344, "max_request_itl_s": 2.112613199, "recomputed_positions": 93044, "engine_calls": 1224, "forced_preemptions": 22, "natural_preemptions": 4},
+      {"label": "funding-block0-least_progress", "wall_s": 24.553421518, "throughput_rps": 1.303280684, "mean_completion_s": 21.046705647, "max_request_itl_s": 1.931140581, "recomputed_positions": 83510, "engine_calls": 1445, "forced_preemptions": 20, "natural_preemptions": 4},
+      {"label": "funding-block0-least_feasible", "wall_s": 25.315590724, "throughput_rps": 1.264043188, "mean_completion_s": 21.706353067, "max_request_itl_s": 2.039727041, "recomputed_positions": 89761, "engine_calls": 1452, "forced_preemptions": 21, "natural_preemptions": 5},
+      {"label": "funding-block1-least_feasible", "wall_s": 24.836316997, "throughput_rps": 1.288435802, "mean_completion_s": 21.311881411, "max_request_itl_s": 1.990427202, "recomputed_positions": 89761, "engine_calls": 1452, "forced_preemptions": 21, "natural_preemptions": 5},
+      {"label": "funding-block1-least_progress", "wall_s": 25.152221823, "throughput_rps": 1.272253411, "mean_completion_s": 21.554351199, "max_request_itl_s": 2.008485798, "recomputed_positions": 83510, "engine_calls": 1445, "forced_preemptions": 20, "natural_preemptions": 4},
+      {"label": "funding-block1-most_output", "wall_s": 23.570727307, "throughput_rps": 1.357616147, "mean_completion_s": 21.735522965, "max_request_itl_s": 2.152757093, "recomputed_positions": 93044, "engine_calls": 1224, "forced_preemptions": 22, "natural_preemptions": 4}
+    ]
+  },
+  "claims": [
+    {"id": "C1", "claim": "The six GPU cells completed with 192 request instances and the reported request/work metrics.", "impact": "supported"},
+    {"id": "C2", "claim": "The funding filter changed actual present-state victim choices and native KV/preemption work.", "impact": "supported"},
+    {"id": "C3", "claim": "The funding filter did not establish repeatable full-request improvement over least-progress in this group.", "impact": "supported"},
+    {"id": "C4", "claim": "The funding filter is a generally beneficial or independent method contribution.", "impact": "unsupported"},
+    {"id": "C5", "claim": "Output equality demonstrates task quality.", "impact": "unsupported"},
+    {"id": "C6", "claim": "Old-device timing can be paired with this replacement-device run.", "impact": "unsupported"},
+    {"id": "C7", "claim": "The appended structural model, lifecycle, or branch findings are accepted by this review.", "impact": "outside_scope"}
+  ],
+  "failure_category": "MEASUREMENT_ONLY / NO_REPEATABLE_FULL_REQUEST_IMPROVEMENT_IN_TESTED_REGIME",
+  "claim_ceiling": "Bounded descriptive result for one reused 32-document episode on one replacement RTX 5090 with pinned vLLM 0.26.0 and 6656 usable KV blocks.",
+  "next_smallest_experiment": "Run the unchanged six-cell protocol once on a predeclared fresh document-disjoint 32-request cohort, on the same device/runtime/pool, with counterbalanced order and no threshold tuning. Require a same-sign full-request effect beyond observed same-role drift and retain most_output as the strong simple reference.",
+  "resurrection_condition": "Continue the funding-filter performance hypothesis only after a fresh controlled cohort shows a stable full-request benefit beyond drift and competitive with most_output; otherwise do not generalize beyond the tested formulation/regime."
+}

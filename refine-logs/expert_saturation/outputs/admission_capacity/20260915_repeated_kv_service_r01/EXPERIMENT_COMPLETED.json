@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "study_question": "固定GPU资源与明确host预算下，怎样安排恢复和后续执行，降低生成长停顿，同时控制完整服务效率损失？",
+  "group_id": "20260915_repeated_kv_service_r01",
+  "status": "COMPLETE_ANALYZED",
+  "execution_owner": "long-task root / 01a09ba8-3b21-7853-89fd-83c41e309c07",
+  "execution_contract": "outputs/admission_capacity/20260915_repeated_kv_service_r01/README.md",
+  "accepted_execution_archive_sha256": "91bfa6c8e75cd2f32e88eb05c75ae03fbeec2a7bcc059ac0e1e901421b75d1c1",
+  "payload_manifest": "outputs/admission_capacity/20260915_repeated_kv_service_r01/manifest.json",
+  "source_head": "de64dae5ea4fa3c92ec605e9847e817d8e68f3ac",
+  "source_state": "shared dirty workspace; accepted payload hashes identify executed code",
+  "question": "同一 staged most_output 调度下，真实增量KV保存是否改善完整请求的停顿与效率权衡？",
+  "only_treatment": "native victim KV save off/on during prepare",
+  "common_policy": {
+    "victim": "most_output",
+    "target": "longest_absence",
+    "min_absence_steps": 30,
+    "min_steps_between_swaps": 20,
+    "min_residency_steps": 30,
+    "protection": "until the recovery target produces its first new output",
+    "token_budget": 1024
+  },
+  "resources": {
+    "host": "connect.weste.seetacloud.com:26862",
+    "gpu_uuid": "GPU-4015b79d-bed6-3a4b-9d2b-0c17be96d0e5",
+    "gpu_count_used": 1,
+    "gpu_kv_bytes": 13960740864,
+    "usable_gpu_blocks": 6656,
+    "block_tokens": 16,
+    "host_kv_bytes_configured_and_observed": 17179869184,
+    "host_kv_blocks": 8192,
+    "parent_cgroup_memory_max_bytes": 197568495616,
+    "parent_swap_max_bytes": 0,
+    "process_tree_hard_memory_limit": null,
+    "isolation": "whole-group flock; both GPUs checked empty at boundaries; second GPU unused"
+  },
+  "workload": {
+    "model": "allenai/OLMoE-1B-7B-0924",
+    "revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "runtime": "vLLM 0.26.0 / PyTorch 2.11.0+cu130 / Transformers 5.15.1",
+    "requests_per_cell": 32,
+    "prompt_tokens": 3072,
+    "forced_output_tokens": 1024,
+    "arrival_spacing_s": 0.05,
+    "domain": "closed cohort, one fixed length and pressure point"
+  },
+  "accepted_order": [
+    "diag-off",
+    "diag-on",
+    "block0-off",
+    "block0-on",
+    "block1-on",
+    "block1-off"
+  ],
+  "primary_cells": [
+    "block0-off",
+    "block0-on",
+    "block1-on",
+    "block1-off"
+  ],
+  "diagnostic_cells": [
+    "diag-off",
+    "diag-on"
+  ],
+  "evaluation": {
+    "objective": "generation pause: maximum and per-request engine-return gap distribution",
+    "necessary_costs": [
+      "full-episode output rate",
+      "mean completion latency",
+      "TTFT",
+      "host allocation and occupancy",
+      "live save/load and drain costs"
+    ],
+    "selection": "both predetermined pairs retained; no SLO selected from results",
+    "time_boundary": "arrival through all request completions; initialization/warmup excluded, later drain separate",
+    "diagnostic_times_in_primary_table": false
+  },
+  "execution": {
+    "controller_pid": 4062,
+    "started_unix_s": 1789408241.876339,
+    "finished_unix_s": 1789408596.6759913,
+    "return_code": 0,
+    "completed_requests": 192,
+    "failed_cells": 0,
+    "discarded_repeats": 0,
+    "gpu_group_released": true
+  },
+  "results": {
+    "raw": "outputs/admission_capacity/20260915_repeated_kv_service_r01/execution_weste_26862/readback/results",
+    "archive_sha256": "ba55842245b170f6be1bb324602848902439c39c48011efc977d96f2076a7269",
+    "main_analysis": "outputs/admission_capacity/20260915_repeated_kv_service_r01/analysis/analysis.json",
+    "report": "outputs/admission_capacity/20260915_repeated_kv_service_r01/analysis/REPORT.md",
+    "timing_addendum": "outputs/admission_capacity/20260915_repeated_kv_service_r01/analysis/TIMING.md",
+    "model_check": "outputs/admission_capacity/20260915_repeated_kv_service_r01/model_check/REPORT.md"
+  },
+  "decision": "Adopt save-on as the strong baseline in this measured domain; examine recovery start timing and added switching costs.",
+  "claim_ceiling": "NATIVE_SERVING in-process request measurements; provisional fixed-cohort positive tradeoff, no quality, general SLO, method novelty or global Oracle claim",
+  "old_two_cell_group": {
+    "group_id": "20260915_repeated_staged_probe_r02",
+    "status": "COMPLETE_EXECUTION_QUALIFIED",
+    "use": "separate original n=1 off/on qualification; never counted as this ABBA repeat"
+  }
+}

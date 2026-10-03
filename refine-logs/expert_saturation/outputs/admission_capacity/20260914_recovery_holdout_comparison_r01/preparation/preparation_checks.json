@@ -1,0 +1,136 @@
+{
+  "status": "PASS",
+  "gpu_executions": 0,
+  "uploads": 0,
+  "compatibility": {
+    "status": "PASS",
+    "actual_records": {
+      "d6_strong_most_output_cell": "/Users/leandrozhao/Desktop/\u3001++++++++/refine-logs/expert_saturation/outputs/admission_capacity/20260914_d6_strong_baselines_r01/readback/results/block0-d6-most_output",
+      "token_reservation_fit_scan_cell": "/Users/leandrozhao/Desktop/\u3001++++++++/refine-logs/expert_saturation/outputs/admission_capacity/20260914_restore_token_reservation_r01/execution/readback/results/block0-fit_scan"
+    },
+    "engine_args": {
+      "common_fields": 18,
+      "differences": {},
+      "exactly_equal": true,
+      "target_source": "shared 6656-block engine args"
+    },
+    "runtime": {
+      "versions": {
+        "python": "3.12.3 | packaged by Anaconda, Inc. | (main, May  6 2024, 19:46:43) [GCC 11.2.0]",
+        "torch": "2.11.0+cu130",
+        "cuda": "13.0",
+        "vllm": "0.26.0",
+        "transformers": "5.15.1"
+      },
+      "vllm_source_sha256": {
+        "v1/core/sched/scheduler.py": "2ed2a550b6558b2495eda845a97ae38bcf0225027b9e25fbf00fc3880c1d3941",
+        "v1/core/kv_cache_manager.py": "3f4af8d247f3fe9570b0132818b832b66ae6a2ac12942588828f899f6ff77ccf",
+        "v1/core/block_pool.py": "202a13cb129174849d798019aaedc04c59775ec2a4b9dfcc7c1e3c563a43a661",
+        "v1/worker/gpu_model_runner.py": "81b7627fbe81f7aaa2f77b4bf085faa353c69d03662ebfe369536a9773bb70d0",
+        "v1/core/kv_cache_coordinator.py": "4c8fbb341f0bd3714eff54ce633f534c1475220decb17c0caed40cbd02b352a2",
+        "v1/core/single_type_kv_cache_manager.py": "bcb27e38895332bf6a4c55608f2917eb9fd941ec5a629c14b88358f00aadeba8",
+        "v1/core/kv_cache_utils.py": "6add6f1d60634b0819833675d86be4adf00c13fe5d0a1605074353b55d3e2d39"
+      },
+      "exact_runtime_sources_equal": true
+    },
+    "measurement_fields": {
+      "requests": 32,
+      "prompt_tokens": 3072,
+      "output_tokens": 1024,
+      "arrival_gap_s": 0.05,
+      "cap": 32,
+      "domain": "long",
+      "max_seconds": 120,
+      "reservation_policy": "full",
+      "preemption_mode": "native_recompute"
+    },
+    "resource_boundary": {
+      "strong_source_usable_blocks": 6656,
+      "target_usable_blocks": 6656,
+      "exact_match": true,
+      "implication": "new cohort still requires new runtime measurements"
+    }
+  },
+  "input": {
+    "workload_sha256": "34aeca96e0537736234aa8b4cba835dcbc54fec60869959b87ab391f0dbce554",
+    "requests": 32,
+    "all_prompt_lengths_3072": true,
+    "exact_steady_arrivals": true,
+    "preparation_sha256": "4775c84082d6afb6067b8060cda336e23fdb2a7d776fe70f72be4d09315c6c18"
+  },
+  "arm_specs": {
+    "native": {
+      "adapter": "native",
+      "policy_family": "native",
+      "completion_policy": "native",
+      "victim_order": "least_progress",
+      "boost": false,
+      "packing": "native",
+      "complete_restores": false,
+      "reserve_ready_tokens": false
+    },
+    "most_output": {
+      "adapter": "rotation",
+      "policy_family": "strong_simple_rotation",
+      "completion_policy": "rotate",
+      "victim_order": "most_output",
+      "boost": false,
+      "packing": "native",
+      "complete_restores": false,
+      "reserve_ready_tokens": false
+    },
+    "fit_scan": {
+      "adapter": "component",
+      "policy_family": "ltr_component",
+      "completion_policy": "restore_token_reservation_fit_scan",
+      "victim_order": "least_progress",
+      "boost": true,
+      "packing": "fit_scan",
+      "complete_restores": false,
+      "reserve_ready_tokens": false
+    },
+    "guard_residual": {
+      "adapter": "component",
+      "policy_family": "ltr_component",
+      "completion_policy": "restore_token_reservation_guard_residual",
+      "victim_order": "least_progress",
+      "boost": true,
+      "packing": "rank_prefix",
+      "complete_restores": true,
+      "reserve_ready_tokens": true
+    }
+  },
+  "plan_fixture": {
+    "fit_scan": {
+      "restore": 5
+    },
+    "guard_residual": {
+      "restore": 4,
+      "ready": 1
+    }
+  },
+  "source": {
+    "common_a_t_modules_byte_identical": [
+      "absence_rotation.py",
+      "completion_headroom.py",
+      "memory_telemetry.py",
+      "metrics.py",
+      "native_capture.py",
+      "rotation_native.py",
+      "safe_static.py"
+    ],
+    "ltr_sha256": "f975a6a8e8ceda4d904000ec2a0520c819494302bce06eeee20649d4ca55e50f",
+    "rotation_sha256": "10149fc99ec060c3c36ac313c99a9988d68593eb67146dba1d6d662e8f049350"
+  },
+  "run_order": [
+    "cohort3-block0-native",
+    "cohort3-block0-most_output",
+    "cohort3-block0-fit_scan",
+    "cohort3-block0-guard_residual",
+    "cohort3-block1-guard_residual",
+    "cohort3-block1-fit_scan",
+    "cohort3-block1-most_output",
+    "cohort3-block1-native"
+  ],
+  "boundary": "CPU source/identity/plan checks only; no runtime result or winner."
+}

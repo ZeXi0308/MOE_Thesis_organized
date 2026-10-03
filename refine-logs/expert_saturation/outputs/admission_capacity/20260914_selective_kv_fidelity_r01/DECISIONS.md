@@ -1,0 +1,11 @@
+# 单victim真实KV前缀保真
+
+前次真实save-on完成432013312bytes保存，两次同量加载，victim输出一致但7其他请求动作后分叉；不能从文本判断KV bitwise。只跑save-on一格，原328选择/329抢占参数不变，新增engine返回边界指纹。
+
+328返回后（本次store仍deferred未提交）取选择cap下完整块3296token，逐层16层实际static_forward_context缓存视图，按实际req_to_blocks逻辑顺序读取有效bytes；不假定物理块号不变。首次真实load completed_jobs报告后再次读取同逻辑前缀，记录对应call、computed/output、token_prefix hash和两次物理映射。若恢复计算已经发生，也明确记录computed，不能称恢复前；完整块前缀应仍未被追加token写入。
+
+要求token身份一致、所有层SHA/bytes/tokens一致；预期总432013312bytes/快照。若层布局或范围不支持则停止，不强行reshape未知布局。未检查其他请求KV、未保存尾部、后续第二次加载、任意策略或质量；通过也只限定此事件前缀。记录首差异层，原件不改。
+
+GPU同步、D2H与hash影响后续时序，完整wall只诊断。不能将本单格计入旧性能重复或用慢/快裁决机制。原逻辑保存未禁用GC，无新controller。
+
+CPU边界hook检查通过：328仅一次before、忽略其他请求load和store完成、目标首次load触发after、后续不重复、原方法恢复。fingerprint已有逻辑搬移/尾部排除检查可复用；本cross-layer实际布局路径仍UNRUN。上传0/GPU0/无driver，启动前按B第二cohort/context/streaming已登记队列协调，不抢占。

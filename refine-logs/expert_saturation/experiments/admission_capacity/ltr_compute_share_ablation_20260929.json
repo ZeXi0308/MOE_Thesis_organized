@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "state": "CPU_ONLY_FULL_REQUEST_UNRUN",
+  "purpose": "Isolate the existing default-off cold-recompute compute-share hook on the same selected-eager native-save base",
+  "run_condition": "Only if the fixed, naturally arising cohort has a resident cold-recompute conflict; otherwise record NO_ACTION and do not change load or thresholds",
+  "common_horizon_s": 180,
+  "ttft_limit_s": 20,
+  "max_gap_limit_s": 3,
+  "slo_front": [
+    {"ttft_limit_s": 10, "max_gap_limit_s": 1.5},
+    {"ttft_limit_s": 20, "max_gap_limit_s": 3},
+    {"ttft_limit_s": 30, "max_gap_limit_s": 5}
+  ],
+  "development_cohort": {"name": "G64", "requests": 64, "inputs_sha256": "7b0b86ff8ecf11345c6f48452107c2afdd9908bd6a2e75a03cebc4ce6302ad4c"},
+  "physical_resources": {
+    "usable_gpu_blocks": 4096,
+    "gpu_kv_bytes": 8592031744,
+    "host_kv_bytes": 17179869184,
+    "block_tokens": 16,
+    "offload_backend": "OffloadingConnector"
+  },
+  "runtime_attestation": {
+    "scheduler_source_sha256": "2ed2a550b6558b2495eda845a97ae38bcf0225027b9e25fbf00fc3880c1d3941",
+    "model_revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "inputs_sha256": "7b0b86ff8ecf11345c6f48452107c2afdd9908bd6a2e75a03cebc4ce6302ad4c",
+    "output_cap": 1024,
+    "ignore_eos": false,
+    "max_num_running_reqs": 32,
+    "max_num_scheduled_tokens": 1024
+  },
+  "calibration_reference": "share_off",
+  "min_output_rate_ratio": 0.97,
+  "max_mean_flow_ratio": 1.05,
+  "cells": [
+    {"name": "share_off", "role": "ablation_reference", "save_scope": "selected", "policy_config": {"family": "selected_eager", "min_absence_steps": 30, "min_residency_steps": 30, "protect_progress_fraction": 0.9, "max_absences_per_request": 8, "min_steps_between_swaps": 0, "victim_order": "most_output", "compute_share_enabled": false}, "raw": "results/share_off/raw.json", "resource_receipt": "results/share_off/resource_receipt.json"},
+    {"name": "share_on", "role": "ablation_treatment", "save_scope": "selected", "policy_config": {"family": "selected_eager", "min_absence_steps": 30, "min_residency_steps": 30, "protect_progress_fraction": 0.9, "max_absences_per_request": 8, "min_steps_between_swaps": 0, "victim_order": "most_output", "compute_share_enabled": true}, "raw": "results/share_on/raw.json", "resource_receipt": "results/share_on/resource_receipt.json"}
+  ],
+  "interpretation": "Paired whole-policy output is descriptive until both independently execute; if on makes zero actual compute holds, report NO_ACTION rather than a mechanism loss or win"
+}

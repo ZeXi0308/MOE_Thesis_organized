@@ -1,0 +1,89 @@
+{
+  "schema_version": "errortoken-cross-artifact-cpu-selector-config-v1",
+  "status": "RETROSPECTIVE_DEVELOPMENT_ONLY",
+  "inputs": {
+    "calibration_numeric": "artifacts/semanticfence_remote_20260810_run03/run/calibration_numeric.jsonl",
+    "semanticfence_complete": "artifacts/semanticfence_remote_20260810_run03/run/COMPLETE.json",
+    "semanticfence_summary": "artifacts/semanticfence_remote_20260810_run03/run/summary.json",
+    "selected_targets": "artifacts/stablebatch_remote_20260810_run01/outputs/single_contribution_20260810_run01/selected_targets.jsonl",
+    "target_results": "artifacts/stablebatch_remote_20260810_run01/outputs/single_contribution_20260810_run01/target_results.jsonl",
+    "stablebatch_manifest": "artifacts/stablebatch_remote_20260810_run01/outputs/single_contribution_20260810_run01/MANIFEST.json",
+    "stablebatch_run_status": "artifacts/stablebatch_remote_20260810_run01/outputs/single_contribution_20260810_run01/RUN_STATUS.json",
+    "stablebatch_summary": "artifacts/stablebatch_remote_20260810_run01/outputs/single_contribution_20260810_run01/summary.json"
+  },
+  "output_dir": "docs/ideas/errortoken/experiments/outputs/cpu_selector_20260810_run01",
+  "constraints": {
+    "expected_target_count": 32,
+    "expected_victim_count": 16,
+    "candidates_per_victim": 2,
+    "budget_per_victim": 1
+  },
+  "calibration": {
+    "key_fields": [
+      "layer",
+      "expert_id",
+      "route_rank"
+    ],
+    "m_grid": [
+      2,
+      4,
+      8,
+      16,
+      32,
+      64
+    ],
+    "stablebatch_topk_rank_offset": 1,
+    "row_mismatch_rule": "any_repeat_nonexact",
+    "onset_risk_formula": "mean(min_m/first_mismatch_m);never=0"
+  },
+  "selector_contract": {
+    "selector_fields": [
+      "layer",
+      "expert_id",
+      "topk_rank_plus_one",
+      "mismatch_onset_risk"
+    ],
+    "forbidden_fields": [
+      "next_layer_topk_margin",
+      "selection_score",
+      "earliest_changed_downstream_layer"
+    ],
+    "missing_key_policy": "rank_after_observed_keys",
+    "tie_break": "causal_layer_then_target_id"
+  },
+  "policies": {
+    "errortoken_mismatch_onset": {
+      "eligibility": "mismatch_onset_risk_gte",
+      "threshold": 0.25,
+      "selection": "causal_first_eligible_B1"
+    },
+    "gate_weight_first": {
+      "eligibility": "gate_weight_gte",
+      "threshold": 0.06,
+      "selection": "causal_first_eligible_B1"
+    },
+    "topk_rank_first": {
+      "eligibility": "zero_based_topk_rank_lte",
+      "threshold": 2,
+      "selection": "causal_first_eligible_B1"
+    }
+  },
+  "evaluation": {
+    "outcome_field": "reproducible_route_propagation",
+    "enumerate_all_matched_assignments": true,
+    "expected_assignment_count": 65536,
+    "exploratory_exact_tail_alpha": 0.1
+  },
+  "action_plan": {
+    "planned_action": "PLAN_EXACT_OR_ISOLATED_REEXECUTION",
+    "execution_status": "NOT_EXECUTED_PLAN_ONLY"
+  },
+  "claim_boundary": "retrospective_cross_artifact_cpu_development_screen_not_runtime_not_executed_action_not_latency_not_quality_not_serving_not_prevalence",
+  "limitations": [
+    "SemanticFence calibration and StableBatch targets were produced by different artifact pipelines.",
+    "The 32 StableBatch targets were outcome-informed enriched targets, not a prevalence sample.",
+    "Calibration-key sample counts are uneven and missing keys are ranked after observed keys.",
+    "The exact matched null is descriptive for these 16 fixed victim pairs and is not an independent replication.",
+    "The emitted action is a plan only; no replay, guard, GPU kernel, or serving action was executed."
+  ]
+}

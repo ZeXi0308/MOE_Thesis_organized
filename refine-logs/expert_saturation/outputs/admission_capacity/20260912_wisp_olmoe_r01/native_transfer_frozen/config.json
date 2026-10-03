@@ -1,0 +1,40 @@
+{
+  "question": "Under one fixed cap24 pager, does limiting first-time prefill work reduce incumbent decode stalls, and at what complete-request cost?",
+  "comparison": "native default vs native long_prefill_token_threshold32; no new controller",
+  "resources": "cap24 BF16 expert scratch4.5GiB, actual KV1GiB, tokenbudget128, maxseq16, admissioncap4, eager TRITON; same host weights/pager/backend",
+  "workload": "same4 existing WikiText prefixes,64input/8output,50ms nominal arrivals; one full cohort warmup before each measured cell",
+  "run_order": "ABBA; all four retained; no rerun/canonical selection by outcome",
+  "information": "configuration frozen before these cells; no future routes read by action",
+  "predictions": {
+    "positive_intervention": "prefill per scheduled request <=32 with every feasible incumbent decode still scheduled; shorter maxITL at a potentially worse TTFT or total wall",
+    "negative_intervention": "if maxITL remains dominated by other work, locate which groups/waits remain; if load totals rise, quantify repeated layer visits/eviction tax"
+  },
+  "metrics": [
+    "per_request_max_ITL",
+    "TTFT",
+    "completion_latency",
+    "batch_wall",
+    "request_throughput",
+    "per_step_first_prefill/decode/recovery",
+    "actual_weight_copy_bytes",
+    "reload_bytes",
+    "load_span",
+    "host_apply_time"
+  ],
+  "scope": "exploratory action/cost calibration; no fixed production SLO, method novelty, significant gain or broad tails",
+  "continue_rule": "use actual action effect and cost decomposition to calibrate one simple online model; no arbitrary percent death threshold",
+  "warmup": "same native threshold0 full-cohort warmup, fully drain, then set measured arm threshold0 or32; this is a static policy comparison, not an online chunk controller",
+  "continuation": "Reuses blocked attempt04 source/cells; new outputs, fixed8 physical CPU cores0-7. Historical attempt stays blocked.",
+  "source_archive_sha256": "5d1d3e59957e41c9aa876f40fd40160ac989a55ab335c6e1e561787d1d45508c",
+  "cpu_affinity": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "runtime_choice": "vLLM0.26 existing validated native pager; do not pool latency with0.11"
+}

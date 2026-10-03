@@ -1,0 +1,3988 @@
+{
+  "status": "SEALED_RESULT_WARMUP_COST_LOCALIZATION",
+  "source_analysis": "shared_pool_performance/analysis.json",
+  "source_analysis_sha256": "330dfe2a54036ff55e0a7903cee5ebc685dbb400da04cb6a32fdb0ebb3f9c081",
+  "source_analysis_status": "DESCRIPTIVE_NATIVE_SHARED_POOL_EXECUTION",
+  "question": "Which of the five warmups accounts for X-minus-U wall cost in each sealed block?",
+  "method": "Use sealed analysis.json by_phase accounting; read only warmup raw observation_end_s and actual call execution tags. Pair same block, ordinal and phase, retaining all eight ordinals. Do not regenerate routes or rerun GPU.",
+  "metric_semantics": {
+    "wall_s": "Complete raw capture observation_end_s, seconds. Five separate captures are sequential and can be summed.",
+    "payload_bytes": "Recorded actual H2D submitted expert-weight payload; not measured PCIe wire bytes.",
+    "d2d_bytes": "Recorded D2D expert payload, separate from H2D.",
+    "groups": "Actual executed expert groups, not canonical hypothetical groups.",
+    "host_plan_ms": "Shared planner field, summed within phase. Ordinary expert path has no separate host_plan_ms field; analyzer represents absence as 0, not zero total planning cost.",
+    "host_apply_ms": "Sum of nested per-call host apply spans; do not add to wall or CUDA spans.",
+    "load_section_ms": "Sum of per-call recorded CUDA load-section spans; overlaps host apply and wall. Never add these categories into another total."
+  },
+  "execution_sources": [
+    "shared_pool_performance/source/run_shared_pool_pager.py:181-185 routes protected warmups to ordinary private21 expert groups; unprotected oneshot uses shared planner",
+    "shared_pool_performance/protocol.json: uniform private24; oneshot private21+48; protected common warmups ordinary execution"
+  ],
+  "observed": "All positive mean warmup wall increments are in the three protected ordinary-group warmups. X uses private21 while U uses private24. Unprotected X oneshot warmup and none-injection warmup have lower mean walls in both blocks. Protected phases have no shared_plan time field or recorded expert D2D, while actual H2D/groups are larger.",
+  "causal_boundary": "Localization is observational: independent X/U route, output and inherited cache trajectories differ; private cap, previous phases, shared dispatch wrapper and engine/order/environment can contribute. No same-prestate cap-only ablation, no exclusive timing-bucket attribution, and no claim that shared dispatch overhead is zero. Correlated repeats are not eight independent samples; no significance claim.",
+  "experiment_boundary": "No new GPU run, continuous-service gain, steady-state denominator or change to the frozen X/F next step.",
+  "blocks": [
+    {
+      "block": 0,
+      "U": "0_uniform",
+      "X": "3_oneshot",
+      "retained_ordinals": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "phases": [
+        {
+          "phase": "warmup",
+          "mean_per_ordinal": {
+            "U": {
+              "wall_s": 0.26947933342307806,
+              "layer_calls": 32,
+              "payload_bytes": 9537847296,
+              "d2d_bytes": 0,
+              "groups": 51,
+              "host_plan_ms": 0,
+              "host_apply_ms": 214.4093660172075,
+              "load_section_ms": 188.01328007131815
+            },
+            "X": {
+              "wall_s": 0.24230762640945613,
+              "layer_calls": 32,
+              "payload_bytes": 9663676416,
+              "d2d_bytes": 0,
+              "groups": 32,
+              "host_plan_ms": 4.191860323771834,
+              "host_apply_ms": 192.36827571876347,
+              "load_section_ms": 175.90412773936987
+            },
+            "X_minus_U": {
+              "wall_s": -0.027171707013621926,
+              "layer_calls": 0,
+              "payload_bytes": 125829120,
+              "d2d_bytes": 0,
+              "groups": -19,
+              "host_plan_ms": 4.191860323771834,
+              "host_apply_ms": -22.041090298444033,
+              "load_section_ms": -12.10915233194828
+            },
+            "wall_delta_range_s": [
+              -0.05017631966620684,
+              -0.013982845470309258
+            ],
+            "wall_delta_positive_count": 0
+          },
+          "pairs": [
+            {
+              "ordinal": 0,
+              "U": {
+                "layer_calls": 32,
+                "payload_bytes": 9537847296,
+                "d2d_bytes": 0,
+                "groups": 51,
+                "host_plan_ms": 0,
+                "host_apply_ms": 212.9015950486064,
+                "load_section_ms": 185.7259513437748,
+                "wall_s": 0.45373946242034435,
+                "execution_call_counts": {
+                  "expert": 32
+                },
+                "wall_source": "shared_pool_performance/results/0_uniform/repeat_0_retention_none_early/warmup.json",
+                "accounting_source": "analysis.json engines/0_uniform/by_phase/repeat_0_retention_none_early/warmup"
+              },
+              "X": {
+                "layer_calls": 32,
+                "payload_bytes": 9663676416,
+                "d2d_bytes": 0,
+                "groups": 32,
+                "host_plan_ms": 3.4462343901395798,
+                "host_apply_ms": 193.453848361969,
+                "load_section_ms": 175.9127681851387,
+                "wall_s": 0.42184780538082123,
+                "execution_call_counts": {
+                  "shared_pool_oneshot": 32
+                },
+                "wall_source": "shared_pool_performance/results/3_oneshot/repeat_0_retention_none_early/warmup.json",
+                "accounting_source": "analysis.json engines/3_oneshot/by_phase/repeat_0_retention_none_early/warmup"
+              },
+              "X_minus_U": {
+                "wall_s": -0.031891657039523125,
+                "layer_calls": 0,
+                "payload_bytes": 125829120,
+                "d2d_bytes": 0,
+                "groups": -19,
+                "host_plan_ms": 3.4462343901395798,
+                "host_apply_ms": -19.4477466866374,
+                "load_section_ms": -9.813183158636093
+              }
+            },
+            {
+              "ordinal": 1,
+              "U": {
+                "layer_calls": 32,
+                "payload_bytes": 9537847296,
+                "d2d_bytes": 0,
+                "groups": 51,
+                "host_plan_ms": 0,
+                "host_apply_ms": 218.87738350778818,
+                "load_section_ms": 190.10886380076408,
+                "wall_s": 0.2638567639514804,
+                "execution_call_counts": {
+                  "expert": 32
+                },
+                "wall_source": "shared_pool_performance/results/0_uniform/repeat_1_retention_none_early/warmup.json",
+                "accounting_source": "analysis.json engines/0_uniform/by_phase/repeat_1_retention_none_early/warmup"
+              },
+              "X": {
+                "layer_calls": 32,
+                "payload_bytes": 9663676416,
+                "d2d_bytes": 0,
+                "groups": 32,
+                "host_plan_ms": 4.175417125225067,
+                "host_apply_ms": 192.42647755891085,
+                "load_section_ms": 176.17049503326416,
+                "wall_s": 0.21368044428527355,
+                "execution_call_counts": {
+                  "shared_pool_oneshot": 32
+                },
+                "wall_source": "shared_pool_performance/results/3_oneshot/repeat_1_retention_none_early/warmup.json",
+                "accounting_source": "analysis.json engines/3_oneshot/by_phase/repeat_1_retention_none_early/warmup"
+              },
+              "X_minus_U": {
+                "wall_s": -0.05017631966620684,
+                "layer_calls": 0,
+                "payload_bytes": 125829120,
+                "d2d_bytes": 0,
+                "groups": -19,
+                "host_plan_ms": 4.175417125225067,
+                "host_apply_ms": -26.450905948877335,
+                "load_section_ms": -13.938368767499924
+              }
+            },
+            {
+              "ordinal": 2,
+              "U": {
+                "layer_calls": 32,
+                "payload_bytes": 9537847296,
+                "d2d_bytes": 0,
+                "groups": 51,
+                "host_plan_ms": 0,
+                "host_apply_ms": 222.02628571540117,
+                "load_section_ms": 191.96505671739578,
+                "wall_s": 0.2516275066882372,
+                "execution_call_counts": {
+                  "expert": 32
+                },
+                "wall_source": "shared_pool_performance/results/0_uniform/repeat_2_retention_none_early/warmup.json",
+                "accounting_source": "analysis.json engines/0_uniform/by_phase/repeat_2_retention_none_early/warmup"
+              },
+              "X": {
+                "layer_calls": 32,
+                "payload_bytes": 9663676416,
+                "d2d_bytes": 0,
+                "groups": 32,
+                "host_plan_ms": 4.786242730915546,
+                "host_apply_ms": 193.22802033275366,
+                "load_section_ms": 175.95398318767548,
+                "wall_s": 0.21542635280638933,
+                "execution_call_counts": {
+                  "shared_pool_oneshot": 32
+                },
+                "wall_source": "shared_pool_performance/results/3_oneshot/repeat_2_retention_none_early/warmup.json",
+                "accounting_source": "analysis.json engines/3_oneshot/by_phase/repeat_2_retention_none_early/warmup"
+              },
+              "X_minus_U": {
+                "wall_s": -0.03620115388184786,
+                "layer_calls": 0,
+                "payload_bytes": 125829120,
+                "d2d_bytes": 0,
+                "groups": -19,
+                "host_plan_ms": 4.786242730915546,
+                "host_apply_ms": -28.798265382647514,
+                "load_section_ms": -16.011073529720306
+              }
+            },
+            {
+              "ordinal": 3,
+              "U": {
+                "layer_calls": 32,
+                "payload_bytes": 9537847296,
+                "d2d_bytes": 0,
+                "groups": 51,
+                "host_plan_ms": 0,
+                "host_apply_ms": 208.39787181466818,
+                "load_section_ms": 185.3760975599289,
+                "wall_s": 0.23174993228167295,
+                "execution_call_counts": {
+                  "expert": 32
+                },
+                "wall_source": "shared_pool_performance/results/0_uniform/repeat_3_retention_none_early/warmup.json",
+                "accounting_source": "analysis.json engines/0_uniform/by_phase/repeat_3_retention_none_early/warmup"
+              },
+              "X": {
+                "layer_calls": 32,
+                "payload_bytes": 9663676416,
+                "d2d_bytes": 0,
+                "groups": 32,
+                "host_plan_ms": 4.207111895084381,
+                "host_apply_ms": 191.60285964608192,
+                "load_section_ms": 175.7203185558319,
+                "wall_s": 0.2134149307385087,
+                "execution_call_counts": {
+                  "shared_pool_oneshot": 32
+                },
+                "wall_source": "shared_pool_performance/results/3_oneshot/repeat_3_retention_none_early/warmup.json",
+                "accounting_source": "analysis.json engines/3_oneshot/by_phase/repeat_3_retention_none_early/warmup"
+              },
+              "X_minus_U": {
+                "wall_s": -0.018335001543164253,
+                "layer_calls": 0,
+                "payload_bytes": 125829120,
+                "d2d_bytes": 0,
+                "groups": -19,
+                "host_plan_ms": 4.207111895084381,
+                "host_apply_ms": -16.795012168586254,
+                "load_section_ms": -9.655779004096985
+              }
+            },
+            {
+              "ordinal": 4,
+              "U": {
+                "layer_calls": 32,
+                "payload_bytes": 9537847296,
+                "d2d_bytes": 0,
+                "groups": 51,
+                "host_plan_ms": 0,
+                "host_apply_ms": 215.59282578527927,
+                "load_section_ms": 189.2017596065998,
+                "wall_s": 0.2421352257952094,
+                "execution_call_counts": {
+                  "expert": 32
+                },
+                "wall_source": "shared_pool_performance/results/0_uniform/repeat_4_retention_none_early/warmup.json",
+                "accounting_source": "analysis.json engines/0_uniform/by_phase/repeat_4_retention_none_early/warmup"
+              },
+              "X": {
+                "layer_calls": 32,
+                "payload_bytes": 9663676416,
+                "d2d_bytes": 0,
+                "groups": 32,
+                "host_plan_ms": 4.935692064464092,
+                "host_apply_ms": 194.55758295953274,
+                "load_section_ms": 176.11376094818115,
+                "wall_s": 0.21893115900456905,
+                "execution_call_counts": {
+                  "shared_pool_oneshot": 32
+                },
+                "wall_source": "shared_pool_performance/results/3_oneshot/repeat_4_retention_none_early/warmup.json",
+                "accounting_source": "analysis.json engines/3_oneshot/by_phase/repeat_4_retention_none_early/warmup"
+              },
+              "X_minus_U": {
+                "wall_s": -0.023204066790640354,
+                "layer_calls": 0,
+                "payload_bytes": 125829120,
+                "d2d_bytes": 0,
+                "groups": -19,
+                "host_plan_ms": 4.935692064464092,
+                "host_apply_ms": -21.035242825746536,
+                "load_section_ms": -13.087998658418655
+              }
+            },
+            {
+              "ordinal": 5,
+              "U": {
+                "layer_calls": 32,
+                "payload_bytes": 9537847296,
+                "d2d_bytes": 0,
+                "groups": 51,
+                "host_plan_ms": 0,
+                "host_apply_ms": 217.9893320426345,
+                "load_section_ms": 189.85084787011147,
+                "wall_s": 0.24603910744190216,
+                "execution_call_counts": {
+                  "expert": 32
+                },
+                "wall_source": "shared_pool_performance/results/0_uniform/repeat_5_retention_none_early/warmup.json",
+                "accounting_source": "analysis.json engines/0_uniform/by_phase/repeat_5_retention_none_early/warmup"
+              },
+              "X": {
+                "layer_calls": 32,
+                "payload_bytes": 9663676416,
+                "d2d_bytes": 0,
+                "groups": 32,
+                "host_plan_ms": 3.9613936096429825,
+                "host_apply_ms": 190.9367823973298,
+                "load_section_ms": 175.7586560845375,
+                "wall_s": 0.2320562619715929,
+                "execution_call_counts": {
+                  "shared_pool_oneshot": 32
+                },
+                "wall_source": "shared_pool_performance/results/3_oneshot/repeat_5_retention_none_early/warmup.json",
+                "accounting_source": "analysis.json engines/3_oneshot/by_phase/repeat_5_retention_none_early/warmup"
+              },
+              "X_minus_U": {
+                "wall_s": -0.013982845470309258,
+                "layer_calls": 0,
+                "payload_bytes": 125829120,
+                "d2d_bytes": 0,
+                "groups": -19,
+                "host_plan_ms": 3.9613936096429825,
+                "host_apply_ms": -27.05254964530468,
+                "load_section_ms": -14.09219178557396
+              }
+            },
+            {
+              "ordinal": 6,
+              "U": {
+                "layer_calls": 32,
+                "payload_bytes": 9537847296,
+                "d2d_bytes": 0,
+                "groups": 51,
+                "host_plan_ms": 0,
+                "host_apply_ms": 210.18227376043797,
+                "load_section_ms": 186.23267272114754,
+                "wall_s": 0.23409732710570097,
+                "execution_call_counts": {
+                  "expert": 32
+                },
+                "wall_source": "shared_pool_performance/results/0_uniform/repeat_6_retention_none_early/warmup.json",
+                "accounting_source": "analysis.json engines/0_uniform/by_phase/repeat_6_retention_none_early/warmup"
+              },
+              "X": {
+                "layer_calls": 32,
+                "payload_bytes": 9663676416,
+                "d2d_bytes": 0,
+                "groups": 32,
+                "host_plan_ms": 3.939184360206127,
+                "host_apply_ms": 191.45558681339025,
+                "load_section_ms": 175.83625495433807,
+                "wall_s": 0.2117358986288309,
+                "execution_call_counts": {
+                  "shared_pool_oneshot": 32
+                },
+                "wall_source": "shared_pool_performance/results/3_oneshot/repeat_6_retention_none_early/warmup.json",
+                "accounting_source": "analysis.json engines/3_oneshot/by_phase/repeat_6_retention_none_early/warmup"
+              },
+              "X_minus_U": {
+                "wall_s": -0.02236142847687006,
+                "layer_calls": 0,
+                "payload_bytes": 125829120,
+                "d2d_bytes": 0,
+                "groups": -19,
+                "host_plan_ms": 3.939184360206127,
+                "host_apply_ms": -18.72668694704771,
+                "load_section_ms": -10.396417766809464
+              }
+            },
+            {
+              "ordinal": 7,
+              "U": {
+                "layer_calls": 32,
+                "payload_bytes": 9537847296,
+                "d2d_bytes": 0,
+                "groups": 51,
+                "host_plan_ms": 0,
+                "host_apply_ms": 209.30736046284437,
+                "load_section_ms": 185.64499095082283,
+                "wall_s": 0.23258934170007706,
+                "execution_call_counts": {
+                  "expert": 32
+                },
+                "wall_source": "shared_pool_performance/results/0_uniform/repeat_7_retention_none_early/warmup.json",
+                "accounting_source": "analysis.json engines/0_uniform/by_phase/repeat_7_retention_none_early/warmup"
+              },
+              "X": {
+                "layer_calls": 32,
+                "payload_bytes": 9663676416,
+                "d2d_bytes": 0,
+                "groups": 32,
+                "host_plan_ms": 4.083606414496899,
+                "host_apply_ms": 191.28504768013954,
+                "load_section_ms": 175.76678496599197,
+                "wall_s": 0.2113681584596634,
+                "execution_call_counts": {
+                  "shared_pool_oneshot": 32
+                },
+                "wall_source": "shared_pool_performance/results/3_oneshot/repeat_7_retention_none_early/warmup.json",
+                "accounting_source": "analysis.json engines/3_oneshot/by_phase/repeat_7_retention_none_early/warmup"
+              },
+              "X_minus_U": {
+                "wall_s": -0.021221183240413666,
+                "layer_calls": 0,
+                "payload_bytes": 125829120,
+                "d2d_bytes": 0,
+                "groups": -19,
+                "host_plan_ms": 4.083606414496899,
+                "host_apply_ms": -18.02231278270483,
+                "load_section_ms": -9.878205984830856
+              }
+            }
+          ]
+        },
+        {
+          "phase": "warmup_injection_none_early_release8",
+          "mean_per_ordinal": {
+            "U": {
+              "wall_s": 1.865857283351943,
+              "layer_calls": 384,
+              "payload_bytes": 65947041792,
+              "d2d_bytes": 0,
+              "groups": 638,
+              "host_plan_ms": 0,
+              "host_apply_ms": 1605.595808941871,
+              "load_section_ms": 1323.0408071801066
+            },
+            "X": {
+              "wall_s": 1.7658974203513935,
+              "layer_calls": 384,
+              "payload_bytes": 73572286464,
+              "d2d_bytes": 33181138944,
+              "groups": 384,
+              "host_plan_ms": 50.79464858863503,
+              "host_apply_ms": 1567.5783028127626,
+              "load_section_ms": 1389.5893280748278
+            },
+            "X_minus_U": {
+              "wall_s": -0.09995986300054938,
+              "layer_calls": 0,
+              "payload_bytes": 7625244672,
+              "d2d_bytes": 33181138944,
+              "groups": -254,
+              "host_plan_ms": 50.79464858863503,
+              "host_apply_ms": -38.01750612910837,
+              "load_section_ms": 66.54852089472115
+            },
+            "wall_delta_range_s": [
+              -0.10879531782120466,
+              -0.0915494067594409
+            ],
+            "wall_delta_positive_count": 0
+          },
+          "pairs": [
+            {
+              "ordinal": 0,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 65947041792,
+                "d2d_bytes": 0,
+                "groups": 638,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1609.2024529352784,
+                "load_section_ms": 1321.951936364174,
+                "wall_s": 1.8688404709100723,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/0_uniform/repeat_0_retention_none_early/warmup_injection_none_early_release8.json",
+                "accounting_source": "analysis.json engines/0_uniform/by_phase/repeat_0_retention_none_early/warmup_injection_none_early_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 73572286464,
+                "d2d_bytes": 33181138944,
+                "groups": 384,
+                "host_plan_ms": 49.944473430514336,
+                "host_apply_ms": 1572.4157132208347,
+                "load_section_ms": 1390.9899541586637,
+                "wall_s": 1.7715242328122258,
+                "execution_call_counts": {
+                  "shared_pool_oneshot": 384
+                },
+                "wall_source": "shared_pool_performance/results/3_oneshot/repeat_0_retention_none_early/warmup_injection_none_early_release8.json",
+                "accounting_source": "analysis.json engines/3_oneshot/by_phase/repeat_0_retention_none_early/warmup_injection_none_early_release8"
+              },
+              "X_minus_U": {
+                "wall_s": -0.09731623809784651,
+                "layer_calls": 0,
+                "payload_bytes": 7625244672,
+                "d2d_bytes": 33181138944,
+                "groups": -254,
+                "host_plan_ms": 49.944473430514336,
+                "host_apply_ms": -36.786739714443684,
+                "load_section_ms": 69.03801779448986
+              }
+            },
+            {
+              "ordinal": 1,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 65947041792,
+                "d2d_bytes": 0,
+                "groups": 638,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1611.3419057801366,
+                "load_section_ms": 1325.9606408178806,
+                "wall_s": 1.8754566768184304,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/0_uniform/repeat_1_retention_none_early/warmup_injection_none_early_release8.json",
+                "accounting_source": "analysis.json engines/0_uniform/by_phase/repeat_1_retention_none_early/warmup_injection_none_early_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 73572286464,
+                "d2d_bytes": 33181138944,
+                "groups": 384,
+                "host_plan_ms": 50.07012560963631,
+                "host_apply_ms": 1566.5408046916127,
+                "load_section_ms": 1389.1221098825336,
+                "wall_s": 1.7666613589972258,
+                "execution_call_counts": {
+                  "shared_pool_oneshot": 384
+                },
+                "wall_source": "shared_pool_performance/results/3_oneshot/repeat_1_retention_none_early/warmup_injection_none_early_release8.json",
+                "accounting_source": "analysis.json engines/3_oneshot/by_phase/repeat_1_retention_none_early/warmup_injection_none_early_release8"
+              },
+              "X_minus_U": {
+                "wall_s": -0.10879531782120466,
+                "layer_calls": 0,
+                "payload_bytes": 7625244672,
+                "d2d_bytes": 33181138944,
+                "groups": -254,
+                "host_plan_ms": 50.07012560963631,
+                "host_apply_ms": -44.801101088523865,
+                "load_section_ms": 63.16146906465292
+              }
+            },
+            {
+              "ordinal": 2,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 65947041792,
+                "d2d_bytes": 0,
+                "groups": 638,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1603.9354829117656,
+                "load_section_ms": 1321.770364612341,
+                "wall_s": 1.8650327743962407,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/0_uniform/repeat_2_retention_none_early/warmup_injection_none_early_release8.json",
+                "accounting_source": "analysis.json engines/0_uniform/by_phase/repeat_2_retention_none_early/warmup_injection_none_early_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 73572286464,
+                "d2d_bytes": 33181138944,
+                "groups": 384,
+                "host_plan_ms": 50.71079917252064,
+                "host_apply_ms": 1566.4087403565645,
+                "load_section_ms": 1389.4831685870886,
+                "wall_s": 1.7654938576743007,
+                "execution_call_counts": {
+                  "shared_pool_oneshot": 384
+                },
+                "wall_source": "shared_pool_performance/results/3_oneshot/repeat_2_retention_none_early/warmup_injection_none_early_release8.json",
+                "accounting_source": "analysis.json engines/3_oneshot/by_phase/repeat_2_retention_none_early/warmup_injection_none_early_release8"
+              },
+              "X_minus_U": {
+                "wall_s": -0.09953891672194004,
+                "layer_calls": 0,
+                "payload_bytes": 7625244672,
+                "d2d_bytes": 33181138944,
+                "groups": -254,
+                "host_plan_ms": 50.71079917252064,
+                "host_apply_ms": -37.526742555201054,
+                "load_section_ms": 67.71280397474766
+              }
+            },
+            {
+              "ordinal": 3,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 65947041792,
+                "d2d_bytes": 0,
+                "groups": 638,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1600.4204414784908,
+                "load_section_ms": 1321.2640632987022,
+                "wall_s": 1.8621118292212486,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/0_uniform/repeat_3_retention_none_early/warmup_injection_none_early_release8.json",
+                "accounting_source": "analysis.json engines/0_uniform/by_phase/repeat_3_retention_none_early/warmup_injection_none_early_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 73572286464,
+                "d2d_bytes": 33181138944,
+                "groups": 384,
+                "host_plan_ms": 51.139031536877155,
+                "host_apply_ms": 1564.616598188877,
+                "load_section_ms": 1388.4982700049877,
+                "wall_s": 1.7614873452112079,
+                "execution_call_counts": {
+                  "shared_pool_oneshot": 384
+                },
+                "wall_source": "shared_pool_performance/results/3_oneshot/repeat_3_retention_none_early/warmup_injection_none_early_release8.json",
+                "accounting_source": "analysis.json engines/3_oneshot/by_phase/repeat_3_retention_none_early/warmup_injection_none_early_release8"
+              },
+              "X_minus_U": {
+                "wall_s": -0.10062448401004076,
+                "layer_calls": 0,
+                "payload_bytes": 7625244672,
+                "d2d_bytes": 33181138944,
+                "groups": -254,
+                "host_plan_ms": 51.139031536877155,
+                "host_apply_ms": -35.803843289613724,
+                "load_section_ms": 67.23420670628548
+              }
+            },
+            {
+              "ordinal": 4,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 65947041792,
+                "d2d_bytes": 0,
+                "groups": 638,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1600.7798463106155,
+                "load_section_ms": 1320.0223343968391,
+                "wall_s": 1.8601954067125916,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/0_uniform/repeat_4_retention_none_early/warmup_injection_none_early_release8.json",
+                "accounting_source": "analysis.json engines/0_uniform/by_phase/repeat_4_retention_none_early/warmup_injection_none_early_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 73572286464,
+                "d2d_bytes": 33181138944,
+                "groups": 384,
+                "host_plan_ms": 50.4580894485116,
+                "host_apply_ms": 1562.8736224025488,
+                "load_section_ms": 1387.944800272584,
+                "wall_s": 1.7580344853922725,
+                "execution_call_counts": {
+                  "shared_pool_oneshot": 384
+                },
+                "wall_source": "shared_pool_performance/results/3_oneshot/repeat_4_retention_none_early/warmup_injection_none_early_release8.json",
+                "accounting_source": "analysis.json engines/3_oneshot/by_phase/repeat_4_retention_none_early/warmup_injection_none_early_release8"
+              },
+              "X_minus_U": {
+                "wall_s": -0.10216092132031918,
+                "layer_calls": 0,
+                "payload_bytes": 7625244672,
+                "d2d_bytes": 33181138944,
+                "groups": -254,
+                "host_plan_ms": 50.4580894485116,
+                "host_apply_ms": -37.90622390806675,
+                "load_section_ms": 67.92246587574482
+              }
+            },
+            {
+              "ordinal": 5,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 65947041792,
+                "d2d_bytes": 0,
+                "groups": 638,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1606.1632307246327,
+                "load_section_ms": 1323.7831009328365,
+                "wall_s": 1.8642182173207402,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/0_uniform/repeat_5_retention_none_early/warmup_injection_none_early_release8.json",
+                "accounting_source": "analysis.json engines/0_uniform/by_phase/repeat_5_retention_none_early/warmup_injection_none_early_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 73572286464,
+                "d2d_bytes": 33181138944,
+                "groups": 384,
+                "host_plan_ms": 50.27648061513901,
+                "host_apply_ms": 1568.420274183154,
+                "load_section_ms": 1389.8814066573977,
+                "wall_s": 1.765757598914206,
+                "execution_call_counts": {
+                  "shared_pool_oneshot": 384
+                },
+                "wall_source": "shared_pool_performance/results/3_oneshot/repeat_5_retention_none_early/warmup_injection_none_early_release8.json",
+                "accounting_source": "analysis.json engines/3_oneshot/by_phase/repeat_5_retention_none_early/warmup_injection_none_early_release8"
+              },
+              "X_minus_U": {
+                "wall_s": -0.0984606184065342,
+                "layer_calls": 0,
+                "payload_bytes": 7625244672,
+                "d2d_bytes": 33181138944,
+                "groups": -254,
+                "host_plan_ms": 50.27648061513901,
+                "host_apply_ms": -37.742956541478634,
+                "load_section_ms": 66.09830572456121
+              }
+            },
+            {
+              "ordinal": 6,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 65947041792,
+                "d2d_bytes": 0,
+                "groups": 638,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1606.4597433432937,
+                "load_section_ms": 1325.1393611133099,
+                "wall_s": 1.8676233934238553,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/0_uniform/repeat_6_retention_none_early/warmup_injection_none_early_release8.json",
+                "accounting_source": "analysis.json engines/0_uniform/by_phase/repeat_6_retention_none_early/warmup_injection_none_early_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 73572286464,
+                "d2d_bytes": 33181138944,
+                "groups": 384,
+                "host_plan_ms": 52.67295241355896,
+                "host_apply_ms": 1568.5658305883408,
+                "load_section_ms": 1388.6722279936075,
+                "wall_s": 1.7663903925567865,
+                "execution_call_counts": {
+                  "shared_pool_oneshot": 384
+                },
+                "wall_source": "shared_pool_performance/results/3_oneshot/repeat_6_retention_none_early/warmup_injection_none_early_release8.json",
+                "accounting_source": "analysis.json engines/3_oneshot/by_phase/repeat_6_retention_none_early/warmup_injection_none_early_release8"
+              },
+              "X_minus_U": {
+                "wall_s": -0.10123300086706877,
+                "layer_calls": 0,
+                "payload_bytes": 7625244672,
+                "d2d_bytes": 33181138944,
+                "groups": -254,
+                "host_plan_ms": 52.67295241355896,
+                "host_apply_ms": -37.89391275495291,
+                "load_section_ms": 63.53286688029766
+              }
+            },
+            {
+              "ordinal": 7,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 65947041792,
+                "d2d_bytes": 0,
+                "groups": 638,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1606.463368050754,
+                "load_section_ms": 1324.43465590477,
+                "wall_s": 1.863379498012364,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/0_uniform/repeat_7_retention_none_early/warmup_injection_none_early_release8.json",
+                "accounting_source": "analysis.json engines/0_uniform/by_phase/repeat_7_retention_none_early/warmup_injection_none_early_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 73572286464,
+                "d2d_bytes": 33181138944,
+                "groups": 384,
+                "host_plan_ms": 51.085236482322216,
+                "host_apply_ms": 1570.7848388701677,
+                "load_section_ms": 1392.1226870417595,
+                "wall_s": 1.771830091252923,
+                "execution_call_counts": {
+                  "shared_pool_oneshot": 384
+                },
+                "wall_source": "shared_pool_performance/results/3_oneshot/repeat_7_retention_none_early/warmup_injection_none_early_release8.json",
+                "accounting_source": "analysis.json engines/3_oneshot/by_phase/repeat_7_retention_none_early/warmup_injection_none_early_release8"
+              },
+              "X_minus_U": {
+                "wall_s": -0.0915494067594409,
+                "layer_calls": 0,
+                "payload_bytes": 7625244672,
+                "d2d_bytes": 33181138944,
+                "groups": -254,
+                "host_plan_ms": 51.085236482322216,
+                "host_apply_ms": -35.67852918058634,
+                "load_section_ms": 67.6880311369896
+              }
+            }
+          ]
+        },
+        {
+          "phase": "warmup_injection_frequency_early_release8",
+          "mean_per_ordinal": {
+            "U": {
+              "wall_s": 1.9278185098664835,
+              "layer_calls": 384,
+              "payload_bytes": 66374860800,
+              "d2d_bytes": 0,
+              "groups": 765,
+              "host_plan_ms": 0,
+              "host_apply_ms": 1669.9572645593435,
+              "load_section_ms": 1340.659900214523
+            },
+            "X": {
+              "wall_s": 2.104997499496676,
+              "layer_calls": 384,
+              "payload_bytes": 72326578176,
+              "d2d_bytes": 0,
+              "groups": 946,
+              "host_plan_ms": 0,
+              "host_apply_ms": 1832.663990324363,
+              "load_section_ms": 1466.2869451008737
+            },
+            "X_minus_U": {
+              "wall_s": 0.17717898963019252,
+              "layer_calls": 0,
+              "payload_bytes": 5951717376,
+              "d2d_bytes": 0,
+              "groups": 181,
+              "host_plan_ms": 0,
+              "host_apply_ms": 162.70672576501966,
+              "load_section_ms": 125.62704488635063
+            },
+            "wall_delta_range_s": [
+              0.15257332287728786,
+              0.20002356637269258
+            ],
+            "wall_delta_positive_count": 8
+          },
+          "pairs": [
+            {
+              "ordinal": 0,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 66374860800,
+                "d2d_bytes": 0,
+                "groups": 765,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1680.3493285551667,
+                "load_section_ms": 1342.596832305193,
+                "wall_s": 1.9394354848191142,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/0_uniform/repeat_0_retention_none_early/warmup_injection_frequency_early_release8.json",
+                "accounting_source": "analysis.json engines/0_uniform/by_phase/repeat_0_retention_none_early/warmup_injection_frequency_early_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 72326578176,
+                "d2d_bytes": 0,
+                "groups": 946,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1824.9682998284698,
+                "load_section_ms": 1464.378977149725,
+                "wall_s": 2.092008807696402,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/3_oneshot/repeat_0_retention_none_early/warmup_injection_frequency_early_release8.json",
+                "accounting_source": "analysis.json engines/3_oneshot/by_phase/repeat_0_retention_none_early/warmup_injection_frequency_early_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.15257332287728786,
+                "layer_calls": 0,
+                "payload_bytes": 5951717376,
+                "d2d_bytes": 0,
+                "groups": 181,
+                "host_plan_ms": 0,
+                "host_apply_ms": 144.61897127330303,
+                "load_section_ms": 121.78214484453201
+              }
+            },
+            {
+              "ordinal": 1,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 66374860800,
+                "d2d_bytes": 0,
+                "groups": 765,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1663.6683633551002,
+                "load_section_ms": 1339.6723856925964,
+                "wall_s": 1.9236388178542256,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/0_uniform/repeat_1_retention_none_early/warmup_injection_frequency_early_release8.json",
+                "accounting_source": "analysis.json engines/0_uniform/by_phase/repeat_1_retention_none_early/warmup_injection_frequency_early_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 72326578176,
+                "d2d_bytes": 0,
+                "groups": 946,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1830.082731321454,
+                "load_section_ms": 1466.080033391714,
+                "wall_s": 2.104377360083163,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/3_oneshot/repeat_1_retention_none_early/warmup_injection_frequency_early_release8.json",
+                "accounting_source": "analysis.json engines/3_oneshot/by_phase/repeat_1_retention_none_early/warmup_injection_frequency_early_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.18073854222893715,
+                "layer_calls": 0,
+                "payload_bytes": 5951717376,
+                "d2d_bytes": 0,
+                "groups": 181,
+                "host_plan_ms": 0,
+                "host_apply_ms": 166.4143679663539,
+                "load_section_ms": 126.40764769911766
+              }
+            },
+            {
+              "ordinal": 2,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 66374860800,
+                "d2d_bytes": 0,
+                "groups": 765,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1669.887462630868,
+                "load_section_ms": 1339.1336314082146,
+                "wall_s": 1.9307375447824597,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/0_uniform/repeat_2_retention_none_early/warmup_injection_frequency_early_release8.json",
+                "accounting_source": "analysis.json engines/0_uniform/by_phase/repeat_2_retention_none_early/warmup_injection_frequency_early_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 72326578176,
+                "d2d_bytes": 0,
+                "groups": 946,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1824.171083047986,
+                "load_section_ms": 1464.6598711311817,
+                "wall_s": 2.091518181376159,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/3_oneshot/repeat_2_retention_none_early/warmup_injection_frequency_early_release8.json",
+                "accounting_source": "analysis.json engines/3_oneshot/by_phase/repeat_2_retention_none_early/warmup_injection_frequency_early_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.16078063659369946,
+                "layer_calls": 0,
+                "payload_bytes": 5951717376,
+                "d2d_bytes": 0,
+                "groups": 181,
+                "host_plan_ms": 0,
+                "host_apply_ms": 154.28362041711807,
+                "load_section_ms": 125.52623972296715
+              }
+            },
+            {
+              "ordinal": 3,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 66374860800,
+                "d2d_bytes": 0,
+                "groups": 765,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1662.8808351233602,
+                "load_section_ms": 1338.0403842628002,
+                "wall_s": 1.9246135856956244,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/0_uniform/repeat_3_retention_none_early/warmup_injection_frequency_early_release8.json",
+                "accounting_source": "analysis.json engines/0_uniform/by_phase/repeat_3_retention_none_early/warmup_injection_frequency_early_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 72326578176,
+                "d2d_bytes": 0,
+                "groups": 946,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1829.4283151626587,
+                "load_section_ms": 1463.6828485131264,
+                "wall_s": 2.099217020906508,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/3_oneshot/repeat_3_retention_none_early/warmup_injection_frequency_early_release8.json",
+                "accounting_source": "analysis.json engines/3_oneshot/by_phase/repeat_3_retention_none_early/warmup_injection_frequency_early_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.17460343521088362,
+                "layer_calls": 0,
+                "payload_bytes": 5951717376,
+                "d2d_bytes": 0,
+                "groups": 181,
+                "host_plan_ms": 0,
+                "host_apply_ms": 166.54748003929853,
+                "load_section_ms": 125.64246425032616
+              }
+            },
+            {
+              "ordinal": 4,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 66374860800,
+                "d2d_bytes": 0,
+                "groups": 765,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1662.1572291478515,
+                "load_section_ms": 1339.2132157087326,
+                "wall_s": 1.9153818003833294,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/0_uniform/repeat_4_retention_none_early/warmup_injection_frequency_early_release8.json",
+                "accounting_source": "analysis.json engines/0_uniform/by_phase/repeat_4_retention_none_early/warmup_injection_frequency_early_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 72326578176,
+                "d2d_bytes": 0,
+                "groups": 946,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1835.9247902408242,
+                "load_section_ms": 1467.9813466072083,
+                "wall_s": 2.115405366756022,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/3_oneshot/repeat_4_retention_none_early/warmup_injection_frequency_early_release8.json",
+                "accounting_source": "analysis.json engines/3_oneshot/by_phase/repeat_4_retention_none_early/warmup_injection_frequency_early_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.20002356637269258,
+                "layer_calls": 0,
+                "payload_bytes": 5951717376,
+                "d2d_bytes": 0,
+                "groups": 181,
+                "host_plan_ms": 0,
+                "host_apply_ms": 173.76756109297276,
+                "load_section_ms": 128.76813089847565
+              }
+            },
+            {
+              "ordinal": 5,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 66374860800,
+                "d2d_bytes": 0,
+                "groups": 765,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1672.6802438497543,
+                "load_section_ms": 1340.7408639192581,
+                "wall_s": 1.9269818933680654,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/0_uniform/repeat_5_retention_none_early/warmup_injection_frequency_early_release8.json",
+                "accounting_source": "analysis.json engines/0_uniform/by_phase/repeat_5_retention_none_early/warmup_injection_frequency_early_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 72326578176,
+                "d2d_bytes": 0,
+                "groups": 946,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1841.342754662037,
+                "load_section_ms": 1467.4756481051445,
+                "wall_s": 2.106481771916151,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/3_oneshot/repeat_5_retention_none_early/warmup_injection_frequency_early_release8.json",
+                "accounting_source": "analysis.json engines/3_oneshot/by_phase/repeat_5_retention_none_early/warmup_injection_frequency_early_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.1794998785480857,
+                "layer_calls": 0,
+                "payload_bytes": 5951717376,
+                "d2d_bytes": 0,
+                "groups": 181,
+                "host_plan_ms": 0,
+                "host_apply_ms": 168.66251081228256,
+                "load_section_ms": 126.73478418588638
+              }
+            },
+            {
+              "ordinal": 6,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 66374860800,
+                "d2d_bytes": 0,
+                "groups": 765,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1677.8531186282635,
+                "load_section_ms": 1344.002912223339,
+                "wall_s": 1.934433275833726,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/0_uniform/repeat_6_retention_none_early/warmup_injection_frequency_early_release8.json",
+                "accounting_source": "analysis.json engines/0_uniform/by_phase/repeat_6_retention_none_early/warmup_injection_frequency_early_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 72326578176,
+                "d2d_bytes": 0,
+                "groups": 946,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1844.8966993018985,
+                "load_section_ms": 1468.273472994566,
+                "wall_s": 2.1233452428132296,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/3_oneshot/repeat_6_retention_none_early/warmup_injection_frequency_early_release8.json",
+                "accounting_source": "analysis.json engines/3_oneshot/by_phase/repeat_6_retention_none_early/warmup_injection_frequency_early_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.18891196697950363,
+                "layer_calls": 0,
+                "payload_bytes": 5951717376,
+                "d2d_bytes": 0,
+                "groups": 181,
+                "host_plan_ms": 0,
+                "host_apply_ms": 167.043580673635,
+                "load_section_ms": 124.27056077122688
+              }
+            },
+            {
+              "ordinal": 7,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 66374860800,
+                "d2d_bytes": 0,
+                "groups": 765,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1670.1815351843834,
+                "load_section_ms": 1341.8789761960506,
+                "wall_s": 1.9273256761953235,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/0_uniform/repeat_7_retention_none_early/warmup_injection_frequency_early_release8.json",
+                "accounting_source": "analysis.json engines/0_uniform/by_phase/repeat_7_retention_none_early/warmup_injection_frequency_early_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 72326578176,
+                "d2d_bytes": 0,
+                "groups": 946,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1830.4972490295768,
+                "load_section_ms": 1467.7633629143238,
+                "wall_s": 2.1076262444257736,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/3_oneshot/repeat_7_retention_none_early/warmup_injection_frequency_early_release8.json",
+                "accounting_source": "analysis.json engines/3_oneshot/by_phase/repeat_7_retention_none_early/warmup_injection_frequency_early_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.18030056823045015,
+                "layer_calls": 0,
+                "payload_bytes": 5951717376,
+                "d2d_bytes": 0,
+                "groups": 181,
+                "host_plan_ms": 0,
+                "host_apply_ms": 160.3157138451934,
+                "load_section_ms": 125.88438671827316
+              }
+            }
+          ]
+        },
+        {
+          "phase": "warmup_injection_frequency_late_release8",
+          "mean_per_ordinal": {
+            "U": {
+              "wall_s": 1.8756155574228615,
+              "layer_calls": 384,
+              "payload_bytes": 64915243008,
+              "d2d_bytes": 0,
+              "groups": 690,
+              "host_plan_ms": 0,
+              "host_apply_ms": 1607.7698544831946,
+              "load_section_ms": 1314.4238441474736
+            },
+            "X": {
+              "wall_s": 2.0323339494643733,
+              "layer_calls": 384,
+              "payload_bytes": 71835844608,
+              "d2d_bytes": 0,
+              "groups": 772,
+              "host_plan_ms": 0,
+              "host_apply_ms": 1763.120390707627,
+              "load_section_ms": 1454.1109713874757
+            },
+            "X_minus_U": {
+              "wall_s": 0.15671839204151183,
+              "layer_calls": 0,
+              "payload_bytes": 6920601600,
+              "d2d_bytes": 0,
+              "groups": 82,
+              "host_plan_ms": 0,
+              "host_apply_ms": 155.3505362244323,
+              "load_section_ms": 139.68712724000216
+            },
+            "wall_delta_range_s": [
+              0.0975246736779809,
+              0.17979878839105368
+            ],
+            "wall_delta_positive_count": 8
+          },
+          "pairs": [
+            {
+              "ordinal": 0,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 64915243008,
+                "d2d_bytes": 0,
+                "groups": 690,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1628.313498571515,
+                "load_section_ms": 1324.5500156879425,
+                "wall_s": 1.9412733353674412,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/0_uniform/repeat_0_retention_none_early/warmup_injection_frequency_late_release8.json",
+                "accounting_source": "analysis.json engines/0_uniform/by_phase/repeat_0_retention_none_early/warmup_injection_frequency_late_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 71835844608,
+                "d2d_bytes": 0,
+                "groups": 772,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1772.447396069765,
+                "load_section_ms": 1455.4374071359634,
+                "wall_s": 2.038798009045422,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/3_oneshot/repeat_0_retention_none_early/warmup_injection_frequency_late_release8.json",
+                "accounting_source": "analysis.json engines/3_oneshot/by_phase/repeat_0_retention_none_early/warmup_injection_frequency_late_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.0975246736779809,
+                "layer_calls": 0,
+                "payload_bytes": 6920601600,
+                "d2d_bytes": 0,
+                "groups": 82,
+                "host_plan_ms": 0,
+                "host_apply_ms": 144.13389749825,
+                "load_section_ms": 130.88739144802094
+              }
+            },
+            {
+              "ordinal": 1,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 64915243008,
+                "d2d_bytes": 0,
+                "groups": 690,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1604.1613016277552,
+                "load_section_ms": 1312.1912323534489,
+                "wall_s": 1.8621461521834135,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/0_uniform/repeat_1_retention_none_early/warmup_injection_frequency_late_release8.json",
+                "accounting_source": "analysis.json engines/0_uniform/by_phase/repeat_1_retention_none_early/warmup_injection_frequency_late_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 71835844608,
+                "d2d_bytes": 0,
+                "groups": 772,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1763.6686051264405,
+                "load_section_ms": 1455.4731177091599,
+                "wall_s": 2.041944940574467,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/3_oneshot/repeat_1_retention_none_early/warmup_injection_frequency_late_release8.json",
+                "accounting_source": "analysis.json engines/3_oneshot/by_phase/repeat_1_retention_none_early/warmup_injection_frequency_late_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.17979878839105368,
+                "layer_calls": 0,
+                "payload_bytes": 6920601600,
+                "d2d_bytes": 0,
+                "groups": 82,
+                "host_plan_ms": 0,
+                "host_apply_ms": 159.50730349868536,
+                "load_section_ms": 143.28188535571098
+              }
+            },
+            {
+              "ordinal": 2,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 64915243008,
+                "d2d_bytes": 0,
+                "groups": 690,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1604.7718469053507,
+                "load_section_ms": 1312.171710073948,
+                "wall_s": 1.873941875062883,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/0_uniform/repeat_2_retention_none_early/warmup_injection_frequency_late_release8.json",
+                "accounting_source": "analysis.json engines/0_uniform/by_phase/repeat_2_retention_none_early/warmup_injection_frequency_late_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 71835844608,
+                "d2d_bytes": 0,
+                "groups": 772,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1766.7882731184363,
+                "load_section_ms": 1451.2984315752983,
+                "wall_s": 2.0298185469582677,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/3_oneshot/repeat_2_retention_none_early/warmup_injection_frequency_late_release8.json",
+                "accounting_source": "analysis.json engines/3_oneshot/by_phase/repeat_2_retention_none_early/warmup_injection_frequency_late_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.1558766718953848,
+                "layer_calls": 0,
+                "payload_bytes": 6920601600,
+                "d2d_bytes": 0,
+                "groups": 82,
+                "host_plan_ms": 0,
+                "host_apply_ms": 162.01642621308565,
+                "load_section_ms": 139.1267215013504
+              }
+            },
+            {
+              "ordinal": 3,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 64915243008,
+                "d2d_bytes": 0,
+                "groups": 690,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1599.3279926478863,
+                "load_section_ms": 1312.026177227497,
+                "wall_s": 1.8588996138423681,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/0_uniform/repeat_3_retention_none_early/warmup_injection_frequency_late_release8.json",
+                "accounting_source": "analysis.json engines/0_uniform/by_phase/repeat_3_retention_none_early/warmup_injection_frequency_late_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 71835844608,
+                "d2d_bytes": 0,
+                "groups": 772,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1756.4210388809443,
+                "load_section_ms": 1453.4316477179527,
+                "wall_s": 2.026808955706656,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/3_oneshot/repeat_3_retention_none_early/warmup_injection_frequency_late_release8.json",
+                "accounting_source": "analysis.json engines/3_oneshot/by_phase/repeat_3_retention_none_early/warmup_injection_frequency_late_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.16790934186428785,
+                "layer_calls": 0,
+                "payload_bytes": 6920601600,
+                "d2d_bytes": 0,
+                "groups": 82,
+                "host_plan_ms": 0,
+                "host_apply_ms": 157.09304623305798,
+                "load_section_ms": 141.40547049045563
+              }
+            },
+            {
+              "ordinal": 4,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 64915243008,
+                "d2d_bytes": 0,
+                "groups": 690,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1608.5364939644933,
+                "load_section_ms": 1311.657857388258,
+                "wall_s": 1.8640767112374306,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/0_uniform/repeat_4_retention_none_early/warmup_injection_frequency_late_release8.json",
+                "accounting_source": "analysis.json engines/0_uniform/by_phase/repeat_4_retention_none_early/warmup_injection_frequency_late_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 71835844608,
+                "d2d_bytes": 0,
+                "groups": 772,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1762.8199150785804,
+                "load_section_ms": 1455.2415978610516,
+                "wall_s": 2.0342399580404162,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/3_oneshot/repeat_4_retention_none_early/warmup_injection_frequency_late_release8.json",
+                "accounting_source": "analysis.json engines/3_oneshot/by_phase/repeat_4_retention_none_early/warmup_injection_frequency_late_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.17016324680298567,
+                "layer_calls": 0,
+                "payload_bytes": 6920601600,
+                "d2d_bytes": 0,
+                "groups": 82,
+                "host_plan_ms": 0,
+                "host_apply_ms": 154.2834211140871,
+                "load_section_ms": 143.58374047279358
+              }
+            },
+            {
+              "ordinal": 5,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 64915243008,
+                "d2d_bytes": 0,
+                "groups": 690,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1602.7153842151165,
+                "load_section_ms": 1314.226496487856,
+                "wall_s": 1.8603925397619605,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/0_uniform/repeat_5_retention_none_early/warmup_injection_frequency_late_release8.json",
+                "accounting_source": "analysis.json engines/0_uniform/by_phase/repeat_5_retention_none_early/warmup_injection_frequency_late_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 71835844608,
+                "d2d_bytes": 0,
+                "groups": 772,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1757.4703181162477,
+                "load_section_ms": 1455.0490544438362,
+                "wall_s": 2.0250316858291626,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/3_oneshot/repeat_5_retention_none_early/warmup_injection_frequency_late_release8.json",
+                "accounting_source": "analysis.json engines/3_oneshot/by_phase/repeat_5_retention_none_early/warmup_injection_frequency_late_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.1646391460672021,
+                "layer_calls": 0,
+                "payload_bytes": 6920601600,
+                "d2d_bytes": 0,
+                "groups": 82,
+                "host_plan_ms": 0,
+                "host_apply_ms": 154.75493390113115,
+                "load_section_ms": 140.8225579559803
+              }
+            },
+            {
+              "ordinal": 6,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 64915243008,
+                "d2d_bytes": 0,
+                "groups": 690,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1603.0809273943305,
+                "load_section_ms": 1314.039073139429,
+                "wall_s": 1.875879936851561,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/0_uniform/repeat_6_retention_none_early/warmup_injection_frequency_late_release8.json",
+                "accounting_source": "analysis.json engines/0_uniform/by_phase/repeat_6_retention_none_early/warmup_injection_frequency_late_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 71835844608,
+                "d2d_bytes": 0,
+                "groups": 772,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1764.8548111319542,
+                "load_section_ms": 1453.0391710400581,
+                "wall_s": 2.030848693102598,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/3_oneshot/repeat_6_retention_none_early/warmup_injection_frequency_late_release8.json",
+                "accounting_source": "analysis.json engines/3_oneshot/by_phase/repeat_6_retention_none_early/warmup_injection_frequency_late_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.15496875625103712,
+                "layer_calls": 0,
+                "payload_bytes": 6920601600,
+                "d2d_bytes": 0,
+                "groups": 82,
+                "host_plan_ms": 0,
+                "host_apply_ms": 161.7738837376237,
+                "load_section_ms": 139.00009790062904
+              }
+            },
+            {
+              "ordinal": 7,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 64915243008,
+                "d2d_bytes": 0,
+                "groups": 690,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1611.2513905391097,
+                "load_section_ms": 1314.5281908214092,
+                "wall_s": 1.8683142950758338,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/0_uniform/repeat_7_retention_none_early/warmup_injection_frequency_late_release8.json",
+                "accounting_source": "analysis.json engines/0_uniform/by_phase/repeat_7_retention_none_early/warmup_injection_frequency_late_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 71835844608,
+                "d2d_bytes": 0,
+                "groups": 772,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1760.492768138647,
+                "load_section_ms": 1453.9173436164856,
+                "wall_s": 2.0311808064579964,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/3_oneshot/repeat_7_retention_none_early/warmup_injection_frequency_late_release8.json",
+                "accounting_source": "analysis.json engines/3_oneshot/by_phase/repeat_7_retention_none_early/warmup_injection_frequency_late_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.16286651138216257,
+                "layer_calls": 0,
+                "payload_bytes": 6920601600,
+                "d2d_bytes": 0,
+                "groups": 82,
+                "host_plan_ms": 0,
+                "host_apply_ms": 149.24137759953737,
+                "load_section_ms": 139.38915279507637
+              }
+            }
+          ]
+        },
+        {
+          "phase": "warmup_injection_decode_late_release8",
+          "mean_per_ordinal": {
+            "U": {
+              "wall_s": 1.8912209428381175,
+              "layer_calls": 384,
+              "payload_bytes": 66412609536,
+              "d2d_bytes": 0,
+              "groups": 681,
+              "host_plan_ms": 0,
+              "host_apply_ms": 1630.0616952357814,
+              "load_section_ms": 1343.4923163466156
+            },
+            "X": {
+              "wall_s": 2.0534037369070575,
+              "layer_calls": 384,
+              "payload_bytes": 72792145920,
+              "d2d_bytes": 0,
+              "groups": 755,
+              "host_plan_ms": 0,
+              "host_apply_ms": 1782.6092643663287,
+              "load_section_ms": 1475.8263046704233
+            },
+            "X_minus_U": {
+              "wall_s": 0.16218279406893998,
+              "layer_calls": 0,
+              "payload_bytes": 6379536384,
+              "d2d_bytes": 0,
+              "groups": 74,
+              "host_plan_ms": 0,
+              "host_apply_ms": 152.54756913054734,
+              "load_section_ms": 132.33398832380772
+            },
+            "wall_delta_range_s": [
+              0.1431217361241579,
+              0.20208372734487057
+            ],
+            "wall_delta_positive_count": 8
+          },
+          "pairs": [
+            {
+              "ordinal": 0,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 66412609536,
+                "d2d_bytes": 0,
+                "groups": 681,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1625.9073931723833,
+                "load_section_ms": 1340.9185608327389,
+                "wall_s": 1.8942613620311022,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/0_uniform/repeat_0_retention_none_early/warmup_injection_decode_late_release8.json",
+                "accounting_source": "analysis.json engines/0_uniform/by_phase/repeat_0_retention_none_early/warmup_injection_decode_late_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 72792145920,
+                "d2d_bytes": 0,
+                "groups": 755,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1773.4875278547406,
+                "load_section_ms": 1470.1747841238976,
+                "wall_s": 2.0402333457022905,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/3_oneshot/repeat_0_retention_none_early/warmup_injection_decode_late_release8.json",
+                "accounting_source": "analysis.json engines/3_oneshot/by_phase/repeat_0_retention_none_early/warmup_injection_decode_late_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.14597198367118835,
+                "layer_calls": 0,
+                "payload_bytes": 6379536384,
+                "d2d_bytes": 0,
+                "groups": 74,
+                "host_plan_ms": 0,
+                "host_apply_ms": 147.5801346823573,
+                "load_section_ms": 129.25622329115868
+              }
+            },
+            {
+              "ordinal": 1,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 66412609536,
+                "d2d_bytes": 0,
+                "groups": 681,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1632.2469925507903,
+                "load_section_ms": 1339.6179537773132,
+                "wall_s": 1.8914030445739627,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/0_uniform/repeat_1_retention_none_early/warmup_injection_decode_late_release8.json",
+                "accounting_source": "analysis.json engines/0_uniform/by_phase/repeat_1_retention_none_early/warmup_injection_decode_late_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 72792145920,
+                "d2d_bytes": 0,
+                "groups": 755,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1775.9639583528042,
+                "load_section_ms": 1470.7065578103065,
+                "wall_s": 2.0476095005869865,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/3_oneshot/repeat_1_retention_none_early/warmup_injection_decode_late_release8.json",
+                "accounting_source": "analysis.json engines/3_oneshot/by_phase/repeat_1_retention_none_early/warmup_injection_decode_late_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.15620645601302385,
+                "layer_calls": 0,
+                "payload_bytes": 6379536384,
+                "d2d_bytes": 0,
+                "groups": 74,
+                "host_plan_ms": 0,
+                "host_apply_ms": 143.71696580201387,
+                "load_section_ms": 131.08860403299332
+              }
+            },
+            {
+              "ordinal": 2,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 66412609536,
+                "d2d_bytes": 0,
+                "groups": 681,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1621.1818857118487,
+                "load_section_ms": 1339.7087677717209,
+                "wall_s": 1.8798470376059413,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/0_uniform/repeat_2_retention_none_early/warmup_injection_decode_late_release8.json",
+                "accounting_source": "analysis.json engines/0_uniform/by_phase/repeat_2_retention_none_early/warmup_injection_decode_late_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 72792145920,
+                "d2d_bytes": 0,
+                "groups": 755,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1769.0898766741157,
+                "load_section_ms": 1469.8684789836407,
+                "wall_s": 2.0356525909155607,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/3_oneshot/repeat_2_retention_none_early/warmup_injection_decode_late_release8.json",
+                "accounting_source": "analysis.json engines/3_oneshot/by_phase/repeat_2_retention_none_early/warmup_injection_decode_late_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.15580555330961943,
+                "layer_calls": 0,
+                "payload_bytes": 6379536384,
+                "d2d_bytes": 0,
+                "groups": 74,
+                "host_plan_ms": 0,
+                "host_apply_ms": 147.90799096226692,
+                "load_section_ms": 130.15971121191978
+              }
+            },
+            {
+              "ordinal": 3,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 66412609536,
+                "d2d_bytes": 0,
+                "groups": 681,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1644.4850862026215,
+                "load_section_ms": 1342.3659829497337,
+                "wall_s": 1.9087035488337278,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/0_uniform/repeat_3_retention_none_early/warmup_injection_decode_late_release8.json",
+                "accounting_source": "analysis.json engines/0_uniform/by_phase/repeat_3_retention_none_early/warmup_injection_decode_late_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 72792145920,
+                "d2d_bytes": 0,
+                "groups": 755,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1770.1496249064803,
+                "load_section_ms": 1470.272959947586,
+                "wall_s": 2.0518252849578857,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/3_oneshot/repeat_3_retention_none_early/warmup_injection_decode_late_release8.json",
+                "accounting_source": "analysis.json engines/3_oneshot/by_phase/repeat_3_retention_none_early/warmup_injection_decode_late_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.1431217361241579,
+                "layer_calls": 0,
+                "payload_bytes": 6379536384,
+                "d2d_bytes": 0,
+                "groups": 74,
+                "host_plan_ms": 0,
+                "host_apply_ms": 125.66453870385885,
+                "load_section_ms": 127.90697699785233
+              }
+            },
+            {
+              "ordinal": 4,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 66412609536,
+                "d2d_bytes": 0,
+                "groups": 681,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1623.7296042963862,
+                "load_section_ms": 1341.2183034420013,
+                "wall_s": 1.8804108072072268,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/0_uniform/repeat_4_retention_none_early/warmup_injection_decode_late_release8.json",
+                "accounting_source": "analysis.json engines/0_uniform/by_phase/repeat_4_retention_none_early/warmup_injection_decode_late_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 72792145920,
+                "d2d_bytes": 0,
+                "groups": 755,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1805.1473256200552,
+                "load_section_ms": 1493.8417622447014,
+                "wall_s": 2.0824945345520973,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/3_oneshot/repeat_4_retention_none_early/warmup_injection_decode_late_release8.json",
+                "accounting_source": "analysis.json engines/3_oneshot/by_phase/repeat_4_retention_none_early/warmup_injection_decode_late_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.20208372734487057,
+                "layer_calls": 0,
+                "payload_bytes": 6379536384,
+                "d2d_bytes": 0,
+                "groups": 74,
+                "host_plan_ms": 0,
+                "host_apply_ms": 181.41772132366896,
+                "load_section_ms": 152.62345880270004
+              }
+            },
+            {
+              "ordinal": 5,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 66412609536,
+                "d2d_bytes": 0,
+                "groups": 681,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1639.235245063901,
+                "load_section_ms": 1357.1866892576218,
+                "wall_s": 1.8959016809239984,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/0_uniform/repeat_5_retention_none_early/warmup_injection_decode_late_release8.json",
+                "accounting_source": "analysis.json engines/0_uniform/by_phase/repeat_5_retention_none_early/warmup_injection_decode_late_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 72792145920,
+                "d2d_bytes": 0,
+                "groups": 755,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1787.500542588532,
+                "load_section_ms": 1485.11356985569,
+                "wall_s": 2.0515028489753604,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/3_oneshot/repeat_5_retention_none_early/warmup_injection_decode_late_release8.json",
+                "accounting_source": "analysis.json engines/3_oneshot/by_phase/repeat_5_retention_none_early/warmup_injection_decode_late_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.15560116805136204,
+                "layer_calls": 0,
+                "payload_bytes": 6379536384,
+                "d2d_bytes": 0,
+                "groups": 74,
+                "host_plan_ms": 0,
+                "host_apply_ms": 148.26529752463102,
+                "load_section_ms": 127.92688059806824
+              }
+            },
+            {
+              "ordinal": 6,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 66412609536,
+                "d2d_bytes": 0,
+                "groups": 681,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1627.8384430333972,
+                "load_section_ms": 1344.046464651823,
+                "wall_s": 1.892182381823659,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/0_uniform/repeat_6_retention_none_early/warmup_injection_decode_late_release8.json",
+                "accounting_source": "analysis.json engines/0_uniform/by_phase/repeat_6_retention_none_early/warmup_injection_decode_late_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 72792145920,
+                "d2d_bytes": 0,
+                "groups": 755,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1791.3581961765885,
+                "load_section_ms": 1474.1714597940445,
+                "wall_s": 2.0632347762584686,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/3_oneshot/repeat_6_retention_none_early/warmup_injection_decode_late_release8.json",
+                "accounting_source": "analysis.json engines/3_oneshot/by_phase/repeat_6_retention_none_early/warmup_injection_decode_late_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.17105239443480968,
+                "layer_calls": 0,
+                "payload_bytes": 6379536384,
+                "d2d_bytes": 0,
+                "groups": 74,
+                "host_plan_ms": 0,
+                "host_apply_ms": 163.51975314319134,
+                "load_section_ms": 130.12499514222145
+              }
+            },
+            {
+              "ordinal": 7,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 66412609536,
+                "d2d_bytes": 0,
+                "groups": 681,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1625.8689118549228,
+                "load_section_ms": 1342.8758080899715,
+                "wall_s": 1.8870576797053218,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/0_uniform/repeat_7_retention_none_early/warmup_injection_decode_late_release8.json",
+                "accounting_source": "analysis.json engines/0_uniform/by_phase/repeat_7_retention_none_early/warmup_injection_decode_late_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 72792145920,
+                "d2d_bytes": 0,
+                "groups": 755,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1788.1770627573133,
+                "load_section_ms": 1472.4608646035194,
+                "wall_s": 2.05467701330781,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/3_oneshot/repeat_7_retention_none_early/warmup_injection_decode_late_release8.json",
+                "accounting_source": "analysis.json engines/3_oneshot/by_phase/repeat_7_retention_none_early/warmup_injection_decode_late_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.16761933360248804,
+                "layer_calls": 0,
+                "payload_bytes": 6379536384,
+                "d2d_bytes": 0,
+                "groups": 74,
+                "host_plan_ms": 0,
+                "host_apply_ms": 162.30815090239048,
+                "load_section_ms": 129.5850565135479
+              }
+            }
+          ]
+        }
+      ],
+      "five_warmup_mean_per_ordinal": {
+        "U": {
+          "wall_s": 7.829991626902483,
+          "layer_calls": 1568,
+          "payload_bytes": 273187602432,
+          "d2d_bytes": 0,
+          "groups": 2825,
+          "host_plan_ms": 0,
+          "host_apply_ms": 6727.793989237398,
+          "load_section_ms": 5509.630147960037
+        },
+        "X": {
+          "wall_s": 8.198940232628956,
+          "layer_calls": 1568,
+          "payload_bytes": 300190531584,
+          "d2d_bytes": 33181138944,
+          "groups": 2889,
+          "host_plan_ms": 54.98650891240686,
+          "host_apply_ms": 7138.340223929845,
+          "load_section_ms": 5961.71767697297
+        },
+        "X_minus_U": {
+          "wall_s": 0.36894860572647303,
+          "layer_calls": 0,
+          "payload_bytes": 27002929152,
+          "d2d_bytes": 33181138944,
+          "groups": 64,
+          "host_plan_ms": 54.98650891240686,
+          "host_apply_ms": 410.5462346924469,
+          "load_section_ms": 452.0875290129334
+        }
+      },
+      "protected_three_wall_delta_s": 0.49608017574064434,
+      "unprotected_two_wall_delta_s": -0.1271315700141713
+    },
+    {
+      "block": 1,
+      "U": "7_uniform",
+      "X": "4_oneshot",
+      "retained_ordinals": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "phases": [
+        {
+          "phase": "warmup",
+          "mean_per_ordinal": {
+            "U": {
+              "wall_s": 0.29907180555164814,
+              "layer_calls": 32,
+              "payload_bytes": 10997465088,
+              "d2d_bytes": 0,
+              "groups": 59,
+              "host_plan_ms": 0,
+              "host_apply_ms": 245.28524174820632,
+              "load_section_ms": 216.37883165851235
+            },
+            "X": {
+              "wall_s": 0.26583845214918256,
+              "layer_calls": 32,
+              "payload_bytes": 11085545472,
+              "d2d_bytes": 0,
+              "groups": 32,
+              "host_plan_ms": 4.569196025840938,
+              "host_apply_ms": 218.17057428415865,
+              "load_section_ms": 201.30421990156174
+            },
+            "X_minus_U": {
+              "wall_s": -0.03323335340246558,
+              "layer_calls": 0,
+              "payload_bytes": 88080384,
+              "d2d_bytes": 0,
+              "groups": -27,
+              "host_plan_ms": 4.569196025840938,
+              "host_apply_ms": -27.11466746404767,
+              "load_section_ms": -15.074611756950617
+            },
+            "wall_delta_range_s": [
+              -0.04355502128601074,
+              -0.025106766261160374
+            ],
+            "wall_delta_positive_count": 0
+          },
+          "pairs": [
+            {
+              "ordinal": 0,
+              "U": {
+                "layer_calls": 32,
+                "payload_bytes": 10997465088,
+                "d2d_bytes": 0,
+                "groups": 59,
+                "host_plan_ms": 0,
+                "host_apply_ms": 243.00871789455414,
+                "load_section_ms": 214.0717111825943,
+                "wall_s": 0.47130410466343164,
+                "execution_call_counts": {
+                  "expert": 32
+                },
+                "wall_source": "shared_pool_performance/results/7_uniform/repeat_0_retention_none_early/warmup.json",
+                "accounting_source": "analysis.json engines/7_uniform/by_phase/repeat_0_retention_none_early/warmup"
+              },
+              "X": {
+                "layer_calls": 32,
+                "payload_bytes": 11085545472,
+                "d2d_bytes": 0,
+                "groups": 32,
+                "host_plan_ms": 3.7411637604236603,
+                "host_apply_ms": 218.3734020218253,
+                "load_section_ms": 200.9762563109398,
+                "wall_s": 0.44422608707100153,
+                "execution_call_counts": {
+                  "shared_pool_oneshot": 32
+                },
+                "wall_source": "shared_pool_performance/results/4_oneshot/repeat_0_retention_none_early/warmup.json",
+                "accounting_source": "analysis.json engines/4_oneshot/by_phase/repeat_0_retention_none_early/warmup"
+              },
+              "X_minus_U": {
+                "wall_s": -0.027078017592430115,
+                "layer_calls": 0,
+                "payload_bytes": 88080384,
+                "d2d_bytes": 0,
+                "groups": -27,
+                "host_plan_ms": 3.7411637604236603,
+                "host_apply_ms": -24.635315872728825,
+                "load_section_ms": -13.09545487165451
+              }
+            },
+            {
+              "ordinal": 1,
+              "U": {
+                "layer_calls": 32,
+                "payload_bytes": 10997465088,
+                "d2d_bytes": 0,
+                "groups": 59,
+                "host_plan_ms": 0,
+                "host_apply_ms": 240.1697589084506,
+                "load_section_ms": 214.21647995710373,
+                "wall_s": 0.28141927998512983,
+                "execution_call_counts": {
+                  "expert": 32
+                },
+                "wall_source": "shared_pool_performance/results/7_uniform/repeat_1_retention_none_early/warmup.json",
+                "accounting_source": "analysis.json engines/7_uniform/by_phase/repeat_1_retention_none_early/warmup"
+              },
+              "X": {
+                "layer_calls": 32,
+                "payload_bytes": 11085545472,
+                "d2d_bytes": 0,
+                "groups": 32,
+                "host_plan_ms": 4.308751784265041,
+                "host_apply_ms": 216.9861774891615,
+                "load_section_ms": 201.24060851335526,
+                "wall_s": 0.2378642586991191,
+                "execution_call_counts": {
+                  "shared_pool_oneshot": 32
+                },
+                "wall_source": "shared_pool_performance/results/4_oneshot/repeat_1_retention_none_early/warmup.json",
+                "accounting_source": "analysis.json engines/4_oneshot/by_phase/repeat_1_retention_none_early/warmup"
+              },
+              "X_minus_U": {
+                "wall_s": -0.04355502128601074,
+                "layer_calls": 0,
+                "payload_bytes": 88080384,
+                "d2d_bytes": 0,
+                "groups": -27,
+                "host_plan_ms": 4.308751784265041,
+                "host_apply_ms": -23.183581419289112,
+                "load_section_ms": -12.975871443748474
+              }
+            },
+            {
+              "ordinal": 2,
+              "U": {
+                "layer_calls": 32,
+                "payload_bytes": 10997465088,
+                "d2d_bytes": 0,
+                "groups": 59,
+                "host_plan_ms": 0,
+                "host_apply_ms": 246.84546701610088,
+                "load_section_ms": 217.38377621769905,
+                "wall_s": 0.2732304399833083,
+                "execution_call_counts": {
+                  "expert": 32
+                },
+                "wall_source": "shared_pool_performance/results/7_uniform/repeat_2_retention_none_early/warmup.json",
+                "accounting_source": "analysis.json engines/7_uniform/by_phase/repeat_2_retention_none_early/warmup"
+              },
+              "X": {
+                "layer_calls": 32,
+                "payload_bytes": 11085545472,
+                "d2d_bytes": 0,
+                "groups": 32,
+                "host_plan_ms": 5.211620591580868,
+                "host_apply_ms": 220.39988450706005,
+                "load_section_ms": 201.63401597738266,
+                "wall_s": 0.245948301628232,
+                "execution_call_counts": {
+                  "shared_pool_oneshot": 32
+                },
+                "wall_source": "shared_pool_performance/results/4_oneshot/repeat_2_retention_none_early/warmup.json",
+                "accounting_source": "analysis.json engines/4_oneshot/by_phase/repeat_2_retention_none_early/warmup"
+              },
+              "X_minus_U": {
+                "wall_s": -0.027282138355076313,
+                "layer_calls": 0,
+                "payload_bytes": 88080384,
+                "d2d_bytes": 0,
+                "groups": -27,
+                "host_plan_ms": 5.211620591580868,
+                "host_apply_ms": -26.445582509040833,
+                "load_section_ms": -15.749760240316391
+              }
+            },
+            {
+              "ordinal": 3,
+              "U": {
+                "layer_calls": 32,
+                "payload_bytes": 10997465088,
+                "d2d_bytes": 0,
+                "groups": 59,
+                "host_plan_ms": 0,
+                "host_apply_ms": 246.13877944648266,
+                "load_section_ms": 217.39647987484932,
+                "wall_s": 0.27242037281394005,
+                "execution_call_counts": {
+                  "expert": 32
+                },
+                "wall_source": "shared_pool_performance/results/7_uniform/repeat_3_retention_none_early/warmup.json",
+                "accounting_source": "analysis.json engines/7_uniform/by_phase/repeat_3_retention_none_early/warmup"
+              },
+              "X": {
+                "layer_calls": 32,
+                "payload_bytes": 11085545472,
+                "d2d_bytes": 0,
+                "groups": 32,
+                "host_plan_ms": 4.660523496568203,
+                "host_apply_ms": 217.93517097830772,
+                "load_section_ms": 201.32099199295044,
+                "wall_s": 0.24011970963329077,
+                "execution_call_counts": {
+                  "shared_pool_oneshot": 32
+                },
+                "wall_source": "shared_pool_performance/results/4_oneshot/repeat_3_retention_none_early/warmup.json",
+                "accounting_source": "analysis.json engines/4_oneshot/by_phase/repeat_3_retention_none_early/warmup"
+              },
+              "X_minus_U": {
+                "wall_s": -0.03230066318064928,
+                "layer_calls": 0,
+                "payload_bytes": 88080384,
+                "d2d_bytes": 0,
+                "groups": -27,
+                "host_plan_ms": 4.660523496568203,
+                "host_apply_ms": -28.203608468174934,
+                "load_section_ms": -16.07548788189888
+              }
+            },
+            {
+              "ordinal": 4,
+              "U": {
+                "layer_calls": 32,
+                "payload_bytes": 10997465088,
+                "d2d_bytes": 0,
+                "groups": 59,
+                "host_plan_ms": 0,
+                "host_apply_ms": 249.95674192905426,
+                "load_section_ms": 218.4588479399681,
+                "wall_s": 0.28014705516397953,
+                "execution_call_counts": {
+                  "expert": 32
+                },
+                "wall_source": "shared_pool_performance/results/7_uniform/repeat_4_retention_none_early/warmup.json",
+                "accounting_source": "analysis.json engines/7_uniform/by_phase/repeat_4_retention_none_early/warmup"
+              },
+              "X": {
+                "layer_calls": 32,
+                "payload_bytes": 11085545472,
+                "d2d_bytes": 0,
+                "groups": 32,
+                "host_plan_ms": 4.467951133847237,
+                "host_apply_ms": 217.51351095736027,
+                "load_section_ms": 201.35849630832672,
+                "wall_s": 0.23823540192097425,
+                "execution_call_counts": {
+                  "shared_pool_oneshot": 32
+                },
+                "wall_source": "shared_pool_performance/results/4_oneshot/repeat_4_retention_none_early/warmup.json",
+                "accounting_source": "analysis.json engines/4_oneshot/by_phase/repeat_4_retention_none_early/warmup"
+              },
+              "X_minus_U": {
+                "wall_s": -0.041911653243005276,
+                "layer_calls": 0,
+                "payload_bytes": 88080384,
+                "d2d_bytes": 0,
+                "groups": -27,
+                "host_plan_ms": 4.467951133847237,
+                "host_apply_ms": -32.44323097169399,
+                "load_section_ms": -17.100351631641388
+              }
+            },
+            {
+              "ordinal": 5,
+              "U": {
+                "layer_calls": 32,
+                "payload_bytes": 10997465088,
+                "d2d_bytes": 0,
+                "groups": 59,
+                "host_plan_ms": 0,
+                "host_apply_ms": 244.3209495395422,
+                "load_section_ms": 215.8585268855095,
+                "wall_s": 0.2697172937914729,
+                "execution_call_counts": {
+                  "expert": 32
+                },
+                "wall_source": "shared_pool_performance/results/7_uniform/repeat_5_retention_none_early/warmup.json",
+                "accounting_source": "analysis.json engines/7_uniform/by_phase/repeat_5_retention_none_early/warmup"
+              },
+              "X": {
+                "layer_calls": 32,
+                "payload_bytes": 11085545472,
+                "d2d_bytes": 0,
+                "groups": 32,
+                "host_plan_ms": 5.284890532493591,
+                "host_apply_ms": 219.88464705646038,
+                "load_section_ms": 201.529534637928,
+                "wall_s": 0.24391399137675762,
+                "execution_call_counts": {
+                  "shared_pool_oneshot": 32
+                },
+                "wall_source": "shared_pool_performance/results/4_oneshot/repeat_5_retention_none_early/warmup.json",
+                "accounting_source": "analysis.json engines/4_oneshot/by_phase/repeat_5_retention_none_early/warmup"
+              },
+              "X_minus_U": {
+                "wall_s": -0.02580330241471529,
+                "layer_calls": 0,
+                "payload_bytes": 88080384,
+                "d2d_bytes": 0,
+                "groups": -27,
+                "host_plan_ms": 5.284890532493591,
+                "host_apply_ms": -24.436302483081818,
+                "load_section_ms": -14.328992247581482
+              }
+            },
+            {
+              "ordinal": 6,
+              "U": {
+                "layer_calls": 32,
+                "payload_bytes": 10997465088,
+                "d2d_bytes": 0,
+                "groups": 59,
+                "host_plan_ms": 0,
+                "host_apply_ms": 248.38498141616583,
+                "load_section_ms": 217.90601652860641,
+                "wall_s": 0.27618653420358896,
+                "execution_call_counts": {
+                  "expert": 32
+                },
+                "wall_source": "shared_pool_performance/results/7_uniform/repeat_6_retention_none_early/warmup.json",
+                "accounting_source": "analysis.json engines/7_uniform/by_phase/repeat_6_retention_none_early/warmup"
+              },
+              "X": {
+                "layer_calls": 32,
+                "payload_bytes": 11085545472,
+                "d2d_bytes": 0,
+                "groups": 32,
+                "host_plan_ms": 3.795718774199486,
+                "host_apply_ms": 214.98969849199057,
+                "load_section_ms": 200.93286484479904,
+                "wall_s": 0.2333572693169117,
+                "execution_call_counts": {
+                  "shared_pool_oneshot": 32
+                },
+                "wall_source": "shared_pool_performance/results/4_oneshot/repeat_6_retention_none_early/warmup.json",
+                "accounting_source": "analysis.json engines/4_oneshot/by_phase/repeat_6_retention_none_early/warmup"
+              },
+              "X_minus_U": {
+                "wall_s": -0.042829264886677265,
+                "layer_calls": 0,
+                "payload_bytes": 88080384,
+                "d2d_bytes": 0,
+                "groups": -27,
+                "host_plan_ms": 3.795718774199486,
+                "host_apply_ms": -33.39528292417526,
+                "load_section_ms": -16.973151683807373
+              }
+            },
+            {
+              "ordinal": 7,
+              "U": {
+                "layer_calls": 32,
+                "payload_bytes": 10997465088,
+                "d2d_bytes": 0,
+                "groups": 59,
+                "host_plan_ms": 0,
+                "host_apply_ms": 243.45653783529997,
+                "load_section_ms": 215.73881468176842,
+                "wall_s": 0.2681493638083339,
+                "execution_call_counts": {
+                  "expert": 32
+                },
+                "wall_source": "shared_pool_performance/results/7_uniform/repeat_7_retention_none_early/warmup.json",
+                "accounting_source": "analysis.json engines/7_uniform/by_phase/repeat_7_retention_none_early/warmup"
+              },
+              "X": {
+                "layer_calls": 32,
+                "payload_bytes": 11085545472,
+                "d2d_bytes": 0,
+                "groups": 32,
+                "host_plan_ms": 5.082948133349419,
+                "host_apply_ms": 219.28210277110338,
+                "load_section_ms": 201.44099062681198,
+                "wall_s": 0.2430425975471735,
+                "execution_call_counts": {
+                  "shared_pool_oneshot": 32
+                },
+                "wall_source": "shared_pool_performance/results/4_oneshot/repeat_7_retention_none_early/warmup.json",
+                "accounting_source": "analysis.json engines/4_oneshot/by_phase/repeat_7_retention_none_early/warmup"
+              },
+              "X_minus_U": {
+                "wall_s": -0.025106766261160374,
+                "layer_calls": 0,
+                "payload_bytes": 88080384,
+                "d2d_bytes": 0,
+                "groups": -27,
+                "host_plan_ms": 5.082948133349419,
+                "host_apply_ms": -24.174435064196587,
+                "load_section_ms": -14.297824054956436
+              }
+            }
+          ]
+        },
+        {
+          "phase": "warmup_injection_none_early_release8",
+          "mean_per_ordinal": {
+            "U": {
+              "wall_s": 1.9648250271566212,
+              "layer_calls": 384,
+              "payload_bytes": 71345111040,
+              "d2d_bytes": 0,
+              "groups": 628,
+              "host_plan_ms": 0,
+              "host_apply_ms": 1706.215386861004,
+              "load_section_ms": 1426.6101315878332
+            },
+            "X": {
+              "wall_s": 1.8541657635942101,
+              "layer_calls": 384,
+              "payload_bytes": 78769029120,
+              "d2d_bytes": 34124857344,
+              "groups": 384,
+              "host_plan_ms": 50.17236352432519,
+              "host_apply_ms": 1659.044508356601,
+              "load_section_ms": 1483.0486597977579
+            },
+            "X_minus_U": {
+              "wall_s": -0.11065926356241107,
+              "layer_calls": 0,
+              "payload_bytes": 7423918080,
+              "d2d_bytes": 34124857344,
+              "groups": -244,
+              "host_plan_ms": 50.17236352432519,
+              "host_apply_ms": -47.170878504402936,
+              "load_section_ms": 56.4385282099247
+            },
+            "wall_delta_range_s": [
+              -0.12038653530180454,
+              -0.09781371150165796
+            ],
+            "wall_delta_positive_count": 0
+          },
+          "pairs": [
+            {
+              "ordinal": 0,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 71345111040,
+                "d2d_bytes": 0,
+                "groups": 628,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1706.1976240947843,
+                "load_section_ms": 1425.7997741997242,
+                "wall_s": 1.9620201596990228,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/7_uniform/repeat_0_retention_none_early/warmup_injection_none_early_release8.json",
+                "accounting_source": "analysis.json engines/7_uniform/by_phase/repeat_0_retention_none_early/warmup_injection_none_early_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 78769029120,
+                "d2d_bytes": 34124857344,
+                "groups": 384,
+                "host_plan_ms": 52.633872255682945,
+                "host_apply_ms": 1663.0574073642492,
+                "load_section_ms": 1482.4468119442463,
+                "wall_s": 1.858904618769884,
+                "execution_call_counts": {
+                  "shared_pool_oneshot": 384
+                },
+                "wall_source": "shared_pool_performance/results/4_oneshot/repeat_0_retention_none_early/warmup_injection_none_early_release8.json",
+                "accounting_source": "analysis.json engines/4_oneshot/by_phase/repeat_0_retention_none_early/warmup_injection_none_early_release8"
+              },
+              "X_minus_U": {
+                "wall_s": -0.10311554092913866,
+                "layer_calls": 0,
+                "payload_bytes": 7423918080,
+                "d2d_bytes": 34124857344,
+                "groups": -244,
+                "host_plan_ms": 52.633872255682945,
+                "host_apply_ms": -43.14021673053503,
+                "load_section_ms": 56.647037744522095
+              }
+            },
+            {
+              "ordinal": 1,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 71345111040,
+                "d2d_bytes": 0,
+                "groups": 628,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1705.3499715402722,
+                "load_section_ms": 1428.3805097341537,
+                "wall_s": 1.9610691741108894,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/7_uniform/repeat_1_retention_none_early/warmup_injection_none_early_release8.json",
+                "accounting_source": "analysis.json engines/7_uniform/by_phase/repeat_1_retention_none_early/warmup_injection_none_early_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 78769029120,
+                "d2d_bytes": 34124857344,
+                "groups": 384,
+                "host_plan_ms": 49.20225962996483,
+                "host_apply_ms": 1656.2319425866008,
+                "load_section_ms": 1482.6633891761303,
+                "wall_s": 1.8501366805285215,
+                "execution_call_counts": {
+                  "shared_pool_oneshot": 384
+                },
+                "wall_source": "shared_pool_performance/results/4_oneshot/repeat_1_retention_none_early/warmup_injection_none_early_release8.json",
+                "accounting_source": "analysis.json engines/4_oneshot/by_phase/repeat_1_retention_none_early/warmup_injection_none_early_release8"
+              },
+              "X_minus_U": {
+                "wall_s": -0.1109324935823679,
+                "layer_calls": 0,
+                "payload_bytes": 7423918080,
+                "d2d_bytes": 34124857344,
+                "groups": -244,
+                "host_plan_ms": 49.20225962996483,
+                "host_apply_ms": -49.118028953671455,
+                "load_section_ms": 54.28287944197655
+              }
+            },
+            {
+              "ordinal": 2,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 71345111040,
+                "d2d_bytes": 0,
+                "groups": 628,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1704.1555000469089,
+                "load_section_ms": 1425.54982355237,
+                "wall_s": 1.9620079845190048,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/7_uniform/repeat_2_retention_none_early/warmup_injection_none_early_release8.json",
+                "accounting_source": "analysis.json engines/7_uniform/by_phase/repeat_2_retention_none_early/warmup_injection_none_early_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 78769029120,
+                "d2d_bytes": 34124857344,
+                "groups": 384,
+                "host_plan_ms": 49.52471982687712,
+                "host_apply_ms": 1656.247784383595,
+                "load_section_ms": 1482.3330884873867,
+                "wall_s": 1.8500896068289876,
+                "execution_call_counts": {
+                  "shared_pool_oneshot": 384
+                },
+                "wall_source": "shared_pool_performance/results/4_oneshot/repeat_2_retention_none_early/warmup_injection_none_early_release8.json",
+                "accounting_source": "analysis.json engines/4_oneshot/by_phase/repeat_2_retention_none_early/warmup_injection_none_early_release8"
+              },
+              "X_minus_U": {
+                "wall_s": -0.11191837769001722,
+                "layer_calls": 0,
+                "payload_bytes": 7423918080,
+                "d2d_bytes": 34124857344,
+                "groups": -244,
+                "host_plan_ms": 49.52471982687712,
+                "host_apply_ms": -47.907715663313866,
+                "load_section_ms": 56.78326493501663
+              }
+            },
+            {
+              "ordinal": 3,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 71345111040,
+                "d2d_bytes": 0,
+                "groups": 628,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1705.0399025902152,
+                "load_section_ms": 1426.8465623259544,
+                "wall_s": 1.9641426373273134,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/7_uniform/repeat_3_retention_none_early/warmup_injection_none_early_release8.json",
+                "accounting_source": "analysis.json engines/7_uniform/by_phase/repeat_3_retention_none_early/warmup_injection_none_early_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 78769029120,
+                "d2d_bytes": 34124857344,
+                "groups": 384,
+                "host_plan_ms": 49.81537628918886,
+                "host_apply_ms": 1657.747338525951,
+                "load_section_ms": 1482.8814401328564,
+                "wall_s": 1.851301203481853,
+                "execution_call_counts": {
+                  "shared_pool_oneshot": 384
+                },
+                "wall_source": "shared_pool_performance/results/4_oneshot/repeat_3_retention_none_early/warmup_injection_none_early_release8.json",
+                "accounting_source": "analysis.json engines/4_oneshot/by_phase/repeat_3_retention_none_early/warmup_injection_none_early_release8"
+              },
+              "X_minus_U": {
+                "wall_s": -0.11284143384546041,
+                "layer_calls": 0,
+                "payload_bytes": 7423918080,
+                "d2d_bytes": 34124857344,
+                "groups": -244,
+                "host_plan_ms": 49.81537628918886,
+                "host_apply_ms": -47.2925640642643,
+                "load_section_ms": 56.03487780690193
+              }
+            },
+            {
+              "ordinal": 4,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 71345111040,
+                "d2d_bytes": 0,
+                "groups": 628,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1708.791990764439,
+                "load_section_ms": 1427.5481931865215,
+                "wall_s": 1.9729524040594697,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/7_uniform/repeat_4_retention_none_early/warmup_injection_none_early_release8.json",
+                "accounting_source": "analysis.json engines/7_uniform/by_phase/repeat_4_retention_none_early/warmup_injection_none_early_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 78769029120,
+                "d2d_bytes": 34124857344,
+                "groups": 384,
+                "host_plan_ms": 51.151564344763756,
+                "host_apply_ms": 1663.032691925764,
+                "load_section_ms": 1483.818303912878,
+                "wall_s": 1.8590317107737064,
+                "execution_call_counts": {
+                  "shared_pool_oneshot": 384
+                },
+                "wall_source": "shared_pool_performance/results/4_oneshot/repeat_4_retention_none_early/warmup_injection_none_early_release8.json",
+                "accounting_source": "analysis.json engines/4_oneshot/by_phase/repeat_4_retention_none_early/warmup_injection_none_early_release8"
+              },
+              "X_minus_U": {
+                "wall_s": -0.11392069328576326,
+                "layer_calls": 0,
+                "payload_bytes": 7423918080,
+                "d2d_bytes": 34124857344,
+                "groups": -244,
+                "host_plan_ms": 51.151564344763756,
+                "host_apply_ms": -45.75929883867502,
+                "load_section_ms": 56.270110726356506
+              }
+            },
+            {
+              "ordinal": 5,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 71345111040,
+                "d2d_bytes": 0,
+                "groups": 628,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1708.9205337688327,
+                "load_section_ms": 1427.2492459118366,
+                "wall_s": 1.9685583151876926,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/7_uniform/repeat_5_retention_none_early/warmup_injection_none_early_release8.json",
+                "accounting_source": "analysis.json engines/7_uniform/by_phase/repeat_5_retention_none_early/warmup_injection_none_early_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 78769029120,
+                "d2d_bytes": 34124857344,
+                "groups": 384,
+                "host_plan_ms": 49.37048815190792,
+                "host_apply_ms": 1658.0111114308238,
+                "load_section_ms": 1483.175297230482,
+                "wall_s": 1.854212992824614,
+                "execution_call_counts": {
+                  "shared_pool_oneshot": 384
+                },
+                "wall_source": "shared_pool_performance/results/4_oneshot/repeat_5_retention_none_early/warmup_injection_none_early_release8.json",
+                "accounting_source": "analysis.json engines/4_oneshot/by_phase/repeat_5_retention_none_early/warmup_injection_none_early_release8"
+              },
+              "X_minus_U": {
+                "wall_s": -0.1143453223630786,
+                "layer_calls": 0,
+                "payload_bytes": 7423918080,
+                "d2d_bytes": 34124857344,
+                "groups": -244,
+                "host_plan_ms": 49.37048815190792,
+                "host_apply_ms": -50.90942233800888,
+                "load_section_ms": 55.92605131864548
+              }
+            },
+            {
+              "ordinal": 6,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 71345111040,
+                "d2d_bytes": 0,
+                "groups": 628,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1711.3513639196754,
+                "load_section_ms": 1426.8889259696007,
+                "wall_s": 1.9721962111070752,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/7_uniform/repeat_6_retention_none_early/warmup_injection_none_early_release8.json",
+                "accounting_source": "analysis.json engines/7_uniform/by_phase/repeat_6_retention_none_early/warmup_injection_none_early_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 78769029120,
+                "d2d_bytes": 34124857344,
+                "groups": 384,
+                "host_plan_ms": 49.69766177237034,
+                "host_apply_ms": 1657.3941931128502,
+                "load_section_ms": 1483.32492685318,
+                "wall_s": 1.8518096758052707,
+                "execution_call_counts": {
+                  "shared_pool_oneshot": 384
+                },
+                "wall_source": "shared_pool_performance/results/4_oneshot/repeat_6_retention_none_early/warmup_injection_none_early_release8.json",
+                "accounting_source": "analysis.json engines/4_oneshot/by_phase/repeat_6_retention_none_early/warmup_injection_none_early_release8"
+              },
+              "X_minus_U": {
+                "wall_s": -0.12038653530180454,
+                "layer_calls": 0,
+                "payload_bytes": 7423918080,
+                "d2d_bytes": 34124857344,
+                "groups": -244,
+                "host_plan_ms": 49.69766177237034,
+                "host_apply_ms": -53.95717080682516,
+                "load_section_ms": 56.436000883579254
+              }
+            },
+            {
+              "ordinal": 7,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 71345111040,
+                "d2d_bytes": 0,
+                "groups": 628,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1699.9162081629038,
+                "load_section_ms": 1424.618017822504,
+                "wall_s": 1.9556533312425017,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/7_uniform/repeat_7_retention_none_early/warmup_injection_none_early_release8.json",
+                "accounting_source": "analysis.json engines/7_uniform/by_phase/repeat_7_retention_none_early/warmup_injection_none_early_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 78769029120,
+                "d2d_bytes": 34124857344,
+                "groups": 384,
+                "host_plan_ms": 49.98296592384577,
+                "host_apply_ms": 1660.633597522974,
+                "load_section_ms": 1483.7460206449032,
+                "wall_s": 1.8578396197408438,
+                "execution_call_counts": {
+                  "shared_pool_oneshot": 384
+                },
+                "wall_source": "shared_pool_performance/results/4_oneshot/repeat_7_retention_none_early/warmup_injection_none_early_release8.json",
+                "accounting_source": "analysis.json engines/4_oneshot/by_phase/repeat_7_retention_none_early/warmup_injection_none_early_release8"
+              },
+              "X_minus_U": {
+                "wall_s": -0.09781371150165796,
+                "layer_calls": 0,
+                "payload_bytes": 7423918080,
+                "d2d_bytes": 34124857344,
+                "groups": -244,
+                "host_plan_ms": 49.98296592384577,
+                "host_apply_ms": -39.28261063992977,
+                "load_section_ms": 59.12800282239914
+              }
+            }
+          ]
+        },
+        {
+          "phase": "warmup_injection_frequency_early_release8",
+          "mean_per_ordinal": {
+            "U": {
+              "wall_s": 2.0051561414729804,
+              "layer_calls": 384,
+              "payload_bytes": 70489473024,
+              "d2d_bytes": 0,
+              "groups": 774,
+              "host_plan_ms": 0,
+              "host_apply_ms": 1747.7229229407385,
+              "load_section_ms": 1421.4477926418185
+            },
+            "X": {
+              "wall_s": 2.202194540761411,
+              "layer_calls": 384,
+              "payload_bytes": 77435240448,
+              "d2d_bytes": 0,
+              "groups": 959,
+              "host_plan_ms": 0,
+              "host_apply_ms": 1933.1160266883671,
+              "load_section_ms": 1564.3921516239643
+            },
+            "X_minus_U": {
+              "wall_s": 0.1970383992884308,
+              "layer_calls": 0,
+              "payload_bytes": 6945767424,
+              "d2d_bytes": 0,
+              "groups": 185,
+              "host_plan_ms": 0,
+              "host_apply_ms": 185.39310374762863,
+              "load_section_ms": 142.9443589821458
+            },
+            "wall_delta_range_s": [
+              0.18601406551897526,
+              0.21746333502233028
+            ],
+            "wall_delta_positive_count": 8
+          },
+          "pairs": [
+            {
+              "ordinal": 0,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 70489473024,
+                "d2d_bytes": 0,
+                "groups": 774,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1751.9896198064089,
+                "load_section_ms": 1421.1312958300114,
+                "wall_s": 2.0041020000353456,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/7_uniform/repeat_0_retention_none_early/warmup_injection_frequency_early_release8.json",
+                "accounting_source": "analysis.json engines/7_uniform/by_phase/repeat_0_retention_none_early/warmup_injection_frequency_early_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 77435240448,
+                "d2d_bytes": 0,
+                "groups": 959,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1926.9593693315983,
+                "load_section_ms": 1564.5564797520638,
+                "wall_s": 2.190116065554321,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/4_oneshot/repeat_0_retention_none_early/warmup_injection_frequency_early_release8.json",
+                "accounting_source": "analysis.json engines/4_oneshot/by_phase/repeat_0_retention_none_early/warmup_injection_frequency_early_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.18601406551897526,
+                "layer_calls": 0,
+                "payload_bytes": 6945767424,
+                "d2d_bytes": 0,
+                "groups": 185,
+                "host_plan_ms": 0,
+                "host_apply_ms": 174.9697495251894,
+                "load_section_ms": 143.42518392205238
+              }
+            },
+            {
+              "ordinal": 1,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 70489473024,
+                "d2d_bytes": 0,
+                "groups": 774,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1739.4996862858534,
+                "load_section_ms": 1420.1117771565914,
+                "wall_s": 1.9964088005945086,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/7_uniform/repeat_1_retention_none_early/warmup_injection_frequency_early_release8.json",
+                "accounting_source": "analysis.json engines/7_uniform/by_phase/repeat_1_retention_none_early/warmup_injection_frequency_early_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 77435240448,
+                "d2d_bytes": 0,
+                "groups": 959,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1921.9750091433525,
+                "load_section_ms": 1561.9344950318336,
+                "wall_s": 2.1864296039566398,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/4_oneshot/repeat_1_retention_none_early/warmup_injection_frequency_early_release8.json",
+                "accounting_source": "analysis.json engines/4_oneshot/by_phase/repeat_1_retention_none_early/warmup_injection_frequency_early_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.19002080336213112,
+                "layer_calls": 0,
+                "payload_bytes": 6945767424,
+                "d2d_bytes": 0,
+                "groups": 185,
+                "host_plan_ms": 0,
+                "host_apply_ms": 182.47532285749912,
+                "load_section_ms": 141.82271787524223
+              }
+            },
+            {
+              "ordinal": 2,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 70489473024,
+                "d2d_bytes": 0,
+                "groups": 774,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1747.6632483303547,
+                "load_section_ms": 1420.7048330008984,
+                "wall_s": 2.0008090510964394,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/7_uniform/repeat_2_retention_none_early/warmup_injection_frequency_early_release8.json",
+                "accounting_source": "analysis.json engines/7_uniform/by_phase/repeat_2_retention_none_early/warmup_injection_frequency_early_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 77435240448,
+                "d2d_bytes": 0,
+                "groups": 959,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1929.6949040144682,
+                "load_section_ms": 1561.6233609318733,
+                "wall_s": 2.1917522503063083,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/4_oneshot/repeat_2_retention_none_early/warmup_injection_frequency_early_release8.json",
+                "accounting_source": "analysis.json engines/4_oneshot/by_phase/repeat_2_retention_none_early/warmup_injection_frequency_early_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.1909431992098689,
+                "layer_calls": 0,
+                "payload_bytes": 6945767424,
+                "d2d_bytes": 0,
+                "groups": 185,
+                "host_plan_ms": 0,
+                "host_apply_ms": 182.0316556841135,
+                "load_section_ms": 140.91852793097496
+              }
+            },
+            {
+              "ordinal": 3,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 70489473024,
+                "d2d_bytes": 0,
+                "groups": 774,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1751.943500712514,
+                "load_section_ms": 1421.8212499916553,
+                "wall_s": 2.011584117077291,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/7_uniform/repeat_3_retention_none_early/warmup_injection_frequency_early_release8.json",
+                "accounting_source": "analysis.json engines/7_uniform/by_phase/repeat_3_retention_none_early/warmup_injection_frequency_early_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 77435240448,
+                "d2d_bytes": 0,
+                "groups": 959,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1937.1715085580945,
+                "load_section_ms": 1563.5491532981396,
+                "wall_s": 2.2027850300073624,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/4_oneshot/repeat_3_retention_none_early/warmup_injection_frequency_early_release8.json",
+                "accounting_source": "analysis.json engines/4_oneshot/by_phase/repeat_3_retention_none_early/warmup_injection_frequency_early_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.19120091293007135,
+                "layer_calls": 0,
+                "payload_bytes": 6945767424,
+                "d2d_bytes": 0,
+                "groups": 185,
+                "host_plan_ms": 0,
+                "host_apply_ms": 185.22800784558058,
+                "load_section_ms": 141.72790330648422
+              }
+            },
+            {
+              "ordinal": 4,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 70489473024,
+                "d2d_bytes": 0,
+                "groups": 774,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1748.185004107654,
+                "load_section_ms": 1423.1760013103485,
+                "wall_s": 2.007617278955877,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/7_uniform/repeat_4_retention_none_early/warmup_injection_frequency_early_release8.json",
+                "accounting_source": "analysis.json engines/7_uniform/by_phase/repeat_4_retention_none_early/warmup_injection_frequency_early_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 77435240448,
+                "d2d_bytes": 0,
+                "groups": 959,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1939.2227912321687,
+                "load_section_ms": 1566.410494685173,
+                "wall_s": 2.2085261875763535,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/4_oneshot/repeat_4_retention_none_early/warmup_injection_frequency_early_release8.json",
+                "accounting_source": "analysis.json engines/4_oneshot/by_phase/repeat_4_retention_none_early/warmup_injection_frequency_early_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.20090890862047672,
+                "layer_calls": 0,
+                "payload_bytes": 6945767424,
+                "d2d_bytes": 0,
+                "groups": 185,
+                "host_plan_ms": 0,
+                "host_apply_ms": 191.03778712451458,
+                "load_section_ms": 143.23449337482452
+              }
+            },
+            {
+              "ordinal": 5,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 70489473024,
+                "d2d_bytes": 0,
+                "groups": 774,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1754.9865320324898,
+                "load_section_ms": 1423.6224972009659,
+                "wall_s": 2.022969301789999,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/7_uniform/repeat_5_retention_none_early/warmup_injection_frequency_early_release8.json",
+                "accounting_source": "analysis.json engines/7_uniform/by_phase/repeat_5_retention_none_early/warmup_injection_frequency_early_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 77435240448,
+                "d2d_bytes": 0,
+                "groups": 959,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1946.1713870987296,
+                "load_section_ms": 1568.0127671957016,
+                "wall_s": 2.231344855390489,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/4_oneshot/repeat_5_retention_none_early/warmup_injection_frequency_early_release8.json",
+                "accounting_source": "analysis.json engines/4_oneshot/by_phase/repeat_5_retention_none_early/warmup_injection_frequency_early_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.2083755536004901,
+                "layer_calls": 0,
+                "payload_bytes": 6945767424,
+                "d2d_bytes": 0,
+                "groups": 185,
+                "host_plan_ms": 0,
+                "host_apply_ms": 191.18485506623983,
+                "load_section_ms": 144.39026999473572
+              }
+            },
+            {
+              "ordinal": 6,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 70489473024,
+                "d2d_bytes": 0,
+                "groups": 774,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1747.5608317181468,
+                "load_section_ms": 1421.041119158268,
+                "wall_s": 2.0043614730238914,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/7_uniform/repeat_6_retention_none_early/warmup_injection_frequency_early_release8.json",
+                "accounting_source": "analysis.json engines/7_uniform/by_phase/repeat_6_retention_none_early/warmup_injection_frequency_early_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 77435240448,
+                "d2d_bytes": 0,
+                "groups": 959,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1930.9028293937445,
+                "load_section_ms": 1562.5243496894836,
+                "wall_s": 2.195741889066994,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/4_oneshot/repeat_6_retention_none_early/warmup_injection_frequency_early_release8.json",
+                "accounting_source": "analysis.json engines/4_oneshot/by_phase/repeat_6_retention_none_early/warmup_injection_frequency_early_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.19138041604310274,
+                "layer_calls": 0,
+                "payload_bytes": 6945767424,
+                "d2d_bytes": 0,
+                "groups": 185,
+                "host_plan_ms": 0,
+                "host_apply_ms": 183.34199767559767,
+                "load_section_ms": 141.48323053121567
+              }
+            },
+            {
+              "ordinal": 7,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 70489473024,
+                "d2d_bytes": 0,
+                "groups": 774,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1739.9549605324864,
+                "load_section_ms": 1419.9735674858093,
+                "wall_s": 1.9933971092104912,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/7_uniform/repeat_7_retention_none_early/warmup_injection_frequency_early_release8.json",
+                "accounting_source": "analysis.json engines/7_uniform/by_phase/repeat_7_retention_none_early/warmup_injection_frequency_early_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 77435240448,
+                "d2d_bytes": 0,
+                "groups": 959,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1932.8304147347808,
+                "load_section_ms": 1566.526112407446,
+                "wall_s": 2.2108604442328215,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/4_oneshot/repeat_7_retention_none_early/warmup_injection_frequency_early_release8.json",
+                "accounting_source": "analysis.json engines/4_oneshot/by_phase/repeat_7_retention_none_early/warmup_injection_frequency_early_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.21746333502233028,
+                "layer_calls": 0,
+                "payload_bytes": 6945767424,
+                "d2d_bytes": 0,
+                "groups": 185,
+                "host_plan_ms": 0,
+                "host_apply_ms": 192.87545420229435,
+                "load_section_ms": 146.55254492163658
+              }
+            }
+          ]
+        },
+        {
+          "phase": "warmup_injection_frequency_late_release8",
+          "mean_per_ordinal": {
+            "U": {
+              "wall_s": 1.965000412426889,
+              "layer_calls": 384,
+              "payload_bytes": 70451724288,
+              "d2d_bytes": 0,
+              "groups": 670,
+              "host_plan_ms": 0,
+              "host_apply_ms": 1705.7588825700805,
+              "load_section_ms": 1418.9048317298293
+            },
+            "X": {
+              "wall_s": 2.1334978378145024,
+              "layer_calls": 384,
+              "payload_bytes": 77208748032,
+              "d2d_bytes": 0,
+              "groups": 764,
+              "host_plan_ms": 0,
+              "host_apply_ms": 1866.9207714265212,
+              "load_section_ms": 1557.060415763408
+            },
+            "X_minus_U": {
+              "wall_s": 0.16849742538761348,
+              "layer_calls": 0,
+              "payload_bytes": 6757023744,
+              "d2d_bytes": 0,
+              "groups": 94,
+              "host_plan_ms": 0,
+              "host_apply_ms": 161.16188885644078,
+              "load_section_ms": 138.15558403357863
+            },
+            "wall_delta_range_s": [
+              0.1483759693801403,
+              0.18111233972012997
+            ],
+            "wall_delta_positive_count": 8
+          },
+          "pairs": [
+            {
+              "ordinal": 0,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 70451724288,
+                "d2d_bytes": 0,
+                "groups": 670,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1700.759314931929,
+                "load_section_ms": 1420.244513452053,
+                "wall_s": 1.9581541875377297,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/7_uniform/repeat_0_retention_none_early/warmup_injection_frequency_late_release8.json",
+                "accounting_source": "analysis.json engines/7_uniform/by_phase/repeat_0_retention_none_early/warmup_injection_frequency_late_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 77208748032,
+                "d2d_bytes": 0,
+                "groups": 764,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1873.2085162773728,
+                "load_section_ms": 1557.3312631249428,
+                "wall_s": 2.1392665272578597,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/4_oneshot/repeat_0_retention_none_early/warmup_injection_frequency_late_release8.json",
+                "accounting_source": "analysis.json engines/4_oneshot/by_phase/repeat_0_retention_none_early/warmup_injection_frequency_late_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.18111233972012997,
+                "layer_calls": 0,
+                "payload_bytes": 6757023744,
+                "d2d_bytes": 0,
+                "groups": 94,
+                "host_plan_ms": 0,
+                "host_apply_ms": 172.44920134544373,
+                "load_section_ms": 137.0867496728897
+              }
+            },
+            {
+              "ordinal": 1,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 70451724288,
+                "d2d_bytes": 0,
+                "groups": 670,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1697.298682294786,
+                "load_section_ms": 1417.8115811944008,
+                "wall_s": 1.9529958199709654,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/7_uniform/repeat_1_retention_none_early/warmup_injection_frequency_late_release8.json",
+                "accounting_source": "analysis.json engines/7_uniform/by_phase/repeat_1_retention_none_early/warmup_injection_frequency_late_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 77208748032,
+                "d2d_bytes": 0,
+                "groups": 764,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1860.5733290314674,
+                "load_section_ms": 1554.2556152939796,
+                "wall_s": 2.130033471621573,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/4_oneshot/repeat_1_retention_none_early/warmup_injection_frequency_late_release8.json",
+                "accounting_source": "analysis.json engines/4_oneshot/by_phase/repeat_1_retention_none_early/warmup_injection_frequency_late_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.17703765165060759,
+                "layer_calls": 0,
+                "payload_bytes": 6757023744,
+                "d2d_bytes": 0,
+                "groups": 94,
+                "host_plan_ms": 0,
+                "host_apply_ms": 163.27464673668146,
+                "load_section_ms": 136.44403409957886
+              }
+            },
+            {
+              "ordinal": 2,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 70451724288,
+                "d2d_bytes": 0,
+                "groups": 670,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1714.658809825778,
+                "load_section_ms": 1420.1618561446667,
+                "wall_s": 1.975188622251153,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/7_uniform/repeat_2_retention_none_early/warmup_injection_frequency_late_release8.json",
+                "accounting_source": "analysis.json engines/7_uniform/by_phase/repeat_2_retention_none_early/warmup_injection_frequency_late_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 77208748032,
+                "d2d_bytes": 0,
+                "groups": 764,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1860.413184389472,
+                "load_section_ms": 1554.5141122043133,
+                "wall_s": 2.1235645916312933,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/4_oneshot/repeat_2_retention_none_early/warmup_injection_frequency_late_release8.json",
+                "accounting_source": "analysis.json engines/4_oneshot/by_phase/repeat_2_retention_none_early/warmup_injection_frequency_late_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.1483759693801403,
+                "layer_calls": 0,
+                "payload_bytes": 6757023744,
+                "d2d_bytes": 0,
+                "groups": 94,
+                "host_plan_ms": 0,
+                "host_apply_ms": 145.754374563694,
+                "load_section_ms": 134.3522560596466
+              }
+            },
+            {
+              "ordinal": 3,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 70451724288,
+                "d2d_bytes": 0,
+                "groups": 670,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1702.8412278741598,
+                "load_section_ms": 1419.1887682676315,
+                "wall_s": 1.9602975556626916,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/7_uniform/repeat_3_retention_none_early/warmup_injection_frequency_late_release8.json",
+                "accounting_source": "analysis.json engines/7_uniform/by_phase/repeat_3_retention_none_early/warmup_injection_frequency_late_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 77208748032,
+                "d2d_bytes": 0,
+                "groups": 764,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1868.265981785953,
+                "load_section_ms": 1556.8031358122826,
+                "wall_s": 2.133069423958659,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/4_oneshot/repeat_3_retention_none_early/warmup_injection_frequency_late_release8.json",
+                "accounting_source": "analysis.json engines/4_oneshot/by_phase/repeat_3_retention_none_early/warmup_injection_frequency_late_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.17277186829596758,
+                "layer_calls": 0,
+                "payload_bytes": 6757023744,
+                "d2d_bytes": 0,
+                "groups": 94,
+                "host_plan_ms": 0,
+                "host_apply_ms": 165.42475391179323,
+                "load_section_ms": 137.61436754465103
+              }
+            },
+            {
+              "ordinal": 4,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 70451724288,
+                "d2d_bytes": 0,
+                "groups": 670,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1716.4809694513679,
+                "load_section_ms": 1418.4526723623276,
+                "wall_s": 1.9781786007806659,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/7_uniform/repeat_4_retention_none_early/warmup_injection_frequency_late_release8.json",
+                "accounting_source": "analysis.json engines/7_uniform/by_phase/repeat_4_retention_none_early/warmup_injection_frequency_late_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 77208748032,
+                "d2d_bytes": 0,
+                "groups": 764,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1870.0072709470987,
+                "load_section_ms": 1558.7818559110165,
+                "wall_s": 2.1330020176246762,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/4_oneshot/repeat_4_retention_none_early/warmup_injection_frequency_late_release8.json",
+                "accounting_source": "analysis.json engines/4_oneshot/by_phase/repeat_4_retention_none_early/warmup_injection_frequency_late_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.15482341684401035,
+                "layer_calls": 0,
+                "payload_bytes": 6757023744,
+                "d2d_bytes": 0,
+                "groups": 94,
+                "host_plan_ms": 0,
+                "host_apply_ms": 153.52630149573088,
+                "load_section_ms": 140.3291835486889
+              }
+            },
+            {
+              "ordinal": 5,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 70451724288,
+                "d2d_bytes": 0,
+                "groups": 670,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1701.0683743283153,
+                "load_section_ms": 1417.6027199923992,
+                "wall_s": 1.9587202966213226,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/7_uniform/repeat_5_retention_none_early/warmup_injection_frequency_late_release8.json",
+                "accounting_source": "analysis.json engines/7_uniform/by_phase/repeat_5_retention_none_early/warmup_injection_frequency_late_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 77208748032,
+                "d2d_bytes": 0,
+                "groups": 764,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1862.653541378677,
+                "load_section_ms": 1556.934750676155,
+                "wall_s": 2.1279215048998594,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/4_oneshot/repeat_5_retention_none_early/warmup_injection_frequency_late_release8.json",
+                "accounting_source": "analysis.json engines/4_oneshot/by_phase/repeat_5_retention_none_early/warmup_injection_frequency_late_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.1692012082785368,
+                "layer_calls": 0,
+                "payload_bytes": 6757023744,
+                "d2d_bytes": 0,
+                "groups": 94,
+                "host_plan_ms": 0,
+                "host_apply_ms": 161.58516705036163,
+                "load_section_ms": 139.33203068375587
+              }
+            },
+            {
+              "ordinal": 6,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 70451724288,
+                "d2d_bytes": 0,
+                "groups": 670,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1716.8727302923799,
+                "load_section_ms": 1421.807838946581,
+                "wall_s": 1.9782618544995785,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/7_uniform/repeat_6_retention_none_early/warmup_injection_frequency_late_release8.json",
+                "accounting_source": "analysis.json engines/7_uniform/by_phase/repeat_6_retention_none_early/warmup_injection_frequency_late_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 77208748032,
+                "d2d_bytes": 0,
+                "groups": 764,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1872.1659276634455,
+                "load_section_ms": 1560.3148171007633,
+                "wall_s": 2.1461454536765814,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/4_oneshot/repeat_6_retention_none_early/warmup_injection_frequency_late_release8.json",
+                "accounting_source": "analysis.json engines/4_oneshot/by_phase/repeat_6_retention_none_early/warmup_injection_frequency_late_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.1678835991770029,
+                "layer_calls": 0,
+                "payload_bytes": 6757023744,
+                "d2d_bytes": 0,
+                "groups": 94,
+                "host_plan_ms": 0,
+                "host_apply_ms": 155.29319737106562,
+                "load_section_ms": 138.50697815418243
+              }
+            },
+            {
+              "ordinal": 7,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 70451724288,
+                "d2d_bytes": 0,
+                "groups": 670,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1696.0909515619278,
+                "load_section_ms": 1415.9687034785748,
+                "wall_s": 1.9582063620910048,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/7_uniform/repeat_7_retention_none_early/warmup_injection_frequency_late_release8.json",
+                "accounting_source": "analysis.json engines/7_uniform/by_phase/repeat_7_retention_none_early/warmup_injection_frequency_late_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 77208748032,
+                "d2d_bytes": 0,
+                "groups": 764,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1868.0784199386835,
+                "load_section_ms": 1557.5477759838104,
+                "wall_s": 2.134979711845517,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/4_oneshot/repeat_7_retention_none_early/warmup_injection_frequency_late_release8.json",
+                "accounting_source": "analysis.json engines/4_oneshot/by_phase/repeat_7_retention_none_early/warmup_injection_frequency_late_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.1767733497545123,
+                "layer_calls": 0,
+                "payload_bytes": 6757023744,
+                "d2d_bytes": 0,
+                "groups": 94,
+                "host_plan_ms": 0,
+                "host_apply_ms": 171.98746837675571,
+                "load_section_ms": 141.57907250523567
+              }
+            }
+          ]
+        },
+        {
+          "phase": "warmup_injection_decode_late_release8",
+          "mean_per_ordinal": {
+            "U": {
+              "wall_s": 1.971301695681177,
+              "layer_calls": 384,
+              "payload_bytes": 70640467968,
+              "d2d_bytes": 0,
+              "groups": 686,
+              "host_plan_ms": 0,
+              "host_apply_ms": 1713.0963200470433,
+              "load_section_ms": 1426.0911796800792
+            },
+            "X": {
+              "wall_s": 2.1461923028109595,
+              "layer_calls": 384,
+              "payload_bytes": 77498155008,
+              "d2d_bytes": 0,
+              "groups": 774,
+              "host_plan_ms": 0,
+              "host_apply_ms": 1878.6868405295536,
+              "load_section_ms": 1567.084531802684
+            },
+            "X_minus_U": {
+              "wall_s": 0.17489060712978244,
+              "layer_calls": 0,
+              "payload_bytes": 6857687040,
+              "d2d_bytes": 0,
+              "groups": 88,
+              "host_plan_ms": 0,
+              "host_apply_ms": 165.59052048251033,
+              "load_section_ms": 140.99335212260485
+            },
+            "wall_delta_range_s": [
+              0.15577223524451256,
+              0.19579678867012262
+            ],
+            "wall_delta_positive_count": 8
+          },
+          "pairs": [
+            {
+              "ordinal": 0,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 70640467968,
+                "d2d_bytes": 0,
+                "groups": 686,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1706.0293024405837,
+                "load_section_ms": 1423.8258848190308,
+                "wall_s": 1.9634126629680395,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/7_uniform/repeat_0_retention_none_early/warmup_injection_decode_late_release8.json",
+                "accounting_source": "analysis.json engines/7_uniform/by_phase/repeat_0_retention_none_early/warmup_injection_decode_late_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 77498155008,
+                "d2d_bytes": 0,
+                "groups": 774,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1867.509575560689,
+                "load_section_ms": 1565.7593590319157,
+                "wall_s": 2.1292508207261562,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/4_oneshot/repeat_0_retention_none_early/warmup_injection_decode_late_release8.json",
+                "accounting_source": "analysis.json engines/4_oneshot/by_phase/repeat_0_retention_none_early/warmup_injection_decode_late_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.16583815775811672,
+                "layer_calls": 0,
+                "payload_bytes": 6857687040,
+                "d2d_bytes": 0,
+                "groups": 88,
+                "host_plan_ms": 0,
+                "host_apply_ms": 161.48027312010527,
+                "load_section_ms": 141.9334742128849
+              }
+            },
+            {
+              "ordinal": 1,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 70640467968,
+                "d2d_bytes": 0,
+                "groups": 686,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1710.048059001565,
+                "load_section_ms": 1423.7179191708565,
+                "wall_s": 1.9627212155610323,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/7_uniform/repeat_1_retention_none_early/warmup_injection_decode_late_release8.json",
+                "accounting_source": "analysis.json engines/7_uniform/by_phase/repeat_1_retention_none_early/warmup_injection_decode_late_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 77498155008,
+                "d2d_bytes": 0,
+                "groups": 774,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1879.359188489616,
+                "load_section_ms": 1568.91311866045,
+                "wall_s": 2.146680945530534,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/4_oneshot/repeat_1_retention_none_early/warmup_injection_decode_late_release8.json",
+                "accounting_source": "analysis.json engines/4_oneshot/by_phase/repeat_1_retention_none_early/warmup_injection_decode_late_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.1839597299695015,
+                "layer_calls": 0,
+                "payload_bytes": 6857687040,
+                "d2d_bytes": 0,
+                "groups": 88,
+                "host_plan_ms": 0,
+                "host_apply_ms": 169.31112948805094,
+                "load_section_ms": 145.1951994895935
+              }
+            },
+            {
+              "ordinal": 2,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 70640467968,
+                "d2d_bytes": 0,
+                "groups": 686,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1709.1070339083672,
+                "load_section_ms": 1424.8000349402428,
+                "wall_s": 1.969474645331502,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/7_uniform/repeat_2_retention_none_early/warmup_injection_decode_late_release8.json",
+                "accounting_source": "analysis.json engines/7_uniform/by_phase/repeat_2_retention_none_early/warmup_injection_decode_late_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 77498155008,
+                "d2d_bytes": 0,
+                "groups": 774,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1866.956283338368,
+                "load_section_ms": 1563.7464647591114,
+                "wall_s": 2.128229094669223,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/4_oneshot/repeat_2_retention_none_early/warmup_injection_decode_late_release8.json",
+                "accounting_source": "analysis.json engines/4_oneshot/by_phase/repeat_2_retention_none_early/warmup_injection_decode_late_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.15875444933772087,
+                "layer_calls": 0,
+                "payload_bytes": 6857687040,
+                "d2d_bytes": 0,
+                "groups": 88,
+                "host_plan_ms": 0,
+                "host_apply_ms": 157.84924943000078,
+                "load_section_ms": 138.94642981886864
+              }
+            },
+            {
+              "ordinal": 3,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 70640467968,
+                "d2d_bytes": 0,
+                "groups": 686,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1726.5758784487844,
+                "load_section_ms": 1426.57827308774,
+                "wall_s": 1.988379631191492,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/7_uniform/repeat_3_retention_none_early/warmup_injection_decode_late_release8.json",
+                "accounting_source": "analysis.json engines/7_uniform/by_phase/repeat_3_retention_none_early/warmup_injection_decode_late_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 77498155008,
+                "d2d_bytes": 0,
+                "groups": 774,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1867.8229236975312,
+                "load_section_ms": 1563.1704005002975,
+                "wall_s": 2.1441518664360046,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/4_oneshot/repeat_3_retention_none_early/warmup_injection_decode_late_release8.json",
+                "accounting_source": "analysis.json engines/4_oneshot/by_phase/repeat_3_retention_none_early/warmup_injection_decode_late_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.15577223524451256,
+                "layer_calls": 0,
+                "payload_bytes": 6857687040,
+                "d2d_bytes": 0,
+                "groups": 88,
+                "host_plan_ms": 0,
+                "host_apply_ms": 141.24704524874687,
+                "load_section_ms": 136.5921274125576
+              }
+            },
+            {
+              "ordinal": 4,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 70640467968,
+                "d2d_bytes": 0,
+                "groups": 686,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1712.7764048054814,
+                "load_section_ms": 1424.8053106665611,
+                "wall_s": 1.9745106780901551,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/7_uniform/repeat_4_retention_none_early/warmup_injection_decode_late_release8.json",
+                "accounting_source": "analysis.json engines/7_uniform/by_phase/repeat_4_retention_none_early/warmup_injection_decode_late_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 77498155008,
+                "d2d_bytes": 0,
+                "groups": 774,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1885.4849245399237,
+                "load_section_ms": 1564.5395199656487,
+                "wall_s": 2.153598042204976,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/4_oneshot/repeat_4_retention_none_early/warmup_injection_decode_late_release8.json",
+                "accounting_source": "analysis.json engines/4_oneshot/by_phase/repeat_4_retention_none_early/warmup_injection_decode_late_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.17908736411482096,
+                "layer_calls": 0,
+                "payload_bytes": 6857687040,
+                "d2d_bytes": 0,
+                "groups": 88,
+                "host_plan_ms": 0,
+                "host_apply_ms": 172.70851973444223,
+                "load_section_ms": 139.73420929908752
+              }
+            },
+            {
+              "ordinal": 5,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 70640467968,
+                "d2d_bytes": 0,
+                "groups": 686,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1726.7015371471643,
+                "load_section_ms": 1438.276063233614,
+                "wall_s": 1.9894571602344513,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/7_uniform/repeat_5_retention_none_early/warmup_injection_decode_late_release8.json",
+                "accounting_source": "analysis.json engines/7_uniform/by_phase/repeat_5_retention_none_early/warmup_injection_decode_late_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 77498155008,
+                "d2d_bytes": 0,
+                "groups": 774,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1889.466785825789,
+                "load_section_ms": 1579.8715196549892,
+                "wall_s": 2.1554951798170805,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/4_oneshot/repeat_5_retention_none_early/warmup_injection_decode_late_release8.json",
+                "accounting_source": "analysis.json engines/4_oneshot/by_phase/repeat_5_retention_none_early/warmup_injection_decode_late_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.1660380195826292,
+                "layer_calls": 0,
+                "payload_bytes": 6857687040,
+                "d2d_bytes": 0,
+                "groups": 88,
+                "host_plan_ms": 0,
+                "host_apply_ms": 162.76524867862463,
+                "load_section_ms": 141.59545642137527
+              }
+            },
+            {
+              "ordinal": 6,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 70640467968,
+                "d2d_bytes": 0,
+                "groups": 686,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1705.8516396209598,
+                "load_section_ms": 1422.9377591013908,
+                "wall_s": 1.9600005634129047,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/7_uniform/repeat_6_retention_none_early/warmup_injection_decode_late_release8.json",
+                "accounting_source": "analysis.json engines/7_uniform/by_phase/repeat_6_retention_none_early/warmup_injection_decode_late_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 77498155008,
+                "d2d_bytes": 0,
+                "groups": 774,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1884.5480615273118,
+                "load_section_ms": 1565.1297929883003,
+                "wall_s": 2.15387867577374,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/4_oneshot/repeat_6_retention_none_early/warmup_injection_decode_late_release8.json",
+                "accounting_source": "analysis.json engines/4_oneshot/by_phase/repeat_6_retention_none_early/warmup_injection_decode_late_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.19387811236083508,
+                "layer_calls": 0,
+                "payload_bytes": 6857687040,
+                "d2d_bytes": 0,
+                "groups": 88,
+                "host_plan_ms": 0,
+                "host_apply_ms": 178.69642190635204,
+                "load_section_ms": 142.19203388690948
+              }
+            },
+            {
+              "ordinal": 7,
+              "U": {
+                "layer_calls": 384,
+                "payload_bytes": 70640467968,
+                "d2d_bytes": 0,
+                "groups": 686,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1707.6807050034404,
+                "load_section_ms": 1423.788192421198,
+                "wall_s": 1.9624570086598396,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/7_uniform/repeat_7_retention_none_early/warmup_injection_decode_late_release8.json",
+                "accounting_source": "analysis.json engines/7_uniform/by_phase/repeat_7_retention_none_early/warmup_injection_decode_late_release8"
+              },
+              "X": {
+                "layer_calls": 384,
+                "payload_bytes": 77498155008,
+                "d2d_bytes": 0,
+                "groups": 774,
+                "host_plan_ms": 0,
+                "host_apply_ms": 1888.3469812572002,
+                "load_section_ms": 1565.5460788607597,
+                "wall_s": 2.1582537973299623,
+                "execution_call_counts": {
+                  "expert": 384
+                },
+                "wall_source": "shared_pool_performance/results/4_oneshot/repeat_7_retention_none_early/warmup_injection_decode_late_release8.json",
+                "accounting_source": "analysis.json engines/4_oneshot/by_phase/repeat_7_retention_none_early/warmup_injection_decode_late_release8"
+              },
+              "X_minus_U": {
+                "wall_s": 0.19579678867012262,
+                "layer_calls": 0,
+                "payload_bytes": 6857687040,
+                "d2d_bytes": 0,
+                "groups": 88,
+                "host_plan_ms": 0,
+                "host_apply_ms": 180.66627625375986,
+                "load_section_ms": 141.75788643956184
+              }
+            }
+          ]
+        }
+      ],
+      "five_warmup_mean_per_ordinal": {
+        "U": {
+          "wall_s": 8.205355082289316,
+          "layer_calls": 1568,
+          "payload_bytes": 293924241408,
+          "d2d_bytes": 0,
+          "groups": 2817,
+          "host_plan_ms": 0,
+          "host_apply_ms": 7118.0787541670725,
+          "load_section_ms": 5909.432767298073
+        },
+        "X": {
+          "wall_s": 8.601888897130266,
+          "layer_calls": 1568,
+          "payload_bytes": 321996718080,
+          "d2d_bytes": 34124857344,
+          "groups": 2913,
+          "host_plan_ms": 54.74155955016613,
+          "host_apply_ms": 7555.938721285202,
+          "load_section_ms": 6372.889978889376
+        },
+        "X_minus_U": {
+          "wall_s": 0.39653381484095007,
+          "layer_calls": 0,
+          "payload_bytes": 28072476672,
+          "d2d_bytes": 34124857344,
+          "groups": 96,
+          "host_plan_ms": 54.74155955016613,
+          "host_apply_ms": 437.85996711812913,
+          "load_section_ms": 463.45721159130335
+        }
+      },
+      "protected_three_wall_delta_s": 0.5404264318058267,
+      "unprotected_two_wall_delta_s": -0.14389261696487665
+    }
+  ]
+}

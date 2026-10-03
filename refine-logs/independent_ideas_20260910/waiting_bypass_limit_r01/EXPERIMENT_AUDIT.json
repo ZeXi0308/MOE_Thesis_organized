@@ -1,0 +1,200 @@
+{
+  "audit_skill": "experiment-audit",
+  "verdict": "WARN",
+  "overall_verdict": "warn",
+  "integrity_status": "pass",
+  "reason_codes": [
+    "preregistered_positive_condition_not_met",
+    "limited_two_block_single_workload_scope",
+    "stale_top_level_metadata"
+  ],
+  "summary": "Retained real-GPU runtime evidence and accounting pass integrity checks; the bounded action is real and enforces max one bypass, but performance effects do not satisfy the prespecified two-block condition and support descriptive measurement only.",
+  "review_independence": "same-family",
+  "acceptance_status": "provisional",
+  "reviewer": "fresh-codex-session-reviewer",
+  "reviewer_family": "openai",
+  "agent_id": "/root/bypass_integrity_review",
+  "generated_at": "2026-09-10T17:03:28Z",
+  "date": "2026-09-11",
+  "trace_path": null,
+  "trace_status": "skipped_by_explicit_repository_and_user_instruction",
+  "evidence_type": "NATIVE_SERVING_INPROCESS_HOST_CAPTURE",
+  "evaluation_classification": {
+    "primary": "real_runtime_measurement_no_task_quality_gt",
+    "claim_tier": "REQUEST_LEVEL_EXPLORATORY_INTERVENTION_NO_METHOD_GO",
+    "auxiliary": "STRUCTURAL_OBSERVED_STATE_NO_COUNTERFACTUAL",
+    "simulation_only": false
+  },
+  "audited_input_hashes": {
+    "readback-forward.tar.gz": "sha256:a3e23633e2f77f5cbc8a661ea32846887c71c40933275824c85a0166f4fa45e7",
+    "readback-reverse.tar.gz": "sha256:397257f465e0aa51be291ac8d4eb4e21a08a7090c7f27db81a6ec8942e2096eb",
+    "execution.tar.gz": "sha256:1f047fc9dd53152c990e46707c9c5db4cc4f01bad88434ee376955b39b231b82"
+  },
+  "checked_scope": {
+    "prepared_workloads": 2,
+    "raw_episodes": 24,
+    "formal_episodes": 12,
+    "warmup_episodes": 12,
+    "request_executions": 384,
+    "output_tokens": 49152,
+    "scheduler_steps": 7027,
+    "queue_actions": 7027,
+    "metric_groups": 72,
+    "mixed_request_accounting_rows": 96,
+    "json_files_parsed_in_bundle": 126,
+    "archive_unique_paths_compared": 107
+  },
+  "checks": {
+    "gt_and_reference_provenance": {
+      "status": "PASS",
+      "details": "Actual GPU/native runtime event measurement; no task-quality GT is required for timing authenticity. Frozen input/source hashes match. Model bytes are absent locally, so shard hashes were checked only against the retained verification record."
+    },
+    "score_normalization_and_accounting": {
+      "status": "PASS",
+      "details": "No self-normalization. Raw and relative values coexist; all request denominators, token streams, distributions, failure counts, and mutually exclusive time partitions independently reconcile."
+    },
+    "result_existence": {
+      "status": "PASS",
+      "details": "Both archive hashes/bytes/member counts match; all declared episode triples and support files exist and byte-match extracted readback; all 24 raws are COMPLETE."
+    },
+    "code_reachability": {
+      "status": "PASS",
+      "details": "Frozen code hashes match, live scheduler monkey-patch is reached, and raw native first admissions independently reproduce every recorded bypass charge including same-step order."
+    },
+    "scope_and_fairness": {
+      "status": "WARN",
+      "details": "FCFS, SPT, reverse order, and all-short no-op control are fair for a pilot, but there are only two engine blocks on one reused workload/model/host and no Oracle, significance, task-quality, HTTP, or multi-GPU evidence."
+    },
+    "evaluation_type": {
+      "status": "PASS",
+      "details": "Real runtime measurement without task-quality GT; auxiliary prefill result is structural observation only."
+    },
+    "no_future_information": {
+      "status": "PASS",
+      "details": "Policy reads only current native waiting requests, known prompt lengths, arrival ranks, and past actual admission counts; every acted-on request had already arrived."
+    },
+    "identity_alignment": {
+      "status": "PASS",
+      "details": "All request/document/token-hash/arrival identities match prepared workloads; all cumulative output tokens and receipt timestamps reconstruct exactly."
+    },
+    "same_step_bypass_semantics": {
+      "status": "PASS",
+      "details": "Independent reconstruction matches native result insertion order and recorded same-step charges; bounded max is exactly one in both mixed blocks."
+    },
+    "separate_policy_state": {
+      "status": "PASS",
+      "details": "Each arm executes a complete independent episode and drains request/KV state before the next; no future trajectory is shared."
+    },
+    "common_observation_overhead": {
+      "status": "PASS",
+      "details": "All arms execute queue capture/mutation and ledger instrumentation; arm-specific policy work remains inside measured request/wall time."
+    },
+    "post_hoc_selection": {
+      "status": "PASS",
+      "details": "All prespecified formal and warmup episodes are retained and included according to the frozen analysis rule; no favorable run was selected."
+    }
+  },
+  "recomputed_headline": {
+    "forward": {
+      "bypass_total": {
+        "fcfs": 0,
+        "spt": 6,
+        "bounded": 3
+      },
+      "bypass_max": {
+        "fcfs": 0,
+        "spt": 3,
+        "bounded": 1
+      },
+      "bounded_vs_fcfs_short_ttft_delta_pct": 1.3206035047195863,
+      "bounded_vs_spt_short_ttft_delta_pct": 9.676170371334592,
+      "bounded_vs_spt_long_request_p95_delta_pct": -1.770767937647566,
+      "bounded_vs_spt_long_request_max_delta_pct": -2.091399060731114,
+      "bounded_vs_fcfs_all_request_mean_delta_pct": 2.4081847804233503
+    },
+    "reverse": {
+      "bypass_total": {
+        "fcfs": 0,
+        "spt": 6,
+        "bounded": 3
+      },
+      "bypass_max": {
+        "fcfs": 0,
+        "spt": 3,
+        "bounded": 1
+      },
+      "bounded_vs_fcfs_short_ttft_delta_pct": -7.1284168877805865,
+      "bounded_vs_spt_short_ttft_delta_pct": 7.796027922441007,
+      "bounded_vs_spt_long_request_p95_delta_pct": -2.7790111533703032,
+      "bounded_vs_spt_long_request_max_delta_pct": -3.1019506598043423,
+      "bounded_vs_fcfs_all_request_mean_delta_pct": -0.4602240603572838
+    }
+  },
+  "priorities": {
+    "P0": 0,
+    "P1": 1,
+    "P2": 2
+  },
+  "findings": [
+    {
+      "priority": "P1",
+      "claim_impact": "blocks_stable_tradeoff_and_method_go",
+      "finding": "The bounded action works, but its short-TTFT and overall effects do not satisfy the frozen two-block success rule."
+    },
+    {
+      "priority": "P2",
+      "claim_impact": "administrative_only",
+      "finding": "README and several STATUS timestamp/progress fields remain stale relative to completed raw results."
+    },
+    {
+      "priority": "P2",
+      "claim_impact": "runtime_warning_only",
+      "finding": "Both stderr logs retain an SM/CUDA capability warning, despite CUDA 13.0, exit code 0, and complete cells."
+    }
+  ],
+  "claims": [
+    {
+      "id": "C1",
+      "claim": "The bounded policy executes and limits actual first-admission bypasses to one in the tested mixed trace.",
+      "impact": "supported"
+    },
+    {
+      "id": "C2",
+      "claim": "The policy descriptively attenuates SPT long-request p95/max completion penalty in both blocks.",
+      "impact": "supported_with_pilot_qualifier"
+    },
+    {
+      "id": "C3",
+      "claim": "The policy preserves a stable short-TTFT benefit versus FCFS.",
+      "impact": "unsupported"
+    },
+    {
+      "id": "C4",
+      "claim": "The policy has stable net request, throughput, SLO, or wall-time benefit.",
+      "impact": "unsupported"
+    },
+    {
+      "id": "C5",
+      "claim": "The policy preserves task quality or generalizes to production/HTTP/multi-GPU EP.",
+      "impact": "unmeasured"
+    }
+  ],
+  "oracle_headroom_status": "UNRUN",
+  "failure_category": "ACTION_SEMANTICS_ALIVE_STABLE_POSITIVE_PERFORMANCE_NOT_ESTABLISHED",
+  "resurrection_condition": "A preregistered new natural request/arrival regime showing a materially different fairness problem; no threshold or seed scan.",
+  "uncovered": [
+    "Independent rehash of absent model-weight bytes",
+    "Task-quality evaluation",
+    "Statistical generalization beyond two engine blocks",
+    "Oracle/action headroom",
+    "HTTP production serving",
+    "Multi-GPU expert parallelism",
+    "Full vLLM correctness or security audit",
+    "External prior-art review"
+  ],
+  "reviewer_model": "gpt-5.6-sol",
+  "reviewer_reasoning": "ultra",
+  "executor_model": "Codex",
+  "executor_family": "openai",
+  "trace_omitted_reason": "Explicit user/repository rule prohibits automatic .aris trace generation"
+}

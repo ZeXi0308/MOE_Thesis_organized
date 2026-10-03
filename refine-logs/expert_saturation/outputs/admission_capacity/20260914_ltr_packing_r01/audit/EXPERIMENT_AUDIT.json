@@ -1,0 +1,437 @@
+{
+  "audit_skill": "experiment-audit",
+  "verdict": "PASS",
+  "reason_code": "no_p0_p1_within_bounded_native_component_claims",
+  "summary": "All four retained native cells, request metrics, policy actions, resource receipts, recovery boundaries, and reported numbers independently reconcile. No P0/P1 was found; exact planner replay remains explicitly limited because the resolved long-prefill threshold was not recorded.",
+  "agent_id": "/root/packing_integrity",
+  "verdict_id": "packing-integrity-20260914-r01",
+  "executor_model": "parent_codex_model_not_exposed",
+  "executor_family": "openai",
+  "reviewer_model": "codex-gpt-6",
+  "reviewer_family": "openai",
+  "reviewer_reasoning": "not_exposed",
+  "review_independence": "same-family",
+  "acceptance_status": "provisional",
+  "generated_at": "2026-09-13T19:18:45Z",
+  "date": "2026-09-14",
+  "auditor": "codex-gpt-6-fresh-same-family-agent",
+  "overall_verdict": "pass",
+  "integrity_status": "pass",
+  "trace_path": null,
+  "trace_status": "disabled_by_explicit_user_instruction_no_aris",
+  "repository": {
+    "review_head": "de64dae5ea4fa3c92ec605e9847e817d8e68f3ac",
+    "dirty_at_review": true,
+    "executed_package_assessed_by_sealed_hashes": true
+  },
+  "severity": {
+    "p0": [],
+    "p1": [],
+    "p0_count": 0,
+    "p1_count": 0
+  },
+  "checks": {
+    "gt_provenance": {
+      "status": "pass",
+      "details": "No generation-quality GT or model-derived pseudo-GT is used. Frozen WikiText prompts are input data; outcomes are native scheduler/resource/timing receipts. Quality is explicitly unmeasured.",
+      "evidence": [
+        "execution/readback/results/block0-d6-packing-fit_scan/config.json:17-35",
+        "preparation/pkg/run_probe.py:40-52",
+        "preparation/pkg/native_capture.py:150-177",
+        "RESULTS_ADDENDUM.md:24"
+      ]
+    },
+    "score_normalization": {
+      "status": "pass",
+      "details": "TTFT, TPOT, ITL, latency, throughput, and fixed-threshold diagnostics come directly from timestamps and completion counts. Relative changes use paired action/baseline ratios, not prediction-distribution normalization.",
+      "evidence": [
+        "preparation/pkg/metrics.py:62-155",
+        "refine-logs/expert_saturation/experiments/admission_capacity/analyze_prefix_cache_baseline.py:206-220",
+        "refine-logs/expert_saturation/experiments/admission_capacity/analyze_ltr_packing_probe.py:196-205"
+      ]
+    },
+    "result_existence": {
+      "status": "pass",
+      "details": "Exactly four declared cells exist and complete. All 128 requests and 131072 outputs are retained. Every headline number and per-request metric independently matches raw evidence.",
+      "evidence": [
+        "preparation/pkg/campaign.json:2-30",
+        "execution/readback/campaign.log:17-25",
+        "execution/execution.json:34-87",
+        "RESULTS_ADDENDUM.md:9-22",
+        "analysis/analysis.json:20171-20205",
+        "analysis/analysis.json:20503-20537"
+      ]
+    },
+    "dead_code": {
+      "status": "pass",
+      "details": "Every function in metrics.py is called on the runtime metric path; all claimed analysis functions are called and materialized. Reusable headroom/rotation branches are inactive and do not source a claimed packing metric.",
+      "evidence": [
+        "preparation/pkg/run_probe.py:169-195",
+        "preparation/pkg/metrics.py:10-155",
+        "refine-logs/expert_saturation/experiments/admission_capacity/analyze_ltr_packing_probe.py:116-140"
+      ]
+    },
+    "scope": {
+      "status": "pass",
+      "details": "One model, one GPU, one old cohort/regime, and two correlated reversed repeats are accurately disclosed. No holdout, quality, Oracle, significance, production SLO, full-LTR, or family-level claim is made.",
+      "evidence": [
+        "RESULTS_ADDENDUM.md:3-5",
+        "RESULTS_ADDENDUM.md:24-34",
+        "analysis/REPORT.md:3-5"
+      ]
+    },
+    "eval_type": {
+      "status": "pass",
+      "classification": "self_supervised_proxy",
+      "subtype": "real_native_system_measurement_no_quality_gt",
+      "evidence_layer": "NATIVE_SERVING_INPROCESS_HOST_CAPTURE",
+      "scientific_status": "MEASUREMENT_ONLY",
+      "evidence": [
+        "preparation/pkg/native_capture.py:192-204",
+        "execution/readback/results/block0-d6-packing-fit_scan/environment.json:2-31"
+      ]
+    }
+  },
+  "targeted_checks": {
+    "archive_member_identity": {
+      "status": "pass",
+      "input_archive_sha256": "1fea4a612af77a0062163cec33566765c2df25ade4021407756ec43b1734ef73",
+      "readback_archive_sha256": "2825c8181d893af9482adbc6b5f07e027dea465f3631fb6036b690d75179cacc",
+      "readback_regular_file_members": 97,
+      "byte_mismatched_members": 0,
+      "package_manifest_entries": 16,
+      "preparation_package_mismatches": 0,
+      "returned_package_mismatches": 0,
+      "evidence": [
+        "preparation/preparation.json:7-29",
+        "execution/execution.json:3-7",
+        "execution/execution.json:31-33",
+        "RESULTS_ADDENDUM.md:40"
+      ]
+    },
+    "runtime_and_input_identity": {
+      "status": "pass",
+      "all_engine_args_equal": true,
+      "all_seven_runtime_hashes_equal": true,
+      "all_32_request_input_identities_equal": true,
+      "workload_hash_matches_config": true,
+      "scheduler_sha256": "2ed2a550b6558b2495eda845a97ae38bcf0225027b9e25fbf00fc3880c1d3941",
+      "kv_cache_manager_sha256": "3f4af8d247f3fe9570b0132818b832b66ae6a2ac12942588828f899f6ff77ccf",
+      "evidence": [
+        "execution/execution.json:8-29",
+        "execution/readback/results/block0-d6-packing-fit_scan/engine_args.json:2-19",
+        "execution/readback/results/block0-d6-packing-fit_scan/environment.json:12-31"
+      ]
+    },
+    "policy_specific_past_only_state": {
+      "status": "pass",
+      "scheduler_calls_checked": 7468,
+      "counter_state_mismatches": 0,
+      "pre_action_output_availability_mismatches": 0,
+      "future_trace_used_for_action": false,
+      "evidence": [
+        "preparation/pkg/recovery_service_components.py:35-77",
+        "preparation/pkg/ltr_recompute_native.py:44-81",
+        "refine-logs/expert_saturation/experiments/admission_capacity/analyze_ltr_component_probe.py:86-157",
+        "analysis/REPORT.md:5"
+      ]
+    },
+    "planned_actions_and_resource_receipts": {
+      "status": "pass_with_declared_replay_limit",
+      "scheduler_calls_checked": 7468,
+      "planned_vs_actual_token_mismatches": 0,
+      "planned_vs_actual_victim_mismatches": 0,
+      "release_or_reservation_mismatches": 0,
+      "nested_timer_mismatches": 0,
+      "planner_replay_status": "LIMITED_ACTUAL_PLAN_AND_RESOURCE_RECEIPTS",
+      "planner_replayed_steps": 0,
+      "planner_replay_limit": "resolved long_prefill_token_threshold not recorded",
+      "evidence": [
+        "preparation/pkg/ltr_recompute_native.py:184-218",
+        "refine-logs/expert_saturation/experiments/admission_capacity/analyze_ltr_component_probe.py:86-157",
+        "analysis/analysis.json:4598-4601",
+        "analysis/analysis.json:9880-9883"
+      ]
+    },
+    "denominator_and_nested_wall": {
+      "status": "pass",
+      "identity": "wall = scheduler inclusive + engine excluding scheduler + outside engine",
+      "decision_is_nested_in_scheduler": true,
+      "recovery_spans_summed_as_wall": false,
+      "evidence": [
+        "analysis/analysis.json:586-597",
+        "analysis/analysis.json:5281-5292",
+        "RESULTS_ADDENDUM.md:22"
+      ]
+    },
+    "preemption_bounded_residency": {
+      "status": "pass",
+      "fit_repreempted_residencies_per_run": 16,
+      "fit_new_output_counts_0_1_2": [2, 8, 3],
+      "prefix_repreempted_residencies_per_run": 18,
+      "prefix_new_output_counts_0_1_2": [6, 0, 0],
+      "prefix_zero_output_recompute_end_positions": [994, 995, 996, 997, 998, 1998],
+      "completion_endings_mixed_into_histogram": false,
+      "evidence": [
+        "refine-logs/expert_saturation/experiments/admission_capacity/analyze_ltr_packing_probe.py:28-51",
+        "analysis/analysis.json:4577-4596",
+        "analysis/analysis.json:9858-9878",
+        "RESULTS_ADDENDUM.md:18"
+      ]
+    },
+    "quantum_first_output_boundary": {
+      "status": "pass",
+      "fit_epochs_per_run": 1,
+      "prefix_epochs_per_run": 8,
+      "selected_calls_per_epoch": 10,
+      "pure_recompute_calls_per_epoch": 3,
+      "mixed_recompute_decode_calls_per_epoch": 1,
+      "decode_only_calls_per_epoch": 6,
+      "new_outputs_per_epoch": 7,
+      "epochs_exhausted_without_new_output": 0,
+      "boundary": "successful enclosing engine-call return; same-call output counts as service",
+      "evidence": [
+        "refine-logs/expert_saturation/experiments/admission_capacity/analyze_ltr_component_probe.py:36-83",
+        "analysis/analysis.json:633-674",
+        "analysis/analysis.json:5330-5609",
+        "RESULTS_ADDENDUM.md:20"
+      ]
+    },
+    "four_cells_pairs_and_repeats": {
+      "status": "pass",
+      "configured_cells": 4,
+      "completed_cells": 4,
+      "total_requests": 128,
+      "total_outputs": 131072,
+      "fit_repeat_schedule_equal": true,
+      "prefix_repeat_schedule_equal": true,
+      "fit_repeat_outputs_equal": 32,
+      "prefix_repeat_outputs_equal": 32,
+      "cross_arm_outputs_equal_per_pair": 25,
+      "rank_prefix_max_itl_improved_harmed_equal_per_pair": [22, 10, 0],
+      "first_action_divergence_step_both_pairs": 406,
+      "common_returned_outputs_at_divergence": 11295,
+      "recorded_prestate_equal": true,
+      "available_output_prefix_equal": true,
+      "evidence": [
+        "analysis/analysis.json:20171-20205",
+        "analysis/analysis.json:20503-20537",
+        "analysis/analysis.json:20835-20848",
+        "analysis/analysis.json:21167-21180",
+        "analysis/localization/REPORT.md:7-21"
+      ]
+    },
+    "oracle_and_jit_boundary": {
+      "status": "pass",
+      "fixed_trace_oracle_claimed": false,
+      "full_request_oracle_run": false,
+      "jit_assigned_to_measured_episode": false,
+      "jit_machine_code_recompile_claimed": false,
+      "jit_used_to_explain_wall_drift": false,
+      "evidence": [
+        "RESULTS_ADDENDUM.md:24-28",
+        "analysis/localization/REPORT.md:23",
+        "../20260914_ltr_component_probe_r01/JIT_LOG_SEMANTICS_ADDENDUM.md:5-18",
+        "../20260914_ltr_component_probe_r01/JIT_LOG_SEMANTICS_ADDENDUM.md:40-50"
+      ]
+    },
+    "per_request_metric_alignment": {
+      "status": "pass",
+      "requests_checked": 128,
+      "ttft_mismatches": 0,
+      "tpot_mismatches": 0,
+      "itl_vector_mismatches": 0,
+      "completion_latency_mismatches": 0,
+      "output_receipt_prefix_mismatches": 0,
+      "evidence": [
+        "preparation/pkg/metrics.py:62-155",
+        "refine-logs/expert_saturation/experiments/admission_capacity/analyze_ltr_packing_probe.py:106-140"
+      ]
+    }
+  },
+  "observed_cells": [
+    {
+      "label": "block0-d6-packing-fit_scan",
+      "wall_s": 27.670858656987548,
+      "throughput_rps": 1.1564512831595575,
+      "mean_completion_s": 21.61807505992474,
+      "max_request_itl_s": 4.8347010016441345,
+      "engine_calls": 1862,
+      "preemptions": 22,
+      "recomputed_positions": 75742,
+      "fresh_prefill_positions": 98304,
+      "fresh_decode_positions": 32736,
+      "scheduler_inclusive_s": 1.0960425101220608,
+      "decision_nested_s": 0.2481808103621006,
+      "engine_excluding_scheduler_s": 26.112081175670028,
+      "outside_engine_s": 0.46273497119545937
+    },
+    {
+      "label": "block0-d6-packing-rank_prefix",
+      "wall_s": 28.196696216240525,
+      "throughput_rps": 1.134884730983798,
+      "mean_completion_s": 22.277188004367055,
+      "max_request_itl_s": 6.7324024643749,
+      "engine_calls": 1872,
+      "preemptions": 25,
+      "recomputed_positions": 74982,
+      "fresh_prefill_positions": 98304,
+      "fresh_decode_positions": 32736,
+      "scheduler_inclusive_s": 1.2093757186084986,
+      "decision_nested_s": 0.26183659210801125,
+      "engine_excluding_scheduler_s": 26.422977834939957,
+      "outside_engine_s": 0.56434266269207
+    },
+    {
+      "label": "block1-d6-packing-rank_prefix",
+      "wall_s": 27.708315525203943,
+      "throughput_rps": 1.1548879602909194,
+      "mean_completion_s": 21.775504319428002,
+      "max_request_itl_s": 6.576920833438635,
+      "engine_calls": 1872,
+      "preemptions": 25,
+      "recomputed_positions": 74982,
+      "fresh_prefill_positions": 98304,
+      "fresh_decode_positions": 32736,
+      "scheduler_inclusive_s": 1.083289684727788,
+      "decision_nested_s": 0.2528021764010191,
+      "engine_excluding_scheduler_s": 26.186458233743906,
+      "outside_engine_s": 0.43856760673224926
+    },
+    {
+      "label": "block1-d6-packing-fit_scan",
+      "wall_s": 28.23474450223148,
+      "throughput_rps": 1.1333553947148678,
+      "mean_completion_s": 22.14499209666392,
+      "max_request_itl_s": 4.933291839435697,
+      "engine_calls": 1862,
+      "preemptions": 22,
+      "recomputed_positions": 75742,
+      "fresh_prefill_positions": 98304,
+      "fresh_decode_positions": 32736,
+      "scheduler_inclusive_s": 1.12024718336761,
+      "decision_nested_s": 0.2577072698622942,
+      "engine_excluding_scheduler_s": 26.574881186708808,
+      "outside_engine_s": 0.5396161321550608
+    }
+  ],
+  "claims": [
+    {
+      "id": "C1_exact_four_cell_metrics",
+      "impact": "supported"
+    },
+    {
+      "id": "C2_rank_prefix_does_not_remove_unfinished_restore_churn_and_has_worse_max_itl_in_both_pairs",
+      "impact": "supported_within_fixed_old_d6_component_regime"
+    },
+    {
+      "id": "C3_stable_performance_gain",
+      "impact": "unsupported_and_correctly_not_claimed"
+    },
+    {
+      "id": "C4_generation_quality_equivalence",
+      "impact": "unsupported_and_correctly_not_claimed"
+    },
+    {
+      "id": "C5_full_ltr_oracle_significance_business_slo_or_family_no_go",
+      "impact": "unsupported_and_correctly_excluded"
+    },
+    {
+      "id": "C6_first_output_retention_net_benefit",
+      "impact": "unrun_hypothesis_only"
+    }
+  ],
+  "bounded_limitations": [
+    "Resolved long_prefill_token_threshold was not recorded, so exact prestate-to-plan replay is unavailable; recorded plan/native action/resource receipts are fully checked.",
+    "The two repeats reuse one old cohort and are correlated; their opposite wall/completion signs are retained and are not a noise bound.",
+    "Only 25 of 32 cross-arm outputs match in each pair; no generation-quality conclusion is supported.",
+    "Recorded equality at the first divergence covers counters, block counts, pool state, running set, and returned output prefix, not a full engine or KV-byte checkpoint.",
+    "Generic JIT warning_once logs do not locate an event inside the measured episode or prove machine-code recompilation."
+  ],
+  "action_items": [
+    "No correction is required for the current bounded MEASUREMENT_ONLY claims.",
+    "Record resolved scheduler configuration before any future claim that requires exact planner reconstruction.",
+    "Use a fresh cohort/regime, controlled independent repeats, and an explicit quality protocol before stable-performance or quality claims.",
+    "Preserve the JIT semantics addendum as the correction authority for warning-based interpretation."
+  ],
+  "audited_input_hashes": {
+    "REPORT.md": "sha256:7c55368da54c1b8647cfbafbf7acd030b2f4e4d7346e04fda6587f6800c104e8",
+    "RESULTS_ADDENDUM.md": "sha256:4fe4693ea080219145dfc6a8b97bbcdcebf26d27a6a6afea6b5411aa113d7635",
+    "analysis/analysis.json": "sha256:8019c1ed019296ee801c1c14deb87917019405f347e6a6b89e1170cab6050e06",
+    "analysis/localization/localize.py": "sha256:a2a03fab7d9c2b55db3772d977f6e131cbde909fbb491a0e4bd2fe1425362099",
+    "analysis/localization/analysis.json": "sha256:28365675d76a6fdd4cff8b48f2f636d1bab4254dc0cc4398aa63ca301eab0d43",
+    "analysis/localization/REPORT.md": "sha256:755e70d2f505f987babd32b4b4f7ac20c1e2e45ae9eac9d67a3b25e7fdf5f600",
+    "preparation/preparation.json": "sha256:8807b109efcc1cb3f1cb46c1820f9cfd236949defe35312ce481647d09702a7b",
+    "preparation/execution.tar.gz": "sha256:1fea4a612af77a0062163cec33566765c2df25ade4021407756ec43b1734ef73",
+    "preparation/pkg/campaign.json": "sha256:a6798afe4fff1ec547e907cf140e6e6deaf4b3a2bde820aabb2df9510d012f25",
+    "preparation/pkg/run.sh": "sha256:1e4362bf474eb90b2ce970e66c952cdcd020f69bb1e9bdd4001142a31920fabc",
+    "preparation/pkg/run_probe.py": "sha256:2ddd04b4a0486c0ecdb542648596138f0b9268290a76d5d360b671c4e9efba23",
+    "preparation/pkg/ltr_recompute_native.py": "sha256:64e39a70ee902fbd0e3c31366560ab9cf1282d0c4b9ac7a3c94432b88a506f26",
+    "preparation/pkg/recovery_service_components.py": "sha256:b853043d565c33ab24d34fd867c5c501b3e586365ec4a4cff64fd0622ecb3dc9",
+    "preparation/pkg/metrics.py": "sha256:1ca4874d718402ad149e26abd1b109eadf50afabb7aadc9e562e244aeb594b11",
+    "preparation/pkg/native_capture.py": "sha256:9b0b825992d9417b58947e744a16fdf033117f24c2e116cb394210238edd5952",
+    "preparation/pkg/memory_telemetry.py": "sha256:393cc9e42b76b8f1bfae57127ca8fc153242eb1e6dfd74ede6c5873e1f99d2ab",
+    "preparation/pkg/safe_static.py": "sha256:68669a1207156784ac636f6be0f179dbb5e76509fbe304fabe2d128254fd18d9",
+    "preparation/pkg/rotation_native.py": "sha256:10149fc99ec060c3c36ac313c99a9988d68593eb67146dba1d6d662e8f049350",
+    "execution/execution.json": "sha256:982e4da845464333660cc7b6da77181f77c5ebce644c3fe955e320bbf3dae6db",
+    "execution/readback.tar.gz": "sha256:2825c8181d893af9482adbc6b5f07e027dea465f3631fb6036b690d75179cacc",
+    "refine-logs/expert_saturation/experiments/admission_capacity/analyze_ltr_packing_probe.py": "sha256:7a88ba39a17e536f87b60788023b3042d5b9366853d32c20fd214fd5b8bbfb38",
+    "refine-logs/expert_saturation/experiments/admission_capacity/analyze_ltr_component_probe.py": "sha256:342738deed09c6fb585137a81ed5cd3186abaa54445d0443dbbed3669ccbd1a6",
+    "refine-logs/expert_saturation/experiments/admission_capacity/analyze_prefix_cache_baseline.py": "sha256:590ee20ee3648bb097abf82f29b23ac1e249ca588216bba4b0b13d713d18a473",
+    "../20260914_ltr_component_probe_r01/JIT_LOG_SEMANTICS_ADDENDUM.md": "sha256:6764bad8d290142fe3ef7a06dca0e35db26706012952243b2e61dd4eb7d50a2c"
+  },
+  "cell_artifact_hashes": {
+    "block0-d6-packing-fit_scan": {
+      "raw.json": "sha256:22a643acc39c5fed19551a58597cd3dcdc40c8f2e080566ec5a1354e1c31e403",
+      "component-decisions.json": "sha256:79f5e390cb865874400266f416e3103578bfdc676e788a47dd44eb4b6b6eab6c",
+      "config.json": "sha256:36c941b0326864b5af4cf15d7de8bcaa2ca8725941d4f1fe9efe9e0079d28fea",
+      "engine_args.json": "sha256:387f29132f394aab38ffdc19b577af4388d6aeb1872a8449196a1fc00531b775",
+      "environment.json": "sha256:4f3308cb80784080c10d15586fee5f4957e0fee5a005fa918c7ae8d622f35d0d",
+      "metrics.json": "sha256:b0e9b275764f3c30e95a4ee033fb244b7eb4980e40ed98a04f0cd72adc5c2d53",
+      "status.json": "sha256:4773f43c958676aeda3900c9984ae81126899067dc132377eb63ddd47618e892",
+      "safe-cap-qualification.json": "sha256:98d1aa22e6f903435ffe0e76d1355a92593fde93e6baca323a489c067a23aa24",
+      "warmup-0.json": "sha256:b8dbb7919139d3e6f023ec92d57dc042660c7bd8b229bc7dc93315a0c9269817",
+      "warmup-1.json": "sha256:5e0f1882533aab0e0de35e5aafb0d954548fc1a50ac81c0804b2c65bc7dad801",
+      "warmup-2.json": "sha256:f7b735ec9540121766cc5ff868357eba5edff8314ad010ef09ed45207f530d1f"
+    },
+    "block0-d6-packing-rank_prefix": {
+      "raw.json": "sha256:44e74b63ea52c926409fef9939a74c64dd99410cdb990967d5a17f17bd61ba0b",
+      "component-decisions.json": "sha256:7eb07a08245ce8e164ebfc5eae92118e22f433dc9ac5267406fe684180bafbf4",
+      "config.json": "sha256:5be8f02c30b60df5cde9f3602fbaa3828e03f6df658ec1a5188f276b0db14e76",
+      "engine_args.json": "sha256:387f29132f394aab38ffdc19b577af4388d6aeb1872a8449196a1fc00531b775",
+      "environment.json": "sha256:50135f238503349b81d924ffa94cfba2a3d4c98a6bd27935caa5f6fa86c51d87",
+      "metrics.json": "sha256:d1b1c18935f17241e262057e9bf7e62f6b49fd9153b7f28da1099d42ae968e53",
+      "status.json": "sha256:1d0d36e4ce0af6cc2823e7bf480ab5a30ced085f3b83eeaaf2643a1a1b674a87",
+      "safe-cap-qualification.json": "sha256:98d1aa22e6f903435ffe0e76d1355a92593fde93e6baca323a489c067a23aa24",
+      "warmup-0.json": "sha256:2126a0e224f39cd641e336a02200f47e272ad73190dfac1093ad5eda79cc0984",
+      "warmup-1.json": "sha256:1ac1323a3b365cf44f81e7d4aca4dd14f4cd6e93bf54b8787bc73f1bbd931655",
+      "warmup-2.json": "sha256:bbb4ac1048ddb0fd43c424a505d010ffc1a70caef259c95189b87fc5a64fbb51"
+    },
+    "block1-d6-packing-rank_prefix": {
+      "raw.json": "sha256:c149efc1c0f352ba7810bcb4e8af9d403fb0722c4b07c3bb60050cd4fa1cdf48",
+      "component-decisions.json": "sha256:64d203bc7eca29ebf418f527f6bbd008fcfcb96192c7f2f22d2282b7702896b7",
+      "config.json": "sha256:5be8f02c30b60df5cde9f3602fbaa3828e03f6df658ec1a5188f276b0db14e76",
+      "engine_args.json": "sha256:387f29132f394aab38ffdc19b577af4388d6aeb1872a8449196a1fc00531b775",
+      "environment.json": "sha256:0f7821c37200162ac6fdfe1022ad07d83d484f59e64fa66a7e25bedb80fd4370",
+      "metrics.json": "sha256:fa477b51a36920e97f75db8d01bdddd9ebbbb01f8f3ebb45e7cbd00a6283974a",
+      "status.json": "sha256:1d0d36e4ce0af6cc2823e7bf480ab5a30ced085f3b83eeaaf2643a1a1b674a87",
+      "safe-cap-qualification.json": "sha256:98d1aa22e6f903435ffe0e76d1355a92593fde93e6baca323a489c067a23aa24",
+      "warmup-0.json": "sha256:80e8e7108a93847e64a2d5686f0ebd675d1d94ba8adb1674a3d8c567451d4bab",
+      "warmup-1.json": "sha256:d26ecdb54ec7c70a85ff3f908cee1248d90aad0b2ff06fc1c46b80e4b11b9d3d",
+      "warmup-2.json": "sha256:bdd2c9e838a2f8ee2e496102bec6a114c95f8b460b152151c1c0095cd6a46a41"
+    },
+    "block1-d6-packing-fit_scan": {
+      "raw.json": "sha256:ea50c0d157a1f637ba7936bec8720618e01cce55d2c6f1e7ebcf5aae2e98c58c",
+      "component-decisions.json": "sha256:a048c5839b4099a433b0449568678782242715e87517c45f3ee6bfa68642ff0c",
+      "config.json": "sha256:36c941b0326864b5af4cf15d7de8bcaa2ca8725941d4f1fe9efe9e0079d28fea",
+      "engine_args.json": "sha256:387f29132f394aab38ffdc19b577af4388d6aeb1872a8449196a1fc00531b775",
+      "environment.json": "sha256:c3af01487fcf9098b2bc29e764f2fdea8e2308a375bd6933e9ac7872c4f70981",
+      "metrics.json": "sha256:0ecedcf8d362c1fb62a10bb7560ea7ecd3773313a451df4ba0f9730fa65ad5e6",
+      "status.json": "sha256:4773f43c958676aeda3900c9984ae81126899067dc132377eb63ddd47618e892",
+      "safe-cap-qualification.json": "sha256:98d1aa22e6f903435ffe0e76d1355a92593fde93e6baca323a489c067a23aa24",
+      "warmup-0.json": "sha256:e804a857a07a796320250e2f9ef908a2d5976b3c2cb983be4d9e0ded72b6f27f",
+      "warmup-1.json": "sha256:ebfcca4816b45509fd368a6e3016ce36ce16942bf50de95d15322202d50c9bac",
+      "warmup-2.json": "sha256:c0814367df142919aa8f89129115a13dc8c549143889956a180f0cb0e48cfc68"
+    }
+  }
+}

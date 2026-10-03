@@ -1,0 +1,44 @@
+{
+  "cells": [
+    {
+      "label": "block0-d6-packing-fit_scan",
+      "boost": "on",
+      "packing": "fit_scan",
+      "kv_cache_bytes": 13960740864,
+      "usable_blocks": 6656
+    },
+    {
+      "label": "block0-d6-packing-rank_prefix",
+      "boost": "on",
+      "packing": "rank_prefix",
+      "kv_cache_bytes": 13960740864,
+      "usable_blocks": 6656
+    },
+    {
+      "label": "block1-d6-packing-rank_prefix",
+      "boost": "on",
+      "packing": "rank_prefix",
+      "kv_cache_bytes": 13960740864,
+      "usable_blocks": 6656
+    },
+    {
+      "label": "block1-d6-packing-fit_scan",
+      "boost": "on",
+      "packing": "fit_scan",
+      "kv_cache_bytes": 13960740864,
+      "usable_blocks": 6656
+    }
+  ],
+  "comparison": "packing",
+  "question": "Does stopping at the first infeasible ranked candidate change short recovery service intervals and the stall/full-service tradeoff?",
+  "primary_metric": "maximum of per-request maximum generation ITL",
+  "secondary_metrics": [
+    "all-request TTFT/TPOT/completion/throughput",
+    "confirmed recompute positions",
+    "recovery output before next preemption",
+    "per-request improved/harmed counts",
+    "complete host cost"
+  ],
+  "interpretation": "Old d6 cohort, diagnostic component comparison, not holdout or full LTR. No performance claim from CPU replay. Preserve sign flips and every cell. If prefix removes short service but raises pauses/cost, retain that tradeoff; no parameter scan or claim of problem-family failure.",
+  "source_rule": "LTR ranked-prefix capacity stop only; FCFS base ranking, chunked recompute and present-history reservation remain common adaptation rules."
+}

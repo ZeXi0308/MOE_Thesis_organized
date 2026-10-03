@@ -1,0 +1,546 @@
+{
+  "status": "historical_observation_no_counterfactual",
+  "created_date": "2026-09-10",
+  "scope": "Only the 3 locally complete historical blocks, mixed FCFS/SPT: 6 measured episodes and 96 request executions; no new runs and no proposed-policy simulation.",
+  "definitions": {
+    "arrival_index": "1-based order by actual trace arrival_s, stable original request index for ties.",
+    "first_admission": "First positive scheduled_tokens occurrence in scheduler_steps[].scheduled; same-step position uses this recorded list order.",
+    "order_bypasses": "Number of later-arrival requests whose first (step, position) is lexicographically earlier; older request is independently checked present in native waiting capture at each such admission.",
+    "cross_step_bypasses": "Later arrival first scheduled in a strictly earlier native schedule; distinct from same-step allocation order.",
+    "first_schedule_start_gap_ms": "Observed host schedule-start gap inside one arm, not GPU duration or causal extra waiting relative to FCFS; overlapping pair gaps must not be summed.",
+    "ttft_ms": "(first token receipt - trace arrival_s) * 1000.",
+    "request_latency_ms": "(completion receipt - trace arrival_s) * 1000.",
+    "policy_comparison": "FCFS and SPT are independent full episodes; their request outcomes are descriptive matched-input comparisons, not same-state counterfactuals."
+  },
+  "per_request_columns": [
+    "arrival_index",
+    "first_schedule_step",
+    "first_schedule_position",
+    "order_bypasses",
+    "cross_step_bypasses",
+    "same_step_order_bypasses",
+    "ttft_ms",
+    "request_latency_ms"
+  ],
+  "request_catalog": [
+    {
+      "arrival_index": 1,
+      "request_id": "memory-train-article-0000001",
+      "prompt_tokens": 128
+    },
+    {
+      "arrival_index": 2,
+      "request_id": "memory-train-article-0000051",
+      "prompt_tokens": 2048
+    },
+    {
+      "arrival_index": 3,
+      "request_id": "memory-train-article-0000133",
+      "prompt_tokens": 128
+    },
+    {
+      "arrival_index": 4,
+      "request_id": "memory-train-article-0000316",
+      "prompt_tokens": 2048
+    },
+    {
+      "arrival_index": 5,
+      "request_id": "memory-train-article-0000480",
+      "prompt_tokens": 128
+    },
+    {
+      "arrival_index": 6,
+      "request_id": "memory-train-article-0000507",
+      "prompt_tokens": 2048
+    },
+    {
+      "arrival_index": 7,
+      "request_id": "memory-train-article-0000628",
+      "prompt_tokens": 128
+    },
+    {
+      "arrival_index": 8,
+      "request_id": "memory-train-article-0000799",
+      "prompt_tokens": 2048
+    },
+    {
+      "arrival_index": 9,
+      "request_id": "memory-train-article-0000976",
+      "prompt_tokens": 128
+    },
+    {
+      "arrival_index": 10,
+      "request_id": "memory-train-article-0001107",
+      "prompt_tokens": 2048
+    },
+    {
+      "arrival_index": 11,
+      "request_id": "memory-train-article-0001157",
+      "prompt_tokens": 128
+    },
+    {
+      "arrival_index": 12,
+      "request_id": "memory-train-article-0001244",
+      "prompt_tokens": 2048
+    },
+    {
+      "arrival_index": 13,
+      "request_id": "memory-train-article-0001274",
+      "prompt_tokens": 128
+    },
+    {
+      "arrival_index": 14,
+      "request_id": "memory-train-article-0001401",
+      "prompt_tokens": 2048
+    },
+    {
+      "arrival_index": 15,
+      "request_id": "memory-train-article-0001487",
+      "prompt_tokens": 128
+    },
+    {
+      "arrival_index": 16,
+      "request_id": "memory-train-article-0001710",
+      "prompt_tokens": 2048
+    }
+  ],
+  "summary": {
+    "fcfs_total_bypass_pairs": 0,
+    "spt_total_bypass_pairs": 18,
+    "spt_cross_step_pairs": 17,
+    "spt_same_step_order_only_pairs": 1,
+    "spt_cross_step_start_gap_ms_range": [12.996186,177.188493],
+    "conclusion": "17 of 18 SPT bypass pairs occur across native schedule steps, so the observed phenomenon is not predominantly same-step ordering. This motivates measuring a bypass bound, but proves neither benefit nor wall-time protection of the proposed action."
+  },
+  "blocks": [
+    {
+      "block": "R0_forward",
+      "arms": {
+        "fcfs": {
+          "raw_file": "refine-logs/independent_ideas_20260908/host_timing_boundary_r01/waiting_order_r01/readback/results/forward/cell-002-raw.json",
+          "max_order_bypasses": 0,
+          "max_cross_step_bypasses": 0,
+          "max_same_step_order_bypasses": 0,
+          "pair_counts": {
+            "total": 0,
+            "cross_step": 0,
+            "same_step_order_only": 0
+          },
+          "per_request": [
+            [1,0,0,0,0,0,46.563182,1222.797282],
+            [2,2,1,0,0,0,75.613373,1211.097811],
+            [3,4,2,0,0,0,25.613373,1161.097811],
+            [4,9,3,0,0,0,51.374695,1203.804436],
+            [5,12,4,0,0,0,14.46459,1174.159046],
+            [6,18,5,0,0,0,53.221736,1207.159713],
+            [7,21,6,0,0,0,17.532584,1177.46769],
+            [8,26,7,0,0,0,56.106204,1202.246392],
+            [9,128,7,0,0,0,836.179572,1981.838784],
+            [10,132,6,0,0,0,872.008308,1981.170702],
+            [11,134,7,0,0,0,822.008308,1931.170702],
+            [12,139,7,0,0,0,857.862287,1936.715391],
+            [13,141,7,0,0,0,807.862287,1886.715391],
+            [14,148,7,0,0,0,860.917105,1894.169102],
+            [15,150,7,0,0,0,810.917105,1844.169102],
+            [16,156,7,0,0,0,855.682258,1826.406214]
+          ],
+          "pairs": []
+        },
+        "short_prompt_first": {
+          "raw_file": "refine-logs/independent_ideas_20260908/host_timing_boundary_r01/waiting_order_r01/readback/results/forward/cell-003-raw.json",
+          "max_order_bypasses": 3,
+          "max_cross_step_bypasses": 3,
+          "max_same_step_order_bypasses": 0,
+          "pair_counts": {
+            "total": 6,
+            "cross_step": 6,
+            "same_step_order_only": 0
+          },
+          "per_request": [
+            [1,0,0,0,0,0,35.049871,1177.765071],
+            [2,5,1,0,0,0,69.725194,1189.915241],
+            [3,7,2,0,0,0,19.725194,1139.915241],
+            [4,13,3,0,0,0,52.326145,1159.766322],
+            [5,16,4,0,0,0,15.310585,1122.759271],
+            [6,22,5,0,0,0,65.782875,1166.105375],
+            [7,24,6,0,0,0,15.782875,1116.105375],
+            [8,30,7,0,0,0,58.913538,1183.330917],
+            [9,128,7,0,0,0,790.638099,1925.526271],
+            [10,144,7,3,3,0,925.988174,2009.933203],
+            [11,135,6,0,0,0,753.252108,1880.092435],
+            [12,152,6,2,2,0,927.12386,1959.553701],
+            [13,135,7,0,0,0,653.252108,1780.092435],
+            [14,154,7,1,1,0,860.240205,1869.651789],
+            [15,143,7,0,0,0,622.759271,1741.332933],
+            [16,160,7,0,0,0,836.545065,1793.357555]
+          ],
+          "pairs": [
+            {
+              "older_arrival_index": 10,
+              "later_arrival_index": 11,
+              "relation": "cross_step",
+              "first_schedule_step_gap": 9,
+              "first_schedule_start_gap_ms": 82.841117
+            },
+            {
+              "older_arrival_index": 10,
+              "later_arrival_index": 13,
+              "relation": "cross_step",
+              "first_schedule_step_gap": 9,
+              "first_schedule_start_gap_ms": 82.841117
+            },
+            {
+              "older_arrival_index": 10,
+              "later_arrival_index": 15,
+              "relation": "cross_step",
+              "first_schedule_step_gap": 1,
+              "first_schedule_start_gap_ms": 12.996186
+            },
+            {
+              "older_arrival_index": 12,
+              "later_arrival_index": 13,
+              "relation": "cross_step",
+              "first_schedule_step_gap": 17,
+              "first_schedule_start_gap_ms": 176.182359
+            },
+            {
+              "older_arrival_index": 12,
+              "later_arrival_index": 15,
+              "relation": "cross_step",
+              "first_schedule_step_gap": 9,
+              "first_schedule_start_gap_ms": 106.337428
+            },
+            {
+              "older_arrival_index": 14,
+              "later_arrival_index": 15,
+              "relation": "cross_step",
+              "first_schedule_step_gap": 11,
+              "first_schedule_start_gap_ms": 147.094317
+            }
+          ]
+        }
+      },
+      "overtaken_long_requests": [
+        {
+          "request_id": "memory-train-article-0001107",
+          "arrival_index": 10,
+          "spt_order_bypasses": 3,
+          "spt_cross_step_bypasses": 3,
+          "spt_same_step_order_bypasses": 0,
+          "fcfs_ttft_ms": 872.008308,
+          "spt_ttft_ms": 925.988174,
+          "fcfs_request_latency_ms": 1981.170702,
+          "spt_request_latency_ms": 2009.933203
+        },
+        {
+          "request_id": "memory-train-article-0001244",
+          "arrival_index": 12,
+          "spt_order_bypasses": 2,
+          "spt_cross_step_bypasses": 2,
+          "spt_same_step_order_bypasses": 0,
+          "fcfs_ttft_ms": 857.862287,
+          "spt_ttft_ms": 927.12386,
+          "fcfs_request_latency_ms": 1936.715391,
+          "spt_request_latency_ms": 1959.553701
+        },
+        {
+          "request_id": "memory-train-article-0001401",
+          "arrival_index": 14,
+          "spt_order_bypasses": 1,
+          "spt_cross_step_bypasses": 1,
+          "spt_same_step_order_bypasses": 0,
+          "fcfs_ttft_ms": 860.917105,
+          "spt_ttft_ms": 860.240205,
+          "fcfs_request_latency_ms": 1894.169102,
+          "spt_request_latency_ms": 1869.651789
+        }
+      ]
+    },
+    {
+      "block": "R0_reverse",
+      "arms": {
+        "short_prompt_first": {
+          "raw_file": "refine-logs/independent_ideas_20260908/host_timing_boundary_r01/waiting_order_r01/readback/results/reverse/cell-000-raw.json",
+          "max_order_bypasses": 3,
+          "max_cross_step_bypasses": 3,
+          "max_same_step_order_bypasses": 0,
+          "pair_counts": {
+            "total": 6,
+            "cross_step": 6,
+            "same_step_order_only": 0
+          },
+          "per_request": [
+            [1,0,0,0,0,0,28.166745,1155.627899],
+            [2,7,1,0,0,0,53.589375,1182.93107],
+            [3,10,2,0,0,0,18.10191,1146.201664],
+            [4,16,3,0,0,0,51.652464,1166.283174],
+            [5,19,4,0,0,0,14.95657,1129.482678],
+            [6,25,5,0,0,0,54.188814,1173.3923],
+            [7,28,6,0,0,0,17.544162,1143.665061],
+            [8,34,7,0,0,0,65.866677,1199.525574],
+            [9,128,7,0,0,0,769.037666,1911.702177],
+            [10,147,7,3,3,0,933.108411,2020.945407],
+            [11,137,7,0,0,0,746.201664,1883.193817],
+            [12,155,7,2,2,0,934.63285,1971.319985],
+            [13,138,7,0,0,0,659.21097,1791.164619],
+            [14,157,7,1,1,0,868.067304,1881.534016],
+            [15,146,7,0,0,0,629.482678,1752.158511],
+            [16,164,7,0,0,0,853.12802,1807.907399]
+          ],
+          "pairs": [
+            {
+              "older_arrival_index": 10,
+              "later_arrival_index": 11,
+              "relation": "cross_step",
+              "first_schedule_step_gap": 10,
+              "first_schedule_start_gap_ms": 96.545637
+            },
+            {
+              "older_arrival_index": 10,
+              "later_arrival_index": 13,
+              "relation": "cross_step",
+              "first_schedule_step_gap": 9,
+              "first_schedule_start_gap_ms": 83.27949
+            },
+            {
+              "older_arrival_index": 10,
+              "later_arrival_index": 15,
+              "relation": "cross_step",
+              "first_schedule_step_gap": 1,
+              "first_schedule_start_gap_ms": 13.201267
+            },
+            {
+              "older_arrival_index": 12,
+              "later_arrival_index": 13,
+              "relation": "cross_step",
+              "first_schedule_step_gap": 17,
+              "first_schedule_start_gap_ms": 177.188493
+            },
+            {
+              "older_arrival_index": 12,
+              "later_arrival_index": 15,
+              "relation": "cross_step",
+              "first_schedule_step_gap": 9,
+              "first_schedule_start_gap_ms": 107.110269
+            },
+            {
+              "older_arrival_index": 14,
+              "later_arrival_index": 15,
+              "relation": "cross_step",
+              "first_schedule_step_gap": 11,
+              "first_schedule_start_gap_ms": 148.026466
+            }
+          ]
+        },
+        "fcfs": {
+          "raw_file": "refine-logs/independent_ideas_20260908/host_timing_boundary_r01/waiting_order_r01/readback/results/reverse/cell-001-raw.json",
+          "max_order_bypasses": 0,
+          "max_cross_step_bypasses": 0,
+          "max_same_step_order_bypasses": 0,
+          "pair_counts": {
+            "total": 0,
+            "cross_step": 0,
+            "same_step_order_only": 0
+          },
+          "per_request": [
+            [1,0,0,0,0,0,28.959036,1147.356573],
+            [2,7,1,0,0,0,53.127502,1176.545438],
+            [3,10,2,0,0,0,16.361089,1147.051097],
+            [4,17,3,0,0,0,54.1393,1189.508262],
+            [5,20,4,0,0,0,17.455763,1159.923352],
+            [6,26,5,0,0,0,56.976222,1192.149647],
+            [7,29,6,0,0,0,20.816509,1162.540094],
+            [8,34,7,0,0,0,57.255214,1186.158971],
+            [9,128,7,0,0,0,761.178213,1898.284966],
+            [10,137,7,0,0,0,831.604562,1936.591714],
+            [11,139,7,0,0,0,781.604562,1886.591714],
+            [12,147,7,0,0,0,843.884212,1917.222527],
+            [13,149,7,0,0,0,793.884212,1867.222527],
+            [14,156,7,0,0,0,846.304151,1874.022669],
+            [15,158,7,0,0,0,796.304151,1824.022669],
+            [16,164,7,0,0,0,840.090055,1806.296542]
+          ],
+          "pairs": []
+        }
+      },
+      "overtaken_long_requests": [
+        {
+          "request_id": "memory-train-article-0001107",
+          "arrival_index": 10,
+          "spt_order_bypasses": 3,
+          "spt_cross_step_bypasses": 3,
+          "spt_same_step_order_bypasses": 0,
+          "fcfs_ttft_ms": 831.604562,
+          "spt_ttft_ms": 933.108411,
+          "fcfs_request_latency_ms": 1936.591714,
+          "spt_request_latency_ms": 2020.945407
+        },
+        {
+          "request_id": "memory-train-article-0001244",
+          "arrival_index": 12,
+          "spt_order_bypasses": 2,
+          "spt_cross_step_bypasses": 2,
+          "spt_same_step_order_bypasses": 0,
+          "fcfs_ttft_ms": 843.884212,
+          "spt_ttft_ms": 934.63285,
+          "fcfs_request_latency_ms": 1917.222527,
+          "spt_request_latency_ms": 1971.319985
+        },
+        {
+          "request_id": "memory-train-article-0001401",
+          "arrival_index": 14,
+          "spt_order_bypasses": 1,
+          "spt_cross_step_bypasses": 1,
+          "spt_same_step_order_bypasses": 0,
+          "fcfs_ttft_ms": 846.304151,
+          "spt_ttft_ms": 868.067304,
+          "fcfs_request_latency_ms": 1874.022669,
+          "spt_request_latency_ms": 1881.534016
+        }
+      ]
+    },
+    {
+      "block": "R1_forward",
+      "arms": {
+        "fcfs": {
+          "raw_file": "refine-logs/independent_ideas_20260908/host_timing_boundary_r01/waiting_order_repeat_r01/readback/results/forward/cell-002-raw.json",
+          "max_order_bypasses": 0,
+          "max_cross_step_bypasses": 0,
+          "max_same_step_order_bypasses": 0,
+          "pair_counts": {
+            "total": 0,
+            "cross_step": 0,
+            "same_step_order_only": 0
+          },
+          "per_request": [
+            [1,0,0,0,0,0,49.462944,1218.266424],
+            [2,2,1,0,0,0,78.511369,1206.30511],
+            [3,4,2,0,0,0,28.511369,1156.30511],
+            [4,9,3,0,0,0,54.819325,1192.491936],
+            [5,12,4,0,0,0,18.712058,1162.830523],
+            [6,18,5,0,0,0,57.586379,1195.901956],
+            [7,21,6,0,0,0,20.931673,1166.197684],
+            [8,26,7,0,0,0,56.009745,1191.092314],
+            [9,128,7,0,0,0,831.380615,1967.860746],
+            [10,132,6,0,0,0,860.326446,1967.571951],
+            [11,134,7,0,0,0,810.326446,1917.571951],
+            [12,139,7,0,0,0,846.596752,1928.18438],
+            [13,141,7,0,0,0,796.596752,1878.18438],
+            [14,148,7,0,0,0,849.717519,1884.761254],
+            [15,150,7,0,0,0,799.717519,1834.761254],
+            [16,156,7,0,0,0,846.0753,1815.024801]
+          ],
+          "pairs": []
+        },
+        "short_prompt_first": {
+          "raw_file": "refine-logs/independent_ideas_20260908/host_timing_boundary_r01/waiting_order_repeat_r01/readback/results/forward/cell-003-raw.json",
+          "max_order_bypasses": 3,
+          "max_cross_step_bypasses": 2,
+          "max_same_step_order_bypasses": 1,
+          "pair_counts": {
+            "total": 6,
+            "cross_step": 5,
+            "same_step_order_only": 1
+          },
+          "per_request": [
+            [1,0,0,0,0,0,46.068884,1224.272169],
+            [2,2,1,0,0,0,76.786675,1213.368484],
+            [3,4,2,0,0,0,26.786675,1163.368484],
+            [4,9,3,0,0,0,63.243745,1174.62902],
+            [5,11,4,0,0,0,13.243745,1124.62902],
+            [6,17,5,0,0,0,52.404977,1168.279313],
+            [7,20,6,0,0,0,15.784361,1138.606292],
+            [8,26,7,0,0,0,60.040244,1200.747789],
+            [9,128,7,0,0,0,838.397073,1985.541957],
+            [10,139,7,3,2,1,928.006998,2041.376169],
+            [11,132,6,0,0,0,776.754305,1922.667105],
+            [12,147,7,2,2,0,935.520646,1990.142316],
+            [13,132,7,0,0,0,676.754305,1822.667105],
+            [14,149,7,1,1,0,868.804178,1900.389878],
+            [15,139,6,0,0,0,644.850577,1778.611894],
+            [16,156,7,0,0,0,854.278274,1826.842681]
+          ],
+          "pairs": [
+            {
+              "older_arrival_index": 10,
+              "later_arrival_index": 11,
+              "relation": "cross_step",
+              "first_schedule_step_gap": 7,
+              "first_schedule_start_gap_ms": 61.257508
+            },
+            {
+              "older_arrival_index": 10,
+              "later_arrival_index": 13,
+              "relation": "cross_step",
+              "first_schedule_step_gap": 7,
+              "first_schedule_start_gap_ms": 61.257508
+            },
+            {
+              "older_arrival_index": 10,
+              "later_arrival_index": 15,
+              "relation": "same_step_order_only",
+              "first_schedule_step_gap": 0,
+              "first_schedule_start_gap_ms": 0.0
+            },
+            {
+              "older_arrival_index": 12,
+              "later_arrival_index": 13,
+              "relation": "cross_step",
+              "first_schedule_step_gap": 15,
+              "first_schedule_start_gap_ms": 154.903855
+            },
+            {
+              "older_arrival_index": 12,
+              "later_arrival_index": 15,
+              "relation": "cross_step",
+              "first_schedule_step_gap": 8,
+              "first_schedule_start_gap_ms": 93.646348
+            },
+            {
+              "older_arrival_index": 14,
+              "later_arrival_index": 15,
+              "relation": "cross_step",
+              "first_schedule_step_gap": 10,
+              "first_schedule_start_gap_ms": 140.572667
+            }
+          ]
+        }
+      },
+      "overtaken_long_requests": [
+        {
+          "request_id": "memory-train-article-0001107",
+          "arrival_index": 10,
+          "spt_order_bypasses": 3,
+          "spt_cross_step_bypasses": 2,
+          "spt_same_step_order_bypasses": 1,
+          "fcfs_ttft_ms": 860.326446,
+          "spt_ttft_ms": 928.006998,
+          "fcfs_request_latency_ms": 1967.571951,
+          "spt_request_latency_ms": 2041.376169
+        },
+        {
+          "request_id": "memory-train-article-0001244",
+          "arrival_index": 12,
+          "spt_order_bypasses": 2,
+          "spt_cross_step_bypasses": 2,
+          "spt_same_step_order_bypasses": 0,
+          "fcfs_ttft_ms": 846.596752,
+          "spt_ttft_ms": 935.520646,
+          "fcfs_request_latency_ms": 1928.18438,
+          "spt_request_latency_ms": 1990.142316
+        },
+        {
+          "request_id": "memory-train-article-0001401",
+          "arrival_index": 14,
+          "spt_order_bypasses": 1,
+          "spt_cross_step_bypasses": 1,
+          "spt_same_step_order_bypasses": 0,
+          "fcfs_ttft_ms": 849.717519,
+          "spt_ttft_ms": 868.804178,
+          "fcfs_request_latency_ms": 1884.761254,
+          "spt_request_latency_ms": 1900.389878
+        }
+      ]
+    }
+  ]
+}

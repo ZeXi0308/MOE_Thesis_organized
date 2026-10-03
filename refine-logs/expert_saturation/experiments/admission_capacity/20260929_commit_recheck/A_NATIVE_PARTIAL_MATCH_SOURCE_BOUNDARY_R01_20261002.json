@@ -1,0 +1,48 @@
+{
+  "status": "PINNED_SOURCE_BOUNDARY_ONLY_NO_GPU_TEST",
+  "date": "2026-10-02",
+  "sources": [
+    {
+      "path": "liveness_pinned_sources_20260930/scheduler.py",
+      "sha256": "2ed2a550b6558b2495eda845a97ae38bcf0225027b9e25fbf00fc3880c1d3941",
+      "lines": ["763-790", "828-832", "919-1007", "2540-2600"]
+    },
+    {
+      "path": "liveness_pinned_sources_20260930/kv_cache_manager.py",
+      "sha256": "3f4af8d247f3fe9570b0132818b832b66ae6a2ac12942588828f899f6ff77ccf",
+      "lines": ["395-420", "425-480"]
+    },
+    {
+      "path": "offload_pinned_sources_20261002/offloading_scheduler.py",
+      "sha256": "89ac26a80fbc29b9bcaa5a0daba88fb6309247f9bb053e48d2d61efa7d9d66f1",
+      "lines": ["465-520", "520-539", "539-717", "720-875", "1215-1250"]
+    },
+    {
+      "path": "offload_pinned_sources_20261002/offloading_worker.py",
+      "sha256": "d8f1a45cd01ea97307552c12bb8420dabbb63388fce10bd8b4b77d27bc5f1d35",
+      "lines": ["305-315", "331-365"]
+    },
+    {
+      "path": "offload_pinned_sources_20261002/offloading_connector.py",
+      "sha256": "59e544b8d4185f80b3c5b32fb80080ccd7fa7b1c2a4b7b47efaad2be667bd539",
+      "lines": ["137-153"]
+    }
+  ],
+  "supported_short_truthful_match": {
+    "source_conclusion": "Structurally supported for the pinned single full-attention group with one 16-token block per chunk, provided the reported shorter count is a real contiguous, chunk-aligned host hit.",
+    "lookup_state": "get_num_new_matched_tokens computes a maximal hit and records num_hit_chunks/touches keys, but does not register a load job or load-token range. In this full-attention domain, the recorded hit count is not subsequently used to size the load; it only affects sliding-window touch selection, which is absent here.",
+    "allocation_state": "update_state_after_alloc independently uses its num_external_tokens argument to bound num_cached_tokens, slice offload_keys and destination blocks, prepare_load, and register one load job. The worker submits exactly that registered job; completion gates WAITING_FOR_REMOTE_KVS promotion.",
+    "existing_support": "Natural shorter prefix hits already follow this subprefix path. No built-in capacity cap or repeated host-chunk streaming is visible. After partial completion, num_computed_tokens>0 bypasses a new connector lookup, so the remainder is locally chunk-computed when enabled."
+  },
+  "reserve_full_isl": {
+    "true": "Before actual allocation, full_sequence_must_fit checks enough free blocks for min(request.num_tokens,max_model_len), including the already known preemption history. A shorter external match alone does not bypass this gate.",
+    "false": "Skips only that full-known-sequence admission check. Actual allocation still includes all returned local plus external matched tokens, optional local new work, and reserved blocks; shortening the truthful external count is independently necessary for a smaller first load.",
+    "qualification": "The current native-full adapter requires scheduler_reserve_full_isl=True; false and an intentional capacity-bounded hit have not been tested in these candidates."
+  },
+  "limits": [
+    "The maximal lookup has no capacity argument. An in-flight transfer, or a pending/retry chunk beyond a useful short prefix, can defer the whole lookup before a post-return cap can act.",
+    "The count, host keys, allocated GPU blocks, load job, completed/invalid block handling, and chunk boundaries must agree; a shorter count cannot claim unallocated or unloaded tokens as computed.",
+    "Truncation changes load versus recompute timing but cannot remove the full-attention all-history KV capacity needed by the first new output after recovery. A partial request can later self-preempt under native allocation pressure without protection.",
+    "Interface feasibility is not a performance result or a standalone recovery-admission method. The remaining experimental direction is actual recovery-admission intervention, not partial load alone."
+  ]
+}

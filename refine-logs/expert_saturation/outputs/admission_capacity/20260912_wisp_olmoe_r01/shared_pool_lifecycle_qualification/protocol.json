@@ -1,0 +1,46 @@
+{
+  "status": "FROZEN_UNRUN",
+  "created_unix_s": 1789249743.7268429,
+  "question": "Can current-call shared staging preserve exact ordinary21 private LRU state and actual weights across layer/call reuse?",
+  "evidence_type": "NATIVE_EAGER_SHARED_PAGER_LIFECYCLE_QUALIFICATION_ONLY",
+  "modes": [
+    "split",
+    "oneshot"
+  ],
+  "resources": {
+    "expert_slots": 384,
+    "private_slots_per_layer": 21,
+    "layers": 16,
+    "shared_slots": 48,
+    "weight_bytes": 4831838208,
+    "kv_bytes": 1073741824
+  },
+  "workload": {
+    "source": "refine-logs/expert_saturation/outputs/admission_capacity/20260906_native_memory_pressure_r01/inputs_preparation/prepared/short/workload.json",
+    "source_sha256": "2c08f17c8edef382e6aacb4f1321d35c3f386a60ec840c95c922fbd7e0a25a53",
+    "source_indices": [
+      8,
+      9,
+      10,
+      11
+    ],
+    "prepared_sha256": "549357d7aa120a4c838064a87ffb645d448b8122266374404e6e3d7fdd934d75",
+    "requests": 4,
+    "prompt_tokens": 64,
+    "output_tokens": 8,
+    "token_budget": 160,
+    "arrival_interval_s": 0.05
+  },
+  "contract": [
+    "Same 384-slot storage in both modes; split21 executes old ordinary expert grouping and leaves staging unused.",
+    "oneshot preserves canonical cap21 final slot/map/LRU state on its own observed current routes; D2D all entry survivors needed but overwritten, then each entry miss H2D once. No future routes used.",
+    "Every nonempty measurement layer call checks full-row output against full64-weight reference and private final weight bytes; oneshot also checks each active mapped weight byte. Positive oneshot requires finite/allclose(.01,.01)/bitwise, split requires finite/allclose. No new absolute tolerance tuned.",
+    "Cross-layer reuse shares a single recorded CUDA stream; stream change fails. All16 private views must alias exact384-slot two storages, totals and offsets checked.",
+    "Reference/weight readback adds memory/time only for qualification; no same-budget peak/performance or request quality claim.",
+    "CPU sentinel negative executes H2D before D2D and must expose overwritten source corruption; prior interface fixed wrong-map GPU negative retained separately.",
+    "Ordinary canonical eviction operations and actual entry resident removals are distinct counters. H2D and D2D payload bytes separate, no double-counting or overlap subtraction.",
+    "All failures retained. Two modes run serially in declared order, stop on first failed process; no automatic retry."
+  ],
+  "next_if_pass": "One matched same-resource performance probe versus uniform24/static M and split21 on independent actual requests; preserve full costs.",
+  "stop_if_fail": "Localize exact first source/ownership/numerical failure; do not call full performance or problem NO-GO."
+}

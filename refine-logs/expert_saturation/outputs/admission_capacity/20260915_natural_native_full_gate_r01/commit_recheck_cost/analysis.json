@@ -1,0 +1,88 @@
+{
+  "status": "FACTUAL_COST_CONTEXT_NOT_ACTION_VALUE",
+  "rows": [
+    {
+      "arm": "selected",
+      "source": "refine-logs/expert_saturation/outputs/admission_capacity/20260915_natural_saved_recovery_gate_r01/execution_weste_26862/analysis.json",
+      "candidate_commits_evaluated": 25,
+      "commit_step": 859,
+      "target": "measured/memory-train-article-0000271-88bc12c7",
+      "victim": "measured/memory-train-article-0000748-9c8f05b4",
+      "free_blocks": 193,
+      "commit_snapshot_perf_s": 4863396.77288654,
+      "prepare_store_jobs": [
+        {
+          "job_id": 122,
+          "dispatch_s": 4863396.774762406,
+          "completion_report_s": 4863396.798338556,
+          "submitted_before_commit": false,
+          "completion_reported_before_commit": false
+        }
+      ],
+      "prepare_new_store_blocks": 232,
+      "historical_full_store_completed_jobs": null,
+      "historical_full_store_completed_blocks": null,
+      "target_required_blocks": 95,
+      "retained_victim_blocks": 233,
+      "victim_load_job_id": 124,
+      "victim_actual_loaded_prefix_tokens": 3712,
+      "victim_reconstructed_load_bytes": 486539264,
+      "victim_confirmed_recompute_tokens": 8,
+      "victim_factual_output_gap_s": 0.11224293895065784,
+      "victim_factual_subsequent_outputs": 79,
+      "victim_factual_segment_end": "repreempted",
+      "target_factual_output_gap_s": 1.6387498816475272,
+      "largest_factual_recovery_gap": {
+        "request": "memory-train-article-0000748",
+        "preempt_step": 943,
+        "gap_s": 3.5310653746128082
+      },
+      "victim_event_is_largest": false,
+      "prepared_store_state_is_undone_by_candidate": false,
+      "counterfactual_output_gap_s": null,
+      "net_load_bytes_saved": null
+    },
+    {
+      "arm": "full",
+      "source": "refine-logs/expert_saturation/outputs/admission_capacity/20260915_natural_native_full_gate_r01/execution_weste_26862/analysis.json",
+      "candidate_commits_evaluated": 25,
+      "commit_step": 1399,
+      "target": "measured/memory-train-article-0000271-b8ecbd28",
+      "victim": "measured/memory-train-article-0003790-af73117a",
+      "free_blocks": 277,
+      "commit_snapshot_perf_s": 4864781.069946102,
+      "prepare_store_jobs": [],
+      "prepare_new_store_blocks": 0,
+      "historical_full_store_completed_jobs": 60,
+      "historical_full_store_completed_blocks": 183,
+      "target_required_blocks": 106,
+      "retained_victim_blocks": 184,
+      "victim_load_job_id": 2011,
+      "victim_actual_loaded_prefix_tokens": 2928,
+      "victim_reconstructed_load_bytes": 383778816,
+      "victim_confirmed_recompute_tokens": 5,
+      "victim_factual_output_gap_s": 0.26089275907725096,
+      "victim_factual_subsequent_outputs": 120,
+      "victim_factual_segment_end": "completed",
+      "target_factual_output_gap_s": 3.577565527521074,
+      "largest_factual_recovery_gap": {
+        "request": "memory-train-article-0000748",
+        "preempt_step": 1021,
+        "gap_s": 3.9712210334837437
+      },
+      "victim_event_is_largest": false,
+      "prepared_store_state_is_undone_by_candidate": false,
+      "counterfactual_output_gap_s": null,
+      "net_load_bytes_saved": null
+    }
+  ],
+  "semantics": [
+    "Every published changed action is included; the original 25 commits per episode remain the candidate denominator.",
+    "Loaded prefix bytes are reconstructed on the same fixed native no-APC full-attention path and linked to accepted/completed jobs.",
+    "One potential avoided load is not a net saving guarantee: retained capacity and batches may induce other future work.",
+    "Prepare state already exists at commit. The candidate does not cancel it; this does not imply all associated D2H has already executed.",
+    "Factual output gaps include ordinary execution/queue/recovery; they are not removable delay estimates.",
+    "The longest factual gap does not involve this victim event; indirect improvements or harms remain untested.",
+    "These are diagnostic contexts, not the lightweight four-cell trajectory, an Oracle upper bound, or new samples."
+  ]
+}

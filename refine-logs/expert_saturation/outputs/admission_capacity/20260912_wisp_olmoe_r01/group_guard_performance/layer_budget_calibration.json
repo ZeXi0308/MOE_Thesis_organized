@@ -1,0 +1,4872 @@
+{
+  "status": "STRUCTURAL_FIXED_TRACE_CALIBRATION_ONLY",
+  "issues": [],
+  "scope": [
+    "Only 0_forward/repeat0 none calibration routes, including all five common warmups, are used.",
+    "Each cap replays its own LRU/grouping state on these fixed calibration rows; future model outputs/routes are not regenerated.",
+    "This is neither counterfactual GPU benefit nor a serving Oracle; no latency or holdout result is estimated.",
+    "Objective is calibration measurement miss, constrained by 384 slots and measurement groups <= uniform; warmup costs are also retained.",
+    "Reset does not clear ever_loaded; reloaded_experts depends on pre-reset history and is not inferred. It does not affect LRU/load decisions."
+  ],
+  "calibration": {
+    "engine": "0_forward",
+    "repeat": "repeat_0_retention_none_early",
+    "phase_counts": {
+      "repeat_0_retention_none_early/warmup": 32,
+      "repeat_0_retention_none_early/warmup_injection_none_early_release8": 384,
+      "repeat_0_retention_none_early/warmup_injection_frequency_early_release8": 384,
+      "repeat_0_retention_none_early/warmup_injection_frequency_late_release8": 384,
+      "repeat_0_retention_none_early/warmup_injection_decode_late_release8": 384,
+      "repeat_0_retention_none_early/measurement": 384
+    },
+    "call_id_first": 32,
+    "call_id_last": 1983,
+    "planner_sha256": "4dd2df4c919138eac6a195c64b41ef3f471f8e647cc12684381922d722209f4d",
+    "upstream_sha256": "5572d4f05593a5a9fc4adaa14421cc596886a435b6f5f51f476a1dae6e521857",
+    "python": "3.9.6 (default, Apr 17 2026, 18:15:52) \n[Clang 21.0.0 (clang-2100.1.1.101)]"
+  },
+  "verification": {
+    "status": "PASS",
+    "calls": 1952,
+    "layers": 16,
+    "checks": [
+      "Exact frozen group plan/selection and every call entry/final resident set.",
+      "Every group loaded/evicted expert set and copy/miss/evict counts match.",
+      "All active contributions exactly once, capacity and entry-miss-once invariants.",
+      "Full slot/map/LRU state matches measurement-start and pre-injection anchors."
+    ]
+  },
+  "curves": {
+    "model.layers.0.mlp.experts": [
+      {
+        "cap": 16,
+        "warmup": {
+          "calls": 98,
+          "miss": 2077,
+          "evict": 2061,
+          "groups": 409,
+          "bytes": 26134708224
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 514,
+          "evict": 514,
+          "groups": 54,
+          "bytes": 6467616768
+        }
+      },
+      {
+        "cap": 17,
+        "warmup": {
+          "calls": 98,
+          "miss": 2049,
+          "evict": 2032,
+          "groups": 325,
+          "bytes": 25782386688
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 504,
+          "evict": 504,
+          "groups": 54,
+          "bytes": 6341787648
+        }
+      },
+      {
+        "cap": 18,
+        "warmup": {
+          "calls": 98,
+          "miss": 1988,
+          "evict": 1970,
+          "groups": 285,
+          "bytes": 25014829056
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 485,
+          "evict": 485,
+          "groups": 53,
+          "bytes": 6102712320
+        }
+      },
+      {
+        "cap": 19,
+        "warmup": {
+          "calls": 98,
+          "miss": 1942,
+          "evict": 1923,
+          "groups": 258,
+          "bytes": 24436015104
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 477,
+          "evict": 477,
+          "groups": 51,
+          "bytes": 6002049024
+        }
+      },
+      {
+        "cap": 20,
+        "warmup": {
+          "calls": 98,
+          "miss": 1895,
+          "evict": 1875,
+          "groups": 234,
+          "bytes": 23844618240
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 462,
+          "evict": 462,
+          "groups": 47,
+          "bytes": 5813305344
+        }
+      },
+      {
+        "cap": 21,
+        "warmup": {
+          "calls": 98,
+          "miss": 1850,
+          "evict": 1829,
+          "groups": 222,
+          "bytes": 23278387200
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 450,
+          "evict": 450,
+          "groups": 44,
+          "bytes": 5662310400
+        }
+      },
+      {
+        "cap": 22,
+        "warmup": {
+          "calls": 98,
+          "miss": 1801,
+          "evict": 1779,
+          "groups": 210,
+          "bytes": 22661824512
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 445,
+          "evict": 445,
+          "groups": 41,
+          "bytes": 5599395840
+        }
+      },
+      {
+        "cap": 23,
+        "warmup": {
+          "calls": 98,
+          "miss": 1749,
+          "evict": 1726,
+          "groups": 201,
+          "bytes": 22007513088
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 427,
+          "evict": 427,
+          "groups": 41,
+          "bytes": 5372903424
+        }
+      },
+      {
+        "cap": 24,
+        "warmup": {
+          "calls": 98,
+          "miss": 1700,
+          "evict": 1676,
+          "groups": 190,
+          "bytes": 21390950400
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 414,
+          "evict": 414,
+          "groups": 40,
+          "bytes": 5209325568
+        }
+      },
+      {
+        "cap": 25,
+        "warmup": {
+          "calls": 98,
+          "miss": 1660,
+          "evict": 1635,
+          "groups": 183,
+          "bytes": 20887633920
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 407,
+          "evict": 407,
+          "groups": 40,
+          "bytes": 5121245184
+        }
+      },
+      {
+        "cap": 26,
+        "warmup": {
+          "calls": 98,
+          "miss": 1625,
+          "evict": 1599,
+          "groups": 178,
+          "bytes": 20447232000
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 387,
+          "evict": 387,
+          "groups": 40,
+          "bytes": 4869586944
+        }
+      },
+      {
+        "cap": 27,
+        "warmup": {
+          "calls": 98,
+          "miss": 1570,
+          "evict": 1543,
+          "groups": 173,
+          "bytes": 19755171840
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 371,
+          "evict": 371,
+          "groups": 40,
+          "bytes": 4668260352
+        }
+      },
+      {
+        "cap": 28,
+        "warmup": {
+          "calls": 98,
+          "miss": 1530,
+          "evict": 1502,
+          "groups": 169,
+          "bytes": 19251855360
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 364,
+          "evict": 364,
+          "groups": 40,
+          "bytes": 4580179968
+        }
+      },
+      {
+        "cap": 29,
+        "warmup": {
+          "calls": 98,
+          "miss": 1474,
+          "evict": 1445,
+          "groups": 167,
+          "bytes": 18547212288
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 346,
+          "evict": 346,
+          "groups": 40,
+          "bytes": 4353687552
+        }
+      },
+      {
+        "cap": 30,
+        "warmup": {
+          "calls": 98,
+          "miss": 1423,
+          "evict": 1393,
+          "groups": 160,
+          "bytes": 17905483776
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 333,
+          "evict": 333,
+          "groups": 39,
+          "bytes": 4190109696
+        }
+      },
+      {
+        "cap": 31,
+        "warmup": {
+          "calls": 98,
+          "miss": 1379,
+          "evict": 1348,
+          "groups": 155,
+          "bytes": 17351835648
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 325,
+          "evict": 325,
+          "groups": 38,
+          "bytes": 4089446400
+        }
+      },
+      {
+        "cap": 32,
+        "warmup": {
+          "calls": 98,
+          "miss": 1333,
+          "evict": 1301,
+          "groups": 155,
+          "bytes": 16773021696
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 311,
+          "evict": 311,
+          "groups": 38,
+          "bytes": 3913285632
+        }
+      }
+    ],
+    "model.layers.1.mlp.experts": [
+      {
+        "cap": 16,
+        "warmup": {
+          "calls": 98,
+          "miss": 2217,
+          "evict": 2201,
+          "groups": 308,
+          "bytes": 27896315904
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 542,
+          "evict": 542,
+          "groups": 55,
+          "bytes": 6819938304
+        }
+      },
+      {
+        "cap": 17,
+        "warmup": {
+          "calls": 98,
+          "miss": 2125,
+          "evict": 2108,
+          "groups": 393,
+          "bytes": 26738688000
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 527,
+          "evict": 527,
+          "groups": 54,
+          "bytes": 6631194624
+        }
+      },
+      {
+        "cap": 18,
+        "warmup": {
+          "calls": 98,
+          "miss": 2082,
+          "evict": 2064,
+          "groups": 310,
+          "bytes": 26197622784
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 514,
+          "evict": 514,
+          "groups": 54,
+          "bytes": 6467616768
+        }
+      },
+      {
+        "cap": 19,
+        "warmup": {
+          "calls": 98,
+          "miss": 2046,
+          "evict": 2027,
+          "groups": 275,
+          "bytes": 25744637952
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 505,
+          "evict": 505,
+          "groups": 54,
+          "bytes": 6354370560
+        }
+      },
+      {
+        "cap": 20,
+        "warmup": {
+          "calls": 98,
+          "miss": 1999,
+          "evict": 1979,
+          "groups": 248,
+          "bytes": 25153241088
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 497,
+          "evict": 497,
+          "groups": 50,
+          "bytes": 6253707264
+        }
+      },
+      {
+        "cap": 21,
+        "warmup": {
+          "calls": 98,
+          "miss": 1953,
+          "evict": 1932,
+          "groups": 228,
+          "bytes": 24574427136
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 482,
+          "evict": 482,
+          "groups": 45,
+          "bytes": 6064963584
+        }
+      },
+      {
+        "cap": 22,
+        "warmup": {
+          "calls": 98,
+          "miss": 1883,
+          "evict": 1861,
+          "groups": 216,
+          "bytes": 23693623296
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 465,
+          "evict": 465,
+          "groups": 44,
+          "bytes": 5851054080
+        }
+      },
+      {
+        "cap": 23,
+        "warmup": {
+          "calls": 98,
+          "miss": 1837,
+          "evict": 1814,
+          "groups": 208,
+          "bytes": 23114809344
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 448,
+          "evict": 448,
+          "groups": 42,
+          "bytes": 5637144576
+        }
+      },
+      {
+        "cap": 24,
+        "warmup": {
+          "calls": 98,
+          "miss": 1779,
+          "evict": 1755,
+          "groups": 195,
+          "bytes": 22385000448
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 434,
+          "evict": 434,
+          "groups": 41,
+          "bytes": 5460983808
+        }
+      },
+      {
+        "cap": 25,
+        "warmup": {
+          "calls": 98,
+          "miss": 1739,
+          "evict": 1714,
+          "groups": 191,
+          "bytes": 21881683968
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 422,
+          "evict": 422,
+          "groups": 40,
+          "bytes": 5309988864
+        }
+      },
+      {
+        "cap": 26,
+        "warmup": {
+          "calls": 98,
+          "miss": 1707,
+          "evict": 1681,
+          "groups": 184,
+          "bytes": 21479030784
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 416,
+          "evict": 416,
+          "groups": 40,
+          "bytes": 5234491392
+        }
+      },
+      {
+        "cap": 27,
+        "warmup": {
+          "calls": 98,
+          "miss": 1658,
+          "evict": 1631,
+          "groups": 175,
+          "bytes": 20862468096
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 408,
+          "evict": 408,
+          "groups": 40,
+          "bytes": 5133828096
+        }
+      },
+      {
+        "cap": 28,
+        "warmup": {
+          "calls": 98,
+          "miss": 1598,
+          "evict": 1570,
+          "groups": 168,
+          "bytes": 20107493376
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 385,
+          "evict": 385,
+          "groups": 40,
+          "bytes": 4844421120
+        }
+      },
+      {
+        "cap": 29,
+        "warmup": {
+          "calls": 98,
+          "miss": 1554,
+          "evict": 1525,
+          "groups": 168,
+          "bytes": 19553845248
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 377,
+          "evict": 377,
+          "groups": 40,
+          "bytes": 4743757824
+        }
+      },
+      {
+        "cap": 30,
+        "warmup": {
+          "calls": 98,
+          "miss": 1514,
+          "evict": 1484,
+          "groups": 161,
+          "bytes": 19050528768
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 371,
+          "evict": 371,
+          "groups": 39,
+          "bytes": 4668260352
+        }
+      },
+      {
+        "cap": 31,
+        "warmup": {
+          "calls": 98,
+          "miss": 1459,
+          "evict": 1428,
+          "groups": 155,
+          "bytes": 18358468608
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 355,
+          "evict": 355,
+          "groups": 38,
+          "bytes": 4466933760
+        }
+      },
+      {
+        "cap": 32,
+        "warmup": {
+          "calls": 98,
+          "miss": 1403,
+          "evict": 1371,
+          "groups": 155,
+          "bytes": 17653825536
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 340,
+          "evict": 340,
+          "groups": 38,
+          "bytes": 4278190080
+        }
+      }
+    ],
+    "model.layers.2.mlp.experts": [
+      {
+        "cap": 16,
+        "warmup": {
+          "calls": 98,
+          "miss": 2008,
+          "evict": 1992,
+          "groups": 377,
+          "bytes": 25266487296
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 489,
+          "evict": 489,
+          "groups": 54,
+          "bytes": 6153043968
+        }
+      },
+      {
+        "cap": 17,
+        "warmup": {
+          "calls": 98,
+          "miss": 1945,
+          "evict": 1928,
+          "groups": 347,
+          "bytes": 24473763840
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 476,
+          "evict": 476,
+          "groups": 53,
+          "bytes": 5989466112
+        }
+      },
+      {
+        "cap": 18,
+        "warmup": {
+          "calls": 98,
+          "miss": 1899,
+          "evict": 1881,
+          "groups": 282,
+          "bytes": 23894949888
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 460,
+          "evict": 460,
+          "groups": 51,
+          "bytes": 5788139520
+        }
+      },
+      {
+        "cap": 19,
+        "warmup": {
+          "calls": 98,
+          "miss": 1853,
+          "evict": 1834,
+          "groups": 253,
+          "bytes": 23316135936
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 460,
+          "evict": 460,
+          "groups": 50,
+          "bytes": 5788139520
+        }
+      },
+      {
+        "cap": 20,
+        "warmup": {
+          "calls": 98,
+          "miss": 1819,
+          "evict": 1799,
+          "groups": 233,
+          "bytes": 22888316928
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 447,
+          "evict": 447,
+          "groups": 47,
+          "bytes": 5624561664
+        }
+      },
+      {
+        "cap": 21,
+        "warmup": {
+          "calls": 98,
+          "miss": 1770,
+          "evict": 1749,
+          "groups": 220,
+          "bytes": 22271754240
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 430,
+          "evict": 430,
+          "groups": 43,
+          "bytes": 5410652160
+        }
+      },
+      {
+        "cap": 22,
+        "warmup": {
+          "calls": 98,
+          "miss": 1707,
+          "evict": 1685,
+          "groups": 204,
+          "bytes": 21479030784
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 418,
+          "evict": 418,
+          "groups": 42,
+          "bytes": 5259657216
+        }
+      },
+      {
+        "cap": 23,
+        "warmup": {
+          "calls": 98,
+          "miss": 1677,
+          "evict": 1654,
+          "groups": 197,
+          "bytes": 21101543424
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 404,
+          "evict": 404,
+          "groups": 40,
+          "bytes": 5083496448
+        }
+      },
+      {
+        "cap": 24,
+        "warmup": {
+          "calls": 98,
+          "miss": 1621,
+          "evict": 1597,
+          "groups": 190,
+          "bytes": 20396900352
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 398,
+          "evict": 398,
+          "groups": 40,
+          "bytes": 5007998976
+        }
+      },
+      {
+        "cap": 25,
+        "warmup": {
+          "calls": 98,
+          "miss": 1558,
+          "evict": 1533,
+          "groups": 181,
+          "bytes": 19604176896
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 381,
+          "evict": 381,
+          "groups": 40,
+          "bytes": 4794089472
+        }
+      },
+      {
+        "cap": 26,
+        "warmup": {
+          "calls": 98,
+          "miss": 1529,
+          "evict": 1503,
+          "groups": 171,
+          "bytes": 19239272448
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 368,
+          "evict": 368,
+          "groups": 39,
+          "bytes": 4630511616
+        }
+      },
+      {
+        "cap": 27,
+        "warmup": {
+          "calls": 98,
+          "miss": 1481,
+          "evict": 1454,
+          "groups": 168,
+          "bytes": 18635292672
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 359,
+          "evict": 359,
+          "groups": 39,
+          "bytes": 4517265408
+        }
+      },
+      {
+        "cap": 28,
+        "warmup": {
+          "calls": 98,
+          "miss": 1432,
+          "evict": 1404,
+          "groups": 165,
+          "bytes": 18018729984
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 348,
+          "evict": 348,
+          "groups": 39,
+          "bytes": 4378853376
+        }
+      },
+      {
+        "cap": 29,
+        "warmup": {
+          "calls": 98,
+          "miss": 1388,
+          "evict": 1359,
+          "groups": 161,
+          "bytes": 17465081856
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 335,
+          "evict": 335,
+          "groups": 39,
+          "bytes": 4215275520
+        }
+      },
+      {
+        "cap": 30,
+        "warmup": {
+          "calls": 98,
+          "miss": 1332,
+          "evict": 1302,
+          "groups": 155,
+          "bytes": 16760438784
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 324,
+          "evict": 324,
+          "groups": 38,
+          "bytes": 4076863488
+        }
+      },
+      {
+        "cap": 31,
+        "warmup": {
+          "calls": 98,
+          "miss": 1274,
+          "evict": 1243,
+          "groups": 155,
+          "bytes": 16030629888
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 310,
+          "evict": 310,
+          "groups": 38,
+          "bytes": 3900702720
+        }
+      },
+      {
+        "cap": 32,
+        "warmup": {
+          "calls": 98,
+          "miss": 1223,
+          "evict": 1191,
+          "groups": 155,
+          "bytes": 15388901376
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 291,
+          "evict": 291,
+          "groups": 38,
+          "bytes": 3661627392
+        }
+      }
+    ],
+    "model.layers.3.mlp.experts": [
+      {
+        "cap": 16,
+        "warmup": {
+          "calls": 98,
+          "miss": 1992,
+          "evict": 1976,
+          "groups": 286,
+          "bytes": 25065160704
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 482,
+          "evict": 482,
+          "groups": 53,
+          "bytes": 6064963584
+        }
+      },
+      {
+        "cap": 17,
+        "warmup": {
+          "calls": 98,
+          "miss": 1894,
+          "evict": 1877,
+          "groups": 385,
+          "bytes": 23832035328
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 473,
+          "evict": 473,
+          "groups": 52,
+          "bytes": 5951717376
+        }
+      },
+      {
+        "cap": 18,
+        "warmup": {
+          "calls": 98,
+          "miss": 1852,
+          "evict": 1834,
+          "groups": 298,
+          "bytes": 23303553024
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 464,
+          "evict": 464,
+          "groups": 52,
+          "bytes": 5838471168
+        }
+      },
+      {
+        "cap": 19,
+        "warmup": {
+          "calls": 98,
+          "miss": 1801,
+          "evict": 1782,
+          "groups": 257,
+          "bytes": 22661824512
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 451,
+          "evict": 451,
+          "groups": 50,
+          "bytes": 5674893312
+        }
+      },
+      {
+        "cap": 20,
+        "warmup": {
+          "calls": 98,
+          "miss": 1764,
+          "evict": 1744,
+          "groups": 231,
+          "bytes": 22196256768
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 439,
+          "evict": 439,
+          "groups": 45,
+          "bytes": 5523898368
+        }
+      },
+      {
+        "cap": 21,
+        "warmup": {
+          "calls": 98,
+          "miss": 1715,
+          "evict": 1694,
+          "groups": 216,
+          "bytes": 21579694080
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 428,
+          "evict": 428,
+          "groups": 41,
+          "bytes": 5385486336
+        }
+      },
+      {
+        "cap": 22,
+        "warmup": {
+          "calls": 98,
+          "miss": 1670,
+          "evict": 1648,
+          "groups": 205,
+          "bytes": 21013463040
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 413,
+          "evict": 413,
+          "groups": 40,
+          "bytes": 5196742656
+        }
+      },
+      {
+        "cap": 23,
+        "warmup": {
+          "calls": 98,
+          "miss": 1614,
+          "evict": 1591,
+          "groups": 199,
+          "bytes": 20308819968
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 401,
+          "evict": 401,
+          "groups": 40,
+          "bytes": 5045747712
+        }
+      },
+      {
+        "cap": 24,
+        "warmup": {
+          "calls": 98,
+          "miss": 1567,
+          "evict": 1543,
+          "groups": 185,
+          "bytes": 19717423104
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 387,
+          "evict": 387,
+          "groups": 40,
+          "bytes": 4869586944
+        }
+      },
+      {
+        "cap": 25,
+        "warmup": {
+          "calls": 98,
+          "miss": 1536,
+          "evict": 1511,
+          "groups": 178,
+          "bytes": 19327352832
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 379,
+          "evict": 379,
+          "groups": 40,
+          "bytes": 4768923648
+        }
+      },
+      {
+        "cap": 26,
+        "warmup": {
+          "calls": 98,
+          "miss": 1497,
+          "evict": 1471,
+          "groups": 176,
+          "bytes": 18836619264
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 367,
+          "evict": 367,
+          "groups": 40,
+          "bytes": 4617928704
+        }
+      },
+      {
+        "cap": 27,
+        "warmup": {
+          "calls": 98,
+          "miss": 1450,
+          "evict": 1423,
+          "groups": 171,
+          "bytes": 18245222400
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 354,
+          "evict": 354,
+          "groups": 40,
+          "bytes": 4454350848
+        }
+      },
+      {
+        "cap": 28,
+        "warmup": {
+          "calls": 98,
+          "miss": 1390,
+          "evict": 1362,
+          "groups": 161,
+          "bytes": 17490247680
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 337,
+          "evict": 337,
+          "groups": 39,
+          "bytes": 4240441344
+        }
+      },
+      {
+        "cap": 29,
+        "warmup": {
+          "calls": 98,
+          "miss": 1351,
+          "evict": 1322,
+          "groups": 160,
+          "bytes": 16999514112
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 323,
+          "evict": 323,
+          "groups": 39,
+          "bytes": 4064280576
+        }
+      },
+      {
+        "cap": 30,
+        "warmup": {
+          "calls": 98,
+          "miss": 1284,
+          "evict": 1254,
+          "groups": 155,
+          "bytes": 16156459008
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 313,
+          "evict": 313,
+          "groups": 38,
+          "bytes": 3938451456
+        }
+      },
+      {
+        "cap": 31,
+        "warmup": {
+          "calls": 98,
+          "miss": 1237,
+          "evict": 1206,
+          "groups": 155,
+          "bytes": 15565062144
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 298,
+          "evict": 298,
+          "groups": 38,
+          "bytes": 3749707776
+        }
+      },
+      {
+        "cap": 32,
+        "warmup": {
+          "calls": 98,
+          "miss": 1183,
+          "evict": 1151,
+          "groups": 151,
+          "bytes": 14885584896
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 285,
+          "evict": 285,
+          "groups": 37,
+          "bytes": 3586129920
+        }
+      }
+    ],
+    "model.layers.4.mlp.experts": [
+      {
+        "cap": 16,
+        "warmup": {
+          "calls": 98,
+          "miss": 1674,
+          "evict": 1658,
+          "groups": 289,
+          "bytes": 21063794688
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 416,
+          "evict": 416,
+          "groups": 52,
+          "bytes": 5234491392
+        }
+      },
+      {
+        "cap": 17,
+        "warmup": {
+          "calls": 98,
+          "miss": 1615,
+          "evict": 1598,
+          "groups": 328,
+          "bytes": 20321402880
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 403,
+          "evict": 403,
+          "groups": 49,
+          "bytes": 5070913536
+        }
+      },
+      {
+        "cap": 18,
+        "warmup": {
+          "calls": 98,
+          "miss": 1585,
+          "evict": 1567,
+          "groups": 261,
+          "bytes": 19943915520
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 395,
+          "evict": 395,
+          "groups": 48,
+          "bytes": 4970250240
+        }
+      },
+      {
+        "cap": 19,
+        "warmup": {
+          "calls": 98,
+          "miss": 1541,
+          "evict": 1522,
+          "groups": 233,
+          "bytes": 19390267392
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 382,
+          "evict": 382,
+          "groups": 46,
+          "bytes": 4806672384
+        }
+      },
+      {
+        "cap": 20,
+        "warmup": {
+          "calls": 98,
+          "miss": 1497,
+          "evict": 1477,
+          "groups": 215,
+          "bytes": 18836619264
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 372,
+          "evict": 372,
+          "groups": 40,
+          "bytes": 4680843264
+        }
+      },
+      {
+        "cap": 21,
+        "warmup": {
+          "calls": 98,
+          "miss": 1454,
+          "evict": 1433,
+          "groups": 201,
+          "bytes": 18295554048
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 358,
+          "evict": 358,
+          "groups": 40,
+          "bytes": 4504682496
+        }
+      },
+      {
+        "cap": 22,
+        "warmup": {
+          "calls": 98,
+          "miss": 1409,
+          "evict": 1387,
+          "groups": 195,
+          "bytes": 17729323008
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 347,
+          "evict": 347,
+          "groups": 40,
+          "bytes": 4366270464
+        }
+      },
+      {
+        "cap": 23,
+        "warmup": {
+          "calls": 98,
+          "miss": 1372,
+          "evict": 1349,
+          "groups": 188,
+          "bytes": 17263755264
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 334,
+          "evict": 334,
+          "groups": 40,
+          "bytes": 4202692608
+        }
+      },
+      {
+        "cap": 24,
+        "warmup": {
+          "calls": 98,
+          "miss": 1330,
+          "evict": 1306,
+          "groups": 177,
+          "bytes": 16735272960
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 324,
+          "evict": 324,
+          "groups": 40,
+          "bytes": 4076863488
+        }
+      },
+      {
+        "cap": 25,
+        "warmup": {
+          "calls": 98,
+          "miss": 1277,
+          "evict": 1252,
+          "groups": 173,
+          "bytes": 16068378624
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 314,
+          "evict": 314,
+          "groups": 40,
+          "bytes": 3951034368
+        }
+      },
+      {
+        "cap": 26,
+        "warmup": {
+          "calls": 98,
+          "miss": 1227,
+          "evict": 1201,
+          "groups": 164,
+          "bytes": 15439233024
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 301,
+          "evict": 301,
+          "groups": 39,
+          "bytes": 3787456512
+        }
+      },
+      {
+        "cap": 27,
+        "warmup": {
+          "calls": 98,
+          "miss": 1181,
+          "evict": 1154,
+          "groups": 157,
+          "bytes": 14860419072
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 289,
+          "evict": 289,
+          "groups": 38,
+          "bytes": 3636461568
+        }
+      },
+      {
+        "cap": 28,
+        "warmup": {
+          "calls": 98,
+          "miss": 1138,
+          "evict": 1110,
+          "groups": 155,
+          "bytes": 14319353856
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 273,
+          "evict": 273,
+          "groups": 38,
+          "bytes": 3435134976
+        }
+      },
+      {
+        "cap": 29,
+        "warmup": {
+          "calls": 98,
+          "miss": 1083,
+          "evict": 1054,
+          "groups": 147,
+          "bytes": 13627293696
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 258,
+          "evict": 258,
+          "groups": 36,
+          "bytes": 3246391296
+        }
+      },
+      {
+        "cap": 30,
+        "warmup": {
+          "calls": 98,
+          "miss": 1042,
+          "evict": 1012,
+          "groups": 147,
+          "bytes": 13111394304
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 246,
+          "evict": 246,
+          "groups": 36,
+          "bytes": 3095396352
+        }
+      },
+      {
+        "cap": 31,
+        "warmup": {
+          "calls": 98,
+          "miss": 998,
+          "evict": 967,
+          "groups": 147,
+          "bytes": 12557746176
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 242,
+          "evict": 242,
+          "groups": 36,
+          "bytes": 3045064704
+        }
+      },
+      {
+        "cap": 32,
+        "warmup": {
+          "calls": 98,
+          "miss": 959,
+          "evict": 927,
+          "groups": 147,
+          "bytes": 12067012608
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 234,
+          "evict": 234,
+          "groups": 36,
+          "bytes": 2944401408
+        }
+      }
+    ],
+    "model.layers.5.mlp.experts": [
+      {
+        "cap": 16,
+        "warmup": {
+          "calls": 98,
+          "miss": 1567,
+          "evict": 1551,
+          "groups": 277,
+          "bytes": 19717423104
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 394,
+          "evict": 394,
+          "groups": 51,
+          "bytes": 4957667328
+        }
+      },
+      {
+        "cap": 17,
+        "warmup": {
+          "calls": 98,
+          "miss": 1500,
+          "evict": 1483,
+          "groups": 290,
+          "bytes": 18874368000
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 385,
+          "evict": 385,
+          "groups": 48,
+          "bytes": 4844421120
+        }
+      },
+      {
+        "cap": 18,
+        "warmup": {
+          "calls": 98,
+          "miss": 1450,
+          "evict": 1432,
+          "groups": 238,
+          "bytes": 18245222400
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 367,
+          "evict": 367,
+          "groups": 42,
+          "bytes": 4617928704
+        }
+      },
+      {
+        "cap": 19,
+        "warmup": {
+          "calls": 98,
+          "miss": 1405,
+          "evict": 1386,
+          "groups": 219,
+          "bytes": 17678991360
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 350,
+          "evict": 350,
+          "groups": 41,
+          "bytes": 4404019200
+        }
+      },
+      {
+        "cap": 20,
+        "warmup": {
+          "calls": 98,
+          "miss": 1358,
+          "evict": 1338,
+          "groups": 207,
+          "bytes": 17087594496
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 337,
+          "evict": 337,
+          "groups": 40,
+          "bytes": 4240441344
+        }
+      },
+      {
+        "cap": 21,
+        "warmup": {
+          "calls": 98,
+          "miss": 1315,
+          "evict": 1294,
+          "groups": 197,
+          "bytes": 16546529280
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 324,
+          "evict": 324,
+          "groups": 40,
+          "bytes": 4076863488
+        }
+      },
+      {
+        "cap": 22,
+        "warmup": {
+          "calls": 98,
+          "miss": 1264,
+          "evict": 1242,
+          "groups": 185,
+          "bytes": 15904800768
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 310,
+          "evict": 310,
+          "groups": 40,
+          "bytes": 3900702720
+        }
+      },
+      {
+        "cap": 23,
+        "warmup": {
+          "calls": 98,
+          "miss": 1225,
+          "evict": 1202,
+          "groups": 180,
+          "bytes": 15414067200
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 299,
+          "evict": 299,
+          "groups": 40,
+          "bytes": 3762290688
+        }
+      },
+      {
+        "cap": 24,
+        "warmup": {
+          "calls": 98,
+          "miss": 1190,
+          "evict": 1166,
+          "groups": 167,
+          "bytes": 14973665280
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 293,
+          "evict": 293,
+          "groups": 39,
+          "bytes": 3686793216
+        }
+      },
+      {
+        "cap": 25,
+        "warmup": {
+          "calls": 98,
+          "miss": 1147,
+          "evict": 1122,
+          "groups": 163,
+          "bytes": 14432600064
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 278,
+          "evict": 278,
+          "groups": 39,
+          "bytes": 3498049536
+        }
+      },
+      {
+        "cap": 26,
+        "warmup": {
+          "calls": 98,
+          "miss": 1109,
+          "evict": 1083,
+          "groups": 152,
+          "bytes": 13954449408
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 265,
+          "evict": 265,
+          "groups": 38,
+          "bytes": 3334471680
+        }
+      },
+      {
+        "cap": 27,
+        "warmup": {
+          "calls": 98,
+          "miss": 1050,
+          "evict": 1023,
+          "groups": 151,
+          "bytes": 13212057600
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 252,
+          "evict": 252,
+          "groups": 37,
+          "bytes": 3170893824
+        }
+      },
+      {
+        "cap": 28,
+        "warmup": {
+          "calls": 98,
+          "miss": 998,
+          "evict": 970,
+          "groups": 151,
+          "bytes": 12557746176
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 239,
+          "evict": 239,
+          "groups": 37,
+          "bytes": 3007315968
+        }
+      },
+      {
+        "cap": 29,
+        "warmup": {
+          "calls": 98,
+          "miss": 943,
+          "evict": 914,
+          "groups": 151,
+          "bytes": 11865686016
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 230,
+          "evict": 230,
+          "groups": 37,
+          "bytes": 2894069760
+        }
+      },
+      {
+        "cap": 30,
+        "warmup": {
+          "calls": 98,
+          "miss": 898,
+          "evict": 868,
+          "groups": 147,
+          "bytes": 11299454976
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 216,
+          "evict": 216,
+          "groups": 36,
+          "bytes": 2717908992
+        }
+      },
+      {
+        "cap": 31,
+        "warmup": {
+          "calls": 98,
+          "miss": 846,
+          "evict": 815,
+          "groups": 147,
+          "bytes": 10645143552
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 209,
+          "evict": 209,
+          "groups": 36,
+          "bytes": 2629828608
+        }
+      },
+      {
+        "cap": 32,
+        "warmup": {
+          "calls": 98,
+          "miss": 795,
+          "evict": 763,
+          "groups": 147,
+          "bytes": 10003415040
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 195,
+          "evict": 195,
+          "groups": 36,
+          "bytes": 2453667840
+        }
+      }
+    ],
+    "model.layers.6.mlp.experts": [
+      {
+        "cap": 16,
+        "warmup": {
+          "calls": 98,
+          "miss": 1517,
+          "evict": 1501,
+          "groups": 288,
+          "bytes": 19088277504
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 376,
+          "evict": 376,
+          "groups": 50,
+          "bytes": 4731174912
+        }
+      },
+      {
+        "cap": 17,
+        "warmup": {
+          "calls": 98,
+          "miss": 1451,
+          "evict": 1434,
+          "groups": 309,
+          "bytes": 18257805312
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 359,
+          "evict": 359,
+          "groups": 49,
+          "bytes": 4517265408
+        }
+      },
+      {
+        "cap": 18,
+        "warmup": {
+          "calls": 98,
+          "miss": 1408,
+          "evict": 1390,
+          "groups": 252,
+          "bytes": 17716740096
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 351,
+          "evict": 351,
+          "groups": 46,
+          "bytes": 4416602112
+        }
+      },
+      {
+        "cap": 19,
+        "warmup": {
+          "calls": 98,
+          "miss": 1350,
+          "evict": 1331,
+          "groups": 224,
+          "bytes": 16986931200
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 335,
+          "evict": 335,
+          "groups": 41,
+          "bytes": 4215275520
+        }
+      },
+      {
+        "cap": 20,
+        "warmup": {
+          "calls": 98,
+          "miss": 1302,
+          "evict": 1282,
+          "groups": 209,
+          "bytes": 16382951424
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 323,
+          "evict": 323,
+          "groups": 40,
+          "bytes": 4064280576
+        }
+      },
+      {
+        "cap": 21,
+        "warmup": {
+          "calls": 98,
+          "miss": 1257,
+          "evict": 1236,
+          "groups": 195,
+          "bytes": 15816720384
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 309,
+          "evict": 309,
+          "groups": 40,
+          "bytes": 3888119808
+        }
+      },
+      {
+        "cap": 22,
+        "warmup": {
+          "calls": 98,
+          "miss": 1210,
+          "evict": 1188,
+          "groups": 187,
+          "bytes": 15225323520
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 292,
+          "evict": 292,
+          "groups": 40,
+          "bytes": 3674210304
+        }
+      },
+      {
+        "cap": 23,
+        "warmup": {
+          "calls": 98,
+          "miss": 1157,
+          "evict": 1134,
+          "groups": 176,
+          "bytes": 14558429184
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 283,
+          "evict": 283,
+          "groups": 39,
+          "bytes": 3560964096
+        }
+      },
+      {
+        "cap": 24,
+        "warmup": {
+          "calls": 98,
+          "miss": 1115,
+          "evict": 1091,
+          "groups": 170,
+          "bytes": 14029946880
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 275,
+          "evict": 275,
+          "groups": 39,
+          "bytes": 3460300800
+        }
+      },
+      {
+        "cap": 25,
+        "warmup": {
+          "calls": 98,
+          "miss": 1068,
+          "evict": 1043,
+          "groups": 161,
+          "bytes": 13438550016
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 263,
+          "evict": 263,
+          "groups": 38,
+          "bytes": 3309305856
+        }
+      },
+      {
+        "cap": 26,
+        "warmup": {
+          "calls": 98,
+          "miss": 1023,
+          "evict": 997,
+          "groups": 157,
+          "bytes": 12872318976
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 249,
+          "evict": 249,
+          "groups": 38,
+          "bytes": 3133145088
+        }
+      },
+      {
+        "cap": 27,
+        "warmup": {
+          "calls": 98,
+          "miss": 969,
+          "evict": 942,
+          "groups": 152,
+          "bytes": 12192841728
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 234,
+          "evict": 234,
+          "groups": 37,
+          "bytes": 2944401408
+        }
+      },
+      {
+        "cap": 28,
+        "warmup": {
+          "calls": 98,
+          "miss": 915,
+          "evict": 887,
+          "groups": 149,
+          "bytes": 11513364480
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 221,
+          "evict": 221,
+          "groups": 37,
+          "bytes": 2780823552
+        }
+      },
+      {
+        "cap": 29,
+        "warmup": {
+          "calls": 98,
+          "miss": 839,
+          "evict": 810,
+          "groups": 147,
+          "bytes": 10557063168
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 200,
+          "evict": 200,
+          "groups": 36,
+          "bytes": 2516582400
+        }
+      },
+      {
+        "cap": 30,
+        "warmup": {
+          "calls": 98,
+          "miss": 799,
+          "evict": 769,
+          "groups": 147,
+          "bytes": 10053746688
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 187,
+          "evict": 187,
+          "groups": 36,
+          "bytes": 2353004544
+        }
+      },
+      {
+        "cap": 31,
+        "warmup": {
+          "calls": 98,
+          "miss": 766,
+          "evict": 735,
+          "groups": 147,
+          "bytes": 9638510592
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 181,
+          "evict": 181,
+          "groups": 36,
+          "bytes": 2277507072
+        }
+      },
+      {
+        "cap": 32,
+        "warmup": {
+          "calls": 98,
+          "miss": 721,
+          "evict": 689,
+          "groups": 143,
+          "bytes": 9072279552
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 169,
+          "evict": 169,
+          "groups": 35,
+          "bytes": 2126512128
+        }
+      }
+    ],
+    "model.layers.7.mlp.experts": [
+      {
+        "cap": 16,
+        "warmup": {
+          "calls": 98,
+          "miss": 1663,
+          "evict": 1647,
+          "groups": 266,
+          "bytes": 20925382656
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 407,
+          "evict": 407,
+          "groups": 50,
+          "bytes": 5121245184
+        }
+      },
+      {
+        "cap": 17,
+        "warmup": {
+          "calls": 98,
+          "miss": 1580,
+          "evict": 1563,
+          "groups": 314,
+          "bytes": 19881000960
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 395,
+          "evict": 395,
+          "groups": 46,
+          "bytes": 4970250240
+        }
+      },
+      {
+        "cap": 18,
+        "warmup": {
+          "calls": 98,
+          "miss": 1529,
+          "evict": 1511,
+          "groups": 258,
+          "bytes": 19239272448
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 386,
+          "evict": 386,
+          "groups": 46,
+          "bytes": 4857004032
+        }
+      },
+      {
+        "cap": 19,
+        "warmup": {
+          "calls": 98,
+          "miss": 1475,
+          "evict": 1456,
+          "groups": 231,
+          "bytes": 18559795200
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 368,
+          "evict": 368,
+          "groups": 45,
+          "bytes": 4630511616
+        }
+      },
+      {
+        "cap": 20,
+        "warmup": {
+          "calls": 98,
+          "miss": 1422,
+          "evict": 1402,
+          "groups": 213,
+          "bytes": 17892900864
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 350,
+          "evict": 350,
+          "groups": 44,
+          "bytes": 4404019200
+        }
+      },
+      {
+        "cap": 21,
+        "warmup": {
+          "calls": 98,
+          "miss": 1376,
+          "evict": 1355,
+          "groups": 200,
+          "bytes": 17314086912
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 340,
+          "evict": 340,
+          "groups": 41,
+          "bytes": 4278190080
+        }
+      },
+      {
+        "cap": 22,
+        "warmup": {
+          "calls": 98,
+          "miss": 1330,
+          "evict": 1308,
+          "groups": 190,
+          "bytes": 16735272960
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 320,
+          "evict": 320,
+          "groups": 41,
+          "bytes": 4026531840
+        }
+      },
+      {
+        "cap": 23,
+        "warmup": {
+          "calls": 98,
+          "miss": 1286,
+          "evict": 1263,
+          "groups": 182,
+          "bytes": 16181624832
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 316,
+          "evict": 316,
+          "groups": 39,
+          "bytes": 3976200192
+        }
+      },
+      {
+        "cap": 24,
+        "warmup": {
+          "calls": 98,
+          "miss": 1218,
+          "evict": 1194,
+          "groups": 175,
+          "bytes": 15325986816
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 296,
+          "evict": 296,
+          "groups": 39,
+          "bytes": 3724541952
+        }
+      },
+      {
+        "cap": 25,
+        "warmup": {
+          "calls": 98,
+          "miss": 1173,
+          "evict": 1148,
+          "groups": 164,
+          "bytes": 14759755776
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 290,
+          "evict": 290,
+          "groups": 37,
+          "bytes": 3649044480
+        }
+      },
+      {
+        "cap": 26,
+        "warmup": {
+          "calls": 98,
+          "miss": 1125,
+          "evict": 1099,
+          "groups": 158,
+          "bytes": 14155776000
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 269,
+          "evict": 269,
+          "groups": 37,
+          "bytes": 3384803328
+        }
+      },
+      {
+        "cap": 27,
+        "warmup": {
+          "calls": 98,
+          "miss": 1064,
+          "evict": 1037,
+          "groups": 157,
+          "bytes": 13388218368
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 257,
+          "evict": 257,
+          "groups": 37,
+          "bytes": 3233808384
+        }
+      },
+      {
+        "cap": 28,
+        "warmup": {
+          "calls": 98,
+          "miss": 1026,
+          "evict": 998,
+          "groups": 154,
+          "bytes": 12910067712
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 251,
+          "evict": 251,
+          "groups": 37,
+          "bytes": 3158310912
+        }
+      },
+      {
+        "cap": 29,
+        "warmup": {
+          "calls": 98,
+          "miss": 981,
+          "evict": 952,
+          "groups": 153,
+          "bytes": 12343836672
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 242,
+          "evict": 242,
+          "groups": 37,
+          "bytes": 3045064704
+        }
+      },
+      {
+        "cap": 30,
+        "warmup": {
+          "calls": 98,
+          "miss": 938,
+          "evict": 908,
+          "groups": 147,
+          "bytes": 11802771456
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 232,
+          "evict": 232,
+          "groups": 36,
+          "bytes": 2919235584
+        }
+      },
+      {
+        "cap": 31,
+        "warmup": {
+          "calls": 98,
+          "miss": 893,
+          "evict": 862,
+          "groups": 144,
+          "bytes": 11236540416
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 221,
+          "evict": 221,
+          "groups": 35,
+          "bytes": 2780823552
+        }
+      },
+      {
+        "cap": 32,
+        "warmup": {
+          "calls": 98,
+          "miss": 852,
+          "evict": 820,
+          "groups": 142,
+          "bytes": 10720641024
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 200,
+          "evict": 200,
+          "groups": 35,
+          "bytes": 2516582400
+        }
+      }
+    ],
+    "model.layers.8.mlp.experts": [
+      {
+        "cap": 16,
+        "warmup": {
+          "calls": 98,
+          "miss": 1693,
+          "evict": 1677,
+          "groups": 236,
+          "bytes": 21302870016
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 413,
+          "evict": 413,
+          "groups": 52,
+          "bytes": 5196742656
+        }
+      },
+      {
+        "cap": 17,
+        "warmup": {
+          "calls": 98,
+          "miss": 1617,
+          "evict": 1600,
+          "groups": 350,
+          "bytes": 20346568704
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 400,
+          "evict": 400,
+          "groups": 51,
+          "bytes": 5033164800
+        }
+      },
+      {
+        "cap": 18,
+        "warmup": {
+          "calls": 98,
+          "miss": 1564,
+          "evict": 1546,
+          "groups": 273,
+          "bytes": 19679674368
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 383,
+          "evict": 383,
+          "groups": 48,
+          "bytes": 4819255296
+        }
+      },
+      {
+        "cap": 19,
+        "warmup": {
+          "calls": 98,
+          "miss": 1508,
+          "evict": 1489,
+          "groups": 242,
+          "bytes": 18975031296
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 371,
+          "evict": 371,
+          "groups": 45,
+          "bytes": 4668260352
+        }
+      },
+      {
+        "cap": 20,
+        "warmup": {
+          "calls": 98,
+          "miss": 1458,
+          "evict": 1438,
+          "groups": 218,
+          "bytes": 18345885696
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 360,
+          "evict": 360,
+          "groups": 43,
+          "bytes": 4529848320
+        }
+      },
+      {
+        "cap": 21,
+        "warmup": {
+          "calls": 98,
+          "miss": 1413,
+          "evict": 1392,
+          "groups": 207,
+          "bytes": 17779654656
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 345,
+          "evict": 345,
+          "groups": 41,
+          "bytes": 4341104640
+        }
+      },
+      {
+        "cap": 22,
+        "warmup": {
+          "calls": 98,
+          "miss": 1369,
+          "evict": 1347,
+          "groups": 195,
+          "bytes": 17226006528
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 336,
+          "evict": 336,
+          "groups": 40,
+          "bytes": 4227858432
+        }
+      },
+      {
+        "cap": 23,
+        "warmup": {
+          "calls": 98,
+          "miss": 1311,
+          "evict": 1288,
+          "groups": 191,
+          "bytes": 16496197632
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 321,
+          "evict": 321,
+          "groups": 40,
+          "bytes": 4039114752
+        }
+      },
+      {
+        "cap": 24,
+        "warmup": {
+          "calls": 98,
+          "miss": 1271,
+          "evict": 1247,
+          "groups": 181,
+          "bytes": 15992881152
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 307,
+          "evict": 307,
+          "groups": 39,
+          "bytes": 3862953984
+        }
+      },
+      {
+        "cap": 25,
+        "warmup": {
+          "calls": 98,
+          "miss": 1224,
+          "evict": 1199,
+          "groups": 170,
+          "bytes": 15401484288
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 296,
+          "evict": 296,
+          "groups": 38,
+          "bytes": 3724541952
+        }
+      },
+      {
+        "cap": 26,
+        "warmup": {
+          "calls": 98,
+          "miss": 1180,
+          "evict": 1154,
+          "groups": 165,
+          "bytes": 14847836160
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 282,
+          "evict": 282,
+          "groups": 38,
+          "bytes": 3548381184
+        }
+      },
+      {
+        "cap": 27,
+        "warmup": {
+          "calls": 98,
+          "miss": 1141,
+          "evict": 1114,
+          "groups": 154,
+          "bytes": 14357102592
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 272,
+          "evict": 272,
+          "groups": 37,
+          "bytes": 3422552064
+        }
+      },
+      {
+        "cap": 28,
+        "warmup": {
+          "calls": 98,
+          "miss": 1094,
+          "evict": 1066,
+          "groups": 152,
+          "bytes": 13765705728
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 264,
+          "evict": 264,
+          "groups": 37,
+          "bytes": 3321888768
+        }
+      },
+      {
+        "cap": 29,
+        "warmup": {
+          "calls": 98,
+          "miss": 1057,
+          "evict": 1028,
+          "groups": 151,
+          "bytes": 13300137984
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 256,
+          "evict": 256,
+          "groups": 37,
+          "bytes": 3221225472
+        }
+      },
+      {
+        "cap": 30,
+        "warmup": {
+          "calls": 98,
+          "miss": 1003,
+          "evict": 973,
+          "groups": 147,
+          "bytes": 12620660736
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 237,
+          "evict": 237,
+          "groups": 36,
+          "bytes": 2982150144
+        }
+      },
+      {
+        "cap": 31,
+        "warmup": {
+          "calls": 98,
+          "miss": 954,
+          "evict": 923,
+          "groups": 147,
+          "bytes": 12004098048
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 227,
+          "evict": 227,
+          "groups": 36,
+          "bytes": 2856321024
+        }
+      },
+      {
+        "cap": 32,
+        "warmup": {
+          "calls": 98,
+          "miss": 916,
+          "evict": 884,
+          "groups": 147,
+          "bytes": 11525947392
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 211,
+          "evict": 211,
+          "groups": 36,
+          "bytes": 2654994432
+        }
+      }
+    ],
+    "model.layers.9.mlp.experts": [
+      {
+        "cap": 16,
+        "warmup": {
+          "calls": 98,
+          "miss": 1862,
+          "evict": 1846,
+          "groups": 281,
+          "bytes": 23429382144
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 457,
+          "evict": 457,
+          "groups": 52,
+          "bytes": 5750390784
+        }
+      },
+      {
+        "cap": 17,
+        "warmup": {
+          "calls": 98,
+          "miss": 1789,
+          "evict": 1772,
+          "groups": 351,
+          "bytes": 22510829568
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 442,
+          "evict": 442,
+          "groups": 51,
+          "bytes": 5561647104
+        }
+      },
+      {
+        "cap": 18,
+        "warmup": {
+          "calls": 98,
+          "miss": 1739,
+          "evict": 1721,
+          "groups": 279,
+          "bytes": 21881683968
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 429,
+          "evict": 429,
+          "groups": 50,
+          "bytes": 5398069248
+        }
+      },
+      {
+        "cap": 19,
+        "warmup": {
+          "calls": 98,
+          "miss": 1699,
+          "evict": 1680,
+          "groups": 246,
+          "bytes": 21378367488
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 414,
+          "evict": 414,
+          "groups": 48,
+          "bytes": 5209325568
+        }
+      },
+      {
+        "cap": 20,
+        "warmup": {
+          "calls": 98,
+          "miss": 1640,
+          "evict": 1620,
+          "groups": 225,
+          "bytes": 20635975680
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 398,
+          "evict": 398,
+          "groups": 46,
+          "bytes": 5007998976
+        }
+      },
+      {
+        "cap": 21,
+        "warmup": {
+          "calls": 98,
+          "miss": 1601,
+          "evict": 1580,
+          "groups": 210,
+          "bytes": 20145242112
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 397,
+          "evict": 397,
+          "groups": 42,
+          "bytes": 4995416064
+        }
+      },
+      {
+        "cap": 22,
+        "warmup": {
+          "calls": 98,
+          "miss": 1542,
+          "evict": 1520,
+          "groups": 202,
+          "bytes": 19402850304
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 384,
+          "evict": 384,
+          "groups": 41,
+          "bytes": 4831838208
+        }
+      },
+      {
+        "cap": 23,
+        "warmup": {
+          "calls": 98,
+          "miss": 1503,
+          "evict": 1480,
+          "groups": 194,
+          "bytes": 18912116736
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 366,
+          "evict": 366,
+          "groups": 41,
+          "bytes": 4605345792
+        }
+      },
+      {
+        "cap": 24,
+        "warmup": {
+          "calls": 98,
+          "miss": 1447,
+          "evict": 1423,
+          "groups": 186,
+          "bytes": 18207473664
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 356,
+          "evict": 356,
+          "groups": 40,
+          "bytes": 4479516672
+        }
+      },
+      {
+        "cap": 25,
+        "warmup": {
+          "calls": 98,
+          "miss": 1389,
+          "evict": 1364,
+          "groups": 179,
+          "bytes": 17477664768
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 335,
+          "evict": 335,
+          "groups": 39,
+          "bytes": 4215275520
+        }
+      },
+      {
+        "cap": 26,
+        "warmup": {
+          "calls": 98,
+          "miss": 1347,
+          "evict": 1321,
+          "groups": 169,
+          "bytes": 16949182464
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 322,
+          "evict": 322,
+          "groups": 38,
+          "bytes": 4051697664
+        }
+      },
+      {
+        "cap": 27,
+        "warmup": {
+          "calls": 98,
+          "miss": 1293,
+          "evict": 1266,
+          "groups": 165,
+          "bytes": 16269705216
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 303,
+          "evict": 303,
+          "groups": 38,
+          "bytes": 3812622336
+        }
+      },
+      {
+        "cap": 28,
+        "warmup": {
+          "calls": 98,
+          "miss": 1244,
+          "evict": 1216,
+          "groups": 159,
+          "bytes": 15653142528
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 294,
+          "evict": 294,
+          "groups": 38,
+          "bytes": 3699376128
+        }
+      },
+      {
+        "cap": 29,
+        "warmup": {
+          "calls": 98,
+          "miss": 1196,
+          "evict": 1167,
+          "groups": 152,
+          "bytes": 15049162752
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 285,
+          "evict": 285,
+          "groups": 37,
+          "bytes": 3586129920
+        }
+      },
+      {
+        "cap": 30,
+        "warmup": {
+          "calls": 98,
+          "miss": 1151,
+          "evict": 1121,
+          "groups": 149,
+          "bytes": 14482931712
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 276,
+          "evict": 276,
+          "groups": 36,
+          "bytes": 3472883712
+        }
+      },
+      {
+        "cap": 31,
+        "warmup": {
+          "calls": 98,
+          "miss": 1101,
+          "evict": 1070,
+          "groups": 147,
+          "bytes": 13853786112
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 265,
+          "evict": 265,
+          "groups": 36,
+          "bytes": 3334471680
+        }
+      },
+      {
+        "cap": 32,
+        "warmup": {
+          "calls": 98,
+          "miss": 1046,
+          "evict": 1014,
+          "groups": 147,
+          "bytes": 13161725952
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 249,
+          "evict": 249,
+          "groups": 36,
+          "bytes": 3133145088
+        }
+      }
+    ],
+    "model.layers.10.mlp.experts": [
+      {
+        "cap": 16,
+        "warmup": {
+          "calls": 98,
+          "miss": 1885,
+          "evict": 1869,
+          "groups": 302,
+          "bytes": 23718789120
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 465,
+          "evict": 465,
+          "groups": 52,
+          "bytes": 5851054080
+        }
+      },
+      {
+        "cap": 17,
+        "warmup": {
+          "calls": 98,
+          "miss": 1849,
+          "evict": 1832,
+          "groups": 346,
+          "bytes": 23265804288
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 451,
+          "evict": 451,
+          "groups": 52,
+          "bytes": 5674893312
+        }
+      },
+      {
+        "cap": 18,
+        "warmup": {
+          "calls": 98,
+          "miss": 1811,
+          "evict": 1793,
+          "groups": 280,
+          "bytes": 22787653632
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 443,
+          "evict": 443,
+          "groups": 51,
+          "bytes": 5574230016
+        }
+      },
+      {
+        "cap": 19,
+        "warmup": {
+          "calls": 98,
+          "miss": 1761,
+          "evict": 1742,
+          "groups": 247,
+          "bytes": 22158508032
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 432,
+          "evict": 432,
+          "groups": 48,
+          "bytes": 5435817984
+        }
+      },
+      {
+        "cap": 20,
+        "warmup": {
+          "calls": 98,
+          "miss": 1712,
+          "evict": 1692,
+          "groups": 229,
+          "bytes": 21541945344
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 420,
+          "evict": 420,
+          "groups": 46,
+          "bytes": 5284823040
+        }
+      },
+      {
+        "cap": 21,
+        "warmup": {
+          "calls": 98,
+          "miss": 1671,
+          "evict": 1650,
+          "groups": 215,
+          "bytes": 21026045952
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 409,
+          "evict": 409,
+          "groups": 43,
+          "bytes": 5146411008
+        }
+      },
+      {
+        "cap": 22,
+        "warmup": {
+          "calls": 98,
+          "miss": 1626,
+          "evict": 1604,
+          "groups": 207,
+          "bytes": 20459814912
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 397,
+          "evict": 397,
+          "groups": 43,
+          "bytes": 4995416064
+        }
+      },
+      {
+        "cap": 23,
+        "warmup": {
+          "calls": 98,
+          "miss": 1586,
+          "evict": 1563,
+          "groups": 196,
+          "bytes": 19956498432
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 395,
+          "evict": 395,
+          "groups": 42,
+          "bytes": 4970250240
+        }
+      },
+      {
+        "cap": 24,
+        "warmup": {
+          "calls": 98,
+          "miss": 1536,
+          "evict": 1512,
+          "groups": 187,
+          "bytes": 19327352832
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 374,
+          "evict": 374,
+          "groups": 40,
+          "bytes": 4706009088
+        }
+      },
+      {
+        "cap": 25,
+        "warmup": {
+          "calls": 98,
+          "miss": 1480,
+          "evict": 1455,
+          "groups": 178,
+          "bytes": 18622709760
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 359,
+          "evict": 359,
+          "groups": 39,
+          "bytes": 4517265408
+        }
+      },
+      {
+        "cap": 26,
+        "warmup": {
+          "calls": 98,
+          "miss": 1421,
+          "evict": 1395,
+          "groups": 171,
+          "bytes": 17880317952
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 346,
+          "evict": 346,
+          "groups": 38,
+          "bytes": 4353687552
+        }
+      },
+      {
+        "cap": 27,
+        "warmup": {
+          "calls": 98,
+          "miss": 1375,
+          "evict": 1348,
+          "groups": 166,
+          "bytes": 17301504000
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 328,
+          "evict": 328,
+          "groups": 38,
+          "bytes": 4127195136
+        }
+      },
+      {
+        "cap": 28,
+        "warmup": {
+          "calls": 98,
+          "miss": 1325,
+          "evict": 1297,
+          "groups": 159,
+          "bytes": 16672358400
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 319,
+          "evict": 319,
+          "groups": 37,
+          "bytes": 4013948928
+        }
+      },
+      {
+        "cap": 29,
+        "warmup": {
+          "calls": 98,
+          "miss": 1285,
+          "evict": 1256,
+          "groups": 153,
+          "bytes": 16169041920
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 303,
+          "evict": 303,
+          "groups": 37,
+          "bytes": 3812622336
+        }
+      },
+      {
+        "cap": 30,
+        "warmup": {
+          "calls": 98,
+          "miss": 1233,
+          "evict": 1203,
+          "groups": 150,
+          "bytes": 15514730496
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 291,
+          "evict": 291,
+          "groups": 36,
+          "bytes": 3661627392
+        }
+      },
+      {
+        "cap": 31,
+        "warmup": {
+          "calls": 98,
+          "miss": 1197,
+          "evict": 1166,
+          "groups": 147,
+          "bytes": 15061745664
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 280,
+          "evict": 280,
+          "groups": 36,
+          "bytes": 3523215360
+        }
+      },
+      {
+        "cap": 32,
+        "warmup": {
+          "calls": 98,
+          "miss": 1139,
+          "evict": 1107,
+          "groups": 147,
+          "bytes": 14331936768
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 272,
+          "evict": 272,
+          "groups": 36,
+          "bytes": 3422552064
+        }
+      }
+    ],
+    "model.layers.11.mlp.experts": [
+      {
+        "cap": 16,
+        "warmup": {
+          "calls": 98,
+          "miss": 1816,
+          "evict": 1800,
+          "groups": 315,
+          "bytes": 22850568192
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 445,
+          "evict": 445,
+          "groups": 51,
+          "bytes": 5599395840
+        }
+      },
+      {
+        "cap": 17,
+        "warmup": {
+          "calls": 98,
+          "miss": 1748,
+          "evict": 1731,
+          "groups": 326,
+          "bytes": 21994930176
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 433,
+          "evict": 433,
+          "groups": 51,
+          "bytes": 5448400896
+        }
+      },
+      {
+        "cap": 18,
+        "warmup": {
+          "calls": 98,
+          "miss": 1712,
+          "evict": 1694,
+          "groups": 273,
+          "bytes": 21541945344
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 423,
+          "evict": 423,
+          "groups": 49,
+          "bytes": 5322571776
+        }
+      },
+      {
+        "cap": 19,
+        "warmup": {
+          "calls": 98,
+          "miss": 1664,
+          "evict": 1645,
+          "groups": 243,
+          "bytes": 20937965568
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 409,
+          "evict": 409,
+          "groups": 48,
+          "bytes": 5146411008
+        }
+      },
+      {
+        "cap": 20,
+        "warmup": {
+          "calls": 98,
+          "miss": 1610,
+          "evict": 1590,
+          "groups": 222,
+          "bytes": 20258488320
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 399,
+          "evict": 399,
+          "groups": 44,
+          "bytes": 5020581888
+        }
+      },
+      {
+        "cap": 21,
+        "warmup": {
+          "calls": 98,
+          "miss": 1559,
+          "evict": 1538,
+          "groups": 214,
+          "bytes": 19616759808
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 385,
+          "evict": 385,
+          "groups": 44,
+          "bytes": 4844421120
+        }
+      },
+      {
+        "cap": 22,
+        "warmup": {
+          "calls": 98,
+          "miss": 1514,
+          "evict": 1492,
+          "groups": 198,
+          "bytes": 19050528768
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 375,
+          "evict": 375,
+          "groups": 42,
+          "bytes": 4718592000
+        }
+      },
+      {
+        "cap": 23,
+        "warmup": {
+          "calls": 98,
+          "miss": 1465,
+          "evict": 1442,
+          "groups": 191,
+          "bytes": 18433966080
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 365,
+          "evict": 365,
+          "groups": 40,
+          "bytes": 4592762880
+        }
+      },
+      {
+        "cap": 24,
+        "warmup": {
+          "calls": 98,
+          "miss": 1426,
+          "evict": 1402,
+          "groups": 183,
+          "bytes": 17943232512
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 352,
+          "evict": 352,
+          "groups": 39,
+          "bytes": 4429185024
+        }
+      },
+      {
+        "cap": 25,
+        "warmup": {
+          "calls": 98,
+          "miss": 1382,
+          "evict": 1357,
+          "groups": 178,
+          "bytes": 17389584384
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 336,
+          "evict": 336,
+          "groups": 39,
+          "bytes": 4227858432
+        }
+      },
+      {
+        "cap": 26,
+        "warmup": {
+          "calls": 98,
+          "miss": 1333,
+          "evict": 1307,
+          "groups": 170,
+          "bytes": 16773021696
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 327,
+          "evict": 327,
+          "groups": 38,
+          "bytes": 4114612224
+        }
+      },
+      {
+        "cap": 27,
+        "warmup": {
+          "calls": 98,
+          "miss": 1275,
+          "evict": 1248,
+          "groups": 165,
+          "bytes": 16043212800
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 310,
+          "evict": 310,
+          "groups": 38,
+          "bytes": 3900702720
+        }
+      },
+      {
+        "cap": 28,
+        "warmup": {
+          "calls": 98,
+          "miss": 1247,
+          "evict": 1219,
+          "groups": 161,
+          "bytes": 15690891264
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 297,
+          "evict": 297,
+          "groups": 38,
+          "bytes": 3737124864
+        }
+      },
+      {
+        "cap": 29,
+        "warmup": {
+          "calls": 98,
+          "miss": 1195,
+          "evict": 1166,
+          "groups": 153,
+          "bytes": 15036579840
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 283,
+          "evict": 283,
+          "groups": 37,
+          "bytes": 3560964096
+        }
+      },
+      {
+        "cap": 30,
+        "warmup": {
+          "calls": 98,
+          "miss": 1150,
+          "evict": 1120,
+          "groups": 152,
+          "bytes": 14470348800
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 273,
+          "evict": 273,
+          "groups": 37,
+          "bytes": 3435134976
+        }
+      },
+      {
+        "cap": 31,
+        "warmup": {
+          "calls": 98,
+          "miss": 1105,
+          "evict": 1074,
+          "groups": 147,
+          "bytes": 13904117760
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 260,
+          "evict": 260,
+          "groups": 36,
+          "bytes": 3271557120
+        }
+      },
+      {
+        "cap": 32,
+        "warmup": {
+          "calls": 98,
+          "miss": 1053,
+          "evict": 1021,
+          "groups": 147,
+          "bytes": 13249806336
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 244,
+          "evict": 244,
+          "groups": 35,
+          "bytes": 3070230528
+        }
+      }
+    ],
+    "model.layers.12.mlp.experts": [
+      {
+        "cap": 16,
+        "warmup": {
+          "calls": 98,
+          "miss": 1893,
+          "evict": 1877,
+          "groups": 266,
+          "bytes": 23819452416
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 462,
+          "evict": 462,
+          "groups": 52,
+          "bytes": 5813305344
+        }
+      },
+      {
+        "cap": 17,
+        "warmup": {
+          "calls": 98,
+          "miss": 1807,
+          "evict": 1790,
+          "groups": 399,
+          "bytes": 22737321984
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 454,
+          "evict": 454,
+          "groups": 52,
+          "bytes": 5712642048
+        }
+      },
+      {
+        "cap": 18,
+        "warmup": {
+          "calls": 98,
+          "miss": 1759,
+          "evict": 1741,
+          "groups": 303,
+          "bytes": 22133342208
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 438,
+          "evict": 438,
+          "groups": 50,
+          "bytes": 5511315456
+        }
+      },
+      {
+        "cap": 19,
+        "warmup": {
+          "calls": 98,
+          "miss": 1709,
+          "evict": 1690,
+          "groups": 262,
+          "bytes": 21504196608
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 431,
+          "evict": 431,
+          "groups": 48,
+          "bytes": 5423235072
+        }
+      },
+      {
+        "cap": 20,
+        "warmup": {
+          "calls": 98,
+          "miss": 1671,
+          "evict": 1651,
+          "groups": 234,
+          "bytes": 21026045952
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 411,
+          "evict": 411,
+          "groups": 46,
+          "bytes": 5171576832
+        }
+      },
+      {
+        "cap": 21,
+        "warmup": {
+          "calls": 98,
+          "miss": 1615,
+          "evict": 1594,
+          "groups": 219,
+          "bytes": 20321402880
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 403,
+          "evict": 403,
+          "groups": 44,
+          "bytes": 5070913536
+        }
+      },
+      {
+        "cap": 22,
+        "warmup": {
+          "calls": 98,
+          "miss": 1557,
+          "evict": 1535,
+          "groups": 208,
+          "bytes": 19591593984
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 391,
+          "evict": 391,
+          "groups": 42,
+          "bytes": 4919918592
+        }
+      },
+      {
+        "cap": 23,
+        "warmup": {
+          "calls": 98,
+          "miss": 1518,
+          "evict": 1495,
+          "groups": 200,
+          "bytes": 19100860416
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 378,
+          "evict": 378,
+          "groups": 41,
+          "bytes": 4756340736
+        }
+      },
+      {
+        "cap": 24,
+        "warmup": {
+          "calls": 98,
+          "miss": 1467,
+          "evict": 1443,
+          "groups": 188,
+          "bytes": 18459131904
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 365,
+          "evict": 365,
+          "groups": 40,
+          "bytes": 4592762880
+        }
+      },
+      {
+        "cap": 25,
+        "warmup": {
+          "calls": 98,
+          "miss": 1435,
+          "evict": 1410,
+          "groups": 182,
+          "bytes": 18056478720
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 356,
+          "evict": 356,
+          "groups": 40,
+          "bytes": 4479516672
+        }
+      },
+      {
+        "cap": 26,
+        "warmup": {
+          "calls": 98,
+          "miss": 1373,
+          "evict": 1347,
+          "groups": 177,
+          "bytes": 17276338176
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 335,
+          "evict": 335,
+          "groups": 40,
+          "bytes": 4215275520
+        }
+      },
+      {
+        "cap": 27,
+        "warmup": {
+          "calls": 98,
+          "miss": 1314,
+          "evict": 1287,
+          "groups": 168,
+          "bytes": 16533946368
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 321,
+          "evict": 321,
+          "groups": 39,
+          "bytes": 4039114752
+        }
+      },
+      {
+        "cap": 28,
+        "warmup": {
+          "calls": 98,
+          "miss": 1266,
+          "evict": 1238,
+          "groups": 161,
+          "bytes": 15929966592
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 307,
+          "evict": 307,
+          "groups": 38,
+          "bytes": 3862953984
+        }
+      },
+      {
+        "cap": 29,
+        "warmup": {
+          "calls": 98,
+          "miss": 1212,
+          "evict": 1183,
+          "groups": 155,
+          "bytes": 15250489344
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 295,
+          "evict": 295,
+          "groups": 37,
+          "bytes": 3711959040
+        }
+      },
+      {
+        "cap": 30,
+        "warmup": {
+          "calls": 98,
+          "miss": 1160,
+          "evict": 1130,
+          "groups": 153,
+          "bytes": 14596177920
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 276,
+          "evict": 276,
+          "groups": 37,
+          "bytes": 3472883712
+        }
+      },
+      {
+        "cap": 31,
+        "warmup": {
+          "calls": 98,
+          "miss": 1131,
+          "evict": 1100,
+          "groups": 147,
+          "bytes": 14231273472
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 267,
+          "evict": 267,
+          "groups": 36,
+          "bytes": 3359637504
+        }
+      },
+      {
+        "cap": 32,
+        "warmup": {
+          "calls": 98,
+          "miss": 1078,
+          "evict": 1046,
+          "groups": 147,
+          "bytes": 13564379136
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 256,
+          "evict": 256,
+          "groups": 36,
+          "bytes": 3221225472
+        }
+      }
+    ],
+    "model.layers.13.mlp.experts": [
+      {
+        "cap": 16,
+        "warmup": {
+          "calls": 98,
+          "miss": 1878,
+          "evict": 1862,
+          "groups": 257,
+          "bytes": 23630708736
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 463,
+          "evict": 463,
+          "groups": 53,
+          "bytes": 5825888256
+        }
+      },
+      {
+        "cap": 17,
+        "warmup": {
+          "calls": 98,
+          "miss": 1776,
+          "evict": 1759,
+          "groups": 392,
+          "bytes": 22347251712
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 445,
+          "evict": 445,
+          "groups": 52,
+          "bytes": 5599395840
+        }
+      },
+      {
+        "cap": 18,
+        "warmup": {
+          "calls": 98,
+          "miss": 1728,
+          "evict": 1710,
+          "groups": 296,
+          "bytes": 21743271936
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 434,
+          "evict": 434,
+          "groups": 49,
+          "bytes": 5460983808
+        }
+      },
+      {
+        "cap": 19,
+        "warmup": {
+          "calls": 98,
+          "miss": 1679,
+          "evict": 1660,
+          "groups": 259,
+          "bytes": 21126709248
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 421,
+          "evict": 421,
+          "groups": 49,
+          "bytes": 5297405952
+        }
+      },
+      {
+        "cap": 20,
+        "warmup": {
+          "calls": 98,
+          "miss": 1631,
+          "evict": 1611,
+          "groups": 232,
+          "bytes": 20522729472
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 410,
+          "evict": 410,
+          "groups": 46,
+          "bytes": 5158993920
+        }
+      },
+      {
+        "cap": 21,
+        "warmup": {
+          "calls": 98,
+          "miss": 1588,
+          "evict": 1567,
+          "groups": 219,
+          "bytes": 19981664256
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 394,
+          "evict": 394,
+          "groups": 44,
+          "bytes": 4957667328
+        }
+      },
+      {
+        "cap": 22,
+        "warmup": {
+          "calls": 98,
+          "miss": 1537,
+          "evict": 1515,
+          "groups": 208,
+          "bytes": 19339935744
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 381,
+          "evict": 381,
+          "groups": 41,
+          "bytes": 4794089472
+        }
+      },
+      {
+        "cap": 23,
+        "warmup": {
+          "calls": 98,
+          "miss": 1471,
+          "evict": 1448,
+          "groups": 201,
+          "bytes": 18509463552
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 359,
+          "evict": 359,
+          "groups": 40,
+          "bytes": 4517265408
+        }
+      },
+      {
+        "cap": 24,
+        "warmup": {
+          "calls": 98,
+          "miss": 1425,
+          "evict": 1401,
+          "groups": 190,
+          "bytes": 17930649600
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 346,
+          "evict": 346,
+          "groups": 40,
+          "bytes": 4353687552
+        }
+      },
+      {
+        "cap": 25,
+        "warmup": {
+          "calls": 98,
+          "miss": 1370,
+          "evict": 1345,
+          "groups": 183,
+          "bytes": 17238589440
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 333,
+          "evict": 333,
+          "groups": 40,
+          "bytes": 4190109696
+        }
+      },
+      {
+        "cap": 26,
+        "warmup": {
+          "calls": 98,
+          "miss": 1323,
+          "evict": 1297,
+          "groups": 176,
+          "bytes": 16647192576
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 321,
+          "evict": 321,
+          "groups": 40,
+          "bytes": 4039114752
+        }
+      },
+      {
+        "cap": 27,
+        "warmup": {
+          "calls": 98,
+          "miss": 1280,
+          "evict": 1253,
+          "groups": 165,
+          "bytes": 16106127360
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 309,
+          "evict": 309,
+          "groups": 38,
+          "bytes": 3888119808
+        }
+      },
+      {
+        "cap": 28,
+        "warmup": {
+          "calls": 98,
+          "miss": 1233,
+          "evict": 1205,
+          "groups": 163,
+          "bytes": 15514730496
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 299,
+          "evict": 299,
+          "groups": 38,
+          "bytes": 3762290688
+        }
+      },
+      {
+        "cap": 29,
+        "warmup": {
+          "calls": 98,
+          "miss": 1189,
+          "evict": 1160,
+          "groups": 156,
+          "bytes": 14961082368
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 285,
+          "evict": 285,
+          "groups": 37,
+          "bytes": 3586129920
+        }
+      },
+      {
+        "cap": 30,
+        "warmup": {
+          "calls": 98,
+          "miss": 1134,
+          "evict": 1104,
+          "groups": 151,
+          "bytes": 14269022208
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 274,
+          "evict": 274,
+          "groups": 37,
+          "bytes": 3447717888
+        }
+      },
+      {
+        "cap": 31,
+        "warmup": {
+          "calls": 98,
+          "miss": 1088,
+          "evict": 1057,
+          "groups": 151,
+          "bytes": 13690208256
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 259,
+          "evict": 259,
+          "groups": 37,
+          "bytes": 3258974208
+        }
+      },
+      {
+        "cap": 32,
+        "warmup": {
+          "calls": 98,
+          "miss": 1033,
+          "evict": 1001,
+          "groups": 151,
+          "bytes": 12998148096
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 245,
+          "evict": 245,
+          "groups": 37,
+          "bytes": 3082813440
+        }
+      }
+    ],
+    "model.layers.14.mlp.experts": [
+      {
+        "cap": 16,
+        "warmup": {
+          "calls": 98,
+          "miss": 1840,
+          "evict": 1824,
+          "groups": 270,
+          "bytes": 23152558080
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 444,
+          "evict": 444,
+          "groups": 52,
+          "bytes": 5586812928
+        }
+      },
+      {
+        "cap": 17,
+        "warmup": {
+          "calls": 98,
+          "miss": 1741,
+          "evict": 1724,
+          "groups": 385,
+          "bytes": 21906849792
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 432,
+          "evict": 432,
+          "groups": 50,
+          "bytes": 5435817984
+        }
+      },
+      {
+        "cap": 18,
+        "warmup": {
+          "calls": 98,
+          "miss": 1694,
+          "evict": 1676,
+          "groups": 295,
+          "bytes": 21315452928
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 418,
+          "evict": 418,
+          "groups": 48,
+          "bytes": 5259657216
+        }
+      },
+      {
+        "cap": 19,
+        "warmup": {
+          "calls": 98,
+          "miss": 1655,
+          "evict": 1636,
+          "groups": 254,
+          "bytes": 20824719360
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 411,
+          "evict": 411,
+          "groups": 46,
+          "bytes": 5171576832
+        }
+      },
+      {
+        "cap": 20,
+        "warmup": {
+          "calls": 98,
+          "miss": 1621,
+          "evict": 1601,
+          "groups": 231,
+          "bytes": 20396900352
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 401,
+          "evict": 401,
+          "groups": 45,
+          "bytes": 5045747712
+        }
+      },
+      {
+        "cap": 21,
+        "warmup": {
+          "calls": 98,
+          "miss": 1572,
+          "evict": 1551,
+          "groups": 221,
+          "bytes": 19780337664
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 386,
+          "evict": 386,
+          "groups": 43,
+          "bytes": 4857004032
+        }
+      },
+      {
+        "cap": 22,
+        "warmup": {
+          "calls": 98,
+          "miss": 1502,
+          "evict": 1480,
+          "groups": 207,
+          "bytes": 18899533824
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 375,
+          "evict": 375,
+          "groups": 41,
+          "bytes": 4718592000
+        }
+      },
+      {
+        "cap": 23,
+        "warmup": {
+          "calls": 98,
+          "miss": 1450,
+          "evict": 1427,
+          "groups": 198,
+          "bytes": 18245222400
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 358,
+          "evict": 358,
+          "groups": 40,
+          "bytes": 4504682496
+        }
+      },
+      {
+        "cap": 24,
+        "warmup": {
+          "calls": 98,
+          "miss": 1418,
+          "evict": 1394,
+          "groups": 186,
+          "bytes": 17842569216
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 340,
+          "evict": 340,
+          "groups": 40,
+          "bytes": 4278190080
+        }
+      },
+      {
+        "cap": 25,
+        "warmup": {
+          "calls": 98,
+          "miss": 1357,
+          "evict": 1332,
+          "groups": 182,
+          "bytes": 17075011584
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 325,
+          "evict": 325,
+          "groups": 40,
+          "bytes": 4089446400
+        }
+      },
+      {
+        "cap": 26,
+        "warmup": {
+          "calls": 98,
+          "miss": 1301,
+          "evict": 1275,
+          "groups": 173,
+          "bytes": 16370368512
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 312,
+          "evict": 312,
+          "groups": 39,
+          "bytes": 3925868544
+        }
+      },
+      {
+        "cap": 27,
+        "warmup": {
+          "calls": 98,
+          "miss": 1263,
+          "evict": 1236,
+          "groups": 165,
+          "bytes": 15892217856
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 301,
+          "evict": 301,
+          "groups": 38,
+          "bytes": 3787456512
+        }
+      },
+      {
+        "cap": 28,
+        "warmup": {
+          "calls": 98,
+          "miss": 1232,
+          "evict": 1204,
+          "groups": 162,
+          "bytes": 15502147584
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 289,
+          "evict": 289,
+          "groups": 38,
+          "bytes": 3636461568
+        }
+      },
+      {
+        "cap": 29,
+        "warmup": {
+          "calls": 98,
+          "miss": 1177,
+          "evict": 1148,
+          "groups": 155,
+          "bytes": 14810087424
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 284,
+          "evict": 284,
+          "groups": 37,
+          "bytes": 3573547008
+        }
+      },
+      {
+        "cap": 30,
+        "warmup": {
+          "calls": 98,
+          "miss": 1126,
+          "evict": 1096,
+          "groups": 151,
+          "bytes": 14168358912
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 266,
+          "evict": 266,
+          "groups": 37,
+          "bytes": 3347054592
+        }
+      },
+      {
+        "cap": 31,
+        "warmup": {
+          "calls": 98,
+          "miss": 1077,
+          "evict": 1046,
+          "groups": 151,
+          "bytes": 13551796224
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 257,
+          "evict": 257,
+          "groups": 37,
+          "bytes": 3233808384
+        }
+      },
+      {
+        "cap": 32,
+        "warmup": {
+          "calls": 98,
+          "miss": 1029,
+          "evict": 997,
+          "groups": 147,
+          "bytes": 12947816448
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 247,
+          "evict": 247,
+          "groups": 36,
+          "bytes": 3107979264
+        }
+      }
+    ],
+    "model.layers.15.mlp.experts": [
+      {
+        "cap": 16,
+        "warmup": {
+          "calls": 98,
+          "miss": 1773,
+          "evict": 1757,
+          "groups": 254,
+          "bytes": 22309502976
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 435,
+          "evict": 435,
+          "groups": 52,
+          "bytes": 5473566720
+        }
+      },
+      {
+        "cap": 17,
+        "warmup": {
+          "calls": 98,
+          "miss": 1689,
+          "evict": 1672,
+          "groups": 374,
+          "bytes": 21252538368
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 420,
+          "evict": 420,
+          "groups": 52,
+          "bytes": 5284823040
+        }
+      },
+      {
+        "cap": 18,
+        "warmup": {
+          "calls": 98,
+          "miss": 1646,
+          "evict": 1628,
+          "groups": 294,
+          "bytes": 20711473152
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 408,
+          "evict": 408,
+          "groups": 51,
+          "bytes": 5133828096
+        }
+      },
+      {
+        "cap": 19,
+        "warmup": {
+          "calls": 98,
+          "miss": 1597,
+          "evict": 1578,
+          "groups": 257,
+          "bytes": 20094910464
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 394,
+          "evict": 394,
+          "groups": 47,
+          "bytes": 4957667328
+        }
+      },
+      {
+        "cap": 20,
+        "warmup": {
+          "calls": 98,
+          "miss": 1549,
+          "evict": 1529,
+          "groups": 231,
+          "bytes": 19490930688
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 383,
+          "evict": 383,
+          "groups": 44,
+          "bytes": 4819255296
+        }
+      },
+      {
+        "cap": 21,
+        "warmup": {
+          "calls": 98,
+          "miss": 1499,
+          "evict": 1478,
+          "groups": 213,
+          "bytes": 18861785088
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 366,
+          "evict": 366,
+          "groups": 42,
+          "bytes": 4605345792
+        }
+      },
+      {
+        "cap": 22,
+        "warmup": {
+          "calls": 98,
+          "miss": 1453,
+          "evict": 1431,
+          "groups": 204,
+          "bytes": 18282971136
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 357,
+          "evict": 357,
+          "groups": 40,
+          "bytes": 4492099584
+        }
+      },
+      {
+        "cap": 23,
+        "warmup": {
+          "calls": 98,
+          "miss": 1418,
+          "evict": 1395,
+          "groups": 198,
+          "bytes": 17842569216
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 350,
+          "evict": 350,
+          "groups": 40,
+          "bytes": 4404019200
+        }
+      },
+      {
+        "cap": 24,
+        "warmup": {
+          "calls": 98,
+          "miss": 1362,
+          "evict": 1338,
+          "groups": 189,
+          "bytes": 17137926144
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 333,
+          "evict": 333,
+          "groups": 40,
+          "bytes": 4190109696
+        }
+      },
+      {
+        "cap": 25,
+        "warmup": {
+          "calls": 98,
+          "miss": 1310,
+          "evict": 1285,
+          "groups": 182,
+          "bytes": 16483614720
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 321,
+          "evict": 321,
+          "groups": 40,
+          "bytes": 4039114752
+        }
+      },
+      {
+        "cap": 26,
+        "warmup": {
+          "calls": 98,
+          "miss": 1263,
+          "evict": 1237,
+          "groups": 175,
+          "bytes": 15892217856
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 308,
+          "evict": 308,
+          "groups": 40,
+          "bytes": 3875536896
+        }
+      },
+      {
+        "cap": 27,
+        "warmup": {
+          "calls": 98,
+          "miss": 1209,
+          "evict": 1182,
+          "groups": 167,
+          "bytes": 15212740608
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 292,
+          "evict": 292,
+          "groups": 40,
+          "bytes": 3674210304
+        }
+      },
+      {
+        "cap": 28,
+        "warmup": {
+          "calls": 98,
+          "miss": 1169,
+          "evict": 1141,
+          "groups": 157,
+          "bytes": 14709424128
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 281,
+          "evict": 281,
+          "groups": 38,
+          "bytes": 3535798272
+        }
+      },
+      {
+        "cap": 29,
+        "warmup": {
+          "calls": 98,
+          "miss": 1126,
+          "evict": 1097,
+          "groups": 156,
+          "bytes": 14168358912
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 266,
+          "evict": 266,
+          "groups": 38,
+          "bytes": 3347054592
+        }
+      },
+      {
+        "cap": 30,
+        "warmup": {
+          "calls": 98,
+          "miss": 1063,
+          "evict": 1033,
+          "groups": 155,
+          "bytes": 13375635456
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 256,
+          "evict": 256,
+          "groups": 38,
+          "bytes": 3221225472
+        }
+      },
+      {
+        "cap": 31,
+        "warmup": {
+          "calls": 98,
+          "miss": 1007,
+          "evict": 976,
+          "groups": 153,
+          "bytes": 12670992384
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 241,
+          "evict": 241,
+          "groups": 37,
+          "bytes": 3032481792
+        }
+      },
+      {
+        "cap": 32,
+        "warmup": {
+          "calls": 98,
+          "miss": 951,
+          "evict": 919,
+          "groups": 146,
+          "bytes": 11966349312
+        },
+        "measurement": {
+          "calls": 24,
+          "miss": 226,
+          "evict": 226,
+          "groups": 36,
+          "bytes": 2843738112
+        }
+      }
+    ]
+  },
+  "uniform": {
+    "allocation": {
+      "model.layers.0.mlp.experts": 24,
+      "model.layers.1.mlp.experts": 24,
+      "model.layers.2.mlp.experts": 24,
+      "model.layers.3.mlp.experts": 24,
+      "model.layers.4.mlp.experts": 24,
+      "model.layers.5.mlp.experts": 24,
+      "model.layers.6.mlp.experts": 24,
+      "model.layers.7.mlp.experts": 24,
+      "model.layers.8.mlp.experts": 24,
+      "model.layers.9.mlp.experts": 24,
+      "model.layers.10.mlp.experts": 24,
+      "model.layers.11.mlp.experts": 24,
+      "model.layers.12.mlp.experts": 24,
+      "model.layers.13.mlp.experts": 24,
+      "model.layers.14.mlp.experts": 24,
+      "model.layers.15.mlp.experts": 24
+    },
+    "total_slots": 384,
+    "expert_scratch_bytes": 4831838208,
+    "warmup": {
+      "calls": 1568,
+      "miss": 22872,
+      "evict": 22488,
+      "groups": 2939,
+      "bytes": 287796363264
+    },
+    "measurement": {
+      "calls": 384,
+      "miss": 5594,
+      "evict": 5594,
+      "groups": 636,
+      "bytes": 70388809728
+    }
+  },
+  "min_groups": {
+    "allocation": {
+      "model.layers.0.mlp.experts": 24,
+      "model.layers.1.mlp.experts": 25,
+      "model.layers.2.mlp.experts": 23,
+      "model.layers.3.mlp.experts": 22,
+      "model.layers.4.mlp.experts": 20,
+      "model.layers.5.mlp.experts": 20,
+      "model.layers.6.mlp.experts": 20,
+      "model.layers.7.mlp.experts": 26,
+      "model.layers.8.mlp.experts": 25,
+      "model.layers.9.mlp.experts": 26,
+      "model.layers.10.mlp.experts": 26,
+      "model.layers.11.mlp.experts": 24,
+      "model.layers.12.mlp.experts": 31,
+      "model.layers.13.mlp.experts": 23,
+      "model.layers.14.mlp.experts": 27,
+      "model.layers.15.mlp.experts": 22
+    },
+    "total_slots": 384,
+    "expert_scratch_bytes": 4831838208,
+    "warmup": {
+      "calls": 1568,
+      "miss": 22804,
+      "evict": 22420,
+      "groups": 2982,
+      "bytes": 286940725248
+    },
+    "measurement": {
+      "calls": 384,
+      "miss": 5554,
+      "evict": 5554,
+      "groups": 624,
+      "bytes": 69885493248
+    }
+  },
+  "selected": {
+    "allocation": {
+      "model.layers.0.mlp.experts": 27,
+      "model.layers.1.mlp.experts": 25,
+      "model.layers.2.mlp.experts": 23,
+      "model.layers.3.mlp.experts": 22,
+      "model.layers.4.mlp.experts": 20,
+      "model.layers.5.mlp.experts": 20,
+      "model.layers.6.mlp.experts": 29,
+      "model.layers.7.mlp.experts": 22,
+      "model.layers.8.mlp.experts": 21,
+      "model.layers.9.mlp.experts": 27,
+      "model.layers.10.mlp.experts": 27,
+      "model.layers.11.mlp.experts": 21,
+      "model.layers.12.mlp.experts": 30,
+      "model.layers.13.mlp.experts": 23,
+      "model.layers.14.mlp.experts": 26,
+      "model.layers.15.mlp.experts": 21
+    },
+    "total_slots": 384,
+    "expert_scratch_bytes": 4831838208,
+    "warmup": {
+      "calls": 1568,
+      "miss": 22751,
+      "evict": 22367,
+      "groups": 3017,
+      "bytes": 286273830912
+    },
+    "measurement": {
+      "calls": 384,
+      "miss": 5513,
+      "evict": 5513,
+      "groups": 636,
+      "bytes": 69369593856
+    }
+  },
+  "dp_states": [
+    {
+      "layers": 1,
+      "states": 17
+    },
+    {
+      "layers": 2,
+      "states": 69
+    },
+    {
+      "layers": 3,
+      "states": 170
+    },
+    {
+      "layers": 4,
+      "states": 307
+    },
+    {
+      "layers": 5,
+      "states": 499
+    },
+    {
+      "layers": 6,
+      "states": 687
+    },
+    {
+      "layers": 7,
+      "states": 921
+    },
+    {
+      "layers": 8,
+      "states": 1055
+    },
+    {
+      "layers": 9,
+      "states": 1125
+    },
+    {
+      "layers": 10,
+      "states": 1122
+    },
+    {
+      "layers": 11,
+      "states": 1093
+    },
+    {
+      "layers": 12,
+      "states": 1020
+    },
+    {
+      "layers": 13,
+      "states": 815
+    },
+    {
+      "layers": 14,
+      "states": 546
+    },
+    {
+      "layers": 15,
+      "states": 259
+    },
+    {
+      "layers": 16,
+      "states": 13
+    }
+  ],
+  "tie_break": "Minimum measurement miss, then groups, then lexicographic caps in recorded layer order; min-groups reverses first two objectives."
+}

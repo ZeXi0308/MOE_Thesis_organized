@@ -1,0 +1,106 @@
+{
+  "block": "reverse",
+  "warmups": [
+    {
+      "cohort": "all_short",
+      "budget": 1024,
+      "waiting_order": "fcfs"
+    },
+    {
+      "cohort": "all_short",
+      "budget": 1024,
+      "waiting_order": "short_prompt_first"
+    },
+    {
+      "cohort": "all_short",
+      "budget": 1024,
+      "waiting_order": "bounded_bypass_once"
+    },
+    {
+      "cohort": "mixed",
+      "budget": 1024,
+      "waiting_order": "fcfs"
+    },
+    {
+      "cohort": "mixed",
+      "budget": 1024,
+      "waiting_order": "short_prompt_first"
+    },
+    {
+      "cohort": "mixed",
+      "budget": 1024,
+      "waiting_order": "bounded_bypass_once"
+    }
+  ],
+  "plans": [
+    {
+      "cohort": "mixed",
+      "budget": 1024,
+      "waiting_order": "bounded_bypass_once"
+    },
+    {
+      "cohort": "mixed",
+      "budget": 1024,
+      "waiting_order": "short_prompt_first"
+    },
+    {
+      "cohort": "mixed",
+      "budget": 1024,
+      "waiting_order": "fcfs"
+    },
+    {
+      "cohort": "all_short",
+      "budget": 1024,
+      "waiting_order": "bounded_bypass_once"
+    },
+    {
+      "cohort": "all_short",
+      "budget": 1024,
+      "waiting_order": "short_prompt_first"
+    },
+    {
+      "cohort": "all_short",
+      "budget": 1024,
+      "waiting_order": "fcfs"
+    }
+  ],
+  "engine_args": {
+    "model": "allenai/OLMoE-1B-7B-0924",
+    "revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "tokenizer_revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "dtype": "bfloat16",
+    "seed": 20260905,
+    "max_model_len": 4096,
+    "max_num_seqs": 8,
+    "max_num_batched_tokens": 1024,
+    "enable_chunked_prefill": true,
+    "gpu_memory_utilization": 0.7,
+    "enable_prefix_caching": false,
+    "scheduling_policy": "fcfs",
+    "async_scheduling": false,
+    "stream_interval": 1,
+    "enforce_eager": false,
+    "enable_return_routed_experts": false,
+    "disable_log_stats": false
+  },
+  "reference_slo": {
+    "ttft_slo_s": 5.0,
+    "tpot_slo_s": 0.2
+  },
+  "max_seconds": 180,
+  "bypass_limit": 1,
+  "bypass_action": "count actual first admissions of later arrivals, not proposed queue reorders",
+  "source_and_input_sha256": {
+    "prepared/all_short/config.json": "277a4fcf8461c126e5c0bcd914a93ec173cc2e75476e9da23aef51406790d286",
+    "prepared/all_short/workload.json": "65a5f322427764fbbcc18b47c61feb4c3ea814e42dce764ae9393a1a4f70f973",
+    "prepared/mixed/config.json": "bbec63062af76ab478cede657b27c5bd9610270c40c0762d16cd25d5b70cc247",
+    "prepared/mixed/workload.json": "6c92fe261c43fa66c88abfc95c946b9d97545753f3aeb881b54731ef149e8546",
+    "run_waiting_order.py": "fb83066de0d4a25f4bb9b400c218edb1b779c32e9a0546cdc573d82359246e0d",
+    "runtime/admission_feedback.py": "279c3e0ef44f8d9a0dec9bfeffe4dea72e657f24c637d9111f6712eb7ee0ece7",
+    "runtime/metrics.py": "1ca4874d718402ad149e26abd1b109eadf50afabb7aadc9e562e244aeb594b11",
+    "runtime/native_capture.py": "4e8b1fa41e4631fb72e5801a9ff7862017b2593d462ea4c024e6db88b502df5d",
+    "runtime/waiting_order.py": "95ebe7589b8822a7d6e43c4bc1fdfc5e04c81a30712ce9fb8ef28f7ed838fd0f",
+    "runtime_reference.json": "e9a886692f94de1308ec12cd7895aca09ed5be61f3d1b256006ae57c1cbba462"
+  },
+  "evidence_ceiling": "REQUEST_LEVEL_EXPLORATORY_INTERVENTION_NO_METHOD_GO"
+}

@@ -1,0 +1,205 @@
+{
+  "schema_version": 1,
+  "audit_skill": "experiment-audit",
+  "verdict": "WARN",
+  "overall_verdict": "warn",
+  "integrity_status": "warn",
+  "reason_code": "limited_independence_and_unresolved_runtime_drift",
+  "summary": "Eight-cell raw execution, action paths, retention, and arithmetic passed integrity review with no P0/P1 findings; one cohort, an interrupted group, unresolved same-path runtime drift, incomplete environment telemetry, and same-family review limit claims to provisional descriptive measurement.",
+  "project": "MoE admission-capacity rotation strong-baseline campaign",
+  "campaign_id": "20260913_rotation_strong_baseline_r01",
+  "campaign_path": "refine-logs/expert_saturation/outputs/admission_capacity/20260913_rotation_strong_baseline_r01",
+  "run_path": "refine-logs/expert_saturation/outputs/admission_capacity/20260913_rotation_strong_baseline_r01/execution02_westc_53036",
+  "repository_head": "c4ae4f5daaea929e1a4358862296d832f1cc67ab",
+  "repository_dirty_before_audit": true,
+  "generated_at": "2026-09-13T16:32:55Z",
+  "date": "2026-09-14",
+  "timezone": "Asia/Shanghai",
+  "auditor": "gpt-5.6-sol-ultra",
+  "reviewer_task": "/root/strong_baseline_results_audit/fresh_integrity_reviewer",
+  "executor_model": "codex-gpt-6",
+  "executor_family": "openai",
+  "reviewer_model": "gpt-5.6-sol",
+  "reviewer_family": "openai",
+  "reviewer_reasoning": "ultra",
+  "review_independence": "same-family",
+  "acceptance_status": "provisional",
+  "trace_path": null,
+  "trace_status": "not_created_by_explicit_user_scope",
+  "p0_findings": [],
+  "p1_findings": [],
+  "checks": {
+    "A_ground_truth_provenance": {
+      "status": "pass",
+      "details": "Pinned local WikiText-derived source, exact model/tokenizer/input identities, and fresh selection reconstructed successfully. There is no external task-quality ground truth; output equality is execution identity only.",
+      "evidence": [
+        "inputs/config.json:2-40",
+        "execution02_westc_53036/frozen/DECISIONS.md:11-17",
+        "execution02_westc_53036/frozen/fresh_inputs_receipt.json:706-729",
+        "execution02_westc_53036/preflight.json:5-23",
+        "RESULTS_WESTC_ADDENDUM.md:40-42"
+      ]
+    },
+    "B_score_normalization_and_denominators": {
+      "status": "pass",
+      "details": "All-arrived-request denominator, TTFT/TPOT/ITL/completion/rate definitions, token-time alignment, and all eight pair deltas were independently recomputed; no self-normalization, favorable denominator, or double accounting found.",
+      "evidence": [
+        "execution02_westc_53036/frozen/metrics.py:10-29",
+        "execution02_westc_53036/frozen/metrics.py:62-155",
+        "analysis02_westc_53036/report.md:18-38"
+      ]
+    },
+    "C_result_existence_and_fidelity": {
+      "status": "pass",
+      "details": "All eight raw cells and required sidecars exist; 256/256 requests and 262144/262144 output tokens/timestamps completed; all published cell and pair numbers match raw-derived analysis; no omitted or substituted result found.",
+      "evidence": [
+        "execution02_westc_53036/execution.json:2-150",
+        "analysis02_westc_53036/report.md:5-40",
+        "refine-logs/expert_saturation/experiments/admission_capacity/analyze_rotation_strong_baseline.py:82-143",
+        "refine-logs/expert_saturation/experiments/admission_capacity/analyze_completion_headroom.py:104-202"
+      ]
+    },
+    "D_action_and_call_path_fidelity": {
+      "status": "pass",
+      "details": "Fresh engines installed policies before capture; headroom and most_output used current scheduler state; actual holds, forced/native preemptions, recomputation, and engine trajectories prove in-loop policy effects and independent evolution.",
+      "evidence": [
+        "execution02_westc_53036/frozen/run_probe.py:40-118",
+        "execution02_westc_53036/frozen/run_probe.py:152-194",
+        "execution02_westc_53036/frozen/completion_headroom.py:144-231",
+        "execution02_westc_53036/frozen/absence_rotation.py:133-205",
+        "execution02_westc_53036/frozen/rotation_native.py:94-205"
+      ]
+    },
+    "E_scope_retention_and_environment": {
+      "status": "warn",
+      "details": "Recovery retained the completed third cell and ran only five untouched suffix cells, but the group has a 1336.810242-second interruption, intervening GPU use, per-cell JIT/default-config warnings, no continuous runtime-state telemetry, and one unexplained same-path stall. A/A and reverse order are drift observations rather than controlled repeats or a noise bound.",
+      "evidence": [
+        "execution02_westc_53036/controller_recovery/1789315156441299000/recovery.json:2-16",
+        "execution02_westc_53036/controller_recovery/1789315156441299000/remote_precheck.json:125-160",
+        "execution02_westc_53036/execution.json:38-59",
+        "execution02_westc_53036/gpu_results/cohort2-block0-native.stdout.log:28-42",
+        "execution02_westc_53036/gpu_results/cohort2-block0-native.stderr.log:1-2",
+        "diagnostics/most_output_block_difference.md:16-24",
+        "gpu_handoff.json:2-15"
+      ]
+    },
+    "F_evaluation_type_and_evidence_tier": {
+      "status": "warn",
+      "details": "Direct paired native in-process systems measurement is valid at request level, while task-quality equality is unverified and broad serving, production, multi-GPU, statistical, and method claims are outside scope. Same-family review is provisional.",
+      "evidence": [
+        "execution02_westc_53036/frozen/DECISIONS.md:23-25",
+        "analysis02_westc_53036/report.md:34-40",
+        "RESULTS_WESTC_ADDENDUM.md:40-42",
+        "RESULTS_WESTC_ADDENDUM.md:63-89"
+      ]
+    }
+  },
+  "verified_counts": {
+    "cells": 8,
+    "raw_files": 8,
+    "metrics_config_environment_status_sets": 8,
+    "execution_receipts": 8,
+    "stdout_stderr_pairs": 8,
+    "warmups": 24,
+    "warmups_complete": 24,
+    "requests_planned": 256,
+    "requests_completed": 256,
+    "requests_failed_unfinished_or_skipped": 0,
+    "output_token_ids_and_timestamps_requested": 262144,
+    "output_token_ids_and_timestamps_retained": 262144,
+    "requests_per_cell": 32,
+    "output_tokens_per_request": 1024,
+    "itls_per_cell": 32736,
+    "policy_pairs": 6,
+    "native_aa_pairs": 2,
+    "same_role_pairs": 4,
+    "fresh_documents": 32,
+    "fresh_plus_prior_unique_documents": 128
+  },
+  "metric_definitions": {
+    "ttft_s": "first_output_timestamp - arrival_timestamp",
+    "tpot_s": "(last_output_timestamp - first_output_timestamp) / (output_tokens - 1)",
+    "itl_s": "consecutive_output_timestamp_difference",
+    "completion_latency_s": "completion_timestamp - arrival_timestamp",
+    "throughput_rps": "completed_requests / (observation_end - earliest_arrival)",
+    "goodput_rps": "slo_passing_completed_requests / (observation_end - earliest_arrival)",
+    "denominator_scope": "all_arrived_requests_at_actual_observation_end"
+  },
+  "verified_pair_deltas": [
+    {"block": 0, "pair": "native_to_headroom", "throughput_percent": -4.793, "mean_completion_percent": 10.067, "max_itl_change_s": -3.029202},
+    {"block": 0, "pair": "native_to_most_output", "throughput_percent": -1.362, "mean_completion_percent": 5.962, "max_itl_change_s": -3.051666},
+    {"block": 0, "pair": "headroom_to_most_output", "throughput_percent": 3.604, "mean_completion_percent": -3.730, "max_itl_change_s": -0.022465},
+    {"block": 1, "pair": "native_to_headroom", "throughput_percent": -1.958, "mean_completion_percent": 6.352, "max_itl_change_s": -3.194041},
+    {"block": 1, "pair": "native_to_most_output", "throughput_percent": 3.241, "mean_completion_percent": 1.031, "max_itl_change_s": -3.739974},
+    {"block": 1, "pair": "headroom_to_most_output", "throughput_percent": 5.303, "mean_completion_percent": -5.003, "max_itl_change_s": -0.545933},
+    {"block": 0, "pair": "native_to_native_aa", "throughput_percent": 0.582, "mean_completion_percent": -0.433, "max_itl_change_s": 0.127070},
+    {"block": 1, "pair": "native_to_native_aa", "throughput_percent": 1.113, "mean_completion_percent": -1.064, "max_itl_change_s": -0.070028}
+  ],
+  "actual_action_counts_per_cell": {
+    "headroom": {"forced_preemptions": 0, "natural_preemptions": 0, "recomputed_positions": 0, "held_request_steps": 9598},
+    "most_output": {"forced_preemptions": 9, "natural_preemptions": 2, "recomputed_positions": 43471, "held_request_steps": 0},
+    "native_or_native_aa": {"forced_preemptions": 0, "natural_preemptions": 2, "recomputed_positions": 7685, "held_request_steps": 0}
+  },
+  "recovery_check": {
+    "status": "pass",
+    "recovered_completed_cell": "cohort2-block0-most_output",
+    "rerun_cells": 0,
+    "untouched_suffix_cells_run": 5,
+    "interruption_gap_s": 1336.810242,
+    "interruption_gap_minutes": 22.2801707
+  },
+  "evaluation_type": {
+    "primary": "direct_paired_systems_measurement_without_task_quality_ground_truth",
+    "quality_check": "self_comparison_identity_proxy",
+    "external_task_quality_ground_truth": false
+  },
+  "evidence_tier": "REQUEST_LEVEL_NATIVE_SERVING_INPROCESS_HOST_CAPTURE",
+  "scientific_status": "MEASUREMENT_ONLY",
+  "claim_ceiling": "descriptive one-model one-GPU one-cohort steady-arrival tradeoff",
+  "claims": [
+    {"id": "C1", "claim": "Eight cells completed and reported values match retained raw", "impact": "supported"},
+    {"id": "C2", "claim": "Policies executed declared actions with independent runtime evolution", "impact": "supported"},
+    {"id": "C3", "claim": "most_output shortened maximum ITL versus native in both observed blocks", "impact": "supported_with_descriptive_scope"},
+    {"id": "C4", "claim": "most_output beat headroom on throughput and mean completion in both observed blocks", "impact": "supported_with_descriptive_scope"},
+    {"id": "C5", "claim": "most_output preserved native throughput or mean completion", "impact": "unsupported"},
+    {"id": "C6", "claim": "Matching output sequences prove task-quality equivalence", "impact": "unsupported"},
+    {"id": "C7", "claim": "A/A and reverse order establish a noise bound or controlled repeat", "impact": "unsupported"},
+    {"id": "C8", "claim": "JIT, temperature, or a named kernel caused the same-path stall", "impact": "unverified"},
+    {"id": "C9", "claim": "Generalized method or production SLO benefit", "impact": "unsupported"}
+  ],
+  "unresolved_limitations": [
+    "22.28-minute controller interruption and intervening GPU use",
+    "reverse-order blocks and A/A are not controlled independent repeats",
+    "most_output same-path stall root cause is unverified",
+    "JIT/cache, temperature, clock, CPU scheduling, and tactic effects are unverified",
+    "no continuous environmental isolation evidence",
+    "one model, one GPU, one same-corpus cohort, one workload regime, and one seed",
+    "no external task-quality ground truth",
+    "no full action-space Oracle or problem upper bound",
+    "same-family reviewer independence"
+  ],
+  "next_smallest_experiment": "One uninterrupted frozen four-engine group on the same cohort/runtime/common warmups: native then most_output, followed by most_output then native; preserve every slow call and test recurrence of the aligned first-recovery call and native-relative direction.",
+  "audited_input_hashes": {
+    "execution02_westc_53036/frozen/campaign.json": "sha256:f25f34fd2d1869a8b9104a9828fb7a25cdd39cc18b3b20bbfd00a3bb4dc5d24e",
+    "execution02_westc_53036/frozen/DECISIONS.md": "sha256:400bca45b04e7c8b102c369d42ad96b0835e3007dfdff5f695f5be9b410727d6",
+    "execution02_westc_53036/frozen/metrics.py": "sha256:1ca4874d718402ad149e26abd1b109eadf50afabb7aadc9e562e244aeb594b11",
+    "execution02_westc_53036/frozen/fresh_inputs_receipt.json": "sha256:eeb4fd94bd6475f18099494d6b97327d60818356992ae18c7a8edaf657551749",
+    "execution02_westc_53036/preflight.json": "sha256:2045e16e1acc1c3cfb223eb9c7f9ec7f093a94e17cf9636db21fe9770f5a7ec6",
+    "execution02_westc_53036/execution.json": "sha256:a805b0d0ecb198a76da5b6a2f1007eb515cc696739bee9a10e529ff36d39d66e",
+    "execution02_westc_53036/gpu_results/cohort2-block0-native/raw.json": "sha256:7766d574344d37ca0dbad04d1a80b7919f7fcf1401522b2ab99b2c62c2a2b215",
+    "execution02_westc_53036/gpu_results/cohort2-block0-headroom/raw.json": "sha256:a3ce5e8dd7fe3d03dfb189595dab159705c4446c60744cccb148c65d4bbca8b9",
+    "execution02_westc_53036/gpu_results/cohort2-block0-most_output/raw.json": "sha256:c41366a65f0abb26f155c5a716b8a1abfca36bb803ccbc61671cb482a7c7adee",
+    "execution02_westc_53036/gpu_results/cohort2-block0-native_aa/raw.json": "sha256:4ad47fba756df3ff544a76905f439820d8a90d37c8b68c5cde256a6ecb042b7e",
+    "execution02_westc_53036/gpu_results/cohort2-block1-native_aa/raw.json": "sha256:39a963623a981738e46238c245453d8e6974c79f2589c638a1f14cf807190780",
+    "execution02_westc_53036/gpu_results/cohort2-block1-most_output/raw.json": "sha256:ea2818682b70102a6490fcd2ac252c4d6c229d21a09933d12eaae45cdac01f50",
+    "execution02_westc_53036/gpu_results/cohort2-block1-headroom/raw.json": "sha256:9978892eb29664be8c18b2c3c124f88175f41b7232896f6427b3c3ebe6867e30",
+    "execution02_westc_53036/gpu_results/cohort2-block1-native/raw.json": "sha256:fcb97c3fd1fa576c7f40a503dfb8a00bc36f8e0bcf0e48356dd3435e9bb2295b",
+    "execution02_westc_53036/controller_recovery/1789315156441299000/recovery.json": "sha256:25d193bc32a23761cb570c319a59a22bc57727af78e57cfa9d1e9b84a057745b",
+    "analysis02_westc_53036/analysis.json": "sha256:7127622628680964b13241d159b67ed7f242666d9183d9d53a00b5877d2fa7f0",
+    "analysis02_westc_53036/report.md": "sha256:788ec6a954f57a1c823f6d56c59d617db83a9270848dcdc2e4652b5ed635165a",
+    "refine-logs/expert_saturation/experiments/admission_capacity/analyze_rotation_strong_baseline.py": "sha256:3f269e71d10ae5ce5215f6a12ea8690e2c80de38b196f3a6a75d9a02d7c7d780",
+    "RESULTS_WESTC_ADDENDUM.md": "sha256:9175494392d5e02ae9e11eb314b3d2cf6655e56b20da4a3694c8e976aa3f0929",
+    "diagnostics/most_output_block_difference.md": "sha256:1db381e798b3b3ba6def60c6a7f1d5ede97bdfff9a3d880184af8a34fdebfb50",
+    "diagnostics/most_output_block_difference.json": "sha256:44c097ab809181e441b13d0924e645a2946d8da9a074dec27ba1d4e5aff57b8b"
+  }
+}

@@ -1,0 +1,11 @@
+--- kv_budget_r01/run_probe.py
++++ kv_budget_r02/run_probe.py
+@@ -28,7 +28,7 @@
+     processes = subprocess.check_output(['nvidia-smi', '--query-compute-apps=pid,process_name,used_memory',
+         '--format=csv,noheader'], text=True).strip()
+     if any(row and int(row[0]) != os.getpid() for row in csv.reader(processes.splitlines())):
+-        raise RuntimeError('GPU has another compute process')
++        raise RuntimeError(f'GPU has another compute process; compute_processes={processes!r}')
+     return dict(compute_processes=processes, device=subprocess.check_output(['nvidia-smi',
+         '--query-gpu=name,uuid,memory.total,memory.used,temperature.gpu,power.draw,clocks.sm',
+         '--format=csv,noheader'], text=True).strip())

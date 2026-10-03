@@ -1,0 +1,3 @@
+#!/bin/sh
+set -eu
+python3 '/Users/leandrozhao/Desktop/、++++++++/refine-logs/expert_saturation/experiments/admission_capacity/run_frozen_kv_remote.py' --source '/Users/leandrozhao/Desktop/、++++++++/refine-logs/expert_saturation/outputs/admission_capacity/20260914_apc_rotation_r01/preparation' --output '/Users/leandrozhao/Desktop/、++++++++/refine-logs/expert_saturation/outputs/admission_capacity/20260914_apc_rotation_r01/execution' --host root@connect.westc.seetacloud.com --port 53036 --control-path /private/tmp/moe-longtask-01a09ba8.sock --gpu-uuid GPU-70fa1c0a-77d4-c14a-9daf-7e685874eef9 --remote-dir /root/autodl-tmp/moe-apc-rotation-20260914-r01 --labels cohort2-block0-native_apc cohort2-block0-most_apc cohort2-block1-most_apc cohort2-block1-native_apc --stage-only

@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "experiment_id": "cpr_moe_ranklane_quick_gate_2026-07-25",
+  "hypothesis": "在暴露的 MoE EP 回传路径占端到端时延不超过 20% 时，RankLane 相对 uniform FP8 仍能在零编解码开销的乐观上界下带来至少 5% 的端到端时延改善。",
+  "baseline_policy": "uniform_fp8",
+  "candidate_prefix": "fp8top",
+  "exposed_return_fraction_grid": [0.05, 0.10, 0.15, 0.20],
+  "exposed_return_fraction_max": 0.20,
+  "min_relative_improvement": 0.05,
+  "quality_kl_ci_high_budgets": [0.01, 0.02, 0.04, 0.06],
+  "quality_inputs": [
+    {
+      "model_key": "olmoe",
+      "summary_csv": "docs/ideas/A_rank_tail_fp8/outputs/idea_a_rank_lut_gpu_verify_2026-07-20_olmoe/policy_summary_with_ci.csv",
+      "metadata_json": "docs/ideas/A_rank_tail_fp8/outputs/idea_a_rank_lut_gpu_verify_2026-07-20_olmoe/metadata.json"
+    },
+    {
+      "model_key": "llmjp",
+      "summary_csv": "docs/ideas/A_rank_tail_fp8/outputs/idea_a_rank_lut_gpu_verify_2026-07-20_llmjp/policy_summary_with_ci.csv",
+      "metadata_json": "docs/ideas/A_rank_tail_fp8/outputs/idea_a_rank_lut_gpu_verify_2026-07-20_llmjp/metadata.json"
+    }
+  ],
+  "codec_metadata_json": "docs/ideas/receiver_aware/cpr_ranklane/outputs/homogeneous_lane_codec_gate_2026-07-21/metadata.json"
+}

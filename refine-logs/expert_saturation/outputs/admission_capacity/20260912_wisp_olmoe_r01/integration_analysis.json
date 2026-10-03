@@ -1,0 +1,44 @@
+{
+  "status": "COMPLETE_MODEL_COMPATIBILITY_PASS",
+  "requests_per_phase": 2,
+  "output_tokens_per_request": 8,
+  "all_three_measurement_output_tokens_identical": true,
+  "all_phases_retained": true,
+  "kv_blocks": 256,
+  "kv_allocated_bytes": 536870912,
+  "expert_scratch_bytes": 3221225472,
+  "host_master_bytes": 12884901888,
+  "measurement": {
+    "attempt01-paged": {
+      "wall_s": 0.5812398865818977,
+      "max_itl_s": 0.051787279546260834
+    },
+    "attempt02-vanilla": {
+      "wall_s": 0.0652511864900589,
+      "max_itl_s": 0.00920842681080103
+    },
+    "attempt03-paged-traced": {
+      "wall_s": 0.5974606387317181,
+      "max_itl_s": 0.05308113433420658
+    }
+  },
+  "trace": {
+    "layer_calls": 128,
+    "actual_copy_tensor_bytes": 22020096000,
+    "unique_lower_bound_bytes": 15992881152,
+    "extra_load_bytes": 6027214848,
+    "load_section_cuda_ms": 421.38643312454224,
+    "all_extra_in_prefill_call": true,
+    "prefill_physical_rows": [
+      13
+    ]
+  },
+  "limitations": [
+    "OLMoE artificially restricted expert cache; not required offload regime",
+    "vanilla has more resident GPU weights; timing ratio is not scheduler-method gain",
+    "one traced/off pair, not established overhead distribution",
+    "output match on two short prompts, not general task quality",
+    "CUDA load section includes map updates/launch gaps; not pure transfer bandwidth",
+    "request physical row mapping unavailable in trace; only engine-call join"
+  ]
+}

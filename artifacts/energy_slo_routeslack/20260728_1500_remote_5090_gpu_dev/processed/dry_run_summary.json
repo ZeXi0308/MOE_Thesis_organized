@@ -1,0 +1,183 @@
+{
+  "baselines_exercised": [
+    "immediate_execution",
+    "fixed_row_threshold",
+    "fixed_timeout",
+    "earliest_deadline_first",
+    "least_loaded_replica",
+    "min_predicted_finish",
+    "lplb_like_token_balancing",
+    "two_tier_static_power",
+    "min_finish_plus_two_tier_power",
+    "route_unaware_batch_kv_phase_energy_controller"
+  ],
+  "confidence_intervals": null,
+  "evidence_boundary": "Synthetic audit fixture only. It verifies pipeline and fail-closed invariants, not a model, GPU, energy, latency, SLO, or Oracle result.",
+  "formal_result": false,
+  "gate0": "FAIL",
+  "gate0_open_items": [
+    "native_continuous_decode",
+    "kv_advances_one",
+    "latency_window_aligned",
+    "energy_window_aligned",
+    "thermal_state_logged"
+  ],
+  "identity_stages": 4,
+  "included_development_artifacts": [
+    "raw/gpu_development_summary.json",
+    "raw/llmjp_cached_decode_v2.csv",
+    "raw/llmjp_cached_decode_v2.meta.json",
+    "raw/olmoe_cached_decode_v2.csv",
+    "raw/olmoe_cached_decode_v2.meta.json",
+    "raw/llmjp_latency_curve.csv",
+    "raw/llmjp_latency_curve.meta.json",
+    "raw/olmoe_latency_curve.csv",
+    "raw/olmoe_latency_curve.meta.json",
+    "raw/nvidia_smi_before.xml",
+    "raw/nvidia_smi_after.xml",
+    "raw/pip_freeze.txt",
+    "logs/llmjp_capture.log",
+    "logs/olmoe_capture.log",
+    "logs/llmjp_latency_curve.log",
+    "logs/olmoe_latency_curve.log",
+    "commands_history.txt",
+    "source_snapshot/docs/ideas/bcrd/experiments/capture_native_routes.py",
+    "source_snapshot/docs/ideas/bcrd/experiments/benchmark_expert_service_curve.py",
+    "source_snapshot/docs/ideas/bcrd/experiments/core.py",
+    "source_snapshot/docs/ideas/energy_slo/routeslack/experiments/run_routeslack_dry_run.py",
+    "source_snapshot/docs/ideas/energy_slo/route_row_fp8/experiments/power_accounting.py"
+  ],
+  "noop_host_tax": {
+    "independent_unit": "timed outer trial",
+    "operations": {
+      "decision_framework": {
+        "host_mean_ci95_us_per_call": [
+          0.24622091649999997,
+          0.249335379
+        ],
+        "host_mean_us_per_call": 0.2474497,
+        "host_p50_us_per_call": 0.2468505,
+        "host_p99_us_per_call": 0.26240588,
+        "iterations_per_trial": 2000,
+        "p50_increment_over_empty_loop_us": 0.1975405,
+        "paired_mean_increment_ci95_us": [
+          0.196742033,
+          0.19964865550000002
+        ],
+        "paired_mean_increment_over_empty_loop_us": 0.19790868,
+        "trials": 25
+      },
+      "empty_loop": {
+        "host_mean_ci95_us_per_call": [
+          0.049378160000000004,
+          0.049719984
+        ],
+        "host_mean_us_per_call": 0.04954102,
+        "host_p50_us_per_call": 0.04931,
+        "host_p99_us_per_call": 0.05057556,
+        "iterations_per_trial": 2000,
+        "p50_increment_over_empty_loop_us": 0.0,
+        "paired_mean_increment_ci95_us": [
+          0.0,
+          0.0
+        ],
+        "paired_mean_increment_over_empty_loop_us": 0.0,
+        "trials": 25
+      },
+      "instrumentation": {
+        "host_mean_ci95_us_per_call": [
+          0.0756339495,
+          0.076656387
+        ],
+        "host_mean_us_per_call": 0.07600988,
+        "host_p50_us_per_call": 0.0756455,
+        "host_p99_us_per_call": 0.08142101999999998,
+        "iterations_per_trial": 2000,
+        "p50_increment_over_empty_loop_us": 0.026335500000000005,
+        "paired_mean_increment_ci95_us": [
+          0.026003480000000006,
+          0.027176175499999997
+        ],
+        "paired_mean_increment_over_empty_loop_us": 0.026468859999999997,
+        "trials": 25
+      },
+      "logging": {
+        "host_mean_ci95_us_per_call": [
+          5.85203191,
+          7.330976597499999
+        ],
+        "host_mean_us_per_call": 6.41181204,
+        "host_p50_us_per_call": 5.849093,
+        "host_p99_us_per_call": 13.96224675999999,
+        "iterations_per_trial": 2000,
+        "p50_increment_over_empty_loop_us": 5.799783,
+        "paired_mean_increment_ci95_us": [
+          5.80352181,
+          7.2790904875
+        ],
+        "paired_mean_increment_over_empty_loop_us": 6.3622710200000006,
+        "trials": 25
+      },
+      "route_hook": {
+        "host_mean_ci95_us_per_call": [
+          0.12518643950000002,
+          0.125568976
+        ],
+        "host_mean_us_per_call": 0.12535824,
+        "host_p50_us_per_call": 0.125191,
+        "host_p99_us_per_call": 0.12715138,
+        "iterations_per_trial": 2000,
+        "p50_increment_over_empty_loop_us": 0.075881,
+        "paired_mean_increment_ci95_us": [
+          0.07556487899999999,
+          0.076112432
+        ],
+        "paired_mean_increment_over_empty_loop_us": 0.07581722,
+        "trials": 25
+      }
+    },
+    "scope": "local CPU host-only; no CUDA, NVML, route hook, or GPU energy"
+  },
+  "oracle_exercised": "future_known_oracle",
+  "out_of_range_fallback": {
+    "action_eligible": false,
+    "status": "FALLBACK_DEFAULT",
+    "tier": "default"
+  },
+  "physical_energy_samples": 0,
+  "physical_latency_samples": 0,
+  "schema": "routeslack-dry-run-v1",
+  "status": "DRY_RUN_COMPLETE",
+  "synthetic_contributions_per_stage": 16,
+  "unit_tests": {
+    "all_passed": true,
+    "failed_suites": 0,
+    "suites": [
+      {
+        "exit_code": 0,
+        "passed": true,
+        "suite": "bcrd",
+        "tests": 20
+      },
+      {
+        "exit_code": 0,
+        "passed": true,
+        "suite": "routeslack",
+        "tests": 31
+      },
+      {
+        "exit_code": 0,
+        "passed": true,
+        "suite": "route-row-contracts",
+        "tests": 17
+      },
+      {
+        "exit_code": 0,
+        "passed": true,
+        "suite": "joulequeue",
+        "tests": 28
+      }
+    ],
+    "tests": 96
+  }
+}

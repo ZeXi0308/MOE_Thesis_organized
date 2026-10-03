@@ -1,0 +1,99 @@
+{
+  "audit_skill": "experiment-audit",
+  "date": "2026-09-13",
+  "auditor": "gpt-5.6-sol-ultra",
+  "reviewer_model": "gpt-5.6-sol",
+  "reviewer_family": "openai",
+  "reviewer_reasoning": "ultra",
+  "review_independence": "same-family",
+  "acceptance_status": "provisional",
+  "overall_verdict": "pass",
+  "integrity_status": "pass",
+  "reason_code": "bounded_native_measurement_reconciled_no_p0_p1",
+  "summary": "All 20 frozen cells, request metrics, online actions, archives, costs, and current bounded claims reconcile. This is a provisional integrity PASS, not method GO or semantic-quality validation.",
+  "p0_findings": [],
+  "p1_findings": [],
+  "audited_input_hashes": {
+    "REPORT.md": "sha256:54af24825eb86c61fad46035d7f750b60ba13633d36f4d1a93bb66249bd6c658",
+    "analysis/analysis.json": "sha256:d4f5715e80bd19691843752711fbe9dc01de6a7b893cbe2a67e9d950301715c5",
+    "analysis/rotation_accounting.json": "sha256:50116c2c8029884ba5d48f09cb6f6cde90903d6baedbf487b43dfb7e0cf54bc7",
+    "analysis/execution_checks.json": "sha256:3a9449f680b67f03e780b64df0a3f3a208aa41b02fbd0b0f60e5993eb29ac1bd",
+    "execution03/execution.json": "sha256:5072b7e0af0992ea94de2f83b0257362e19f51e60c00b3e97236d5d2622dc84d",
+    "execution03/frozen/campaign.json": "sha256:c636ca9c080e2ae156b995966cd3bdace6e0b46b98dd57e9beacc9fbc683bad7",
+    "execution03/frozen/metrics.py": "sha256:1ca4874d718402ad149e26abd1b109eadf50afabb7aadc9e562e244aeb594b11"
+  },
+  "recomputation": {
+    "all_twenty_cells_complete": true,
+    "requests_completed": 640,
+    "output_tokens": 655360,
+    "saved_metrics_match_raw": true,
+    "primary_analyzer_status": "MEASUREMENT_ONLY",
+    "recovery_analyzer_status": "MEASUREMENT_ONLY",
+    "published_analysis_semantically_matches_fresh_reanalysis": true,
+    "byte_identical": false,
+    "byte_difference_reason": "unordered Python set serialization in held bookkeeping only"
+  },
+  "checks": {
+    "A_ground_truth_provenance": {
+      "status": "pass",
+      "evaluation_input": "pinned WikiText-103 train Arrow shard with retained hashes and disjoint document identities",
+      "semantic_ground_truth": false,
+      "details": "No model-generated reference is used as ground truth. Semantic quality is unmeasured and the report states that boundary."
+    },
+    "B_metrics_denominators": {
+      "status": "pass",
+      "details": "All request/token alignment, elapsed time, throughput, completion, TTFT, mean TPOT, ITL, work and host-time partitions recompute. Costs are not double counted; A/A is not subtracted or used as a noise bound; requests/tokens are not treated as independent repeats."
+    },
+    "C_evidence_existence": {
+      "status": "pass",
+      "details": "Manifest, run order, 20 read-back archives, raw files, terminal statuses, source/runtime fingerprints and required per-cell artifacts exist and reconcile. The qualification NOT_YET_RUN field is a pre-measurement snapshot, not terminal status."
+    },
+    "D_dead_code_future_leakage": {
+      "status": "pass",
+      "details": "The executed path invokes real native preemption/recompute and advances independent policy state. Decisions use only current scheduler/KV state and declared max length; no future trace or offline masking is presented as rerun."
+    },
+    "E_fair_baseline_scope": {
+      "status": "pass",
+      "details": "Within-block resources and inputs match, safe29 changes admission only, native_aa remains separate, unfavorable signs and output differences are retained, and the report avoids significance, noninferiority, continuous-isolation, semantic-quality and method-GO extrapolation."
+    },
+    "F_evaluation_type": {
+      "status": "pass",
+      "eval_type": "self_supervised_proxy",
+      "performance_measurement_type": "direct_native_measurement",
+      "details": "The semantic axis has no ground truth or human evaluation. Performance is directly measured in native vLLM rather than simulated; quality remains unmeasured."
+    }
+  },
+  "claim_impacts": [
+    {
+      "claim": "20 cells and 640 complete formal requests",
+      "impact": "supported"
+    },
+    {
+      "claim": "rotate improves throughput, mean completion and maximum ITL versus headroom in all four observed blocks",
+      "impact": "supported_descriptive_only"
+    },
+    {
+      "claim": "rotate shortens native maximum ITL while increasing mean completion in all four observed blocks",
+      "impact": "supported_descriptive_only"
+    },
+    {
+      "claim": "rotate preserves native throughput",
+      "impact": "unconfirmed_and_not_claimed"
+    },
+    {
+      "claim": "semantic quality equivalence",
+      "impact": "unmeasured_and_not_claimed"
+    },
+    {
+      "claim": "significance, noninferiority, population generalization, MoE specificity, novelty or method GO",
+      "impact": "unsupported_and_outside_claim_ceiling"
+    }
+  ],
+  "limitations": [
+    "Same-family review is provisional.",
+    "GPU process observations are boundary checks, not continuous exclusivity or clock control.",
+    "Two document cohorts with two engine-order blocks do not yield population-level significance.",
+    "The audit verified the Arrow hash and retained token identities but did not rerun full Arrow-to-token reconstruction.",
+    "Fresh analysis serialization order differs for unordered held bookkeeping, with no metric or claim difference."
+  ]
+}

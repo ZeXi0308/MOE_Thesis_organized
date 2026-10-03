@@ -1,0 +1,28 @@
+{
+  "status": "PREPARED_UNRUN",
+  "created_unix_s": 1789283764.455971,
+  "reason": "User supplied a new idle RTX5090 host; prior SSH endpoint closed. Retain old BLOCKED and all prior results. Qualify both executors on the new software/hardware instance before within-host comparisons.",
+  "qualification": {
+    "remote": "/root/autodl-tmp/full-stage-qualification-20260913-westc-r01",
+    "original_code_archive_sha256": "36885ee234c7ccebfa000b490578d0e54181f6af7b0d418e6fd40c6bcfc3ab4e",
+    "modes": [
+      "fullstage",
+      "oneshot"
+    ],
+    "driver": "run_new_host_qualification.py",
+    "driver_sha256": "8f56e1b4b9503d57e3bb9ea8b11c5374fe712b5301ce8e3d537b6efd2fb2da99",
+    "workload": "original full_stage_qualification frozen4 docs2038/2270/2378/2555,64prompt8out,token160",
+    "checks": "Every measurement call finite/allclose(.01,.01)/bitwise to same-call full64 reference, private final and active physical weights byte-equal; all16 layers. Qualification adds reference memory, not performance."
+  },
+  "performance": {
+    "remote": "/root/autodl-tmp/full-stage-performance-20260913-westc-r01",
+    "original_code_archive_sha256": "94bbd03edf5ee9fa42b8d584caf0a71cc241af714ec70ababf3a86f97e0e3474",
+    "matrix": "unchanged X/F/F/X, both blocks completed entirely on this host"
+  },
+  "boundaries": [
+    "GPU model matches but host/driver/environment must be recorded; no numerical comparison against old-host performance as a treatment effect.",
+    "Reuse existing live installer/model downloader after success and exact revision/version verification; do not start duplicate downloads.",
+    "No previous run overwritten. GPU checks before initialization and repeat boundaries, stop on foreign processes/query failure.",
+    "Stop on failed new-host qualification and preserve failure. No performance until both modes pass."
+  ]
+}

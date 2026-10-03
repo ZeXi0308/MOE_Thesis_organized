@@ -1,0 +1,121 @@
+--- native_preemption_r01/run_probe.py
++++ kv_budget_r01/run_probe.py
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""One full native-preemption or guarded safe-cap episode."""
++"""One native cap32 episode at the frozen 0.90 or 0.95 memory budget."""
+ import argparse
+ import csv
+ import hashlib
+@@ -53,9 +53,7 @@
+     parser = argparse.ArgumentParser(description=__doc__)
+     parser.add_argument('--domain', choices=['short', 'long'], required=True)
+     parser.add_argument('--cap', type=int, choices=[32], required=True)
+-    arm = parser.add_mutually_exclusive_group(required=True)
+-    arm.add_argument('--safe-static', action='store_true')
+-    arm.add_argument('--native-preemption', action='store_true')
++    parser.add_argument('--gpu-memory-utilization', type=float, choices=[0.90, 0.95], required=True)
+     parser.add_argument('--output-dir', type=Path, required=True)
+     args = parser.parse_args()
+     root, out = Path(__file__).resolve().parent, args.output_dir
+@@ -64,9 +62,9 @@
+     config = dict(config, cap=args.cap, domain=args.domain, engine_max_num_seqs=32,
+         metric_role='continuous request metrics primary; SLO 5s/.2s reference only',
+         evidence_ceiling='NATIVE_INPROCESS_CAPACITY_QUALIFICATION', max_seconds=120)
+-    config.update(requested_arm='safe' if args.safe_static else 'native32',
+-                  cap=None if args.safe_static else 32,
+-                  preemption_mode='stop_before_preemption' if args.safe_static else 'native_recompute')
++    config.update(requested_arm='budget95' if args.gpu_memory_utilization == 0.95 else 'budget90',
++                  gpu_memory_utilization=args.gpu_memory_utilization,
++                  preemption_mode='native_recompute')
+     out.mkdir(parents=True, exist_ok=False)
+     dump(out/'config.json', config)
+     (out/'commands.txt').write_text(shlex.join([sys.executable, *sys.argv])+'\n')
+@@ -93,24 +91,28 @@
+         model = config['model']
+         kwargs = dict(model=model['id'], revision=model['revision'], tokenizer_revision=model['tokenizer_revision'],
+             dtype='bfloat16', seed=config['seed'], max_model_len=4096, max_num_seqs=32,
+-            max_num_batched_tokens=1024, gpu_memory_utilization=0.90, enable_chunked_prefill=True,
++            max_num_batched_tokens=1024, gpu_memory_utilization=args.gpu_memory_utilization, enable_chunked_prefill=True,
+             enable_prefix_caching=False, scheduling_policy='fcfs', async_scheduling=False,
+             stream_interval=1, enforce_eager=False, enable_return_routed_experts=False)
+         dump(out/'engine_args.json', kwargs)
+         engine = LLMEngine.from_engine_args(EngineArgs(**kwargs), enable_multiprocessing=False)
+         dump(out/'memory-after-init.json', memory_snapshot(engine, torch))
+         qualification = qualify_safe_cap(engine, config)
+-        if qualification['status'] == 'QUALIFIED' and qualification['safe_cap'] != 29:
+-            qualification.update(status='QUALIFICATION_FAILED', measurement_status='UNRUN',
+-                                 error='live safe cap differs from the frozen safe29 comparison')
++        qualification.update(gpu_memory_utilization=args.gpu_memory_utilization,
++            full_reservation_required=args.gpu_memory_utilization == 0.95,
++            full_reservation_role='sufficient for full upper-bound residency; not necessary for native no-preemption')
++        if qualification['status'] == 'QUALIFIED':
++            required = args.cap * qualification['per_request_reserved_blocks']
++            sufficient = qualification['usable_blocks'] >= required
++            qualification.update(full_cap_reserved_blocks=required, full_reservation_sufficient=sufficient)
++            if args.gpu_memory_utilization == 0.95 and not sufficient:
++                qualification.update(status='QUALIFICATION_FAILED', measurement_status='UNRUN',
++                    error='budget95 usable blocks below the full cap32 reservation requirement')
+         dump(out/'safe-cap-qualification.json', qualification)
+         if qualification['status'] != 'QUALIFIED':
+             dump(out/'status.json', dict(status='UNRUN', qualification_status='QUALIFICATION_FAILED',
+                  error=qualification.get('error'), measurement_executed=False))
+             raise SystemExit(2)
+-        args.cap = qualification['safe_cap'] if args.safe_static else 32
+-        config.update(cap=args.cap)
+-        dump(out/'config.json', config)
+         # Identical warmups in every process; do not run the pressure case as warmup.
+         for index, (domain, count, cap) in enumerate([('short', 32, 16), ('short', 32, 32), ('long', 2, 2)]):
+             wc, ww = inputs[domain]
+@@ -128,7 +130,7 @@
+         torch.cuda.reset_peak_memory_stats()
+         dump(out/'memory-before.json', memory_snapshot(engine, torch))
+         raw = capture_with_memory(engine, capture_episode, workload, config,
+-            allow_preemption=args.native_preemption,
++            allow_preemption=True,
+             regime='steady', arrival_scale=1.0, run_id='measured', max_seconds=120)
+         raw['gpu_before'] = before
+         dump(out/'raw.json', raw)
+--- native_preemption_r01/run_campaign.py
++++ kv_budget_r01/run_campaign.py
+@@ -9,13 +9,13 @@
+ import sys
+ import time
+ 
+-FROZEN_CELLS = [('repeat0-native32', 'long', 32), ('repeat0-safe', 'long', 'safe'),
+-                ('repeat1-safe', 'long', 'safe'), ('repeat1-native32', 'long', 32)]
+-CELL_BY_LABEL = {label: (domain, cap) for label, domain, cap in FROZEN_CELLS}
++FROZEN_CELLS = [('repeat0-budget95', 'long', 0.95), ('repeat0-budget90', 'long', 0.90),
++                ('repeat1-budget90', 'long', 0.90), ('repeat1-budget95', 'long', 0.95)]
++CELL_BY_LABEL = {label: (domain, budget) for label, domain, budget in FROZEN_CELLS}
+ 
+ 
+ def run_cell(label):
+-    domain, cap = CELL_BY_LABEL[label]
++    domain, budget = CELL_BY_LABEL[label]
+     root = Path(__file__).resolve().parent
+     out = root / 'results'
+     out.mkdir(exist_ok=True)
+@@ -23,11 +23,7 @@
+     if (out / label).exists():
+         raise FileExistsError(f'cell results already exist: {out / label}')
+     command = [sys.executable, '-u', 'run_probe.py', '--domain', domain, '--cap', '32',
+-               '--output-dir', str(out / label)]
+-    if cap == 'safe':
+-        command.append('--safe-static')
+-    else:
+-        command.append('--native-preemption')
++               '--gpu-memory-utilization', str(budget), '--output-dir', str(out / label)]
+     env = dict(os.environ, HF_HUB_CACHE='/root/autodl-tmp/hf-cache/hub', HF_HUB_OFFLINE='1',
+         TRANSFORMERS_OFFLINE='1', CUDA_VISIBLE_DEVICES='0', VLLM_ENABLE_V1_MULTIPROCESSING='0',
+         VLLM_USE_FLASHINFER_SAMPLER='0')
+--- native_preemption_r01/safe_static.py
++++ kv_budget_r01/safe_static.py
+@@ -59,7 +59,6 @@
+         result.update(per_request_reserved_blocks=per_request, maximum_request_tokens=4096,
+             engine_max_num_seqs=maximum, safe_cap=safe, reserved_blocks_at_safe_cap=safe * per_request,
+             remaining_blocks_at_full_reservation=usable - safe * per_request)
+-        require(safe > 16, 'derived cap does not exceed baseline16; comparison is UNRUN')
+         result.update(status='QUALIFIED', measurement_status='NOT_YET_RUN')
+     except (AttributeError, ImportError, IndexError, KeyError, TypeError, ValueError) as error:
+         result['error'] = f'{type(error).__name__}: {error}'

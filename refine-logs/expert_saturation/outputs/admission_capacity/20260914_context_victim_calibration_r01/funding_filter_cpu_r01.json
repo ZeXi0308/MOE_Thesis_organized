@@ -1,0 +1,227 @@
+{
+  "schema_version": 1,
+  "status": "CPU_QUALIFIED",
+  "created_at_utc": "2026-09-14T02:55:21.528219+00:00",
+  "evidence_type": "OBSERVED_BEFORE_STATE_SELECTOR_REPLAY_AND_CPU_ALLOCATOR_FIXTURE",
+  "scope": "Present-state qualification only; each filtered choice uses its own observed before state. No alternate future is advanced and no time or performance effect is claimed.",
+  "implementation": {
+    "absence_rotation_sha256": "4f07ad1f3cba1d017ee17f990c0788b617f1b96560c20e69bb0ed14a8678bcbb",
+    "rotation_native_sha256": "27b5dcb5aeaa236cb0e943311e2ef8eda0afbb812de40b08d79fc8bd9edca45b",
+    "parent_frozen_absence_rotation_sha256": "abc721e9ab5bed4634fca85d515a5eabb23f962de7d74e96a45dda8faa0ff9e4",
+    "parent_frozen_rotation_native_sha256": "10149fc99ec060c3c36ac313c99a9988d68593eb67146dba1d6d662e8f049350",
+    "released_blocks_parameter_kind": "KEYWORD_ONLY",
+    "default_none_preserves_original_selector": true,
+    "native_flag_recorded_only_when_enabled": true,
+    "terminal_native_funding_check_retained": true
+  },
+  "checks": {
+    "existing_selector_behavior_tests": {
+      "status": "PASS",
+      "tests_run": 24,
+      "excluded_static_interface_whitelist": {
+        "count": 1,
+        "status": "STALE_BY_AUTHORIZED_INTERFACE_CHANGE",
+        "reason": "The untouched test hard-codes the former parameter set and omits released_blocks."
+      }
+    },
+    "selector_static_fixture": {
+      "status": "PASS",
+      "free_blocks": 10,
+      "target_required_blocks": 215,
+      "default_choice": {
+        "request_id": "short",
+        "released_blocks": 198,
+        "funds": false
+      },
+      "filtered_choice": {
+        "request_id": "long",
+        "released_blocks": 211,
+        "funds": true
+      },
+      "empty_fundable_set_reason": "no eligible victim can fund complete recovery history",
+      "invalid_maps_rejected": 4,
+      "missing_target_need_rejected": true,
+      "pre_funding_cooldown_guard_unchanged": true
+    },
+    "native_allocator_default": {
+      "status": "PASS",
+      "rows": [
+        {
+          "fundable": true,
+          "victim_order": "least_progress",
+          "steps": 7,
+          "status": "PASS"
+        },
+        {
+          "fundable": false,
+          "victim_order": "least_progress",
+          "steps": 3,
+          "status": "PASS"
+        },
+        {
+          "fundable": true,
+          "victim_order": "most_output",
+          "steps": 7,
+          "status": "PASS"
+        },
+        {
+          "fundable": true,
+          "victim_order": "first_most_then_least",
+          "steps": 7,
+          "status": "PASS"
+        }
+      ],
+      "flag_absent_from_default_records": true,
+      "unfunded_terminal_rejection_fixture_retained": true
+    },
+    "native_allocator_filter_enabled": {
+      "status": "PASS",
+      "rows": [
+        {
+          "fundable": true,
+          "victim_order": "least_progress",
+          "steps": 7,
+          "status": "PASS"
+        },
+        {
+          "fundable": true,
+          "victim_order": "most_output",
+          "steps": 7,
+          "status": "PASS"
+        },
+        {
+          "fundable": true,
+          "victim_order": "first_most_then_least",
+          "steps": 7,
+          "status": "PASS"
+        }
+      ],
+      "actual_owned_maps_observed": 12,
+      "all_records_flagged_true": true,
+      "native_preemption_and_first_output_protection_fixture_passed": true
+    },
+    "measured_default_replay": {
+      "status": "PASS",
+      "cells": [
+        {
+          "label": "context-block0-most_output",
+          "proposal_call_count": 1054,
+          "selected_proposal_count": 22,
+          "actual_forced_count": 22,
+          "selected_unfunded_count": 0
+        },
+        {
+          "label": "context-block0-least_progress",
+          "proposal_call_count": 1282,
+          "selected_proposal_count": 38,
+          "actual_forced_count": 20,
+          "selected_unfunded_count": 18
+        },
+        {
+          "label": "context-block1-least_progress",
+          "proposal_call_count": 1281,
+          "selected_proposal_count": 38,
+          "actual_forced_count": 20,
+          "selected_unfunded_count": 18
+        },
+        {
+          "label": "context-block1-most_output",
+          "proposal_call_count": 1054,
+          "selected_proposal_count": 22,
+          "actual_forced_count": 22,
+          "selected_unfunded_count": 0
+        }
+      ],
+      "exact_decision_proposals_matched": true
+    },
+    "measured_rejected_before_states": {
+      "status": "PASS",
+      "observed_events": 36,
+      "blocks": [
+        {
+          "label": "context-block0-least_progress",
+          "observed_rejected_proposals": 18,
+          "all_targets_unchanged": true,
+          "all_filtered_candidates_fund": true,
+          "distinct_filtered_victims": [
+            "memory-train-article-0020323",
+            "memory-train-article-0020484",
+            "memory-train-article-0020734"
+          ],
+          "first": {
+            "step": 891,
+            "target_request_id": "memory-train-article-0020902",
+            "target_required_blocks": 234,
+            "free_blocks": 31,
+            "default_victim_request_id": "memory-train-article-0020958",
+            "default_victim_owned_blocks": 200,
+            "default_victim_computed_positions": 3192,
+            "filtered_victim_request_id": "memory-train-article-0020484",
+            "filtered_victim_owned_blocks": 211,
+            "filtered_victim_computed_positions": 3375,
+            "guarded_candidate_count": 28,
+            "target_unchanged": true,
+            "filtered_candidate_funds_target": true
+          },
+          "last": {
+            "step": 908,
+            "target_request_id": "memory-train-article-0020902",
+            "target_required_blocks": 234,
+            "free_blocks": 1,
+            "default_victim_request_id": "memory-train-article-0020958",
+            "default_victim_owned_blocks": 201,
+            "default_victim_computed_positions": 3209,
+            "filtered_victim_request_id": "memory-train-article-0020734",
+            "filtered_victim_owned_blocks": 240,
+            "filtered_victim_computed_positions": 3838,
+            "guarded_candidate_count": 29,
+            "target_unchanged": true,
+            "filtered_candidate_funds_target": true
+          }
+        },
+        {
+          "label": "context-block1-least_progress",
+          "observed_rejected_proposals": 18,
+          "all_targets_unchanged": true,
+          "all_filtered_candidates_fund": true,
+          "distinct_filtered_victims": [
+            "memory-train-article-0020323",
+            "memory-train-article-0020484",
+            "memory-train-article-0020734"
+          ],
+          "first": {
+            "step": 891,
+            "target_request_id": "memory-train-article-0020902",
+            "target_required_blocks": 234,
+            "free_blocks": 31,
+            "default_victim_request_id": "memory-train-article-0020958",
+            "default_victim_owned_blocks": 200,
+            "default_victim_computed_positions": 3192,
+            "filtered_victim_request_id": "memory-train-article-0020484",
+            "filtered_victim_owned_blocks": 211,
+            "filtered_victim_computed_positions": 3376,
+            "guarded_candidate_count": 28,
+            "target_unchanged": true,
+            "filtered_candidate_funds_target": true
+          },
+          "last": {
+            "step": 908,
+            "target_request_id": "memory-train-article-0020902",
+            "target_required_blocks": 234,
+            "free_blocks": 0,
+            "default_victim_request_id": "memory-train-article-0020958",
+            "default_victim_owned_blocks": 201,
+            "default_victim_computed_positions": 3209,
+            "filtered_victim_request_id": "memory-train-article-0020734",
+            "filtered_victim_owned_blocks": 240,
+            "filtered_victim_computed_positions": 3838,
+            "guarded_candidate_count": 29,
+            "target_unchanged": true,
+            "filtered_candidate_funds_target": true
+          }
+        }
+      ]
+    }
+  },
+  "claim_ceiling": "The funding filter preserves the observed target and guards, then chooses a currently fundable victim in these CPU fixtures and 36 retained before states. Runtime effects remain UNRUN."
+}

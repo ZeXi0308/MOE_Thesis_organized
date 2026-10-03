@@ -1,0 +1,68 @@
+--- staged_store_rotation.py
++++ staged_store_rotation.py
+@@ -13,6 +13,7 @@
+ from absence_rotation import AbsenceRotation, RequestView, RotationConfig
+ from native_store_delta import inspect_store_delta
+ from native_full_store_evidence import inspect_native_full_jobs
++from commit_disposition import choose_commit_action
+ 
+ 
+ def _eligibility_snapshot(scheduler, tracker, view, free_blocks, step,
+@@ -39,7 +40,7 @@
+ 
+ 
+ def install(scheduler, *, vllm_config, save, block_size, expected_requests=32,
+-            diagnostic=False, global_cooldown_steps=20, population_mode="closed", store_scope="selected"):
++            diagnostic=False, global_cooldown_steps=20, population_mode="closed", store_scope="selected", recheck_commit_funding=False):
+     if block_size!=16:raise ValueError('Qualification requires 16-token blocks')
+     if store_scope not in ('selected','native_full'):raise ValueError('Unsupported native store scope')
+     if population_mode not in ('closed','open'):raise ValueError('Unsupported population mode')
+@@ -87,7 +88,8 @@
+     tracker=AbsenceRotation(config=RotationConfig(min_steps_between_swaps=global_cooldown_steps),
+         victim_order='most_output')
+     data=dict(save=save,store_scope=store_scope,native_calc_overridden=store_scope=='selected',
+-        events=[],status='INSTALLED',applied_rotations=0,
++        events=[],status='INSTALLED',applied_rotations=0,direct_resumes=0,
++        recheck_commit_funding=recheck_commit_funding,
+         diagnostic=diagnostic, population_mode=population_mode, gate_observations=[],
+         rotation_config=asdict(tracker.config),
+         eligibility_snapshots=[], selector_decisions=[],
+@@ -149,13 +151,24 @@
+                 cancelled=True;plan=None
+             else:
+                 rs=cs._req_status.get(victim.request_id)
+-                pending_flush=set(rs.transfer_jobs) if rs else set()
+-                if any(not cs._jobs[j].is_store for j in pending_flush):
++                victim_jobs=set(rs.transfer_jobs) if rs else set()
++                if any(not cs._jobs[j].is_store for j in victim_jobs):
+                     raise RuntimeError('Victim still has an in-flight load')
+-                scheduler.running.remove(victim);scheduler._preempt_request(victim,timestamp)
+-                preempted.append(victim);scheduler._rotation_forced_count=1
++                direct=(recheck_commit_funding and choose_commit_action(
++                    reason,pool.get_num_free_blocks(),view(target).remaining_blocks)=='RESUME_WITHOUT_VICTIM')
++                if direct:
++                    phase='direct_resume'
++                    data['direct_resumes']+=1
++                    data['events'].append(dict(event='direct_resume',step=step,
++                        victim_retained=victim.request_id,target=target.request_id,
++                        free_blocks=pool.get_num_free_blocks(),
++                        target_remaining_blocks=view(target).remaining_blocks))
++                else:
++                    pending_flush=victim_jobs
++                    scheduler.running.remove(victim);scheduler._preempt_request(victim,timestamp)
++                    preempted.append(victim);scheduler._rotation_forced_count=1
++                    data['applied_rotations']+=1
+                 protected=target;output_start=target.num_output_tokens
+-                data['applied_rotations']+=1
+         elif cohort is not None and protected is None and not scheduler.skipped_waiting and all(r.pure_decode for r in rows):
+             waiting=[r for r in scheduler.waiting if r.status.name=='PREEMPTED']
+             old_swap=tracker.last_swap_step
+@@ -241,7 +254,7 @@
+                         for jid in sorted(set(meta.store_jobs)|set(meta.load_jobs)|set(meta.jobs_to_flush))
+                         if jid in cs._jobs]
+                 data['events'].append(event)
+-            if phase=='commit':plan=None
++            if phase in ('commit','direct_resume'):plan=None
+             step+=1;data['status']='EXECUTING'
+             return result
+         except Exception as exc:

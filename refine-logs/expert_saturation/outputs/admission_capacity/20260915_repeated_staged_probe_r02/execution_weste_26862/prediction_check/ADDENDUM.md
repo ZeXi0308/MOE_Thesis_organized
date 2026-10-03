@@ -1,0 +1,11 @@
+# 首偏差归因纠正与最小模型修复
+
+原REPORT只确认冻结模型1104步偏离。此前把它归于固定加载延迟尚不准确：job189在实际1103调用末完成、1104可用，恰好与模型1102加载/1104 ready一致。
+
+实际native adapter在scheduler.skipped_waiting非空时不准备新轮转。冻结模型只禁止选择pending target，未禁止在另一个异步请求仍待恢复时准备动作，因此在1103准备1856→0799并1104提交；真实adapter到1105才准备。ready_localization_with_actions.json保留两条事件链。
+
+仅补“repeated staging且pending_loads非空时不准备”的同语义保护，固定delay2不变，不注入实际未来通知。修正后off 987步、on 983步的有序schedule/free/output全部吻合，调用1316/1312和存取字节均匹配。delay1/4/8仍早期失配，未通过改变延迟选择掩盖旧预测错误。
+
+这是看过本次结果后的实现一致性修复，不是旧冻结预测成功，也不是跨负载延迟模型资格。原冻结模型/结果和第一次失败核对均保留。当前recovery_progress_model.py仅补该guard；旧least/most/defer三条完整预测字典回归相同。运行中GPU源码不改、无额外GPU组。
+
+下一用已交接的新四格作独立状态核对和性能重复；毫秒成本预测仍未建立。最小guard修复不改变当前5%单次性能信号的证据层级。

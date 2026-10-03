@@ -1,0 +1,2896 @@
+{
+  "status": "SOURCE_LOCALIZATION_ONLY",
+  "question": "Why did the first-output guard not prevent the filtered arm two short/zero-output losses?",
+  "existing_lifecycle": {
+    "path": "/private/tmp/moe-window-main-20260914/refine-logs/expert_saturation/outputs/admission_capacity/20260914_service_window_context_r01/funding_r01/analysis.json",
+    "sha256": "5d076a86e55d7e262db83889f190117fb018c53995d7c7b18a8b7d375bb548c8"
+  },
+  "source": {
+    "/private/tmp/moe-a-recovery-components-20260914/refine-logs/expert_saturation/outputs/admission_capacity/20260914_funding_filter_comparison_r01/execution/readback/pkg/rotation_native.py": {
+      "sha256": "27b5dcb5aeaa236cb0e943311e2ef8eda0afbb812de40b08d79fc8bd9edca45b",
+      "relevant_lines": "97\u2013126 forced begin/hold;157\u2013159 first-output release;162\u2013192 only explicit funded rotation starts protection;208\u2013211 reservation checks"
+    },
+    "/private/tmp/moe-a-recovery-components-20260914/refine-logs/expert_saturation/outputs/admission_capacity/20260914_funding_filter_comparison_r01/execution/readback/pkg/absence_rotation.py": {
+      "sha256": "4f07ad1f3cba1d017ee17f990c0788b617f1b96560c20e69bb0ed14a8678bcbb",
+      "relevant_lines": "184\u2013189 adapter victim-only residency eligibility;193\u2013204 current funding filter"
+    },
+    "/private/tmp/moe-window-main-20260914/refine-logs/expert_saturation/outputs/admission_capacity/20260914_apc_rotation_r01/preparation/reference_scheduler.py": {
+      "sha256": "2ed2a550b6558b2495eda845a97ae38bcf0225027b9e25fbf00fc3880c1d3941",
+      "relevant_lines": "564\u2013611 native allocation failure;601 FCFS running.pop();603 preemption;935\u2013945 full-history fit at waiting admission"
+    }
+  },
+  "interpretation": {
+    "short": "Step891 filtered forcibly evicts0020484 to recover0020902. Step894 produces first new output;895 releases protection and returns its second output. Step896 peer0019436 cannot allocate one new block at free0, and unchanged native FCFS pops target0020902 from running tail. This is natural preemption after successful first-output protection, not an adapter reservation violation.",
+    "zero": "Step1015 adapter evicts0020902 to recover0020734. Step1026 native independently resumes0020902 with free242, while adapter reports recovery_target=null. Steps1027\u20131029 skip new rotation because native recovery is underway. At1029 the target asks781 positions:ceil((2991+781)/16)-187=49 blocks, but two previously scheduled peers reduce free50 to48. Native FCFS pops the target itself; no adapter protection was installed for this naturally resumed request.",
+    "reuse_and_loss": "Prefixes997\u21921994\u21922991 were reused across successful calls, then physically reset2991\u21920/187\u21920 at1029 with700 output history unchanged. Short segment3732 recompute positions supported2 new outputs before reset3734\u21920/234\u21920 at896;663 output history survives. Existing lifecycle records actual subsequent reexecution3732/2991; these overlapping counts are not time savings.",
+    "scope": "A valid current-history funding choice changes execution and reaches a naturally unprotected continuation. This localization neither proves native workload infeasibility nor establishes benefit from extending protection. No alternate-policy simulation, milliseconds counterfactual, quality or method-GO claim."
+  },
+  "cells": [
+    {
+      "label": "funding-block0-least_feasible",
+      "raw_path": "/private/tmp/moe-a-recovery-components-20260914/refine-logs/expert_saturation/outputs/admission_capacity/20260914_funding_filter_comparison_r01/execution/readback/results/funding-block0-least_feasible/raw.json",
+      "raw_sha256": "f223b0b70e57f7e242ff560377c68f35f1ffe6f7384225b3eba1ff99211a4c2e",
+      "decisions_path": "/private/tmp/moe-a-recovery-components-20260914/refine-logs/expert_saturation/outputs/admission_capacity/20260914_funding_filter_comparison_r01/execution/readback/results/funding-block0-least_feasible/headroom-decisions.json",
+      "decisions_sha256": "4fafb2af1a906d9a96405fca1621d98e6411801e0cfb71f5915c3d6f313ddb9a",
+      "target_source_id": "memory-train-article-0020902",
+      "target_internal_id": "measured/memory-train-article-0020902-bee3df16",
+      "first_dispatch_difference": {
+        "step": 891,
+        "comparison_fields": [
+          "actual_scheduled",
+          "preempted",
+          "held",
+          "resumed"
+        ],
+        "normalization": "Internal request aliases to stable source identity; timing excluded.",
+        "least_progress": {
+          "step": 891,
+          "free_before": 31,
+          "free_after": 30,
+          "proposal": {
+            "step": 891,
+            "action": "rotate",
+            "reason": "longest absence swapped in",
+            "resume_id": "memory-train-article-0020902",
+            "victim_id": "memory-train-article-0020958",
+            "absence_steps": 60,
+            "free_blocks": 31
+          },
+          "recovery_completed": null,
+          "recovery_target": null,
+          "recovery_output_at_start": null,
+          "held": [],
+          "forced_preempted": [],
+          "natural_preempted": [],
+          "resumed": [],
+          "candidate_released_blocks": 200,
+          "candidate_required_blocks": 234,
+          "not_applied_reason": "victim cannot fund complete recovery history",
+          "recovery_remaining_blocks_before": 0,
+          "recovery_remaining_blocks_after": 0,
+          "status": "APPLIED"
+        },
+        "least_feasible": {
+          "step": 891,
+          "free_before": 31,
+          "free_after": 178,
+          "proposal": {
+            "step": 891,
+            "action": "rotate",
+            "reason": "longest absence swapped in",
+            "resume_id": "memory-train-article-0020902",
+            "victim_id": "memory-train-article-0020484",
+            "absence_steps": 60,
+            "free_blocks": 31
+          },
+          "recovery_completed": null,
+          "recovery_target": "memory-train-article-0020902",
+          "recovery_output_at_start": 661,
+          "held": [],
+          "forced_preempted": [
+            "memory-train-article-0020484"
+          ],
+          "natural_preempted": [],
+          "resumed": [
+            "memory-train-article-0020902"
+          ],
+          "candidate_released_blocks": 211,
+          "candidate_required_blocks": 234,
+          "not_applied_reason": null,
+          "recovery_remaining_blocks_before": 234,
+          "recovery_remaining_blocks_after": 171,
+          "status": "APPLIED"
+        }
+      },
+      "steps": [
+        {
+          "step": 831,
+          "decision": {
+            "step": 831,
+            "free_before": 136,
+            "free_after": 305,
+            "proposal": {
+              "step": 831,
+              "action": "rotate",
+              "reason": "longest absence swapped in",
+              "resume_id": "memory-train-article-0021022",
+              "victim_id": "memory-train-article-0020902",
+              "absence_steps": 52,
+              "free_blocks": 136
+            },
+            "recovery_completed": null,
+            "recovery_target": "memory-train-article-0021022",
+            "recovery_output_at_start": 538,
+            "held": [],
+            "forced_preempted": [
+              "memory-train-article-0020902"
+            ],
+            "natural_preempted": [],
+            "resumed": [
+              "memory-train-article-0021022"
+            ],
+            "candidate_released_blocks": 234,
+            "candidate_required_blocks": 226,
+            "not_applied_reason": null,
+            "recovery_remaining_blocks_before": 226,
+            "recovery_remaining_blocks_after": 163,
+            "status": "APPLIED"
+          },
+          "target_before": {
+            "computed_tokens": 3732,
+            "prompt_tokens": 3072,
+            "output_tokens": 661,
+            "num_preemptions": 2,
+            "block_counts": [
+              234
+            ]
+          },
+          "target_after_schedule": {
+            "computed_tokens": 0,
+            "prompt_tokens": 3072,
+            "output_tokens": 661,
+            "num_preemptions": 3,
+            "block_counts": [
+              0
+            ]
+          },
+          "target_scheduled": [],
+          "scheduled_request_count": 29,
+          "total_scheduled_tokens": 1024,
+          "last_running_before": "memory-train-article-0020794",
+          "allocation_failures": []
+        },
+        {
+          "step": 891,
+          "decision": {
+            "step": 891,
+            "free_before": 31,
+            "free_after": 178,
+            "proposal": {
+              "step": 891,
+              "action": "rotate",
+              "reason": "longest absence swapped in",
+              "resume_id": "memory-train-article-0020902",
+              "victim_id": "memory-train-article-0020484",
+              "absence_steps": 60,
+              "free_blocks": 31
+            },
+            "recovery_completed": null,
+            "recovery_target": "memory-train-article-0020902",
+            "recovery_output_at_start": 661,
+            "held": [],
+            "forced_preempted": [
+              "memory-train-article-0020484"
+            ],
+            "natural_preempted": [],
+            "resumed": [
+              "memory-train-article-0020902"
+            ],
+            "candidate_released_blocks": 211,
+            "candidate_required_blocks": 234,
+            "not_applied_reason": null,
+            "recovery_remaining_blocks_before": 234,
+            "recovery_remaining_blocks_after": 171,
+            "status": "APPLIED"
+          },
+          "target_before": {
+            "computed_tokens": 0,
+            "prompt_tokens": 3072,
+            "output_tokens": 661,
+            "num_preemptions": 3,
+            "block_counts": [
+              0
+            ]
+          },
+          "target_after_schedule": {
+            "computed_tokens": 996,
+            "prompt_tokens": 3072,
+            "output_tokens": 661,
+            "num_preemptions": 3,
+            "block_counts": [
+              63
+            ]
+          },
+          "target_scheduled": [
+            {
+              "request_id": "memory-train-article-0020902",
+              "internal_request_id": "measured/memory-train-article-0020902-bee3df16",
+              "computed_before": 0,
+              "computed_after": 996,
+              "scheduled_start_computed": 0,
+              "computed_adjustment": 0,
+              "prompt_tokens": 3072,
+              "output_tokens_before": 661,
+              "executed_high_water_before": 3732,
+              "scheduled_tokens": 996,
+              "prefill_tokens": 0,
+              "decode_tokens": 0,
+              "recompute_tokens": 996
+            }
+          ],
+          "scheduled_request_count": 29,
+          "total_scheduled_tokens": 1024,
+          "last_running_before": "memory-train-article-0020734",
+          "allocation_failures": []
+        },
+        {
+          "step": 892,
+          "decision": {
+            "step": 892,
+            "free_before": 178,
+            "free_after": 115,
+            "proposal": null,
+            "recovery_completed": null,
+            "recovery_target": "memory-train-article-0020902",
+            "recovery_output_at_start": 661,
+            "held": [],
+            "forced_preempted": [],
+            "natural_preempted": [],
+            "resumed": [],
+            "candidate_released_blocks": null,
+            "candidate_required_blocks": null,
+            "not_applied_reason": null,
+            "recovery_remaining_blocks_before": 171,
+            "recovery_remaining_blocks_after": 109,
+            "status": "APPLIED"
+          },
+          "target_before": {
+            "computed_tokens": 996,
+            "prompt_tokens": 3072,
+            "output_tokens": 661,
+            "num_preemptions": 3,
+            "block_counts": [
+              63
+            ]
+          },
+          "target_after_schedule": {
+            "computed_tokens": 1992,
+            "prompt_tokens": 3072,
+            "output_tokens": 661,
+            "num_preemptions": 3,
+            "block_counts": [
+              125
+            ]
+          },
+          "target_scheduled": [
+            {
+              "request_id": "memory-train-article-0020902",
+              "internal_request_id": "measured/memory-train-article-0020902-bee3df16",
+              "computed_before": 996,
+              "computed_after": 1992,
+              "scheduled_start_computed": 996,
+              "computed_adjustment": 0,
+              "prompt_tokens": 3072,
+              "output_tokens_before": 661,
+              "executed_high_water_before": 3732,
+              "scheduled_tokens": 996,
+              "prefill_tokens": 0,
+              "decode_tokens": 0,
+              "recompute_tokens": 996
+            }
+          ],
+          "scheduled_request_count": 29,
+          "total_scheduled_tokens": 1024,
+          "last_running_before": "memory-train-article-0020902",
+          "allocation_failures": []
+        },
+        {
+          "step": 893,
+          "decision": {
+            "step": 893,
+            "free_before": 115,
+            "free_after": 51,
+            "proposal": null,
+            "recovery_completed": null,
+            "recovery_target": "memory-train-article-0020902",
+            "recovery_output_at_start": 661,
+            "held": [],
+            "forced_preempted": [],
+            "natural_preempted": [],
+            "resumed": [],
+            "candidate_released_blocks": null,
+            "candidate_required_blocks": null,
+            "not_applied_reason": null,
+            "recovery_remaining_blocks_before": 109,
+            "recovery_remaining_blocks_after": 47,
+            "status": "APPLIED"
+          },
+          "target_before": {
+            "computed_tokens": 1992,
+            "prompt_tokens": 3072,
+            "output_tokens": 661,
+            "num_preemptions": 3,
+            "block_counts": [
+              125
+            ]
+          },
+          "target_after_schedule": {
+            "computed_tokens": 2988,
+            "prompt_tokens": 3072,
+            "output_tokens": 661,
+            "num_preemptions": 3,
+            "block_counts": [
+              187
+            ]
+          },
+          "target_scheduled": [
+            {
+              "request_id": "memory-train-article-0020902",
+              "internal_request_id": "measured/memory-train-article-0020902-bee3df16",
+              "computed_before": 1992,
+              "computed_after": 2988,
+              "scheduled_start_computed": 1992,
+              "computed_adjustment": 0,
+              "prompt_tokens": 3072,
+              "output_tokens_before": 661,
+              "executed_high_water_before": 3732,
+              "scheduled_tokens": 996,
+              "prefill_tokens": 0,
+              "decode_tokens": 0,
+              "recompute_tokens": 996
+            }
+          ],
+          "scheduled_request_count": 29,
+          "total_scheduled_tokens": 1024,
+          "last_running_before": "memory-train-article-0020902",
+          "allocation_failures": []
+        },
+        {
+          "step": 894,
+          "decision": {
+            "step": 894,
+            "free_before": 51,
+            "free_after": 2,
+            "proposal": null,
+            "recovery_completed": null,
+            "recovery_target": "memory-train-article-0020902",
+            "recovery_output_at_start": 661,
+            "held": [],
+            "forced_preempted": [],
+            "natural_preempted": [],
+            "resumed": [],
+            "candidate_released_blocks": null,
+            "candidate_required_blocks": null,
+            "not_applied_reason": null,
+            "recovery_remaining_blocks_before": 47,
+            "recovery_remaining_blocks_after": 0,
+            "status": "APPLIED"
+          },
+          "target_before": {
+            "computed_tokens": 2988,
+            "prompt_tokens": 3072,
+            "output_tokens": 661,
+            "num_preemptions": 3,
+            "block_counts": [
+              187
+            ]
+          },
+          "target_after_schedule": {
+            "computed_tokens": 3733,
+            "prompt_tokens": 3072,
+            "output_tokens": 661,
+            "num_preemptions": 3,
+            "block_counts": [
+              234
+            ]
+          },
+          "target_scheduled": [
+            {
+              "request_id": "memory-train-article-0020902",
+              "internal_request_id": "measured/memory-train-article-0020902-bee3df16",
+              "computed_before": 2988,
+              "computed_after": 3733,
+              "scheduled_start_computed": 2988,
+              "computed_adjustment": 0,
+              "prompt_tokens": 3072,
+              "output_tokens_before": 661,
+              "executed_high_water_before": 3732,
+              "scheduled_tokens": 745,
+              "prefill_tokens": 0,
+              "decode_tokens": 1,
+              "recompute_tokens": 744
+            }
+          ],
+          "scheduled_request_count": 29,
+          "total_scheduled_tokens": 773,
+          "last_running_before": "memory-train-article-0020902",
+          "allocation_failures": []
+        },
+        {
+          "step": 895,
+          "decision": {
+            "step": 895,
+            "free_before": 2,
+            "free_after": 0,
+            "proposal": {
+              "step": 895,
+              "action": "noop",
+              "reason": "swap cooldown",
+              "resume_id": null,
+              "victim_id": null,
+              "absence_steps": 0,
+              "free_blocks": 2
+            },
+            "recovery_completed": "memory-train-article-0020902",
+            "recovery_target": null,
+            "recovery_output_at_start": null,
+            "held": [],
+            "forced_preempted": [],
+            "natural_preempted": [],
+            "resumed": [],
+            "candidate_released_blocks": null,
+            "candidate_required_blocks": null,
+            "not_applied_reason": null,
+            "recovery_remaining_blocks_before": 0,
+            "recovery_remaining_blocks_after": 0,
+            "status": "APPLIED"
+          },
+          "target_before": {
+            "computed_tokens": 3733,
+            "prompt_tokens": 3072,
+            "output_tokens": 662,
+            "num_preemptions": 3,
+            "block_counts": [
+              234
+            ]
+          },
+          "target_after_schedule": {
+            "computed_tokens": 3734,
+            "prompt_tokens": 3072,
+            "output_tokens": 662,
+            "num_preemptions": 3,
+            "block_counts": [
+              234
+            ]
+          },
+          "target_scheduled": [
+            {
+              "request_id": "memory-train-article-0020902",
+              "internal_request_id": "measured/memory-train-article-0020902-bee3df16",
+              "computed_before": 3733,
+              "computed_after": 3734,
+              "scheduled_start_computed": 3733,
+              "computed_adjustment": 0,
+              "prompt_tokens": 3072,
+              "output_tokens_before": 662,
+              "executed_high_water_before": 3733,
+              "scheduled_tokens": 1,
+              "prefill_tokens": 0,
+              "decode_tokens": 1,
+              "recompute_tokens": 0
+            }
+          ],
+          "scheduled_request_count": 29,
+          "total_scheduled_tokens": 29,
+          "last_running_before": "memory-train-article-0020902",
+          "allocation_failures": [
+            {
+              "internal_request_id": "memory-train-article-0020484",
+              "requested_tokens": 995,
+              "before": {
+                "total_blocks": 6657,
+                "usable_blocks": 6656,
+                "free_blocks": 0,
+                "used_blocks": 6656
+              },
+              "after": {
+                "total_blocks": 6657,
+                "usable_blocks": 6656,
+                "free_blocks": 0,
+                "used_blocks": 6656
+              },
+              "computed_tokens": 0
+            }
+          ],
+          "actual_decode_peer_block_growth": [
+            {
+              "request_id": "memory-train-article-0017453",
+              "computed_before": 3440,
+              "growth_blocks": 1
+            },
+            {
+              "request_id": "memory-train-article-0018301",
+              "computed_before": 3424,
+              "growth_blocks": 1
+            }
+          ]
+        },
+        {
+          "step": 896,
+          "decision": {
+            "step": 896,
+            "free_before": 0,
+            "free_after": 233,
+            "proposal": {
+              "step": 896,
+              "action": "noop",
+              "reason": "swap cooldown",
+              "resume_id": null,
+              "victim_id": null,
+              "absence_steps": 0,
+              "free_blocks": 0
+            },
+            "recovery_completed": null,
+            "recovery_target": null,
+            "recovery_output_at_start": null,
+            "held": [],
+            "forced_preempted": [],
+            "natural_preempted": [
+              "memory-train-article-0020902"
+            ],
+            "resumed": [],
+            "candidate_released_blocks": null,
+            "candidate_required_blocks": null,
+            "not_applied_reason": null,
+            "recovery_remaining_blocks_before": 0,
+            "recovery_remaining_blocks_after": 0,
+            "status": "APPLIED"
+          },
+          "target_before": {
+            "computed_tokens": 3734,
+            "prompt_tokens": 3072,
+            "output_tokens": 663,
+            "num_preemptions": 3,
+            "block_counts": [
+              234
+            ]
+          },
+          "target_after_schedule": {
+            "computed_tokens": 0,
+            "prompt_tokens": 3072,
+            "output_tokens": 663,
+            "num_preemptions": 4,
+            "block_counts": [
+              0
+            ]
+          },
+          "target_scheduled": [],
+          "scheduled_request_count": 28,
+          "total_scheduled_tokens": 28,
+          "last_running_before": "memory-train-article-0020902",
+          "allocation_failures": [
+            {
+              "internal_request_id": "memory-train-article-0019436",
+              "requested_tokens": 1,
+              "before": {
+                "total_blocks": 6657,
+                "usable_blocks": 6656,
+                "free_blocks": 0,
+                "used_blocks": 6656
+              },
+              "after": {
+                "total_blocks": 6657,
+                "usable_blocks": 6656,
+                "free_blocks": 0,
+                "used_blocks": 6656
+              },
+              "computed_tokens": 3408
+            }
+          ],
+          "actual_decode_peer_block_growth": [
+            {
+              "request_id": "memory-train-article-0019436",
+              "computed_before": 3408,
+              "growth_blocks": 1
+            }
+          ]
+        },
+        {
+          "step": 1015,
+          "decision": {
+            "step": 1015,
+            "free_before": 42,
+            "free_after": 213,
+            "proposal": {
+              "step": 1015,
+              "action": "rotate",
+              "reason": "longest absence swapped in",
+              "resume_id": "memory-train-article-0020734",
+              "victim_id": "memory-train-article-0020902",
+              "absence_steps": 80,
+              "free_blocks": 42
+            },
+            "recovery_completed": null,
+            "recovery_target": "memory-train-article-0020734",
+            "recovery_output_at_start": 794,
+            "held": [],
+            "forced_preempted": [
+              "memory-train-article-0020902"
+            ],
+            "natural_preempted": [],
+            "resumed": [
+              "memory-train-article-0020734"
+            ],
+            "candidate_released_blocks": 236,
+            "candidate_required_blocks": 242,
+            "not_applied_reason": null,
+            "recovery_remaining_blocks_before": 242,
+            "recovery_remaining_blocks_after": 179,
+            "status": "APPLIED"
+          },
+          "target_before": {
+            "computed_tokens": 3771,
+            "prompt_tokens": 3072,
+            "output_tokens": 700,
+            "num_preemptions": 4,
+            "block_counts": [
+              236
+            ]
+          },
+          "target_after_schedule": {
+            "computed_tokens": 0,
+            "prompt_tokens": 3072,
+            "output_tokens": 700,
+            "num_preemptions": 5,
+            "block_counts": [
+              0
+            ]
+          },
+          "target_scheduled": [],
+          "scheduled_request_count": 28,
+          "total_scheduled_tokens": 1024,
+          "last_running_before": "memory-train-article-0020958",
+          "allocation_failures": []
+        },
+        {
+          "step": 1026,
+          "decision": {
+            "step": 1026,
+            "free_before": 242,
+            "free_after": 177,
+            "proposal": {
+              "step": 1026,
+              "action": "noop",
+              "reason": "swap cooldown",
+              "resume_id": null,
+              "victim_id": null,
+              "absence_steps": 0,
+              "free_blocks": 242
+            },
+            "recovery_completed": null,
+            "recovery_target": null,
+            "recovery_output_at_start": null,
+            "held": [],
+            "forced_preempted": [],
+            "natural_preempted": [],
+            "resumed": [
+              "memory-train-article-0020902"
+            ],
+            "candidate_released_blocks": null,
+            "candidate_required_blocks": null,
+            "not_applied_reason": null,
+            "recovery_remaining_blocks_before": 0,
+            "recovery_remaining_blocks_after": 0,
+            "status": "APPLIED"
+          },
+          "target_before": {
+            "computed_tokens": 0,
+            "prompt_tokens": 3072,
+            "output_tokens": 700,
+            "num_preemptions": 5,
+            "block_counts": [
+              0
+            ]
+          },
+          "target_after_schedule": {
+            "computed_tokens": 997,
+            "prompt_tokens": 3072,
+            "output_tokens": 700,
+            "num_preemptions": 5,
+            "block_counts": [
+              63
+            ]
+          },
+          "target_scheduled": [
+            {
+              "request_id": "memory-train-article-0020902",
+              "internal_request_id": "measured/memory-train-article-0020902-bee3df16",
+              "computed_before": 0,
+              "computed_after": 997,
+              "scheduled_start_computed": 0,
+              "computed_adjustment": 0,
+              "prompt_tokens": 3072,
+              "output_tokens_before": 700,
+              "executed_high_water_before": 3771,
+              "scheduled_tokens": 997,
+              "prefill_tokens": 0,
+              "decode_tokens": 0,
+              "recompute_tokens": 997
+            }
+          ],
+          "scheduled_request_count": 28,
+          "total_scheduled_tokens": 1024,
+          "last_running_before": "memory-train-article-0020734",
+          "allocation_failures": [],
+          "actual_decode_peer_block_growth": [
+            {
+              "request_id": "memory-train-article-0017643",
+              "computed_before": 4080,
+              "growth_blocks": 1
+            },
+            {
+              "request_id": "memory-train-article-0018442",
+              "computed_before": 4064,
+              "growth_blocks": 1
+            }
+          ]
+        },
+        {
+          "step": 1027,
+          "decision": {
+            "step": 1027,
+            "free_before": 177,
+            "free_after": 114,
+            "proposal": null,
+            "recovery_completed": null,
+            "recovery_target": null,
+            "recovery_output_at_start": null,
+            "held": [],
+            "forced_preempted": [],
+            "natural_preempted": [],
+            "resumed": [],
+            "candidate_released_blocks": null,
+            "candidate_required_blocks": null,
+            "not_applied_reason": "native recovery already underway",
+            "recovery_remaining_blocks_before": 0,
+            "recovery_remaining_blocks_after": 0,
+            "status": "APPLIED"
+          },
+          "target_before": {
+            "computed_tokens": 997,
+            "prompt_tokens": 3072,
+            "output_tokens": 700,
+            "num_preemptions": 5,
+            "block_counts": [
+              63
+            ]
+          },
+          "target_after_schedule": {
+            "computed_tokens": 1994,
+            "prompt_tokens": 3072,
+            "output_tokens": 700,
+            "num_preemptions": 5,
+            "block_counts": [
+              125
+            ]
+          },
+          "target_scheduled": [
+            {
+              "request_id": "memory-train-article-0020902",
+              "internal_request_id": "measured/memory-train-article-0020902-bee3df16",
+              "computed_before": 997,
+              "computed_after": 1994,
+              "scheduled_start_computed": 997,
+              "computed_adjustment": 0,
+              "prompt_tokens": 3072,
+              "output_tokens_before": 700,
+              "executed_high_water_before": 3771,
+              "scheduled_tokens": 997,
+              "prefill_tokens": 0,
+              "decode_tokens": 0,
+              "recompute_tokens": 997
+            }
+          ],
+          "scheduled_request_count": 28,
+          "total_scheduled_tokens": 1024,
+          "last_running_before": "memory-train-article-0020902",
+          "allocation_failures": [],
+          "actual_decode_peer_block_growth": [
+            {
+              "request_id": "memory-train-article-0019630",
+              "computed_before": 4048,
+              "growth_blocks": 1
+            }
+          ]
+        },
+        {
+          "step": 1028,
+          "decision": {
+            "step": 1028,
+            "free_before": 114,
+            "free_after": 50,
+            "proposal": null,
+            "recovery_completed": null,
+            "recovery_target": null,
+            "recovery_output_at_start": null,
+            "held": [],
+            "forced_preempted": [],
+            "natural_preempted": [],
+            "resumed": [],
+            "candidate_released_blocks": null,
+            "candidate_required_blocks": null,
+            "not_applied_reason": "native recovery already underway",
+            "recovery_remaining_blocks_before": 0,
+            "recovery_remaining_blocks_after": 0,
+            "status": "APPLIED"
+          },
+          "target_before": {
+            "computed_tokens": 1994,
+            "prompt_tokens": 3072,
+            "output_tokens": 700,
+            "num_preemptions": 5,
+            "block_counts": [
+              125
+            ]
+          },
+          "target_after_schedule": {
+            "computed_tokens": 2991,
+            "prompt_tokens": 3072,
+            "output_tokens": 700,
+            "num_preemptions": 5,
+            "block_counts": [
+              187
+            ]
+          },
+          "target_scheduled": [
+            {
+              "request_id": "memory-train-article-0020902",
+              "internal_request_id": "measured/memory-train-article-0020902-bee3df16",
+              "computed_before": 1994,
+              "computed_after": 2991,
+              "scheduled_start_computed": 1994,
+              "computed_adjustment": 0,
+              "prompt_tokens": 3072,
+              "output_tokens_before": 700,
+              "executed_high_water_before": 3771,
+              "scheduled_tokens": 997,
+              "prefill_tokens": 0,
+              "decode_tokens": 0,
+              "recompute_tokens": 997
+            }
+          ],
+          "scheduled_request_count": 28,
+          "total_scheduled_tokens": 1024,
+          "last_running_before": "memory-train-article-0020902",
+          "allocation_failures": [],
+          "actual_decode_peer_block_growth": [
+            {
+              "request_id": "memory-train-article-0017858",
+              "computed_before": 3568,
+              "growth_blocks": 1
+            },
+            {
+              "request_id": "memory-train-article-0020184",
+              "computed_before": 4032,
+              "growth_blocks": 1
+            }
+          ]
+        },
+        {
+          "step": 1029,
+          "decision": {
+            "step": 1029,
+            "free_before": 50,
+            "free_after": 235,
+            "proposal": null,
+            "recovery_completed": null,
+            "recovery_target": null,
+            "recovery_output_at_start": null,
+            "held": [],
+            "forced_preempted": [],
+            "natural_preempted": [
+              "memory-train-article-0020902"
+            ],
+            "resumed": [],
+            "candidate_released_blocks": null,
+            "candidate_required_blocks": null,
+            "not_applied_reason": "native recovery already underway",
+            "recovery_remaining_blocks_before": 0,
+            "recovery_remaining_blocks_after": 0,
+            "status": "APPLIED"
+          },
+          "target_before": {
+            "computed_tokens": 2991,
+            "prompt_tokens": 3072,
+            "output_tokens": 700,
+            "num_preemptions": 5,
+            "block_counts": [
+              187
+            ]
+          },
+          "target_after_schedule": {
+            "computed_tokens": 0,
+            "prompt_tokens": 3072,
+            "output_tokens": 700,
+            "num_preemptions": 6,
+            "block_counts": [
+              0
+            ]
+          },
+          "target_scheduled": [],
+          "scheduled_request_count": 27,
+          "total_scheduled_tokens": 27,
+          "last_running_before": "memory-train-article-0020902",
+          "allocation_failures": [
+            {
+              "internal_request_id": "memory-train-article-0020902",
+              "requested_tokens": 781,
+              "before": {
+                "total_blocks": 6657,
+                "usable_blocks": 6656,
+                "free_blocks": 48,
+                "used_blocks": 6608
+              },
+              "after": {
+                "total_blocks": 6657,
+                "usable_blocks": 6656,
+                "free_blocks": 48,
+                "used_blocks": 6608
+              },
+              "computed_tokens": 2991
+            }
+          ],
+          "actual_decode_peer_block_growth": [
+            {
+              "request_id": "memory-train-article-0018866",
+              "computed_before": 3552,
+              "growth_blocks": 1
+            },
+            {
+              "request_id": "memory-train-article-0019699",
+              "computed_before": 3536,
+              "growth_blocks": 1
+            }
+          ]
+        },
+        {
+          "step": 1030,
+          "decision": {
+            "step": 1030,
+            "free_before": 491,
+            "free_after": 426,
+            "proposal": {
+              "step": 1030,
+              "action": "noop",
+              "reason": "swap cooldown",
+              "resume_id": null,
+              "victim_id": null,
+              "absence_steps": 0,
+              "free_blocks": 491
+            },
+            "recovery_completed": null,
+            "recovery_target": null,
+            "recovery_output_at_start": null,
+            "held": [],
+            "forced_preempted": [],
+            "natural_preempted": [],
+            "resumed": [
+              "memory-train-article-0020902"
+            ],
+            "candidate_released_blocks": null,
+            "candidate_required_blocks": null,
+            "not_applied_reason": null,
+            "recovery_remaining_blocks_before": 0,
+            "recovery_remaining_blocks_after": 0,
+            "status": "APPLIED"
+          },
+          "target_before": {
+            "computed_tokens": 0,
+            "prompt_tokens": 3072,
+            "output_tokens": 700,
+            "num_preemptions": 6,
+            "block_counts": [
+              0
+            ]
+          },
+          "target_after_schedule": {
+            "computed_tokens": 998,
+            "prompt_tokens": 3072,
+            "output_tokens": 700,
+            "num_preemptions": 6,
+            "block_counts": [
+              63
+            ]
+          },
+          "target_scheduled": [
+            {
+              "request_id": "memory-train-article-0020902",
+              "internal_request_id": "measured/memory-train-article-0020902-bee3df16",
+              "computed_before": 0,
+              "computed_after": 998,
+              "scheduled_start_computed": 0,
+              "computed_adjustment": 0,
+              "prompt_tokens": 3072,
+              "output_tokens_before": 700,
+              "executed_high_water_before": 3771,
+              "scheduled_tokens": 998,
+              "prefill_tokens": 0,
+              "decode_tokens": 0,
+              "recompute_tokens": 998
+            }
+          ],
+          "scheduled_request_count": 27,
+          "total_scheduled_tokens": 1024,
+          "last_running_before": "memory-train-article-0020734",
+          "allocation_failures": []
+        },
+        {
+          "step": 1031,
+          "decision": {
+            "step": 1031,
+            "free_before": 426,
+            "free_after": 363,
+            "proposal": null,
+            "recovery_completed": null,
+            "recovery_target": null,
+            "recovery_output_at_start": null,
+            "held": [],
+            "forced_preempted": [],
+            "natural_preempted": [],
+            "resumed": [],
+            "candidate_released_blocks": null,
+            "candidate_required_blocks": null,
+            "not_applied_reason": "native recovery already underway",
+            "recovery_remaining_blocks_before": 0,
+            "recovery_remaining_blocks_after": 0,
+            "status": "APPLIED"
+          },
+          "target_before": {
+            "computed_tokens": 998,
+            "prompt_tokens": 3072,
+            "output_tokens": 700,
+            "num_preemptions": 6,
+            "block_counts": [
+              63
+            ]
+          },
+          "target_after_schedule": {
+            "computed_tokens": 1996,
+            "prompt_tokens": 3072,
+            "output_tokens": 700,
+            "num_preemptions": 6,
+            "block_counts": [
+              125
+            ]
+          },
+          "target_scheduled": [
+            {
+              "request_id": "memory-train-article-0020902",
+              "internal_request_id": "measured/memory-train-article-0020902-bee3df16",
+              "computed_before": 998,
+              "computed_after": 1996,
+              "scheduled_start_computed": 998,
+              "computed_adjustment": 0,
+              "prompt_tokens": 3072,
+              "output_tokens_before": 700,
+              "executed_high_water_before": 3771,
+              "scheduled_tokens": 998,
+              "prefill_tokens": 0,
+              "decode_tokens": 0,
+              "recompute_tokens": 998
+            }
+          ],
+          "scheduled_request_count": 27,
+          "total_scheduled_tokens": 1024,
+          "last_running_before": "memory-train-article-0020902",
+          "allocation_failures": []
+        },
+        {
+          "step": 1032,
+          "decision": {
+            "step": 1032,
+            "free_before": 587,
+            "free_after": 523,
+            "proposal": null,
+            "recovery_completed": null,
+            "recovery_target": null,
+            "recovery_output_at_start": null,
+            "held": [],
+            "forced_preempted": [],
+            "natural_preempted": [],
+            "resumed": [],
+            "candidate_released_blocks": null,
+            "candidate_required_blocks": null,
+            "not_applied_reason": "native recovery already underway",
+            "recovery_remaining_blocks_before": 0,
+            "recovery_remaining_blocks_after": 0,
+            "status": "APPLIED"
+          },
+          "target_before": {
+            "computed_tokens": 1996,
+            "prompt_tokens": 3072,
+            "output_tokens": 700,
+            "num_preemptions": 6,
+            "block_counts": [
+              125
+            ]
+          },
+          "target_after_schedule": {
+            "computed_tokens": 2995,
+            "prompt_tokens": 3072,
+            "output_tokens": 700,
+            "num_preemptions": 6,
+            "block_counts": [
+              188
+            ]
+          },
+          "target_scheduled": [
+            {
+              "request_id": "memory-train-article-0020902",
+              "internal_request_id": "measured/memory-train-article-0020902-bee3df16",
+              "computed_before": 1996,
+              "computed_after": 2995,
+              "scheduled_start_computed": 1996,
+              "computed_adjustment": 0,
+              "prompt_tokens": 3072,
+              "output_tokens_before": 700,
+              "executed_high_water_before": 3771,
+              "scheduled_tokens": 999,
+              "prefill_tokens": 0,
+              "decode_tokens": 0,
+              "recompute_tokens": 999
+            }
+          ],
+          "scheduled_request_count": 26,
+          "total_scheduled_tokens": 1024,
+          "last_running_before": "memory-train-article-0020902",
+          "allocation_failures": []
+        },
+        {
+          "step": 1033,
+          "decision": {
+            "step": 1033,
+            "free_before": 523,
+            "free_after": 459,
+            "proposal": null,
+            "recovery_completed": null,
+            "recovery_target": null,
+            "recovery_output_at_start": null,
+            "held": [],
+            "forced_preempted": [],
+            "natural_preempted": [],
+            "resumed": [
+              "memory-train-article-0020484"
+            ],
+            "candidate_released_blocks": null,
+            "candidate_required_blocks": null,
+            "not_applied_reason": "native recovery already underway",
+            "recovery_remaining_blocks_before": 0,
+            "recovery_remaining_blocks_after": 0,
+            "status": "APPLIED"
+          },
+          "target_before": {
+            "computed_tokens": 2995,
+            "prompt_tokens": 3072,
+            "output_tokens": 700,
+            "num_preemptions": 6,
+            "block_counts": [
+              188
+            ]
+          },
+          "target_after_schedule": {
+            "computed_tokens": 3772,
+            "prompt_tokens": 3072,
+            "output_tokens": 700,
+            "num_preemptions": 6,
+            "block_counts": [
+              236
+            ]
+          },
+          "target_scheduled": [
+            {
+              "request_id": "memory-train-article-0020902",
+              "internal_request_id": "measured/memory-train-article-0020902-bee3df16",
+              "computed_before": 2995,
+              "computed_after": 3772,
+              "scheduled_start_computed": 2995,
+              "computed_adjustment": 0,
+              "prompt_tokens": 3072,
+              "output_tokens_before": 700,
+              "executed_high_water_before": 3771,
+              "scheduled_tokens": 777,
+              "prefill_tokens": 0,
+              "decode_tokens": 1,
+              "recompute_tokens": 776
+            }
+          ],
+          "scheduled_request_count": 27,
+          "total_scheduled_tokens": 1024,
+          "last_running_before": "memory-train-article-0020902",
+          "allocation_failures": []
+        }
+      ],
+      "preemption_receipts": [
+        {
+          "attempted_step": 831,
+          "victim_internal_request_id": "memory-train-article-0020902",
+          "victim_state": {
+            "computed_tokens": 3732,
+            "prompt_tokens": 3072,
+            "output_tokens": 661,
+            "num_preemptions": 2,
+            "block_counts": [
+              234
+            ]
+          },
+          "victim_state_after": {
+            "computed_tokens": 0,
+            "prompt_tokens": 3072,
+            "output_tokens": 661,
+            "num_preemptions": 3,
+            "block_counts": [
+              0
+            ]
+          },
+          "pool": {
+            "total_blocks": 6657,
+            "usable_blocks": 6656,
+            "free_blocks": 136,
+            "used_blocks": 6520
+          },
+          "pool_after": {
+            "total_blocks": 6657,
+            "usable_blocks": 6656,
+            "free_blocks": 370,
+            "used_blocks": 6286
+          },
+          "original_preemption_returned": true,
+          "raw_preemption_event_index": 14,
+          "output_history_unchanged": true
+        },
+        {
+          "attempted_step": 891,
+          "victim_internal_request_id": "memory-train-article-0020484",
+          "victim_state": {
+            "computed_tokens": 3375,
+            "prompt_tokens": 2560,
+            "output_tokens": 816,
+            "num_preemptions": 0,
+            "block_counts": [
+              211
+            ]
+          },
+          "victim_state_after": {
+            "computed_tokens": 0,
+            "prompt_tokens": 2560,
+            "output_tokens": 816,
+            "num_preemptions": 1,
+            "block_counts": [
+              0
+            ]
+          },
+          "pool": {
+            "total_blocks": 6657,
+            "usable_blocks": 6656,
+            "free_blocks": 31,
+            "used_blocks": 6625
+          },
+          "pool_after": {
+            "total_blocks": 6657,
+            "usable_blocks": 6656,
+            "free_blocks": 242,
+            "used_blocks": 6414
+          },
+          "original_preemption_returned": true,
+          "raw_preemption_event_index": 17,
+          "output_history_unchanged": true
+        },
+        {
+          "attempted_step": 896,
+          "victim_internal_request_id": "memory-train-article-0020902",
+          "victim_state": {
+            "computed_tokens": 3734,
+            "prompt_tokens": 3072,
+            "output_tokens": 663,
+            "num_preemptions": 3,
+            "block_counts": [
+              234
+            ]
+          },
+          "victim_state_after": {
+            "computed_tokens": 0,
+            "prompt_tokens": 3072,
+            "output_tokens": 663,
+            "num_preemptions": 4,
+            "block_counts": [
+              0
+            ]
+          },
+          "pool": {
+            "total_blocks": 6657,
+            "usable_blocks": 6656,
+            "free_blocks": 0,
+            "used_blocks": 6656
+          },
+          "pool_after": {
+            "total_blocks": 6657,
+            "usable_blocks": 6656,
+            "free_blocks": 234,
+            "used_blocks": 6422
+          },
+          "original_preemption_returned": true,
+          "raw_preemption_event_index": 18,
+          "output_history_unchanged": true
+        },
+        {
+          "attempted_step": 1015,
+          "victim_internal_request_id": "memory-train-article-0020902",
+          "victim_state": {
+            "computed_tokens": 3771,
+            "prompt_tokens": 3072,
+            "output_tokens": 700,
+            "num_preemptions": 4,
+            "block_counts": [
+              236
+            ]
+          },
+          "victim_state_after": {
+            "computed_tokens": 0,
+            "prompt_tokens": 3072,
+            "output_tokens": 700,
+            "num_preemptions": 5,
+            "block_counts": [
+              0
+            ]
+          },
+          "pool": {
+            "total_blocks": 6657,
+            "usable_blocks": 6656,
+            "free_blocks": 42,
+            "used_blocks": 6614
+          },
+          "pool_after": {
+            "total_blocks": 6657,
+            "usable_blocks": 6656,
+            "free_blocks": 278,
+            "used_blocks": 6378
+          },
+          "original_preemption_returned": true,
+          "raw_preemption_event_index": 24,
+          "output_history_unchanged": true
+        },
+        {
+          "attempted_step": 1029,
+          "victim_internal_request_id": "memory-train-article-0020902",
+          "victim_state": {
+            "computed_tokens": 2991,
+            "prompt_tokens": 3072,
+            "output_tokens": 700,
+            "num_preemptions": 5,
+            "block_counts": [
+              187
+            ]
+          },
+          "victim_state_after": {
+            "computed_tokens": 0,
+            "prompt_tokens": 3072,
+            "output_tokens": 700,
+            "num_preemptions": 6,
+            "block_counts": [
+              0
+            ]
+          },
+          "pool": {
+            "total_blocks": 6657,
+            "usable_blocks": 6656,
+            "free_blocks": 48,
+            "used_blocks": 6608
+          },
+          "pool_after": {
+            "total_blocks": 6657,
+            "usable_blocks": 6656,
+            "free_blocks": 235,
+            "used_blocks": 6421
+          },
+          "original_preemption_returned": true,
+          "raw_preemption_event_index": 25,
+          "output_history_unchanged": true
+        }
+      ],
+      "existing_lifecycle_segments": [
+        {
+          "request_id": "memory-train-article-0020902",
+          "preempt_step": 831,
+          "end_step": 896,
+          "end_reason": "repreempted",
+          "resumed": true,
+          "first_service_step": 891,
+          "first_output_step": 894,
+          "outputs_before": 661,
+          "new_outputs": 2,
+          "recompute_positions": 3732,
+          "executed_positions": 3734,
+          "recompute_only_calls": 3,
+          "partial_prefix_reused_in_later_call": true,
+          "invalidated_computed_prefix_positions": 3734,
+          "first_new_output_engine_return_s": 18.53289478085935,
+          "output_age_at_recovery_start_s": 1.2751379702240229,
+          "last_output_to_first_new_output_s": 1.3889512419700623,
+          "recovery_start_to_first_output_s": 0.11381327174603939,
+          "recovery_call_indices": [
+            891,
+            892,
+            893,
+            894
+          ],
+          "recovery_call_inclusive_s": 0.1125492975115776,
+          "recompute_positions_per_new_output": 1866.0,
+          "recompute_prefix_reexecuted_next_residency": 3732,
+          "outcome_bucket": "served_then_discarded"
+        },
+        {
+          "request_id": "memory-train-article-0020902",
+          "preempt_step": 1015,
+          "end_step": 1029,
+          "end_reason": "repreempted",
+          "resumed": true,
+          "first_service_step": 1026,
+          "first_output_step": null,
+          "outputs_before": 700,
+          "new_outputs": 0,
+          "recompute_positions": 2991,
+          "executed_positions": 2991,
+          "recompute_only_calls": 3,
+          "partial_prefix_reused_in_later_call": true,
+          "invalidated_computed_prefix_positions": 2991,
+          "first_new_output_engine_return_s": null,
+          "output_age_at_recovery_start_s": 0.24904405139386654,
+          "last_output_to_first_new_output_s": null,
+          "recovery_start_to_first_output_s": null,
+          "recovery_call_indices": [
+            1026,
+            1027,
+            1028
+          ],
+          "recovery_call_inclusive_s": 0.09191829711198807,
+          "recompute_positions_per_new_output": null,
+          "recompute_prefix_reexecuted_next_residency": 2991,
+          "outcome_bucket": "discard_before_output"
+        }
+      ]
+    },
+    {
+      "label": "funding-block1-least_feasible",
+      "raw_path": "/private/tmp/moe-a-recovery-components-20260914/refine-logs/expert_saturation/outputs/admission_capacity/20260914_funding_filter_comparison_r01/execution/readback/results/funding-block1-least_feasible/raw.json",
+      "raw_sha256": "3f2d1c1013262b07d36198a38871e4b3aa5684359d7fd1dbb993d67cc43c2c7a",
+      "decisions_path": "/private/tmp/moe-a-recovery-components-20260914/refine-logs/expert_saturation/outputs/admission_capacity/20260914_funding_filter_comparison_r01/execution/readback/results/funding-block1-least_feasible/headroom-decisions.json",
+      "decisions_sha256": "57251d262978c5c4d2382a293d02f5c2f307ce3bdc9c8452b97323f7abb544e1",
+      "target_source_id": "memory-train-article-0020902",
+      "target_internal_id": "measured/memory-train-article-0020902-ad1c97f8",
+      "first_dispatch_difference": {
+        "step": 891,
+        "comparison_fields": [
+          "actual_scheduled",
+          "preempted",
+          "held",
+          "resumed"
+        ],
+        "normalization": "Internal request aliases to stable source identity; timing excluded.",
+        "least_progress": {
+          "step": 891,
+          "free_before": 31,
+          "free_after": 30,
+          "proposal": {
+            "step": 891,
+            "action": "rotate",
+            "reason": "longest absence swapped in",
+            "resume_id": "memory-train-article-0020902",
+            "victim_id": "memory-train-article-0020958",
+            "absence_steps": 60,
+            "free_blocks": 31
+          },
+          "recovery_completed": null,
+          "recovery_target": null,
+          "recovery_output_at_start": null,
+          "held": [],
+          "forced_preempted": [],
+          "natural_preempted": [],
+          "resumed": [],
+          "candidate_released_blocks": 200,
+          "candidate_required_blocks": 234,
+          "not_applied_reason": "victim cannot fund complete recovery history",
+          "recovery_remaining_blocks_before": 0,
+          "recovery_remaining_blocks_after": 0,
+          "status": "APPLIED"
+        },
+        "least_feasible": {
+          "step": 891,
+          "free_before": 31,
+          "free_after": 178,
+          "proposal": {
+            "step": 891,
+            "action": "rotate",
+            "reason": "longest absence swapped in",
+            "resume_id": "memory-train-article-0020902",
+            "victim_id": "memory-train-article-0020484",
+            "absence_steps": 60,
+            "free_blocks": 31
+          },
+          "recovery_completed": null,
+          "recovery_target": "memory-train-article-0020902",
+          "recovery_output_at_start": 661,
+          "held": [],
+          "forced_preempted": [
+            "memory-train-article-0020484"
+          ],
+          "natural_preempted": [],
+          "resumed": [
+            "memory-train-article-0020902"
+          ],
+          "candidate_released_blocks": 211,
+          "candidate_required_blocks": 234,
+          "not_applied_reason": null,
+          "recovery_remaining_blocks_before": 234,
+          "recovery_remaining_blocks_after": 171,
+          "status": "APPLIED"
+        }
+      },
+      "steps": [
+        {
+          "step": 831,
+          "decision": {
+            "step": 831,
+            "free_before": 136,
+            "free_after": 305,
+            "proposal": {
+              "step": 831,
+              "action": "rotate",
+              "reason": "longest absence swapped in",
+              "resume_id": "memory-train-article-0021022",
+              "victim_id": "memory-train-article-0020902",
+              "absence_steps": 52,
+              "free_blocks": 136
+            },
+            "recovery_completed": null,
+            "recovery_target": "memory-train-article-0021022",
+            "recovery_output_at_start": 538,
+            "held": [],
+            "forced_preempted": [
+              "memory-train-article-0020902"
+            ],
+            "natural_preempted": [],
+            "resumed": [
+              "memory-train-article-0021022"
+            ],
+            "candidate_released_blocks": 234,
+            "candidate_required_blocks": 226,
+            "not_applied_reason": null,
+            "recovery_remaining_blocks_before": 226,
+            "recovery_remaining_blocks_after": 163,
+            "status": "APPLIED"
+          },
+          "target_before": {
+            "computed_tokens": 3732,
+            "prompt_tokens": 3072,
+            "output_tokens": 661,
+            "num_preemptions": 2,
+            "block_counts": [
+              234
+            ]
+          },
+          "target_after_schedule": {
+            "computed_tokens": 0,
+            "prompt_tokens": 3072,
+            "output_tokens": 661,
+            "num_preemptions": 3,
+            "block_counts": [
+              0
+            ]
+          },
+          "target_scheduled": [],
+          "scheduled_request_count": 29,
+          "total_scheduled_tokens": 1024,
+          "last_running_before": "memory-train-article-0020794",
+          "allocation_failures": []
+        },
+        {
+          "step": 891,
+          "decision": {
+            "step": 891,
+            "free_before": 31,
+            "free_after": 178,
+            "proposal": {
+              "step": 891,
+              "action": "rotate",
+              "reason": "longest absence swapped in",
+              "resume_id": "memory-train-article-0020902",
+              "victim_id": "memory-train-article-0020484",
+              "absence_steps": 60,
+              "free_blocks": 31
+            },
+            "recovery_completed": null,
+            "recovery_target": "memory-train-article-0020902",
+            "recovery_output_at_start": 661,
+            "held": [],
+            "forced_preempted": [
+              "memory-train-article-0020484"
+            ],
+            "natural_preempted": [],
+            "resumed": [
+              "memory-train-article-0020902"
+            ],
+            "candidate_released_blocks": 211,
+            "candidate_required_blocks": 234,
+            "not_applied_reason": null,
+            "recovery_remaining_blocks_before": 234,
+            "recovery_remaining_blocks_after": 171,
+            "status": "APPLIED"
+          },
+          "target_before": {
+            "computed_tokens": 0,
+            "prompt_tokens": 3072,
+            "output_tokens": 661,
+            "num_preemptions": 3,
+            "block_counts": [
+              0
+            ]
+          },
+          "target_after_schedule": {
+            "computed_tokens": 996,
+            "prompt_tokens": 3072,
+            "output_tokens": 661,
+            "num_preemptions": 3,
+            "block_counts": [
+              63
+            ]
+          },
+          "target_scheduled": [
+            {
+              "request_id": "memory-train-article-0020902",
+              "internal_request_id": "measured/memory-train-article-0020902-ad1c97f8",
+              "computed_before": 0,
+              "computed_after": 996,
+              "scheduled_start_computed": 0,
+              "computed_adjustment": 0,
+              "prompt_tokens": 3072,
+              "output_tokens_before": 661,
+              "executed_high_water_before": 3732,
+              "scheduled_tokens": 996,
+              "prefill_tokens": 0,
+              "decode_tokens": 0,
+              "recompute_tokens": 996
+            }
+          ],
+          "scheduled_request_count": 29,
+          "total_scheduled_tokens": 1024,
+          "last_running_before": "memory-train-article-0020734",
+          "allocation_failures": []
+        },
+        {
+          "step": 892,
+          "decision": {
+            "step": 892,
+            "free_before": 178,
+            "free_after": 115,
+            "proposal": null,
+            "recovery_completed": null,
+            "recovery_target": "memory-train-article-0020902",
+            "recovery_output_at_start": 661,
+            "held": [],
+            "forced_preempted": [],
+            "natural_preempted": [],
+            "resumed": [],
+            "candidate_released_blocks": null,
+            "candidate_required_blocks": null,
+            "not_applied_reason": null,
+            "recovery_remaining_blocks_before": 171,
+            "recovery_remaining_blocks_after": 109,
+            "status": "APPLIED"
+          },
+          "target_before": {
+            "computed_tokens": 996,
+            "prompt_tokens": 3072,
+            "output_tokens": 661,
+            "num_preemptions": 3,
+            "block_counts": [
+              63
+            ]
+          },
+          "target_after_schedule": {
+            "computed_tokens": 1992,
+            "prompt_tokens": 3072,
+            "output_tokens": 661,
+            "num_preemptions": 3,
+            "block_counts": [
+              125
+            ]
+          },
+          "target_scheduled": [
+            {
+              "request_id": "memory-train-article-0020902",
+              "internal_request_id": "measured/memory-train-article-0020902-ad1c97f8",
+              "computed_before": 996,
+              "computed_after": 1992,
+              "scheduled_start_computed": 996,
+              "computed_adjustment": 0,
+              "prompt_tokens": 3072,
+              "output_tokens_before": 661,
+              "executed_high_water_before": 3732,
+              "scheduled_tokens": 996,
+              "prefill_tokens": 0,
+              "decode_tokens": 0,
+              "recompute_tokens": 996
+            }
+          ],
+          "scheduled_request_count": 29,
+          "total_scheduled_tokens": 1024,
+          "last_running_before": "memory-train-article-0020902",
+          "allocation_failures": []
+        },
+        {
+          "step": 893,
+          "decision": {
+            "step": 893,
+            "free_before": 115,
+            "free_after": 51,
+            "proposal": null,
+            "recovery_completed": null,
+            "recovery_target": "memory-train-article-0020902",
+            "recovery_output_at_start": 661,
+            "held": [],
+            "forced_preempted": [],
+            "natural_preempted": [],
+            "resumed": [],
+            "candidate_released_blocks": null,
+            "candidate_required_blocks": null,
+            "not_applied_reason": null,
+            "recovery_remaining_blocks_before": 109,
+            "recovery_remaining_blocks_after": 47,
+            "status": "APPLIED"
+          },
+          "target_before": {
+            "computed_tokens": 1992,
+            "prompt_tokens": 3072,
+            "output_tokens": 661,
+            "num_preemptions": 3,
+            "block_counts": [
+              125
+            ]
+          },
+          "target_after_schedule": {
+            "computed_tokens": 2988,
+            "prompt_tokens": 3072,
+            "output_tokens": 661,
+            "num_preemptions": 3,
+            "block_counts": [
+              187
+            ]
+          },
+          "target_scheduled": [
+            {
+              "request_id": "memory-train-article-0020902",
+              "internal_request_id": "measured/memory-train-article-0020902-ad1c97f8",
+              "computed_before": 1992,
+              "computed_after": 2988,
+              "scheduled_start_computed": 1992,
+              "computed_adjustment": 0,
+              "prompt_tokens": 3072,
+              "output_tokens_before": 661,
+              "executed_high_water_before": 3732,
+              "scheduled_tokens": 996,
+              "prefill_tokens": 0,
+              "decode_tokens": 0,
+              "recompute_tokens": 996
+            }
+          ],
+          "scheduled_request_count": 29,
+          "total_scheduled_tokens": 1024,
+          "last_running_before": "memory-train-article-0020902",
+          "allocation_failures": []
+        },
+        {
+          "step": 894,
+          "decision": {
+            "step": 894,
+            "free_before": 51,
+            "free_after": 2,
+            "proposal": null,
+            "recovery_completed": null,
+            "recovery_target": "memory-train-article-0020902",
+            "recovery_output_at_start": 661,
+            "held": [],
+            "forced_preempted": [],
+            "natural_preempted": [],
+            "resumed": [],
+            "candidate_released_blocks": null,
+            "candidate_required_blocks": null,
+            "not_applied_reason": null,
+            "recovery_remaining_blocks_before": 47,
+            "recovery_remaining_blocks_after": 0,
+            "status": "APPLIED"
+          },
+          "target_before": {
+            "computed_tokens": 2988,
+            "prompt_tokens": 3072,
+            "output_tokens": 661,
+            "num_preemptions": 3,
+            "block_counts": [
+              187
+            ]
+          },
+          "target_after_schedule": {
+            "computed_tokens": 3733,
+            "prompt_tokens": 3072,
+            "output_tokens": 661,
+            "num_preemptions": 3,
+            "block_counts": [
+              234
+            ]
+          },
+          "target_scheduled": [
+            {
+              "request_id": "memory-train-article-0020902",
+              "internal_request_id": "measured/memory-train-article-0020902-ad1c97f8",
+              "computed_before": 2988,
+              "computed_after": 3733,
+              "scheduled_start_computed": 2988,
+              "computed_adjustment": 0,
+              "prompt_tokens": 3072,
+              "output_tokens_before": 661,
+              "executed_high_water_before": 3732,
+              "scheduled_tokens": 745,
+              "prefill_tokens": 0,
+              "decode_tokens": 1,
+              "recompute_tokens": 744
+            }
+          ],
+          "scheduled_request_count": 29,
+          "total_scheduled_tokens": 773,
+          "last_running_before": "memory-train-article-0020902",
+          "allocation_failures": []
+        },
+        {
+          "step": 895,
+          "decision": {
+            "step": 895,
+            "free_before": 2,
+            "free_after": 0,
+            "proposal": {
+              "step": 895,
+              "action": "noop",
+              "reason": "swap cooldown",
+              "resume_id": null,
+              "victim_id": null,
+              "absence_steps": 0,
+              "free_blocks": 2
+            },
+            "recovery_completed": "memory-train-article-0020902",
+            "recovery_target": null,
+            "recovery_output_at_start": null,
+            "held": [],
+            "forced_preempted": [],
+            "natural_preempted": [],
+            "resumed": [],
+            "candidate_released_blocks": null,
+            "candidate_required_blocks": null,
+            "not_applied_reason": null,
+            "recovery_remaining_blocks_before": 0,
+            "recovery_remaining_blocks_after": 0,
+            "status": "APPLIED"
+          },
+          "target_before": {
+            "computed_tokens": 3733,
+            "prompt_tokens": 3072,
+            "output_tokens": 662,
+            "num_preemptions": 3,
+            "block_counts": [
+              234
+            ]
+          },
+          "target_after_schedule": {
+            "computed_tokens": 3734,
+            "prompt_tokens": 3072,
+            "output_tokens": 662,
+            "num_preemptions": 3,
+            "block_counts": [
+              234
+            ]
+          },
+          "target_scheduled": [
+            {
+              "request_id": "memory-train-article-0020902",
+              "internal_request_id": "measured/memory-train-article-0020902-ad1c97f8",
+              "computed_before": 3733,
+              "computed_after": 3734,
+              "scheduled_start_computed": 3733,
+              "computed_adjustment": 0,
+              "prompt_tokens": 3072,
+              "output_tokens_before": 662,
+              "executed_high_water_before": 3733,
+              "scheduled_tokens": 1,
+              "prefill_tokens": 0,
+              "decode_tokens": 1,
+              "recompute_tokens": 0
+            }
+          ],
+          "scheduled_request_count": 29,
+          "total_scheduled_tokens": 29,
+          "last_running_before": "memory-train-article-0020902",
+          "allocation_failures": [
+            {
+              "internal_request_id": "memory-train-article-0020484",
+              "requested_tokens": 995,
+              "before": {
+                "total_blocks": 6657,
+                "usable_blocks": 6656,
+                "free_blocks": 0,
+                "used_blocks": 6656
+              },
+              "after": {
+                "total_blocks": 6657,
+                "usable_blocks": 6656,
+                "free_blocks": 0,
+                "used_blocks": 6656
+              },
+              "computed_tokens": 0
+            }
+          ],
+          "actual_decode_peer_block_growth": [
+            {
+              "request_id": "memory-train-article-0017453",
+              "computed_before": 3440,
+              "growth_blocks": 1
+            },
+            {
+              "request_id": "memory-train-article-0018301",
+              "computed_before": 3424,
+              "growth_blocks": 1
+            }
+          ]
+        },
+        {
+          "step": 896,
+          "decision": {
+            "step": 896,
+            "free_before": 0,
+            "free_after": 233,
+            "proposal": {
+              "step": 896,
+              "action": "noop",
+              "reason": "swap cooldown",
+              "resume_id": null,
+              "victim_id": null,
+              "absence_steps": 0,
+              "free_blocks": 0
+            },
+            "recovery_completed": null,
+            "recovery_target": null,
+            "recovery_output_at_start": null,
+            "held": [],
+            "forced_preempted": [],
+            "natural_preempted": [
+              "memory-train-article-0020902"
+            ],
+            "resumed": [],
+            "candidate_released_blocks": null,
+            "candidate_required_blocks": null,
+            "not_applied_reason": null,
+            "recovery_remaining_blocks_before": 0,
+            "recovery_remaining_blocks_after": 0,
+            "status": "APPLIED"
+          },
+          "target_before": {
+            "computed_tokens": 3734,
+            "prompt_tokens": 3072,
+            "output_tokens": 663,
+            "num_preemptions": 3,
+            "block_counts": [
+              234
+            ]
+          },
+          "target_after_schedule": {
+            "computed_tokens": 0,
+            "prompt_tokens": 3072,
+            "output_tokens": 663,
+            "num_preemptions": 4,
+            "block_counts": [
+              0
+            ]
+          },
+          "target_scheduled": [],
+          "scheduled_request_count": 28,
+          "total_scheduled_tokens": 28,
+          "last_running_before": "memory-train-article-0020902",
+          "allocation_failures": [
+            {
+              "internal_request_id": "memory-train-article-0019436",
+              "requested_tokens": 1,
+              "before": {
+                "total_blocks": 6657,
+                "usable_blocks": 6656,
+                "free_blocks": 0,
+                "used_blocks": 6656
+              },
+              "after": {
+                "total_blocks": 6657,
+                "usable_blocks": 6656,
+                "free_blocks": 0,
+                "used_blocks": 6656
+              },
+              "computed_tokens": 3408
+            }
+          ],
+          "actual_decode_peer_block_growth": [
+            {
+              "request_id": "memory-train-article-0019436",
+              "computed_before": 3408,
+              "growth_blocks": 1
+            }
+          ]
+        },
+        {
+          "step": 1015,
+          "decision": {
+            "step": 1015,
+            "free_before": 42,
+            "free_after": 213,
+            "proposal": {
+              "step": 1015,
+              "action": "rotate",
+              "reason": "longest absence swapped in",
+              "resume_id": "memory-train-article-0020734",
+              "victim_id": "memory-train-article-0020902",
+              "absence_steps": 80,
+              "free_blocks": 42
+            },
+            "recovery_completed": null,
+            "recovery_target": "memory-train-article-0020734",
+            "recovery_output_at_start": 794,
+            "held": [],
+            "forced_preempted": [
+              "memory-train-article-0020902"
+            ],
+            "natural_preempted": [],
+            "resumed": [
+              "memory-train-article-0020734"
+            ],
+            "candidate_released_blocks": 236,
+            "candidate_required_blocks": 242,
+            "not_applied_reason": null,
+            "recovery_remaining_blocks_before": 242,
+            "recovery_remaining_blocks_after": 179,
+            "status": "APPLIED"
+          },
+          "target_before": {
+            "computed_tokens": 3771,
+            "prompt_tokens": 3072,
+            "output_tokens": 700,
+            "num_preemptions": 4,
+            "block_counts": [
+              236
+            ]
+          },
+          "target_after_schedule": {
+            "computed_tokens": 0,
+            "prompt_tokens": 3072,
+            "output_tokens": 700,
+            "num_preemptions": 5,
+            "block_counts": [
+              0
+            ]
+          },
+          "target_scheduled": [],
+          "scheduled_request_count": 28,
+          "total_scheduled_tokens": 1024,
+          "last_running_before": "memory-train-article-0020958",
+          "allocation_failures": []
+        },
+        {
+          "step": 1026,
+          "decision": {
+            "step": 1026,
+            "free_before": 242,
+            "free_after": 177,
+            "proposal": {
+              "step": 1026,
+              "action": "noop",
+              "reason": "swap cooldown",
+              "resume_id": null,
+              "victim_id": null,
+              "absence_steps": 0,
+              "free_blocks": 242
+            },
+            "recovery_completed": null,
+            "recovery_target": null,
+            "recovery_output_at_start": null,
+            "held": [],
+            "forced_preempted": [],
+            "natural_preempted": [],
+            "resumed": [
+              "memory-train-article-0020902"
+            ],
+            "candidate_released_blocks": null,
+            "candidate_required_blocks": null,
+            "not_applied_reason": null,
+            "recovery_remaining_blocks_before": 0,
+            "recovery_remaining_blocks_after": 0,
+            "status": "APPLIED"
+          },
+          "target_before": {
+            "computed_tokens": 0,
+            "prompt_tokens": 3072,
+            "output_tokens": 700,
+            "num_preemptions": 5,
+            "block_counts": [
+              0
+            ]
+          },
+          "target_after_schedule": {
+            "computed_tokens": 997,
+            "prompt_tokens": 3072,
+            "output_tokens": 700,
+            "num_preemptions": 5,
+            "block_counts": [
+              63
+            ]
+          },
+          "target_scheduled": [
+            {
+              "request_id": "memory-train-article-0020902",
+              "internal_request_id": "measured/memory-train-article-0020902-ad1c97f8",
+              "computed_before": 0,
+              "computed_after": 997,
+              "scheduled_start_computed": 0,
+              "computed_adjustment": 0,
+              "prompt_tokens": 3072,
+              "output_tokens_before": 700,
+              "executed_high_water_before": 3771,
+              "scheduled_tokens": 997,
+              "prefill_tokens": 0,
+              "decode_tokens": 0,
+              "recompute_tokens": 997
+            }
+          ],
+          "scheduled_request_count": 28,
+          "total_scheduled_tokens": 1024,
+          "last_running_before": "memory-train-article-0020734",
+          "allocation_failures": [],
+          "actual_decode_peer_block_growth": [
+            {
+              "request_id": "memory-train-article-0017643",
+              "computed_before": 4080,
+              "growth_blocks": 1
+            },
+            {
+              "request_id": "memory-train-article-0018442",
+              "computed_before": 4064,
+              "growth_blocks": 1
+            }
+          ]
+        },
+        {
+          "step": 1027,
+          "decision": {
+            "step": 1027,
+            "free_before": 177,
+            "free_after": 114,
+            "proposal": null,
+            "recovery_completed": null,
+            "recovery_target": null,
+            "recovery_output_at_start": null,
+            "held": [],
+            "forced_preempted": [],
+            "natural_preempted": [],
+            "resumed": [],
+            "candidate_released_blocks": null,
+            "candidate_required_blocks": null,
+            "not_applied_reason": "native recovery already underway",
+            "recovery_remaining_blocks_before": 0,
+            "recovery_remaining_blocks_after": 0,
+            "status": "APPLIED"
+          },
+          "target_before": {
+            "computed_tokens": 997,
+            "prompt_tokens": 3072,
+            "output_tokens": 700,
+            "num_preemptions": 5,
+            "block_counts": [
+              63
+            ]
+          },
+          "target_after_schedule": {
+            "computed_tokens": 1994,
+            "prompt_tokens": 3072,
+            "output_tokens": 700,
+            "num_preemptions": 5,
+            "block_counts": [
+              125
+            ]
+          },
+          "target_scheduled": [
+            {
+              "request_id": "memory-train-article-0020902",
+              "internal_request_id": "measured/memory-train-article-0020902-ad1c97f8",
+              "computed_before": 997,
+              "computed_after": 1994,
+              "scheduled_start_computed": 997,
+              "computed_adjustment": 0,
+              "prompt_tokens": 3072,
+              "output_tokens_before": 700,
+              "executed_high_water_before": 3771,
+              "scheduled_tokens": 997,
+              "prefill_tokens": 0,
+              "decode_tokens": 0,
+              "recompute_tokens": 997
+            }
+          ],
+          "scheduled_request_count": 28,
+          "total_scheduled_tokens": 1024,
+          "last_running_before": "memory-train-article-0020902",
+          "allocation_failures": [],
+          "actual_decode_peer_block_growth": [
+            {
+              "request_id": "memory-train-article-0019630",
+              "computed_before": 4048,
+              "growth_blocks": 1
+            }
+          ]
+        },
+        {
+          "step": 1028,
+          "decision": {
+            "step": 1028,
+            "free_before": 114,
+            "free_after": 50,
+            "proposal": null,
+            "recovery_completed": null,
+            "recovery_target": null,
+            "recovery_output_at_start": null,
+            "held": [],
+            "forced_preempted": [],
+            "natural_preempted": [],
+            "resumed": [],
+            "candidate_released_blocks": null,
+            "candidate_required_blocks": null,
+            "not_applied_reason": "native recovery already underway",
+            "recovery_remaining_blocks_before": 0,
+            "recovery_remaining_blocks_after": 0,
+            "status": "APPLIED"
+          },
+          "target_before": {
+            "computed_tokens": 1994,
+            "prompt_tokens": 3072,
+            "output_tokens": 700,
+            "num_preemptions": 5,
+            "block_counts": [
+              125
+            ]
+          },
+          "target_after_schedule": {
+            "computed_tokens": 2991,
+            "prompt_tokens": 3072,
+            "output_tokens": 700,
+            "num_preemptions": 5,
+            "block_counts": [
+              187
+            ]
+          },
+          "target_scheduled": [
+            {
+              "request_id": "memory-train-article-0020902",
+              "internal_request_id": "measured/memory-train-article-0020902-ad1c97f8",
+              "computed_before": 1994,
+              "computed_after": 2991,
+              "scheduled_start_computed": 1994,
+              "computed_adjustment": 0,
+              "prompt_tokens": 3072,
+              "output_tokens_before": 700,
+              "executed_high_water_before": 3771,
+              "scheduled_tokens": 997,
+              "prefill_tokens": 0,
+              "decode_tokens": 0,
+              "recompute_tokens": 997
+            }
+          ],
+          "scheduled_request_count": 28,
+          "total_scheduled_tokens": 1024,
+          "last_running_before": "memory-train-article-0020902",
+          "allocation_failures": [],
+          "actual_decode_peer_block_growth": [
+            {
+              "request_id": "memory-train-article-0017858",
+              "computed_before": 3568,
+              "growth_blocks": 1
+            },
+            {
+              "request_id": "memory-train-article-0020184",
+              "computed_before": 4032,
+              "growth_blocks": 1
+            }
+          ]
+        },
+        {
+          "step": 1029,
+          "decision": {
+            "step": 1029,
+            "free_before": 50,
+            "free_after": 235,
+            "proposal": null,
+            "recovery_completed": null,
+            "recovery_target": null,
+            "recovery_output_at_start": null,
+            "held": [],
+            "forced_preempted": [],
+            "natural_preempted": [
+              "memory-train-article-0020902"
+            ],
+            "resumed": [],
+            "candidate_released_blocks": null,
+            "candidate_required_blocks": null,
+            "not_applied_reason": "native recovery already underway",
+            "recovery_remaining_blocks_before": 0,
+            "recovery_remaining_blocks_after": 0,
+            "status": "APPLIED"
+          },
+          "target_before": {
+            "computed_tokens": 2991,
+            "prompt_tokens": 3072,
+            "output_tokens": 700,
+            "num_preemptions": 5,
+            "block_counts": [
+              187
+            ]
+          },
+          "target_after_schedule": {
+            "computed_tokens": 0,
+            "prompt_tokens": 3072,
+            "output_tokens": 700,
+            "num_preemptions": 6,
+            "block_counts": [
+              0
+            ]
+          },
+          "target_scheduled": [],
+          "scheduled_request_count": 27,
+          "total_scheduled_tokens": 27,
+          "last_running_before": "memory-train-article-0020902",
+          "allocation_failures": [
+            {
+              "internal_request_id": "memory-train-article-0020902",
+              "requested_tokens": 781,
+              "before": {
+                "total_blocks": 6657,
+                "usable_blocks": 6656,
+                "free_blocks": 48,
+                "used_blocks": 6608
+              },
+              "after": {
+                "total_blocks": 6657,
+                "usable_blocks": 6656,
+                "free_blocks": 48,
+                "used_blocks": 6608
+              },
+              "computed_tokens": 2991
+            }
+          ],
+          "actual_decode_peer_block_growth": [
+            {
+              "request_id": "memory-train-article-0018866",
+              "computed_before": 3552,
+              "growth_blocks": 1
+            },
+            {
+              "request_id": "memory-train-article-0019699",
+              "computed_before": 3536,
+              "growth_blocks": 1
+            }
+          ]
+        },
+        {
+          "step": 1030,
+          "decision": {
+            "step": 1030,
+            "free_before": 491,
+            "free_after": 426,
+            "proposal": {
+              "step": 1030,
+              "action": "noop",
+              "reason": "swap cooldown",
+              "resume_id": null,
+              "victim_id": null,
+              "absence_steps": 0,
+              "free_blocks": 491
+            },
+            "recovery_completed": null,
+            "recovery_target": null,
+            "recovery_output_at_start": null,
+            "held": [],
+            "forced_preempted": [],
+            "natural_preempted": [],
+            "resumed": [
+              "memory-train-article-0020902"
+            ],
+            "candidate_released_blocks": null,
+            "candidate_required_blocks": null,
+            "not_applied_reason": null,
+            "recovery_remaining_blocks_before": 0,
+            "recovery_remaining_blocks_after": 0,
+            "status": "APPLIED"
+          },
+          "target_before": {
+            "computed_tokens": 0,
+            "prompt_tokens": 3072,
+            "output_tokens": 700,
+            "num_preemptions": 6,
+            "block_counts": [
+              0
+            ]
+          },
+          "target_after_schedule": {
+            "computed_tokens": 998,
+            "prompt_tokens": 3072,
+            "output_tokens": 700,
+            "num_preemptions": 6,
+            "block_counts": [
+              63
+            ]
+          },
+          "target_scheduled": [
+            {
+              "request_id": "memory-train-article-0020902",
+              "internal_request_id": "measured/memory-train-article-0020902-ad1c97f8",
+              "computed_before": 0,
+              "computed_after": 998,
+              "scheduled_start_computed": 0,
+              "computed_adjustment": 0,
+              "prompt_tokens": 3072,
+              "output_tokens_before": 700,
+              "executed_high_water_before": 3771,
+              "scheduled_tokens": 998,
+              "prefill_tokens": 0,
+              "decode_tokens": 0,
+              "recompute_tokens": 998
+            }
+          ],
+          "scheduled_request_count": 27,
+          "total_scheduled_tokens": 1024,
+          "last_running_before": "memory-train-article-0020734",
+          "allocation_failures": []
+        },
+        {
+          "step": 1031,
+          "decision": {
+            "step": 1031,
+            "free_before": 426,
+            "free_after": 363,
+            "proposal": null,
+            "recovery_completed": null,
+            "recovery_target": null,
+            "recovery_output_at_start": null,
+            "held": [],
+            "forced_preempted": [],
+            "natural_preempted": [],
+            "resumed": [],
+            "candidate_released_blocks": null,
+            "candidate_required_blocks": null,
+            "not_applied_reason": "native recovery already underway",
+            "recovery_remaining_blocks_before": 0,
+            "recovery_remaining_blocks_after": 0,
+            "status": "APPLIED"
+          },
+          "target_before": {
+            "computed_tokens": 998,
+            "prompt_tokens": 3072,
+            "output_tokens": 700,
+            "num_preemptions": 6,
+            "block_counts": [
+              63
+            ]
+          },
+          "target_after_schedule": {
+            "computed_tokens": 1996,
+            "prompt_tokens": 3072,
+            "output_tokens": 700,
+            "num_preemptions": 6,
+            "block_counts": [
+              125
+            ]
+          },
+          "target_scheduled": [
+            {
+              "request_id": "memory-train-article-0020902",
+              "internal_request_id": "measured/memory-train-article-0020902-ad1c97f8",
+              "computed_before": 998,
+              "computed_after": 1996,
+              "scheduled_start_computed": 998,
+              "computed_adjustment": 0,
+              "prompt_tokens": 3072,
+              "output_tokens_before": 700,
+              "executed_high_water_before": 3771,
+              "scheduled_tokens": 998,
+              "prefill_tokens": 0,
+              "decode_tokens": 0,
+              "recompute_tokens": 998
+            }
+          ],
+          "scheduled_request_count": 27,
+          "total_scheduled_tokens": 1024,
+          "last_running_before": "memory-train-article-0020902",
+          "allocation_failures": []
+        },
+        {
+          "step": 1032,
+          "decision": {
+            "step": 1032,
+            "free_before": 587,
+            "free_after": 523,
+            "proposal": null,
+            "recovery_completed": null,
+            "recovery_target": null,
+            "recovery_output_at_start": null,
+            "held": [],
+            "forced_preempted": [],
+            "natural_preempted": [],
+            "resumed": [],
+            "candidate_released_blocks": null,
+            "candidate_required_blocks": null,
+            "not_applied_reason": "native recovery already underway",
+            "recovery_remaining_blocks_before": 0,
+            "recovery_remaining_blocks_after": 0,
+            "status": "APPLIED"
+          },
+          "target_before": {
+            "computed_tokens": 1996,
+            "prompt_tokens": 3072,
+            "output_tokens": 700,
+            "num_preemptions": 6,
+            "block_counts": [
+              125
+            ]
+          },
+          "target_after_schedule": {
+            "computed_tokens": 2995,
+            "prompt_tokens": 3072,
+            "output_tokens": 700,
+            "num_preemptions": 6,
+            "block_counts": [
+              188
+            ]
+          },
+          "target_scheduled": [
+            {
+              "request_id": "memory-train-article-0020902",
+              "internal_request_id": "measured/memory-train-article-0020902-ad1c97f8",
+              "computed_before": 1996,
+              "computed_after": 2995,
+              "scheduled_start_computed": 1996,
+              "computed_adjustment": 0,
+              "prompt_tokens": 3072,
+              "output_tokens_before": 700,
+              "executed_high_water_before": 3771,
+              "scheduled_tokens": 999,
+              "prefill_tokens": 0,
+              "decode_tokens": 0,
+              "recompute_tokens": 999
+            }
+          ],
+          "scheduled_request_count": 26,
+          "total_scheduled_tokens": 1024,
+          "last_running_before": "memory-train-article-0020902",
+          "allocation_failures": []
+        },
+        {
+          "step": 1033,
+          "decision": {
+            "step": 1033,
+            "free_before": 523,
+            "free_after": 459,
+            "proposal": null,
+            "recovery_completed": null,
+            "recovery_target": null,
+            "recovery_output_at_start": null,
+            "held": [],
+            "forced_preempted": [],
+            "natural_preempted": [],
+            "resumed": [
+              "memory-train-article-0020484"
+            ],
+            "candidate_released_blocks": null,
+            "candidate_required_blocks": null,
+            "not_applied_reason": "native recovery already underway",
+            "recovery_remaining_blocks_before": 0,
+            "recovery_remaining_blocks_after": 0,
+            "status": "APPLIED"
+          },
+          "target_before": {
+            "computed_tokens": 2995,
+            "prompt_tokens": 3072,
+            "output_tokens": 700,
+            "num_preemptions": 6,
+            "block_counts": [
+              188
+            ]
+          },
+          "target_after_schedule": {
+            "computed_tokens": 3772,
+            "prompt_tokens": 3072,
+            "output_tokens": 700,
+            "num_preemptions": 6,
+            "block_counts": [
+              236
+            ]
+          },
+          "target_scheduled": [
+            {
+              "request_id": "memory-train-article-0020902",
+              "internal_request_id": "measured/memory-train-article-0020902-ad1c97f8",
+              "computed_before": 2995,
+              "computed_after": 3772,
+              "scheduled_start_computed": 2995,
+              "computed_adjustment": 0,
+              "prompt_tokens": 3072,
+              "output_tokens_before": 700,
+              "executed_high_water_before": 3771,
+              "scheduled_tokens": 777,
+              "prefill_tokens": 0,
+              "decode_tokens": 1,
+              "recompute_tokens": 776
+            }
+          ],
+          "scheduled_request_count": 27,
+          "total_scheduled_tokens": 1024,
+          "last_running_before": "memory-train-article-0020902",
+          "allocation_failures": []
+        }
+      ],
+      "preemption_receipts": [
+        {
+          "attempted_step": 831,
+          "victim_internal_request_id": "memory-train-article-0020902",
+          "victim_state": {
+            "computed_tokens": 3732,
+            "prompt_tokens": 3072,
+            "output_tokens": 661,
+            "num_preemptions": 2,
+            "block_counts": [
+              234
+            ]
+          },
+          "victim_state_after": {
+            "computed_tokens": 0,
+            "prompt_tokens": 3072,
+            "output_tokens": 661,
+            "num_preemptions": 3,
+            "block_counts": [
+              0
+            ]
+          },
+          "pool": {
+            "total_blocks": 6657,
+            "usable_blocks": 6656,
+            "free_blocks": 136,
+            "used_blocks": 6520
+          },
+          "pool_after": {
+            "total_blocks": 6657,
+            "usable_blocks": 6656,
+            "free_blocks": 370,
+            "used_blocks": 6286
+          },
+          "original_preemption_returned": true,
+          "raw_preemption_event_index": 14,
+          "output_history_unchanged": true
+        },
+        {
+          "attempted_step": 891,
+          "victim_internal_request_id": "memory-train-article-0020484",
+          "victim_state": {
+            "computed_tokens": 3375,
+            "prompt_tokens": 2560,
+            "output_tokens": 816,
+            "num_preemptions": 0,
+            "block_counts": [
+              211
+            ]
+          },
+          "victim_state_after": {
+            "computed_tokens": 0,
+            "prompt_tokens": 2560,
+            "output_tokens": 816,
+            "num_preemptions": 1,
+            "block_counts": [
+              0
+            ]
+          },
+          "pool": {
+            "total_blocks": 6657,
+            "usable_blocks": 6656,
+            "free_blocks": 31,
+            "used_blocks": 6625
+          },
+          "pool_after": {
+            "total_blocks": 6657,
+            "usable_blocks": 6656,
+            "free_blocks": 242,
+            "used_blocks": 6414
+          },
+          "original_preemption_returned": true,
+          "raw_preemption_event_index": 17,
+          "output_history_unchanged": true
+        },
+        {
+          "attempted_step": 896,
+          "victim_internal_request_id": "memory-train-article-0020902",
+          "victim_state": {
+            "computed_tokens": 3734,
+            "prompt_tokens": 3072,
+            "output_tokens": 663,
+            "num_preemptions": 3,
+            "block_counts": [
+              234
+            ]
+          },
+          "victim_state_after": {
+            "computed_tokens": 0,
+            "prompt_tokens": 3072,
+            "output_tokens": 663,
+            "num_preemptions": 4,
+            "block_counts": [
+              0
+            ]
+          },
+          "pool": {
+            "total_blocks": 6657,
+            "usable_blocks": 6656,
+            "free_blocks": 0,
+            "used_blocks": 6656
+          },
+          "pool_after": {
+            "total_blocks": 6657,
+            "usable_blocks": 6656,
+            "free_blocks": 234,
+            "used_blocks": 6422
+          },
+          "original_preemption_returned": true,
+          "raw_preemption_event_index": 18,
+          "output_history_unchanged": true
+        },
+        {
+          "attempted_step": 1015,
+          "victim_internal_request_id": "memory-train-article-0020902",
+          "victim_state": {
+            "computed_tokens": 3771,
+            "prompt_tokens": 3072,
+            "output_tokens": 700,
+            "num_preemptions": 4,
+            "block_counts": [
+              236
+            ]
+          },
+          "victim_state_after": {
+            "computed_tokens": 0,
+            "prompt_tokens": 3072,
+            "output_tokens": 700,
+            "num_preemptions": 5,
+            "block_counts": [
+              0
+            ]
+          },
+          "pool": {
+            "total_blocks": 6657,
+            "usable_blocks": 6656,
+            "free_blocks": 42,
+            "used_blocks": 6614
+          },
+          "pool_after": {
+            "total_blocks": 6657,
+            "usable_blocks": 6656,
+            "free_blocks": 278,
+            "used_blocks": 6378
+          },
+          "original_preemption_returned": true,
+          "raw_preemption_event_index": 24,
+          "output_history_unchanged": true
+        },
+        {
+          "attempted_step": 1029,
+          "victim_internal_request_id": "memory-train-article-0020902",
+          "victim_state": {
+            "computed_tokens": 2991,
+            "prompt_tokens": 3072,
+            "output_tokens": 700,
+            "num_preemptions": 5,
+            "block_counts": [
+              187
+            ]
+          },
+          "victim_state_after": {
+            "computed_tokens": 0,
+            "prompt_tokens": 3072,
+            "output_tokens": 700,
+            "num_preemptions": 6,
+            "block_counts": [
+              0
+            ]
+          },
+          "pool": {
+            "total_blocks": 6657,
+            "usable_blocks": 6656,
+            "free_blocks": 48,
+            "used_blocks": 6608
+          },
+          "pool_after": {
+            "total_blocks": 6657,
+            "usable_blocks": 6656,
+            "free_blocks": 235,
+            "used_blocks": 6421
+          },
+          "original_preemption_returned": true,
+          "raw_preemption_event_index": 25,
+          "output_history_unchanged": true
+        }
+      ],
+      "existing_lifecycle_segments": [
+        {
+          "request_id": "memory-train-article-0020902",
+          "preempt_step": 831,
+          "end_step": 896,
+          "end_reason": "repreempted",
+          "resumed": true,
+          "first_service_step": 891,
+          "first_output_step": 894,
+          "outputs_before": 661,
+          "new_outputs": 2,
+          "recompute_positions": 3732,
+          "executed_positions": 3734,
+          "recompute_only_calls": 3,
+          "partial_prefix_reused_in_later_call": true,
+          "invalidated_computed_prefix_positions": 3734,
+          "first_new_output_engine_return_s": 18.223242104053497,
+          "output_age_at_recovery_start_s": 1.2738020829856396,
+          "last_output_to_first_new_output_s": 1.3878392148762941,
+          "recovery_start_to_first_output_s": 0.11403713189065456,
+          "recovery_call_indices": [
+            891,
+            892,
+            893,
+            894
+          ],
+          "recovery_call_inclusive_s": 0.11274195648729801,
+          "recompute_positions_per_new_output": 1866.0,
+          "recompute_prefix_reexecuted_next_residency": 3732,
+          "outcome_bucket": "served_then_discarded"
+        },
+        {
+          "request_id": "memory-train-article-0020902",
+          "preempt_step": 1015,
+          "end_step": 1029,
+          "end_reason": "repreempted",
+          "resumed": true,
+          "first_service_step": 1026,
+          "first_output_step": null,
+          "outputs_before": 700,
+          "new_outputs": 0,
+          "recompute_positions": 2991,
+          "executed_positions": 2991,
+          "recompute_only_calls": 3,
+          "partial_prefix_reused_in_later_call": true,
+          "invalidated_computed_prefix_positions": 2991,
+          "first_new_output_engine_return_s": null,
+          "output_age_at_recovery_start_s": 0.24549297615885735,
+          "last_output_to_first_new_output_s": null,
+          "recovery_start_to_first_output_s": null,
+          "recovery_call_indices": [
+            1026,
+            1027,
+            1028
+          ],
+          "recovery_call_inclusive_s": 0.08435370959341526,
+          "recompute_positions_per_new_output": null,
+          "recompute_prefix_reexecuted_next_residency": 2991,
+          "outcome_bucket": "discard_before_output"
+        }
+      ]
+    }
+  ]
+}

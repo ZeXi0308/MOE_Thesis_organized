@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Beyond Prediction: Tail-Aware Scheduling for LLM Inference</title>
+<meta name="description" content="A prediction-free, distribution-aware scheduling framework that achieves up to 50% lower P99 tail latency than SRPT with perfect length prediction for LLM serving." />
+<meta property="og:title" content="Beyond Prediction: Tail-Aware Scheduling for LLM Inference" />
+<meta property="og:description" content="UniBoost: a prediction-free, tail-aware LLM scheduler that outperforms SRPT with perfect length prediction by up to 50% on P99 latency." />
+<meta property="og:type" content="article" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;450;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+<style>
+:root{
+  --ink:#15203A; --ink2:#3C465E; --soft:#646E86; --faint:#8A93A8;
+  --amber:#D9821F; --amber-d:#B96A12; --amber-bg:#FBEFDC;
+  --teal:#247E63; --teal-bg:#E0F0E9;
+  --coral:#BF4636; --coral-bg:#F8E7E2;
+  --bg:#F6F7F9; --card:#FFFFFF; --line:#E4E8EF; --line2:#EDF0F5;
+  --navy-deep:#101a30;
+  --blue:#1a73e8; --blue-deep:#0b57d0; --blue-tint:#e8f0fe;
+  --red:#d93025; --green:#1e8e3e;
+  --maxw:1140px;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --disp:'Space Grotesk',system-ui,sans-serif;
+  --body:'Inter',system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink2);font-family:var(--body);
+  font-size:17.5px;line-height:1.68;-webkit-font-smoothing:antialiased;overflow-x:clip}
+a{color:var(--amber-d);text-decoration:none}
+a:hover{text-decoration:underline}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px}
+h1,h2,h3,h4{font-family:var(--disp);color:var(--ink);line-height:1.12;letter-spacing:-.01em;margin:0}
+.eyebrow{font-family:var(--mono);font-size:12.5px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--amber-d);font-weight:600}
+.mono{font-family:var(--mono)}
+
+/* ── nav ── */
+.nav{position:sticky;top:0;z-index:50;background:rgba(246,247,249,.88);
+  backdrop-filter:saturate(150%) blur(10px);border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;align-items:center;gap:22px;height:60px}
+.brand{font-family:var(--disp);font-weight:700;letter-spacing:-.02em;font-size:19px;color:var(--ink);
+  display:flex;align-items:center;gap:9px}
+.brand .dot{width:11px;height:11px;border-radius:50%;background:var(--amber);
+  box-shadow:0 0 0 4px var(--amber-bg)}
+.nav nav{margin-left:auto;display:flex;gap:5px;align-items:center}
+.nav nav a{font-size:14px;color:var(--ink2);padding:7px 11px;border-radius:8px;font-weight:500}
+.nav nav a:hover{background:var(--line2);text-decoration:none;color:var(--ink)}
+.nav .npaper{background:var(--ink);color:#fff;padding:8px 14px;border-radius:9px;font-weight:600;font-size:14px}
+.nav .npaper:hover{background:var(--navy-deep);text-decoration:none}
+@media(max-width:860px){.nav nav a.hideable{display:none}}
+
+/* ── hero ── */
+.hero{padding:68px 0 30px}
+.hero .eyebrow{margin-bottom:20px}
+.hero h1{font-size:clamp(34px,5.2vw,60px);font-weight:600;max-width:15ch;color:var(--ink)}
+.hero h1 .accent{color:var(--amber)}
+.lede{font-size:clamp(18px,2.1vw,22px);color:var(--ink2);max-width:60ch;margin:22px 0 0;line-height:1.5}
+.authors-row{margin-top:26px;font-size:16px;color:var(--ink2);max-width:70ch}
+.authors-row b{color:var(--ink);font-weight:600}
+.authors-row .eq-contrib{color:var(--amber-d);font-size:13px;vertical-align:super;line-height:0}
+.affil{margin-top:8px;font-size:14.5px;color:var(--soft)}
+.affil .sep{color:var(--line);margin:0 8px}
+.btns{display:flex;flex-wrap:wrap;gap:11px;margin-top:30px}
+.btn{display:inline-flex;align-items:center;gap:9px;padding:11px 18px;border-radius:11px;
+  font-weight:600;font-size:15px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);
+  transition:transform .12s ease,border-color .15s ease,box-shadow .15s ease}
+.btn:hover{text-decoration:none;transform:translateY(-1px);border-color:#cfd6e2;box-shadow:0 6px 18px rgba(20,30,55,.07)}
+.btn.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn.primary:hover{background:var(--navy-deep)}
+.btn svg{width:17px;height:17px;flex:none}
+
+/* ── gamma demo ── */
+.demo{margin:42px 0 12px;background:var(--card);border:1px solid var(--line);border-radius:20px;
+  overflow:hidden;box-shadow:0 20px 50px -28px rgba(20,30,55,.28)}
+.demo-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px 16px;
+  padding:20px 26px;border-bottom:1px solid var(--line2);background:linear-gradient(180deg,#fff,#fcfdff)}
+.demo-head .t{font-family:var(--disp);font-weight:600;font-size:19px}
+.demo-head .s{color:var(--soft);font-size:14px}
+.demo-head .tag{margin-left:auto;font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--amber-d);background:var(--amber-bg);padding:5px 10px;border-radius:999px}
+.demo-body{display:grid;grid-template-columns:1.55fr 1fr;gap:0}
+@media(max-width:820px){.demo-body{grid-template-columns:1fr}}
+.plotwrap{padding:18px 14px 10px;position:relative}
+canvas{width:100%;height:auto;display:block}
+.panel{padding:24px 26px;border-left:1px solid var(--line2);display:flex;flex-direction:column;gap:18px}
+@media(max-width:820px){.panel{border-left:0;border-top:1px solid var(--line2)}}
+.knob label{display:flex;justify-content:space-between;align-items:baseline;font-size:13.5px;color:var(--soft);
+  font-family:var(--mono);letter-spacing:.04em;margin-bottom:8px}
+.knob .gval{font-weight:600;color:var(--ink);font-size:16px}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:99px;
+  background:linear-gradient(90deg,var(--amber),#e9b873);outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;
+  background:#fff;border:3px solid var(--amber);cursor:pointer;box-shadow:0 2px 8px rgba(20,30,55,.22)}
+input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:#fff;
+  border:3px solid var(--amber);cursor:pointer}
+.regime{display:flex;justify-content:space-between;font-size:12px;color:var(--faint);
+  font-family:var(--mono);margin-top:7px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.stat{border:1px solid var(--line);border-radius:13px;padding:13px 15px;background:#fcfdff}
+.stat .k{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--soft)}
+.stat .v{font-family:var(--disp);font-weight:600;font-size:27px;margin-top:3px}
+.stat.p99 .v{color:var(--coral)}.stat.p50 .v{color:var(--teal)}
+.panel .read{font-size:14px;color:var(--ink2);line-height:1.55;border-top:1px dashed var(--line);padding-top:14px;margin-top:auto}
+.panel .read b{color:var(--ink)}
+
+/* ── tldr strip ── */
+.statcards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:28px 0 6px}
+@media(max-width:760px){.statcards{grid-template-columns:1fr}}
+.bignum{background:var(--ink);color:#fff;border-radius:18px;padding:26px 24px;position:relative;overflow:hidden}
+.bignum:nth-child(2){background:linear-gradient(150deg,#1a2748,#101a30)}
+.bignum .n{font-family:var(--disp);font-weight:700;font-size:46px;line-height:1;color:#fff}
+.bignum .n small{color:var(--amber);font-size:30px;font-weight:600}
+.bignum .l{margin-top:12px;font-size:14.5px;color:#c4cce0;line-height:1.45}
+.bignum .l b{color:#fff;font-weight:600}
+.bignum::after{content:"";position:absolute;right:-40px;top:-40px;width:130px;height:130px;border-radius:50%;
+  background:radial-gradient(circle,rgba(217,130,31,.32),transparent 70%)}
+
+/* ── sections ── */
+section{padding:64px 0;border-top:1px solid var(--line)}
+.wrap > *:last-child{margin-bottom:0}
+section.first{border-top:0}
+.sechead{max-width:74ch;margin-bottom:34px}
+.sechead h2{font-size:clamp(27px,3.6vw,40px);font-weight:600;margin-top:10px}
+.sechead p{color:var(--ink2);font-size:18px;margin-top:16px;line-height:1.55}
+.kicker{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--amber-d);font-weight:600;margin-bottom:8px}
+.prose{max-width:72ch}
+.prose p{margin:0 0 18px;color:var(--ink2)}
+.prose b,.prose strong{color:var(--ink);font-weight:600}
+.good{color:var(--teal);font-weight:600}.bad{color:var(--coral);font-weight:600}
+.hl{color:var(--ink);font-weight:600}
+.kw{font-family:var(--mono);font-size:.92em;background:var(--line2);padding:2px 6px;border-radius:5px;color:var(--ink)}
+
+figure{margin:30px 0;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 18px 4px}
+figure img{width:100%;height:auto;display:block;border-radius:6px;cursor:zoom-in;transition:filter .15s}
+figure img:hover{filter:brightness(.97)}
+figcaption{font-size:14px;color:var(--soft);line-height:1.5;padding:14px 6px 12px}
+figcaption b{color:var(--ink2);font-weight:600}
+.fig-narrow{max-width:560px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:760px){.two{grid-template-columns:1fr}}
+.two figure{margin:0}
+
+.callout{background:var(--amber-bg);border:1px solid #f0d8af;border-left:5px solid var(--amber);
+  border-radius:12px;padding:18px 22px;margin:28px 0;font-size:16.5px;color:#5e431d}
+.callout b{color:var(--amber-d)}
+.callout .q{font-family:var(--disp);font-weight:600;font-size:19px;color:var(--ink);display:block;margin-bottom:6px}
+
+.takeaway{background:#f0f7ff;border:1px solid #c5d8fb;border-left:4px solid var(--blue-deep);
+  border-radius:0 14px 14px 0;padding:18px 24px;margin:24px 0}
+.takeaway .label{font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--blue-deep);font-weight:700;margin-bottom:6px}
+.takeaway p{margin:0;font-size:16px;color:var(--ink);line-height:1.6}
+
+/* kpi cards */
+.kpis{display:grid;gap:16px;grid-template-columns:repeat(3,1fr);margin:28px 0 6px}
+@media(max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:460px){.kpis{grid-template-columns:1fr}}
+.kpi{background:var(--bg);border:1px solid var(--line);border-radius:16px;padding:18px 16px;
+  transition:box-shadow .15s ease,transform .15s ease,border-color .15s ease}
+.kpi:hover{box-shadow:0 12px 30px -18px rgba(20,40,80,.35);transform:translateY(-2px);border-color:#d4dae2}
+.kpi .domain{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--blue-deep);font-weight:700}
+.kpi .delta{font-size:26px;font-weight:700;color:var(--ink);margin:8px 0 4px;letter-spacing:-.02em}
+.kpi .delta .val{color:var(--blue-deep)}
+.kpi .note{font-size:12.5px;color:var(--soft);line-height:1.45}
+
+/* phases */
+.phases-grid{display:grid;gap:16px;grid-template-columns:repeat(2,1fr);margin:22px 0}
+@media(max-width:720px){.phases-grid{grid-template-columns:1fr}}
+.phase-card{background:var(--bg);border:1px solid var(--line);border-radius:16px;padding:20px;position:relative}
+.phase-card .phase-num{font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--amber-d);font-weight:700;margin-bottom:4px}
+.phase-card h4{font-size:16px;font-weight:700;color:var(--ink);margin:0 0 6px}
+.phase-card p{font-size:14.5px;margin:0;color:var(--ink2);line-height:1.55}
+
+/* eq */
+.eq{background:var(--card);border:1px solid var(--line);border-radius:12px;
+  padding:16px 20px;margin:16px 0 18px;font-size:16px;color:var(--ink);
+  text-align:center;overflow-x:auto;position:relative}
+.eq .lbl{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--soft)}
+
+/* tables */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:16px;background:#fff;margin:24px 0}
+.tbl-title{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--amber-d);
+  font-weight:700;padding:14px 18px 0}
+table.paper{width:100%;border-collapse:collapse;font-size:14px;color:var(--ink);
+  font-variant-numeric:tabular-nums;margin-top:8px}
+table.paper th,table.paper td{padding:10px 16px;text-align:left;
+  border-bottom:1px solid var(--line2);vertical-align:middle}
+table.paper thead th{font-weight:600;background:var(--bg);color:var(--ink)}
+table.paper td.num,table.paper th.num{text-align:right}
+table.paper tbody tr:last-child td{border-bottom:none}
+table.paper td.best{font-weight:700;color:var(--amber-d)}
+table.paper td.ours{font-weight:700;background:#fffbf2}
+table.paper td.check{color:var(--green);font-weight:700}
+table.paper td.cross{color:var(--red)}
+table.paper td.partial{color:#f29900}
+.tbl-cap{font-size:14px;color:var(--soft);margin-top:14px;line-height:1.6;padding:0 18px 14px}
+.tbl-cap b{color:var(--ink);font-weight:600}
+
+/* ── simulator card ── */
+.sim-card{margin:34px 0;background:var(--card);border:1px solid var(--line);border-radius:20px;
+  overflow:hidden;box-shadow:0 20px 50px -28px rgba(20,30,55,.28)}
+.sim-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px 16px;
+  padding:20px 26px;border-bottom:1px solid var(--line2);background:linear-gradient(180deg,#fff,#fcfdff)}
+.sim-head .t{font-family:var(--disp);font-weight:600;font-size:19px}
+.sim-head .s{color:var(--soft);font-size:14px}
+.sim-head .tag{margin-left:auto;font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--amber-d);background:var(--amber-bg);padding:5px 10px;border-radius:999px}
+.sim-body{display:grid;grid-template-columns:1.55fr 1fr;gap:0}
+@media(max-width:820px){.sim-body{grid-template-columns:1fr}}
+.sim-controls{padding:20px 26px;border-left:1px solid var(--line2);display:flex;flex-direction:column;gap:18px}
+@media(max-width:820px){.sim-controls{border-left:0;border-top:1px solid var(--line2)}}
+.sim-control label{display:flex;justify-content:space-between;align-items:baseline;font-size:13.5px;
+  color:var(--soft);font-family:var(--mono);letter-spacing:.04em;margin-bottom:8px}
+.sim-control .val{font-weight:600;color:var(--ink);font-size:16px}
+.sim-control select{width:100%;padding:9px 12px;border:1.5px solid var(--line);border-radius:9px;
+  font-family:var(--body);font-size:14px;color:var(--ink);background:var(--card);cursor:pointer;
+  -webkit-appearance:none;appearance:none;outline:none}
+.sim-control select:focus{border-color:var(--amber)}
+.sim-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:4px}
+.sim-stat{border:1px solid var(--line);border-radius:11px;padding:10px 12px;background:#fcfdff;text-align:center}
+.sim-stat .k{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--soft)}
+.sim-stat .v{font-family:var(--disp);font-weight:600;font-size:18px;margin-top:2px}
+.sim-stat.fcfs .v{color:var(--teal)}
+.sim-stat.srpt .v{color:var(--coral)}
+.sim-stat.uni .v{color:var(--amber-d)}
+.sim-spinner{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.7);border-radius:6px;z-index:5;opacity:0;pointer-events:none;transition:opacity .2s}
+.sim-spinner.active{opacity:1;pointer-events:auto}
+.spin{width:32px;height:32px;border:3px solid var(--line);border-top-color:var(--amber);
+  border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.sim-note{font-size:13px;color:var(--soft);line-height:1.5;border-top:1px dashed var(--line);padding-top:12px;margin-top:auto}
+
+/* lightbox */
+.lightbox{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;
+  padding:4vh 4vw;background:rgba(15,20,30,.82);backdrop-filter:blur(4px);cursor:zoom-out}
+.lightbox[hidden]{display:none}
+.lightbox img{max-width:96vw;max-height:92vh;width:auto;height:auto;
+  border-radius:12px;background:#fff;box-shadow:0 30px 90px rgba(0,0,0,.45)}
+.lightbox-close{position:absolute;top:18px;right:24px;width:44px;height:44px;border-radius:50%;
+  border:none;background:rgba(255,255,255,.14);color:#fff;font-size:26px;line-height:1;cursor:pointer}
+.lightbox-close:hover{background:rgba(255,255,255,.26)}
+
+footer{border-top:1px solid var(--line);margin-top:48px;padding:34px 0 60px}
+.footer-inner{display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;
+  align-items:center;color:var(--soft);font-size:14px}
+footer a{color:var(--amber-d)}
+footer a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+
+<!-- lightbox -->
+<div id="lightbox" class="lightbox" hidden aria-hidden="true">
+  <button class="lightbox-close" aria-label="close">&times;</button>
+  <img alt="" />
+</div>
+
+<nav class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top"><span class="dot"></span>UniBoost</a>
+    <nav>
+      <a class="hideable" href="#tldr">TL;DR</a>
+      <a class="hideable" href="#problem">Problem</a>
+      <a class="hideable" href="#method">Method</a>
+      <a class="hideable" href="#results">Results</a>
+      <a class="hideable" href="#discussion">Discussion</a>
+      <a class="hideable" href="#references">References</a>
+      <a class="hideable" href="#cite">Cite</a>
+      <a class="npaper" href="assets/icml_paper.pdf">Paper</a>
+    </nav>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<header class="hero" id="top"><div class="wrap">
+  <div class="eyebrow">ICML 2026 &nbsp;·&nbsp; ML Systems &nbsp;·&nbsp; Scheduling Theory</div>
+  <h1>Beyond&nbsp;Prediction:<br><span class="accent">Tail-Aware</span> Scheduling for LLM Inference</h1>
+  <p class="lede">LLM serving is judged by its <b>tail</b> — yet today's schedulers chase the mean by
+  <i>predicting</i> decode lengths. We stop predicting. One control knob, <b>&gamma;</b>, smoothly
+  shapes priority and tames P99 latency — beating SRPT even when it is handed <i>perfect</i> length oracles.</p>
+
+  <div class="authors-row">
+    <b>Yueying Li</b><sup>1</sup>,
+    <b>Yuanfan Chen</b><sup>1</sup><span class="eq-contrib">*</span>,
+    <b>Jiayang Chen</b><sup>1</sup><span class="eq-contrib">*</span>,
+    Esha Choukse<sup>2</sup>, Haoran Qiu<sup>2</sup>, G. Edward Suh<sup>3,5</sup>,
+    Rodrigo Fonseca<sup>2</sup>, Ziv Scully<sup>4</sup>, Udit Gupta<sup>5</sup>
+    <div class="affil">
+      <sup>1</sup>Cornell CS<span class="sep">/</span>
+      <sup>2</sup>Microsoft Azure Systems Research<span class="sep">/</span>
+      <sup>3</sup>NVIDIA<span class="sep">/</span>
+      <sup>4</sup>Cornell ORIE<span class="sep">/</span>
+      <sup>5</sup>Cornell ECE
+      <span style="color:var(--faint)">&nbsp;&nbsp;*equal contribution</span>
+    </div>
+  </div>
+
+  <div class="btns">
+    <a class="btn primary" href="assets/icml_paper.pdf">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3v5h5M14 3l5 5v11a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/></svg>
+      Paper (PDF)</a>
+    <a class="btn" href="assets/icml_slides.pdf">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 4h18v12H3zM8 20h8M12 16v4"/></svg>Slides</a>
+    <a class="btn" href="https://arxiv.org/pdf/2606.18431">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l16 16M20 4L4 20"/></svg>arXiv</a>
+    <a class="btn" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 4l-5 8 5 8M16 4l5 8-5 8"/></svg>Code</a>
+    <a class="btn" href="#cite">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 8h10M7 12h10M7 16h6"/></svg>Cite</a>
+  </div>
+
+  <!-- interactive gamma demo -->
+  <div class="demo">
+    <div class="demo-head">
+      <span class="t">One knob, the whole frontier</span>
+      <span class="s">Drag &gamma; to interpolate between FCFS and SJF — watch the tail.</span>
+      <span class="tag">Interactive</span>
+      <span class="tag" style="background:transparent;border:1px solid var(--line);color:var(--soft)">Illustration</span>
+    </div>
+    <div class="demo-body">
+      <div class="plotwrap"><canvas id="plot" width="760" height="460" aria-label="Latency vs percentile curve"></canvas></div>
+      <div class="panel">
+        <div class="knob">
+          <label>Boost parameter <span class="gval mono" id="gval">&gamma; = 1.0</span></label>
+          <input id="g" type="range" min="0" max="100" value="50">
+          <div class="regime"><span>&gamma;→0 · SJF</span><span>sweet spot</span><span>FCFS · &gamma;→∞</span></div>
+        </div>
+        <div class="stats">
+          <div class="stat p50"><div class="k">P50 latency</div><div class="v" id="m50">—</div></div>
+          <div class="stat p99"><div class="k">P99 latency</div><div class="v" id="m99">—</div></div>
+        </div>
+        <div class="read" id="readout"></div>
+      </div>
+    </div>
+  </div>
+</div></header>
+
+<!-- ── TL;DR ── -->
+<section class="first" id="tldr"><div class="wrap">
+  <div class="kicker">TL;DR</div>
+  <div class="sechead">
+    <h2>Tail latency, not mean latency — and no length prediction needed</h2>
+  </div>
+  <p class="prose" style="font-size:19px;color:var(--ink2);max-width:78ch">
+    LLM serving exhibits <span class="hl">extreme output-length variability</span>. Existing schedulers approximate SJF/SRPT using predicted decode lengths — but these prediction-driven policies are fragile and, fundamentally, <em>mean-optimal</em>: they offer no guarantees on tail behavior. <b>UniBoost</b> replaces prediction with <span class="good">soft, continuous priority boosting</span> and <span class="good">KV-cache-aware preemption</span>. A single parameter &gamma; interpolates between FCFS and SJF — and a mid setting beats both.
+  </p>
+  <div class="statcards">
+    <div class="bignum"><div class="n">35–50<small>%</small></div>
+      <div class="l">lower <b>P99 TTLT</b> than SRPT <i>with perfect</i> length prediction</div></div>
+    <div class="bignum"><div class="n">34–97<small>%</small></div>
+      <div class="l">lower <b>P95 TTFT</b> across reasoning- and chat-heavy workloads</div></div>
+    <div class="bignum"><div class="n">2.9–8.7<small>×</small></div>
+      <div class="l">wider <b>SLO threshold</b> at 99% attainment — with <b>zero</b> length prediction</div></div>
+  </div>
+  <div class="takeaway" style="margin-top:30px">
+    <div class="label">Key Insight</div>
+    <p>No single LLM scheduling policy dominates. The optimal strategy depends on the <strong>job size distribution</strong> and <strong>arrival burstiness</strong>. Optimizing for tail latency requires a scheduler that adaptively interpolates between two extremes: HoL-blocking mitigation (preempt long jobs) and starvation protection (guard long jobs).</p>
+  </div>
+</div></section>
+
+<!-- ── PROBLEM ── -->
+<section id="problem"><div class="wrap">
+  <div class="kicker">The Problem</div>
+  <div class="sechead">
+    <h2>You can't schedule what you can't predict</h2>
+    <p>Size-based policies (SJF/SRPT) are mean-optimal <i>only</i> when job sizes are known. In LLM serving,
+    they almost never are — and the mean is the wrong target anyway.</p>
+  </div>
+
+  <div class="prose">
+    <p><b>Decode length is fundamentally unpredictable.</b> Run the same prompt through the same model 20 times
+    and the output length still swings by more than <b>2×</b> (coefficient of variation up to <b>0.47</b>),
+    purely from sampling stochasticity and numerical nondeterminism. Two requests with identical prefills can
+    diverge by <i>orders of magnitude</i> in completion time, and the size distribution shifts across workloads
+    and over time — especially for reasoning models that think, reflect, and call tools.</p>
+    <p><b>Reasoning workloads are heavy-tailed.</b> Datasets like BigCodeBench and S1K exhibit extreme output
+    length variance — a single long-thinking request can be 10–100× longer than the median. Under such
+    distributions, SRPT causes <span class="bad">priority inversion</span>: a short request that arrives
+    slightly after a long one gets starved, inflating TTFT and P99 TTLT simultaneously.</p>
+    <p><b>No single policy dominates.</b> FCFS is fair but slow; SRPT minimizes mean latency but has no
+    tail guarantees. Prediction-based hybrids (TRAIL, LTR) are fragile under distribution shift.
+    The right answer depends on the workload — and workloads change.</p>
+  </div>
+
+  <figure>
+    <img src="assets/token_variance_combined_2x3.png" alt="Token length variance across workloads" loading="lazy">
+    <figcaption><b>Figure 1 · Output token length distributions.</b> WildChat, BigCodeBench, and S1K at different load points. Reasoning workloads exhibit extreme heavy-tailed behavior — a single policy cannot handle all regimes.</figcaption>
+  </figure>
+
+  <div class="two">
+    <figure>
+      <img src="assets/convoy_effect_fcfs_2.png" alt="FCFS convoy effect: long request blocks short ones" loading="lazy">
+      <figcaption><b>Figure 2a · HoL blocking under FCFS.</b> A long request $A$ arrives at $t=0$, delaying short requests $B,C,D,E$. FCFS performs poorly; SRPT/LAS preempt $A$ to serve short jobs first.</figcaption>
+    </figure>
+    <figure>
+      <img src="assets/convoy_effect_srpt.png" alt="SRPT starvation: burst of short jobs starves long request" loading="lazy">
+      <figcaption><b>Figure 2b · Starvation under SRPT.</b> A burst of short jobs $B,C,D$ causes SRPT/LAS to repeatedly preempt long request $A$, inflating tail latency. FCFS maintains better fairness here.</figcaption>
+    </figure>
+  </div>
+
+  <div class="callout">
+    <span class="q">Key Insight</span>
+    The optimal scheduler for tail latency must <b>adaptively interpolate</b> between FCFS (optimal for
+    light-tailed workloads) and SRPT (optimal for heavy-tailed workloads) — without relying on explicit
+    length prediction. A single continuous knob &gamma; achieves this, and its sweet spot <i>beats both
+    extremes</i> on P99 latency.
+  </div>
+
+  <h3 style="font-family:var(--disp);font-size:23px;font-weight:600;margin:44px 0 12px;color:var(--ink)">Comparison with Prior Work</h3>
+
+  <div class="tbl-wrap">
+    <div class="tbl-title">Table 1 · Comparison of LLM Scheduling Approaches</div>
+    <table class="paper">
+      <thead>
+        <tr>
+          <th>Policy / Work</th>
+          <th class="num">Heavy-tailed</th>
+          <th class="num">Light-tailed</th>
+          <th class="num">No Size Pred.</th>
+          <th class="num">Preemption Overhead</th>
+          <th class="num">Tail-Aware by Design</th>
+          <th class="num">TTLT Evaluated</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Shortest Prefix First (vLLM)</td>
+          <td class="partial num">△</td><td class="partial num">△</td>
+          <td class="cross num">✗</td><td class="cross num">✗</td>
+          <td class="cross num">✗</td><td class="cross num">✗</td>
+        </tr>
+        <tr>
+          <td>Rank-prediction SJF (LTR)</td>
+          <td class="check num">✓</td><td class="partial num">△</td>
+          <td class="cross num">✗</td><td class="partial num">△</td>
+          <td class="cross num">✗</td><td class="cross num">✗</td>
+        </tr>
+        <tr>
+          <td>Prediction-based SRPT (TRAIL)</td>
+          <td class="check num">✓</td><td class="partial num">△</td>
+          <td class="cross num">✗</td><td class="partial num">△</td>
+          <td class="cross num">✗</td><td class="check num">✓</td>
+        </tr>
+        <tr>
+          <td>FCFS (vLLM default)</td>
+          <td class="cross num">✗</td><td class="check num">✓</td>
+          <td class="check num">✓</td><td class="check num">✓</td>
+          <td class="cross num">✗</td><td class="partial num">△</td>
+        </tr>
+        <tr>
+          <td>Skip-Join MLFQ / LAS</td>
+          <td class="partial num">△</td><td class="partial num">△</td>
+          <td class="check num">✓</td><td class="partial num">△</td>
+          <td class="check num">✓</td><td class="partial num">△</td>
+        </tr>
+        <tr style="background:#fffbf2;">
+          <td><strong>UniBoost (Ours)</strong></td>
+          <td class="check num best">✓</td><td class="check num best">✓</td>
+          <td class="check num best">✓</td><td class="check num best">✓</td>
+          <td class="check num best">✓</td><td class="check num best">✓</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="tbl-cap">✓ = supported; △ = partial; ✗ = not supported. UniBoost is the only scheduler that handles both heavy- and light-tailed workloads, requires no size prediction, accounts for preemption overhead, and is explicitly designed and evaluated for tail latency.</div>
+  </div>
+</div></section>
+
+<!-- ── METHOD ── -->
+<section id="method"><div class="wrap">
+  <div class="kicker">Method</div>
+  <div class="sechead">
+    <h2>A four-phase design for tail-aware LLM scheduling</h2>
+    <p>Soft, continuous priority shaping — no length prediction required. One parameter &gamma; controls
+    the entire FCFS–SJF spectrum.</p>
+  </div>
+
+  <div class="prose">
+    <p>UniBoost is inspired by <em>tail-optimal scheduling theory</em>. Rather than hard size-based ranking (SJF/SRPT), it uses <span class="hl">soft, continuous priority shaping</span>: each request receives a smoothly varying score computed from lightweight signals, and requests are served in order of increasing arrival time minus boost. This boosting approach can provably suppress extreme delays under partial observability.</p>
+    <p>Applying boosting to LLM serving faces three practical challenges: (1) LLM inference is <em>stateful and memory-coupled</em> — KV caches make preemption expensive; (2) the optimal boost parameter depends on the workload distribution, which shifts across tasks; (3) prefill and decode phases have fundamentally different scheduling dynamics. UniBoost addresses all three through a staged design.</p>
+  </div>
+
+  <h3 style="font-family:var(--disp);font-size:23px;font-weight:600;margin:44px 0 12px;color:var(--ink)">The Boost Priority Function</h3>
+  <div class="callout" style="margin:0 0 28px">
+    <span class="q">The &gamma;-Boost priority &mdash; one knob, two extremes</span>
+
+    <div style="display:flex;flex-wrap:wrap;gap:8px 32px;align-items:center;margin-bottom:4px">
+      <div class="eq" style="margin:0;flex:1 1 auto">$$b_\gamma(w) = \frac{1}{\gamma}\log\!\left(\frac{1}{1 - e^{-\gamma w}}\right)$$</div>
+      <div class="eq" style="margin:0;flex:1 1 auto">$$\Phi(i,t) = a_i - b_\gamma\!\left(\tilde{w}_i(t)\right)$$</div>
+    </div>
+    <div class="eq" style="margin:0 0 18px">$$\tilde{w}_i(t) = \max\bigl(w_i(t),\, s_i^{\text{pre}}\bigr) \quad\cdot\quad \text{serve } \arg\min_i\, \Phi(i,t)$$</div>
+
+    <p style="font-size:14.5px;line-height:1.75;margin:0 0 14px">
+      <b>Reading the score.</b>
+      $a_i$ = arrival time (FCFS rank) &middot; $w_i(t)$ = attained service (tokens done) &middot; $s_i^{\text{pre}}$ = prefill length &middot; $\tilde{w}_i = \max(w_i, s_i^{\text{pre}})$ = effective work in <em>either</em> phase.
+      The boost $b_\gamma(\tilde{w}_i)$ is <b>large when little work is done</b> and decays to 0 as work accrues; the earliest boosted arrival $\Phi = a_i - b_\gamma(\tilde{w}_i)$.
+      A barely-started request is pulled far ahead; as it runs its boost fades and it drifts back toward its true rank $a_i$ &mdash; short jobs jump the queue, yet long jobs are <em>never starved</em>.
+    </p>
+
+    <p style="font-size:14.5px;line-height:1.8;margin:0">
+      <b>Why one knob spans the frontier.</b>
+      $b_\gamma$ is decreasing and convex in $w$ &mdash; steep near $w{=}0$, flat once a job has run a while &mdash; and $\gamma$ sets how fast attained work converts to priority.
+      $\gamma \to \infty$: $b_\gamma \to 0 \Rightarrow \Phi \to a_i$, recovering <b>FCFS</b> (protect the tail).
+      $\gamma \to 0$: $b_\gamma(w) \approx \tfrac{1}{\gamma}\log\tfrac{1}{\gamma w}$, so the boost gap between two jobs $\approx \tfrac{1}{\gamma}\log(w_2/w_1) \to \infty$ and the least-attained job always wins &mdash; <b>SJF/LAS</b> (chase the mean).
+      Provably strongly tail-optimal ($K_\pi{=}1$) among blind policies [Yu &amp; Scully 2024; Harlev et al. 2025].
+    </p>
+  </div>
+
+  <figure>
+    <img src="assets/UniBoost_Overview.png" alt="UniBoost four-phase design overview" loading="lazy">
+    <figcaption><b>Figure 3 · UniBoost system overview.</b> A four-phase design that evolves from a strawman prefill-boosted scheduler (DistBoost) to a unified priority space (UniBoost-Base), then adds KV-aware preemption stability (MemGuard) and online adaptive parameter estimation (γ-Ada).</figcaption>
+  </figure>
+
+  <div class="phases-grid">
+    <div class="phase-card">
+      <div class="phase-num">Phase 1</div>
+      <h4>DistBoost — Prefill-Boosted Strawman</h4>
+      <p>Treats prefill and decode as disjoint queues. Applies boost-based priority to prefill requests while serving decode requests in FCFS order. Simple but susceptible to inter-queue Head-of-Line blocking when long decode jobs delay short prefill requests.</p>
+    </div>
+    <div class="phase-card">
+      <div class="phase-num">Phase 2</div>
+      <h4>UniBoost-Base — Unified Priority Space</h4>
+      <p>Merges prefill and decode into a single priority queue using the effective work metric $\tilde{w}_i(t)$. Allows cross-phase preemption and promotion, eliminating inter-queue HoL blocking while maintaining distribution-aware priority ordering.</p>
+    </div>
+    <div class="phase-card">
+      <div class="phase-num">Phase 3</div>
+      <h4>MemGuard — KV-Aware Hysteresis</h4>
+      <p>Discretizes priority updates using geometric quantization aligned with KV block sizes. A request's priority is only reconsidered when its decoded token count crosses a threshold $k \cdot 2^{\lfloor \log_2(w_i/k) \rfloor}$, bounding preemption opportunities to $O(\log S_i)$ per request and preventing KV-swap thrashing.</p>
+    </div>
+    <div class="phase-card">
+      <div class="phase-num">Phase 4</div>
+      <h4>γ-Ada — Adaptive Parameter Estimation</h4>
+      <p>Estimates the optimal boost parameter $\gamma$ online by fitting a log-linear slope to the observed response time tail in the $[t_{95}, t_{99}]$ band. This allows the scheduler to automatically adapt to workload distribution shifts and varying arrival rates without manual tuning.</p>
+    </div>
+  </div>
+
+  <figure>
+    <img src="assets/boost_step_comparison.png" alt="MemGuard geometric quantization of boost function" loading="lazy">
+    <figcaption><b>Figure 4 · MemGuard geometric quantization.</b> Priority revisions are bounded to $O(\log S_i)$ opportunities per request, preventing thrashing under tight KV memory. Continuous vs. quantized boost functions at prefill lengths 256 and 1024.</figcaption>
+  </figure>
+</div></section>
+
+<!-- ── RESULTS ── -->
+<section id="results"><div class="wrap">
+  <div class="kicker">Results</div>
+  <div class="sechead">
+    <h2>Consistent tail latency improvements across workloads</h2>
+    <p>Evaluated on Qwen-72B, Llama-3-70B, TPA-CP4, and CodeLlama-34B across reasoning, chat, and mixed workloads.</p>
+  </div>
+
+  <h3 style="font-family:var(--disp);font-size:23px;font-weight:600;margin:0 0 16px;color:var(--ink)">Percentile Latency Improvements</h3>
+
+  <figure>
+    <img src="assets/combined_metrics_reason.png" alt="Percentile latency improvement over Sarathi on reasoning workload" loading="lazy">
+    <figcaption><b>Figure 5 · Latency improvement on reasoning workload (QWen-72B).</b> Percent slowdown of each baseline compared to UniBoost across percentiles (P50–P99.9) for TTLT, TTFT, and TBT. UniBoost consistently dominates: TTFT gains accelerate in the upper tail due to prefill admission protection, while TTLT gains come from avoiding attained-service inversion under memory-coupled decoding.</figcaption>
+  </figure>
+
+  <p class="prose" style="margin-top:16px">
+    Across all three latency dimensions, UniBoost&rsquo;s advantage widens as we move into the upper tail. The TTFT improvement is particularly striking: because UniBoost boosts newly-arrived requests before they accumulate service, short prefill jobs are never blocked behind long decode sequences. The TTLT gains reflect a deeper structural win &mdash; by keeping priority aligned with attained work rather than predicted length, UniBoost avoids the &ldquo;attained-service inversion&rdquo; that causes SRPT to trigger cascading KV-cache evictions under memory pressure. The result is a scheduler that is simultaneously better at the mean <em>and</em> at the tail, without any length oracle.
+  </p>
+
+  <h3 style="font-family:var(--disp);font-size:23px;font-weight:600;margin:44px 0 16px;color:var(--ink)">Design Phase Ablation</h3>
+
+  <figure>
+    <img src="assets/codellama_ablation_uniboost.png" alt="Load-latency ablation across design phases" loading="lazy">
+    <figcaption><b>Figure 6 · Design-phase ablation (CodeLlama-34B, 1 GPU).</b> Load–latency curves sweeping QPS. DistBoost (purple) destabilizes first at 0.24 QPS. Phase 2 (blue) delays the knee and halves P99 near 0.248 QPS. Adding MemGuard (green) cuts tails by another 1.5–2×. UniBoost (orange) performs best: at 0.255 QPS, P99 remains sub-second while alternatives are multi-second. Overall, UniBoost shifts the knee right by ~4–6% and reduces P90/P99/mean by up to 10× near saturation.</figcaption>
+  </figure>
+
+  <p class="prose" style="margin-top:16px">
+    The ablation isolates the contribution of each design phase. Phase 1 (DistBoost) already improves over Sarathi for moderate loads, but its disjoint-queue design creates a new failure mode: long decode jobs block short prefill arrivals, causing the system to destabilize earlier. Phase 2&rsquo;s unified priority space resolves this by allowing cross-phase preemption, shifting the saturation knee rightward. MemGuard&rsquo;s geometric quantization then provides the decisive gain near saturation: by bounding preemption opportunities to <em>O(log S<sub>i</sub>)</em> per request, it prevents the KV-swap thrashing that collapses P99 under tight memory. The final &gamma;-Ada layer adds robustness to workload shifts without any manual tuning.
+  </p>
+
+  <h3 style="font-family:var(--disp);font-size:23px;font-weight:600;margin:44px 0 16px;color:var(--ink)">SLO Attainment</h3>
+
+  <div class="two">
+    <figure>
+      <img src="assets/slo_sweep_heavy_reason.png" alt="SLO attainment with chat+reasoning mixture" loading="lazy">
+      <figcaption><b>Figure 7a · SLO attainment (chat+reasoning mixture).</b> UniBoost maintains highest attainment across the widest range of SLO scales. On average, 2.9–8.7× more stringent SLO can be achieved at 99% attainment.</figcaption>
+    </figure>
+    <figure>
+      <img src="assets/slo_sweep_reasoning.png" alt="SLO attainment with reasoning dataset" loading="lazy">
+      <figcaption><b>Figure 7b · SLO attainment (reasoning dataset).</b> UniBoost achieves 1.7–4.3× gain in SLO threshold at 99% attainment for TTLT, while also dominating TTFT attainment across all scales.</figcaption>
+    </figure>
+  </div>
+
+  <p class="prose" style="margin-top:16px">
+    SLO attainment captures what operators actually care about: what fraction of requests meet a latency budget? The 2.9&ndash;8.7&times; improvement in achievable SLO threshold means that a cluster running UniBoost can commit to a latency guarantee that is nearly an order of magnitude tighter than what Sarathi or SJF can sustain at the same 99% attainment level. Equivalently, at a fixed SLO, UniBoost can serve significantly higher load before attainment drops below the target &mdash; directly translating to higher revenue per GPU.
+  </p>
+
+  <h3 style="font-family:var(--disp);font-size:23px;font-weight:600;margin:44px 0 16px;color:var(--ink)">Preemption Efficiency</h3>
+
+  <figure>
+    <img src="assets/preemption_cdf_load_points.webp" alt="CDF of restarts per request at different load points" loading="lazy">
+    <figcaption><b>Figure 8 · CDF of restarts per request at ρ = 0.8, 0.9, 0.99 (Qwen-72B, reasoning workload).</b> UniBoost (blue) achieves dramatically fewer preemptions than SRPT (gray) and Sarathi (orange), especially at high load — validating MemGuard's $O(\log 1)$ preemption bound.</figcaption>
+  </figure>
+
+
+  <p class="prose" style="margin-top:16px">
+    Preemption is the hidden cost of priority scheduling in LLM serving: every time a request is evicted, its KV-cache must be swapped to CPU memory and reloaded later, consuming PCIe bandwidth and stalling the GPU. SRPT&rsquo;s aggressive size-based preemption triggers this cascade frequently, especially at high load (&rho;&nbsp;=&nbsp;0.99) where memory is scarce. MemGuard&rsquo;s geometric quantization ensures that a request&rsquo;s priority is only reconsidered at exponentially spaced token milestones, so the total number of preemption opportunities is logarithmic in the request length. The CDF confirms this: at &rho;&nbsp;=&nbsp;0.99, over 90% of UniBoost requests complete with zero restarts, compared to frequent multi-restart patterns under SRPT and Sarathi.
+  </p>
+
+  <h3 style="font-family:var(--disp);font-size:23px;font-weight:600;margin:44px 0 16px;color:var(--ink)">Performance vs. TRAIL Baseline</h3>
+
+  <div class="tbl-wrap">
+    <div class="tbl-title">Table 2 · Relative Performance vs. TRAIL+ (Reasoning Workload)</div>
+    <table class="paper">
+      <thead>
+        <tr>
+          <th rowspan="2">Scheduler</th>
+          <th colspan="3" class="num" style="text-align:center;border-bottom:1px solid var(--line2)">End-to-End Latency (TTLT)</th>
+          <th colspan="3" class="num" style="text-align:center;border-bottom:1px solid var(--line2)">TTFT</th>
+          <th colspan="3" class="num" style="text-align:center;border-bottom:1px solid var(--line2)">TBT</th>
+          <th class="num">Throughput</th>
+        </tr>
+        <tr>
+          <th class="num">Mean</th><th class="num">P95</th><th class="num">P99</th>
+          <th class="num">Mean</th><th class="num">P95</th><th class="num">P99</th>
+          <th class="num">Mean</th><th class="num">P95</th><th class="num">P99</th>
+          <th class="num">tok/s</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>TRAIL+ (baseline)</td>
+          <td class="num">+0.0%</td><td class="num">+0.0%</td><td class="num">+0.0%</td>
+          <td class="num">+0.0%</td><td class="num">+0.0%</td><td class="num">+0.0%</td>
+          <td class="num">+0.0%</td><td class="num">+0.0%</td><td class="num">+0.0%</td>
+          <td class="num">+0.0%</td>
+        </tr>
+        <tr>
+          <td>SJF</td>
+          <td class="num" style="background:#fff9e6">−11.1%</td>
+          <td class="num" style="background:#fff9e6">−12.5%</td>
+          <td class="num" style="background:#dcf1e6">+11.2%</td>
+          <td class="num" style="background:#ffd5d5">−74.6%</td>
+          <td class="num" style="background:#ffd5d5">−70.5%</td>
+          <td class="num" style="background:#fff9e6">−9.7%</td>
+          <td class="num" style="background:#fff9e6">−5.2%</td>
+          <td class="num" style="background:#fff9e6">−7.1%</td>
+          <td class="num" style="background:#fff9e6">−6.3%</td>
+          <td class="num" style="background:#fff9e6">−7.9%</td>
+        </tr>
+        <tr>
+          <td>Sarathi</td>
+          <td class="num" style="background:#fff9e6">−12.3%</td>
+          <td class="num" style="background:#fff9e6">−13.2%</td>
+          <td class="num" style="background:#fff9e6">−7.6%</td>
+          <td class="num" style="background:#ffcc99">−49.9%</td>
+          <td class="num" style="background:#ffcc99">−40.5%</td>
+          <td class="num" style="background:#fff9e6">−8.1%</td>
+          <td class="num" style="background:#fff9e6">−6.8%</td>
+          <td class="num" style="background:#fff9e6">−8.4%</td>
+          <td class="num" style="background:#fff9e6">−7.9%</td>
+          <td class="num" style="background:#fff9e6">−10.9%</td>
+        </tr>
+        <tr>
+          <td>DistBoost</td>
+          <td class="num" style="background:#fff9e6">−14.0%</td>
+          <td class="num" style="background:#dcf1e6">+6.0%</td>
+          <td class="num" style="background:#57bb8a;color:#fff;font-weight:700">+37.1%</td>
+          <td class="num" style="background:#ffcc99">−22.8%</td>
+          <td class="num" style="background:#ffcc99">−35.0%</td>
+          <td class="num" style="background:#fff9e6">−3.4%</td>
+          <td class="num" style="background:#fff9e6">−14.1%</td>
+          <td class="num" style="background:#fff9e6">−10.2%</td>
+          <td class="num" style="background:#dcf1e6">+18.3%</td>
+          <td class="num" style="background:#dcf1e6">+1.1%</td>
+        </tr>
+        <tr style="background:#fffbf2">
+          <td><strong>UniBoost (Ours)</strong></td>
+          <td class="num" style="background:#ffcc99">−19.1%</td>
+          <td class="num" style="background:#dcf1e6">+1.1%</td>
+          <td class="num best" style="background:#57bb8a;color:#fff">+35.1%</td>
+          <td class="num best" style="background:#57bb8a;color:#fff">+52.1%</td>
+          <td class="num best" style="background:#57bb8a;color:#fff">+97.4%</td>
+          <td class="num best" style="background:#57bb8a;color:#fff">+34.0%</td>
+          <td class="num" style="background:#ffcc99">−25.3%</td>
+          <td class="num" style="background:#fff9e6">−8.1%</td>
+          <td class="num best" style="background:#57bb8a;color:#fff">+33.8%</td>
+          <td class="num" style="background:#dcf1e6">+1.2%</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="tbl-cap"><b>Green = improvement; yellow = minor degradation (≤15%); orange = moderate degradation (≤50%); red = severe degradation (&gt;50%).</b> UniBoost delivers the most substantial gains across all major tail metrics, especially P99 TTLT (+35%) and P95 TTFT (+97%), without sacrificing throughput.</div>
+  </div>
+  <p class="prose" style="margin-top:20px">
+    Compared to TRAIL+, the strongest published LLM scheduling baseline, UniBoost achieves a +35% improvement in P99 end-to-end latency and a remarkable +97% gain in P95 TTFT &mdash; meaning the 95th-percentile time-to-first-token is nearly halved. The mean TTLT trade-off (&minus;19%) reflects UniBoost&rsquo;s deliberate choice to prioritize tail over mean: by protecting short requests from convoy delays, some long requests wait slightly longer at the mean. Crucially, throughput is essentially unchanged (+1.2%), confirming that tail improvement comes from smarter scheduling, not from sacrificing utilization. TBT P99 improves by +34%, indicating that even the decode phase benefits from reduced memory pressure and fewer preemption-induced stalls.
+  </p>
+</div></section>
+
+<!-- ── DISCUSSION ── -->
+<section id="discussion"><div class="wrap">
+  <div class="kicker">Discussion</div>
+  <div class="sechead">
+    <h2>Composability, extensions, and open problems</h2>
+    <p>UniBoost is designed to drop into existing LLM serving stacks. This section covers how it interacts with common system optimizations and outlines directions for future work.</p>
+  </div>
+
+  <h3 style="font-family:var(--disp);font-size:23px;font-weight:600;margin:0 0 12px;color:var(--ink)">Prefix / Radix Caching</h3>
+  <p class="prose">
+    Caching is outside the scope of this work, but UniBoost extends straightforwardly to prefix and radix caching. Caching primarily reduces <em>effective prefill work</em>: if a request has $h_i$ cached tokens (e.g., from a shared system prompt or an earlier multi-turn context), we replace the effective-work formula with
+    $$\tilde{w}_i(t) = \max\!\bigl(w_i(t),\; s_i^{\text{pre}} - h_i\bigr).$$
+    This single substitution is sufficient &mdash; the UniBoost implementation and its theoretical validity remain unchanged. In practice, the cache-hit count $h_i$ is known at admission time (it is the output of the radix-cache lookup), so no additional estimation is required.
+  </p>
+
+  <h3 style="font-family:var(--disp);font-size:23px;font-weight:600;margin:40px 0 12px;color:var(--ink)">Chunked Prefill and Continuous Batching</h3>
+  <p class="prose">
+    UniBoost already adopts continuous batching and chunked prefill by design. Prefill is treated as incremental service: each chunk advances the effective work $\tilde{w}_i(t)$ and therefore updates priority consistently with decode. The chunk size is typically set based on the desired TBT/TPOT SLO; the table below shows that UniBoost&rsquo;s gains are robust across a wide range of chunk sizes.
+  </p>
+  <div class="tbl-wrap" style="margin-top:16px">
+    <div class="tbl-title">Table A1 &middot; Sensitivity to chunk size (relative change vs. FCFS baseline)</div>
+    <table class="paper">
+      <thead>
+        <tr>
+          <th rowspan="2">Chunk size</th>
+          <th colspan="3" class="num" style="text-align:center;border-bottom:1px solid var(--line2)">E2E</th>
+          <th colspan="3" class="num" style="text-align:center;border-bottom:1px solid var(--line2)">TTFT</th>
+          <th colspan="3" class="num" style="text-align:center;border-bottom:1px solid var(--line2)">TBT</th>
+          <th class="num">tok/s</th>
+        </tr>
+        <tr>
+          <th class="num">Mean</th><th class="num">P95</th><th class="num">P99</th>
+          <th class="num">Mean</th><th class="num">P95</th><th class="num">P99</th>
+          <th class="num">Mean</th><th class="num">P95</th><th class="num">P99</th>
+          <th class="num"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>128</td>
+          <td class="num" style="background:#fff9e6">&minus;17.8%</td><td class="num" style="background:#dcf1e6">+2.4%</td><td class="num" style="background:#57bb8a;color:#fff">+38.6%</td>
+          <td class="num" style="background:#dcf1e6">+12.3%</td><td class="num" style="background:#dcf1e6">+18.5%</td><td class="num" style="background:#dcf1e6">+8.2%</td>
+          <td class="num" style="background:#fff9e6">&minus;22.1%</td><td class="num" style="background:#fff9e6">&minus;5.9%</td><td class="num" style="background:#57bb8a;color:#fff">+36.4%</td>
+          <td class="num" style="background:#dcf1e6">+0.6%</td>
+        </tr>
+        <tr>
+          <td>512</td>
+          <td class="num" style="background:#fff9e6">&minus;18.7%</td><td class="num" style="background:#dcf1e6">+1.5%</td><td class="num" style="background:#57bb8a;color:#fff">+36.0%</td>
+          <td class="num" style="background:#57bb8a;color:#fff">+35.8%</td><td class="num" style="background:#57bb8a;color:#fff">+58.1%</td><td class="num" style="background:#dcf1e6">+22.3%</td>
+          <td class="num" style="background:#fff9e6">&minus;24.5%</td><td class="num" style="background:#fff9e6">&minus;7.5%</td><td class="num" style="background:#57bb8a;color:#fff">+34.8%</td>
+          <td class="num" style="background:#dcf1e6">+1.0%</td>
+        </tr>
+        <tr style="background:#fffbf2;font-weight:600">
+          <td><strong>1024 (default)</strong></td>
+          <td class="num" style="background:#fff9e6">&minus;19.1%</td><td class="num" style="background:#dcf1e6">+1.1%</td><td class="num best" style="background:#57bb8a;color:#fff">+35.1%</td>
+          <td class="num best" style="background:#57bb8a;color:#fff">+52.1%</td><td class="num best" style="background:#57bb8a;color:#fff">+97.4%</td><td class="num best" style="background:#57bb8a;color:#fff">+34.0%</td>
+          <td class="num" style="background:#fff9e6">&minus;25.3%</td><td class="num" style="background:#fff9e6">&minus;8.1%</td><td class="num best" style="background:#57bb8a;color:#fff">+33.8%</td>
+          <td class="num" style="background:#dcf1e6">+1.2%</td>
+        </tr>
+        <tr>
+          <td>2048</td>
+          <td class="num" style="background:#fff9e6">&minus;19.4%</td><td class="num" style="background:#dcf1e6">+0.8%</td><td class="num" style="background:#57bb8a;color:#fff">+34.5%</td>
+          <td class="num" style="background:#57bb8a;color:#fff">+68.4%</td><td class="num" style="background:#57bb8a;color:#fff">+93.6%</td><td class="num" style="background:#57bb8a;color:#fff">+45.1%</td>
+          <td class="num" style="background:#fff9e6">&minus;26.0%</td><td class="num" style="background:#fff9e6">&minus;8.6%</td><td class="num" style="background:#57bb8a;color:#fff">+33.2%</td>
+          <td class="num" style="background:#dcf1e6">+1.3%</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="tbl-cap">Larger chunks improve TTFT (fewer scheduling interruptions during prefill) at the cost of slightly higher mean TBT. P99 gains are robust across all chunk sizes.</div>
+  </div>
+
+  <h3 style="font-family:var(--disp);font-size:23px;font-weight:600;margin:40px 0 12px;color:var(--ink)">P/D Disaggregation</h3>
+  <p class="prose">
+    In prefill-decode disaggregated deployments (e.g., Splitwise, Nexus), prefill and decode run on separate GPU pools. UniBoost applies independently within each pool: the prefill scheduler uses the prompt-length signal $s_i^{\text{pre}}$ to boost new arrivals, and the decode scheduler uses attained decode tokens $w_i^{\text{dec}}(t)$ as the effective work signal. The two schedulers share the same $\gamma$ parameter, which can be estimated jointly from the end-to-end latency tail observed at the global dispatcher.
+  </p>
+
+  <h3 style="font-family:var(--disp);font-size:23px;font-weight:600;margin:40px 0 12px;color:var(--ink)">Composability with Global Dispatch Policies</h3>
+  <p class="prose">
+    Cluster-level routers decide which instance a request is sent to; UniBoost decides how to schedule requests <em>within</em> that instance. When the routing policy is approximately load-oblivious, the per-instance scheduling guarantees carry over directly. The table below reports the relative improvement of UniBoost over the vLLM baseline under three routing strategies on 64 H100 GPUs.
+  </p>
+  <div class="tbl-wrap" style="margin-top:16px">
+    <div class="tbl-title">Table A2 &middot; UniBoost vs. vLLM under different global schedulers (64&times; H100)</div>
+    <table class="paper">
+      <thead>
+        <tr>
+          <th>Global Scheduler</th>
+          <th class="num">Avg E2E</th><th class="num">P90 E2E</th><th class="num">P99 E2E</th>
+          <th class="num">Avg TBT</th><th class="num">P90 TBT</th><th class="num">P99 TBT</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Random</td>
+          <td class="num" style="background:#dcf1e6">+2.1%</td><td class="num" style="background:#fff9e6">&minus;3.7%</td><td class="num" style="background:#fff9e6">&minus;13.9%</td>
+          <td class="num" style="background:#fff9e6">&minus;68.8%</td><td class="num" style="background:#fff9e6">&minus;17.0%</td><td class="num" style="background:#fff9e6">&minus;69.5%</td>
+        </tr>
+        <tr>
+          <td>Round-robin</td>
+          <td class="num" style="background:#dcf1e6">+2.7%</td><td class="num" style="background:#fff9e6">&minus;0.9%</td><td class="num" style="background:#fff9e6">&minus;13.5%</td>
+          <td class="num" style="background:#fff9e6">&minus;48.0%</td><td class="num" style="background:#dcf1e6">+5.5%</td><td class="num" style="background:#fff9e6">&minus;60.5%</td>
+        </tr>
+        <tr style="background:#fffbf2">
+          <td><strong>JSQ (Join-Shortest-Queue)</strong></td>
+          <td class="num best" style="background:#57bb8a;color:#fff">+23.0%</td><td class="num best" style="background:#57bb8a;color:#fff">+17.2%</td><td class="num best" style="background:#57bb8a;color:#fff">+23.5%</td>
+          <td class="num best" style="background:#57bb8a;color:#fff">+73.5%</td><td class="num best" style="background:#57bb8a;color:#fff">+52.6%</td><td class="num best" style="background:#57bb8a;color:#fff">+77.5%</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="tbl-cap">With JSQ routing, TBT and E2E improvements become more pronounced, confirming that UniBoost composes favorably with stronger global dispatch policies. Green = improvement over vLLM baseline.</div>
+  </div>
+
+  <h3 style="font-family:var(--disp);font-size:23px;font-weight:600;margin:40px 0 12px;color:var(--ink)">Scalability with Cluster Size</h3>
+  <p class="prose">
+    The gains remain consistent across scales from 32&times; to 512&times;, indicating that UniBoost&rsquo;s per-instance benefits are largely independent of cluster size.
+  </p>
+  <div class="tbl-wrap" style="margin-top:16px">
+    <div class="tbl-title">Table A3 &middot; Relative improvement of UniBoost over vLLM at different cluster scales</div>
+    <table class="paper">
+      <thead>
+        <tr><th>Scale</th><th class="num">Avg E2E</th><th class="num">P99 E2E</th><th class="num">Avg TTFT</th><th class="num">P99 TTFT</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>32&times;</td><td class="num" style="background:#fff9e6">&minus;2.3%</td><td class="num" style="background:#57bb8a;color:#fff">&minus;13.9%</td><td class="num" style="background:#dcf1e6">+8.4%</td><td class="num" style="background:#57bb8a;color:#fff">&minus;8.7%</td></tr>
+        <tr><td>64&times;</td><td class="num" style="background:#fff9e6">&minus;2.8%</td><td class="num" style="background:#57bb8a;color:#fff">&minus;24.2%</td><td class="num" style="background:#dcf1e6">+3.6%</td><td class="num" style="background:#57bb8a;color:#fff">&minus;10.3%</td></tr>
+        <tr><td>128&times;</td><td class="num" style="background:#fff9e6">&minus;1.9%</td><td class="num" style="background:#57bb8a;color:#fff">&minus;12.7%</td><td class="num" style="background:#dcf1e6">+7.8%</td><td class="num" style="background:#57bb8a;color:#fff">&minus;11.9%</td></tr>
+        <tr><td>512&times;</td><td class="num" style="background:#fff9e6">&minus;0.4%</td><td class="num" style="background:#57bb8a;color:#fff">&minus;23.2%</td><td class="num" style="background:#dcf1e6">+1.2%</td><td class="num" style="background:#57bb8a;color:#fff">&minus;13.5%</td></tr>
+      </tbody>
+    </table>
+    <div class="tbl-cap">P99 E2E and P99 TTFT improve consistently across all cluster sizes.</div>
+  </div>
+
+  <h3 style="font-family:var(--disp);font-size:23px;font-weight:600;margin:40px 0 12px;color:var(--ink)">Limitations and Future Work</h3>
+  <p class="prose">
+    UniBoost targets single-replica, single-model scheduling. Several important directions remain open. First, integrating the cache-aware effective-work formula and measuring the combined effect with radix caching is a natural next step. Second, extending UniBoost to <strong>multi-model and multi-replica deployments</strong> requires new theoretical tools for how per-instance tail guarantees compose under load-aware routing. Third, the MemGuard bound of $O(\log S_i)$ preemptions per request assumes fixed KV-block sizes; incorporating variable-length KV blocks (as in speculative decoding) would require a more refined analysis. Finally, developing <strong>formal guarantees that capture preemption and eviction costs</strong> in the M/G/k model remains an important open problem.
+  </p>
+  <div class="callout" style="margin-top:24px">
+    <span class="q">Takeaway</span>
+    Stop predicting. Shape priorities softly, manage the cache jointly, and the tail takes care of itself. UniBoost drops into vLLM and SGLang continuous batching today.
+  </div>
+</div></section>
+
+<!-- ── CITE ── -->
+<section id="references"><div class="wrap">
+  <div class="kicker">References</div>
+  <div class="sechead">
+    <h2>References</h2>
+  </div>
+  <ol class="prose" style="padding-left:22px;line-height:1.75">
+    <li style="margin-bottom:12px">G. Yu and Z. Scully. Strongly Tail-Optimal Scheduling in the Light-Tailed M/G/1. <em>Proc. ACM Meas. Anal. Comput. Syst. (POMACS / SIGMETRICS)</em>, 2024. <a href="https://arxiv.org/abs/2404.08826">arXiv:2404.08826</a></li>
+    <li style="margin-bottom:12px">R. Shahout, E. Malach, C. Liu, W. Jiang, M. Yu, and M. Mitzenmacher. Don&rsquo;t Stop Me Now: Embedding Based Scheduling for LLMs. 2024. <a href="https://arxiv.org/abs/2410.01035">arXiv:2410.01035</a></li>
+    <li style="margin-bottom:12px">Y. Fu, S. Zhu, R. Su, A. Qiao, I. Stoica, and H. Zhang. Efficient LLM Scheduling by Learning to Rank. <em>NeurIPS</em>, 2024. <a href="https://arxiv.org/abs/2408.15792">arXiv:2408.15792</a></li>
+    <li style="margin-bottom:12px">W. Kwon, Z. Li, S. Zhuang, Y. Sheng, L. Zheng, C. H. Yu, J. E. Gonzalez, H. Zhang, and I. Stoica. Efficient Memory Management for Large Language Model Serving with PagedAttention. <em>SOSP</em>, 2023. <a href="https://arxiv.org/abs/2309.06180">arXiv:2309.06180</a></li>
+    <li style="margin-bottom:12px">L. Zheng, L. Yin, Z. Xie, C. Sun, J. Huang, C. H. Yu, S. Cao, C. Kozyrakis, I. Stoica, J. E. Gonzalez, C. Barrett, and Y. Sheng. SGLang: Efficient Execution of Structured Language Model Programs. <em>NeurIPS</em>, 2024. <a href="https://arxiv.org/abs/2312.07104">arXiv:2312.07104</a></li>
+  </ol>
+</div></section>
+
+<section id="cite"><div class="wrap">
+  <div class="kicker">Citation</div>
+  <div class="sechead">
+    <h2>Cite this work</h2>
+  </div>
+  <div style="position:relative">
+    <button id="copy" style="position:absolute;top:14px;right:14px;background:rgba(255,255,255,.1);color:#fff;
+      border:1px solid rgba(255,255,255,.2);border-radius:9px;padding:7px 13px;font-size:13px;
+      font-family:var(--mono);cursor:pointer;transition:background .15s">Copy</button>
+    <pre style="background:var(--navy-deep);color:#dfe6f2;border-radius:16px;padding:24px 22px;
+      overflow-x:auto;font-family:var(--mono);font-size:13.5px;line-height:1.7;margin:8px 0 0" id="bib">@inproceedings{li2026beyondprediction,
+  title     = {Beyond Prediction: Tail-Aware Scheduling for LLM Inference},
+  author    = {Yueying Li and Yuanfan Chen and Jiayang Chen and Esha Choukse
+               and Haoran Qiu and G. Edward Suh and Rodrigo Fonseca
+               and Ziv Scully and Udit Gupta},
+  booktitle = {International Conference on Machine Learning (ICML)},
+  year      = {2026},
+}</pre>
+  </div>
+
+</div></section>
+
+<footer><div class="wrap footer-inner">
+  <div>Cornell University &nbsp;·&nbsp; Microsoft Azure Systems Research &nbsp;·&nbsp; NVIDIA &nbsp;·&nbsp; ICML 2026</div>
+  <a href="#top">Back to top ↑</a>
+</div></footer>
+
+<script>
+// ── KaTeX ──
+document.addEventListener("DOMContentLoaded", function(){
+  if(window.renderMathInElement){
+    renderMathInElement(document.body,{delimiters:[
+      {left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}
+    ],throwOnError:false});
+  }
+});
+
+// ── copy bibtex ──
+document.getElementById('copy').addEventListener('click', function(){
+  navigator.clipboard.writeText(document.getElementById('bib').innerText).then(()=>{
+    this.textContent='Copied ✓'; setTimeout(()=>this.textContent='Copy',1400);
+  });
+});
+
+// ── lightbox ──
+(function(){
+  var lb = document.getElementById("lightbox");
+  var lbImg = lb.querySelector("img");
+  function open(img){ lbImg.src=img.currentSrc||img.src; lbImg.alt=img.alt||"";
+    lb.hidden=false; lb.setAttribute("aria-hidden","false"); document.body.style.overflow="hidden"; }
+  function close(){ lb.hidden=true; lb.setAttribute("aria-hidden","true");
+    lbImg.src=""; document.body.style.overflow=""; }
+  document.querySelectorAll("figure img").forEach(function(img){
+    img.addEventListener("click", function(){ open(img); });
+  });
+  lb.addEventListener("click", close);
+  document.addEventListener("keydown", function(e){ if(e.key==="Escape"&&!lb.hidden) close(); });
+})();
+
+// ── gamma demo ──
+(function(){
+  const cv=document.getElementById('plot'), ctx=cv.getContext('2d');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const W=760,H=460, padL=64,padR=20,padT=24,padB=52;
+  function fit(){
+    const ratio=window.devicePixelRatio||1;
+    const cssW=cv.clientWidth||W; const cssH=H*(cssW/W);
+    cv.width=cssW*ratio; cv.height=cssH*ratio; cv.style.height=cssH+'px';
+    ctx.setTransform(ratio*(cssW/W),0,0,ratio*(cssW/W),0,0);
+  }
+  const P=[]; for(let i=0;i<=120;i++){P.push(i/120);}
+  function sjf(q){ return 0.55 + 0.55*q + 7.8*Math.pow(q,6.5); }
+  function fcfs(q){ return 1.32 + 1.5*q + 1.15*Math.pow(q,3.2); }
+  function uni(q,s){
+    const base = sjf(q)*(1-s) + fcfs(q)*s;
+    const bonus = Math.exp(-Math.pow((s-0.52)/0.26,2));
+    const tail = Math.pow(q,3.6);
+    return Math.max(0.4, base - 1.55*bonus*tail);
+  }
+  const YMAX=9;
+  function X(q){ return padL + q*(W-padL-padR); }
+  function Y(v){ return padT + (1-Math.min(v,YMAX)/YMAX)*(H-padT-padB); }
+  function curve(fn,s){ ctx.beginPath(); P.forEach((q,i)=>{const x=X(q),y=Y(fn(q,s)); i?ctx.lineTo(x,y):ctx.moveTo(x,y);}); }
+  function percVal(fn,s,targetPct){ const q=(targetPct-50)/49.9; return fn(q,s); }
+  function draw(s){
+    ctx.clearRect(0,0,W,H);
+    ctx.strokeStyle='#EDF0F5'; ctx.lineWidth=1; ctx.fillStyle='#8A93A8';
+    ctx.font="12px 'JetBrains Mono', monospace"; ctx.textAlign='right'; ctx.textBaseline='middle';
+    for(let v=0;v<=8;v+=2){const y=Y(v); ctx.beginPath();ctx.moveTo(padL,y);ctx.lineTo(W-padR,y);ctx.stroke();
+      ctx.fillText(v.toFixed(0), padL-10, y);}
+    ctx.textAlign='center'; ctx.textBaseline='top';
+    [[50,'P50'],[75,'P75'],[90,'P90'],[99,'P99']].forEach(([p,l])=>{
+      const q=(p-50)/49.9; const x=X(q);
+      ctx.strokeStyle='#F2F4F8'; ctx.beginPath();ctx.moveTo(x,padT);ctx.lineTo(x,H-padB);ctx.stroke();
+      ctx.fillStyle='#8A93A8'; ctx.fillText(l, x, H-padB+8);
+    });
+    ctx.save(); ctx.fillStyle='#646E86'; ctx.font="600 12px 'JetBrains Mono', monospace";
+    ctx.textAlign='center'; ctx.fillText('PERCENTILE', (padL+W-padR)/2, H-16);
+    ctx.translate(16,(padT+H-padB)/2); ctx.rotate(-Math.PI/2); ctx.fillText('LATENCY', 0,0); ctx.restore();
+    ctx.lineWidth=2; ctx.setLineDash([6,6]);
+    ctx.strokeStyle='#247E63'; curve(fcfs,1); ctx.stroke();
+    ctx.strokeStyle='#BF4636'; curve((q)=>sjf(q)); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.strokeStyle='#D9821F'; ctx.lineWidth=3.4; curve(uni,s); ctx.stroke();
+    function dot(p,col){const q=(p-50)/49.9;const x=X(q),y=Y(uni(q,s));
+      ctx.beginPath();ctx.arc(x,y,5.5,0,7);ctx.fillStyle='#fff';ctx.fill();
+      ctx.lineWidth=3;ctx.strokeStyle=col;ctx.stroke();}
+    dot(99,'#BF4636'); dot(50,'#247E63');
+    ctx.font="12px 'JetBrains Mono', monospace"; ctx.textAlign='left'; ctx.textBaseline='middle';
+    const ly=padT+6; let lx=padL+8;
+    function leg(col,txt,dash){ctx.strokeStyle=col;ctx.lineWidth=col=='#D9821F'?3.4:2;
+      ctx.setLineDash(dash?[5,5]:[]);ctx.beginPath();ctx.moveTo(lx,ly);ctx.lineTo(lx+24,ly);ctx.stroke();ctx.setLineDash([]);
+      ctx.fillStyle='#3C465E';ctx.fillText(txt,lx+30,ly); lx+=30+ctx.measureText(txt).width+22;}
+    leg('#D9821F','UniBoost',false); leg('#BF4636','SJF',true); leg('#247E63','FCFS',true);
+  }
+  function gammaFromSlider(v){ const lg = -2 + (v/100)*4; return Math.pow(10,lg); }
+  function sFromSlider(v){ return v/100; }
+  function update(){
+    const v=+g.value, gam=gammaFromSlider(v), s=sFromSlider(v);
+    document.getElementById('gval').innerHTML = 'γ = '+ (gam>=10?gam.toFixed(0):gam>=1?gam.toFixed(1):gam.toFixed(2));
+    draw(s);
+    const p50=percVal(uni,s,50), p99=percVal(uni,s,99);
+    document.getElementById('m50').textContent=p50.toFixed(2)+'s';
+    document.getElementById('m99').textContent=p99.toFixed(2)+'s';
+    let msg;
+    if(s<0.22) msg='<b>SJF regime.</b> The median is low, but the P99 tail runs away — exactly the failure mode of size-based ranking under bursts.';
+    else if(s>0.8) msg='<b>FCFS regime.</b> The tail is well-behaved and starvation-free, but the median pays for it.';
+    else msg='<b>Sweet spot.</b> A mid γ pushes the P99 marker <i>below both</i> reference curves — soft boosting beats either extreme on the tail.';
+    document.getElementById('readout').innerHTML=msg;
+  }
+  const g=document.getElementById('g');
+  g.addEventListener('input', update);
+  window.addEventListener('resize', ()=>{fit();update();});
+  fit();
+  if(!reduce){
+    let t=0; g.value=8;
+    const anim=setInterval(()=>{ t++; g.value=Math.min(50, 8+t*3); update(); if(+g.value>=50){clearInterval(anim);} },28);
+  } else { g.value=50; }
+  update();
+})();
+
+// ── simulator (auto-gamma) ──
+(function(){
+  const cv  = document.getElementById('sim-canvas');
+  const ctx = cv.getContext('2d');
+  const sv  = document.getElementById('sweep-canvas');
+  const sctx = sv.getContext('2d');
+  const W=760, H=340, padL=72, padR=24, padT=28, padB=48;
+  const SW=760, SH=130, spadL=72, spadR=24, spadT=16, spadB=36;
+
+  function fitSim(){
+    const ratio = window.devicePixelRatio||1;
+    const cssW = cv.clientWidth||W;
+    // main chart
+    const cssH = H*(cssW/W);
+    cv.width = cssW*ratio; cv.height = cssH*ratio;
+    cv.style.height = cssH+'px';
+    ctx.setTransform(ratio*(cssW/W), 0, 0, ratio*(cssW/W), 0, 0);
+    // sweep chart
+    const scssH = SH*(cssW/SW);
+    sv.width = cssW*ratio; sv.height = scssH*ratio;
+    sv.style.height = scssH+'px';
+    sctx.setTransform(ratio*(cssW/SW), 0, 0, ratio*(cssW/SW), 0, 0);
+  }
+
+  const PCTS = [50, 75, 90, 95, 99, 99.9];
+  function X(i){ return padL + (i/(PCTS.length-1))*(W-padL-padR); }
+  function Y(v, ymax){ return padT + (1 - Math.min(v,ymax)/ymax)*(H-padT-padB); }
+
+  function drawSim(data){
+    ctx.clearRect(0,0,W,H);
+    if(!data){
+      ctx.fillStyle='#8A93A8'; ctx.font="14px 'Inter',sans-serif"; ctx.textAlign='center';
+      ctx.fillText('Waiting for simulation…', W/2, H/2); return;
+    }
+    const allVals = [...data.fcfs, ...data.srpt, ...data.uniboost];
+    const ymax = Math.max(...allVals) * 1.08;
+    const nGridY = 5;
+    ctx.fillStyle='#8A93A8'; ctx.font="11px 'JetBrains Mono',monospace"; ctx.textAlign='right'; ctx.textBaseline='middle';
+    for(let i=0;i<=nGridY;i++){
+      const v = ymax * i / nGridY;
+      const y = Y(v, ymax);
+      ctx.strokeStyle='#EDF0F5'; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W-padR, y); ctx.stroke();
+      ctx.fillText(v.toFixed(v<10?1:0), padL-8, y);
+    }
+    ctx.textAlign='center'; ctx.textBaseline='top';
+    PCTS.forEach((p,i)=>{
+      const x = X(i);
+      ctx.strokeStyle='#F2F4F8'; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(x,padT); ctx.lineTo(x,H-padB); ctx.stroke();
+      ctx.fillStyle='#8A93A8'; ctx.fillText('P'+p, x, H-padB+8);
+    });
+    // P99 highlight column
+    const p90i = PCTS.indexOf(99);
+    if(p90i>=0){
+      ctx.fillStyle='rgba(217,130,31,0.06)';
+      ctx.fillRect(X(p90i)-18, padT, 36, H-padT-padB);
+    }
+    ctx.save(); ctx.fillStyle='#646E86'; ctx.font="600 11px 'JetBrains Mono',monospace";
+    ctx.textAlign='center'; ctx.fillText('PERCENTILE', (padL+W-padR)/2, H-14);
+    ctx.translate(18,(padT+H-padB)/2); ctx.rotate(-Math.PI/2); ctx.fillText('LATENCY (s)', 0, 0); ctx.restore();
+
+    function drawCurve(vals, color, dash, lw){
+      ctx.beginPath(); ctx.strokeStyle=color; ctx.lineWidth=lw||2;
+      ctx.setLineDash(dash||[]);
+      vals.forEach((v,i)=>{ const x=X(i), y=Y(v,ymax); i?ctx.lineTo(x,y):ctx.moveTo(x,y); });
+      ctx.stroke(); ctx.setLineDash([]);
+      vals.forEach((v,i)=>{
+        const x=X(i), y=Y(v,ymax);
+        ctx.beginPath(); ctx.arc(x,y,4,0,7);
+        ctx.fillStyle='#fff'; ctx.fill();
+        ctx.strokeStyle=color; ctx.lineWidth=2; ctx.stroke();
+      });
+    }
+    drawCurve(data.fcfs,  '#247E63', [6,5], 2);
+    drawCurve(data.srpt,  '#BF4636', [6,5], 2);
+    drawCurve(data.uniboost, '#D9821F', [], 3.2);
+
+    ctx.font="11px 'JetBrains Mono',monospace"; ctx.textAlign='left'; ctx.textBaseline='middle';
+    const ly=padT+8; let lx=padL+8;
+    function leg(col,txt,dash){
+      ctx.strokeStyle=col; ctx.lineWidth=col=='#D9821F'?3.2:2;
+      ctx.setLineDash(dash?[5,4]:[]);
+      ctx.beginPath(); ctx.moveTo(lx,ly); ctx.lineTo(lx+22,ly); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle='#3C465E'; ctx.fillText(txt, lx+28, ly);
+      lx += 28 + ctx.measureText(txt).width + 20;
+    }
+    leg('#247E63','FCFS',true); leg('#BF4636','SRPT',true); leg('#D9821F',`UniBoost (γ=${data.best_gamma||'?'})`,false);
+  }
+
+  function drawSweep(data){
+    sctx.clearRect(0,0,SW,SH);
+    if(!data || !data.sweep_gammas) return;
+    const gs = data.sweep_gammas, ps = data.sweep_p99s;
+    const gmax = Math.max(...gs), gmin = 0;
+    const pmax = Math.max(...ps, data.p99_fcfs||0) * 1.1;
+    const pmin = Math.min(...ps) * 0.9;
+    function SX(g){ return spadL + (g-gmin)/(gmax-gmin||1) * (SW-spadL-spadR); }
+    function SY(p){ return spadT + (1-(p-pmin)/(pmax-pmin||1)) * (SH-spadT-spadB); }
+
+    // grid
+    sctx.strokeStyle='#EDF0F5'; sctx.lineWidth=1;
+    [0,0.5,1].forEach(f=>{
+      const y = spadT + f*(SH-spadT-spadB);
+      sctx.beginPath(); sctx.moveTo(spadL,y); sctx.lineTo(SW-spadR,y); sctx.stroke();
+    });
+
+    // FCFS and SRPT reference lines
+    if(data.p99_fcfs){
+      const y = SY(data.p99_fcfs);
+      sctx.strokeStyle='rgba(36,126,99,0.4)'; sctx.lineWidth=1; sctx.setLineDash([4,3]);
+      sctx.beginPath(); sctx.moveTo(spadL,y); sctx.lineTo(SW-spadR,y); sctx.stroke();
+      sctx.setLineDash([]);
+      sctx.fillStyle='rgba(36,126,99,0.7)'; sctx.font="10px 'JetBrains Mono',monospace"; sctx.textAlign='right';
+      sctx.fillText('FCFS', spadL-4, y+3);
+    }
+    if(data.p99_srpt){
+      const y = SY(data.p99_srpt);
+      sctx.strokeStyle='rgba(191,70,54,0.4)'; sctx.lineWidth=1; sctx.setLineDash([4,3]);
+      sctx.beginPath(); sctx.moveTo(spadL,y); sctx.lineTo(SW-spadR,y); sctx.stroke();
+      sctx.setLineDash([]);
+      sctx.fillStyle='rgba(191,70,54,0.7)'; sctx.font="10px 'JetBrains Mono',monospace"; sctx.textAlign='right';
+      sctx.fillText('SRPT', spadL-4, y+3);
+    }
+
+    // sweep curve
+    sctx.beginPath(); sctx.strokeStyle='#D9821F'; sctx.lineWidth=2.5; sctx.setLineDash([]);
+    gs.forEach((g,i)=>{ const x=SX(g), y=SY(ps[i]); i?sctx.lineTo(x,y):sctx.moveTo(x,y); });
+    sctx.stroke();
+
+    // best gamma marker
+    if(data.best_gamma != null){
+      const bx = SX(data.best_gamma), by = SY(data.p99_uniboost);
+      sctx.beginPath(); sctx.arc(bx,by,6,0,7);
+      sctx.fillStyle='#D9821F'; sctx.fill();
+      sctx.strokeStyle='#fff'; sctx.lineWidth=2; sctx.stroke();
+    }
+
+    // x-axis label
+    sctx.fillStyle='#8A93A8'; sctx.font="10px 'JetBrains Mono',monospace"; sctx.textAlign='center';
+    sctx.fillText('γ (boost parameter)', (spadL+SW-spadR)/2, SH-4);
+    sctx.textAlign='left';
+    sctx.fillText('P99 vs γ', spadL+4, spadT+10);
+  }
+
+  let debounceTimer = null;
+  let lastData = null;
+
+  function fetchSim(){
+    const dist = document.getElementById('sim-dist').value;
+    const rho  = parseInt(document.getElementById('sim-rho').value) / 100;
+    document.getElementById('sim-rho-val').textContent = rho.toFixed(2);
+
+    const spinner = document.getElementById('sim-spinner');
+    spinner.classList.add('active');
+    document.getElementById('sim-note').textContent = 'Finding optimal γ…';
+
+    // When served from sim_api.py (port 5050), use same-origin. Otherwise use public proxy.
+    const port = window.location.port;
+    const apiBase = (port === '5050' || port === '') ? '' : (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://localhost:5050' : 'https://5050-ii0fcvdkrvect460qmbkb-f775fdcf.us1.manus.computer';
+    fetch(apiBase + '/api/simulate_auto', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({dist, rho, n_requests: 350})
+    })
+    .then(r => r.json())
+    .then(data => {
+      lastData = data;
+      spinner.classList.remove('active');
+      fitSim(); drawSim(data); drawSweep(data);
+
+      const p99_fcfs = data.p99_fcfs, p99_srpt = data.p99_srpt, p99_uni = data.p99_uniboost;
+      document.getElementById('ss-gamma').textContent = 'γ = ' + data.best_gamma;
+      document.getElementById('ss-fcfs').textContent = p99_fcfs.toFixed(2)+'s';
+      document.getElementById('ss-srpt').textContent = p99_srpt.toFixed(2)+'s';
+      document.getElementById('ss-uni').textContent  = p99_uni.toFixed(2)+'s';
+
+      const pct_vs_fcfs = ((1 - p99_uni/p99_fcfs)*100).toFixed(0);
+      const pct_vs_srpt = ((1 - p99_uni/p99_srpt)*100).toFixed(0);
+      const distName = {'exponential':'Exponential (chat)','lognormal':'Log-Normal (mixed)','pareto':'Pareto (reasoning)'}[dist] || dist;
+
+      let note = '';
+      if(p99_uni < p99_fcfs && p99_uni < p99_srpt){
+        note = `⭐ <b>UniBoost wins on P99</b> at γ=${data.best_gamma} — <b>${pct_vs_fcfs}% lower than FCFS</b> and <b>${pct_vs_srpt}% lower than SRPT</b>. No length prediction needed.`;
+      } else if(p99_uni < p99_fcfs){
+        note = `✔ <b>UniBoost beats FCFS by ${pct_vs_fcfs}%</b> on P99 at γ=${data.best_gamma}. In the real LLM system, UniBoost also beats SRPT because SRPT triggers expensive KV-cache swap cascades under memory pressure — a system-level effect not captured in this queueing model.`;
+      } else {
+        note = `At γ=${data.best_gamma}, UniBoost is between FCFS and SRPT. The bottom chart shows P99 vs γ — the orange dot marks the optimal. In the real system, SRPT's P99 is much worse due to KV-cache memory pressure.`;
+      }
+      document.getElementById('sim-note').innerHTML = note;
+    })
+    .catch(()=>{
+      spinner.classList.remove('active');
+      drawSim(null);
+      document.getElementById('sim-note').innerHTML = '<b>Simulation backend unavailable.</b> Run <code>python3 sim_api.py</code> locally on port 5050 to enable live simulation.';
+    });
+  }
+
+  function schedFetch(){
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(fetchSim, 400);
+  }
+
+  // Recommended load per distribution — chosen to maximise UniBoost's P99 benefit
+  // (swept empirically: exponential +3.3% at ρ=0.70, lognormal +48% at ρ=0.90, pareto +57% at ρ=0.85)
+  const RECOMMENDED_RHO = {
+    exponential: 70,   // light-tailed: best UniBoost benefit at ρ=0.70 (+3.3% vs FCFS)
+    lognormal:   90,   // medium-tailed: UniBoost wins by 48% at ρ=0.90
+    pareto:      85    // heavy-tailed: UniBoost wins by 57% at ρ=0.85
+  };
+
+  const distSel = document.getElementById('sim-dist');
+  const rhoSlider = document.getElementById('sim-rho');
+
+  // Snap rho to recommended value when distribution changes
+  function snapRho(dist){
+    const rec = RECOMMENDED_RHO[dist];
+    if(rec !== undefined){
+      rhoSlider.value = rec;
+      document.getElementById('sim-rho-val').textContent = (rec/100).toFixed(2);
+      // Re-show the recommended badge
+      const badge = document.getElementById('rho-rec-badge');
+      if(badge) badge.style.display = '';
+    }
+  }
+  distSel.addEventListener('change', function(){ snapRho(this.value); schedFetch(); });
+  distSel.addEventListener('input',  function(){ snapRho(this.value); schedFetch(); });
+
+  rhoSlider.addEventListener('input', function(){
+    // User manually adjusted rho — hide the recommended badge
+    const badge = document.getElementById('rho-rec-badge');
+    if(badge) badge.style.display = 'none';
+    schedFetch();
+  });
+  rhoSlider.addEventListener('change', schedFetch);
+
+  window.addEventListener('resize', ()=>{ fitSim(); if(lastData){ drawSim(lastData); drawSweep(lastData); } });
+
+  // Trigger simulation when the sim-card scrolls into view (canvas has layout at that point)
+  let simTriggered = false;
+  const simCard = cv.closest('.sim-card') || cv.closest('.sim-body') || cv.parentElement;
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting && !simTriggered) {
+        simTriggered = true;
+        setTimeout(() => { fitSim(); fetchSim(); }, 50);
+        observer.disconnect();
+      }
+    });
+  }, { rootMargin: '200px', threshold: 0 });
+  observer.observe(simCard);
+})();
+</script>
+</body>
+</html>

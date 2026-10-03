@@ -1,0 +1,122 @@
+{
+  "status": "FROZEN_UNRUN_PENDING_FULL_STAGE_GPU_QUALIFICATION",
+  "created_unix_s": 1789253196.2808802,
+  "evidence_type": "DESCRIPTIVE_NATIVE_SHARED_POOL_EXECUTION",
+  "question": "Does compact21+48 mapped execution improve complete requests over ordinary private20+64 full staging at the same384 slots?",
+  "inputs": [
+    {
+      "label": "block0",
+      "source_indices": [
+        22,
+        23,
+        24
+      ],
+      "documents": [
+        "memory-train-article-0002733",
+        "memory-train-article-0002820",
+        "memory-train-article-0002932"
+      ],
+      "prepared_sha256": "c1b7f1793621466544c433a31b8d4cc61b90b84dea4cdd3164bfe4668e2a3b3f"
+    },
+    {
+      "label": "block1",
+      "source_indices": [
+        25,
+        26,
+        27
+      ],
+      "documents": [
+        "memory-train-article-0003128",
+        "memory-train-article-0003259",
+        "memory-train-article-0003299"
+      ],
+      "prepared_sha256": "92e39dd84896360b4a07993b05664474fb1187bbbb2daa3a03e58a137089780d"
+    }
+  ],
+  "source_workload": "refine-logs/expert_saturation/outputs/admission_capacity/20260906_native_memory_pressure_r01/inputs_preparation/prepared/short/workload.json",
+  "source_sha256": "2c08f17c8edef382e6aacb4f1321d35c3f386a60ec840c95c922fbd7e0a25a53",
+  "arms": {
+    "oneshot": "private21 x16 +shared48, preserve ordinary21 endstate on own current rows; D2D before H2D then mapped full-union kernel",
+    "fullstage": "private20 x16 +shared64, ordinary20 endstate; current hits D2D to fullstage, entry misses H2D once, newly retained expert D2D writeback, contiguous64 full-union kernel"
+  },
+  "sequence": [
+    {
+      "label": "0_oneshot",
+      "mode": "oneshot",
+      "block": 0,
+      "prepared": "block0"
+    },
+    {
+      "label": "1_fullstage",
+      "mode": "fullstage",
+      "block": 0,
+      "prepared": "block0"
+    },
+    {
+      "label": "2_fullstage",
+      "mode": "fullstage",
+      "block": 1,
+      "prepared": "block1"
+    },
+    {
+      "label": "3_oneshot",
+      "mode": "oneshot",
+      "block": 1,
+      "prepared": "block1"
+    }
+  ],
+  "resources": {
+    "expert_slots": 384,
+    "expert_weight_bytes": 4831838208,
+    "kv_bytes": 1073741824,
+    "CPU": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "OMP": 8,
+    "token_budget": 160,
+    "max_num_seqs": 16
+  },
+  "workload": {
+    "prompts": [
+      32,
+      32,
+      128
+    ],
+    "outputs": [
+      16,
+      16,
+      8
+    ],
+    "injection": "third request when both old have4 outputs",
+    "prefill_chunk": 8,
+    "release": "after both old complete",
+    "episodes_per_fresh_engine": 8
+  },
+  "objectives": [
+    "complete capture wall",
+    "old maximum ITL and completion",
+    "new TTFT and completion",
+    "full reset/warmup/observation/write/flush cycle and parent process wall"
+  ],
+  "boundaries": [
+    "Two disjoint new document triples; eight episodes inside each engine are dependent repeats, not independent requests/CI samples.",
+    "Opposite order also changes document block, so effect drift cannot be assigned solely to order or text. Pair within each block and report both, all slow/failure rows retained.",
+    "No SLO selected from results, no maximum-control noise floor or arbitrary multiplier acceptance. Improved requests with offsetting cycle or old-request costs stay tradeoff, not net GO.",
+    "Each arm has its own real route/output/cache evolution. No assertion of cross-arm bitwise state or output equality. All fixed requested token work and outputs retained; quality unmeasured.",
+    "Qualification refs/poison/readback disabled, same tracing/observer/episode flush categories in all arms. New planner/map/event/trace overhead is included, not subtracted.",
+    "GPU preflight perinit/repeat/finish; no claim of continuous exclusivity. Stop on any failed cell, inspect; preserve all attempts. Canonical is first complete valid cell per predeclared label, never outcome-selected.",
+    "Current shared wrapper is identical in both arms except chosen executor/private capacity. All eleven source hashes recorded. This is ordinary fullstage adaptation, not an original paper reproduction.",
+    "Common runner retains original five warmup episodes; protected warmups use ordinary private21 or20 respectively. Selected executor handles none warmups; all costs retained. This repeated warmup cycle is not sustained-service amortization.",
+    "Resources use unique384 total, private336/shared48 versus private320/shared64; legacy scratch_bytes covers only private views. H2D and all D2D counted separately.",
+    "Single prior fullstage qualification must pass before GPU performance. Failure remains immutable; any fix requires separately frozen source and new qualification."
+  ],
+  "continue_if": "If compact has lower complete request costs over fullstage, measure sustained-service benefit and appropriate workload coverage; if ordinary fullstage captures benefit, use the stronger common executor for later resource actions without packaging stage separation as novelty.",
+  "stop_or_localize": "If wrong bytes/state or incomplete accounting, stop validity. If D2D/reduced residence/new execution work offsets savings, localize measured cost; do not kill whole problem."
+}

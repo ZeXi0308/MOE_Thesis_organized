@@ -1,0 +1,365 @@
+{
+  "schema": "lease-reverse-order-comparison-v1",
+  "blocks": {
+    "R01": {
+      "source_file": "/Users/zhaozhenyu/Desktop/毕业设计/MOE_Thesis_organized/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/recovery_quantum_20261002/output/LEASE_SERVICE_VS_FIXED4_R01_20261002.json",
+      "source_sha256": "be2d250f381c573e65fa160839b83ad534e22eff67fa0d46f41af833d91b2965",
+      "execution_order": [
+        "q1",
+        "fixed4",
+        "adaptive"
+      ],
+      "arms": {
+        "q1": {
+          "expected_requests": 128,
+          "completed": 128,
+          "failed": 0,
+          "unfinished": 0,
+          "total_output_tokens": 126336,
+          "max_gap_request_p95_s": 2.001742254057899,
+          "actual_output_tokens_s": 1554.985752194101,
+          "mean_flow_with_incomplete_penalty_s": 35.04167960066552
+        },
+        "fixed4": {
+          "expected_requests": 128,
+          "completed": 128,
+          "failed": 0,
+          "unfinished": 0,
+          "total_output_tokens": 127200,
+          "max_gap_request_p95_s": 1.4921544352080671,
+          "actual_output_tokens_s": 1553.3977169356106,
+          "mean_flow_with_incomplete_penalty_s": 35.26350750728743
+        },
+        "adaptive": {
+          "expected_requests": 128,
+          "completed": 128,
+          "failed": 0,
+          "unfinished": 0,
+          "total_output_tokens": 126601,
+          "max_gap_request_p95_s": 1.7076498706825076,
+          "actual_output_tokens_s": 1537.8104149254873,
+          "mean_flow_with_incomplete_penalty_s": 35.38734476048266
+        }
+      },
+      "adaptive_vs_fixed4": {
+        "metrics": {
+          "max_gap_request_p95_s": {
+            "adaptive_minus_fixed4": 0.2154954354744405,
+            "adaptive_over_fixed4": 1.1444189893416707,
+            "change_pct": 14.441898934167074
+          },
+          "actual_output_tokens_s": {
+            "adaptive_minus_fixed4": -15.587302010123267,
+            "adaptive_over_fixed4": 0.9899656721262136,
+            "change_pct": -1.0034327873786442
+          },
+          "mean_flow_with_incomplete_penalty_s": {
+            "adaptive_minus_fixed4": 0.12383725319523364,
+            "adaptive_over_fixed4": 1.0035117678855299,
+            "change_pct": 0.35117678855298706
+          }
+        },
+        "paired_request_direction_counts": {
+          "max_gap_s": {
+            "adaptive_higher": 72,
+            "adaptive_lower": 56,
+            "equal": 0
+          },
+          "actual_completion_flow_s": {
+            "adaptive_higher": 56,
+            "adaptive_lower": 72,
+            "equal": 0
+          },
+          "ttft_s": {
+            "adaptive_higher": 43,
+            "adaptive_lower": 85,
+            "equal": 0
+          }
+        },
+        "paired_scope": "All128 request IDs and inputs match; output sequences may differ. Counts describe these trajectories, not equal-work causal wins/losses.",
+        "largest_three_adaptive_regressions_by_metric": {
+          "actual_completion_flow_s": [
+            {
+              "request_id": "memory-train-article-0047846",
+              "adaptive_minus_fixed4_s": 18.473800463601947,
+              "adaptive_s": 42.29116678535938,
+              "fixed4_s": 23.817366321757433,
+              "adaptive_output_tokens": 1024,
+              "fixed4_output_tokens": 1024,
+              "output_sequences_differ": false
+            },
+            {
+              "request_id": "memory-train-article-0052593",
+              "adaptive_minus_fixed4_s": 12.923730844631791,
+              "adaptive_s": 29.85403060540557,
+              "fixed4_s": 16.930299760773778,
+              "adaptive_output_tokens": 1024,
+              "fixed4_output_tokens": 1024,
+              "output_sequences_differ": true
+            },
+            {
+              "request_id": "memory-train-article-0051607",
+              "adaptive_minus_fixed4_s": 9.200034796260297,
+              "adaptive_s": 26.49106292463839,
+              "fixed4_s": 17.29102812837809,
+              "adaptive_output_tokens": 1024,
+              "fixed4_output_tokens": 1024,
+              "output_sequences_differ": false
+            }
+          ],
+          "ttft_s": [
+            {
+              "request_id": "memory-train-article-0047846",
+              "adaptive_minus_fixed4_s": 16.908290705643594,
+              "adaptive_s": 24.372409880347547,
+              "fixed4_s": 7.464119174703955,
+              "adaptive_output_tokens": 1024,
+              "fixed4_output_tokens": 1024,
+              "output_sequences_differ": false
+            },
+            {
+              "request_id": "memory-train-article-0042304",
+              "adaptive_minus_fixed4_s": 12.277090445160866,
+              "adaptive_s": 12.393689490109683,
+              "fixed4_s": 0.11659904494881612,
+              "adaptive_output_tokens": 1024,
+              "fixed4_output_tokens": 1024,
+              "output_sequences_differ": true
+            },
+            {
+              "request_id": "memory-train-article-0051007",
+              "adaptive_minus_fixed4_s": 10.472114305011928,
+              "adaptive_s": 39.0847024153918,
+              "fixed4_s": 28.612588110379875,
+              "adaptive_output_tokens": 1024,
+              "fixed4_output_tokens": 1024,
+              "output_sequences_differ": true
+            }
+          ]
+        },
+        "goodput_grid_summary": {
+          "threshold_count": 20,
+          "ttft_deadlines_s": [
+            10,
+            20,
+            30,
+            40
+          ],
+          "gap_deadlines_s": [
+            1,
+            2,
+            4,
+            8,
+            12
+          ],
+          "scope": "Correlated threshold views of the same runs, not independent replicates.",
+          "goodput_difference_requests_s": {
+            "adaptive_higher_thresholds": 9,
+            "adaptive_lower_thresholds": 11,
+            "equal_thresholds": 0,
+            "minimum_difference": -0.07608311664018885,
+            "maximum_difference": 0.1081460236230411
+          },
+          "qualifying_difference": {
+            "adaptive_higher_thresholds": 9,
+            "adaptive_lower_thresholds": 10,
+            "equal_thresholds": 1,
+            "minimum_difference": -6,
+            "maximum_difference": 9
+          }
+        },
+        "sequence_difference_requests": 63,
+        "stop_difference_requests": 1,
+        "service_criteria": {
+          "both_complete": true,
+          "p95_gap_lower": false,
+          "rate_at_least_97pct": true,
+          "mean_flow_at_most_105pct": true
+        }
+      }
+    },
+    "R02": {
+      "source_file": "/Users/zhaozhenyu/Desktop/毕业设计/MOE_Thesis_organized/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/recovery_quantum_20261002/output/LEASE_SERVICE_VS_FIXED4_R02_20261002.json",
+      "source_sha256": "42e1e9823b6fdb152caf33009f89ff6d07159feabd47cb2291aaae9b338c3cb2",
+      "execution_order": [
+        "adaptive",
+        "fixed4",
+        "q1"
+      ],
+      "arms": {
+        "q1": {
+          "expected_requests": 128,
+          "completed": 128,
+          "failed": 0,
+          "unfinished": 0,
+          "total_output_tokens": 126192,
+          "max_gap_request_p95_s": 1.6816635699011386,
+          "actual_output_tokens_s": 1571.205137166762,
+          "mean_flow_with_incomplete_penalty_s": 34.70787073654792
+        },
+        "fixed4": {
+          "expected_requests": 128,
+          "completed": 128,
+          "failed": 0,
+          "unfinished": 0,
+          "total_output_tokens": 127200,
+          "max_gap_request_p95_s": 1.570256586233154,
+          "actual_output_tokens_s": 1547.8158302578634,
+          "mean_flow_with_incomplete_penalty_s": 35.34456002733786
+        },
+        "adaptive": {
+          "expected_requests": 128,
+          "completed": 128,
+          "failed": 0,
+          "unfinished": 0,
+          "total_output_tokens": 127191,
+          "max_gap_request_p95_s": 1.400646222569048,
+          "actual_output_tokens_s": 1559.2674384907177,
+          "mean_flow_with_incomplete_penalty_s": 35.91717026869155
+        }
+      },
+      "adaptive_vs_fixed4": {
+        "metrics": {
+          "max_gap_request_p95_s": {
+            "adaptive_minus_fixed4": -0.16961036366410598,
+            "adaptive_over_fixed4": 0.8919855741086368,
+            "change_pct": -10.801442589136323
+          },
+          "actual_output_tokens_s": {
+            "adaptive_minus_fixed4": 11.451608232854369,
+            "adaptive_over_fixed4": 1.0073985599636532,
+            "change_pct": 0.739855996365324
+          },
+          "mean_flow_with_incomplete_penalty_s": {
+            "adaptive_minus_fixed4": 0.5726102413536864,
+            "adaptive_over_fixed4": 1.0162008026386746,
+            "change_pct": 1.6200802638674627
+          }
+        },
+        "paired_request_direction_counts": {
+          "max_gap_s": {
+            "adaptive_higher": 62,
+            "adaptive_lower": 66,
+            "equal": 0
+          },
+          "actual_completion_flow_s": {
+            "adaptive_higher": 91,
+            "adaptive_lower": 37,
+            "equal": 0
+          },
+          "ttft_s": {
+            "adaptive_higher": 85,
+            "adaptive_lower": 43,
+            "equal": 0
+          }
+        },
+        "paired_scope": "All128 request IDs and inputs match; output sequences may differ. Counts describe these trajectories, not equal-work causal wins/losses.",
+        "largest_three_adaptive_regressions_by_metric": {
+          "actual_completion_flow_s": [
+            {
+              "request_id": "memory-train-article-0052593",
+              "adaptive_minus_fixed4_s": 16.760039335116744,
+              "adaptive_s": 46.413205285556614,
+              "fixed4_s": 29.65316595043987,
+              "adaptive_output_tokens": 1024,
+              "fixed4_output_tokens": 1024,
+              "output_sequences_differ": true
+            },
+            {
+              "request_id": "memory-train-article-0045010",
+              "adaptive_minus_fixed4_s": 10.41327367909253,
+              "adaptive_s": 41.96811852026731,
+              "fixed4_s": 31.55484484117478,
+              "adaptive_output_tokens": 1024,
+              "fixed4_output_tokens": 1024,
+              "output_sequences_differ": false
+            },
+            {
+              "request_id": "memory-train-article-0050969",
+              "adaptive_minus_fixed4_s": 8.386482735164464,
+              "adaptive_s": 51.885355323366824,
+              "fixed4_s": 43.49887258820236,
+              "adaptive_output_tokens": 1024,
+              "fixed4_output_tokens": 1024,
+              "output_sequences_differ": true
+            }
+          ],
+          "ttft_s": [
+            {
+              "request_id": "memory-train-article-0052593",
+              "adaptive_minus_fixed4_s": 15.435170364566147,
+              "adaptive_s": 28.219566890969872,
+              "fixed4_s": 12.784396526403725,
+              "adaptive_output_tokens": 1024,
+              "fixed4_output_tokens": 1024,
+              "output_sequences_differ": true
+            },
+            {
+              "request_id": "memory-train-article-0045010",
+              "adaptive_minus_fixed4_s": 11.439500700682402,
+              "adaptive_s": 25.498279723152518,
+              "fixed4_s": 14.058779022470116,
+              "adaptive_output_tokens": 1024,
+              "fixed4_output_tokens": 1024,
+              "output_sequences_differ": false
+            },
+            {
+              "request_id": "memory-train-article-0050969",
+              "adaptive_minus_fixed4_s": 10.459745093248788,
+              "adaptive_s": 36.0619947116822,
+              "fixed4_s": 25.602249618433415,
+              "adaptive_output_tokens": 1024,
+              "fixed4_output_tokens": 1024,
+              "output_sequences_differ": true
+            }
+          ]
+        },
+        "goodput_grid_summary": {
+          "threshold_count": 20,
+          "ttft_deadlines_s": [
+            10,
+            20,
+            30,
+            40
+          ],
+          "gap_deadlines_s": [
+            1,
+            2,
+            4,
+            8,
+            12
+          ],
+          "scope": "Correlated threshold views of the same runs, not independent replicates.",
+          "goodput_difference_requests_s": {
+            "adaptive_higher_thresholds": 11,
+            "adaptive_lower_thresholds": 9,
+            "equal_thresholds": 0,
+            "minimum_difference": -0.025688494060121192,
+            "maximum_difference": 0.15083783699748404
+          },
+          "qualifying_difference": {
+            "adaptive_higher_thresholds": 2,
+            "adaptive_lower_thresholds": 9,
+            "equal_thresholds": 9,
+            "minimum_difference": -3,
+            "maximum_difference": 12
+          }
+        },
+        "sequence_difference_requests": 58,
+        "stop_difference_requests": 0,
+        "service_criteria": {
+          "both_complete": true,
+          "p95_gap_lower": true,
+          "rate_at_least_97pct": true,
+          "mean_flow_at_most_105pct": true
+        }
+      }
+    }
+  },
+  "across_block_direction_checks": {
+    "adaptive_vs_fixed4_p95_gap_sign_flips": true,
+    "adaptive_vs_fixed4_output_rate_sign_flips": true,
+    "adaptive_mean_flow_higher_in_both": true
+  },
+  "scope": "Two separate same-host blocks, each with one run per arm. Descriptive ID-paired request directions; no pooling or confidence intervals. Requests/events are not independent run replicates. Different output trajectories preclude equal-generated-work interpretation. A reversed ordering does not by itself identify an order effect versus run noise."
+}

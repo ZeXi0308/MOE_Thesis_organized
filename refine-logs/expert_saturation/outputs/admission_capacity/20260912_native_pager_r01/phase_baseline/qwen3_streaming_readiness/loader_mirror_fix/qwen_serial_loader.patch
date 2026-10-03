@@ -1,0 +1,27 @@
+--- r02/qwen_serial_loader.py
++++ r03/qwen_serial_loader.py
+@@ -13,6 +13,15 @@
+ from serial_shards import load_serial, require, unique
+ 
+ LOAD_FORMAT = "qwen_bf16_serial_v026"
++
++
++def fetch_mirror(manifest, url):
++    require(manifest["repository"] == "Qwen/Qwen3-30B-A3B"
++            and re.fullmatch(r"[0-9a-f]{40}", manifest["revision"]), "frozen model identity")
++    prefix = "https://huggingface.co/{}/resolve/{}/".format(manifest["repository"], manifest["revision"])
++    require(isinstance(url, str) and url.startswith(prefix)
++            and url[len(prefix):] in manifest["shards"], "URL must name a frozen HF shard")
++    return urlopen("https://hf-mirror.com/" + url[len("https://huggingface.co/"):], timeout=120)
+ 
+ 
+ @register_model_loader(LOAD_FORMAT)
+@@ -68,7 +77,7 @@
+         self.download_model(model_config)
+         load_serial(model, self.paths["manifest"], self.paths["index"],
+                     self.paths["workspace"], self.paths["receipt"],
+-                    validate_loaded=self._validate_targets, fetch=partial(urlopen, timeout=120))
++                    validate_loaded=self._validate_targets, fetch=partial(fetch_mirror, self._metadata()))
+ 
+     def _validate_targets(self, model, loaded):
+         # Native MoERunner reports w13/w2 without its registered routed_experts prefix.

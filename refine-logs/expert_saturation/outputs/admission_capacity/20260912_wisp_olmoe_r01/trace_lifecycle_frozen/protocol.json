@@ -1,0 +1,74 @@
+{
+  "runtime": {
+    "vllm": "0.26.0",
+    "model": "OLMoE-1B-7B-0924",
+    "revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "dtype": "BF16",
+    "expert_cap": 24,
+    "kv_bytes": 1073741824,
+    "token_budget": 160,
+    "execution": "expert",
+    "cpu_affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "omp_threads": 8
+  },
+  "workload": "Same3 documents P32/P32/P128, outputs16/16/8; inject new request after4 old outputs; release chunk8 only after both old requests complete",
+  "warmup": [
+    "short32",
+    "none_early_release8",
+    "frequency_early_release8",
+    "frequency_late_release8",
+    "decode_late_release8"
+  ],
+  "reset": "Existing drained metadata reset, common warmups, allocations and KV free queue preserved; all runtime layer records retained across episodes",
+  "created_unix_s": 1789237399.577488,
+  "state": "FROZEN_UNRUN",
+  "question": "Does retaining completed layer traces and CUDA-event references cause avoidable GC/host cost when all logging/reclamation costs are included?",
+  "basis": "Previous identical none/early release8 A/A observed mixed-call spikes overlapping gen2 GC; 1600 to15648 live retained layer records; prior sustained drift not explained.",
+  "action": "Only change trace lifecycle: memory retains until finalize; episode settles CUDA events, appends all completed records and releases their references at each drained episode boundary. No manual GC or threshold changes.",
+  "engines": 4,
+  "order": [
+    "memory",
+    "episode",
+    "episode",
+    "memory"
+  ],
+  "episodes_per_engine": 8,
+  "baseline": "Both modes use same refactored recorder and finalize path, none/early/release8, same3 documents/common warmups/resources; only flush placement differs.",
+  "accounting": {
+    "primary": "Parent process wall includes engine initialization, all warmups, measured requests, IO, flush/sync/decref, finalization, GC observation export and interpreter exit.",
+    "secondary": "Post-init cycle starts before first reset and ends after shutdown; includes all per-episode bookkeeping and final trace writes; excludes its own final marker write, covered by parent wall.",
+    "descriptive": "Capture wall, all old/new TTFT/maxITL/completion, GC overlaps by capture/warmup/flush/cycle, RSS and live records/events. Never subtract GC as a counterfactual speedup."
+  },
+  "integrity": "Every call_id unique and consecutive across flushes; no lost/duplicated records or summaries, source/request/row/action trajectory and resource equality checked; original raw/failures preserved.",
+  "interpretation": "A shorter capture window alone may be cost movement. Only jointly inspect process/cycle cost and per-request delay; this is measurement infrastructure diagnosis, no scheduler novelty or method GO.",
+  "variance": "Two fresh engines per mode, eight dependent episodes per engine; ABBA mitigates first-order order drift only. Report all runs and both pairings; no significance or population noise bound.",
+  "stop": "Other GPU process/query error or runtime/trace loss abort, retain failure; no automatic retry. No new models/resources or policy tuning.",
+  "claim_ceiling": "Single-model/artificial-cap native eager measurement-tool lifecycle intervention; no prior drift root-cause closure unless observed, no task quality/production/general speedup claim.",
+  "next": "If trace retention tax is reduced with complete cost and unchanged workload, retain the cheaper measurement path and return to same-budget mechanism residual; otherwise keep baseline and narrow remaining overhead.",
+  "frozen_unix_s": 1789237624.974656,
+  "source_sha256": {
+    "run_native_pager.py": "8ab97ba1c2984ad4043645cddada38a9668a38f3817c7da1514a127b64409ea6",
+    "native_capture.py": "7e981d3ea2d0d206908ceaab568471d7923e2db0fc1b4f38fe6b2a73ebc5d9da",
+    "wisp_v026_adapter.py": "b6c25e2656678636a596403fba7d9318465a4bee5b0eaf9c7b457dadcbafdd93",
+    "wisp_expert_groups.py": "d22fa5d0b1ced552556fab5209f4e55a4ecae24b658f043ef0bc35e7fd90f6f2",
+    "native_pager_context.py": "cef0fc3ea112b2099d586a2ccb89c94253cecc6f5f4d9c97a22c9e22b2821008",
+    "admission_feedback.py": "279c3e0ef44f8d9a0dec9bfeffe4dea72e657f24c637d9111f6712eb7ee0ece7",
+    "runtime_variation_observer.py": "ee70ee8bb1c76901ad92d61daac9724855710889264bd8fb30e12a4cc7c3178a"
+  },
+  "analysis_sha256": {
+    "analyze_trace_lifecycle.py": "7cce82b922ce8757be8b7880b82b803bcb32071e96b823a77ce3644252a7fbe0",
+    "analyze_runtime_variance.py": "66ae783afaa634fa8f4547a0cc3ea4aa2e5a8cfdd4bd3c3a7ec569e2396f0f46",
+    "analyze_native_phases.py": "9d1986414f07680647fc299bdf2cbf0ea24836a117d20027093576e6758a844b",
+    "analyze_native_pager_transfer.py": "14f8717960b6667f51d9eb127a66f6d7d732ca4213e229be68a3505b1608523e"
+  },
+  "cpu_checks": "3 targeted trace flush tests passed (stream vs final records/statistics, IDs, partial-write failstop); 10 existing expert-group tests passed; syntax/diff checks passed"
+}

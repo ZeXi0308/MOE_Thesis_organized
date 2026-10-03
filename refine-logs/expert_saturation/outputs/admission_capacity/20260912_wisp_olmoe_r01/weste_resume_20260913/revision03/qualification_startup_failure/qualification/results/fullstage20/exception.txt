@@ -1,0 +1,38 @@
+Traceback (most recent call last):
+  File "/root/autodl-tmp/full-stage-qualification-20260913-weste-r02/source/run_native_pager.py", line 299, in main
+    engine = LLMEngine.from_engine_args(EngineArgs(**kwargs), enable_multiprocessing=False)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/engine/llm_engine.py", line 179, in from_engine_args
+    return cls(
+           ^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/engine/llm_engine.py", line 105, in __init__
+    self.engine_core = EngineCoreClient.make_client(
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/engine/core_client.py", line 105, in make_client
+    return InprocClient(vllm_config, executor_class, log_stats)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/engine/core_client.py", line 287, in __init__
+    self.engine_core = EngineCore(*args, **kwargs)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/engine/core.py", line 125, in __init__
+    self.model_executor = executor_class(vllm_config)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/tracing/otel.py", line 178, in sync_wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/executor/abstract.py", line 109, in __init__
+    self._init_executor()
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/executor/uniproc_executor.py", line 63, in _init_executor
+    self.driver_worker.init_device()
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/worker/worker_base.py", line 331, in init_device
+    self.worker.init_device()  # type: ignore
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/tracing/otel.py", line 178, in sync_wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/worker/gpu_worker.py", line 389, in init_device
+    self.requested_memory = request_memory(init_snapshot, self.cache_config)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm/v1/worker/utils.py", line 435, in request_memory
+    raise ValueError(
+ValueError: Free memory on device cuda:0 (17.34/31.36 GiB) on startup is less than desired GPU memory utilization (0.9, 28.22 GiB). Decrease GPU memory utilization or reduce GPU memory used by other processes.

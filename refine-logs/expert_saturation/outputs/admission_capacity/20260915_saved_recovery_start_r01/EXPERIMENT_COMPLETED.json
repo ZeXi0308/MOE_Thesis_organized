@@ -1,0 +1,174 @@
+{
+  "schema_version": 1,
+  "study_question": "固定GPU资源与明确host预算下，怎样安排恢复和后续执行，降低生成长停顿，同时控制完整服务效率损失？",
+  "execution_owner": "long-task root / 01a09ba8-3b21-7853-89fd-83c41e309c07",
+  "source_head": "de64dae5ea4fa3c92ec605e9847e817d8e68f3ac",
+  "source_state": "shared dirty workspace; accepted payload hashes identify executed code",
+  "resources": {
+    "host": "connect.weste.seetacloud.com:26862",
+    "gpu_uuid": "GPU-4015b79d-bed6-3a4b-9d2b-0c17be96d0e5",
+    "gpu_count_used": 1,
+    "gpu_kv_bytes": 13960740864,
+    "usable_gpu_blocks": 6656,
+    "block_tokens": 16,
+    "host_kv_bytes_configured_and_observed": 17179869184,
+    "host_kv_blocks": 8192,
+    "parent_cgroup_memory_max_bytes": 197568495616,
+    "parent_swap_max_bytes": 0,
+    "process_tree_hard_memory_limit": null,
+    "isolation": "whole-group flock; both GPUs checked empty at boundaries; second GPU unused"
+  },
+  "workload": {
+    "model": "allenai/OLMoE-1B-7B-0924",
+    "revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "runtime": "vLLM 0.26.0 / PyTorch 2.11.0+cu130 / Transformers 5.15.1",
+    "requests_per_cell": 32,
+    "prompt_tokens": 3072,
+    "forced_output_tokens": 1024,
+    "arrival_spacing_s": 0.05,
+    "domain": "closed cohort, one fixed length and pressure point"
+  },
+  "evaluation": {
+    "objective": "generation pause: maximum and per-request engine-return gap distribution",
+    "necessary_costs": [
+      "full-episode output rate",
+      "mean completion latency",
+      "TTFT",
+      "host allocation and occupancy",
+      "live save/load and drain costs"
+    ],
+    "selection": "both predetermined pairs retained; no SLO selected from results",
+    "time_boundary": "arrival through all request completions; initialization/warmup excluded, later drain separate",
+    "diagnostic_times_in_primary_table": false
+  },
+  "latest_user_direction": {
+    "source": "/Users/leandrozhao/.codex/attachments/3d50b5d4-2c9e-4e52-b600-f9aba48f14bf/pasted-text.txt",
+    "role": "primary research session; preserve existing complementary owners",
+    "single_hypothesis": "After saving reduces recovery cost, fixed global switching cadence may delay valuable recovery, but eager switching may lose on transfer and peer service costs.",
+    "no_new_sessions_from_this_instruction": true,
+    "scientific_scope": "generic LLM serving on measured OLMoE runtime; MoE-specific residual not demonstrated"
+  },
+  "group_id": "20260915_saved_recovery_start_r01",
+  "status": "COMPLETE_ANALYZED",
+  "execution_contract": "outputs/admission_capacity/20260915_saved_recovery_start_r01/README.md",
+  "accepted_execution_archive_sha256": "341e6ac31bfe1890901e13f87627082ded4b75f467671324f9642ca1b0db6e52",
+  "payload_manifest": "outputs/admission_capacity/20260915_saved_recovery_start_r01/manifest.json",
+  "question": "保存已开启时，更早恢复是否值得新增搬运和其它请求暂停的代价？",
+  "only_treatment": "global min_steps_between_swaps 20 vs 0; save remains on",
+  "common_policy": {
+    "save": "on",
+    "victim": "most_output",
+    "target": "longest_absence",
+    "min_absence_steps": 30,
+    "min_residency_steps": 30,
+    "protection": "until first new output",
+    "token_budget": 1024
+  },
+  "arms": {
+    "current": {
+      "min_steps_between_swaps": 20
+    },
+    "eager": {
+      "min_steps_between_swaps": 0
+    }
+  },
+  "accepted_order": [
+    "diagnostic-eager",
+    "block0-current",
+    "block0-eager",
+    "block1-eager",
+    "block1-current"
+  ],
+  "primary_cells": [
+    "block0-current",
+    "block0-eager",
+    "block1-eager",
+    "block1-current"
+  ],
+  "diagnostic_cells": [
+    "diagnostic-eager"
+  ],
+  "budget": {
+    "maximum_cells": 5,
+    "maximum_requests": 160,
+    "no_parameter_scan": true
+  },
+  "results": {
+    "raw": "outputs/admission_capacity/20260915_saved_recovery_start_r01/execution_weste_26862/readback/results",
+    "main_analyzer": "outputs/admission_capacity/20260915_saved_recovery_start_r01/analyze_saved_recovery_start.py",
+    "archive_sha256": "a0290d0de925e675e6b920d64b6eaccbf1493c52e78b622a599635ff5cf75aa0",
+    "main_analysis": "outputs/admission_capacity/20260915_saved_recovery_start_r01/execution_weste_26862/analysis.json",
+    "report": "outputs/admission_capacity/20260915_saved_recovery_start_r01/RESULTS.md",
+    "lifecycle": "outputs/admission_capacity/20260915_saved_recovery_start_r01/execution_weste_26862/lifecycle/REPORT.md"
+  },
+  "remote_directory": "/root/autodl-tmp/saved-recovery-start-20260915-r01",
+  "execution": {
+    "status": "COMPLETE",
+    "controller_pid": 13136,
+    "prior_group_release": "outputs/admission_capacity/20260915_repeated_kv_cohort3_r01/execution_weste_26862/readback/release.json",
+    "prior_release_unix_s": 1789410297.4384012,
+    "prior_archive_sha256": "ddb371dd691b1e8d0a2b61a516fc24991b937c22485c8dd3051dbeec44c49722",
+    "shell_pid": 13137,
+    "started_unix_s": 1789410408.1271043,
+    "observed_live_unix_s": 1789410446.156969,
+    "local_foreground_session": 1626,
+    "finished_unix_s": 1789410688.5229735,
+    "return_code": 0,
+    "completed_requests": 160,
+    "failed_cells": 0,
+    "discarded_repeats": 0,
+    "terminal_isolation_unix_s": 1789410763.1818628,
+    "ownership_released": true,
+    "archive_finished_unix_s": 1789410767.082053
+  },
+  "previous_completed_group": "outputs/admission_capacity/20260915_repeated_kv_service_r01/EXPERIMENT_COMPLETED.json",
+  "staging": {
+    "verified_unix_s": 1789410222.3223016,
+    "archive_sha256": "341e6ac31bfe1890901e13f87627082ded4b75f467671324f9642ca1b0db6e52",
+    "verified_payloads": 30,
+    "launch_once_exists": false,
+    "own_controller": null
+  },
+  "claim_ceiling": "NATIVE_SERVING fixed-cohort pause versus mean-completion tradeoff; no stable throughput gain, quality, general SLO or independent method claim",
+  "next_group": {
+    "group_id": "20260915_natural_saved_recovery_gate_r01",
+    "status": "LOCAL_PREPARATION_GPU_UNRUN",
+    "execution_owner": "long-task root / 01a09ba8-3b21-7853-89fd-83c41e309c07",
+    "question": "Does a dynamic full-article/EOS arrival domain expose real saved recovery and executable start opportunities?",
+    "domain": "existing64 complete natural articles; EOS allowed; declared output cap1024; controlled arrival interval0.2s; one fixed new pressure point",
+    "only_cell": "diagnostic-current, save-on/cooldown20",
+    "resources": {
+      "usable_gpu_kv_blocks": 4096,
+      "gpu_kv_bytes_including_null_block": 8592031744,
+      "host_kv_bytes": 17179869184
+    },
+    "budget": {
+      "maximum_cells": 1,
+      "maximum_measured_requests": 64,
+      "no_pressure_or_parameter_scan": true
+    },
+    "retained_boundary": "20260914_streaming_recovery_r01 at0.5s arrival: no extra rotations; not rerun or relabeled",
+    "required_distinction": [
+      "no physical recovery/action opportunity",
+      "closed-cohort or mixed-prefill implementation restriction",
+      "valid saved recovery under dynamic arrivals"
+    ],
+    "on_no_action": "retain and stop this point; do not increase pressure until an action appears",
+    "on_action": "root evaluates opportunity and baseline fairness before accepting a performance group",
+    "accepted_package_sha256": null,
+    "runtime_status": "UNRUN"
+  },
+  "decision": "Keep current/eager as same-resource simple baselines. Stop cooldown scan; qualify a dynamic arrival/EOS domain before another mechanism.",
+  "observed_effects_eager_relative_percent": {
+    "block0": {
+      "max_gap": -9.797507552383722,
+      "output_rate": -0.5020857601905404,
+      "mean_completion": 2.041671803816425
+    },
+    "block1": {
+      "max_gap": -10.413289729235743,
+      "output_rate": 0.12436354107381309,
+      "mean_completion": 1.4103928359933349
+    }
+  }
+}

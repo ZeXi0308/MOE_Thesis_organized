@@ -1,0 +1,65 @@
+{
+  "status": "PASS_CPU_PREPARED_UNRUN",
+  "reason": "User selected the returned endpoint. Local readonly inspection found GPU idle and no original stage process; stale RUNNING/shard9 evidence is retained. Extend only whole-process administrative allowance for61,066,575,648-byte serial download, before qualification/performance outcomes.",
+  "diff": "--- ../../run_remote.py\n+++ run_remote.py\n@@ -5,8 +5,8 @@\n for name,sha in protocol['package_files'].items():assert hashlib.sha256((p/name).read_bytes()).hexdigest()==sha,name\n installed=Path('/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm')\n for name,sha in protocol['installed_source_sha256'].items():assert hashlib.sha256((installed/name).read_bytes()).hexdigest()==sha,name\n-out=Path('/root/autodl-tmp/qwen3-localized-static-v026-r01');out.mkdir(exist_ok=False)\n-shards=out/'shard_workspace';shards.mkdir()\n+out=Path('/root/autodl-tmp/qwen3-localized-static-v026-r02');out.mkdir(exist_ok=False)\n+shards=Path('/root/qwen3-localized-static-v026-r02-shard-workspace');shards.mkdir(exist_ok=False)\n python='/root/autodl-tmp/expert-saturation/vllm-0.26/bin/python'\n env=dict(os.environ,OMP_NUM_THREADS='8',TOKENIZERS_PARALLELISM='false',PYTHONUNBUFFERED='1',WISP_PLUGIN_DISABLE='1',WISP_PREFETCH='0',WISP_DYNAMIC='0',PYTHONPATH='/root/autodl-tmp/wisp-runtime-0112-r01/source/src:'+str(p))\n launch=dict(status='RUNNING',start_unix_s=time.time(),results=str(out),qualification_only=False, startup_numerical_localization=True)\n@@ -37,6 +37,9 @@\n import pynvml as nv\n nv.nvmlInit();gpu=nv.nvmlDeviceGetHandleByIndex(0);exit_code=0;process=None\n try:\n+    actual_uuid=nv.nvmlDeviceGetUUID(gpu)\n+    if isinstance(actual_uuid,bytes):actual_uuid=actual_uuid.decode()\n+    assert actual_uuid==protocol['returned_host']['gpu_uuid'] and nv.nvmlDeviceGetMemoryInfo(gpu).total==protocol['returned_host']['gpu_total_bytes']\n     with (p/'preflight.jsonl').open('x') as log:\n         idle=0\n         for tick in range(121):\n@@ -51,8 +54,10 @@\n         else:raise RuntimeError('GPU remained occupied; no initialization attempted')\n     memory_start=read_memory();disk=os.statvfs(out);disk_available=disk.f_bavail*disk.f_frsize\n     assert memory_start['limit']==98784247808 and memory_start['stat']['anon']<8*2**30\n-    assert disk_available>6*2**30\n-    launch.update(memory_start=memory_start,disk_available_before=disk_available)\n+    shard_disk=os.statvfs(shards);shard_disk_available=shard_disk.f_bavail*shard_disk.f_frsize\n+    launch.update(memory_start=memory_start,disk_available_before=disk_available,\n+                  disk_available_by_path_before={str(out):disk_available,str(shards):shard_disk_available})\n+    assert disk_available>6*2**30 and shard_disk_available>6*2**30\n     command=['taskset','-c','0-7',python,'-u',str(p/'run_native_pager.py'),'--output',str(out/'comparison'),'--prepared',str(p/'prepared'),'--model',str(p/'model_metadata'),'--qwen-static-prefill','--qualification-prepared',str(p/'qualification_prepared'),'--expert-cap','48','--requests','4','--token-budget','64','--kv-bytes','536870912','--prompt-tokens','64','--output-tokens','8','--arrival-interval','0.05','--prefill-limit','32','--trace-retention','episode','--execution','expert','--max-seconds','600']\n     for flag,value in [('manifest',p/'qwen3.manifest.json'),('index',p/'qwen3.index.json'),('workspace',shards),('receipt',out/'loader_receipt.jsonl')]:command+=['--loader-'+flag,str(value)]\n     launch.update(command=command,child_start_unix_s=time.time());save()\n@@ -69,7 +74,7 @@\n             if foreign:raise RuntimeError('Foreign GPU process arrived; stopping only our process group')\n             if memory['stat']['anon']>84*2**30:raise RuntimeError('Host anonymous memory exceeds84GiB guard within92GiB cgroup')\n             if any(memory['events'].get(k,0)>memory_start['events'].get(k,0) for k in ('oom','oom_kill')):raise RuntimeError('Host OOM event increased')\n-            if time.time()-launch['child_start_unix_s']>7200:raise RuntimeError('7200s complete loading/localization/comparison process limit exceeded')\n+            if time.time()-launch['child_start_unix_s']>21600:raise RuntimeError('21600s complete loading/localization/comparison process limit exceeded')\n             if tick%40==0:\n                 receipt=out/'loader_receipt.jsonl'\n                 recent=receipt.read_text().splitlines()[-1:] if receipt.exists() else []\n",
+  "protocol_change": "Only returned_host added; all original fields byte-value equivalent.",
+  "checks": {
+    "parent_compiles": true,
+    "GPU_gate_CPU_cases": {
+      "matching_string": true,
+      "matching_bytes": true,
+      "wrong_uuid": true,
+      "wrong_total": true
+    },
+    "capture_limit600_unchanged": true,
+    "92GiB_limit_84GiB_guard_unchanged": true,
+    "runtime17_and_all_package_inputs_SHA_verified": true,
+    "original_parent_protocol_unchanged": true,
+    "only_authorized_parent_changes": true,
+    "disk_preflight_CPU_cases": {
+      "both_above_min": true,
+      "results_short": true,
+      "workspace_short": true,
+      "workspace_exact_min": true
+    },
+    "independent_workspace_mkdir_exclusive": true,
+    "analyzer_no_results_tree_workspace_requirement": true,
+    "disk_samples_retained_on_failed_space_assert": true
+  },
+  "sha256": {
+    "original_parent": "9e5106674fb0bd8f275b069150c75a53bc78c84d04fdac01a70d8ba5f008062b",
+    "parent": "1beb9f9605274cec102f62f2825c17cef8a89244f45275d4c149a16a472bfc59",
+    "original_protocol": "8b520ce76ba72768ea5fd84f9f5f88f1ac673936f065cb742f63595bc458e393",
+    "protocol": "b6ac9329f04c6ee462e47fa7f4f1ae45cf3c50105ae48bdc337509efcad80807",
+    "detached_launcher": "fdc2e431f108e28db8de7db5578ee2f04e692c484c2a9586625151de7dcc14d9",
+    "inspection": "60a8c18594afa034c38f3bb18738ab8d5c6476937893e8f216e5cbb53bda0030"
+  },
+  "package_reuse": "Reuse ../../source/<runtime-name> and ../../<other protocol.package_files path> relative to attempt02, flatten runtime names exactly as original package. Copy new parent/protocol into fresh planned stage. Reuse ../../transport_recovery/detached_launch.py. This preparation does not package or copy runtime/input assets.",
+  "planned_command": [
+    "/root/autodl-tmp/expert-saturation/vllm-0.26/bin/python",
+    "/root/autodl-tmp/qwen3-localized-static-v026-launch-r02/detached_launch.py",
+    "--package-dir",
+    "/root/autodl-tmp/qwen3-localized-static-v026-launch-r02",
+    "--python",
+    "/root/autodl-tmp/expert-saturation/vllm-0.26/bin/python",
+    "--entry-sha256",
+    "1beb9f9605274cec102f62f2825c17cef8a89244f45275d4c149a16a472bfc59",
+    "--protocol-sha256",
+    "b6ac9329f04c6ee462e47fa7f4f1ae45cf3c50105ae48bdc337509efcad80807",
+    "--receipt-root",
+    "/root/autodl-tmp/qwen3-localized-static-v026-launch-r02/detached_receipts"
+  ],
+  "scope": "Three new local files only. No network/GPU/process action. The original run and its raw evidence remain untouched.",
+  "revision": "preupload_storage_revision02",
+  "prior_preupload_sha256": {
+    "parent": "cac4d15e7e3d9e4d329090e63f5185691cac6ffb6f5289e82c25daee2d9803ad",
+    "protocol": "27ed673255f4aa0410f9532cab6859ed887151dc261ee1a4115a0228d0eccd3d"
+  },
+  "storage_revision_reason": "Root observed system disk19.35GB free and data disk11.58→10.30→9.67GB with other-session growth; separate owned temporary-shard directory without deleting existing evidence or other data.",
+  "storage_diff": "--- preupload_parent_v1\n+++ run_remote.py\n@@ -6,7 +6,7 @@\n installed=Path('/root/autodl-tmp/expert-saturation/vllm-0.26/lib/python3.12/site-packages/vllm')\n for name,sha in protocol['installed_source_sha256'].items():assert hashlib.sha256((installed/name).read_bytes()).hexdigest()==sha,name\n out=Path('/root/autodl-tmp/qwen3-localized-static-v026-r02');out.mkdir(exist_ok=False)\n-shards=out/'shard_workspace';shards.mkdir()\n+shards=Path('/root/qwen3-localized-static-v026-r02-shard-workspace');shards.mkdir(exist_ok=False)\n python='/root/autodl-tmp/expert-saturation/vllm-0.26/bin/python'\n env=dict(os.environ,OMP_NUM_THREADS='8',TOKENIZERS_PARALLELISM='false',PYTHONUNBUFFERED='1',WISP_PLUGIN_DISABLE='1',WISP_PREFETCH='0',WISP_DYNAMIC='0',PYTHONPATH='/root/autodl-tmp/wisp-runtime-0112-r01/source/src:'+str(p))\n launch=dict(status='RUNNING',start_unix_s=time.time(),results=str(out),qualification_only=False, startup_numerical_localization=True)\n@@ -54,8 +54,10 @@\n         else:raise RuntimeError('GPU remained occupied; no initialization attempted')\n     memory_start=read_memory();disk=os.statvfs(out);disk_available=disk.f_bavail*disk.f_frsize\n     assert memory_start['limit']==98784247808 and memory_start['stat']['anon']<8*2**30\n-    assert disk_available>6*2**30\n-    launch.update(memory_start=memory_start,disk_available_before=disk_available)\n+    shard_disk=os.statvfs(shards);shard_disk_available=shard_disk.f_bavail*shard_disk.f_frsize\n+    launch.update(memory_start=memory_start,disk_available_before=disk_available,\n+                  disk_available_by_path_before={str(out):disk_available,str(shards):shard_disk_available})\n+    assert disk_available>6*2**30 and shard_disk_available>6*2**30\n     command=['taskset','-c','0-7',python,'-u',str(p/'run_native_pager.py'),'--output',str(out/'comparison'),'--prepared',str(p/'prepared'),'--model',str(p/'model_metadata'),'--qwen-static-prefill','--qualification-prepared',str(p/'qualification_prepared'),'--expert-cap','48','--requests','4','--token-budget','64','--kv-bytes','536870912','--prompt-tokens','64','--output-tokens','8','--arrival-interval','0.05','--prefill-limit','32','--trace-retention','episode','--execution','expert','--max-seconds','600']\n     for flag,value in [('manifest',p/'qwen3.manifest.json'),('index',p/'qwen3.index.json'),('workspace',shards),('receipt',out/'loader_receipt.jsonl')]:command+=['--loader-'+flag,str(value)]\n     launch.update(command=command,child_start_unix_s=time.time());save()\n",
+  "analyzer_compatibility": {
+    "analyzer": "refine-logs/expert_saturation/outputs/admission_capacity/20260912_native_pager_r01/phase_baseline/qwen3_localized_static_v026/analyze_qwen_localized_static.py",
+    "sha256": "0dd1916192e7551b2baf95e3e7606b69a088289c9b7d4dd453fbeea56f9cbd13",
+    "finding": "Capture analyzer has no shard_workspace/owned_directory path requirement. Qualification check_loader accepts an explicit receipt path and validates ordered full SHA/bytes/tensor coverage; it does not constrain START.owned_directory. No analyzer mutation required."
+  }
+}

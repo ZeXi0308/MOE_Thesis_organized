@@ -1,0 +1,132 @@
+--- next_prefill_budget/run_prefill_budget.py
++++ run_waiting_order.py
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""One fresh engine, four common warmups, four fixed budget episodes; no method GO."""
++"""One fresh engine, matched waiting-order episodes; active work is untouched."""
+ import argparse
+ import csv
+ import hashlib
+@@ -35,8 +35,8 @@
+ def set_empty_budget(engine, budget):
+     config = engine.vllm_config.scheduler_config
+     scheduler = engine.engine_core.engine_core.scheduler
+-    if type(budget) is not int or budget not in (256, 1024):
+-        raise ValueError("frozen runtime budgets are 256 and 1024")
++    if type(budget) is not int or budget != 1024:
++        raise ValueError("waiting-order probe requires fixed runtime budget1024")
+     if config.max_num_seqs != 8 or config.max_num_batched_tokens != 1024:
+         raise ValueError("compiled engine must retain cap8 and token capacity1024")
+     if not hasattr(scheduler, "max_num_scheduled_tokens") or scheduler.max_num_running_reqs != 8:
+@@ -72,7 +72,8 @@
+         max_num_batched_tokens=1024, enable_chunked_prefill=True, gpu_memory_utilization=0.70,
+         enable_prefix_caching=False, scheduling_policy="fcfs", async_scheduling=False,
+         stream_interval=1, enforce_eager=False, enable_return_routed_experts=False, disable_log_stats=False)
+-    warmups = [dict(cohort=c, budget=b) for c in ("all_short", "mixed") for b in (256, 1024)]
++    warmups = [dict(cohort=c, budget=1024, waiting_order=o) for c in ("all_short", "mixed")
++               for o in ("fcfs", "short_prompt_first")]
+     plans = warmups[:] if block == "forward" else list(reversed(warmups))
+     files = [Path(__file__).resolve(), *(ROOT / "runtime").glob("*.py"), *ROOT.glob("prepared/*/*.json")]
+     return inputs, dict(block=block, warmups=warmups, plans=plans, engine_args=engine_args,
+@@ -95,11 +96,15 @@
+         dump(out / "environment.json", dict(python=sys.version, torch=torch.__version__, cuda=torch.version.cuda,
+             vllm=vllm.__version__, transformers=version("transformers"), gpu_before_init=before,
+             cpu_threads=torch.get_num_threads(), vllm_source_sha256={p: sha(package / p) for p in
+-                ("v1/core/sched/scheduler.py", "v1/engine/llm_engine.py", "v1/engine/output_processor.py",
++                ("v1/core/sched/scheduler.py", "v1/core/sched/request_queue.py", "v1/request.py",
++                 "v1/engine/llm_engine.py", "v1/engine/output_processor.py",
+                  "v1/worker/gpu_model_runner.py")}, execution_env={k: os.environ.get(k) for k in
+                 ("VLLM_ENABLE_V1_MULTIPROCESSING", "VLLM_BATCH_INVARIANT", "VLLM_USE_FLASHINFER_SAMPLER",
+                  "CUDA_VISIBLE_DEVICES", "HF_HUB_CACHE", "HF_HUB_OFFLINE", "TRANSFORMERS_OFFLINE",
+                  "OMP_NUM_THREADS", "MKL_NUM_THREADS", "CUDA_LAUNCH_BLOCKING")}))
++        reference = json.loads((ROOT / "runtime_reference.json").read_text())
++        if any(sha(package / path) != record["sha256"] for path, record in reference.items()):
++            raise RuntimeError("installed native queue/scheduler/request source differs from reviewed reference")
+         if vllm.__version__ != "0.26.0" or not torch.cuda.is_available() or torch.cuda.device_count() != 1:
+             raise RuntimeError("frozen vLLM0.26.0 and exactly one visible CUDA GPU required")
+         engine = LLMEngine.from_engine_args(EngineArgs(**frozen["engine_args"]), enable_multiprocessing=False)
+@@ -112,7 +117,7 @@
+                 before = gpu_state()
+                 state = set_empty_budget(engine, plan["budget"])
+                 config, workload = inputs[plan["cohort"]]
+-                config = dict(config, cap=8, policy="static")
++                config = dict(config, cap=8, policy="static", waiting_order=plan["waiting_order"])
+                 stem = f"{phase}-{index:03d}"
+                 print(json.dumps(dict(phase="START", cell=stem, plan=plan)), flush=True)
+                 dump(out / "status.json", dict(status="RUNNING", phase=phase, index=index, cells_completed=completed))
+--- next_prefill_budget/launch_block.py
++++ launch_block.py
+@@ -13,7 +13,7 @@
+ results = root/'results'
+ results.mkdir(exist_ok=True)
+ metadata = results/f'{block}-process.json'
+-cmd = [sys.executable, '-u', str(root/'run_prefill_budget.py'), '--block', block,
++cmd = [sys.executable, '-u', str(root/'run_waiting_order.py'), '--block', block,
+        '--output-dir', str(results/block)]
+ state = dict(command=cmd, block=block, started_unix_s=time.time(), pid=None, exit_code=None)
+ with metadata.open('x') as f:
+--- prefill_budget_midpoint_r01/runtime/native_capture.py
++++ runtime/native_capture.py
+@@ -7,6 +7,7 @@
+ import time
+ 
+ from admission_feedback import AdmissionFeedback, apply_nonpreemptive_limit
++from waiting_order import reorder_waiting
+ 
+ 
+ def set_empty_admission_cap(engine, cap) -> dict:
+@@ -49,6 +50,8 @@
+     pending = sorted(range(len(sources)), key=lambda i: (arrivals[i] * arrival_scale, i))
+     internal_to_source, external_to_source = {}, {}
+     scheduler_steps, output_events, engine_step_returns = [], [], []
++    waiting_order_actions, ever_scheduled = [], set()
++    waiting_order = config.get("waiting_order", "fcfs")
+     scheduler = original = None
+     had_instance_schedule = False
+     error = None
+@@ -61,6 +64,8 @@
+         from vllm import SamplingParams
+         from vllm.sampling_params import RequestOutputKind
+         scheduler = engine.engine_core.engine_core.scheduler
++        if policy != "static" or waiting_order not in ("fcfs", "short_prompt_first"):
++            raise ValueError("waiting-order probe supports only static admission and frozen queue actions")
+         original = scheduler.schedule
+         had_instance_schedule = "schedule" in vars(scheduler)
+         if engine.vllm_config.scheduler_config.async_scheduling is not False or engine.vllm_config.scheduler_config.stream_interval != 1:
+@@ -71,6 +76,12 @@
+ 
+         def schedule(*args, **kwargs):
+             started = now()
++            event = dict(step=len(scheduler_steps), start_s=started)
++            waiting_order_actions.append(event)  # Retain failed actions even when schedule never runs.
++            try:
++                reorder_waiting(scheduler, waiting_order, ever_scheduled, event)
++            finally:
++                event["end_s"] = now()
+             before = {rid: (int(req.num_computed_tokens), int(req.num_prompt_tokens))
+                       for rid, req in scheduler.requests.items()}
+             running_before, waiting_before = scheduler.get_request_counts()
+@@ -86,6 +97,7 @@
+                 decision["effective_scheduler_limit"] = apply_nonpreemptive_limit(scheduler, target, maximum)
+                 decision["applied_s"] = now()
+             result = original(*args, **kwargs)
++            ever_scheduled.update(result.num_scheduled_tokens)
+             scheduled = []
+             for rid, amount in result.num_scheduled_tokens.items():
+                 prior, prompt_length = before[rid]
+@@ -102,6 +114,7 @@
+                     scheduled_tokens=amount, prefill_tokens=prefill, decode_tokens=amount - prefill))
+             running_after, waiting_after = scheduler.get_request_counts()
+             scheduler_steps.append(dict(step=len(scheduler_steps), start_s=started, end_s=now(),
++                waiting_order_action_index=len(waiting_order_actions) - 1,
+                 target_cap=target, running_before=running_before, waiting_before=waiting_before,
+                 actual_active=running_after, waiting_requests=waiting_after,
+                 decode_requests=sum(row["decode_tokens"] > 0 for row in scheduled), scheduled=scheduled,
+@@ -221,6 +234,7 @@
+     return dict(status="COMPLETE" if error is None else "INCOMPLETE", error=error,
+         requests=list(rows.values()), scheduler_steps=scheduler_steps, output_events=output_events,
+         engine_step_returns=engine_step_returns,
++        waiting_order=waiting_order, waiting_order_actions=waiting_order_actions,
+         observation_end_s=now(), regime=regime, arrival_scale=arrival_scale, target_cap=config["cap"],
+         policy=policy, actions=[] if feedback is None else feedback.actions,
+         feedback_observations=[] if feedback is None else feedback.observations,

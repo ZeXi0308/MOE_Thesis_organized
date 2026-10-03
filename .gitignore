@@ -34,6 +34,15 @@ tmp_energy_search/
 **/outputs/**/calibration_routes.csv
 **/outputs/**/*_raw.csv
 **/outputs/**/pair_interventions.csv
+# Large, regenerable SemanticFence calibration traces.  Keep summary cards and
+# manifests trackable; exclude only the high-volume raw call/numeric logs.
+docs/ideas/semanticfence/experiments/outputs/semanticfence_pilot_*/calibration_calls.jsonl
+docs/ideas/semanticfence/experiments/outputs/semanticfence_pilot_*/calibration_numeric.jsonl
+docs/ideas/semanticfence/experiments/outputs/semanticfence_pilot_*/calibration_reference_rows.jsonl
+docs/ideas/semanticfence/experiments/outputs/semanticfence_pilot_*/calibration_cublaslt_*.log
+# Parent recomputation is represented by the compact raw-output index and
+# hashes.  Keep the per-pair BF16 tensors local; together they exceed 1 GiB.
+docs/ideas/semanticfence/experiments/outputs/semanticfence_pilot_*/evaluation_raw_bf16/
 experiments/**/*.pt
 experiments/**/*.safetensors
 experiments/**/*.bin
@@ -41,7 +50,200 @@ docs/**/*.pt
 docs/**/*.safetensors
 **/checkpoints.jsonl
 
+# Oversized raw ledgers retained locally.  Their compact summaries, manifests,
+# recomputations, and audit cards remain trackable.
+docs/ideas/spectatorroute/experiments/outputs/phase0a_5090_*/regime_cells.jsonl
+docs/ideas/stablebatch/experiments/outputs/shape_lane_continuous_cost_*/expert_call_ledger.jsonl
+
+# Raw experiment payloads remain local.  Compact JSON/Markdown summaries,
+# manifests, hashes, and audit cards under the same run directories stay
+# trackable and are committed separately.
+docs/ideas/*/experiments/outputs/**/*.jsonl
+docs/ideas/*/experiments/outputs/**/*.log
+docs/ideas/*/experiments/outputs/**/*.log.gz
+docs/ideas/*/experiments/outputs/**/*.exit
+docs/ideas/*/experiments/outputs/**/frozen_inputs/*.py
+docs/ideas/semanticfence/experiments/outputs/semanticfence_pilot_*/evaluation_arm_results.json
+
+# Materialized vLLM runtime packages are local and represented in Git by their
+# compact runtime-package manifests.
+refine-logs/expert_saturation/outputs/native_route_shape/*/runtime/
+
 # Resume / incomplete run leftovers
 **/*.partial.csv
 **/outputs/**/_smoke*/
 **/outputs/**/*_smoke_*/
+
+# Generated experiment bundles are local/external by default.  Keep only the
+# repository policy and the canonical routing index in Git going forward.
+/artifacts/**
+!/artifacts/README.md
+!/artifacts/index.json
+
+# Per-step engine traces recorded after 2026-09-12.  These are the raw scheduler
+# and pager ledgers; the 2026-09-13 admission_capacity runs alone hold 23.9 GB of
+# them, with single files above 1.5 GB.  Every scientific claim is carried by the
+# compact metrics/analysis/summary JSON and the Markdown reports committed beside
+# them, so the ledgers stay local and are republished as adjacent .gz files under
+# the docs/GITHUB_DATA.md procedure when a specific run needs to be shared.
+refine-logs/expert_saturation/outputs/**/raw.json
+refine-logs/expert_saturation/outputs/**/pager/calls.jsonl
+
+# Tokenizer and vocabulary snapshots copied into model_metadata/ during Qwen3 and
+# OLMoE launches.  These are upstream model assets retrievable from their original
+# source, duplicated once per launch directory; the launch manifests record their
+# digests, which is what the experiments actually verify against.
+**/model_metadata/tokenizer.json
+**/model_metadata/vocab.json
+**/model_metadata/merges.txt
+
+# Execution bundles and result archives shipped to or retrieved from GPU hosts.
+# Their extracted contents are already tracked where they matter.
+refine-logs/expert_saturation/outputs/**/*.tar.gz
+
+# Oversized raw JSON files are published losslessly as adjacent .gz files.
+# Restore and verify using docs/GITHUB_DATA.md; local originals stay unchanged.
+/refine-logs/expert_saturation/outputs/admission_capacity/20260906_native_memory_pressure_r01/gpu_results/repeat0-long-cap16/raw.json
+/refine-logs/expert_saturation/outputs/admission_capacity/20260906_native_memory_pressure_r01/gpu_results/repeat0-long-cap32/raw.json
+/refine-logs/expert_saturation/outputs/admission_capacity/20260906_native_memory_pressure_r01/gpu_results/repeat0-short-cap16/raw.json
+/refine-logs/expert_saturation/outputs/admission_capacity/20260906_native_memory_pressure_r01/gpu_results/repeat0-short-cap32/raw.json
+/refine-logs/expert_saturation/outputs/admission_capacity/20260906_native_memory_pressure_r01/gpu_results/repeat1-long-cap16/raw.json
+/refine-logs/expert_saturation/outputs/admission_capacity/20260906_native_memory_pressure_r01/gpu_results/repeat1-long-cap32/raw.json
+/refine-logs/expert_saturation/outputs/admission_capacity/20260906_native_memory_pressure_r01/gpu_results/repeat1-short-cap16/raw.json
+/refine-logs/expert_saturation/outputs/admission_capacity/20260906_native_memory_pressure_r01/gpu_results/repeat1-short-cap32/raw.json
+/refine-logs/expert_saturation/outputs/admission_capacity/20260908_kv_safe_static_r02/gpu_results/repeat0-baseline16/raw.json
+/refine-logs/expert_saturation/outputs/admission_capacity/20260908_kv_safe_static_r02/gpu_results/repeat0-safe/raw.json
+/refine-logs/expert_saturation/outputs/admission_capacity/20260908_kv_safe_static_r02/gpu_results/repeat1-baseline16/raw.json
+/refine-logs/expert_saturation/outputs/admission_capacity/20260908_kv_safe_static_r02/gpu_results/repeat1-safe/raw.json
+/refine-logs/expert_saturation/outputs/admission_capacity/20260908_native_preemption_r01/gpu_results/repeat0-native32/raw.json
+/refine-logs/expert_saturation/outputs/admission_capacity/20260908_native_preemption_r01/gpu_results/repeat0-safe/raw.json
+/refine-logs/expert_saturation/outputs/admission_capacity/20260908_native_preemption_r01/gpu_results/repeat1-native32/raw.json
+/refine-logs/expert_saturation/outputs/admission_capacity/20260908_native_preemption_r01/gpu_results/repeat1-safe/raw.json
+
+# Rebuildable GPU compilation caches; experimental raw and source remain published.
+**/runtime-cache/
+**/preflight-cache/
+
+# Lossless original paths restored from adjacent gzip; see GITHUB_LARGE_DATA_20261004.json.
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/A_NATIVE_COMPLETION_DEFERRAL_TRIPLET_RESULT_R01_20261002.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-capacity-identical-session-r01-20261001/cell-00-capacity_reference_first_on/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-capacity-identical-session-r01-20261001/cell-01-capacity_reference_second_on/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-capacity-protection-session-r03-20261001/cell-00-capacity_protection_q1/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-capacity-protection-session-r03-20261001/cell-01-capacity_protection_q10/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-capacity-victim-session-b2-r01-20261001/cell-00-eager_performance_on/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-capacity-victim-session-b2-r01-20261001/cell-01-eager_performance_off/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-capacity-victim-session-r01-20261001/cell-00-eager_performance_off/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-capacity-victim-session-r01-20261001/cell-01-eager_performance_on/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-capacity-warm-identical-session-r02-20261001/cell-00-capacity_reference_first_on/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-capacity-warm-identical-session-r02-20261001/cell-01-capacity_reference_second_on/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-fit-first-session-r01-20261001/cell-00-eager_performance_off/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-fit-first-session-r01-20261001/cell-01-eager_performance_on/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-g64-inflight-guard-qual-session-r01-20260930/cell-00-ltr_t30_q1/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-g64-perf-guard-t200-session-r01-20260930/cell-00-ltr_t200_q10/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-g64-perf-guard-t200-session-r01-20260930/cell-01-eager/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-g64-perf-guard-t200-session-r01-20260930/cell-02-ltr_t200_q1/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-g64-perf-inflight-guard-t30-session-r02-20260930/cell-00-ltr_t30_q1/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-g64-perf-inflight-guard-t30-session-r02-20260930/cell-01-eager/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-g64-perf-inflight-guard-t30-session-r02-20260930/cell-02-ltr_t30_q10/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-g64-perf-remaining-session-r02-20260930/cell-00-ltr_t30_q1/archive/selective-store.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-g64-perf-session-r01-20260930/cell-00-native_full_native/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-g64-perf-session-r01-20260930/cell-01-eager/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-g64-perf-session-r01-20260930/cell-02-ltr_t30_q10/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-h1-guard-qual-session-r02-20260930/cell-00-eager_diagnostic_on/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-h1-guard-qual-session-r02-20260930/cell-00-eager_diagnostic_on/archive/selective-store.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-h1-perf-b1-session-r01-20261001/cell-00-eager_performance_off/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-h1-perf-b1-session-r01-20261001/cell-01-eager_performance_on/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-h1-perf-b2-session-r01-20261001/cell-00-eager_performance_on/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-h1-perf-b2-session-r01-20261001/cell-01-eager_performance_off/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-h128-perf-guard-session-r02-20260930/cell-00-native_full_native/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-h128-perf-guard-session-r02-20260930/cell-01-eager/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-h128-perf-guard-session-r02-20260930/cell-02-ltr_t200_q1/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-ltr-g64-session-system-copy-r02-20260930/cell-00-ltr_r02_g64/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-ltr-g64-session-system-copy-r02-20260930/cell-00-ltr_r02_g64/archive/selective-store.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-backfill-cpu-session-r01-20261001/cell-00-native_full_ordinary_cpu_diagnostic/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-backfill-lazy-perf-session-r01-20261002/cell-00-native_full_ordinary_only/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-backfill-lazy-perf-session-r01-20261002/cell-01-native_full_reference/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-backfill-lazy-session-r01-20261002/cell-00-ordinary_timed_original/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-backfill-lazy-session-r01-20261002/cell-01-ordinary_timed_lazy/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-backfill-only-primary-session-r01-20261001/cell-00-native_full_reference/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-backfill-only-primary-session-r01-20261001/cell-01-native_full_ordinary_only/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-bidkv-full-running-session-r01-20261002/cell-00-tail_break/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-bidkv-full-running-session-r01-20261002/cell-01-bidkv_suffix_break/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-bidkv-full-running-session-r01-20261002/cell-02-bidkv_full_break/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-bidkv-score-session-r01-20261002/cell-00-tail_break/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-bidkv-score-session-r01-20261002/cell-01-bidkv_break/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-bidkv-score-session-r01-20261002/cell-02-bidkv_continue/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-completion-deferral-session-r01-20261002/cell-00-tail_break/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-completion-deferral-session-r01-20261002/cell-01-prefix_work/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-completion-deferral-session-r01-20261002/cell-01-prefix_work/archive/selective-store.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-completion-deferral-session-r01-20261002/cell-02-prefix_finish/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-current-guard-fresh-b1-session-r02-20261002/cell-00-tail_break/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-current-guard-fresh-b1-session-r02-20261002/cell-01-bidkv_break/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-current-guard-fresh-b1-session-r02-20261002/cell-02-bidkv_continue/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-current-guard-fresh-b1-session-r02-20261002/cell-03-bidkv_current_guard/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-current-guard-fresh-b2-session-r02-20261002/cell-00-bidkv_current_guard/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-current-guard-fresh-b2-session-r02-20261002/cell-01-bidkv_continue/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-current-guard-fresh-b2-session-r02-20261002/cell-02-bidkv_break/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-current-guard-fresh-b2-session-r02-20261002/cell-03-tail_break/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-current-guard-session-r02-20261002/cell-00-bidkv_break/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-current-guard-session-r02-20261002/cell-01-bidkv_continue/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-current-guard-session-r02-20261002/cell-02-bidkv_current_guard/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-oldest-admission-session-r01-20261002/cell-00-native/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-oldest-admission-session-r01-20261002/cell-01-queue_only/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-oldest-admission-session-r01-20261002/cell-02-queue_fund/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-oldest-admission-session-r03-20261002/cell-00-native/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-oldest-admission-session-r03-20261002/cell-01-queue_only/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-oldest-admission-session-r03-20261002/cell-02-queue_fund/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-oldest-repeat-session-r02-20261002/cell-00-queue_fund/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-oldest-repeat-session-r02-20261002/cell-01-queue_only/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-oldest-repeat-session-r02-20261002/cell-02-native/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-residency-ablation-primary-session-r01-20261002/cell-00-ordinary_service_density/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-residency-ablation-primary-session-r01-20261002/cell-01-ordinary_residence_outputs/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-residency-ablation-primary-session-r01-20261002/cell-02-ordinary_lifetime_density/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-residency-fresh-b1-session-r01-20261002/cell-00-ordinary_service_density/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-residency-fresh-b1-session-r01-20261002/cell-01-ordinary_arrival/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-residency-fresh-b1-session-r01-20261002/cell-02-ordinary_tail/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-residency-fresh-b2-session-r01-20261002/cell-00-ordinary_tail/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-residency-fresh-b2-session-r01-20261002/cell-01-ordinary_arrival/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-residency-fresh-b2-session-r01-20261002/cell-02-ordinary_service_density/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-residency-victim-session-r01-20261002/cell-00-ordinary_tail/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-residency-victim-session-r01-20261002/cell-01-ordinary_arrival/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-residency-victim-session-r01-20261002/cell-02-ordinary_service_density/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-self-preempt-continue-session-r01-20261002/cell-00-tail_break/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-self-preempt-continue-session-r01-20261002/cell-01-density_break/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-self-preempt-continue-session-r01-20261002/cell-02-density_continue/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-victim-size-session-r02-20261002/cell-00-tail/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-victim-size-session-r02-20261002/cell-01-min_held_other/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-native-victim-size-session-r02-20261002/cell-02-max_held_other/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-protection-scope-diag-session-r01-20261001/cell-00-protection_scope_q10_diagnostic/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-protection-yield-session-r01-20261001/cell-00-protection_q1/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-protection-yield-session-r01-20261001/cell-01-protection_q10_yield/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-protection-yield-session-r01-20261001/cell-02-protection_q10_plain/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-spare-followup-fresh-session-r01-20261001/cell-00-spare_followup_off/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-spare-followup-fresh-session-r01-20261001/cell-01-spare_followup_on/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-spare-followup-fresh-session-r01-20261001/cell-02-native_full_native/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-spare-followup-session-r01-20261001/cell-00-spare_followup_off/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-spare-followup-session-r01-20261001/cell-01-spare_followup_on/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-spare-followup-session-r02-20261001/cell-00-spare_followup_on/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-spare-followup-session-r02-20261001/cell-01-spare_followup_off/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-waiter-backfill-backup-session-r01-20261001/cell-00-waiter_reference_q1/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-waiter-backfill-backup-session-r01-20261001/cell-01-ordinary_backfill/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/moe-a-waiter-backfill-backup-session-r01-20261001/cell-02-primary_first_followup/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/recovery_quantum_20261002/lease-session-r01/cell-00-q1/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/recovery_quantum_20261002/lease-session-r01/cell-00-q1/output/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/recovery_quantum_20261002/lease-session-r01/cell-01-fixed4/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/recovery_quantum_20261002/lease-session-r01/cell-01-fixed4/output/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/recovery_quantum_20261002/lease-session-r01/cell-02-adaptive/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/recovery_quantum_20261002/lease-session-r01/cell-02-adaptive/output/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/recovery_quantum_20261002/lease-session-r02/cell-00-adaptive/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/recovery_quantum_20261002/lease-session-r02/cell-00-adaptive/output/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/recovery_quantum_20261002/lease-session-r02/cell-01-fixed4/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/recovery_quantum_20261002/lease-session-r02/cell-01-fixed4/output/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/recovery_quantum_20261002/lease-session-r02/cell-02-q1/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/recovery_quantum_20261002/lease-session-r02/cell-02-q1/output/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/recovery_quantum_20261002/strong-session-r01/cell-00-ordinary/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/recovery_quantum_20261002/strong-session-r01/cell-00-ordinary/output/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/recovery_quantum_20261002/strong-session-r01/cell-01-queue_fund/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/recovery_quantum_20261002/strong-session-r01/cell-01-queue_fund/output/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/recovery_quantum_20261002/strong-session-r01/cell-02-native/archive/raw.json
+/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/recovery_quantum_20261002/strong-session-r01/cell-02-native/output/raw.json

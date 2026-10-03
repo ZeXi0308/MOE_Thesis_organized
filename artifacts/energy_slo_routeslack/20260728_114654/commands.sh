@@ -1,0 +1,3 @@
+#!/bin/sh
+set -eu
+python3 docs/ideas/energy_slo/routeslack/experiments/run_routeslack_dry_run.py --output-dir '/Users/leandrozhao/Desktop/毕设论文资料/artifacts/energy_slo_routeslack/20260728_114654' --seed 20260728 --run-tests

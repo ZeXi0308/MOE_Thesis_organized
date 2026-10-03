@@ -1,0 +1,19 @@
+# GPU: executed in /root/autodl-tmp/moe-capacity-20260906
+# Environment for every run:
+export HF_HOME=/root/autodl-tmp/hf-cache HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 CUDA_VISIBLE_DEVICES=0 PYTHONDONTWRITEBYTECODE=1
+# Exact scan and bracket invocations are retained in scan/commands.txt and bracket/commands.txt.
+# A/B/B/A invocation order and environment are retained in actions/run-actions.sh.
+# Use the retained executed_run_capacity.py at its original experiments/admission_capacity/run_capacity.py path to reproduce those exact source bytes.
+# Every reproduction needs new output directories. Do not overwrite retained runs.
+
+# Local recomputation from workspace root; analyzer --output-dir must be new:
+.venv/bin/python refine-logs/expert_saturation/experiments/admission_capacity/analyze_capacity.py --run-dir refine-logs/expert_saturation/outputs/admission_capacity/20260906_gpu_pilot_r01/scan --output-dir /tmp/capacity-scan-analysis-new
+.venv/bin/python refine-logs/expert_saturation/experiments/admission_capacity/analyze_capacity.py --run-dir refine-logs/expert_saturation/outputs/admission_capacity/20260906_gpu_pilot_r01/bracket --output-dir /tmp/capacity-bracket-analysis-new
+.venv/bin/python refine-logs/expert_saturation/outputs/admission_capacity/20260906_gpu_pilot_r01/summarize.py --output /tmp/capacity-measurements-new.json
+.venv/bin/python refine-logs/expert_saturation/outputs/admission_capacity/20260906_gpu_pilot_r01/analyze_actions.py
+# analyze_actions.py rewrites derived analysis.json/action_measurements.json only; raw cells remain unchanged.
+
+# Targeted checks actually run during preparation:
+.venv/bin/python -m unittest discover -s refine-logs/expert_saturation/experiments/admission_capacity -p 'test_runtime.py' -v
+# Agent ran from experiments/admission_capacity:
+python3 -m unittest test_analyze_capacity.py

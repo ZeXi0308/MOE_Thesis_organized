@@ -122,7 +122,7 @@ Stage-0 本机资源门已完成：M5 Pro/48GB，Torch CUDA device count=0、MPS
 - [x] 完成 per-layer delta profile。
 - [x] 完成旧 MILP / rank-only / greedy 离线优化。
 - [x] 完成端到端 LUT evaluation。
-- [x] 记录关键 negative result：MILP predicted KL `0.10`，actual KL `9.41`，低估约 `94×`。
+- [x] `SUPERSEDED`：旧 additive negative result 由重复累加 FP8 baseline 造成，禁止继续引用旧倍数；正确增量口径 ratio=1.076，95% CI [0.983,1.165]，可加性未决。
 - [x] 确认旧 MILP 与 rank-only 的实际 saving/质量接近，没有展示出值得承担复杂度的优势。
 - [x] 决定将 additive-KL MILP 移出主线。
 
