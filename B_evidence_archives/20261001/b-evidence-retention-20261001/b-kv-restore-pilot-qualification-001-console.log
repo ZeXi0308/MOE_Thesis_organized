@@ -1,0 +1,23 @@
+Traceback (most recent call last):
+  File "/root/b-restore-qualification-source-001/restore_path_pilot_runner_b/run_qualification.py", line 233, in retained_gpu_lock
+    fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+BlockingIOError: [Errno 11] Resource temporarily unavailable
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/root/b-restore-qualification-source-001/restore_path_pilot_runner_b/run_qualification.py", line 600, in <module>
+    main()
+  File "/root/b-restore-qualification-source-001/restore_path_pilot_runner_b/run_qualification.py", line 596, in main
+    execute(source, verified, runner)
+  File "/root/b-restore-qualification-source-001/restore_path_pilot_runner_b/run_qualification.py", line 545, in execute
+    row = run_one(cell, group_start)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/b-restore-qualification-source-001/restore_path_pilot_runner_b/run_qualification.py", line 417, in run_one
+    with retained_gpu_lock() as lock_fd:
+  File "/root/miniconda3/lib/python3.12/contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "/root/b-restore-qualification-source-001/restore_path_pilot_runner_b/run_qualification.py", line 235, in retained_gpu_lock
+    raise RunnerError("SHARED_GPU_LOCK_BUSY") from exc
+RunnerError: SHARED_GPU_LOCK_BUSY

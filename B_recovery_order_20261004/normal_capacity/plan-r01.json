@@ -1,0 +1,41 @@
+{
+  "session_dir": "/root/autodl-tmp/moe-b-recovery-order-20261004/normal_capacity/session-r01",
+  "lock_path": "/root/autodl-tmp/moe-research-gpu.lock",
+  "gpu_uuid": "GPU-bf3fc5ab-804d-b9d6-759b-4390899f15b9",
+  "host_limit_bytes": 128849018880,
+  "python": "/root/miniconda3/bin/python",
+  "hf_cache": "/root/autodl-tmp/moe-a-20261002/hf",
+  "per_cell_seconds": 1800,
+  "library_path": "/root/miniconda3/lib/python3.12/site-packages/nvidia/cu13/lib:/root/miniconda3/lib/python3.12/site-packages/torch/lib",
+  "joint_slo": {
+    "ttft_s": 5.0,
+    "max_generation_gap_s": 0.2,
+    "basis": "Fixed pilot research thresholds inherited numerically from old runner; joint maxgap replaces old average TPOT. Not production SLO. Frozen before new measurements."
+  },
+  "runtime_overlay": "/root/autodl-tmp/moe-b-recovery-order-20261004/runtime-overlay",
+  "runtime_note": "Private RECORD-only torch view, shared installation unchanged; resolves observed stale duplicate-template files, identical in every arm.",
+  "requests_per_arm": 256,
+  "baseline_caps": [
+    64,
+    192,
+    256
+  ],
+  "engine_max_num_seqs": 256,
+  "measurement_max_seconds": 360,
+  "fixed": {
+    "victim": "tail",
+    "admission": "native FCFS with one fixed cap per operating point",
+    "lease": "off",
+    "service_quantum": "native",
+    "gpu_kv_bytes": "first cap64 native auto profile at gpu_memory_utilization=.90, then exact actual bytes reused",
+    "host_kv_bytes": 17179869184,
+    "max_model_len": 4096,
+    "max_num_batched_tokens": 1024,
+    "precision": "BF16",
+    "transfers": "native direction handlers, unchanged stream/event pools",
+    "warmup": "same original short32x16,short32x32,long2x2,output16; independent empty caches",
+    "arrival_sequence": "same256 distinct natural article prefixes, alternating3072/512,0.1s source-order arrivals,EOS cap1024"
+  },
+  "conditional_reduction": "Three native pressure points. Only cap256 expands if it has a legal flush reorder opportunity; after that native, age, flush_first, flush_first, age, native at cap256. Merge age iff every first cap256 native order is creation-ID sorted. If no cap256 opportunity retain all three and stop. No runtime metric or SLO value selects an arm.",
+  "scope": "Normal physical-memory capacity probe on PRO6000; cap is a workload concurrency setting, fixed across policies. 8GiB r03/r04 remain separate controlled-mechanism evidence."
+}

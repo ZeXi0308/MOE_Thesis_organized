@@ -1,0 +1,111 @@
+{
+  "status": "CPU_PREPARED_GPU_UNRUN",
+  "session_dir": "/tmp/moe-b-recovery-order-20261004/output_event_compact/session-20261008-r01",
+  "lock_path": "/root/autodl-tmp/moe-research-gpu.lock",
+  "gpu_uuid": "GPU-94203fc3-1021-3a9c-a367-cff792479616",
+  "host_limit_bytes": 128849018880,
+  "python": "/root/miniconda3/bin/python",
+  "hf_cache": "/root/autodl-tmp/moe-a-20261002/hf",
+  "per_cell_seconds": 1800,
+  "library_path": "/root/miniconda3/lib/python3.12/site-packages/nvidia/cu13/lib:/root/miniconda3/lib/python3.12/site-packages/torch/lib",
+  "runtime_overlay": "/root/autodl-tmp/moe-b-recovery-order-20261004/runtime-overlay",
+  "requests_per_arm": 256,
+  "sequence": [
+    "legacy",
+    "compact",
+    "compact",
+    "legacy"
+  ],
+  "cap": 256,
+  "engine_max_num_seqs": 256,
+  "measurement_max_seconds": 360,
+  "fixed_gpu_kv_bytes": 77242302464,
+  "joint_slo": {
+    "ttft_s": 5.0,
+    "max_generation_gap_s": 0.2,
+    "basis": "Same predeclared exploratory thresholds as normal_capacity/session-r01; not a production SLO. No threshold selected from completion-handoff outcomes."
+  },
+  "fixed": {
+    "victim": "tail",
+    "admission": "Original native admission/cap256; bypass only within contiguous already-PREEMPTED prefix with identical priority; no new request crossed.",
+    "lease": "off",
+    "service_quantum": "native",
+    "B_RECOVERY_ORDER": "native",
+    "B_COMPLETION_FINALIZE": "native in every arm; original completion boundary retained",
+    "gpu_kv_bytes": 77242302464,
+    "host_kv_bytes": 17179869184,
+    "max_model_len": 4096,
+    "max_num_batched_tokens": 1024,
+    "precision": "BF16",
+    "model": "allenai/OLMoE-1B-7B-0924@6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "inputs": "../completion_handoff/fixed_inputs/cap256",
+    "workload_sha256": "208e7c0786b326985a3f69f67600963dc2d9aaa81a6c750c4a338466d0529eb2",
+    "workload_sha256_semantics": "Canonical JSON hash checked by the original input loader; distinct from the serialized file hash below.",
+    "workload_file_sha256": "024ccc4a4885de85309a9b20494d9251e78d2dc2d8aa04b8ff45878b4f966022",
+    "transfers": "All original STORE/LOAD prepare, submission, completion and release paths unchanged.",
+    "warmup": "original short32x16, short32x32, long2x2, output16; independent empty caches in every cell",
+    "observations": "Same existing request/task/recovery observers and passive GC callbacks in both arms. Sole variable is output-event transient storage; final log schema/payload retained.",
+    "arrival_sequence": "Same256 distinct natural article prefixes, alternating3072/512,0.1s source-order arrivals; every request completes1024 output tokens ignoring EOS.",
+    "B_LOAD_ORDER": "native, no LOAD ordering adapter installed",
+    "termination": {
+      "output_mode": "fixed",
+      "output_tokens": 1024,
+      "ignore_eos": true,
+      "min_tokens": 0,
+      "expected_output_tokens_per_arm": 262144
+    },
+    "B_TAIL_RESERVATION": "native, full_tail disabled",
+    "B_SOURCE_HANDOFF": "native observer only",
+    "B_RECOVERY_REPEAT": "once in every cell; action limit1, no policy parameter change",
+    "B_GC_OBSERVATION": "passive callbacks only; outputs gc-observation.json; raw request/iteration timing unchanged",
+    "B_OUTPUT_EVENT_STORAGE": "legacy/compact by frozen ABBA sequence"
+  },
+  "selection": "Both arms use frozen once online selection/action limit1 and the same passive GC callbacks. Only retained output-event representation changes.",
+  "scope": "One paired and reverse-order output-event storage comparison under unchanged once policy. Instrumentation cost diagnostic, not a recovery mechanism speedup.",
+  "deployment": {
+    "date": "2026-10-08",
+    "ssh_host": "connect.westb.seetacloud.com",
+    "ssh_port": 25495,
+    "gpu_name": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+    "gpu_memory_mib": 97887,
+    "driver": "595.71.05",
+    "shared_lock_device": 2304,
+    "shared_lock_inode": 15049831297,
+    "runtime": "Retained original package and model cache; native model runner/mixin/worker/scheduler/KV manager hashes match; private torch CPU imports passed with CUDA uninitialized.",
+    "comparison_scope": "New contemporaneous legacy/compact ABBA on same authorized GPU, every warmup+cell within one shared lock. Prior diagnostic is motivation only."
+  },
+  "initial_gpu_handoff_timeout_seconds": 30,
+  "hypothesis_source": "New passive GC diagnostic observed 11 gen2 intervals totaling550.103ms and102.104ms maximum, covering substantial parts of longest shared output gaps. Ordinary measure_episode retains262144 dict+list output events until after measurement.",
+  "stop_rule": "Exactly this ABBA; no GC thresholds/policy changes, repeated budget search, or automatic followup repeat. If compact fails to reduce retention pauses/full-gap cost, stop this storage change. Never remove old pause costs.",
+  "storage_note": "Native data disk nearly full; this new session and its independent empty caches live on /tmp filesystem. Model/source remain original read-only locations. No past raw removed.",
+  "authorization": "User: 允许超出“仅任务排序”的边界",
+  "intervention": {
+    "legacy": "Original request_measurement unchanged, retains output event dicts and new-token lists.",
+    "compact": "Append primitive invalid tuple before original validation, replace with validated tuple after it; reconstruct event dicts and token slices after original end=now(). No changed arrival/output timestamp, prefix validation, native path, or GC setting."
+  },
+  "correctness_scope": "Targeted fake-engine original/compact full-field equivalence including malformed prefix, length, multiple-token chunks and engine error; exact-source/CLI adapters. Retain existing runtime resource, termination, lock and workload checks.",
+  "inputs_dir": "/root/autodl-tmp/moe-b-recovery-order-20261004/completion_handoff/fixed_inputs",
+  "source_basis": "Frozen passive GC once runner and original request_measurement; compact_capture exact source adapter changes only event retention, reconstructs all JSON fields after original end timestamp.",
+  "primary_readout": "Per-run gen2 callback interval union/max and complete request maximum-gap distribution; full TTFT/flow/throughput/fixed exploratory SLO. Report post-observation materialization time, phase times, all failures and output/copy work.",
+  "source_dir": "/root/autodl-tmp/moe-b-recovery-order-20261004",
+  "repeat_budget": {
+    "groups": 1,
+    "cells": 4,
+    "sequence": [
+      "legacy",
+      "compact",
+      "compact",
+      "legacy"
+    ],
+    "automatic_repetitions": false,
+    "parameter_tuning": false
+  },
+  "gc_observation": {
+    "clock": "time.perf_counter host clock; align against raw measurement origin/end without altering raw timestamps",
+    "output": "gc-observation.json",
+    "retained_events": "All generation-2 collections and paired events lasting at least 0.001 seconds; this is logging detail, not a scheduling threshold.",
+    "short_event_accounting": "per_generation aggregates cover the entire installation window; short events without individual timestamps cannot be exactly cropped to the raw measurement interval.",
+    "lifecycle": "Record installation/uninstallation host time, GC enablement and thresholds; pair start/stop callbacks, retain pairing anomalies and pending_at_uninstall.",
+    "causal_limit": "GC overlap plus randomized-free fixed ABBA representation intervention can test this storage source; other objects/host/GPU work remain. No proof about older runs or pure CPU pause cost."
+  }
+}

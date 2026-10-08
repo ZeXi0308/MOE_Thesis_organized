@@ -1,0 +1,325 @@
+{
+  "status": "COMPLETE",
+  "plan": {
+    "status": "CPU_PREPARED_GPU_UNRUN",
+    "session_dir": "/tmp/moe-b-recovery-order-20261004/recovery_repeat/session-fixed-20261008-r01",
+    "lock_path": "/root/autodl-tmp/moe-research-gpu.lock",
+    "gpu_uuid": "GPU-94203fc3-1021-3a9c-a367-cff792479616",
+    "host_limit_bytes": 128849018880,
+    "python": "/root/miniconda3/bin/python",
+    "hf_cache": "/root/autodl-tmp/moe-a-20261002/hf",
+    "per_cell_seconds": 1800,
+    "library_path": "/root/miniconda3/lib/python3.12/site-packages/nvidia/cu13/lib:/root/miniconda3/lib/python3.12/site-packages/torch/lib",
+    "runtime_overlay": "/root/autodl-tmp/moe-b-recovery-order-20261004/runtime-overlay",
+    "requests_per_arm": 256,
+    "sequence": [
+      "once",
+      "repeat8",
+      "repeat8",
+      "once"
+    ],
+    "cap": 256,
+    "engine_max_num_seqs": 256,
+    "measurement_max_seconds": 360,
+    "fixed_gpu_kv_bytes": 77242302464,
+    "joint_slo": {
+      "ttft_s": 5.0,
+      "max_generation_gap_s": 0.2,
+      "basis": "Same predeclared exploratory thresholds as normal_capacity/session-r01; not a production SLO. No threshold selected from completion-handoff outcomes."
+    },
+    "fixed": {
+      "victim": "tail",
+      "admission": "Original native admission/cap256; bypass only within contiguous already-PREEMPTED prefix with identical priority; no new request crossed.",
+      "lease": "off",
+      "service_quantum": "native",
+      "B_RECOVERY_ORDER": "native",
+      "B_COMPLETION_FINALIZE": "native in every arm; original completion boundary retained",
+      "gpu_kv_bytes": 77242302464,
+      "host_kv_bytes": 17179869184,
+      "max_model_len": 4096,
+      "max_num_batched_tokens": 1024,
+      "precision": "BF16",
+      "model": "allenai/OLMoE-1B-7B-0924@6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+      "inputs": "../completion_handoff/fixed_inputs/cap256",
+      "workload_sha256": "208e7c0786b326985a3f69f67600963dc2d9aaa81a6c750c4a338466d0529eb2",
+      "workload_sha256_semantics": "Canonical JSON hash checked by the original input loader; distinct from the serialized file hash below.",
+      "workload_file_sha256": "024ccc4a4885de85309a9b20494d9251e78d2dc2d8aa04b8ff45878b4f966022",
+      "transfers": "All original STORE/LOAD prepare, submission, completion and release paths unchanged.",
+      "warmup": "original short32x16, short32x32, long2x2, output16; independent empty caches in every cell",
+      "observations": "Both modes evaluate and record the same online qualifications throughout the run, including after the action budget is exhausted, plus inherited native source/allocation/transfer/request observers. No CUDA query or synchronization added.",
+      "arrival_sequence": "Same256 distinct natural article prefixes, alternating3072/512,0.1s source-order arrivals; every request completes1024 output tokens ignoring EOS.",
+      "B_LOAD_ORDER": "native, no LOAD ordering adapter installed",
+      "termination": {
+        "output_mode": "fixed",
+        "output_tokens": 1024,
+        "ignore_eos": true,
+        "min_tokens": 0,
+        "expected_output_tokens_per_arm": 262144
+      },
+      "B_TAIL_RESERVATION": "native, full_tail disabled",
+      "B_SOURCE_HANDOFF": "native observer only",
+      "B_RECOVERY_REPEAT": "once or repeat8 per predeclared sequence; action budgets 1 and 8"
+    },
+    "selection": "At each eligible native waiting decision, choose the oldest conservative-fit successor in the uninterrupted same-priority PREEMPTED prefix behind a full-history-capacity-blocked PREEMPTED head. Legality is checked online by the same predicate in both modes. At most one actual bypass per request/preemption episode; the run-wide action budget is the only changed factor: 1 versus 8. No request-ID or time threshold.",
+    "scope": "One bounded action-budget development probe, once/repeat8/repeat8/once ABBA, normal capacity and fixed1024. Generic first-fit/backfill is a simple baseline, not a novelty or independent-confirmation claim.",
+    "deployment": {
+      "date": "2026-10-08",
+      "ssh_host": "connect.westb.seetacloud.com",
+      "ssh_port": 25495,
+      "gpu_name": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+      "gpu_memory_mib": 97887,
+      "driver": "595.71.05",
+      "shared_lock_device": 2304,
+      "shared_lock_inode": 15049831297,
+      "runtime": "Retained original package and model cache; native model runner/mixin/worker/scheduler/KV manager hashes match; private torch CPU imports passed with CUDA uninitialized.",
+      "comparison_scope": "All four arms rerun with identical light observation on same GPU; completed observation is not a performance control."
+    },
+    "initial_gpu_handoff_timeout_seconds": 30,
+    "hypothesis_source": "recovery_fit/session-fixed-20261008-r02: once-action net flow differences +0.435%/-0.307%, with earlier local next output followed by re-preemption. Existing r01 traces contain 33 later physical-fitting head failures per arm; these are diagnostic opportunities only and legality must be checked online. This group tests whether a bounded repeat budget changes complete-service value.",
+    "stop_rule": "Run this one four-cell group only. Keep all requests, arrivals, failures, unfinished requests and raw runs. Verify actual online queue changes separately from shadow suggestions and subsequent native allocation/LOAD/schedule/output. Report both paired complete-service effects and harmed requests. No threshold scan, tuning or automatic further same-load repetitions.",
+    "storage_note": "Native data disk nearly full; this new session and its independent empty caches live on /tmp filesystem. Model/source remain original read-only locations. No past raw removed.",
+    "authorization": "User: \u5141\u8bb8\u8d85\u51fa\u201c\u4ec5\u4efb\u52a1\u6392\u5e8f\u201d\u7684\u8fb9\u754c",
+    "intervention": {
+      "once": "Use the shared repeat_fit policy with one actual queue bypass available during the run; continue identical qualification observation beyond the budget.",
+      "repeat8": "Use the same policy with at most eight actual queue bypasses during the run; continue identical qualification observation beyond the budget.",
+      "shared": "At a legal decision move the oldest eligible same-priority already-PREEMPTED successor to the front, preserving the relative order of all others. Never cross a new request. At most one actual bypass per request/preemption episode. Retain original native peek/lookup/allocation/LOAD/STORE/schedule and all other policy paths; no protection, reservation, pin, priority, victim, admission-rule, quantum, stream, concurrency or budget change."
+    },
+    "correctness_scope": "Reuse the frozen native/fixed runner and original queue operations. Check only the new mode/installation boundary and bounded online action/episode accounting; native_paths checks the shared policy. Unchanged transfer and resource paths are not reimplemented.",
+    "inputs_dir": "/root/autodl-tmp/moe-b-recovery-order-20261004/completion_handoff/fixed_inputs",
+    "source_basis": "Frozen recovery_fit runner shape over source_handoff native/fixed execution; repeat_fit is installed only at the existing post-warmup scheduler adapter boundary. No early pin/full tail/LOAD order/completion shift.",
+    "primary_readout": "Both AB and BA run-level differences for all-request TTFT, flow, maximum generation gap, unchanged joint SLO goodput, throughput/drain and actual copy/output work; each actual queue action versus shadow suggestion, candidate and bypassed head native allocation/LOAD/schedule/next output, re-preemption and per-request gains/losses. No same-state cross-run claim.",
+    "source_dir": "/root/autodl-tmp/moe-b-recovery-order-20261004",
+    "repeat_budget": {
+      "additional_groups": 1,
+      "cells_in_this_group": 4,
+      "automatic_further_same_load_repetitions": false,
+      "parameter_tuning": false,
+      "action_limit_by_mode": {
+        "once": 1,
+        "repeat8": 8
+      },
+      "maximum_actual_bypasses_per_request_preemption_episode": 1
+    }
+  },
+  "cells": [
+    {
+      "cap": 256,
+      "mode": "once",
+      "exit_code": 0,
+      "wall_s": 263.7664846200496,
+      "recovery_repeat_mode": "once"
+    },
+    {
+      "cap": 256,
+      "mode": "repeat8",
+      "exit_code": 0,
+      "wall_s": 262.9461103603244,
+      "recovery_repeat_mode": "repeat8"
+    },
+    {
+      "cap": 256,
+      "mode": "repeat8",
+      "exit_code": 0,
+      "wall_s": 262.96827313117683,
+      "recovery_repeat_mode": "repeat8"
+    },
+    {
+      "cap": 256,
+      "mode": "once",
+      "exit_code": 0,
+      "wall_s": 263.1274627968669,
+      "recovery_repeat_mode": "once"
+    }
+  ],
+  "pid": 91876,
+  "lock_wait": {
+    "started_unix_s": 1791397182.2658665,
+    "timeout_seconds": 3600.0,
+    "acquired_unix_s": 1791398744.5400133,
+    "elapsed_seconds": 1562.2741569168866
+  },
+  "acquired_unix_s": 1791398744.5400004,
+  "lock": {
+    "device": 2304,
+    "inode": 15049831297
+  },
+  "source_sha256": {
+    "recovery_repeat/check_cpu.py": "a914433d0f977b57f2ac36226dce7d2daeaffa85d514086e4ad393c706ca6bee",
+    "recovery_repeat/repeat_fit.py": "1ff383057d9d3c657efad27ef6a7d48520c8af513a1639006ff703f9ca489c40",
+    "recovery_repeat/run_cell.py": "b59d9ec45edaf0d0771deae622f68fa26893c2c80f0ced1658dac453cdf9966c",
+    "recovery_repeat/run_fixed_cell.py": "d79e26b390b099a2cd30767ec47329b900e2e06e6e63c2d1969025ff9014a712",
+    "recovery_repeat/run_group.py": "b22b09cde3baccb77b2a5bf575a5ff9258069993485d5436c469abc8a4e1edda",
+    "pkg/._absence_rotation.py": "fa9a4ee0079dbbfcb7966b98a78ee53a474895b9303aa4f3cc6a0bfc7cbd76d5",
+    "pkg/._bidkv_score.py": "fa9a4ee0079dbbfcb7966b98a78ee53a474895b9303aa4f3cc6a0bfc7cbd76d5",
+    "pkg/._memory_telemetry.py": "fa9a4ee0079dbbfcb7966b98a78ee53a474895b9303aa4f3cc6a0bfc7cbd76d5",
+    "pkg/._metrics.py": "fa9a4ee0079dbbfcb7966b98a78ee53a474895b9303aa4f3cc6a0bfc7cbd76d5",
+    "pkg/._native_capture.py": "fa9a4ee0079dbbfcb7966b98a78ee53a474895b9303aa4f3cc6a0bfc7cbd76d5",
+    "pkg/._native_full_store_evidence.py": "fa9a4ee0079dbbfcb7966b98a78ee53a474895b9303aa4f3cc6a0bfc7cbd76d5",
+    "pkg/._native_host_snapshot.py": "fa9a4ee0079dbbfcb7966b98a78ee53a474895b9303aa4f3cc6a0bfc7cbd76d5",
+    "pkg/._native_offload_observer.py": "fa9a4ee0079dbbfcb7966b98a78ee53a474895b9303aa4f3cc6a0bfc7cbd76d5",
+    "pkg/._native_store_delta.py": "fa9a4ee0079dbbfcb7966b98a78ee53a474895b9303aa4f3cc6a0bfc7cbd76d5",
+    "pkg/._preflight.py": "fa9a4ee0079dbbfcb7966b98a78ee53a474895b9303aa4f3cc6a0bfc7cbd76d5",
+    "pkg/._recovery_lease.py": "fa9a4ee0079dbbfcb7966b98a78ee53a474895b9303aa4f3cc6a0bfc7cbd76d5",
+    "pkg/._recovery_order.py": "fa9a4ee0079dbbfcb7966b98a78ee53a474895b9303aa4f3cc6a0bfc7cbd76d5",
+    "pkg/._request_measurement.py": "fa9a4ee0079dbbfcb7966b98a78ee53a474895b9303aa4f3cc6a0bfc7cbd76d5",
+    "pkg/._rotation_native.py": "fa9a4ee0079dbbfcb7966b98a78ee53a474895b9303aa4f3cc6a0bfc7cbd76d5",
+    "pkg/._run_recovery_cadence.py": "fa9a4ee0079dbbfcb7966b98a78ee53a474895b9303aa4f3cc6a0bfc7cbd76d5",
+    "pkg/._safe_static.py": "fa9a4ee0079dbbfcb7966b98a78ee53a474895b9303aa4f3cc6a0bfc7cbd76d5",
+    "pkg/._staged_save_contract.py": "fa9a4ee0079dbbfcb7966b98a78ee53a474895b9303aa4f3cc6a0bfc7cbd76d5",
+    "pkg/._staged_store_rotation.py": "fa9a4ee0079dbbfcb7966b98a78ee53a474895b9303aa4f3cc6a0bfc7cbd76d5",
+    "pkg/absence_rotation.py": "bda966bfe0e0904981324b86fa700f39b1830eeba669dd37dd761f9f4a900299",
+    "pkg/bidkv_score.py": "01d8fb2b0cfa9e4e13f28026c542b099f7fc042d7788b6ba19fff83de88aa7a1",
+    "pkg/memory_telemetry.py": "393cc9e42b76b8f1bfae57127ca8fc153242eb1e6dfd74ede6c5873e1f99d2ab",
+    "pkg/metrics.py": "1ca4874d718402ad149e26abd1b109eadf50afabb7aadc9e562e244aeb594b11",
+    "pkg/native_capture.py": "df88bdc2d759b3b97dc7970d41f695b648e131858abd5a3050ff2dbed0ecf62d",
+    "pkg/native_full_store_evidence.py": "8e39776a048352d6a194dc1072f700617b61ac48a5bb30cef6dbf3f8ed1e8686",
+    "pkg/native_host_snapshot.py": "95c6ae6ec6a0f5c0fd9ce2bf83cc8400527f5e01624bbd1e9ec212ff9cf059df",
+    "pkg/native_offload_observer.py": "5818a519ad33abaa40ca8552ffd158f75e5616e8f8263e93a93282b15131a77a",
+    "pkg/native_store_delta.py": "7fb3bfb6fb031d44e3d663e9f39a900ad65a668473406065c62a2d4a6a844202",
+    "pkg/preflight.py": "4b834f2e3e96152f31e2c88524d5420401887e3f3b56e2c0df4ef826b3537cf8",
+    "pkg/recovery_lease.py": "49b6543cb9d476149a302faaa3a11379d53ee06c964f37b40b620f83c9c14ea6",
+    "pkg/recovery_order.py": "710cc03d99eb4b9c5acfc71c58cf88d633b5534e2e1af53b0906cc40c63bf054",
+    "pkg/request_measurement.py": "1b322be02505381dedb0aaf47f58513dfef61d60bf98e8d9590e18e3012534e4",
+    "pkg/rotation_native.py": "822b22d283ecd2bc0d1ab4782fe3afa3e8d7266e61a6021b73f475fc9c468535",
+    "pkg/run_recovery_cadence.py": "7046411c3b19a4d023004ea873f807aac0719aa882246649e671ea9e5d073be9",
+    "pkg/safe_static.py": "7e79f54a85f3c15f8a4645705af4870f92bd47282297acb438fa87de3910be84",
+    "pkg/staged_save_contract.py": "6d7c32541ffcf8c990042edf2836523a81a511a5a740a1211493c9cc88c7c69a",
+    "pkg/staged_store_rotation.py": "11b986fe0a28fc8931e6785229935cd98027cbe8475a3d61c2ac792f29c428cb",
+    "load_order/run_group.py": "7ba62d4abeaa38725075019dbe0f9fe46a0b336319ff0ce6c98f2b469c7ecc9c",
+    "capacity_handoff/observe_tail.py": "b0e59962645ba95f76bb380bec2f9c3675ceac62d7b57debb24a184cbb9c5c8f",
+    "tail_reservation/reserve_tail.py": "fd663e48fbe4291878c16319ffb6294ef63e4444e79f7f84789e13d2aad0ef76",
+    "completion_handoff/run_fixed_group.py": "6846e19f8582f7b0d1a6fa83f7c8a3cf84aab6daf9ee69437de07d8b754fa6cf",
+    "load_order/load_order.py": "51b3db810d13c74a124cf489ace3f8af5ecd3981183a3cb6fba9bec1ec048e6e",
+    "normal_capacity/run_group.py": "85278d8c2e90f9ccd7d37b8003781258d0d6f226ad3397285c3658dc3b98f101",
+    "normal_capacity/run_cell.py": "9f92617d44bbf8cda6992261129c35ff844a14a569dc8f259ed2bdedaa2388bb",
+    "normal_capacity/safe_static.py": "128b65ca4d306880d3397a16b0cd382ddd893402075fb214d9e1ab18baff3fd7",
+    "completion_handoff/completion_finalize.py": "6ec52ce72cef642abb9ec63fe0ca5a549160b70d9d70559659222a53bd1c3e49",
+    "completion_handoff/run_fixed_group_wait.py": "e50957ef2393f977c8d790ef4ace5989b2375d46b7bea34f3f6ac056672c1beb",
+    "completion_handoff/run_fixed_group_settle.py": "4bf68b1f90dfb2b4474969b75d613f99271e2063ee9ed50ac81118f32c359372",
+    "run_group.py": "4d8091f43a75aa466e75f6ba2c20be9c31d1bfb3d7c5a25a252fa2d7d607f8b3",
+    "source_handoff/run_group.py": "de88fae812d97cfe49ca27789b7346f0c3d5013f5062458e02e158c1225a76e2",
+    "source_handoff/run_cell.py": "4a0e65178540b005fe0101d4f8c0c4260eef2e1ac281d8bbaa311a2bc6228df3",
+    "source_handoff/run_fixed_cell.py": "69b03e618595bc89b29874ef846e83a5524a0fece805d932ca70b50814af2829",
+    "source_handoff/source_handoff.py": "0c952554e87b83c2cd31b9875bdfcb6469a73ce0eefcd089a2f5f28af7d43da7",
+    "recovery_queue/observe_waiting.py": "8f130a900b4b0ac6443ba6991a56d2ae80f7132dea2ad4bb72cb4ec3ed5fc28b",
+    "recovery_fit/fit_once.py": "7d2965b21f60516879b3a14a9a92533e882c9193890f4cf3cf3f77004bf8cbd6"
+  },
+  "fixed_gpu_kv_bytes": 77242302464,
+  "initial_handoff_settle": {
+    "started_unix_s": 1791398744.5470126,
+    "timeout_seconds": 30.0,
+    "observations": [
+      {
+        "unix_s": 1791398744.6876738,
+        "gpu": "GPU-94203fc3-1021-3a9c-a367-cff792479616, NVIDIA RTX PRO 6000 Blackwell Server Edition, 88197, 0",
+        "processes": "GPU-94203fc3-1021-3a9c-a367-cff792479616, 91034, /root/miniconda3/bin/python, 88188",
+        "empty": false
+      },
+      {
+        "unix_s": 1791398745.870452,
+        "gpu": "GPU-94203fc3-1021-3a9c-a367-cff792479616, NVIDIA RTX PRO 6000 Blackwell Server Edition, 0, 0",
+        "processes": "",
+        "empty": true
+      }
+    ],
+    "status": "EMPTY",
+    "elapsed_seconds": 1.3234629221260548
+  },
+  "cell_boundaries": [
+    {
+      "unix_s": 1791398745.870452,
+      "gpu": "GPU-94203fc3-1021-3a9c-a367-cff792479616, NVIDIA RTX PRO 6000 Blackwell Server Edition, 0, 0",
+      "processes": "",
+      "empty": true,
+      "observations": [
+        {
+          "unix_s": 1791398744.6876738,
+          "gpu": "GPU-94203fc3-1021-3a9c-a367-cff792479616, NVIDIA RTX PRO 6000 Blackwell Server Edition, 88197, 0",
+          "processes": "GPU-94203fc3-1021-3a9c-a367-cff792479616, 91034, /root/miniconda3/bin/python, 88188",
+          "empty": false
+        },
+        {
+          "unix_s": 1791398745.870452,
+          "gpu": "GPU-94203fc3-1021-3a9c-a367-cff792479616, NVIDIA RTX PRO 6000 Blackwell Server Edition, 0, 0",
+          "processes": "",
+          "empty": true
+        }
+      ]
+    },
+    {
+      "unix_s": 1791399011.9242492,
+      "gpu": "GPU-94203fc3-1021-3a9c-a367-cff792479616, NVIDIA RTX PRO 6000 Blackwell Server Edition, 0, 0",
+      "processes": "",
+      "empty": true,
+      "observations": [
+        {
+          "unix_s": 1791399009.7796915,
+          "gpu": "GPU-94203fc3-1021-3a9c-a367-cff792479616, NVIDIA RTX PRO 6000 Blackwell Server Edition, 0, 19",
+          "processes": "",
+          "empty": false
+        },
+        {
+          "unix_s": 1791399011.9242492,
+          "gpu": "GPU-94203fc3-1021-3a9c-a367-cff792479616, NVIDIA RTX PRO 6000 Blackwell Server Edition, 0, 0",
+          "processes": "",
+          "empty": true
+        }
+      ]
+    },
+    {
+      "unix_s": 1791399274.976683,
+      "gpu": "GPU-94203fc3-1021-3a9c-a367-cff792479616, NVIDIA RTX PRO 6000 Blackwell Server Edition, 0, 0",
+      "processes": "",
+      "empty": true,
+      "observations": [
+        {
+          "unix_s": 1791399274.976683,
+          "gpu": "GPU-94203fc3-1021-3a9c-a367-cff792479616, NVIDIA RTX PRO 6000 Blackwell Server Edition, 0, 0",
+          "processes": "",
+          "empty": true
+        }
+      ]
+    },
+    {
+      "unix_s": 1791399540.1858182,
+      "gpu": "GPU-94203fc3-1021-3a9c-a367-cff792479616, NVIDIA RTX PRO 6000 Blackwell Server Edition, 0, 0",
+      "processes": "",
+      "empty": true,
+      "observations": [
+        {
+          "unix_s": 1791399538.07512,
+          "gpu": "GPU-94203fc3-1021-3a9c-a367-cff792479616, NVIDIA RTX PRO 6000 Blackwell Server Edition, 0, 25",
+          "processes": "",
+          "empty": false
+        },
+        {
+          "unix_s": 1791399540.1858182,
+          "gpu": "GPU-94203fc3-1021-3a9c-a367-cff792479616, NVIDIA RTX PRO 6000 Blackwell Server Edition, 0, 0",
+          "processes": "",
+          "empty": true
+        }
+      ]
+    }
+  ],
+  "final_gpu": {
+    "unix_s": 1791399805.5892332,
+    "gpu": "GPU-94203fc3-1021-3a9c-a367-cff792479616, NVIDIA RTX PRO 6000 Blackwell Server Edition, 0, 0",
+    "processes": "",
+    "empty": true,
+    "observations": [
+      {
+        "unix_s": 1791399803.4836135,
+        "gpu": "GPU-94203fc3-1021-3a9c-a367-cff792479616, NVIDIA RTX PRO 6000 Blackwell Server Edition, 0, 27",
+        "processes": "",
+        "empty": false
+      },
+      {
+        "unix_s": 1791399805.5892332,
+        "gpu": "GPU-94203fc3-1021-3a9c-a367-cff792479616, NVIDIA RTX PRO 6000 Blackwell Server Edition, 0, 0",
+        "processes": "",
+        "empty": true
+      }
+    ]
+  },
+  "end_unix_s": 1791399805.5892446
+}

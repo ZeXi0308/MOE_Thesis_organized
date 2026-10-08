@@ -1,0 +1,63 @@
+--- run_group-r03.py
++++ run_group.py
+@@ -24,6 +24,15 @@
+                 empty=len(gpu.splitlines()) == 1 and row[0] == uuid and int(row[-2]) <= 256 and int(row[-1]) == 0 and not procs)
+ 
+ 
++def checked_boundary(uuid):
++    observations = [boundary(uuid)]
++    if not observations[-1]['empty'] and not observations[-1]['processes']:
++        # Same bounded counter-settling check used by the inherited controller.
++        time.sleep(2)
++        observations.append(boundary(uuid))
++    return dict(observations[-1], observations=observations)
++
++
+ def main():
+     parser = argparse.ArgumentParser()
+     parser.add_argument('--plan', type=Path, required=True)
+@@ -39,7 +48,7 @@
+         fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+         os.dup2(fd, 9, inheritable=True)
+         receipt['lock'] = dict(device=os.fstat(fd).st_dev, inode=os.fstat(fd).st_ino)
+-        state = boundary(p['gpu_uuid'])
++        state = checked_boundary(p['gpu_uuid'])
+         receipt['initial_gpu'] = state
+         if not state['empty']:
+             raise RuntimeError('GPU_BUSY_OR_UNKNOWN: no CUDA initialization or experiment permitted')
+@@ -47,10 +56,15 @@
+             raise RuntimeError('Host budget differs')
+         receipt['source_sha256'] = {str(f.relative_to(root)): hashlib.sha256(f.read_bytes()).hexdigest()
+             for f in [root/'run_group.py', *sorted((root/'pkg').glob('*.py'))]}
+-        modes = ['native', 'age', 'flush_first', 'flush_first', 'age', 'native']
++        modes = p['sequence'][:]
++        if modes not in (['native', 'age', 'flush_first', 'flush_first', 'age', 'native'], ['flush_first', 'native']):
++            raise ValueError('Only fixed discovery block or its outstanding reverse pair allowed')
+         i = 0
+         while i < len(modes):
+-            if not boundary(p['gpu_uuid'])['empty']:
++            state = checked_boundary(p['gpu_uuid'])
++            receipt.setdefault('cell_boundaries', []).append(state)
++            write(session/'receipt.json', receipt)
++            if not state['empty']:
+                 raise RuntimeError('GPU_BUSY_OR_UNKNOWN between cells')
+             mode = modes[i]
+             cell = session / f'cell-{i:02d}-{mode}'
+@@ -94,7 +108,7 @@
+             write(session/'receipt.json', receipt)
+             if code:
+                 raise RuntimeError('Cell failed; raw retained, no automatic retry')
+-            if i == 0:
++            if i == 0 and mode == 'native':
+                 events = json.loads((cell/'output/recovery-order.json').read_text())['events']
+                 orders = [e for e in events if e['kind'] == 'reorder']
+                 opportunity = any(e['before'] != e['legal_flush_order'] and e['flush_fallback'] is None for e in orders)
+@@ -108,7 +122,7 @@
+             i += 1
+         else:
+             receipt['status'] = 'COMPLETE'
+-        receipt['final_gpu'] = boundary(p['gpu_uuid'])
++        receipt['final_gpu'] = checked_boundary(p['gpu_uuid'])
+     except Exception as error:
+         receipt.update(status='ABORTED', error=f'{type(error).__name__}: {error}')
+     finally:

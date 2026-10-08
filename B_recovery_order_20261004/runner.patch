@@ -1,0 +1,37 @@
+--- a/pkg/run_recovery_cadence.py
++++ b/pkg/run_recovery_cadence.py
+@@ -195,6 +195,7 @@
+         from absence_rotation import RotationConfig
+         from staged_store_rotation import install as install_rotation
+         from native_offload_observer import drain as drain_offload, install as observe_offload
++        from recovery_order import install as install_recovery_order
+         from native_host_snapshot import snapshot as host_snapshot
+         config, workload = load_inputs(args.inputs)
+         warmups = {d: load_inputs(args.warmup_inputs/d) for d in ('short', 'long')}
+@@ -249,7 +250,7 @@
+             cpu_threads=torch.get_num_threads(), vllm_source_sha256=runtime_hashes,
+             source_sha256={name: sha(root/name) for name in ['run_recovery_cadence.py', 'request_measurement.py', 'native_capture.py',
+                 'memory_telemetry.py', 'metrics.py', 'safe_static.py', 'rotation_native.py', 'absence_rotation.py',
+-                'staged_store_rotation.py', 'staged_save_contract.py', 'recovery_lease.py', 'native_offload_observer.py',
++                'staged_store_rotation.py', 'staged_save_contract.py', 'recovery_lease.py', 'native_offload_observer.py', 'recovery_order.py',
+                 'native_host_snapshot.py', 'native_store_delta.py', 'native_full_store_evidence.py']}))
+         if runtime_hashes['v1/core/sched/scheduler.py'] != '2ed2a550b6558b2495eda845a97ae38bcf0225027b9e25fbf00fc3880c1d3941' or runtime_hashes['v1/core/kv_cache_manager.py'] != '3f4af8d247f3fe9570b0132818b832b66ae6a2ac12942588828f899f6ff77ccf':
+             raise RuntimeError('pinned runtime source changed')
+@@ -346,6 +347,9 @@
+             raise RuntimeError('Applied capacity-victim flag differs')
+         if selective.get('recovery_min_outputs', 1) != args.recovery_min_outputs:
+             raise RuntimeError('Applied recovery minimum differs')
++        order_data, uninstall_order = install_recovery_order(scheduler, os.environ['B_RECOVERY_ORDER'])
++        config['B_recovery_order'] = os.environ['B_RECOVERY_ORDER']
++        dump(out/'config.json', config)
+         raw = None
+         try:
+             try:
+@@ -363,6 +367,7 @@
+                 dump(out/'post-request-drain.json', drain_offload(engine))
+                 timing['post_request_drain_end_perf_s']=time.perf_counter()
+             finally:
++                dump(out/'recovery-order.json', uninstall_order())
+                 dump(out/'selective-store.json', uninstall())
+                 dump(out/'offload-events.json', offload_data)
+                 uninstall_offload()

@@ -1,0 +1,43 @@
+{
+  "status": "ABORTED",
+  "cells": [],
+  "plan": {
+    "session_dir": "/root/autodl-tmp/moe-b-recovery-order-20261004/session-r02",
+    "lock_path": "/root/autodl-tmp/moe-research-gpu.lock",
+    "gpu_uuid": "GPU-bf3fc5ab-804d-b9d6-759b-4390899f15b9",
+    "host_limit_bytes": 128849018880,
+    "python": "/root/miniconda3/bin/python",
+    "hf_cache": "/root/autodl-tmp/moe-a-20261002/hf",
+    "per_cell_seconds": 1800,
+    "library_path": "/root/miniconda3/lib/python3.12/site-packages/nvidia/cu13/lib:/root/miniconda3/lib/python3.12/site-packages/torch/lib",
+    "requests_per_arm": 128,
+    "sequence": [
+      "native",
+      "age",
+      "flush_first",
+      "flush_first",
+      "age",
+      "native"
+    ],
+    "fixed": {
+      "victim": "tail",
+      "admission": "native",
+      "lease": "off",
+      "service_quantum": "native",
+      "gpu_kv_bytes": 8592031744,
+      "host_kv_bytes": 17179869184,
+      "transfers": "native two direction handlers, unchanged stream/event pools",
+      "warmup": "original short32x16, short32x32, long2x2; independent empty caches",
+      "arrival_sequence": "original fixed 128, 0.2s steady source order"
+    },
+    "joint_slo": {
+      "ttft_s": 5.0,
+      "max_generation_gap_s": 0.2,
+      "basis": "Fixed pilot research thresholds inherited numerically from old runner; joint maxgap replaces old average TPOT. Not production SLO. Frozen before new measurements."
+    },
+    "conditional_reduction": "After native baseline, merge age if every observed native ready list already increases in job id; stop if no critical STORE follows a noncritical ready STORE. Selection uses order only, never service latency.",
+    "retry_reason": "R01 acquired no lock and started zero cells; subsequent 2026-10-04T07:35Z readback shows zero utilization/no processes/no active controller. Same scientific code/config; fresh session."
+  },
+  "error": "BlockingIOError: [Errno 11] Resource temporarily unavailable",
+  "end_unix_s": 1791099343.2096121
+}

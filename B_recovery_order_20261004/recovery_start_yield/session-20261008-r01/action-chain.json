@@ -1,0 +1,1650 @@
+{
+  "scope": "CPU diagnosis of actual yield paths only; no matched-state cross-run counterfactual.",
+  "timing": "All absolute host fields are perf_counter. Derived *_s use the original measurement origin. LOAD host completion, scheduler ACK, schedule plan, and client output remain distinct.",
+  "limits": "No direct per-round waiting head, token-budget or running-cohort snapshot unless present in the action. Output counts alone do not establish token-budget exhaustion or GPU completion.",
+  "phase_join": "request_measurement engine_call_index=call_count-1; completion_finalize iteration increments before each execute. Require one model iteration per engine call and match index+1.",
+  "action_count": 1,
+  "actions": [
+    {
+      "directory": "B_recovery_order_20261004/recovery_start_yield/session-20261008-r01/cell-01-cap256-yield_once/output",
+      "decision_s": 48.175600280985236,
+      "raw_decision": {
+        "kind": "legal_start_yield_opportunity",
+        "step": 1047,
+        "host_perf_s": 10772523.245199917,
+        "deferred_request": "measured/b-normal-0070969-short-a3cf6154",
+        "beneficiaries": [
+          {
+            "request": "measured/b-normal-0070473-long-8172b18a",
+            "priority": 0,
+            "arrival_time": 1791411962.218836,
+            "num_preemptions": 1,
+            "computed_tokens": 1952,
+            "held_gpu_blocks": 122,
+            "locations": [
+              "local_skipped"
+            ],
+            "job_ids": [
+              10054
+            ],
+            "current_batch_job_ids": [
+              10054
+            ],
+            "status": "WAITING_FOR_REMOTE_KVS",
+            "dependency": "Previously processed native async restore with its own registered LOAD; not guaranteed earlier arrival or a hard dependency of the deferred request"
+          }
+        ],
+        "candidate": {
+          "request": "measured/b-normal-0070969-short-a3cf6154",
+          "priority": 0,
+          "arrival_time": 1791411962.318836,
+          "num_preemptions": 1,
+          "history_tokens": 739,
+          "computed_tokens": 0,
+          "held_gpu_blocks": 0,
+          "full_fit_extra_blocks": 47,
+          "conservative_free_required": 132,
+          "plain_unshared": true,
+          "context": {
+            "source": "existing offload_keys and LRU.blocks only; no lookup/touch/key generation",
+            "known": true,
+            "ready": true,
+            "state": "MISS",
+            "registered_jobs": [],
+            "global_load_state_known": true,
+            "global_load_conflict_key_indices": [],
+            "global_load_conflict_keys": [],
+            "skip_reading_prefix_cache": false,
+            "global_load_tracking_disabled": true,
+            "inspected_keys": 46,
+            "missing_keys": 46,
+            "pending_keys": 0,
+            "leading_ready_tokens": 0,
+            "note": "Leading prefix is a read-only observation, not an extra native lookup result"
+          },
+          "memory_fit": true,
+          "native_reservation_pass": true,
+          "reservation_test": "conservative full-history-extra + native reservation; may reject legal async partial-prefix fits",
+          "reasons": [],
+          "conservative_fit": true
+        },
+        "native_locals": {
+          "num_new_tokens": 739,
+          "num_external_computed_tokens": 0,
+          "load_kv_async": false,
+          "num_new_local_computed_tokens": 0,
+          "effective_lookahead_tokens": 0,
+          "num_encoder_tokens": 0
+        },
+        "token_budget": 779,
+        "free_gpu_blocks": 282,
+        "native_reserved_blocks": 85,
+        "running_count": 245,
+        "running_cap": 256,
+        "running_with_streaming": 245,
+        "pause": "UNPAUSED",
+        "preempted_ids": [],
+        "waiting_order": [
+          "measured/b-normal-0070969-short-a3cf6154",
+          "measured/b-normal-0070525-long-8a6522e0",
+          "measured/b-normal-0070991-short-82b4f8e6",
+          "measured/b-normal-0070571-long-b47be586",
+          "measured/b-normal-0071017-short-89332614"
+        ],
+        "public_skipped_order": [],
+        "local_skipped_order": [
+          "measured/b-normal-0070473-long-8172b18a"
+        ],
+        "baseline_action": "CONTINUE_NATIVE_RECOMPUTE_ALLOCATION",
+        "final_action": "WAITING_LOOP_BREAK",
+        "requested_breaks": 1,
+        "executed_breaks": 1,
+        "first_break_host_perf_s": 10772523.245224845
+      },
+      "next_schedule_entry_s": 48.25211181677878,
+      "next_entry_note": "Native schedule entry, not proof its waiting gate opened.",
+      "requests": [
+        {
+          "internal_request": "measured/b-normal-0070969-short-a3cf6154",
+          "source_request": "b-normal-0070969-short",
+          "containing_recovery_episode_count": 1,
+          "allocation_observation": "AVAILABLE",
+          "episode": 4,
+          "native_allocation_attempts": [
+            {
+              "record_index": 91,
+              "begin_s": 48.252188969403505,
+              "end_s": 48.25223862379789,
+              "decision_to_begin_s": 0.07658868841826916,
+              "outcome": "success",
+              "phase": "no_load_in_episode",
+              "delay_cache_blocks": false,
+              "num_external_computed_tokens": 0,
+              "num_new_tokens": 739,
+              "blocks": {
+                "held_before": [
+                  0
+                ],
+                "held_after": [
+                  47
+                ],
+                "free_before": 364,
+                "free_after": 317,
+                "reserved_blocks": 0,
+                "exact": true,
+                "slot_extra_blocks": 47,
+                "full_fit_extra_blocks": 47,
+                "required_free_blocks": 47,
+                "shortfall_blocks": 0,
+                "slot_with_reserve_deficit": 0,
+                "full_fit_deficit": 0
+              }
+            }
+          ],
+          "first_native_allocation_attempt": {
+            "record_index": 91,
+            "begin_s": 48.252188969403505,
+            "end_s": 48.25223862379789,
+            "decision_to_begin_s": 0.07658868841826916,
+            "outcome": "success",
+            "phase": "no_load_in_episode",
+            "delay_cache_blocks": false,
+            "num_external_computed_tokens": 0,
+            "num_new_tokens": 739,
+            "blocks": {
+              "held_before": [
+                0
+              ],
+              "held_after": [
+                47
+              ],
+              "free_before": 364,
+              "free_after": 317,
+              "reserved_blocks": 0,
+              "exact": true,
+              "slot_extra_blocks": 47,
+              "full_fit_extra_blocks": 47,
+              "required_free_blocks": 47,
+              "shortfall_blocks": 0,
+              "slot_with_reserve_deficit": 0,
+              "full_fit_deficit": 0
+            }
+          },
+          "first_successful_native_allocation": {
+            "record_index": 91,
+            "begin_s": 48.252188969403505,
+            "end_s": 48.25223862379789,
+            "decision_to_begin_s": 0.07658868841826916,
+            "outcome": "success",
+            "phase": "no_load_in_episode",
+            "delay_cache_blocks": false,
+            "num_external_computed_tokens": 0,
+            "num_new_tokens": 739,
+            "blocks": {
+              "held_before": [
+                0
+              ],
+              "held_after": [
+                47
+              ],
+              "free_before": 364,
+              "free_after": 317,
+              "reserved_blocks": 0,
+              "exact": true,
+              "slot_extra_blocks": 47,
+              "full_fit_extra_blocks": 47,
+              "required_free_blocks": 47,
+              "shortfall_blocks": 0,
+              "slot_with_reserve_deficit": 0,
+              "full_fit_deficit": 0
+            }
+          },
+          "first_successful_non_delayed_allocation": {
+            "record_index": 91,
+            "begin_s": 48.252188969403505,
+            "end_s": 48.25223862379789,
+            "decision_to_begin_s": 0.07658868841826916,
+            "outcome": "success",
+            "phase": "no_load_in_episode",
+            "delay_cache_blocks": false,
+            "num_external_computed_tokens": 0,
+            "num_new_tokens": 739,
+            "blocks": {
+              "held_before": [
+                0
+              ],
+              "held_after": [
+                47
+              ],
+              "free_before": 364,
+              "free_after": 317,
+              "reserved_blocks": 0,
+              "exact": true,
+              "slot_extra_blocks": 47,
+              "full_fit_extra_blocks": 47,
+              "required_free_blocks": 47,
+              "shortfall_blocks": 0,
+              "slot_with_reserve_deficit": 0,
+              "full_fit_deficit": 0
+            }
+          },
+          "load_jobs_after_decision": [],
+          "load_ready_count": 0,
+          "load_submitted_count": 0,
+          "load_host_completed_count": 0,
+          "load_acknowledged_count": 0,
+          "first_resumed_schedule_plan_s": 48.255313880741596,
+          "decision_to_schedule_plan_s": 0.07971359975636005,
+          "request_status": "completed",
+          "next_output_after_decision_s": 48.32812863588333,
+          "decision_to_next_output_s": 0.15252835489809513,
+          "decision_to_output_wait_lower_bound_s": 0.15252835489809513,
+          "recovery_to_next_output": {
+            "request": "b-normal-0070969-short",
+            "demand_host_s": 44.39109411649406,
+            "next_output_s": 48.32812863588333,
+            "demand_to_next_output_s": 3.9370345193892717,
+            "censored_wait_lower_bound_s": 3.9370345193892717,
+            "first_scheduled_plan_s": 48.2552921641618,
+            "load_job_ids": [],
+            "repeated_preempts_before_output": 0,
+            "request_host_boundaries": {
+              "logical_free_after_preempt": [
+                44.3911182936281
+              ],
+              "capacity_wait": [
+                44.46394835598767
+              ],
+              "allocation_ok": [
+                48.25223633274436
+              ],
+              "lookup": [
+                44.46390027180314,
+                48.17549893632531
+              ],
+              "scheduled": [
+                48.2552921641618
+              ]
+            },
+            "scheduled_to_next_output_s": 0.07283647172152996
+          },
+          "observed_request_metrics": {
+            "request": "b-normal-0070969-short",
+            "status": "completed",
+            "ttft_s": 3.321682951971887,
+            "flow_s": 61.34517730548978,
+            "maxgap_s": 3.9416371677070856,
+            "ttft_lower_bound_s": 3.321682951971887,
+            "flow_lower_bound_s": 61.34517730548978,
+            "maxgap_lower_bound_s": 3.9416371677070856,
+            "outputs": 1024,
+            "slo_pass": false
+          },
+          "action_preemption_episode": {
+            "episode": 4,
+            "begin_s": 44.39109167829156,
+            "end_s": 48.255313880741596,
+            "end_reason": "first_resumed_schedule",
+            "preempt_record_index": 31,
+            "preempt_record": {
+              "kind": "preempt",
+              "request": "measured/b-normal-0070969-short-a3cf6154",
+              "before": {
+                "status": "RUNNING",
+                "num_tokens": 739,
+                "num_computed_tokens": 738,
+                "num_in_flight_tokens": 0,
+                "held_gpu_blocks": [
+                  47
+                ],
+                "plain_unshared_blocks": true,
+                "free_gpu_blocks": 0
+              },
+              "begin_host_perf_s": 10772519.460691314,
+              "end_host_perf_s": 10772519.46071868,
+              "after": {
+                "status": "PREEMPTED",
+                "num_tokens": 739,
+                "num_computed_tokens": 0,
+                "num_in_flight_tokens": 0,
+                "held_gpu_blocks": [
+                  0
+                ],
+                "plain_unshared_blocks": true,
+                "free_gpu_blocks": 47
+              }
+            }
+          },
+          "later_preemption_observation": "AVAILABLE",
+          "observed_successful_preemptions_through_decision": 1,
+          "later_successful_preemptions": [],
+          "later_preemptions_before_next_output": 0,
+          "later_preemptions_after_next_output": 0,
+          "first_preemption_after_next_output_s": null,
+          "next_output_to_next_preemption_s": null,
+          "role": "DEFERRED_RECOMPUTE",
+          "first_allocation_record": {
+            "kind": "allocate",
+            "request": "measured/b-normal-0070969-short-a3cf6154",
+            "attempt": 80,
+            "before": {
+              "status": "PREEMPTED",
+              "num_tokens": 739,
+              "num_computed_tokens": 0,
+              "num_in_flight_tokens": 0,
+              "held_gpu_blocks": [
+                0
+              ],
+              "plain_unshared_blocks": true,
+              "free_gpu_blocks": 364
+            },
+            "arguments": {
+              "num_new_tokens": 739,
+              "num_new_computed_tokens": 0,
+              "num_lookahead_tokens": 0,
+              "num_external_computed_tokens": 0,
+              "delay_cache_blocks": false,
+              "num_encoder_tokens": 0,
+              "full_sequence_must_fit": true,
+              "reserved_blocks": 0,
+              "has_scheduled_reqs": true,
+              "new_computed_block_counts": [
+                0
+              ]
+            },
+            "descriptor": {
+              "exact": true,
+              "scope": "Pinned plain FullAttention, no local hits/sharing/lookahead/admission cap/watermark",
+              "slot_tokens": 739,
+              "slot_extra_blocks": 47,
+              "full_fit_extra_blocks": 47,
+              "required_free_blocks": 47,
+              "shortfall_blocks": 0
+            },
+            "begin_host_perf_s": 10772523.321788605,
+            "success": true,
+            "end_host_perf_s": 10772523.32183826,
+            "after": {
+              "status": "PREEMPTED",
+              "num_tokens": 739,
+              "num_computed_tokens": 0,
+              "num_in_flight_tokens": 0,
+              "held_gpu_blocks": [
+                47
+              ],
+              "plain_unshared_blocks": true,
+              "free_gpu_blocks": 317
+            }
+          },
+          "first_resumed_schedule_record": {
+            "kind": "resumed_schedule",
+            "request": "measured/b-normal-0070969-short-a3cf6154",
+            "scheduled_tokens": 739,
+            "host_perf_s": 10772523.324913517,
+            "after": {
+              "status": "RUNNING",
+              "num_tokens": 739,
+              "num_computed_tokens": 739,
+              "num_in_flight_tokens": 739,
+              "held_gpu_blocks": [
+                47
+              ],
+              "plain_unshared_blocks": true,
+              "free_gpu_blocks": 314
+            }
+          },
+          "load_jobs_after_or_spanning_decision": [],
+          "recorded_beneficiary_jobs": [],
+          "last_recorded_load_ack_s": null,
+          "ack_to_successful_non_async_allocation_s": null,
+          "completion_s": 86.44517730548978,
+          "whole_request_recovery_summary": {
+            "request": "b-normal-0070969-short",
+            "status": "completed",
+            "outputs": 1024,
+            "stop_reason": "length",
+            "raw_missing": false,
+            "preemptions": 1,
+            "repeat_preemptions_after_prior_recovery_output": 0,
+            "recovery_episodes_without_next_output": 0,
+            "recovery_interval_missing": 0,
+            "completed_episode_wait_sum_s": 3.9370345193892717,
+            "cumulative_recovery_union_lower_bound_s": 3.9370345193892717,
+            "cumulative_recovery_union_exact": true,
+            "ttft_s": 3.321682951971887,
+            "flow_s": 61.34517730548978,
+            "maxgap_s": 3.9416371677070856,
+            "slo_pass": false
+          }
+        },
+        {
+          "internal_request": "measured/b-normal-0070473-long-8172b18a",
+          "source_request": "b-normal-0070473-long",
+          "containing_recovery_episode_count": 1,
+          "allocation_observation": "AVAILABLE",
+          "episode": 5,
+          "native_allocation_attempts": [
+            {
+              "record_index": 95,
+              "begin_s": 48.64022476412356,
+              "end_s": 48.640245435759425,
+              "decision_to_begin_s": 0.46462448313832283,
+              "outcome": "success",
+              "phase": "after_load_ack",
+              "delay_cache_blocks": false,
+              "num_external_computed_tokens": 0,
+              "num_new_tokens": 659,
+              "blocks": {
+                "held_before": [
+                  122
+                ],
+                "held_after": [
+                  164
+                ],
+                "free_before": 387,
+                "free_after": 345,
+                "reserved_blocks": 0,
+                "exact": true,
+                "slot_extra_blocks": 42,
+                "full_fit_extra_blocks": 85,
+                "required_free_blocks": 85,
+                "shortfall_blocks": 0,
+                "slot_with_reserve_deficit": 0,
+                "full_fit_deficit": 0
+              }
+            }
+          ],
+          "first_native_allocation_attempt": {
+            "record_index": 95,
+            "begin_s": 48.64022476412356,
+            "end_s": 48.640245435759425,
+            "decision_to_begin_s": 0.46462448313832283,
+            "outcome": "success",
+            "phase": "after_load_ack",
+            "delay_cache_blocks": false,
+            "num_external_computed_tokens": 0,
+            "num_new_tokens": 659,
+            "blocks": {
+              "held_before": [
+                122
+              ],
+              "held_after": [
+                164
+              ],
+              "free_before": 387,
+              "free_after": 345,
+              "reserved_blocks": 0,
+              "exact": true,
+              "slot_extra_blocks": 42,
+              "full_fit_extra_blocks": 85,
+              "required_free_blocks": 85,
+              "shortfall_blocks": 0,
+              "slot_with_reserve_deficit": 0,
+              "full_fit_deficit": 0
+            }
+          },
+          "first_successful_native_allocation": {
+            "record_index": 95,
+            "begin_s": 48.64022476412356,
+            "end_s": 48.640245435759425,
+            "decision_to_begin_s": 0.46462448313832283,
+            "outcome": "success",
+            "phase": "after_load_ack",
+            "delay_cache_blocks": false,
+            "num_external_computed_tokens": 0,
+            "num_new_tokens": 659,
+            "blocks": {
+              "held_before": [
+                122
+              ],
+              "held_after": [
+                164
+              ],
+              "free_before": 387,
+              "free_after": 345,
+              "reserved_blocks": 0,
+              "exact": true,
+              "slot_extra_blocks": 42,
+              "full_fit_extra_blocks": 85,
+              "required_free_blocks": 85,
+              "shortfall_blocks": 0,
+              "slot_with_reserve_deficit": 0,
+              "full_fit_deficit": 0
+            }
+          },
+          "first_successful_non_delayed_allocation": {
+            "record_index": 95,
+            "begin_s": 48.64022476412356,
+            "end_s": 48.640245435759425,
+            "decision_to_begin_s": 0.46462448313832283,
+            "outcome": "success",
+            "phase": "after_load_ack",
+            "delay_cache_blocks": false,
+            "num_external_computed_tokens": 0,
+            "num_new_tokens": 659,
+            "blocks": {
+              "held_before": [
+                122
+              ],
+              "held_after": [
+                164
+              ],
+              "free_before": 387,
+              "free_after": 345,
+              "reserved_blocks": 0,
+              "exact": true,
+              "slot_extra_blocks": 42,
+              "full_fit_extra_blocks": 85,
+              "required_free_blocks": 85,
+              "shortfall_blocks": 0,
+              "slot_with_reserve_deficit": 0,
+              "full_fit_deficit": 0
+            }
+          },
+          "load_jobs_after_decision": [
+            {
+              "job_id": 10054,
+              "request": "b-normal-0070473-long",
+              "is_store": false,
+              "ready_s": 48.18011696450412,
+              "submit_begin_s": 48.18012188002467,
+              "submit_end_s": 48.180309142917395,
+              "job_completed_s": 48.280531000345945,
+              "ack_retired_s": 48.326057808473706,
+              "ready_to_submit_s": 4.915520548820496e-06,
+              "submit_to_host_done_s": 0.1004091203212738,
+              "host_done_to_ack_s": 0.04552680812776089,
+              "bytes": 255852544,
+              "gpu_elapsed_s": 0.004625984191894531
+            }
+          ],
+          "load_ready_count": 1,
+          "load_submitted_count": 1,
+          "load_host_completed_count": 1,
+          "load_acknowledged_count": 1,
+          "first_resumed_schedule_plan_s": 48.64201772771776,
+          "decision_to_schedule_plan_s": 0.46641744673252106,
+          "request_status": "completed",
+          "next_output_after_decision_s": 48.78907394222915,
+          "decision_to_next_output_s": 0.6134736612439156,
+          "decision_to_output_wait_lower_bound_s": 0.6134736612439156,
+          "recovery_to_next_output": {
+            "request": "b-normal-0070473-long",
+            "demand_host_s": 44.684179505333304,
+            "next_output_s": 48.78907394222915,
+            "demand_to_next_output_s": 4.104894436895847,
+            "censored_wait_lower_bound_s": 4.104894436895847,
+            "first_scheduled_plan_s": 48.64200321212411,
+            "load_job_ids": [
+              10054
+            ],
+            "repeated_preempts_before_output": 0,
+            "request_host_boundaries": {
+              "logical_free_after_preempt": [
+                44.684220127761364
+              ],
+              "capacity_wait": [
+                44.75739659741521
+              ],
+              "allocation_ok": [
+                48.175344195216894
+              ],
+              "lookup": [
+                44.75735010392964
+              ],
+              "scheduled": [
+                48.64200321212411
+              ]
+            },
+            "scheduled_to_next_output_s": 0.14707073010504246
+          },
+          "observed_request_metrics": {
+            "request": "b-normal-0070473-long",
+            "status": "completed",
+            "ttft_s": 3.3509681802242994,
+            "flow_s": 61.45502830483019,
+            "maxgap_s": 4.111854076385498,
+            "ttft_lower_bound_s": 3.3509681802242994,
+            "flow_lower_bound_s": 61.45502830483019,
+            "maxgap_lower_bound_s": 4.111854076385498,
+            "outputs": 1024,
+            "slo_pass": false
+          },
+          "action_preemption_episode": {
+            "episode": 5,
+            "begin_s": 44.68417754769325,
+            "end_s": 48.64201772771776,
+            "end_reason": "first_resumed_schedule",
+            "preempt_record_index": 35,
+            "preempt_record": {
+              "kind": "preempt",
+              "request": "measured/b-normal-0070473-long-8172b18a",
+              "before": {
+                "status": "RUNNING",
+                "num_tokens": 3304,
+                "num_computed_tokens": 3303,
+                "num_in_flight_tokens": 0,
+                "held_gpu_blocks": [
+                  207
+                ],
+                "plain_unshared_blocks": true,
+                "free_gpu_blocks": 0
+              },
+              "begin_host_perf_s": 10772519.753777184,
+              "end_host_perf_s": 10772519.753820863,
+              "after": {
+                "status": "PREEMPTED",
+                "num_tokens": 3304,
+                "num_computed_tokens": 0,
+                "num_in_flight_tokens": 0,
+                "held_gpu_blocks": [
+                  0
+                ],
+                "plain_unshared_blocks": true,
+                "free_gpu_blocks": 207
+              }
+            }
+          },
+          "later_preemption_observation": "AVAILABLE",
+          "observed_successful_preemptions_through_decision": 1,
+          "later_successful_preemptions": [],
+          "later_preemptions_before_next_output": 0,
+          "later_preemptions_after_next_output": 0,
+          "first_preemption_after_next_output_s": null,
+          "next_output_to_next_preemption_s": null,
+          "role": "REGISTERED_LOAD_BENEFICIARY",
+          "first_allocation_record": {
+            "kind": "allocate",
+            "request": "measured/b-normal-0070473-long-8172b18a",
+            "attempt": 82,
+            "before": {
+              "status": "PREEMPTED",
+              "num_tokens": 3304,
+              "num_computed_tokens": 1952,
+              "num_in_flight_tokens": 0,
+              "held_gpu_blocks": [
+                122
+              ],
+              "plain_unshared_blocks": true,
+              "free_gpu_blocks": 387
+            },
+            "arguments": {
+              "num_new_tokens": 659,
+              "num_new_computed_tokens": 0,
+              "num_lookahead_tokens": 0,
+              "num_external_computed_tokens": 0,
+              "delay_cache_blocks": false,
+              "num_encoder_tokens": 0,
+              "full_sequence_must_fit": true,
+              "reserved_blocks": 0,
+              "has_scheduled_reqs": true,
+              "new_computed_block_counts": [
+                0
+              ]
+            },
+            "descriptor": {
+              "exact": true,
+              "scope": "Pinned plain FullAttention, no local hits/sharing/lookahead/admission cap/watermark",
+              "slot_tokens": 2611,
+              "slot_extra_blocks": 42,
+              "full_fit_extra_blocks": 85,
+              "required_free_blocks": 85,
+              "shortfall_blocks": 0
+            },
+            "begin_host_perf_s": 10772523.7098244,
+            "success": true,
+            "end_host_perf_s": 10772523.709845072,
+            "after": {
+              "status": "PREEMPTED",
+              "num_tokens": 3304,
+              "num_computed_tokens": 1952,
+              "num_in_flight_tokens": 0,
+              "held_gpu_blocks": [
+                164
+              ],
+              "plain_unshared_blocks": true,
+              "free_gpu_blocks": 345
+            }
+          },
+          "first_resumed_schedule_record": {
+            "kind": "resumed_schedule",
+            "request": "measured/b-normal-0070473-long-8172b18a",
+            "scheduled_tokens": 659,
+            "host_perf_s": 10772523.711617364,
+            "after": {
+              "status": "RUNNING",
+              "num_tokens": 3304,
+              "num_computed_tokens": 2611,
+              "num_in_flight_tokens": 659,
+              "held_gpu_blocks": [
+                164
+              ],
+              "plain_unshared_blocks": true,
+              "free_gpu_blocks": 345
+            }
+          },
+          "load_jobs_after_or_spanning_decision": [
+            {
+              "job_id": 10054,
+              "request": "b-normal-0070473-long",
+              "is_store": false,
+              "ready_s": 48.18011696450412,
+              "submit_begin_s": 48.18012188002467,
+              "submit_end_s": 48.180309142917395,
+              "job_completed_s": 48.280531000345945,
+              "ack_retired_s": 48.326057808473706,
+              "ready_to_submit_s": 4.915520548820496e-06,
+              "submit_to_host_done_s": 0.1004091203212738,
+              "host_done_to_ack_s": 0.04552680812776089,
+              "bytes": 255852544,
+              "gpu_elapsed_s": 0.004625984191894531
+            }
+          ],
+          "recorded_beneficiary_jobs": [
+            {
+              "job_id": 10054,
+              "request": "b-normal-0070473-long",
+              "is_store": false,
+              "ready_s": 48.18011696450412,
+              "submit_begin_s": 48.18012188002467,
+              "submit_end_s": 48.180309142917395,
+              "job_completed_s": 48.280531000345945,
+              "ack_retired_s": 48.326057808473706,
+              "ready_to_submit_s": 4.915520548820496e-06,
+              "submit_to_host_done_s": 0.1004091203212738,
+              "host_done_to_ack_s": 0.04552680812776089,
+              "bytes": 255852544,
+              "gpu_elapsed_s": 0.004625984191894531
+            }
+          ],
+          "last_recorded_load_ack_s": 48.326057808473706,
+          "ack_to_successful_non_async_allocation_s": 0.31416695564985275,
+          "completion_s": 86.4550283048302,
+          "whole_request_recovery_summary": {
+            "request": "b-normal-0070473-long",
+            "status": "completed",
+            "outputs": 1024,
+            "stop_reason": "length",
+            "raw_missing": false,
+            "preemptions": 1,
+            "repeat_preemptions_after_prior_recovery_output": 0,
+            "recovery_episodes_without_next_output": 0,
+            "recovery_interval_missing": 0,
+            "completed_episode_wait_sum_s": 4.104894436895847,
+            "cumulative_recovery_union_lower_bound_s": 4.104894436895847,
+            "cumulative_recovery_union_exact": true,
+            "ttft_s": 3.3509681802242994,
+            "flow_s": 61.45502830483019,
+            "maxgap_s": 4.111854076385498,
+            "slo_pass": false
+          }
+        },
+        {
+          "internal_request": "measured/b-normal-0070525-long-8a6522e0",
+          "source_request": "b-normal-0070525-long",
+          "containing_recovery_episode_count": 1,
+          "allocation_observation": "AVAILABLE",
+          "episode": 3,
+          "native_allocation_attempts": [
+            {
+              "record_index": 92,
+              "begin_s": 48.252350963652134,
+              "end_s": 48.25236891955137,
+              "decision_to_begin_s": 0.07675068266689777,
+              "outcome": "success",
+              "phase": "no_load_in_episode",
+              "delay_cache_blocks": false,
+              "num_external_computed_tokens": 0,
+              "num_new_tokens": 41,
+              "blocks": {
+                "held_before": [
+                  0
+                ],
+                "held_after": [
+                  3
+                ],
+                "free_before": 317,
+                "free_after": 314,
+                "reserved_blocks": 0,
+                "exact": true,
+                "slot_extra_blocks": 3,
+                "full_fit_extra_blocks": 206,
+                "required_free_blocks": 206,
+                "shortfall_blocks": 0,
+                "slot_with_reserve_deficit": 0,
+                "full_fit_deficit": 0
+              }
+            }
+          ],
+          "first_native_allocation_attempt": {
+            "record_index": 92,
+            "begin_s": 48.252350963652134,
+            "end_s": 48.25236891955137,
+            "decision_to_begin_s": 0.07675068266689777,
+            "outcome": "success",
+            "phase": "no_load_in_episode",
+            "delay_cache_blocks": false,
+            "num_external_computed_tokens": 0,
+            "num_new_tokens": 41,
+            "blocks": {
+              "held_before": [
+                0
+              ],
+              "held_after": [
+                3
+              ],
+              "free_before": 317,
+              "free_after": 314,
+              "reserved_blocks": 0,
+              "exact": true,
+              "slot_extra_blocks": 3,
+              "full_fit_extra_blocks": 206,
+              "required_free_blocks": 206,
+              "shortfall_blocks": 0,
+              "slot_with_reserve_deficit": 0,
+              "full_fit_deficit": 0
+            }
+          },
+          "first_successful_native_allocation": {
+            "record_index": 92,
+            "begin_s": 48.252350963652134,
+            "end_s": 48.25236891955137,
+            "decision_to_begin_s": 0.07675068266689777,
+            "outcome": "success",
+            "phase": "no_load_in_episode",
+            "delay_cache_blocks": false,
+            "num_external_computed_tokens": 0,
+            "num_new_tokens": 41,
+            "blocks": {
+              "held_before": [
+                0
+              ],
+              "held_after": [
+                3
+              ],
+              "free_before": 317,
+              "free_after": 314,
+              "reserved_blocks": 0,
+              "exact": true,
+              "slot_extra_blocks": 3,
+              "full_fit_extra_blocks": 206,
+              "required_free_blocks": 206,
+              "shortfall_blocks": 0,
+              "slot_with_reserve_deficit": 0,
+              "full_fit_deficit": 0
+            }
+          },
+          "first_successful_non_delayed_allocation": {
+            "record_index": 92,
+            "begin_s": 48.252350963652134,
+            "end_s": 48.25236891955137,
+            "decision_to_begin_s": 0.07675068266689777,
+            "outcome": "success",
+            "phase": "no_load_in_episode",
+            "delay_cache_blocks": false,
+            "num_external_computed_tokens": 0,
+            "num_new_tokens": 41,
+            "blocks": {
+              "held_before": [
+                0
+              ],
+              "held_after": [
+                3
+              ],
+              "free_before": 317,
+              "free_after": 314,
+              "reserved_blocks": 0,
+              "exact": true,
+              "slot_extra_blocks": 3,
+              "full_fit_extra_blocks": 206,
+              "required_free_blocks": 206,
+              "shortfall_blocks": 0,
+              "slot_with_reserve_deficit": 0,
+              "full_fit_deficit": 0
+            }
+          },
+          "load_jobs_after_decision": [],
+          "load_ready_count": 0,
+          "load_submitted_count": 0,
+          "load_host_completed_count": 0,
+          "load_acknowledged_count": 0,
+          "first_resumed_schedule_plan_s": 48.25533332489431,
+          "decision_to_schedule_plan_s": 0.07973304390907288,
+          "request_status": "completed",
+          "next_output_after_decision_s": 48.713099513202906,
+          "decision_to_next_output_s": 0.5374992322176695,
+          "decision_to_output_wait_lower_bound_s": 0.5374992322176695,
+          "recovery_to_next_output": {
+            "request": "b-normal-0070525-long",
+            "demand_host_s": 43.52048223093152,
+            "next_output_s": 48.713099513202906,
+            "demand_to_next_output_s": 5.192617282271385,
+            "censored_wait_lower_bound_s": 5.192617282271385,
+            "first_scheduled_plan_s": 48.25529528781772,
+            "load_job_ids": [],
+            "repeated_preempts_before_output": 0,
+            "request_host_boundaries": {
+              "logical_free_after_preempt": [
+                43.520526537671685
+              ],
+              "capacity_wait": [
+                43.59500219672918
+              ],
+              "allocation_ok": [
+                48.252367716282606
+              ],
+              "lookup": [
+                43.59495227597654,
+                48.2523294351995
+              ],
+              "scheduled": [
+                48.25529528781772
+              ]
+            },
+            "scheduled_to_next_output_s": 0.45780422538518906
+          },
+          "observed_request_metrics": {
+            "request": "b-normal-0070525-long",
+            "status": "completed",
+            "ttft_s": 3.5057155184447737,
+            "flow_s": 61.400563762709496,
+            "maxgap_s": 5.199867097660899,
+            "ttft_lower_bound_s": 3.5057155184447737,
+            "flow_lower_bound_s": 61.400563762709496,
+            "maxgap_lower_bound_s": 5.199867097660899,
+            "outputs": 1024,
+            "slo_pass": false
+          },
+          "action_preemption_episode": {
+            "episode": 3,
+            "begin_s": 43.52047963626683,
+            "end_s": 48.25533332489431,
+            "end_reason": "first_resumed_schedule",
+            "preempt_record_index": 19,
+            "preempt_record": {
+              "kind": "preempt",
+              "request": "measured/b-normal-0070525-long-8a6522e0",
+              "before": {
+                "status": "RUNNING",
+                "num_tokens": 3283,
+                "num_computed_tokens": 3282,
+                "num_in_flight_tokens": 0,
+                "held_gpu_blocks": [
+                  206
+                ],
+                "plain_unshared_blocks": true,
+                "free_gpu_blocks": 0
+              },
+              "begin_host_perf_s": 10772518.590079272,
+              "end_host_perf_s": 10772518.590127235,
+              "after": {
+                "status": "PREEMPTED",
+                "num_tokens": 3283,
+                "num_computed_tokens": 0,
+                "num_in_flight_tokens": 0,
+                "held_gpu_blocks": [
+                  0
+                ],
+                "plain_unshared_blocks": true,
+                "free_gpu_blocks": 206
+              }
+            }
+          },
+          "later_preemption_observation": "AVAILABLE",
+          "observed_successful_preemptions_through_decision": 1,
+          "later_successful_preemptions": [],
+          "later_preemptions_before_next_output": 0,
+          "later_preemptions_after_next_output": 0,
+          "first_preemption_after_next_output_s": null,
+          "next_output_to_next_preemption_s": null,
+          "role": "FIRST_LONG_IN_DEFERRED_SUFFIX",
+          "first_allocation_record": {
+            "kind": "allocate",
+            "request": "measured/b-normal-0070525-long-8a6522e0",
+            "attempt": 81,
+            "before": {
+              "status": "PREEMPTED",
+              "num_tokens": 3283,
+              "num_computed_tokens": 0,
+              "num_in_flight_tokens": 0,
+              "held_gpu_blocks": [
+                0
+              ],
+              "plain_unshared_blocks": true,
+              "free_gpu_blocks": 317
+            },
+            "arguments": {
+              "num_new_tokens": 41,
+              "num_new_computed_tokens": 0,
+              "num_lookahead_tokens": 0,
+              "num_external_computed_tokens": 0,
+              "delay_cache_blocks": false,
+              "num_encoder_tokens": 0,
+              "full_sequence_must_fit": true,
+              "reserved_blocks": 0,
+              "has_scheduled_reqs": true,
+              "new_computed_block_counts": [
+                0
+              ]
+            },
+            "descriptor": {
+              "exact": true,
+              "scope": "Pinned plain FullAttention, no local hits/sharing/lookahead/admission cap/watermark",
+              "slot_tokens": 41,
+              "slot_extra_blocks": 3,
+              "full_fit_extra_blocks": 206,
+              "required_free_blocks": 206,
+              "shortfall_blocks": 0
+            },
+            "begin_host_perf_s": 10772523.3219506,
+            "success": true,
+            "end_host_perf_s": 10772523.321968555,
+            "after": {
+              "status": "PREEMPTED",
+              "num_tokens": 3283,
+              "num_computed_tokens": 0,
+              "num_in_flight_tokens": 0,
+              "held_gpu_blocks": [
+                3
+              ],
+              "plain_unshared_blocks": true,
+              "free_gpu_blocks": 314
+            }
+          },
+          "first_resumed_schedule_record": {
+            "kind": "resumed_schedule",
+            "request": "measured/b-normal-0070525-long-8a6522e0",
+            "scheduled_tokens": 41,
+            "host_perf_s": 10772523.32493296,
+            "after": {
+              "status": "RUNNING",
+              "num_tokens": 3283,
+              "num_computed_tokens": 41,
+              "num_in_flight_tokens": 41,
+              "held_gpu_blocks": [
+                3
+              ],
+              "plain_unshared_blocks": true,
+              "free_gpu_blocks": 314
+            }
+          },
+          "load_jobs_after_or_spanning_decision": [],
+          "recorded_beneficiary_jobs": [],
+          "last_recorded_load_ack_s": null,
+          "ack_to_successful_non_async_allocation_s": null,
+          "completion_s": 86.6005637627095,
+          "whole_request_recovery_summary": {
+            "request": "b-normal-0070525-long",
+            "status": "completed",
+            "outputs": 1024,
+            "stop_reason": "length",
+            "raw_missing": false,
+            "preemptions": 1,
+            "repeat_preemptions_after_prior_recovery_output": 0,
+            "recovery_episodes_without_next_output": 0,
+            "recovery_interval_missing": 0,
+            "completed_episode_wait_sum_s": 5.192617282271385,
+            "cumulative_recovery_union_lower_bound_s": 5.192617282271385,
+            "cumulative_recovery_union_exact": true,
+            "ttft_s": 3.5057155184447737,
+            "flow_s": 61.400563762709496,
+            "maxgap_s": 5.199867097660899,
+            "slo_pass": false
+          }
+        }
+      ],
+      "calls_until_last_tracked_first_output": [
+        {
+          "engine_call_index": 1046,
+          "model_iteration": 1047,
+          "phase_host_s": {
+            "enter_perf_s": 48.180311707779765,
+            "forward_exit_perf_s": 48.18033506534994,
+            "finalize_begin_perf_s": 48.180335918441415,
+            "finalize_end_perf_s": 48.180471647530794,
+            "bookkeeping_return_perf_s": 48.243684796616435
+          },
+          "first_client_receive_s": 48.24720284156501,
+          "last_client_receive_s": 48.24720284156501,
+          "observed_output_requests": 245,
+          "observed_output_tokens": 245,
+          "tracked_outputs": []
+        },
+        {
+          "engine_call_index": 1047,
+          "model_iteration": 1048,
+          "phase_host_s": {
+            "enter_perf_s": 48.25859189964831,
+            "forward_exit_perf_s": 48.280405171215534,
+            "finalize_begin_perf_s": 48.28040700405836,
+            "finalize_end_perf_s": 48.28055733628571,
+            "bookkeeping_return_perf_s": 48.3246598970145
+          },
+          "first_client_receive_s": 48.32812863588333,
+          "last_client_receive_s": 48.32812863588333,
+          "observed_output_requests": 245,
+          "observed_output_tokens": 245,
+          "tracked_outputs": [
+            {
+              "request_id": "b-normal-0070969-short",
+              "received_s": 48.32812863588333,
+              "cumulative_tokens": 228,
+              "chunk_size": 1,
+              "finished": false
+            }
+          ]
+        },
+        {
+          "engine_call_index": 1048,
+          "model_iteration": 1049,
+          "phase_host_s": {
+            "enter_perf_s": 48.339172925800085,
+            "forward_exit_perf_s": 48.35867679677904,
+            "finalize_begin_perf_s": 48.35867859236896,
+            "finalize_end_perf_s": 48.35884140059352,
+            "bookkeeping_return_perf_s": 48.40490424260497
+          },
+          "first_client_receive_s": 48.408048279583454,
+          "last_client_receive_s": 48.408048279583454,
+          "observed_output_requests": 245,
+          "observed_output_tokens": 245,
+          "tracked_outputs": [
+            {
+              "request_id": "b-normal-0070969-short",
+              "received_s": 48.408048279583454,
+              "cumulative_tokens": 229,
+              "chunk_size": 1,
+              "finished": false
+            }
+          ]
+        },
+        {
+          "engine_call_index": 1049,
+          "model_iteration": 1050,
+          "phase_host_s": {
+            "enter_perf_s": 48.41543939523399,
+            "forward_exit_perf_s": 48.427854707464576,
+            "finalize_begin_perf_s": 48.42785628326237,
+            "finalize_end_perf_s": 48.427949676290154,
+            "bookkeeping_return_perf_s": 48.48098061606288
+          },
+          "first_client_receive_s": 48.48416461981833,
+          "last_client_receive_s": 48.48416461981833,
+          "observed_output_requests": 245,
+          "observed_output_tokens": 245,
+          "tracked_outputs": [
+            {
+              "request_id": "b-normal-0070969-short",
+              "received_s": 48.48416461981833,
+              "cumulative_tokens": 230,
+              "chunk_size": 1,
+              "finished": false
+            }
+          ]
+        },
+        {
+          "engine_call_index": 1050,
+          "model_iteration": 1051,
+          "phase_host_s": {
+            "enter_perf_s": 48.491798877716064,
+            "forward_exit_perf_s": 48.504202576354146,
+            "finalize_begin_perf_s": 48.50420428439975,
+            "finalize_end_perf_s": 48.50430211238563,
+            "bookkeeping_return_perf_s": 48.55789705179632
+          },
+          "first_client_receive_s": 48.559917256236076,
+          "last_client_receive_s": 48.559917256236076,
+          "observed_output_requests": 243,
+          "observed_output_tokens": 243,
+          "tracked_outputs": [
+            {
+              "request_id": "b-normal-0070969-short",
+              "received_s": 48.559917256236076,
+              "cumulative_tokens": 231,
+              "chunk_size": 1,
+              "finished": false
+            }
+          ]
+        },
+        {
+          "engine_call_index": 1051,
+          "model_iteration": 1052,
+          "phase_host_s": {
+            "enter_perf_s": 48.567514745518565,
+            "forward_exit_perf_s": 48.58070663921535,
+            "finalize_begin_perf_s": 48.58070814795792,
+            "finalize_end_perf_s": 48.58084454014897,
+            "bookkeeping_return_perf_s": 48.63291551545262
+          },
+          "first_client_receive_s": 48.63651840016246,
+          "last_client_receive_s": 48.63651840016246,
+          "observed_output_requests": 243,
+          "observed_output_tokens": 243,
+          "tracked_outputs": [
+            {
+              "request_id": "b-normal-0070969-short",
+              "received_s": 48.63651840016246,
+              "cumulative_tokens": 232,
+              "chunk_size": 1,
+              "finished": false
+            }
+          ]
+        },
+        {
+          "engine_call_index": 1052,
+          "model_iteration": 1053,
+          "phase_host_s": {
+            "enter_perf_s": 48.64439956471324,
+            "forward_exit_perf_s": 48.656896859407425,
+            "finalize_begin_perf_s": 48.65689843520522,
+            "finalize_end_perf_s": 48.65699647180736,
+            "bookkeeping_return_perf_s": 48.70997568778694
+          },
+          "first_client_receive_s": 48.713099513202906,
+          "last_client_receive_s": 48.713099513202906,
+          "observed_output_requests": 244,
+          "observed_output_tokens": 244,
+          "tracked_outputs": [
+            {
+              "request_id": "b-normal-0070969-short",
+              "received_s": 48.713099513202906,
+              "cumulative_tokens": 233,
+              "chunk_size": 1,
+              "finished": false
+            },
+            {
+              "request_id": "b-normal-0070525-long",
+              "received_s": 48.713099513202906,
+              "cumulative_tokens": 212,
+              "chunk_size": 1,
+              "finished": false
+            }
+          ]
+        },
+        {
+          "engine_call_index": 1053,
+          "model_iteration": 1054,
+          "phase_host_s": {
+            "enter_perf_s": 48.72071008384228,
+            "forward_exit_perf_s": 48.73297146335244,
+            "finalize_begin_perf_s": 48.7329730913043,
+            "finalize_end_perf_s": 48.73307175561786,
+            "bookkeeping_return_perf_s": 48.78594277985394
+          },
+          "first_client_receive_s": 48.78907394222915,
+          "last_client_receive_s": 48.78907394222915,
+          "observed_output_requests": 244,
+          "observed_output_tokens": 244,
+          "tracked_outputs": [
+            {
+              "request_id": "b-normal-0070969-short",
+              "received_s": 48.78907394222915,
+              "cumulative_tokens": 234,
+              "chunk_size": 1,
+              "finished": false
+            },
+            {
+              "request_id": "b-normal-0070525-long",
+              "received_s": 48.78907394222915,
+              "cumulative_tokens": 213,
+              "chunk_size": 1,
+              "finished": false
+            },
+            {
+              "request_id": "b-normal-0070473-long",
+              "received_s": 48.78907394222915,
+              "cumulative_tokens": 233,
+              "chunk_size": 1,
+              "finished": false
+            }
+          ]
+        }
+      ],
+      "running_recompute_reconstruction": {
+        "status": "SOURCE_CONSTRAINED_RECONSTRUCTION",
+        "rows": [
+          {
+            "engine_call_index": 1048,
+            "model_iteration": 1049,
+            "preceding_decoder_count": 245,
+            "reconstructed_long_tokens": 779,
+            "reconstructed_long_remaining": 2463,
+            "reconstructed_budget_after_running": 0,
+            "exact_output_request_set_matches": true
+          },
+          {
+            "engine_call_index": 1049,
+            "model_iteration": 1050,
+            "preceding_decoder_count": 245,
+            "reconstructed_long_tokens": 779,
+            "reconstructed_long_remaining": 1684,
+            "reconstructed_budget_after_running": 0,
+            "exact_output_request_set_matches": true
+          },
+          {
+            "engine_call_index": 1050,
+            "model_iteration": 1051,
+            "preceding_decoder_count": 243,
+            "reconstructed_long_tokens": 781,
+            "reconstructed_long_remaining": 903,
+            "reconstructed_budget_after_running": 0,
+            "exact_output_request_set_matches": true
+          },
+          {
+            "engine_call_index": 1051,
+            "model_iteration": 1052,
+            "preceding_decoder_count": 243,
+            "reconstructed_long_tokens": 781,
+            "reconstructed_long_remaining": 122,
+            "reconstructed_budget_after_running": 0,
+            "exact_output_request_set_matches": true
+          },
+          {
+            "engine_call_index": 1052,
+            "model_iteration": 1053,
+            "preceding_decoder_count": 243,
+            "reconstructed_long_tokens": 122,
+            "reconstructed_long_remaining": 0,
+            "reconstructed_budget_after_running": 659,
+            "exact_output_request_set_matches": true
+          }
+        ],
+        "request": "b-normal-0070525-long",
+        "initial_remaining_tokens": 3242,
+        "note": "Pinned running-first scheduler with quantum1024; infer decoder cohort from the admission-call outputs, remove observed finishes, and require exact following output ID sets. Per-step budget itself was not logged."
+      },
+      "recovery_allocations_in_window": [
+        {
+          "kind": "allocate",
+          "request": "measured/b-normal-0070969-short-a3cf6154",
+          "attempt": 80,
+          "before": {
+            "status": "PREEMPTED",
+            "num_tokens": 739,
+            "num_computed_tokens": 0,
+            "num_in_flight_tokens": 0,
+            "held_gpu_blocks": [
+              0
+            ],
+            "plain_unshared_blocks": true,
+            "free_gpu_blocks": 364
+          },
+          "arguments": {
+            "num_new_tokens": 739,
+            "num_new_computed_tokens": 0,
+            "num_lookahead_tokens": 0,
+            "num_external_computed_tokens": 0,
+            "delay_cache_blocks": false,
+            "num_encoder_tokens": 0,
+            "full_sequence_must_fit": true,
+            "reserved_blocks": 0,
+            "has_scheduled_reqs": true,
+            "new_computed_block_counts": [
+              0
+            ]
+          },
+          "descriptor": {
+            "exact": true,
+            "scope": "Pinned plain FullAttention, no local hits/sharing/lookahead/admission cap/watermark",
+            "slot_tokens": 739,
+            "slot_extra_blocks": 47,
+            "full_fit_extra_blocks": 47,
+            "required_free_blocks": 47,
+            "shortfall_blocks": 0
+          },
+          "begin_host_perf_s": 10772523.321788605,
+          "success": true,
+          "end_host_perf_s": 10772523.32183826,
+          "after": {
+            "status": "PREEMPTED",
+            "num_tokens": 739,
+            "num_computed_tokens": 0,
+            "num_in_flight_tokens": 0,
+            "held_gpu_blocks": [
+              47
+            ],
+            "plain_unshared_blocks": true,
+            "free_gpu_blocks": 317
+          }
+        },
+        {
+          "kind": "allocate",
+          "request": "measured/b-normal-0070525-long-8a6522e0",
+          "attempt": 81,
+          "before": {
+            "status": "PREEMPTED",
+            "num_tokens": 3283,
+            "num_computed_tokens": 0,
+            "num_in_flight_tokens": 0,
+            "held_gpu_blocks": [
+              0
+            ],
+            "plain_unshared_blocks": true,
+            "free_gpu_blocks": 317
+          },
+          "arguments": {
+            "num_new_tokens": 41,
+            "num_new_computed_tokens": 0,
+            "num_lookahead_tokens": 0,
+            "num_external_computed_tokens": 0,
+            "delay_cache_blocks": false,
+            "num_encoder_tokens": 0,
+            "full_sequence_must_fit": true,
+            "reserved_blocks": 0,
+            "has_scheduled_reqs": true,
+            "new_computed_block_counts": [
+              0
+            ]
+          },
+          "descriptor": {
+            "exact": true,
+            "scope": "Pinned plain FullAttention, no local hits/sharing/lookahead/admission cap/watermark",
+            "slot_tokens": 41,
+            "slot_extra_blocks": 3,
+            "full_fit_extra_blocks": 206,
+            "required_free_blocks": 206,
+            "shortfall_blocks": 0
+          },
+          "begin_host_perf_s": 10772523.3219506,
+          "success": true,
+          "end_host_perf_s": 10772523.321968555,
+          "after": {
+            "status": "PREEMPTED",
+            "num_tokens": 3283,
+            "num_computed_tokens": 0,
+            "num_in_flight_tokens": 0,
+            "held_gpu_blocks": [
+              3
+            ],
+            "plain_unshared_blocks": true,
+            "free_gpu_blocks": 314
+          }
+        },
+        {
+          "kind": "allocate",
+          "request": "measured/b-normal-0070473-long-8172b18a",
+          "attempt": 82,
+          "before": {
+            "status": "PREEMPTED",
+            "num_tokens": 3304,
+            "num_computed_tokens": 1952,
+            "num_in_flight_tokens": 0,
+            "held_gpu_blocks": [
+              122
+            ],
+            "plain_unshared_blocks": true,
+            "free_gpu_blocks": 387
+          },
+          "arguments": {
+            "num_new_tokens": 659,
+            "num_new_computed_tokens": 0,
+            "num_lookahead_tokens": 0,
+            "num_external_computed_tokens": 0,
+            "delay_cache_blocks": false,
+            "num_encoder_tokens": 0,
+            "full_sequence_must_fit": true,
+            "reserved_blocks": 0,
+            "has_scheduled_reqs": true,
+            "new_computed_block_counts": [
+              0
+            ]
+          },
+          "descriptor": {
+            "exact": true,
+            "scope": "Pinned plain FullAttention, no local hits/sharing/lookahead/admission cap/watermark",
+            "slot_tokens": 2611,
+            "slot_extra_blocks": 42,
+            "full_fit_extra_blocks": 85,
+            "required_free_blocks": 85,
+            "shortfall_blocks": 0
+          },
+          "begin_host_perf_s": 10772523.7098244,
+          "success": true,
+          "end_host_perf_s": 10772523.709845072,
+          "after": {
+            "status": "PREEMPTED",
+            "num_tokens": 3304,
+            "num_computed_tokens": 1952,
+            "num_in_flight_tokens": 0,
+            "held_gpu_blocks": [
+              164
+            ],
+            "plain_unshared_blocks": true,
+            "free_gpu_blocks": 345
+          }
+        },
+        {
+          "kind": "allocate",
+          "request": "measured/b-normal-0070991-short-82b4f8e6",
+          "attempt": 83,
+          "before": {
+            "status": "PREEMPTED",
+            "num_tokens": 719,
+            "num_computed_tokens": 0,
+            "num_in_flight_tokens": 0,
+            "held_gpu_blocks": [
+              0
+            ],
+            "plain_unshared_blocks": true,
+            "free_gpu_blocks": 545
+          },
+          "arguments": {
+            "num_new_tokens": 88,
+            "num_new_computed_tokens": 0,
+            "num_lookahead_tokens": 0,
+            "num_external_computed_tokens": 0,
+            "delay_cache_blocks": false,
+            "num_encoder_tokens": 0,
+            "full_sequence_must_fit": true,
+            "reserved_blocks": 0,
+            "has_scheduled_reqs": true,
+            "new_computed_block_counts": [
+              0
+            ]
+          },
+          "descriptor": {
+            "exact": true,
+            "scope": "Pinned plain FullAttention, no local hits/sharing/lookahead/admission cap/watermark",
+            "slot_tokens": 88,
+            "slot_extra_blocks": 6,
+            "full_fit_extra_blocks": 45,
+            "required_free_blocks": 45,
+            "shortfall_blocks": 0
+          },
+          "begin_host_perf_s": 10772523.786445683,
+          "success": true,
+          "end_host_perf_s": 10772523.786467072,
+          "after": {
+            "status": "PREEMPTED",
+            "num_tokens": 719,
+            "num_computed_tokens": 0,
+            "num_in_flight_tokens": 0,
+            "held_gpu_blocks": [
+              6
+            ],
+            "plain_unshared_blocks": true,
+            "free_gpu_blocks": 539
+          }
+        }
+      ],
+      "resumed_schedule_records_in_window": [
+        {
+          "kind": "resumed_schedule",
+          "request": "measured/b-normal-0070969-short-a3cf6154",
+          "scheduled_tokens": 739,
+          "host_perf_s": 10772523.324913517,
+          "after": {
+            "status": "RUNNING",
+            "num_tokens": 739,
+            "num_computed_tokens": 739,
+            "num_in_flight_tokens": 739,
+            "held_gpu_blocks": [
+              47
+            ],
+            "plain_unshared_blocks": true,
+            "free_gpu_blocks": 314
+          }
+        },
+        {
+          "kind": "resumed_schedule",
+          "request": "measured/b-normal-0070525-long-8a6522e0",
+          "scheduled_tokens": 41,
+          "host_perf_s": 10772523.32493296,
+          "after": {
+            "status": "RUNNING",
+            "num_tokens": 3283,
+            "num_computed_tokens": 41,
+            "num_in_flight_tokens": 41,
+            "held_gpu_blocks": [
+              3
+            ],
+            "plain_unshared_blocks": true,
+            "free_gpu_blocks": 314
+          }
+        },
+        {
+          "kind": "resumed_schedule",
+          "request": "measured/b-normal-0070473-long-8172b18a",
+          "scheduled_tokens": 659,
+          "host_perf_s": 10772523.711617364,
+          "after": {
+            "status": "RUNNING",
+            "num_tokens": 3304,
+            "num_computed_tokens": 2611,
+            "num_in_flight_tokens": 659,
+            "held_gpu_blocks": [
+              164
+            ],
+            "plain_unshared_blocks": true,
+            "free_gpu_blocks": 345
+          }
+        },
+        {
+          "kind": "resumed_schedule",
+          "request": "measured/b-normal-0070991-short-82b4f8e6",
+          "scheduled_tokens": 88,
+          "host_perf_s": 10772523.788196748,
+          "after": {
+            "status": "RUNNING",
+            "num_tokens": 719,
+            "num_computed_tokens": 88,
+            "num_in_flight_tokens": 88,
+            "held_gpu_blocks": [
+              6
+            ],
+            "plain_unshared_blocks": true,
+            "free_gpu_blocks": 539
+          }
+        }
+      ],
+      "native_preemptions_in_window": []
+    }
+  ],
+  "input_sha256": {
+    "B_recovery_order_20261004/recovery_start_yield/session-20261008-r01/yield-metrics.json": "a7d3a1dcbae41d5b8f76ec938b09a88c8b33d8a1f9c4be4f99de4998260cc8a5",
+    "B_recovery_order_20261004/recovery_start_yield/session-20261008-r01/cell-01-cap256-yield_once/output/raw.json": "bd038e5f02e5405f9b3384bac3ec85e953d0aa04a15b6084443faabeba09b2be",
+    "B_recovery_order_20261004/recovery_start_yield/session-20261008-r01/cell-01-cap256-yield_once/output/capacity-handoff.json": "3c7e525f78414c1b1a54e2b430261f0edad8b86fa1b647a9ce3496063c82b6da",
+    "B_recovery_order_20261004/recovery_start_yield/session-20261008-r01/cell-01-cap256-yield_once/output/completion-finalize.json": "24f4537b1caaf768c40b3f4ff5d0427aece444be984608af1eaaf99c05c98476"
+  },
+  "script_sha256": "5a6996441a82da2bfc01d4c35cc428d52d53d6b55f206348ca5b56ea0ad2492b"
+}

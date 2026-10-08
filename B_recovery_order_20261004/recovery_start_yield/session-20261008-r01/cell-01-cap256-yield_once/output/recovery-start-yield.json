@@ -1,0 +1,127 @@
+{
+  "mode": "yield_once",
+  "status": "UNINSTALLED",
+  "outcome": "YIELDED_ONE_ROUND",
+  "action_count": 1,
+  "executed_breaks": 1,
+  "decision_calls": 342,
+  "skip_counts": {
+    "NEW_WAITER_PRESENT": 256,
+    "NOT_NATIVE_LOCAL_RECOMPUTE": 76,
+    "NOT_NATIVE_WAITING_HEAD": 3
+  },
+  "events": [
+    {
+      "kind": "legal_start_yield_opportunity",
+      "step": 1047,
+      "host_perf_s": 10772523.245199917,
+      "deferred_request": "measured/b-normal-0070969-short-a3cf6154",
+      "beneficiaries": [
+        {
+          "request": "measured/b-normal-0070473-long-8172b18a",
+          "priority": 0,
+          "arrival_time": 1791411962.218836,
+          "num_preemptions": 1,
+          "computed_tokens": 1952,
+          "held_gpu_blocks": 122,
+          "locations": [
+            "local_skipped"
+          ],
+          "job_ids": [
+            10054
+          ],
+          "current_batch_job_ids": [
+            10054
+          ],
+          "status": "WAITING_FOR_REMOTE_KVS",
+          "dependency": "Previously processed native async restore with its own registered LOAD; not guaranteed earlier arrival or a hard dependency of the deferred request"
+        }
+      ],
+      "candidate": {
+        "request": "measured/b-normal-0070969-short-a3cf6154",
+        "priority": 0,
+        "arrival_time": 1791411962.318836,
+        "num_preemptions": 1,
+        "history_tokens": 739,
+        "computed_tokens": 0,
+        "held_gpu_blocks": 0,
+        "full_fit_extra_blocks": 47,
+        "conservative_free_required": 132,
+        "plain_unshared": true,
+        "context": {
+          "source": "existing offload_keys and LRU.blocks only; no lookup/touch/key generation",
+          "known": true,
+          "ready": true,
+          "state": "MISS",
+          "registered_jobs": [],
+          "global_load_state_known": true,
+          "global_load_conflict_key_indices": [],
+          "global_load_conflict_keys": [],
+          "skip_reading_prefix_cache": false,
+          "global_load_tracking_disabled": true,
+          "inspected_keys": 46,
+          "missing_keys": 46,
+          "pending_keys": 0,
+          "leading_ready_tokens": 0,
+          "note": "Leading prefix is a read-only observation, not an extra native lookup result"
+        },
+        "memory_fit": true,
+        "native_reservation_pass": true,
+        "reservation_test": "conservative full-history-extra + native reservation; may reject legal async partial-prefix fits",
+        "reasons": [],
+        "conservative_fit": true
+      },
+      "native_locals": {
+        "num_new_tokens": 739,
+        "num_external_computed_tokens": 0,
+        "load_kv_async": false,
+        "num_new_local_computed_tokens": 0,
+        "effective_lookahead_tokens": 0,
+        "num_encoder_tokens": 0
+      },
+      "token_budget": 779,
+      "free_gpu_blocks": 282,
+      "native_reserved_blocks": 85,
+      "running_count": 245,
+      "running_cap": 256,
+      "running_with_streaming": 245,
+      "pause": "UNPAUSED",
+      "preempted_ids": [],
+      "waiting_order": [
+        "measured/b-normal-0070969-short-a3cf6154",
+        "measured/b-normal-0070525-long-8a6522e0",
+        "measured/b-normal-0070991-short-82b4f8e6",
+        "measured/b-normal-0070571-long-b47be586",
+        "measured/b-normal-0071017-short-89332614"
+      ],
+      "public_skipped_order": [],
+      "local_skipped_order": [
+        "measured/b-normal-0070473-long-8172b18a"
+      ],
+      "baseline_action": "CONTINUE_NATIVE_RECOMPUTE_ALLOCATION",
+      "final_action": "WAITING_LOOP_BREAK",
+      "requested_breaks": 1,
+      "executed_breaks": 1,
+      "first_break_host_perf_s": 10772523.245224845
+    },
+    {
+      "kind": "next_schedule_entry_pass",
+      "step": 1048,
+      "host_perf_s": 10772523.321711453,
+      "decision_step": 1047,
+      "deferred_request": "measured/b-normal-0070969-short-a3cf6154",
+      "previous_executed_breaks": 1
+    }
+  ],
+  "clock": "time.perf_counter host observations; no CUDA query or synchronization",
+  "scope": "Once-only one native schedule round. No cross-round gate or timeout; later schedule decisions are native. A break also defers the remaining waiting suffix.",
+  "dependency_semantics": "Beneficiaries await their own earlier registered LOADs. Inter-request waiting is scheduling precedence, not a native hard dependency; a fixed one-round yield may be equivalent.",
+  "timing_semantics": "Observed decision/next-entry intervals are not counterfactual added or saved latency.",
+  "frozen_helper_sha256": "7d2965b21f60516879b3a14a9a92533e882c9193890f4cf3cf3f77004bf8cbd6",
+  "source_sha256": {
+    "pkg/rotation_native.py": "822b22d283ecd2bc0d1ab4782fe3afa3e8d7266e61a6021b73f475fc9c468535",
+    "tail_reservation/reserve_tail.py": "fd663e48fbe4291878c16319ffb6294ef63e4444e79f7f84789e13d2aad0ef76",
+    "source_handoff/source_handoff.py": "0c952554e87b83c2cd31b9875bdfcb6469a73ce0eefcd089a2f5f28af7d43da7"
+  },
+  "native_code_verified": true
+}

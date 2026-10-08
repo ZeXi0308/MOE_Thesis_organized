@@ -1,0 +1,83 @@
+{
+  "status": "CPU_PREPARED_GPU_UNRUN",
+  "session_dir": "/tmp/moe-b-recovery-order-20261004/recovery_queue/session-fixed-20261007-r01",
+  "lock_path": "/root/autodl-tmp/moe-research-gpu.lock",
+  "gpu_uuid": "GPU-94203fc3-1021-3a9c-a367-cff792479616",
+  "host_limit_bytes": 128849018880,
+  "python": "/root/miniconda3/bin/python",
+  "hf_cache": "/root/autodl-tmp/moe-a-20261002/hf",
+  "per_cell_seconds": 1800,
+  "library_path": "/root/miniconda3/lib/python3.12/site-packages/nvidia/cu13/lib:/root/miniconda3/lib/python3.12/site-packages/torch/lib",
+  "runtime_overlay": "/root/autodl-tmp/moe-b-recovery-order-20261004/runtime-overlay",
+  "requests_per_arm": 256,
+  "sequence": [
+    "native"
+  ],
+  "cap": 256,
+  "engine_max_num_seqs": 256,
+  "measurement_max_seconds": 360,
+  "fixed_gpu_kv_bytes": 77242302464,
+  "joint_slo": {
+    "ttft_s": 5.0,
+    "max_generation_gap_s": 0.2,
+    "basis": "Same predeclared exploratory thresholds as normal_capacity/session-r01; not a production SLO. No threshold selected from completion-handoff outcomes."
+  },
+  "fixed": {
+    "victim": "tail",
+    "admission": "Original native FCFS/cap256 and allocation rules.",
+    "lease": "off",
+    "service_quantum": "native",
+    "B_RECOVERY_ORDER": "native",
+    "B_COMPLETION_FINALIZE": "native in every arm; original completion boundary retained",
+    "gpu_kv_bytes": 77242302464,
+    "host_kv_bytes": 17179869184,
+    "max_model_len": 4096,
+    "max_num_batched_tokens": 1024,
+    "precision": "BF16",
+    "model": "allenai/OLMoE-1B-7B-0924@6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "inputs": "../completion_handoff/fixed_inputs/cap256",
+    "workload_sha256": "208e7c0786b326985a3f69f67600963dc2d9aaa81a6c750c4a338466d0529eb2",
+    "workload_sha256_semantics": "Canonical JSON hash checked by the original input loader; distinct from the serialized file hash below.",
+    "workload_file_sha256": "024ccc4a4885de85309a9b20494d9251e78d2dc2d8aa04b8ff45878b4f966022",
+    "transfers": "All original STORE/LOAD prepare, submission, completion and release paths unchanged.",
+    "warmup": "original short32x16, short32x32, long2x2, output16; independent empty caches in every cell",
+    "observations": "Existing original observers plus bounded read-only waiting-entry and queue-decision snapshots for one selected pending recovery.",
+    "arrival_sequence": "Same256 distinct natural article prefixes, alternating3072/512,0.1s source-order arrivals; every request completes1024 output tokens ignoring EOS.",
+    "B_LOAD_ORDER": "native, no LOAD ordering adapter installed",
+    "termination": {
+      "output_mode": "fixed",
+      "output_tokens": 1024,
+      "ignore_eos": true,
+      "min_tokens": 0,
+      "expected_output_tokens_per_arm": 262144
+    },
+    "B_TAIL_RESERVATION": "native, full_tail disabled",
+    "B_SOURCE_HANDOFF": "native observer only"
+  },
+  "selection": "Observe the first existing source_handoff native qualifying recovery, until source release; no request ID chosen in advance.",
+  "scope": "One native diagnostic cell, no policy contrast and zero intended intervention. Normal GPU/Host capacity and fixed1024 workload.",
+  "deployment": {
+    "date": "2026-10-07",
+    "ssh_host": "connect.westb.seetacloud.com",
+    "ssh_port": 25495,
+    "gpu_name": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+    "gpu_memory_mib": 97887,
+    "driver": "595.71.05",
+    "shared_lock_device": 2304,
+    "shared_lock_inode": 15049831297,
+    "runtime": "Retained original package and model cache; native model runner/mixin/worker/scheduler/KV manager hashes match; private torch CPU imports passed with CUDA uninitialized.",
+    "comparison_scope": "One diagnostic native cell on this GPU; no historical latency comparison."
+  },
+  "initial_gpu_handoff_timeout_seconds": 30,
+  "hypothesis_source": "Completed source_handoff ABBA: selected recovery sees no allocation attempt for about6s despite other recoveries proceeding. Discrete free>=204 samples do not establish legal queue choice. Measure exact waiting gates before implementing an action.",
+  "stop_rule": "If no conservative legal ordering opportunity, do not expand queue-policy experiments. If opportunity exists, next test a bounded real recovery-order change with fixed priority/victim/new admission/quantum. Observation errors invalidate opportunity claims; retain all raw and all arrivals.",
+  "storage_note": "Native data disk nearly full; this new session and its independent empty caches live on /tmp filesystem. Model/source remain original read-only locations. No past raw removed.",
+  "authorization": "User: \u5141\u8bb8\u8d85\u51fa\u201c\u4ec5\u4efb\u52a1\u6392\u5e8f\u201d\u7684\u8fb9\u754c",
+  "intervention": {
+    "native": "Original native execution; two read-only callbacks at waiting entry and actual queue head selection. No reorder, pin, reservation or GPU operation."
+  },
+  "correctness_scope": "Pinned native schedule code verified before adding two observation expressions; no original AST node changed. Snapshot failure closes observer without changing scheduler behavior. CPU tests and real raw action checks required.",
+  "inputs_dir": "/root/autodl-tmp/moe-b-recovery-order-20261004/completion_handoff/fixed_inputs",
+  "source_basis": "Frozen source_handoff native runner and fixed1024 transform; prior source-only and full-tail probes stopped.",
+  "primary_readout": "Native gates, actual heads, full queue snapshot, conservative eligibility and shadow differences, observer overhead, all arrivals completion/TTFT/flow/maxgap/throughput/drain. Shadow differences are not real interventions or causal benefits."
+}
