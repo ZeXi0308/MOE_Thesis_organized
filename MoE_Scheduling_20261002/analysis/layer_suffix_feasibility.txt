@@ -1,0 +1,64 @@
+层内 draft 后缀停算：本地静态边界（2026-10-02）
+结论：当前能定位 MoE 插点与 scheduler 的逻辑回退字段，但不能确认完整可执行 hook 链。
+没有实现 controller、没有 GPU 验证、没有 speculative row 身份资格或收益结论。
+按任务范围停止继续扩查；以下将已读源码与必须验证的推论区分。
+
+路径缩写：
+W=/Users/zhaozhenyu/Desktop/毕业设计/MoE_Scheduling_20261002
+P=/Users/zhaozhenyu/Desktop/毕业设计/MOE_Thesis_organized/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/liveness_pinned_sources_20260930
+
+已确认的局部入口：
+1. W/ngram_short_src/wisp_expert_groups.py::_apply（约165行）收到 x、topk weights/ids、layer。
+   约190行把真实 topk 搬回 CPU；active/plan 后才 ensure_resident 和执行原生 MoE kernel。
+   后缀 alive mask 必须先影响 active/plan，才能避免仅 dead rows 所需专家的 H2D。
+   现有 full-row kernel 调用约262行；只在返回后把 dead output 清零不会省已发生的加载/计算。
+   若压缩 alive x/ids/weights 并 scatter 回原 batch，需要验证 kernel 合同及空 alive 情况；当前未实现。
+2. W/ngram_short_src/run_native_pager.py:400 的 scheduled_context 保留 step_id/各请求 token 数。
+   它显式 row_request_order_verified=False，不能用 scheduler 字典顺序猜 tensor 行。
+3. W/ngram_short_src/native_pager_context.py:5 的 install_row_context 明确拒绝 num_spec_tokens>0。
+   其非 spec 路径使用 input_batch.req_ids、num_computed_tokens_cpu、num_prompt_tokens、
+   runner.req_indices.np；这些字段只能作为待核对的入口，不能直接沿用为 spec 资格。
+4. P/scheduler.py:1675–1704 读取 scheduled_spec_decode_tokens 与 model_runner_output.sampled_token_ids；
+   num_accepted=max(len(generated_token_ids)-num_sampled_tokens_per_step,0)，
+   num_rejected=len(scheduled_drafts)-num_accepted，并下调 request.num_computed_tokens。
+   这是逻辑有效长度回退，不是已证明的物理 KV 清零/释放接口。
+   保留原 scheduled draft 数，才能计入主动丢弃后缀；同时缩短该数会少回退。
+5. P/kv_cache_manager.py:430–465 分配包含 lookahead 的槽；该处没有本动作专用 rollback API。
+   现有 CPU KV connector 在回退前后何时导出、依据何种有效边界，本次尚未资格化。
+
+最小 correctness invariants（设计约束，非已测事实）：
+6. 每 step、request、真实行、position、draft offset 必须一一映射；排除 padding、prefill、恢复路径。
+7. keep 要定义为“保留 draft 个数”或“保留 target 验证行数”，两者差一：
+   保留 r 个 draft，通常仍需 anchor 加 r 个 draft 的 r+1 行得到最终 fallback/bonus logits。
+   keep=0 也必须保留 anchor 的真实完整计算，产生一个正常 target token。
+8. 每请求只能截连续 suffix，alive 前缀单调；所有后续 MoE 都沿用相同或更短前缀。
+   不能丢弃保留 logits 依赖的行、topk contribution 或必要层。
+9. 正常 causal attention 必须保证每个 alive query 不读 dead suffix；dead hidden 要保持有限值。
+   原 batch 形状不等于隔离已成立；需核模型、attention masking、padding 与算子行为。
+10. sampler 必须返回正确前缀以及正确 fallback/bonus，不能只禁止接受而漏掉补采样。
+    同步截断后续 ngram proposer、output IDs、计数、停止条件和运行中 input_batch 状态。
+11. scheduler、runner 和 KV connector 必须共享截断后的有效计算边界；dead KV 永不作为有效前缀
+    被 attention/CPU offload 恢复。物理槽可保留，但必须在再次成为有效位置前覆写。
+    不可同时手工回退又让 scheduler 按拒绝量回退，造成双减。
+
+已读本地 runner 副本的补充（仅静态，未核与实际运行栈同 SHA/版本）：
+12. G=/private/tmp/d-vllm026-public-service/v1/worker/gpu_model_runner.py。
+    G:1937 _prepare_inputs 按 input_batch 顺序 repeat(num_scheduled_tokens) 形成 req_indices；
+    1969 的位置=num_computed_tokens_cpu[req_indices]+query_pos，2157 保存 req_indices，
+    2223–2239 用 req_id_to_index 对齐各请求 draft 数，再生成 spec_decode_metadata。
+    同步路径下可据此设计行身份检查；当前实验没有装此检查，也未证明 tensor 后续未重排。
+13. G:2821 _calc_spec_decode_metadata 输出 num_draft_tokens、cu_num_draft_tokens、
+    cu_num_sampled_tokens、target_logits_indices、bonus_logits_indices、logits_indices 和 draft_token_ids。
+    2847 的 logits 起点=cu_num_scheduled_tokens-(num_draft_tokens+1)：
+    若保持原 batch 区间但仅缩短 draft 数，会选到区间尾部，错误地保留 dead suffix。
+    必须按原每请求起点显式保留 prefix，并一致重建 packed logits、draft IDs、target/bonus 索引。
+14. G:4428 先 gather hidden_states[logits_indices] 再 compute_logits；4460 缓存 ExecuteModelState。
+    G:3637 _sample(logits,spec_decode_metadata) 是候选局部包装点；3660 调 rejection_sampler。
+    G:4533 调 _sample，随后4535更新 runner状态，因此只在最终 ModelRunnerOutput 外部截断太迟。
+    G:4679 表明 CPU ngram 在 bookkeeping 后用 valid_sampled_token_ids 提案；
+    G:4977 的 ngram 分支用 num_tokens_no_spec/token_ids_cpu，必须让 bookkeeping 看见截断结果。
+    可候选方案是采样前重建保留前缀 metadata/logits，调用原生 sampler；尚不等于实现已资格化。
+15. 在此次有界文件名查询中未找到 rejection_sampler/spec metadata/gpu_input_batch 完整源码。
+    缺 sampler 对新 packed metadata 的完整合同、runner accepted-count/KV 内部一致性证明、
+    CPU fullsave 与 rejection 的顺序证明；不能声称只加 MoE mask 加 sampler cap 就可正确运行。
+本备忘仅确认实现边界；不改变已冻结实验代码，不替代最短 fixed-ngram 强基线。

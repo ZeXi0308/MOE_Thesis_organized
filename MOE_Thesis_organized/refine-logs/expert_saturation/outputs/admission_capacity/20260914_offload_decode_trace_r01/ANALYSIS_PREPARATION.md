@@ -1,0 +1,9 @@
+# Trace解析准备与执行接续
+
+分析器：experiments/admission_capacity/analyze_bounded_decode_trace.py。
+
+已实现：新raw固定窗口签名与expected_window核对、恰好32个CPU标记核对、CUDA活动存在检查、按时间并集计算kernel/memcpy/memset/API活动、裁剪到标记窗口。分类并集之间可能重叠，不相加；按kernel名称累计只做排序，不能当忙碌时间或请求收益。GPU活动时间缺口不直接解释成硬件idle，时域重合不代表因果归属。
+
+CPU重叠/包含、空区间、跨窗口裁剪检查通过。尚无真实CUPTI文件，解析器实际schema与活动覆盖资格UNRUN；遇到新schema需保留原件并按其实际字段调整，不能用空数据代替零成本。
+
+封包SHA55b31fd99d42fc8e5f8da654816f6b0c7254fd3b9dda0a2c6365424d5ca44675已暂存并逐项核对17文件。远端/root/offload-decode-trace-20260914-r01，无driver、无GPU执行。最后现场B controller41338仍存活，八格五完成、第六初始化；恢复预算六格也有此前CPU协调登记。下一先重新读取GPU_COORDINATION并验证前序进程和完整终态，不重传或重建已暂存包。

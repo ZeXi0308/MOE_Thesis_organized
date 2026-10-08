@@ -1,0 +1,1 @@
+Python syntax and CLI help pass. Observer return preservation, metadata recording, update forwarding, uninstall restoration and off-arm no-op pass on CPU substitutes. Installed native connector/transfer classes and GPU execution remain UNRUN.
