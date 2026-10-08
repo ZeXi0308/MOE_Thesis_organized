@@ -1,0 +1,11 @@
+# Why saving work did not reduce the final engine step
+
+Both arms' full initial state at step329 matches the frozen resource snapshot. The structural model now represents the staged native event at330, with original-target priority and recovery reservation. Each arm's1465 subsequent steps matches observed ordered scheduling, free blocks and returned-output count. The saved arm consumes its own observed load completion at1048, eligible1049; this is event-conditioned state validation, not prediction. Legacy least/most/defer model outputs remain unchanged.
+
+Directly joining all32 final returned-token timestamps to engine calls gives the same completion-step comparison as the validated replay: victim0000001 finishes2steps earlier with saving; every other request, including final request3640, finishes at exactly the same step. Thus mean completion step improves only2/32=0.0625step and makespan step is unchanged. These are observed step statistics, not drift-corrected seconds.
+
+The saved3392tokens remove2recompute calls while2decode calls appear. In this realized pair, the benefit reaches one request and does not advance the tail that determines total episode calls. This explains the lack of step gain without attributing the12.6% measured wall/mean slowdown to saving. The observed wall-time drift remains unresolved.
+
+This rejects a material step-efficiency improvement for this single event in the tested closed-cohort state. It does not bound arbitrary multiple-event policies, different victims or arrival regimes. Repeating the same event for a nicer wall-time sign is not the next experiment. The next model must simulate repeated staged most-output actions on their own evolving state, including one-step preparation, reservation and asynchronous load; save-on must be compared with identical staged save-off and original immediate most-output. Any latency assumptions must remain sensitivity parameters until separately validated.
+
+Artifacts: structural_replay.json, observed_completion_steps.json. Command: python3 refine-logs/expert_saturation/experiments/admission_capacity/validate_staged_recovery_model.py (refuses overwrite). Model changed only to support explicitly paired staged native events; does not yet implement the repeated policy.

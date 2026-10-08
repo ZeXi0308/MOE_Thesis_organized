@@ -1,0 +1,146 @@
+{
+  "date": "2026-10-02",
+  "scope": "只读部署候选准备；未下载权重、未启动新模型、未改变当前运行计划。只评估一个模型。",
+  "decision": "CONDITIONAL_CANDIDATE_AFTER_CURRENT_PROTOTYPE_SIGNAL",
+  "selected_model": "Qwen/Qwen3-30B-A3B",
+  "reason": "其 BF16 全量权重大于 32GB，且标准 causal GQA 与无 shared-expert 的 bias-free MoE 最接近当前 pager 接口；主要新增工作是模型形状与输入准备，存储容量是尚未满足的具体部署条件。",
+  "server_context": {
+    "source": "parent task 提供，未在本子任务重新登录测量",
+    "gpu": "RTX 5090 32GB",
+    "host_ram_reported_gb": 92,
+    "data_disk_reported_gb": 50,
+    "system_disk_reported_gb": 30,
+    "actual_free_disk_bytes": null,
+    "actual_cgroup_memory_limit_bytes": null,
+    "current_model": "OLMoE，约 13.8GB 权重，可全驻留；当前有限 expert cache 仅属探索域"
+  },
+  "official_facts": {
+    "repository": "https://huggingface.co/Qwen/Qwen3-30B-A3B",
+    "observed_main_commit": "ad44e777bcd18fa416d9da3bd8f70d33ebb85d39",
+    "commit_source": "https://huggingface.co/Qwen/Qwen3-30B-A3B/commit/ad44e777bcd18fa416d9da3bd8f70d33ebb85d39",
+    "config_source": "https://huggingface.co/Qwen/Qwen3-30B-A3B/blob/main/config.json",
+    "weight_index_source": "https://huggingface.co/Qwen/Qwen3-30B-A3B/raw/main/model.safetensors.index.json",
+    "files_source": "https://huggingface.co/Qwen/Qwen3-30B-A3B/tree/main",
+    "license": "Apache-2.0",
+    "license_source": "https://huggingface.co/Qwen/Qwen3-30B-A3B/blob/main/LICENSE",
+    "architectures": ["Qwen3MoeForCausalLM"],
+    "model_type": "qwen3_moe",
+    "torch_dtype": "bfloat16",
+    "quantization_config_present": false,
+    "num_hidden_layers": 48,
+    "num_experts": 128,
+    "num_experts_per_tok": 8,
+    "hidden_size": 2048,
+    "moe_intermediate_size": 768,
+    "dense_intermediate_size": 6144,
+    "decoder_sparse_step": 1,
+    "mlp_only_layers": [],
+    "hidden_act": "silu",
+    "norm_topk_prob": true,
+    "num_attention_heads": 32,
+    "num_key_value_heads": 4,
+    "head_dim": 128,
+    "attention_bias": false,
+    "use_sliding_window": false,
+    "sliding_window": null,
+    "rope_scaling": null,
+    "tie_word_embeddings": false,
+    "shared_expert_intermediate_size_present": false,
+    "checkpoint_tensor_payload_bytes": 61064245248,
+    "checkpoint_safetensors_shards": 16,
+    "repository_display_size_gb": 61.1,
+    "size_note": "index 的 total_size 是 tensor payload；不是含 safetensors headers、tokenizer、缓存与下载临时文件的精确磁盘峰值。"
+  },
+  "derived_capacity": {
+    "evidence_type": "CONFIG_ARITHMETIC_NOT_RUNTIME_MEASUREMENT",
+    "bytes_per_element": 2,
+    "expert_bytes_formula": "3 * hidden_size * moe_intermediate_size * 2",
+    "one_expert_bytes": 9437184,
+    "one_expert_mib": 9.0,
+    "all_expert_bytes": 57982058496,
+    "all_expert_gib": 54.0,
+    "checkpoint_tensor_payload_gib": 56.87051010131836,
+    "nonexpert_payload_bytes_by_subtraction": 3082186752,
+    "nonexpert_payload_gib_by_subtraction": 2.8705101013183594,
+    "full_residency_on_32gb_gpu": false,
+    "uniform_cap_examples": [
+      {
+        "experts_per_layer": 24,
+        "expert_scratch_gib": 10.125,
+        "comment": "复用旧 cap24 容易，但不代表这张 GPU 在新模型上的容量优化强基线。"
+      },
+      {
+        "experts_per_layer": 48,
+        "expert_scratch_gib": 20.25,
+        "expert_plus_nonexpert_plus_1gib_kv_gib": 24.12051010131836,
+        "comment": "待正信号后最小初始化的保守候选；仍需为运行时、activation、临时 full-layer 转换和 allocator 预留空间，尚未证明可运行。"
+      },
+      {
+        "experts_per_layer": 56,
+        "expert_scratch_gib": 23.625,
+        "expert_plus_nonexpert_plus_1gib_kv_gib": 27.49551010131836,
+        "comment": "解析估计而非推荐运行值；余量更小，不能未经初始化实测直接作资源配置。"
+      }
+    ],
+    "bf16_kv_payload_bytes_per_token": 98304,
+    "kv_formula": "48 layers * 2(K,V) * 4 KV heads * 128 head_dim * 2 bytes",
+    "host_master_expert_storage_gib": 54.0,
+    "host_fit_assessment": "92GB 名义 RAM 高于 54GiB expert master 的下界；尚需确认实际 cgroup 限额、可用 RAM、逐层 pinning 临时副本、checkpoint page cache、CPU KV 与运行时峰值。没有把静态下界当成已通过加载。",
+    "disk_fit_assessment": "50GB 数据盘即使全空也不足保存约 61.1GB BF16 checkpoint。50+30GB 是容量而非可用空间；已有 OLMoE、环境及记录也占空间，不能直接宣称分盘可容纳。",
+    "disk_condition": "未来下载前先有单副本 checkpoint 加元数据/下载余量的真实可用持久存储；优先扩容或已挂载空间。分 shard 跨卷与符号链接只有在真实空闲量充足且单 shard 可落盘时才可评估。本次不执行这些操作。"
+  },
+  "vllm_026_source_check": {
+    "source": "https://raw.githubusercontent.com/vllm-project/vllm/v0.26.0/vllm/model_executor/models/qwen3_moe.py",
+    "reviewed_symbols": ["Qwen3MoeSparseMoeBlock", "Qwen3MoeAttention", "Qwen3MoeDecoderLayer"],
+    "finding": "原生实现使用 FusedMoE，expert intermediate 取 config.moe_intermediate_size；该 checkpoint 未给 shared_expert_intermediate_size，代码默认 0，因此 self.shared_expert=None。attention 为普通 Attention 加 RoPE 和 Q/K RMSNorm；本配置每层均是 sparse MoE。",
+    "routing_note": "0.26 的 Qwen 实现把 gate 交给 FusedMoE 内部路由；pager 应继续截取已产生 top-k 的 UnquantizedFusedMoEMethod.apply，不能假设 router 仍由外层显式调用。",
+    "compatibility_level": "SOURCE_COMPATIBLE_CANDIDATE_NOT_GPU_VALIDATED"
+  },
+  "minimum_adapter_work": [
+    {
+      "location": "suffix_src/run_native_pager.py:385",
+      "current": "shape 读取 cfg.intermediate_size，随后硬断言 layers=16、experts=64、top_k=8。",
+      "required": "根据 architecture 使用 moe_intermediate_size=768，并将已加载层数/专家数校验改为该模型配置的48/128/8。保留对真实 loaded MoE tensor 与 config 一致性的必要检查。",
+      "classification": "CONFIRMED_LOCAL_BLOCKER"
+    },
+    {
+      "location": "suffix_src/wisp_v026_adapter.py:43",
+      "current": "validate_layer_caps 只允许 OLMoE 16 层、cap24、总384 slots；validate_layer_allocations 也固定16层。",
+      "required": "初始真容量试验使用 uniform cap、layer_caps=None 即可绕开这项可选旧功能；如以后真需非均匀层分配，再按模型层清单泛化，当前无需改造。",
+      "classification": "OPTIONAL_FEATURE_INCOMPATIBILITY"
+    },
+    {
+      "location": "suffix_src/wisp_v026_adapter.py:163",
+      "current": "要求 bias-free BF16、TRITON 非 monolithic、top_k<=cap<=num_experts、TP/PP/DP1、无EP/EPLB/DBO、eager、关闭异步/前缀缓存/LoRA。",
+      "required": "Qwen BF16 原生结构可匹配这些约束；保留相同 EngineArgs。启动时确认实际 unquantized backend 没有绕过 Method.apply。不要改用 FP8/AWQ/GPTQ checkpoint 来解决磁盘问题，因为当前 patch 不覆盖这些 quant methods。",
+      "classification": "EXPECTED_COMPATIBLE_SUBJECT_TO_RUNTIME"
+    },
+    {
+      "location": "vendor/WiSP/src/wisp/integrations/vllm/fused_moe.py:673",
+      "current": "create_weights 实际先建 CPU 非 pinned expert 参数，postload 逐层 pin 并建 GPU scratch；源码注释有旧表述，不能据开头说明假设全程零暂存。",
+      "required": "保留已有 CPU master 装载路径；新模型初始化时记录 CPU/GPU 峰值，确认 vLLM device_loading_context 的暂存仅逐层发生。每个完整 expert layer 解析大小1.125GiB。",
+      "classification": "MEASURE_LOAD_PEAK_WITH_EXISTING_PATH"
+    },
+    {
+      "location": "suffix_src/suffix_runtime.py:181; suffix_src/suffix_controller.py:19",
+      "current": "suffix hook 基于 runner 实际请求段与 sampler metadata，要求同步非 hybrid CPU ngram；层数取 runtime.layers，层名用 layers.N 解析。",
+      "required": "标准 Qwen causal GQA 无显式结构障碍；仍需先跑同一 engine 的 off 与固定短前缀，验证连续 KV/bonus/EOS。新模型质量输入与 tokenizer 必须单独准备，不复用 OLMoE token IDs。",
+      "classification": "EXPECTED_INTERFACE_REUSE_NOT_PROVEN"
+    }
+  ],
+  "input_and_quality_condition": {
+    "official_model_card": "https://huggingface.co/Qwen/Qwen3-30B-A3B#switching-between-thinking-and-non-thinking-mode",
+    "suggested_initial_boundary": "对同一源问题重新用 Qwen tokenizer 与 chat template 编码，明确 enable_thinking=False；保持 greedy 是当前 suffix 原型的边界，不声称等于官方推荐采样配置。",
+    "reason": "官方模型默认支持 thinking；直接沿用 OLMoE prompt IDs 或引入 thinking-budget logits processor 会改变实验语义/触碰现有 hook 限制。",
+    "not_comparable_directly": "Qwen 与 OLMoE 的 token 数、答案、输出长度与时间不能做逐 token 同工作量横向速度比；只在各模型内使用同资源控制比较。"
+  },
+  "next_step_if_positive_signal": {
+    "condition": "当前 OLMoE 中心机制在完整成本上相对强短草稿基线出现可复查正信号；该文件本身不启动实验。",
+    "smallest_useful_action": "在可用持久存储满足后，固定一个 Qwen BF16 snapshot，完成形状泛化与 tokenizer 输入准备；先初始化一个 uniform-cap 单卡 engine，再做少量完整自然结束请求的 AR/强固定短草稿/中心机制比较。",
+    "resource_fairness": "所有策略使用相同实际 expert scratch、GPU/CPU KV 和计时口径；比旧 cap24 更合理的静态容量属于强基线调优，不能只给新机制。",
+    "no_second_model_added": true,
+    "weight_download_performed": false,
+    "runtime_patch_performed": false,
+    "gpu_run_performed": false
+  }
+}

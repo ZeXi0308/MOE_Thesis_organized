@@ -1,0 +1,22 @@
+INFO 10-02 16:54:45 [flash_attn.py:776] Using FlashAttention version 2
+Traceback (most recent call last):
+  File "/root/autodl-tmp/moe-research-20261002/test_compaction_attention_gpu.py", line 290, in <module>
+    main()
+  File "/root/autodl-tmp/moe-research-20261002/test_compaction_attention_gpu.py", line 282, in main
+    report = run(args)  # Failures intentionally raise; never report a skipped GPU as PASS.
+             ^^^^^^^^^
+  File "/root/autodl-tmp/moe-research-20261002/test_compaction_attention_gpu.py", line 79, in run
+    order = FlashAttentionBackend.get_kv_cache_stride_order()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/vllm/v1/attention/backends/flash_attn.py", line 150, in get_kv_cache_stride_order
+    cache_layout = get_kv_cache_layout()
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/vllm/v1/attention/backends/utils.py", line 101, in get_kv_cache_layout
+    cache_layout = get_kv_connector_cache_layout()
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/vllm/distributed/kv_transfer/kv_connector/utils.py", line 42, in get_kv_connector_cache_layout
+    vllm_config = get_current_vllm_config()
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/vllm/config/vllm.py", line 2374, in get_current_vllm_config
+    raise AssertionError(
+AssertionError: Current vLLM config is not set. This typically means get_current_vllm_config() was called outside of a set_current_vllm_config() context, or a CustomOp was instantiated at module import time or model forward time when config is not set. For tests that directly test custom ops/modules, use the 'default_vllm_config' pytest fixture from tests/conftest.py.

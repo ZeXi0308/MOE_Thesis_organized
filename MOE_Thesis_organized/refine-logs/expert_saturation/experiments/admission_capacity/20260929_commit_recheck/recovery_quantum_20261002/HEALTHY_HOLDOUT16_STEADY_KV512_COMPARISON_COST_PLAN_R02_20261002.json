@@ -1,0 +1,164 @@
+{
+  "schema_version": 1,
+  "kind": "HEALTHY_INSTRUCT_LEASE_TRIPLET",
+  "authorized_gpu_uuid": "GPU-273c48a6-cbbb-f4e4-ae0e-78f1876a0f51",
+  "approved_host_bytes": 98784247808,
+  "lock_path": "/root/autodl-tmp/moe-research-gpu.lock",
+  "python": "/root/miniconda3/bin/python",
+  "shared_model_dir": "/root/autodl-tmp/moe-research-20261002/model",
+  "hf_cache_dir": "/root/autodl-tmp/moe-a-20261002/hf",
+  "source_package": "/root/autodl-tmp/moe-a-20261002/healthy/candidate_native_recovery_lease_healthy_cost_r02",
+  "session_dir": "/root/autodl-tmp/moe-a-20261002/healthy/session-holdout16-steady-kv512-comparison-cost-r02",
+  "input_bundle": "/root/autodl-tmp/moe-a-20261002/healthy/prepared/holdout16_steady_kv512",
+  "model_revision": "7f1c97f440f06ce36705e4f2b843edb5925f4498",
+  "model_files": {
+    "config.json": {
+      "bytes": 759,
+      "sha256": "42ea6f5fe31e9243290ba3c348a4ad615b88a6fbc6e10544e21a87b6dff5da6c"
+    },
+    "generation_config.json": {
+      "bytes": 120,
+      "sha256": "77cf3f0caaa5e6d6972d910c70ca03f64fc47eccb4374082bdc8fc7b2c524a45"
+    },
+    "model.safetensors.index.json": {
+      "bytes": 287214,
+      "sha256": "0e2e1e0d8d357ac7af817cff28410c3dbad398f060c517a433e4076b2aae5579"
+    },
+    "special_tokens_map.json": {
+      "bytes": 433,
+      "sha256": "cf22141a130514760f6280166b8d1c9a56610578188aad0790eb6eaf6ea1eb08"
+    },
+    "tokenizer.json": {
+      "bytes": 2115598,
+      "sha256": "b1fb1517c84c6d516ff43adcebe7a1986ce7ed3e2533dc2c22b40337d2d24167"
+    },
+    "tokenizer_config.json": {
+      "bytes": 5986,
+      "sha256": "d3079f9c26a02fd28ee8d9bdfea4e96da7f5e803e06707ec8d1511acaaac7864"
+    },
+    "model-00001-of-00003.safetensors": {
+      "bytes": 4997744872,
+      "sha256": "6c79ac0487c3f23e8ee3d38752197d1e4a1a39d6c1438ec5fd7862874bb19321"
+    },
+    "model-00002-of-00003.safetensors": {
+      "bytes": 4997235176,
+      "sha256": "b58ca7a9f28f35d76b56b0ec40fc46c356fd84ccf078083b251a3ad6a2da9a35"
+    },
+    "model-00003-of-00003.safetensors": {
+      "bytes": 3843741912,
+      "sha256": "e93653ed509223e63eabae6f72ac8ea5a41115c5c7785574b9b2068ca0961c45"
+    }
+  },
+  "package_manifest_sha256": "1cccd7f0865fd7104a98a2a42e9a1c0b841a44733b9bb9ac84773c30f7f34f34",
+  "input_files_sha256": {
+    "inputs/config.json": "0a1ae6d5bdd888cbbc36ca0e4b078907c75078b1fd750c0dce2b163c3a906559",
+    "inputs/workload.json": "61345518099f92a60085f5e888903fd6107cd9c0a841be79f5a675ab4969dbe8",
+    "preparation_receipt.json": "9774bb763181393296317ebaa764b11cad52a773d7aa9a1c81665a92b7c9fa53",
+    "warmups/long/config.json": "abbcd94761bbdca0f44531a0dddfe8bc32e5829ffbbae4625173840ac1664157",
+    "warmups/long/workload.json": "0a06caa54a36b2484f2086ba70c83dadb17238cedff8cb784233061020421404",
+    "warmups/short/config.json": "be6e0c66297f5191597bb195f11dc39c57c4cfc05a1f3bc4d4fac4b6cbeae7f7",
+    "warmups/short/workload.json": "4b67d939a13dbcb38aa9ca904a326f8ae20e56bfb54d581eb1ba7d6227388ccb"
+  },
+  "arms": [
+    "native",
+    "ordinary",
+    "q1",
+    "fixed4",
+    "adaptive"
+  ],
+  "expected_requests": 16,
+  "usable_kv_blocks": 512,
+  "max_output_tokens": 512,
+  "runtime_cache": "Separate initially empty private runtime cache per arm; same pinned short and long in-cell warmups.",
+  "per_cell_wall_seconds": 1800,
+  "approved_total_wall_seconds": 9600,
+  "minimum_free_disk_bytes": 3221225472,
+  "controller_entry": "run_healthy_cost_comparison_newhost.py",
+  "scientific_scope": "Natural-ending Instruct holdout16 KV512 pressure exploration. Native and ordinary references plus the same three lease modes, exact same input and physical resources within this serial block. All cells additionally collect aggregate native offload costs on the same instrumented execution path.",
+  "action": "All cells retain native-full tail and the same Python CLI ordinary flag. Effective policy is selected by actual_arm_configs: native keeps repeated native oldest admission with lease off; ordinary uses ordinary admission without repeated oldest selection or a lease; q1/fixed4/adaptive use repeated queue_fund with their named lease mode. The wrapper corrects mode receipts; archived runtime configs are authoritative.",
+  "sampling": "GSM8K holdout16, original complete Instruct prompts, steady arrivals gap0.2s, temperature0,min_tokens0,ignore_eosFalse,max_tokens512,no extra stops.",
+  "evaluation": "Report all16 outcomes, natural-stop/length/unfinished counts, exact numeric answer accuracy, correct-and-natural-stop rate, actual output token rate, TTFT, per-request max host gap and flow. Per-mode output differences retained. No parameter choice from these outcomes. Report lease-selected quanta, release reasons, peer admissions and real victim effects through analyze_lease_actions.py; separate zero-action cells from tested actions. Compare service and real costs against both native and ordinary references as well as q1/fixed4. Zero actions identify an inactive mechanism at this workload; they do not demonstrate action benefit. Report aggregate transfer bytes/counts, native copy-work time with overlap caveat, capture/drain boundaries, chooser-only CPU time, setup/capture/service timings, and host/GPU storage/occupancy scope; do not impute missing old-session transfer costs.",
+  "claim_ceiling": "Exploratory natural-task quality and pressure-regime action/service tradeoff only. One ordered five-arm block is not statistical stability, quality equivalence, equal-work speedup or independent novelty.",
+  "authorization_reference": "Existing user authorization for new GPU41307 and reversible experiments; root manages transfers and shared-GPU coordination. Controller performs no network download.",
+  "host_differences": {
+    "model": "Instruct@7f1c97f440f06ce36705e4f2b843edb5925f4498, distinct from earlier base model; not pooled with base article runs",
+    "workload": "16 natural-ending GSM8K holdout16 tasks; selected external inputs/holdout16_steady_kv512, not mutated package inputs",
+    "resources": "Selected512 usable GPU pages plus one null page (1075838976 bytes), same budget among all5arms;16GiB host offload, cap32 and token budget1024 unchanged",
+    "environment": "Actual environment.json and cold-start/measurement timings reported per arm; no inference from previous host"
+  },
+  "retention": "Session created exclusively under common lock; no cell retry, overwrite or cleanup. Shared model files read-only; private hardlinks consume no second weight copy. Failed/incomplete outcomes retained.",
+  "followup": "This plan is prepared only. Root explicitly schedules it under the common lock after preceding groups; it never launches any later group.",
+  "environment_addendum": {
+    "LD_LIBRARY_PATH": "/root/miniconda3/lib/python3.12/site-packages/nvidia/cu13/lib:/root/miniconda3/lib/python3.12/site-packages/torch/lib",
+    "reason": "r01 import failed before GPU initialization because libnvrtc.so.13 was outside loader search path; installed-library-only EngineArgs import passes with this prefix",
+    "prior_session_retained": "healthy/session-dev16-low-r01"
+  },
+  "pressure_interpretation": "512 usable pages is below the 697-page aggregate prompt footprint. The dev16 burst therefore cannot hold all prompt KV concurrently; for steady holdout, overlap depends on actual arrival and completion times. Actual preemptions, recovery actions and the unchanged one-second activation condition must be established from native-arm logs. No-action is not evidence against policy benefit in an active domain.",
+  "launch_environment": {
+    "LD_LIBRARY_PATH": "/root/miniconda3/lib/python3.12/site-packages/nvidia/cu13/lib:/root/miniconda3/lib/python3.12/site-packages/torch/lib",
+    "A_AGGREGATE_OFFLOAD_COSTS": "1"
+  },
+  "launch_command": "env LD_LIBRARY_PATH=/root/miniconda3/lib/python3.12/site-packages/nvidia/cu13/lib:/root/miniconda3/lib/python3.12/site-packages/torch/lib A_AGGREGATE_OFFLOAD_COSTS=1 /root/miniconda3/bin/python /root/autodl-tmp/moe-a-20261002/healthy/run_healthy_cost_comparison_newhost.py --plan /root/autodl-tmp/moe-a-20261002/healthy/HEALTHY_HOLDOUT16_STEADY_KV512_COMPARISON_COST_PLAN_R02_20261002.json",
+  "input_independence": "Disjoint from A dev16 task IDs; adjacent research has used some source tasks. Not a global unseen or blindness claim. Do not change policy parameters after inspecting this block.",
+  "comparison_kind": "HEALTHY_NATIVE_ORDINARY_LEASE_COMPARISON",
+  "comparison_controller_sha256": "d7798a0fb31c2a4f4197495cbecd8ef8c63f506904e314464074d47bce3d9b2e",
+  "base_controller_sha256": "a3c025af8ad5be2bc312887a3cebbe0d215408cd8f7f838df15509f8e7e5e5c7",
+  "actual_arm_configs": {
+    "native": {
+      "A_NATIVE_OLDEST_ADMISSION": "native",
+      "A_NATIVE_OLDEST_REPEAT": "1",
+      "A_RECOVERY_LEASE_MODE": "off"
+    },
+    "ordinary": {
+      "A_NATIVE_OLDEST_ADMISSION": "ordinary",
+      "A_NATIVE_OLDEST_REPEAT": "0",
+      "A_RECOVERY_LEASE_MODE": "off"
+    },
+    "q1": {
+      "A_NATIVE_OLDEST_ADMISSION": "queue_fund",
+      "A_NATIVE_OLDEST_REPEAT": "1",
+      "A_RECOVERY_LEASE_MODE": "q1"
+    },
+    "fixed4": {
+      "A_NATIVE_OLDEST_ADMISSION": "queue_fund",
+      "A_NATIVE_OLDEST_REPEAT": "1",
+      "A_RECOVERY_LEASE_MODE": "fixed4"
+    },
+    "adaptive": {
+      "A_NATIVE_OLDEST_ADMISSION": "queue_fund",
+      "A_NATIVE_OLDEST_REPEAT": "1",
+      "A_RECOVERY_LEASE_MODE": "adaptive"
+    }
+  },
+  "capacity_selection": {
+    "basis": "Capacity chosen after the completed dev16 low-pressure pilot, before running either KV512 comparison; not a policy parameter grid.",
+    "pilot_session": "session-dev16-low-r02",
+    "dev16_all_prompt_pages": 704,
+    "pilot_trajectory_derived_upper_estimate_pages": 734,
+    "pilot_upper_estimate_peak_engine_call_index": 35,
+    "pilot_estimator": "Group raw output events by engine_call_index. Charge all 704 prompt pages from the start; update each request endpoint with ceil((prompt_tokens + max(observed_output_tokens - 1, 0))/16); evaluate before releasing requests finished by observed EOS.",
+    "estimate_limit": "Observed-trajectory-derived conservative upper estimate, not directly measured physical occupancy and not a pressure counterfactual.",
+    "algorithm_information": "The estimator and observed future EOS are used only in offline workload-domain selection, never supplied to the online policy.",
+    "runtime_question": "The native arm determines actual admission/preemption behavior and whether the unchanged one-second activation condition is exercised."
+  },
+  "cost_kind": "HEALTHY_AGGREGATE_COST_COMPARISON_R02",
+  "cost_controller_sha256": "49ef4b9c435d8990a87539f76d909bda6efc3f4b00f3cf789ba8f9e557097c07",
+  "actual_observer_environment": {
+    "A_AGGREGATE_OFFLOAD_COSTS": "1"
+  },
+  "parent_prepared_plan": "HEALTHY_HOLDOUT16_STEADY_KV512_COMPARISON_PLAN_R01_20261002.json",
+  "parent_prepared_plan_sha256": "d66510122106473ccc88f09464ac829c718d737b66a19a886854c56ea66f29f6",
+  "cost_measurement": {
+    "observer": "NATIVE_COMPLETION_AGGREGATES_V1",
+    "enable_environment": {
+      "A_AGGREGATE_OFFLOAD_COSTS": "1"
+    },
+    "install_boundary": "After application warmup drain and successful connector cache reset; before measured requests.",
+    "phase_boundary": "Capture ends immediately after measurement returns; drain counters reflect subsequent metadata observations. Transfers may straddle this boundary.",
+    "reported_quantities": "Completed load/store bytes, transfer records, job records/worker acknowledgements, native reported copy-time sums; no per-transfer event logs.",
+    "time_scope": "Summed native copy time is overlapping copy work, not exposed wall time. Observer CPU work is included in service timings but is not independently timed.",
+    "coverage": "Missing native transfer statistics are reported partial/unavailable, never inferred as zero.",
+    "comparability": "Every arm in this block uses the same cost observer and resource/execution path. Earlier observer-free sessions remain separate; this block is not evidence for zero observer overhead.",
+    "policy_identity": "All policy, selected inputs, scheduler measurements, and resource controls remain byte-identical to healthy_r01; only optional aggregate instrumentation and provenance differ."
+  }
+}

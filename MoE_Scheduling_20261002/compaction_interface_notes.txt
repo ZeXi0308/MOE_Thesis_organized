@@ -1,0 +1,156 @@
+2026-10-02：OLMoE 后缀撤销后的跨层压缩接口（只读可行性结论）
+
+选择的唯一路径
+
+在 eager / TP=PP=DP=DCP=1 / CPU ngram / 普通 causal FlashAttention 的现有 OLMoE
+运行域，为 OlmoeModel.forward 安装实例包装器。保留既有决策层 MoE gather/scatter；
+该完整 DecoderLayer 返回后，只压缩一次 hidden_states、residual、positions，并在
+局部 ForwardContext 下执行剩余 DecoderLayer 和最终 norm。返回 runner 前 scatter
+回原 hidden 行数。再用一个 compute_logits 包装器只计算幸存 packed logits 行、
+scatter 回原 packed logits 行数，因此现有 _sample 后缀重建和原生提交/回退保持可复用。
+本备忘没有实现或运行该优化，也不把它估计为已经获得的收益。
+
+这比逐层 gather/scatter 少做很多无效操作：首次撤销以后，后续 QKV、Q/K norm、RoPE、
+attention、输出投影、两个 layernorm、router、MoE 均直接收到紧凑 tensor；每层不再
+创建完整输出再 scatter。决策层已经完成的 attention/router 是沉没成本，不能追回。
+最后 hidden scatter 本身不会减少 LM-head；下面的 compute_logits 适配是同一路径
+必需的最后一段，否则只能声称减少后续层计算，不能声称减少最终 logits 计算。
+
+代码依据与具体入口
+
+本地可读源码：
+A=/private/tmp/d-vllm026-public-service/olmoe.py
+B=/private/tmp/d-vllm026-public-service/v1/attention/backends/flash_attn.py
+C=/private/tmp/d-vllm026-public-service/model_executor/layers/attention/attention.py
+D=/private/tmp/d-vllm026-public-service/v1/worker/gpu_model_runner.py
+
+A:OlmoeDecoderLayer.forward：先 attention，再 post_attention_layernorm，最后 mlp，
+返回 (hidden_states,residual)。A:OlmoeModel.forward 的层循环仅传这两个 tensor 和
+positions；循环后 norm。这是替换约 45 行循环的窄入口，安装对象为 runner.model.model。
+必须 gather residual：它承载 fused add+RMSNorm 的旁路状态，不能只 gather hidden。
+position 按原行索引 gather，绝不能重编号成 0..T'-1。
+
+A:OlmoeForCausalLM.compute_logits 仅调用 logits_processor(lm_head,hidden_states)，
+可包装 runner.model.compute_logits，不需要修改原 LM-head 或 sampler。
+D:4428 左右 runner 先 hidden_states[原 logits_indices]，再 compute_logits；
+因此 compute_logits 的输入是原每请求 (draft_count+1) 的 packed 行段，而非完整前向行。
+
+B:232 的 FlashAttentionMetadata 是 dataclass。
+B:903–906 / 1015–1035 将 query_start_loc、seq_lens、max_query_len、max_seq_len、
+block_table、scheduler_metadata 直接传入 flash_attn_varlen_func。
+C:753–771 同时从 ForwardContext 读取 attn_metadata 和独立 slot_mapping。
+C:784–794 的 unified_kv_cache_update 使用后者；B:1091–1105 的 KV 写入操作以
+slot_mapping 长度决定写多少 key/value。只改 metadata.slot_mapping 会错写KV。
+
+官方 v0.26 ForwardContext 提供 get_forward_context / override_forward_context；
+可 dataclasses.replace 创建局部上下文，在 with 退出时恢复，不改 runner 的全局输入缓冲。
+来源：https://raw.githubusercontent.com/vllm-project/vllm/v0.26.0/vllm/forward_context.py
+官方编译装饰器在 do_not_compile 或 skip_compiled 时调用实例 self.forward，因此 eager
+实例包装可生效；启动时检查实际 do_not_compile 和 CUDAGraphMode.NONE，不扩展编译路径。
+来源：https://raw.githubusercontent.com/vllm-project/vllm/v0.26.0/vllm/compilation/decorators.py
+
+一次压缩的数据关系
+
+沿现有 SuffixStepState 的实际 post-reorder 请求顺序，令请求 r 的本步原查询数 q_r、
+computed_start c_r、保留草稿 k_r。可裁 decode 请求 q'_r=k_r+1；prefill、恢复以及
+不可裁请求 q'_r=q_r。每请求至少保留 anchor，所以请求个数和顺序均不变。
+I 按请求顺序连接每个原 row_start_r..row_start_r+q'_r-1；I 是原始物理行索引。
+T'=sum(q'_r)，new_seq_r=c_r+q'_r，new_query_start=[0,cumsum(q'_r)]。
+
+在决策层返回后执行：
+  compact_hidden = hidden.index_select(0,I)
+  compact_residual = residual.index_select(0,I)
+  compact_positions = positions.index_select(0,I)
+三者后续始终保持同一顺序；保留 original_total_rows 和 I 供最终 scatter。
+首版只在 len(hidden)==state.total_rows、positions 一维、无请求/行 padding 时启用。
+现有 eager 单卡通常满足；若不满足就保留已运行的 MLP-only 路径，并记录 fallback。
+不把 padding 伪造为新请求，也不在这一小优化里支持图捕获 padding。
+
+FlashAttentionMetadata 必须修改的字段
+
+对后续 attention 层共享的原 metadata 用 dataclasses.replace 一次生成新对象：
+  num_actual_tokens=T'
+  query_start_loc=int32 CUDA tensor(new_query_start)
+  max_query_len=max(q')
+  seq_lens=int32 CUDA tensor(c+q')
+  max_seq_len=max(c+q')
+  slot_mapping=原 slot_mapping.index_select(0,I)
+  scheduler_metadata=None
+  prefix_scheduler_metadata=None
+  max_num_splits=原值（当前 eager 非 batch-invariant 通常为0）
+
+其余必须满足普通分支：use_cascade=False、common_prefix_len=0、causal=True、
+dcp_context_kv_lens=None、无 PrefixLM/R-SWA/sliding-window/跨层 KV sharing。
+block_table 保留原对象和原请求顺序，KV cache 本体与所有 block IDs 不动。
+num_decode_reqs/num_prefill_reqs/num_decode_tokens/num_prefill_tokens 在普通非DCP
+分支没有执行作用，原builder均为0；不要用它们替代真实query_start_loc。
+旧 scheduler_metadata 含旧形状调度计划，不能沿用；None 是原backend支持的无AOT
+路径，免于调用完整 builder 或修改 CommonAttentionMetadata。
+
+最易出错的是 seq_lens：仅缩 query_start_loc、保留原 seq_lens 会让 FlashAttention
+把查询右对齐到更晚的位置，造成活 token 读到本不应读取的 KV。必须同时保持
+new_seq_len-new_query_len=c_r；这样每个活 query 的绝对因果位置仍为 c_r+j。
+这不是只有形状影响性能的问题，而是内容正确性条件。
+
+局部 ForwardContext
+
+复制 attn_metadata 字典，只为后续层名映射到新metadata；复制 slot_mapping 字典，
+同样将后续层名映射到 gathered 物理槽。多个层/KV组共享同一原tensor时缓存一次
+index_select即可。原字典和tensor不原地改，防止当前runner/connector/下步使用新形状。
+保留 no_compile_layers；DP/ubatch为空。若有 batch_descriptor，局部替换 num_tokens
+为T'、num_reqs为原N、uniform=False；is_padding=None。保持上下文 MoE 层顺序计数，
+若 fast_moe_cold_start 启用，则后续层执行完把局部 moe_layer_index 交回原上下文。
+在局部上下文中执行剩余层及 norm，finally 恢复上下文和 controller 的 compact 标志。
+
+现有 MoE wrapper 需要的很小适配
+
+首次决策层仍用当前 select()/gather/scatter，因此可以先保持已验证的该层语义。
+跨层压缩后设置 state.execution_row_indices=I 或 controller.compact_active=True。
+后续层 controller.select 直接声明输入已经是幸存行，不再调用 alive_indices(len(x))；
+否则其 original_total_rows 检查会失败，也可能再次误删行。当前策略只在一个决策层
+选择一次，首版明确不支持压缩后再次撤销。可在trace保存 compact原行索引关联。
+原专家执行器接到紧凑 x/topk 后正常分组加载，继续完整执行每个幸存行的原生top-k。
+后续层路由仍由实际幸存 hidden 重新产生，不重放旧trace，也不修改专家权重。
+
+返回形状与最终 logits
+
+最终 norm 在紧凑形状运行，随后 full_hidden=zeros(original_total_rows,H)，
+full_hidden.index_copy_(0,I,compact_hidden)，返回原runner。
+compute_logits wrapper 从 state.original_draft_counts 和 keep_drafts 使用已有
+packed_prefix_plan 得到 P（原packed logits段中的幸存前缀位置）。对输入
+sample_hidden_states.index_select(0,P) 调用原 compute_logits，再将结果scatter
+到 zeros(original_packed_rows,vocab_size)。保留真实dtype、实际返回vocab维度。
+现有 _sample 继续用 P 重建短metadata并仅读取这些行；dead logits不会用于提交。
+zeros 保证现有全logits NaN诊断不读未初始化数据。额外 scatter/二次gather 成本照常计时。
+该步骤节省 LM-head GEMM/softmax前处理的输入行计算，但不节省原形状logits分配容量。
+
+KV 与提交边界
+
+决策层及以前可能已写入全部原draft KV；后续层仅写入 I 指定的原物理slots。
+各请求幸存前缀在全部层均完整，dead后缀在后续层未写或仍留旧值均不可见，因为
+本轮新seq_lens排除了它们；下轮原生scheduler根据原scheduled draft数与真实输出数
+执行拒绝回退。保留原 SchedulerOutput.num_scheduled_tokens 和
+scheduled_spec_decode_tokens，不能为了压缩而缩短它们或另外手动减computed。
+bonus/纠正token本身KV仍未计算，下轮从原生回退后的computed位置重新计算并覆盖slots。
+block allocation/lookahead不变，当前优化不宣称减少KV容量或CPU KV块数。
+已确认的offload cap按已提交req.num_tokens约束；被裁位置没有已提交hash/导出资格。
+局部Attention metadata在model.forward退出即恢复，CPU ngram proposer仍用原已验证
+valid_sampled_token_ids路径。不要把compact元数据传回scheduler或持久input_batch。
+
+规模、必要验证及决策意义
+
+预计新增专用模块约180–260行（模型循环、FA字段替换、两次scatter接口），
+controller/MoE wrapper约15–30行、runner安装与trace约10–20行；无需新attention kernel、
+通用后端或KV allocator改造。其风险集中在两个可具体检查的接口：causal seq/query
+对齐，以及ForwardContext独立slot_mapping；不是重新实现整个spec sampler。
+
+首个真实检查用fixed0和fixed1：多请求不同keep，含一条prefill/一条decode混合；对比
+已运行MLP-only同动作的幸存logits/输出，随后至少继续数轮并自然结束。查看每后续层
+实际query行数=真实幸存数、slots=原slots[I]、computed回退一致；保留形状变化产生的
+BF16 argmax差异，不承诺位级等价。再做同控制器/同N的compact开关完整episode比较。
+单次模型核验和完整服务计时均需包含metadata构建、gather/scatter和最后LM-head适配。
+
+该路径可能降低当前每层反复gather/scatter及全shape attention/router的固定成本，
+尤其有更长草稿或更多实际撤销时。它不能保证追回fixed0相对AR的全部约8%差距：
+决策层前计算、ngram提案、原始调度/KV预留、原full logits缓冲和Python决策仍存在。
+若N4仍只有极少撤销，优先依据已有完整结果判断投入，而不把压缩可行性当作收益证据。

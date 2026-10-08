@@ -1,0 +1,91 @@
+候选 C：活请求暂停边界的 CPU 快照 / GPU KV 扩容接口判断（2026-10-02）
+范围：仅当前 vLLM 0.26、OLMoE eager、TP1、同步 engine.step、HND、CPU offload；只考虑 KV grow / expert shrink。
+结论：两处状态接口存在窄可执行路径，不需要重写 request 或 offload 状态机；不是现成 resize API。
+前提是所有 GPU 工作、待提交 transfer、完成回报均真正结算；仅 CUDA synchronize 或 wait(job_ids) 不够。
+这是源码推断，尚无 live resize 实测。等静态等总池收益再决定是否实现；本次未改运行源、未跑 GPU。
+
+1. BlockPool：追加容量可以保留所有旧对象 [1][2]
+原 pool.blocks 是 KVCacheBlock list；FreeKVCacheBlockQueue 是对象上的双向链表，不是固定容量数组。
+可新建 IDs=[old_num,new_num) 的 KVCacheBlock，原 blocks.extend(new)，原 free_block_queue.prepend_n(new)。
+prepend 新的无 hash 空闲块，可优先使用新容量且不改变旧块相对淘汰顺序；最后更新 pool.num_gpu_blocks。
+禁止重建 pool、FreeKVCacheBlockQueue、旧 KVCacheBlock；禁止 reset_prefix_cache。
+保留 null_block、ref_cnt、hash map、cached_block_hashes_by_block、旧 free links、kv_event_queue。
+single_type_managers.req_to_blocks / num_cached_block / _null_block 继续引用原对象，request block IDs 无需重编号。
+Scheduler/manager/coordinator 的 kv_cache_config.num_blocks、cache_config.num_gpu_blocks 和 worker config 必须一致。
+worker 的 KVCacheTensor.size 按原每块字节比例更新；watermark_blocks 若非零按原比例重算。
+input_batch.block_table 的列数按 max_model_len/block_size 定，不因总物理块增多而重建；旧 ID 值保持。
+新增 free blocks 只能在新 GPU tensors 恢复且所有 consumer 已重绑后公开，不能先交给 scheduler。
+
+2. CPU offload：保留 worker / CPU cache，换 GPU canonical views [3][4][5]
+CPUOffloadingSpec.get_worker 缓存 spec._worker；再次 register_kv_caches 会拿回旧 worker，不会更新旧 GPU 引用。
+官方 CPUOffloadingWorker GPU 端是 _store_handler.src_tensors 与 _load_handler.dst_tensors（共享一个 list）。
+CPU 端是 _store_handler.dst_tensors 与 _load_handler.src_tensors（共享另一 list）；保留该 list、CPU 存储和 mmap。
+spec._worker、connector_worker.worker、scheduler manager/hash/LRU/request metadata 均保持原实例。
+用原 register_kv_caches 的 canonicalization 生成新 CanonicalKVCaches；在 _init_worker 入口窄幅改为 rebind。
+按原 canonical tensor 顺序取 tensor；只替换两 handler 的 GPU list 内容，不重新 get_worker/构造 CPU worker。
+page bytes、group_data_refs、blocks_per_chunk、dtype/layout 不变；仅 GPU tensor 第 0 维 block 数增大。
+两个 transfer handler 每次提交从当前 tensors 重新读 data_ptr/stride(0)/shape[1]，无另存 GPU 容量。
+_transfers 中已有 descriptor 含旧裸地址，必须为空；_transfer_events 也必须为空。
+_buffer_pool 中旧地址会在下次使用的 slice 全量覆盖；stream/event pools 不持有旧 GPU tensor 存储。
+禁止调用旧 handler.shutdown：会 clear 共享 tensor lists，store handler 还可能释放 _mmap_region。
+以上字段来自官方 v0.26；实施前只需核对 installed 的这两个 handler 和 canonicalization 源码，不能套旧 _handlers 名。
+
+3. 活请求 barrier 的最小要求 [5][6]
+冻结新 scheduler/model 工作；同步模型及专家 copy streams；flush 尚未提交的已有 store jobs。
+connector_worker._unsubmitted_store_jobs、_load_jobs、两 handler 的 _transfers/_transfer_events 都为空。
+已完成 jobs 走 get_finished -> build_connector_worker_meta -> scheduler.update_connector_output 正常结算。
+不能只 wait 后清字典：manager.complete_store/complete_load、request.transfer_jobs 和 scheduler._jobs 必须完成原回调。
+不能重复外层 connector.get_finished 轮询同一 metadata，它会再次 prepare_store_kv 追加延期 stores。
+现有 native_offload_observer.drain 是全请求结束后的 engine.step 循环，不能原样用于活请求暂停。
+
+4. 建议的单次事务与内存边界
+在 barrier 内把旧 GPU KV 逐物理存储直接 copy 到 CPU snapshot，不做 GPU gather/clone 中间缓冲。
+最简单保存整个旧 KV，而非只 ref_cnt>0 的块：若保留 GPU prefix hash，ref_cnt=0 的 hashed blocks 也必须恢复。
+清除 runner.kv_caches、attention.kv_cache、cross_layers_kv_cache、两个 handler GPU views 和临时 Python 引用。
+释放/重建依赖旧地址的 _kv_block_zeroer（若启用）；同步并 empty_cache 后才分配替代存储。
+expert scratch 从 CPU master 重建较小存储；先释放旧 scratch，清 slot/expert 映射，后分配并按需再热。
+现有 resize_cap 会先分配新 scratch 再复制旧 scratch，不能直接拿它证明严格无瞬时重叠。
+仅调用 runner.initialize_kv_cache_tensors(new_cfg, runner._kernel_block_sizes) 重建并 bind；不要完整 initialize_kv_cache 重置 input_batch。
+保留原 block IDs，将 snapshot 恢复到新 tensor 的旧 ID 区域；重绑 canonical GPU views 后再扩 block pool 并恢复调度。
+所有阶段失败都暂停服务；保留 CPU snapshot，清掉新存储后可恢复旧配置，不能半完成状态继续 step。
+不引入 CUDA allocator。按唯一底层 storage 计费，E_old+K_old 和 E_new+K_new 都 <=5.5 GiB 且 free-before-alloc 可控制 E+K 张量峰值。
+这不自动证明整个进程 memory_reserved/驱动峰值 <=5.5 GiB：常驻非池张量、allocator 碎片与 workspace 必须另计。
+若“严格 5.5”是全进程物理峰值，现接口判断不足以承诺；若沿用当前专家+KV 工作池口径，路径可进入后续小原型。
+CPU 临时量约旧 KV 大小，额外成本至少 barrier+全量 D2H/H2D+重分配/绑定+专家再热，均纳入完整服务时间。
+估计窄原型约 3 个局部 hook / 150–250 行加针对性状态测试；grow-only 不需新状态机，双向收缩/搬迁不在本次范围。
+
+源码定位（官方 v0.26.0）：
+[1] https://raw.githubusercontent.com/vllm-project/vllm/v0.26.0/vllm/v1/core/block_pool.py
+[2] https://raw.githubusercontent.com/vllm-project/vllm/v0.26.0/vllm/v1/core/kv_cache_utils.py
+[3] https://raw.githubusercontent.com/vllm-project/vllm/v0.26.0/vllm/v1/kv_offload/cpu/spec.py
+[4] https://raw.githubusercontent.com/vllm-project/vllm/v0.26.0/vllm/v1/kv_offload/cpu/gpu_worker.py
+[5] https://raw.githubusercontent.com/vllm-project/vllm/v0.26.0/vllm/distributed/kv_transfer/kv_connector/v1/offloading/worker.py
+[6] https://raw.githubusercontent.com/vllm-project/vllm/v0.26.0/vllm/distributed/kv_transfer/kv_connector/v1/offloading/scheduler.py
+
+补充：活请求 barrier 闭环（仅本地已归档/下载源码核对，无联网、无 GPU，新增 27 行）
+P=MOE_Thesis_organized/refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/offload_pinned_sources_20261002/
+证据：P/offloading_worker.py:start_kv_transfers/get_finished/build_connector_worker_meta；P/offloading_scheduler.py:update_connector_output。
+另据 /private/tmp/moe-c-native-source-20261001/scheduler.py:_update_from_kv_xfer_finished/_try_promote_blocked_waiting_request。
+设 S=base scheduler，CW=worker_connector.connector_worker，CS=S.connector.connector_scheduler，W=CW.worker。
+1) 仅在同步 engine.step 已完整返回、该步原 KVConnectorOutput 已被 scheduler 消费后进入；冻结下一 schedule/abort 修改。
+2) 同步模型/专家 CUDA 工作；assert CS._current_batch_load_jobs 和 CS._current_batch_jobs_to_flush 均空，TP/worker 数为 1。
+3) empty=OffloadingConnectorMetadata(load_jobs={},store_jobs={},jobs_to_flush=set())。
+4) CW.start_kv_transfers(empty)：只提交现有 CW._unsubmitted_store_jobs 并清该队列；empty 不新增/重复 load。
+5) W.wait(set(CS._jobs))：此时已登记 jobs 都已提交；不调用 engine.step，也不再 bind/重放上一步 metadata。
+6) sent,recv=CW.get_finished(set())：直接内层方法，记录完成 jobs/stats、pop CW._load_jobs、生成 recv。
+7) meta=CW.build_connector_worker_meta()：取一次并重置其累积结果；不能对同一结果再回放。
+8) out=KVConnectorOutput(finished_sending=sent,finished_recving=recv,kv_connector_worker_meta=meta)。
+9) S._update_from_kv_xfer_finished(out) 一次：内部先 S.connector.update_connector_output，后处理 recv/sent。
+它执行 manager.complete_store/load、删除 CS._jobs 和 req.transfer_jobs，再标记 S.finished_recving_kv_req_ids。
+若 load 期间 request 已终止，同一入口会 _free_blocks；不要仅单独调用 connector.update 而漏掉这层。
+10) assert CS._jobs、CW._unsubmitted_store_jobs、CW._load_jobs、各 handler _transfers/_transfer_events 均空。
+CS._chunks_being_loaded（若启用）应清空；保留已完成请求标志，禁止清 S.finished_recving_kv_req_ids。
+11) 若 wait 后仍残留，最多再内层 collect/build/update 结算已有 jobs；无法清空则取消本次 grow，不硬清字典。
+禁止外层 worker_connector.get_finished：它会再次 prepare_store_kv；禁止调用 build_connector_meta 生成一轮新 stores。
+不伪造 ModelRunnerOutput 调 update_from_output，它会涉及本步 token/输出记账；直接使用第 9 步窄入口。
+已提交 load 不依赖新的模型 forward：prepare_load 已要求 CPU block.is_ready 并加 ref，GPU dst blocks 也已分配。
+因此 WAITING_FOR_REMOTE_KVS 可以保持该状态且带 finished_recving marker 跨过 resize，无需先恢复运行或产 token。
+下次原生 schedule 的 _try_promote_blocked_waiting_request 才 cache_blocks/变回 WAITING 或 PREEMPTED。
+full-prompt hit 的最后一 token 补算是后续采样需要，不是 H2D 完成的依赖，可以在 resize 后正常进行。
+不可行分支：step 尚有未交付 scheduler metadata、TP>1、transfer failure/invalid blocks、非本地 CPU manager 后台 work。
+这些分支取消 grow、交回原生处理；本补充不替它们造 progress loop。已 finish 但尚未生成的新 store intent 可留待下次 schedule。
