@@ -1,0 +1,92 @@
+{
+  "base_commit": "5593b5f",
+  "dev_indices": "No new development sweep in this diagnostic",
+  "test_indices": "Same 384 interleaved articles and 0.1s trace as pressure exploration",
+  "native_dev_reference": null,
+  "dev_caps": [],
+  "test_order": [
+    "declaredbudget",
+    "mcbudget",
+    "mcbudget",
+    "declaredbudget"
+  ],
+  "selection": "No parameter tuning; same full32768-page ordinary budget in both arms. MC peak feasibility is a production-guarded adaptation of arXiv2502.07115v5 section4 equation5 and AppendixC Algorithm2, not a new time-reuse algorithm.",
+  "fixed_baseline_claim_scope": "No fixed-cap comparison in this group; ordinary full declared budget is the comparator. The prior matched fixed177 comparison is closed.",
+  "kv_floor": {
+    "declaredbudget": 0,
+    "mcbudget": 0
+  },
+  "recovery_high": null,
+  "recovery_clear": null,
+  "sample_interval_s": null,
+  "max_signal_wait_s": null,
+  "run_timeout_s": 240,
+  "prompt_arrival_gap_s": 0.1,
+  "output_mode": "natural EOS or max 1024; no future output length read",
+  "slo_grid": {
+    "ttft": [
+      2,
+      5,
+      10,
+      20,
+      40
+    ],
+    "max_gap": [
+      0.25,
+      0.5,
+      1,
+      2
+    ],
+    "completion": 120
+  },
+  "slo_role": "Exploratory full 20-point surface, not an application SLO or chosen headline.",
+  "invariants": "Native running scheduling, victim tail, recovery path, transfer and quantum unmodified.",
+  "reset": "Same engine/compiled shapes; identical warmup per cell then connector reset; fresh policy state.",
+  "lock": "/root/autodl-tmp/moe-research-gpu.lock",
+  "host_budget_bytes": 118111600640,
+  "model": {
+    "dtype": "bfloat16",
+    "id": "allenai/OLMoE-1B-7B-0924",
+    "key": "olmoe",
+    "revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "tokenizer_revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5"
+  },
+  "input_sha256": "10493039c7f704a45d1a209c47a2b87c2de5947b9464f921b1495721a0d328e4",
+  "profile": "pro-opportunity-mc-budget",
+  "usable_kv_pages": 32768,
+  "native_max_seqs": 256,
+  "pro_inputs_file_sha256": "6b6be96f8fec6e92b6e59390bab0fe414aeafdaab9539000d88050f8bbf22d25",
+  "evidence_role": "ADAPTED_MC_BENCHMARK_VS_FULL_DECLARED_RESERVATION",
+  "host_kv_gib": 16,
+  "max_model_len": 4096,
+  "precision": "bfloat16; no rope extension",
+  "population": 384,
+  "trace_sha256": "34513450387479b4257f7a01ea9042056667466b4ade5e0c137aa1f0fadb8632",
+  "trace_hash_contents": "Ordered request IDs, actual prompt token IDs, and external arrival traces",
+  "workload_sha256": "7723a0b4e88ba647da79e658cd596e00337075ea761d8692c47c494ee018533d",
+  "concurrency_comparison": "Both complete cap/native guard256, compiled256, KVfloor0, same model/BF16,64GiB GPU KV/16GiB host, FCFS/quantum1024 and native recovery.",
+  "test_admission_caps": {
+    "declaredbudget": 256,
+    "mcbudget": 256
+  },
+  "admission_count": "Unique successfully admitted but unfinished requests, including paused/recovery.",
+  "diagnostic_cap": null,
+  "intervention": {
+    "kind": "full_declared_sum_vs_guarded_future_peak",
+    "measured_work": "Same384 ordered prompts,0.1s arrivals,naturalEOS/max1024.",
+    "rule": "Only relax an otherwise rejected declared-budget decision when all existing admitted requests are resident single-token decode, their current native slots cover exactly their present known tokens, and all used pages are accounted. Old future occupancy ends after its declared remaining decode steps; candidate starts at full prompt and grows by at most one token per round, retaining its full plateau even if prefill delays completion. Otherwise keep ordinary budget.",
+    "common_setup": "Release old raw, identical warmup, collect before arrivals, passive GC."
+  },
+  "prefix_comparison": "Same frozen inputs in separate online executions; no claim of identical GPU state, natural output, or complete pre-intervention trajectory.",
+  "candidate_status": "Nearest-method adaptation and action-value comparison; no novelty claim.",
+  "native_admission_guards": {
+    "declaredbudget": 256,
+    "mcbudget": 256
+  },
+  "declared_budget_blocks": 32768,
+  "declared_budget_block_size": 16,
+  "admission_wait_rule": "Wait in unchanged scheduler FIFO. No age override; old requests always bypass. Common240s external-arrival observation cutoff reports unfinished requests. No TTFT, completion, or wall-time wait guarantee.",
+  "motivation": "Determine whether temporally non-overlapping request capacity provides full-service value beyond ordinary full-lifecycle reservations. Recovery feedback was late and fixed177 already closely matched ordinary budget; neither establishes this stronger published baseline or a novel residual.",
+  "stopping_rule": "Exactly one ABBA group. Count proposed and actually allocated extra admissions, preemptions, all arrivals/outcomes, full20 exploratory SLO grid, raw distributions, natural output changes and control cost. No threshold/cap sweep. No actions closes this guarded domain; no complete benefit retains simple budget; benefit retains MC adaptation as a stronger baseline, not a new algorithm claim.",
+  "repeat_budget": "One ABBA group, pairs01/00 and02/03; not independent confirmation."
+}

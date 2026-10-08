@@ -1,0 +1,155 @@
+{
+  "status": "NUMERICAL_EXISTENCE_OBSERVED_NATIVE_ADMISSION_UNKNOWN",
+  "source": "moe-a-h1-guard-qual-session-r02-20260930/cell-00-eager_diagnostic_on/archive/selective-store.json",
+  "source_sha256": "7cae599a526077b11f2a3037d82a8c5663be050022f672fc3ce7b967903172a7",
+  "definition": "At a READY forced-victim commit, F + victim held blocks covers full-history incremental blocks of the original target and one other PREEMPTED waiting request. This is a necessary numerical test only.",
+  "counts": {
+    "ready_commits": 269,
+    "direct_commits_excluded": 2,
+    "forced_victim_commits": 267,
+    "numerically_cofit_commit_steps": 93,
+    "numerically_cofit_alternative_instances": 165,
+    "cofit_steps_with_age_at_least_30_at_commit": 48,
+    "cofit_steps_still_fit_at_next_snapshot": 92,
+    "cofit_steps_still_fit_at_target_first_output": 85,
+    "cofit_steps_with_age_at_least_30_and_fit_at_first_output": 49,
+    "cofit_steps_after_waiting_head_is_new_victim": 93,
+    "cofit_steps_after_waiting_head_numerically_unfunded": 89,
+    "cofit_steps_next_snapshot_running_count_le_30": 93,
+    "cofit_steps_target_async_after_commit": 92,
+    "cofit_steps_commit_metadata_load": 92,
+    "cofit_steps_commit_metadata_flush": 93,
+    "distinct_original_targets": 70,
+    "distinct_alternatives": 55
+  },
+  "typical_trace": {
+    "original_target": "measured/memory-train-article-0008213-9f30851e",
+    "new_victim": "measured/memory-train-article-0008251-83a4ef30",
+    "other_preempted_request": "measured/memory-train-article-0008173-b84a2315",
+    "commit_full_history_need_blocks": {
+      "target": 142,
+      "other": 199
+    },
+    "commit_numerical_margin_blocks": 17,
+    "snapshots": [
+      {
+        "step": 515,
+        "host_perf_counter_s": 11967026.037330694,
+        "free_blocks": 140,
+        "running_count": 28,
+        "waiting_head": "measured/memory-train-article-0008173-b84a2315",
+        "skipped_count": 0,
+        "victim": {
+          "status": "RUNNING",
+          "output_tokens": 444,
+          "held_blocks": 218,
+          "full_history_need_blocks": 0
+        },
+        "target": {
+          "status": "PREEMPTED",
+          "output_tokens": 427,
+          "held_blocks": 0,
+          "full_history_need_blocks": 142
+        },
+        "alternative": {
+          "status": "PREEMPTED",
+          "output_tokens": 446,
+          "held_blocks": 0,
+          "full_history_need_blocks": 199
+        },
+        "target_first_output_event": false
+      },
+      {
+        "step": 516,
+        "host_perf_counter_s": 11967026.065665005,
+        "free_blocks": 215,
+        "running_count": 27,
+        "waiting_head": "measured/memory-train-article-0008251-83a4ef30",
+        "skipped_count": 1,
+        "victim": {
+          "status": "PREEMPTED",
+          "output_tokens": 444,
+          "held_blocks": 0,
+          "full_history_need_blocks": 218
+        },
+        "target": {
+          "status": "WAITING_FOR_REMOTE_KVS",
+          "output_tokens": 427,
+          "held_blocks": 141,
+          "full_history_need_blocks": 1
+        },
+        "alternative": {
+          "status": "PREEMPTED",
+          "output_tokens": 446,
+          "held_blocks": 0,
+          "full_history_need_blocks": 199
+        },
+        "target_first_output_event": false
+      },
+      {
+        "step": 518,
+        "host_perf_counter_s": 11967026.100873005,
+        "free_blocks": 209,
+        "running_count": 28,
+        "waiting_head": "measured/memory-train-article-0008251-83a4ef30",
+        "skipped_count": 0,
+        "victim": {
+          "status": "PREEMPTED",
+          "output_tokens": 444,
+          "held_blocks": 0,
+          "full_history_need_blocks": 218
+        },
+        "target": {
+          "status": "RUNNING",
+          "output_tokens": 428,
+          "held_blocks": 142,
+          "full_history_need_blocks": 0
+        },
+        "alternative": {
+          "status": "PREEMPTED",
+          "output_tokens": 446,
+          "held_blocks": 0,
+          "full_history_need_blocks": 199
+        },
+        "target_first_output_event": true
+      },
+      {
+        "step": 527,
+        "host_perf_counter_s": 11967026.265595095,
+        "free_blocks": 124,
+        "running_count": 27,
+        "waiting_head": "measured/memory-train-article-0008297-93cebec0",
+        "skipped_count": 1,
+        "victim": {
+          "status": "PREEMPTED",
+          "output_tokens": 444,
+          "held_blocks": 0,
+          "full_history_need_blocks": 218
+        },
+        "target": {
+          "status": "RUNNING",
+          "output_tokens": 437,
+          "held_blocks": 143,
+          "full_history_need_blocks": 0
+        },
+        "alternative": {
+          "status": "WAITING_FOR_REMOTE_KVS",
+          "output_tokens": 446,
+          "held_blocks": 197,
+          "full_history_need_blocks": 2
+        },
+        "target_first_output_event": false
+      }
+    ],
+    "alternative_first_nonpreempted_step": 527,
+    "alternative_first_nonpreempted_status": "WAITING_FOR_REMOTE_KVS",
+    "commit_to_alternative_status_change_s": 0.22826440073549747
+  },
+  "limits": [
+    "The post-commit FCFS waiting head is the newly preempted victim in every numerical co-fit step; another fit waiter is behind it. In the step-515 trace this head needs 218 blocks while free is 215.",
+    "In 92/93 co-fit steps the original target is in skipped waiting during an asynchronous load at the next snapshot and commit metadata reports a load; all 93 report a store flush. The current target latch and queue order prevent treating numerical fit as native admission.",
+    "Snapshots do not record num_waiting_for_streaming_input, a direct native reservation R at these commits, complete transfer-job state, connector lookup, or allocation outcome for an additional waiter. Full slot/jobs/R/admission gates remain UNKNOWN.",
+    "Repeated steps and alternative instances are correlated observations from one seen-input diagnostic, not independent opportunities or a service-benefit estimate."
+  ],
+  "bounded_next_action_proposal_only": "After the Q1 original target's first output, choose at most one additional waiter with >=30 steps absence only if the actual _direct_resume_reason, known R=0, and no-jobs gates pass. Preserve original-target priority; keep Q10 protection and concurrent loading disabled. Native admission and full-cohort service require separate observation."
+}

@@ -1,0 +1,28 @@
+--- a/pkg/staged_store_rotation.py
++++ b/pkg/staged_store_rotation.py
+@@ -296,8 +296,24 @@
+                         if jid in cs._jobs]
+                 data['events'].append(event)
+             if phase=='direct_resume':
++                target_id=plan.target.request_id
++                direct_tokens=result.num_scheduled_tokens.get(target_id,0)
++                load_job_ids=[]
++                if direct_tokens>0:
++                    admission='SCHEDULED_TOKENS'
++                elif protected.status.name=='WAITING_FOR_REMOTE_KVS':
++                    load_job_ids=sorted(jid for jid,job in meta.load_jobs.items()
++                        if (job.req_id==target_id and jid in cs._jobs
++                            and cs._jobs[jid].req_id==target_id and not cs._jobs[jid].is_store))
++                    if not load_job_ids or not owned.get(target_id):
++                        raise RuntimeError('Direct async target lacks native load admission')
++                    admission='ASYNC_LOAD_ADMITTED'
++                else:
++                    raise RuntimeError('Direct target not admitted by native scheduler')
+                 data['direct_commits']+=1
+-                data['events'].append(dict(event='direct_commit',step=step,target=plan.target.request_id))
++                data['events'].append(dict(event='direct_commit',step=step,target=target_id,
++                    native_admission=admission,scheduled_tokens=direct_tokens,
++                    load_job_ids=load_job_ids))
+             if phase in ('commit','direct_resume'):plan=None;plan_request_refs=None
+             step+=1;data['status']='EXECUTING'
+             return result

@@ -1,0 +1,1 @@
+Fresh-input copy of candidate_native_current_guard_r01. Only three pkg/inputs files differ. Same policy, defaults, backend, token cap and arrival rule. New source rows54660..71070, not yet executed. Two opposite-order four-arm confirmation blocks are frozen separately.

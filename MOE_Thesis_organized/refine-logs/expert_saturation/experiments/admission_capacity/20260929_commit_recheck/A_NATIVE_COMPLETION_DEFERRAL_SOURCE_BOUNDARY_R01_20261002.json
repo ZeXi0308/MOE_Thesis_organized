@@ -1,0 +1,32 @@
+{
+  "status": "PRIOR_ART_BOUNDARY_NOT_NOVELTY_PROOF",
+  "checked_utc": "2026-10-01T21:35:04.492230+00:00",
+  "sources": [
+    {
+      "name": "CacheOPT v2",
+      "url": "https://arxiv.org/html/2503.13773v2#S3.SS3",
+      "sections": [
+        "3.3.2",
+        "3.3.3",
+        "3.4"
+      ],
+      "finding": "Already uses predicted near-completion release to fund KV needs, proactive allocation/shared reservation, and preemption ranking by SLO, predicted remaining tokens and KV occupancy.",
+      "candidate_difference": "Current candidate uses a known hard output cap plus currently owned physical slots and pauses one allocation-failed grower before native preemption while retaining the scheduled prefix. Difference is an executable qualification/action, not proof of independent novelty.",
+      "limit": "No full CacheOPT reproduction or claim that completion-aware capacity is new."
+    },
+    {
+      "name": "vLLM issue49674",
+      "url": "https://github.com/vllm-project/vllm/issues/49674",
+      "finding": "Documents preemption of still-fenced victims under overlapping in-flight batches with consumer KV connectors; its guard stops mutations until output processing advances the fence.",
+      "local_relation": "Our recorded engine args have async_scheduling=false and this is a single-GPU run. No evidence establishes the issue trigger in these traces. Do not attribute new results to repairing that asynchronous control-flow bug or weaken its fence."
+    },
+    {
+      "name": "UniBoost / Beyond Prediction",
+      "url": "https://www.microsoft.com/en-us/research/publication/beyond-prediction-tail-aware-scheduling-for-llm-inference/",
+      "preprint": "https://arxiv.org/pdf/2606.18431",
+      "finding": "Same previously considered UniBoost paper; distribution-driven priority and cache-aware preemption remain nearby prior art.",
+      "limit": "No new novelty decision from title/abstract."
+    }
+  ],
+  "next": "Run smallest native three-arm action/service pilot. Expand prior-art implementation comparisons only if actual useful actions and complete-service benefit survive the strong simple control."
+}

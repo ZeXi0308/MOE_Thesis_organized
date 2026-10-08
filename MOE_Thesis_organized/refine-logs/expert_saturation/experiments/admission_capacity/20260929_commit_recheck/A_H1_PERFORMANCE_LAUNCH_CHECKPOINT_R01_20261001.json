@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "status": "CPU_READY_REMOTE_SSH_REFUSED_GPU_UNRUN",
+  "time_utc": "2026-09-30T16:26:22.287346+00:00",
+  "qualified_original_gpu_session": "moe-a-h1-guard-qual-session-r02-20260930",
+  "qualification_audit_sha256": "7a3b323673ac7b42d666f758de2109ad21ed625df9957bed8cfd149a75437f08",
+  "files_sha256": {
+    "serial_group_h1_perf_pair_r01.py": "981556e51c410c77bd7bc7122c68cf7d6090ff81c1e147368c3b535f1ce74087",
+    "H1_PERF_PAIR_B1_PLAN_R01_20261001.json": "2cbf257b30202ac8cc5e8196c988b741805fb69e882d5eb45e69e1c3d0b0714f",
+    "H1_PERF_PAIR_B2_PLAN_R01_20261001.json": "51abe14ad552fb9efa2ebd305b6725e07d1999a8d3cc1b4e966db68dfd16a366",
+    "H1_PERFORMANCE_PAIRED_PROTOCOL_R01_20261001.json": "3a36ae6e42c33eacfd0623c0f3448641ebe5adf75e42e99890c070931662f8f5",
+    "A_H1_GUARD_QUALIFICATION_AUDIT_R02_20261001.json": "7a3b323673ac7b42d666f758de2109ad21ed625df9957bed8cfd149a75437f08",
+    "analyze_h1_performance_pair_r01.py": "dbc163015da6d1ea154e65d4b8ae86448a2b8582c51f428ad8e5ae47db1c596b"
+  },
+  "package_manifests_each": "4231a687db066f113fcc14676f91e8e5825be05b76ef0834112e053726aa13aa",
+  "payload_count_each": 25,
+  "cpu_checks": {
+    "controller": 4,
+    "analyzer": 5,
+    "guard_each_package": 4,
+    "result": "PASS_CPU_ONLY"
+  },
+  "local_staging_tar": "/private/tmp/moe-a-h1-perf-pairs-r01-20261001.tar.gz",
+  "staging_tar_bytes": 3423599,
+  "staging_tar_sha256": "7be9cd85d342da548cad37cd314ee8f9d65cafd76b79a0375b4153847a34a24d",
+  "staging_member_count": 63,
+  "remote_staging_root": "/root/autodl-tmp/moe-a-pkg-20260930",
+  "block_launch_argv": [
+    [
+      "/root/autodl-tmp/moe-a-runtime-20260930/venv/bin/python",
+      "-B",
+      "/root/autodl-tmp/moe-a-pkg-20260930/serial_group_h1_perf_pair_r01.py",
+      "/root/autodl-tmp/moe-a-pkg-20260930/H1_PERF_PAIR_B1_PLAN_R01_20261001.json",
+      "--expected-plan-sha256",
+      "2cbf257b30202ac8cc5e8196c988b741805fb69e882d5eb45e69e1c3d0b0714f"
+    ],
+    [
+      "/root/autodl-tmp/moe-a-runtime-20260930/venv/bin/python",
+      "-B",
+      "/root/autodl-tmp/moe-a-pkg-20260930/serial_group_h1_perf_pair_r01.py",
+      "/root/autodl-tmp/moe-a-pkg-20260930/H1_PERF_PAIR_B2_PLAN_R01_20261001.json",
+      "--expected-plan-sha256",
+      "51abe14ad552fb9efa2ebd305b6725e07d1999a8d3cc1b4e966db68dfd16a366"
+    ]
+  ],
+  "execution_constraints": [
+    "Recover valid SSH connection first. Current endpoint rejected TCP before authentication.",
+    "Read current GPU/lock identity/system disk state; each controller requires same GPU and inode and at least2GiB system disk free.",
+    "Upload/extract only new A bundle members without overwriting existing evidence or launch markers; verify frozen hashes.",
+    "Run controller validate-only before first execution on recovered host.",
+    "Launch only block1 as first shared-lock unit; do not automatically loop or launch block2.",
+    "After block1 independently archives/releases and root inspects complete outputs, execute predeclared block2 even if block1 unfavorable; runtime/audit failure stops extension.",
+    "Root analyzer is local; original performance raw archives must be returned and hash-verified."
+  ],
+  "new_gpu_jobs_started": 0,
+  "known_A_gpu_processes_from_last_completed_session": "EMPTY at H1 exit; current remote state UNKNOWN due refusal",
+  "pending_user_information": "Instance still running or replacement SSH host/port if changed; no numeric resource authorization question."
+}
