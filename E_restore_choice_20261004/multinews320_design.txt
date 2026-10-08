@@ -1,0 +1,33 @@
+E 唯一更高并发自然任务候选（2026-10-07）
+状态：CPU_FROZEN_GPU_UNRUN；NOT_QUEUED；CONDITIONAL_AFTER_SUMMARY256_EIGHT_ARM_RESULTS。
+这里只准备候选。原summary256的H/R/L/B/B/L/R/H完成后再判断是否推进，不提交或改动当前组，不扫描其他请求数/阈值/模型。
+
+候选与固定边界：320请求=64原短GSM8K+256完整MultiNews长请求，同OLMoE BF16、context4096、GPU auto0.9、Host32GiB、batch2048；本候选maxseq320，各策略臂配置必须相同。不限KV、不调整victim/队列/准入/服务量子/传输并发或分块。cap仍短256/长1024，temperature0、min_tokens0、ignore_eos=False、现有--natural及相同预热。maxseq320是本候选允许更多同时在途请求的配置变化，不把它隐藏成与旧256完全相同的资源配置；实际auto-profile KV池应在运行时重新读取，不能假定改maxseq后精确字节数不变。
+
+冻结文件：inputs_multinews320/pro6000_multinews_candidate_320.json
+SHA256=21c601c5aa8bda312ba3a4f10c88b8cc34bbecfbc2fb15f98daf2ac53f707995
+freeze_receipt.json在同目录。generator=prepare_multinews320.py，SHA256=b8a1d582ac29cf0d1656209251b8115c1fc0372a5748f46856766ea6f1dfaec8。
+
+原256个source_requests逐项保留为完全相同的前缀，包括prompt/token/gold、request identity、cap、arrival和salt；追加64个long，所有arrival仍0。长请求继续原27源循环的零基索引192（第193个长请求；192 mod27=3），所以首个追加源为32，不从0重新开始。新增身份E-multinews320-0256至0319，salts使用现有E-measured-/E-warm-索引规则。总长请求循环前13个源各10次、其余14源各9次；仍只27个news bundles、72种passage全文、91种prompt，不宣称256独立文章。未下载新数据、截断/拼接/补长prompt或自造gold；全部320重新编码一致，原文与gold均逐项校验，最大prompt+cap仍4064≤4096。
+
+为何只提出这一组：已完成MultiNews256的正常容量GPU KV峰值约87.32%、0 preemptions（来自该已完成组的既有结论，不重拟合当前八臂）。追加长请求并把maxseq同步提到320，检验固定batch2048/自然EOS下，更多真实长上下文在途许可是否越过容量竞争边界；不是为了显存利用率数字空跑。
+真实token几何，按每token131072B、每16-token块2MiB逐请求向上取整：
+                         prompt token总数   prompt块    prompt-only GiB    全部达到cap时GiB
+旧256                    578750             36295       70.888671875       96.888671875
+新增64个long             177212             11106       21.691406250       29.691406250
+新320                    755962             47401       92.580078125       126.580078125
+新增cap共65536 token，新320所有cap共278528 token。各短prompt仍661–768、各长prompt仍2534–3040；没有通过拉长文本制造压力。已完成256组resources.json记录36916个GPU块、77418463232B=72.1015625GiB（free36915块）；新320的假想共同驻留prompt需求92.58GiB高于这一旧池规模，且无需假定生成到cap才有这份需求增量，因此值得有界检验。
+这些数值只描述“如果全部共同驻留”的几何，绝不是实际峰值或抢占预测。prefill分块、完整序列容量保留、等待队列、自然EOS退休以及maxseq改变后的auto-profile池都可能使机制仍不触发；不能把87.32%按320/256线性放大成测量或触发保证。若仍无恢复，正常容量无机制结论继续保留；本文件不授权再追加一个参数候选。
+
+现有评分器的最薄待改处（本次未改evaluate_multinews_quality.py，现有CLI应拒绝320）：
+1. 第19–25、288–292、298行：新增一个显式的320冻结配置/路径/SHA选项，默认保留旧256；不要整体替换CANDIDATE，因为官方metrics/eval、selected sources、旧合约仍共享且hash不变。
+2. 第227行：将硬编码旧workload SHA改为所选冻结配置的SHA；第171行完整inputs==frozen、第177–178行runtime workload hash绑定必须保留。
+3. 第172–173、181–182行：总请求数从硬编码256改为已核验配置的320/len(frozen)，更新错误文本；同处明确核对320配置的max_num_seqs=320及其他已冻结资源。
+4. 第245行：长请求数从192改为该配置的256，保留实际Counter与冻结multiplicity精确相等，核对前13源10次/其余14源9次与27 bundles。
+5. 第211行取得source_requests后：320配置增加前256条与原冻结256完全相等、64 short+256 long、追加64均long且按原循环连续的校验。
+6. 第291–292行：原quality_contract.json不改；正式评分前需独立锁定“规模附录”并记录hash，将旧合约适用文字192/7或8次扩到256/9或10次。ROUGE公式、27-bundle宏平均、请求加权均值、完整continuation、cap/错误保留及异常无效规则不变；人工仍只source0/120/194、首Host选定最多6身份。当前无需更改aggregate或人工核验来源，也不能借规模扩展变评分口径。短题仍64及同gold；其入口暂无192/256长任务硬编码，但新组完成后仍须单独核对数据绑定。
+
+CPU再生成命令（不启动benchmark）：
+/private/tmp/moe-a-fresh-input-env-20261001/bin/python E_restore_choice_20261004/prepare_multinews320.py --tokenizers-extension /private/tmp/moe-a-fresh-input-env-20261001/lib/python3.13/site-packages/tokenizers/tokenizers.abi3.so
+只读父输入SHA=00fa8875af4fa3fde61d31dff503fda9216f98839ed57d9db58ac2480a1c30c6；原quality_contract SHA=65b6b3a4c52cb2bc0f6b29b5b43858db001f6ec47bc0de0a265166c25da7e101。
+未改上述父文件/合约、评分CLI或runtime；无远端/GPU访问、无排队动作。新输入本身包含全部prompt/token/gold，运行时无需另读原256文件；再生成所需源均在E目录内。

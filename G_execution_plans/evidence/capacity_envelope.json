@@ -1,0 +1,85 @@
+{
+  "status": "CONDITIONAL_LOGICAL_CAPACITY_CERTIFICATE",
+  "measured_service_performance": false,
+  "block_size_tokens": 16,
+  "kv_bytes_per_token": 131072,
+  "kv_bytes_per_logical_block": 2097152,
+  "assumptions": [
+    "fresh episode; only listed requests; one output sequence each",
+    "one full-attention KV group, BF16 TP1",
+    "prefix caching, speculation, KV connector and asynchronous scheduling disabled",
+    "lookahead=0 and watermark=0; no extra retained session or KV copies",
+    "prompt+max_output<=max_model_len; outputs never exceed max_tokens",
+    "one null block excluded from usable pool; finish/preempt frees request blocks"
+  ],
+  "scope": "Exact upper bound on simultaneous logical KV demand under stated semantics; NOT throughput upper bound or observed peak",
+  "workloads": {
+    "low": {
+      "input_sha256": "2d21626800668569d93833c95f3bb9fc15e5a2a36b0a1960cb7f9502d1c0fc83",
+      "requests": 12,
+      "total_declared_tokens": 33627,
+      "max_request_length": 3673,
+      "all_requests_max_blocks": 2107,
+      "all_requests_max_kv_gib": 4.115234375,
+      "min_sufficient_total_blocks_including_null": 2108,
+      "historical_usable_blocks": 36764,
+      "historical_margin_blocks": 34657,
+      "historical_margin_gib": 67.689453125,
+      "historical_status": "old D GPU/config; conditional comparison, not current plan measurement"
+    },
+    "high": {
+      "input_sha256": "c3c93ef5610cf16d801753e750eb5e8d3c937530e0f5b242571c9ab3dfe98865",
+      "requests": 160,
+      "total_declared_tokens": 549719,
+      "max_request_length": 4025,
+      "all_requests_max_blocks": 34430,
+      "all_requests_max_kv_gib": 67.24609375,
+      "min_sufficient_total_blocks_including_null": 34431,
+      "historical_usable_blocks": 36764,
+      "historical_margin_blocks": 2334,
+      "historical_margin_gib": 4.55859375,
+      "historical_status": "old D GPU/config; conditional comparison, not current plan measurement"
+    }
+  },
+  "startup_comparisons": [
+    {
+      "path": "G_execution_plans/evidence/review_20261008/compact.json",
+      "sha256": "fdb1097456cce561398de36a4d284e3d199c9aa26d1284e8e07fa8605b5db71f",
+      "plan": "compact",
+      "status": "STARTUP_COMPLETE_NO_SERVICE_RUN",
+      "startup_domain_verified": true,
+      "observed_domain": {
+        "num_lookahead_tokens": 0,
+        "watermark_blocks": 0,
+        "enable_prefix_caching": false,
+        "async_scheduling": false,
+        "has_kv_transfer_config": false,
+        "has_speculative_config": false,
+        "num_kv_cache_groups": 1,
+        "scheduler_block_size_tokens": 16,
+        "kv_cache_spec_types": [
+          "FullAttentionSpec"
+        ],
+        "model_type": "olmoe",
+        "scheduler_reserve_full_isl": true
+      },
+      "usable_blocks": 36827,
+      "coverage": {
+        "low": {
+          "margin_blocks": 34720,
+          "capacity_nonbinding_proven": true
+        },
+        "high": {
+          "margin_blocks": 2397,
+          "capacity_nonbinding_proven": true
+        }
+      }
+    },
+    {
+      "path": "G_execution_plans/evidence/review_20261008/dense.json",
+      "sha256": "505e279881d1de2a006776c181a9957ca5e987e138edf74e3a6462a18a122fd3",
+      "plan": "dense",
+      "status": "LOCK_BUSY_NO_GPU_INITIALIZED"
+    }
+  ]
+}

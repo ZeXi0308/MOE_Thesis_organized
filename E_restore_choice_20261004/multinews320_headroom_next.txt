@@ -1,0 +1,56 @@
+E：独立 MultiNews320 容量域八臂计划（2026-10-07）
+状态：CPU_PREPARATION_NOT_QUEUED；320 输入已冻结，实际 GPU 结果尚未产生。
+
+前提证据
+原 MultiNews256 六臂全部零恢复，正常 GPU KV 峰值87.319861%。新 summary256
+容量余量六臂已 VALIDATED_COMPLETE：G的706→H、719→R有真实动作差异，目标
+同56-token输出连续完成，但等待转移至E249，未建立全服务收益。同工作尾段
+时延漂移需要补有界旁观测，不用离线修正，也不继续拟合容量阈值。
+
+本计划替代尚未执行的 multinews320_next.txt 六臂执行顺序；旧文件作为准备历史
+保留，不将其计作已运行实验。唯一新组为 H/R/L/G/G/L/R/H，每臂320请求。
+H/R均在本卡重新运行；L仍为已知长度<=1792选R；G仍为同一长度门、全部背景
+支持且当前margin>=0选R，否则H。不改任何阈值、支持域、fallback或执行器。
+
+输入保持已有冻结文件，不重排、不改到达、不补长度、不强制输出：
+inputs_multinews320/pro6000_multinews_candidate_320.json
+SHA256 21c601c5aa8bda312ba3a4f10c88b8cc34bbecfbc2fb15f98daf2ac53f707995
+原256条是精确前缀，追加64条完整长新闻；64短+256长，arrival全部0。
+27个新闻组循环不是256个独立文档。短/长cap仍256/1024，自然EOS。
+
+固定资源及机制
+复用现成 OLMoE BF16、context4096、正常GPU0.9 profiling、Host32GiB、
+batch2048、max_num_seqs320。各臂同模型、输入、资源、预热和排空重置。
+重新记录本组实际KV pool，不强制复制旧72.1015625GiB，也不设人为小KV限额。
+固定victim、FCFS、优先级、服务量子、准入、传输并发/分块及原生容量检查。
+只比较合法恢复方式；两路径完整运行状态须实际可容纳。保留全部已付STORE。
+
+有界的唯一测量变更
+此前相同工作下慢尾段CPU时间同步增长，GPU时钟未降低。只在现有1Hz observer
+子进程中增加父进程CPU/上下文切换、可读取的频率与cgroup限流旁观测。
+所有臂等量启用，字段不可读取时明确记录；不调CPU/GPU频率、亲和性或优先级。
+observer源码和输入/运行器哈希必须在提交前冻结；不声称已隔离完整插桩开销。
+
+结果与停止边界
+记录全请求完成、所有生成停顿、选择到下一输出及后续进展、抢占/原生fallback、
+实际G支持域和动作、全部原生计算与传输、输出/停止状态、官方冻结质量分数。
+若正常容量仍零恢复，或全部恢复目标为长请求导致G与H相同，均如实报告；
+不改到达序列或限容来强迫G触发，不自动增加另一档规模/参数扫描。
+G与H等价、同策略漂移、质量下降或覆盖不足均不隐藏。无先跑双分支的在线oracle。
+
+分析验收
+analyze_headroom.py 显式 multinews320_headroom8 profile，要求提交前独立冻结
+source receipt、完整八臂顺序/请求数/资源配置/实际输入及源码绑定。
+若完全无合法事件，只能记 VALIDATED_NO_ELIGIBLE_EVENTS，机制未被检验，
+不能把没有状态快照解释为G成功。旧summary256六臂分析行为保持。
+质量使用 evaluate_multinews_quality.py --workload-profile multinews320，
+冻结的27组macro ROUGE-L、短题规则及规模附录不变；记录事实性限制。
+
+执行约束
+一份公共whole-group flock，仅一个E等待任务，最大等待1800s。
+本计划及source receipt完成CPU核验后方可提交；不能并行再启动校准或第二E组。
+运行中只读精简状态/PID/锁；全八臂COMPLETE、SSHexit0、控制/工作进程结束且
+锁释放后才归档和回读。等待超时保留实际失败记录，不复制等待者。
+
+拟命令（从远端E代码目录；本文件创建时未执行）：
+/root/miniconda3/bin/python run_group.py --name /tmp/moe-e-restore-choice-20261004/oct07_multinews320_r01 --gpu-uuid GPU-94203fc3-1021-3a9c-a367-cff792479616 --requests 320 --max-num-seqs 320 --workload inputs_multinews320/pro6000_multinews_candidate_320.json --arms host,recompute,length,headroom,headroom,length,recompute,host --threshold 1792 --timing-observer --wait-lock-seconds 1800

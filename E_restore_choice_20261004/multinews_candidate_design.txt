@@ -1,0 +1,17 @@
+E：唯一独立自然任务候选（CPU_FROZEN_GPU_UNRUN，2026-10-07）
+
+目的：将已有 3 篇无 gold 的文档 briefing 扩展到带官方参考摘要的 MultiNews 多新闻摘要，检验恢复动作在另一自然任务上的服务代价与质量边界。未提交 GPU，不改正在进行的 E223 或任何运行参数，不承诺新输入必有抢占/恢复。
+
+来源：E 已有 MultifieldQA 只有 QA 答案，无自然长摘要 gold；因此使用官方 LongBench 数据 revision 5e628be450b7e67fb7ae6e201bd6d8f7056f7672 的 data/multi_news.jsonl（200 records）。通过 3 个已核验 Content-Range 的请求只下载该 ZIP member 及目录/头，总网络 977,906 B，解压后 2,741,331 B，已核验 member CRC32；未下载/验证完整 archive 的 SHA。原始 member SHA256=f8817c00af317c2d7f81128f334bcfe5780c6c2a515d5c96811aa0ddf8b5ee6b。来源 URL、revision、分段与原始数据 hash 均在 inputs_multinews_candidate/sources/source_receipt.json；原文和 answers 原样保存，无自造 gold。
+
+固定筛选：采用官方 multi_news 的 one-page summary 模板及当前模型 chat wrapper。完整 prompt 2500–3072 token，非空参考摘要均 ≤1024 token；3072 上限由原生 4096−原 cap1024 决定。在看任何生成结果前固定规则。200 条中 27 条符合（115 条过短、58 条过长）；prompt 2534–3040，ref 106–471。27 个不同完整 news bundles 含 73 段原始 passages、72 个不同 passage 文本；不等于 72 个统计独立故事。保留基准自带全部 passages/标记，无截断、额外拼接、补长。cpu_geometry.json 保存全 200 条计数及选中索引。
+
+唯一冻结输入：inputs_multinews_candidate/pro6000_multinews_candidate_256.json，SHA256=00fa8875af4fa3fde61d31dff503fda9216f98839ed57d9db58ac2480a1c30c6。保留原 64 短 GSM8K prompt/256 cap；192 长请求按选中源索引升序循环，前 3 组各 8 次、其余 24 组各 7 次。均为独立 request identity/salt，192 不是独立文档数。到达全部 0 秒、每 1 短后接 3 长、原 FCFS/victim/队列/量子/准入均不变；OLMoE BF16、GPU auto0.9、Host32GiB、maxseq256、batch2048、context4096。长 cap1024，min_tokens0、ignore_eos=False、temperature0；需现有 --natural，预热方式不改。256 条均重新编码一致，最大 prompt+cap=4064。假定全部共同驻留时 prompt-only KV 70.889 GiB、全部触顶 96.889 GiB，仅为静态上界，不是实际峰值或触发保证。自然参考平均约302 token，也不代表模型未来输出长度；若快速退休导致无恢复，如实报告，不强制长度/缩容量。
+
+质量口径已在 quality_contract.json 冻结：采用官方 LongBench ROUGE-L F1，每输出对 answers 取最大值，保留整段 continuation；先按 27 个 bundle 对其重复请求取均值，再等权宏平均，另报 192 请求加权均值。cap、EOS/stop、空输出、错误、输出长度单列，cap 输出保留在主分数中。原 GSM8K 规则单独报告。固定人工核验源 0/120/194，每源首请求及首个相反 stop/length 类型（若存在），最多 6 个身份、跨臂配对核验忠实/覆盖/重复/截断。ROUGE 不认证忠实度，重复请求不扩大独立样本数。官方 prompt/metrics/eval 固定于 repo commit 2e00731f8d0bff23dc4325161044d0ed8af94c1e 并留 hash；本地 rouge 依赖缺失，未安装，尚未执行评分。后续实际评分须核验官方实现依赖版本；当前没有质量或性能结果。
+
+边界：gold/ref长度仅用于离线筛选及质量评估，不给模型/在线 selector；不沿用旧 E249/E223 的事件 spec。若将来执行干预，需在新 workload 的真实合法事件上另行冻结身份/历史状态。当前只准备输入，不提交或安排任何 GPU 组。
+
+本地确定性再生成（复用已有 tokenizers 0.23.2，无新环境）：
+/private/tmp/moe-a-fresh-input-env-20261001/bin/python E_restore_choice_20261004/prepare_multinews_candidate.py --tokenizers-extension /private/tmp/moe-a-fresh-input-env-20261001/lib/python3.13/site-packages/tokenizers/tokenizers.abi3.so
+generator SHA256=c95046aee0494bc229243ccd368022454e85bcbae73688dfa5eabe2584a4384a；不覆盖不同冻结文件，不 import torch/CUDA，不远端访问。

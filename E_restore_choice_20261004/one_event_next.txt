@@ -1,0 +1,47 @@
+E 单事件干预预冻结（已提交候锁；尚无 GPU 结果；2026-10-07）
+
+问题：整个episode改恢复方式会改变后续批次与输出轨迹。下一唯一改动只比较
+同一冻结请求状态的一次合法恢复动作；之后所有恢复仍沿原生Host及其fallback。
+它是受控单事件诊断，不是在线自适应策略收益或质量保持的证明。
+
+目标来自自然summary首Host正式臂：最早eligible且已经输出的long，event55，
+external_id=measured/E249，num_preemptions=1，known_tokens=3128，generated=76。
+prefix_sha256=1eac778ac08a163340424a605cc405df2d3679144169a0930317e4297473056d。
+冻结spec：one_event_target_spec.json；SHA256：
+ac6946ba581636e508ab7d2936d71163b2fb165d514fabc91a9dcc7d52e692dd。
+已从prompt+决策前已生成76个token复核hash；原始raw/inputs/源码来源hash保留。
+Hosthit3056仅来源观测；在线不要求它等于3056或覆盖完整已知历史。
+
+实现与判定
+新增可选--target-spec PATH。无spec维持原full-policy Host/Recompute/length行为。
+有spec仅允许Host/Recompute两臂。显式绑定engine返回的internal ID与external ID，
+不用随机后缀猜身份。目标身份、抢占序号、当前known/generated数量、当前prefix
+hash全部匹配，且native Host hit为正、完整joint GPU容量可用时才选中该目标。
+Host臂保持Host；Recompute臂只在这个目标选择原生重算。只有成功alloc callback
+才递增target_commit_count，每个episode最多1；未alloc的lookup不耗次数。
+之后相同目标/其他请求沿nativeHost。warm selector.enabled=False不干预，clear
+重置次数和身份表。未就绪/容量不足/失配走相同原生fallback，不制造恢复机会。
+日志保留configured policy、effective policy/action、目标匹配/失配与commit；
+raw和cell status记录target_reached/count/result/mismatch原因，源码hash含spec。
+TARGET_NOT_REACHED仍可正常完成服务，但target_comparison_eligible=false，不能
+把没有发生干预的服务差异算为一次动作收益。先核对各臂目标是否恰好成功1次。
+
+下一组固定R→H→H→R，仍用同一自然summary256冻结输入（SHA8346ad251266…），
+正常auto0.9容量、Host32GiB、maxseq256、batch2048、OLMoE BF16；不改victim/
+排序/服务量子/准入/传输并发。测量自然EOS，共同预热沿现有规则并分别reset。
+所有臂保留现有timing observer；整组持公共锁串行。组运行期间只允许读取小型status/锁状态，不读大型日志/raw、
+不tar/scp回传、不启动其他GPU分析/计时进程；确认退出释放GPU后再统一取回。
+保留全服务成本、已支付STORE、其他请求完成/停顿及质量局限；不相加重叠时间。
+
+实际提交命令（controller21922 / SSHexec7501，WAITING_FOR_LOCK）：在远端E根目录
+/root/miniconda3/bin/python run_group.py --name oct07_one_event_r01 \
+  --gpu-uuid GPU-94203fc3-1021-3a9c-a367-cff792479616 \
+  --arms recompute,host,host,recompute --requests 256 \
+  --workload inputs_natural_summary256/pro6000_natural_summary_256.json \
+  --target-spec one_event_target_spec.json --host-gib 32 --max-num-seqs 256 \
+  --batch-tokens 2048 --max-seconds 600 --timing-observer --wait-lock-seconds 1800
+
+CPU检查：python3 check_one_event.py；one_event_cpu_check.json记录代码/spec SHA。
+已通过默认策略不变、一次commit限制、未alloc重试、再次目标/其他请求Host、
+Host控制命中、失配/不就绪/容量fallback、warm禁用及clear重置；CLI和语法检查通过。
+这是mock门控检查，不是原生GPU分配、输出正确性、质量或性能的实证。

@@ -1,0 +1,47 @@
+E summary256：已有64条短GSM8K的限定正确性核验（2026-10-07；纯本地）
+
+结论：四臂在下述固定末尾数值规则下均为26/64=40.625%，且正确样本集合
+相同；不能据此宣称总体质量保持或等价。Host有1条length截断，Recompute
+有3条；5条短输出的token序列发生变化，其中3条最后数值改变但仍全部错误。
+
+答案与解码证据
+范围仅oct07_summary_r01中64条短请求，external E000,E004,…,E252，GSM8K
+test原始source_index128…191；没有增加样本、补标签、联网或访问远端。
+E自有sources/gsm8k_test_selected.json的64条原始answer末尾####均有答案，
+逐条与冻结reference_answer/gold及四臂输入核对一致。四臂inputs相同。
+本地原有tokenizers原生扩展可直接加载，版本0.23.2，路径：
+/private/tmp/moe-a-fresh-input-env-20261001/lib/python3.13/site-packages/tokenizers/tokenizers.abi3.so
+仅复用通用解码依赖，未读其他会话数据/结果，未安装包或实现新解码器。
+用E的tokenizer.json解码；评分前已将既有summary256_quality_decoded.json
+中6个样本及1个跨臂版本的同token文本逐字比较，7/7完全一致。
+
+预先固定的抽取与计分规则
+取生成文本最后一个带可选正负号的整数/小数，删除千分位逗号，以Decimal
+与原始answer最后####之后的数值精确比较。不做百分数/币种换算、不评价推理。
+主统计“自然stop且数值相符”，64条均在分母；length一律另列截断，不能
+将截断过程中的中间数值当成合格最终回答。另保留不考虑stop的数值匹配作
+诊断。无数字即不可解析；显式answer标记只审计、不用于调参或改变评分。
+规则在第一次计算正确率前已固定；JSON保存regex、原始提取值、规范化值、
+参考gold、数值位置、token IDs、文本、结束状态与所有输入/原始结果SHA。
+
+臂                   stop且相符/64   纯数值相符  无可解析数值  length  自然stop
+00_host               26 (40.625%)       26           0          1       63
+01_recompute          26 (40.625%)       26           0          3       61
+02_recompute          26 (40.625%)       26           0          3       61
+03_host               26 (40.625%)       26           0          1       63
+Host截断：E136；Recompute截断：E136、E224、E240（均256输出token）。
+缺少显式answer标记：Host 1条、Recompute 4条；后者含自然stop的E188，
+但它有自然语言末尾答案“75”，故不能把缺少标记直接算作不可解析。
+
+不同短输出的证据（首Host→首Recompute；两次同策略均相同）
+E188 / source175：gold15，预测75→75；均错，均stop。
+E208 / source180：gold20，预测20→20；均对，均stop。
+E224 / source184：gold25，预测17→3；均错，stop→length。
+E232 / source186：gold5，预测8→9；均错，均stop。
+E240 / source188：gold50，预测10→2；均错，stop→length。
+
+解释边界：自然stop也可能没有明确最终答案或最后数值只是推导片段。本报告
+只给出固定抽取规则下的数值正确性，不是人工质量认证、独立泛化实验、长摘要
+质量结论或两种恢复方式的因果质量比较。01_recompute的既有回传I/O计时混杂
+不参与本评分；这里也不据此支持性能结论。未修改实验脚本、输入或论文。
+逐请求证据：summary256_short_quality.json。

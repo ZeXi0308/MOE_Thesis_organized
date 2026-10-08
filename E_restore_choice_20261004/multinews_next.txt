@@ -1,0 +1,45 @@
+Session E: next independent natural-task comparison, frozen 2026-10-07.
+
+Question: do native recovery choices change complete service cost and reference
+summary quality on 27 distinct source bundles, and does a simple length rule
+already explain any useful difference? This is not a state-aware policy claim.
+
+The preceding E223 intervention improved its next-output delay by about 0.86 s
+but delayed E227 by about 0.80 s through another preemption. Thus a waiting-count
+rule inferred from that target alone is not justified. No adaptive formula is
+introduced from two events whose prefix lengths and Host coverage also differ.
+
+Only frozen candidate inputs_multinews_candidate/pro6000_multinews_candidate_256.json
+SHA256 00fa8875af4fa3fde61d31dff503fda9216f98839ed57d9db58ac2480a1c30c6.
+64 unchanged short tasks + 192 summaries from 27 complete news bundles. Natural
+EOS, long cap1024, short cap256. Repetition does not create independent documents.
+If normal capacity yields zero legal choices, retain that result without limiting
+capacity or forcing longer generation. No E249/E223 identity target in this group.
+
+Arms: host,recompute,length,length,recompute,host in one engine with the same
+native Host warmup and drained reset before each arm. Existing selector/runtime
+unchanged. Length threshold=1792: Recompute when current known tokens<=1792,
+otherwise Host, subject to identical positive-ready-Host and full-capacity checks.
+1792=2048 token quantum minus the configured maximum256 one-token decoders.
+This is a predeclared simple static baseline, not a fitted hardware cost crossover
+or a guarantee that concurrent prefills leave this much budget. No timing/label
+from this new workload is used to set the threshold; no threshold sweep.
+
+Resources unchanged: existing OLMoE BF16, native GPU0.9 profiling, Host32GiB pinned,
+maxseq256, batch2048, greedy, APC off, native context4096. Exact same external
+arrivals (all0), victim, FCFS priority, service quantum, admission, copy concurrency
+and chunking in every arm. Common whole-group flock; output stays under/tmp due
+to scarce space on the model data volume. No readback until all six arms exit,
+controller and worker disappear, and the GPU lock is released.
+
+Outcomes: all-request completion and generation gaps, committed choices/fallbacks,
+decision-to-next-output including later re-preemption, actual native work and
+STORE/LOAD, per-request outputs and cap/EOS. Never subtract sunk STORE or sum
+overlapping times into wall clock. Analyze reverse pairs and same-policy drift.
+Quality uses frozen quality_contract.json and executable evaluate_multinews_quality.py;
+official-reference ROUGE-L macro mean over27 bundles, caps and invalid scores
+explicit, fixed limited manual review. Short task score via evaluate_short_quality.py.
+Output differences preclude equal-work speedup claims; ROUGE is not factuality.
+
+Command from the remote E code root:
+/root/miniconda3/bin/python run_group.py --name /tmp/moe-e-restore-choice-20261004/oct07_multinews_r01 --gpu-uuid GPU-94203fc3-1021-3a9c-a367-cff792479616 --requests 256 --workload inputs_multinews_candidate/pro6000_multinews_candidate_256.json --arms host,recompute,length,length,recompute,host --threshold 1792 --timing-observer --wait-lock-seconds 1800

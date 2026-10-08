@@ -1,0 +1,63 @@
+E / PRO 6000 normal-capacity experiment amendment, 2026-10-04
+
+This supersedes the initial, GPU-UNRUN 16-request/1GiB plan. The original is
+retained as experiment_initial_unrun.txt, not a main configuration or evidence.
+
+Fixed runtime: same existing resident OLMoE BF16 model and vLLM 0.26.0, native
+Host offloading and recomputation, FCFS, native victim, no APC/speculation,
+max_model_len4096, max_num_seqs256, max_num_batched_tokens2048. Native GPU memory
+profiling uses gpu_memory_utilization=0.9 with no explicit KV byte limit.
+Actual GPU allocation, not an old 5090 budget, is logged and stays identical
+within each same-engine group. Pinned Host KV is32GiB; actual bytes and pinning
+are verified and cgroup memory.current/events are retained.
+
+Frozen workloads, no parameter grid:
+64 requests: low; 192 requests: near-capacity candidate; 256 requests: high.
+Each quartet contains1 short GSM8K prompt and3 complete long-document QA prompts.
+Short output cap256; long cap512. All arrivals are0 in each burst. The17 complete
+long QA examples are repeated under distinct request IDs; this is a repeated
+natural-input capacity probe, not an independent natural-task validation set.
+Prompts are not truncated/padded, and all known context plus output cap<=4096.
+Full-capacity upper-bound estimates22.35/67.23/89.66GiB only guide these three
+choices: retirement and natural EOS can make actual occupancy much lower.
+
+Main measured episodes respect natural EOS. A normal-capacity outcome with no
+preemption/recovery is valid, and must be reported as mechanism inactive.
+Only explicitly labeled diagnostics may force output length or limit KV bytes.
+Such results cannot be substituted for useful effects under normal conditions.
+
+First groups: low Host/Recompute; near Host/Recompute; high Host/Recompute/
+Recompute/Host. Each group is one bounded process with one engine, one selector,
+identical actual allocations and identical warmup/reset before every arm.
+Common warmup runs this group's same inputs to output caps under native Host,
+with selector disabled, to cover batch shapes. Its forced-length outputs are
+not measured task outcomes. All Host/GPU KV and connector state are drained and
+reset before measurement. Preemption/queue/quantum/admission/transfer concurrency
+and chunking are never arm knobs. Only positive ready Host hits on preempted
+requests with complete-state GPU capacity enter the binary action set.
+
+Statistics remain full-service: every external arrival/admission/token/completion,
+selection-to-next-output, all generation gaps, repeated scheduled positions,
+actual STORE/LOAD bytes and CUDA event durations, attempts/commits/fallbacks.
+Already paid STORE stays in end-to-end cost and is not a recompute saving.
+CUDA event durations are not summed into wall-clock latency. Cross-arm natural
+output differences are reported, never silently normalized into equal-work speedup.
+
+One shared whole-group nonblocking flock at
+/root/autodl-tmp/moe-research-gpu.lock; exact GPU UUID and foreign-process checks
+at entry, before each warmup/measurement, and after measurement. Empty GPU must
+be confirmed; no concurrent performance process, interactive command loop or
+background waiter. Engine shutdown precedes lock release. Analysis and paper
+writing occur locally after release. Each profile is a separate bounded group.
+
+The current-state signal remains diagnostic only. Pending native LOAD count is
+a plausible first signal because same-direction native transfers are serialized.
+No state-dependent rule or inherited length/cost threshold is used before actual
+PRO6000 comparisons show an exploitable residual beyond a fixed/length baseline.
+
+2026-10-07 operational amendment: the optional --wait-lock-seconds permits
+one bounded kernel-flock waiter per submitted E group before model loading;
+there is no polling/automatic requeue/command loop. The normal QA groups are
+now complete. One follow-up natural-summary group is frozen in
+natural_pressure_next.txt, with identical passive timing observations in all
+arms. Old groups retain their original sources and raw data.

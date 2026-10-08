@@ -1,0 +1,91 @@
+E near192 零动作时延漂移诊断（2026-10-07）
+数据：execution/oct07_near_r02/00_same_engine，顺序 Host → recompute。
+只读 E 自有 raw/warmup/日志/GPU/内存快照；独立复算，不修改代码或原始数据，不运行 GPU。
+
+结论
+第二臂 makespan 多 6.220755 s（+31.8226%），但两臂没有任何抢占或恢复选择。
+全部实际调度工作和输出逐步匹配；差异主要来自一段持续变慢、随后突然恢复的 engine.step 执行，不能归因于恢复策略。
+现有记录能定位漂移所在区间，不能确定 GPU 降频、CPU/系统争用或其他执行层因素中哪一个是根因。
+这组零动作漂移必须作为未来所有时延收益结论的限制；不得据此宣传 Host 更优或重算更差。
+
+独立原始数据复核
+两臂各完成 192/192 请求，全部固定外部 arrival_s=0；实际生成各 28,648 tokens。
+按 external_id 比较，192/192 输出 token 序列完全一致，输出 cap 和 finish/stop 元数据一致。
+两臂 preemptions/decisions/commits/eligible 均为 0，合法恢复实证域为空。
+均为 native_profile_0.9，实际 GPU KV 36,916 blocks / 72.1015625 GiB；GPU 最小观测 free=21,024。
+峰值 used=15,892/36,916=43.0491%（含初始常占 1 block）；Host 峰值=16,384/16,384 blocks=32 GiB。
+step 边界 running/waiting 峰值为 99/190。容量为实际采样占用，不是输出 cap 推算需求或完整 allocator 高水位。
+
+服务指标                            Host              recompute
+makespan (s)                        19.548213         25.768968
+mean completion (s)                  9.966422         11.159741
+p95 completion (s)                  17.783214         23.528987
+p99 token gap (ms)                  48.592003         58.164919
+全部 token gap 之和 (s)            969.076125       1213.394578
+服务及 drain 结束 (s)               19.548289         25.769083
+completion 均从外部 arrival 起算；gap 不含 TTFT，其跨请求总和不是墙钟。
+
+调度完全相同的范围
+将内部 request_id 替换成对应 external_id，删除时间戳后，全部 728 步按原列表顺序完全相同：
+每步 scheduled request 顺序、count、start_computed、end_computed、known_tokens、generated_tokens，以及 free_blocks_after_schedule。
+两臂均实际 scheduled 491,770 native tokens；标准化上述 trace 的 JSON SHA256 均为：
+241b8460a779b46c6266eb49cf0073e931e5e41951014c30cf6d12121f120277
+另外，step 的 running/waiting/free_blocks/pending_load_jobs/host_resident_blocks 五项也逐步完全相同。
+STORE 每批报告的 bytes 和 sizes 序列完全相同；因此不是相同总量下偷偷换了调度次序或批量。
+
+时间差集中位置（step 为从 0 开始，下列区间右端不包含）
+step 区间       Host step总时长(s)   recompute(s)    后者减前者(s)
+  0–100              3.876791          3.686328          -0.190463
+100–234              5.850382          6.809486          +0.959104
+234–350              3.428368          4.414508          +0.986141
+350–600              4.375437          8.609553          +4.234116
+600–650              0.641230          0.893839          +0.252609
+650–728              0.970438          0.966182          -0.004256
+最后含 prompt prefill 的 step 为 233；主要差异在后续 decode，350–599 单段贡献约 68% 总墙钟差。
+617/728 步第二臂更慢。两臂 step 中位数为 23.897/35.799 ms，p95 为 46.320/53.771 ms，最大仅 51.732/59.852 ms。
+这是许多慢步的累计，不是一个数秒尖峰。
+
+最明显的恢复点：第二臂 step612=34.348 ms，step613=13.341 ms，step614=12.668 ms；
+Host 对应为 12.729/12.742/12.588 ms。这三步都调度同样 9 请求、9 tokens，已完成请求数都为 183。
+因此该速度突变不能用这个边界上的 batch 大小下降解释。第二臂 step613 开始时相对测量起点约 24.3265 s。
+
+engine.step 内外分解（这不是 GPU 计算时间分解）
+两臂 step 总和为 19.142647/25.379897 s，差 +6.237251 s。
+step start 到 schedule 后 trace 时间戳：0.637709/1.318599 s，差 +0.680890 s。
+trace 到 step end：18.504937/24.061298 s，差 +5.556361 s。
+all_complete_s 减 step 总和：0.405600/0.389098 s，差 -0.016502 s。
+故漂移几乎都在 engine.step 内，约 89% 的 step 时间差在 schedule trace 之后；该区间仍混有主机派发、GPU 执行/等待和输出处理，不能称为已测 GPU 计算膨胀。
+
+真实传输成本
+两臂 STORE 各 64,292,388,864 bytes=59.876953 GiB，各 2,214 个已报告传输；LOAD 均为 0。
+STORE CUDA-event 时间和为 1.264007/1.302383 s，仅相差 0.038376 s。
+这些事件时间没有呈现数秒级增量，但它们不是传输暴露等待或关键路径测量，不能凭此完全排除 STORE 排队/重叠变化。
+已支付 STORE 全部保留；传输事件时间不能与计算或墙钟直接相加减。
+
+预热与 JIT 证据
+每臂测量前都执行相同 fixed-output 预热：192 请求、86,016 输出 tokens、749 steps；两次预热标准化调度完全相同。
+预热 all_complete_s 为 44.575498/40.599651 s；第一臂预热较慢，最大 step=1.372117 s，第二臂最大=0.124822 s。
+日志唯一可见 fused_moe_kernel JIT warning 在 16:16:20，处于第一臂预热：before_warmup=16:16:08.084，before_measurement=16:16:54.078。
+第二臂 before_measurement=16:17:56.142。测量阶段没有新的可见 JIT warning，也没有相应数秒单步尖峰。
+这些证据支持预热阶段吸收了至少一次已记录编译事件，不能证明捕获了所有潜在 JIT；也不能解释为何第二次测量持续慢而第二次预热更快。
+两臂 warmup_reset 均成功、free blocks=36,915、pending jobs/requests=0。torch.compile/CUDA graphs 均由 eager 设置禁用。
+
+GPU 端点旁证（温度 / 功率 / SM 时钟）
+Host before_warmup：42°C / 93.03 W / 2340 MHz；before_measurement：48°C / 90.77 W / 2430 MHz；after：51°C / 141.56 W / 2422 MHz。
+recompute before_warmup：51°C / 129.02 W / 2430 MHz；before_measurement：52°C / 95.25 W / 2430 MHz；after：51°C / 146.07 W / 2422 MHz。
+六份快照均为 GPU-94203fc3-1021-3a9c-a367-cff792479616，显存 88,303 MiB，compute_pids=[10884] 等于 allowed_pid。
+第二臂起点温度高 4°C，但两臂测量前后时钟分别相同；GPU 快照只能证明这些端点没有其他可见 compute PID，不能证明全程没有 CPU/时钟变化、短时降频、功率限制或其他进程干扰。
+
+Host 内存/cgroup 旁证
+memory.max 始终 120 GiB；memory.current 在 before/after_init/Host after/recompute after 分别为 2.943/36.177/36.558/36.687 GiB。
+memory.events 的 low/high/max/oom/oom_kill 四个快照始终全 0；无 cgroup 容量触发或 OOM 记录。
+整机 MemAvailable 分别 740.550/707.149/710.339/708.783 GiB；SwapTotal/SwapFree/SwapCached 均为 0。
+数据不支持以 Host 容量上限或交换解释此漂移；cgroup 累计计数没有记录该组期间的限额/OOM 事件，不能据此排除 CPU 争用或调度等待。端点 after 覆盖相应预热等阶段，不能当作测量期净分配或峰值；整机 meminfo 变化不能归于本进程。
+现有数据缺少逐步 CPU/GPU 运行与争用证据，无法判定剩余根因；不得用猜测补成机制解释。
+
+对后续证据的限制
+本组是零恢复动作却出现 31.8% 墙钟漂移的实测反例，证明一次顺序 A/B 的时间差不足以支持策略因果收益。
+任何将来时延 claim 都需保留真实合法恢复事件、工作与输出核对、顺序重复及这类运行内漂移的限制；未识别的时间差不能包装成选择器收益。
+
+唯一下一诊断建议
+先利用已经排队且未改代码的 high256 ABBA 看同工作漂移是否复现；只有再次出现时，才增加最小连续 GPU/CPU 时间旁观测，以区分执行速度变化和 Host 墙钟等待。现在不改代码、不加微基准、不扩展根因猜测。

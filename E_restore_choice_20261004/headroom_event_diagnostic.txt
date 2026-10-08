@@ -1,0 +1,151 @@
+E Headroom6：E252 事件与相邻请求机制诊断
+2026-10-07；仅本地 CPU，真实完成数据；不含新 GPU 实验或事后动作择优。
+
+来源与口径
+组：execution/oct07_headroom_r01/00_same_engine，正式顺序 H/L/G/G/L/H；
+L 为 known<=1792 时重算；G 在同一长度门内还要求记录的一轮容量 margin>=0。
+复用已生成 headroom_summary.json（VALIDATED_COMPLETE，六臂无 schema 错误）及
+原始 raw.json 精查。step 在本文均指 formal episode 的 0-based step，按 decision_s、
+steps 时间区间和 scheduler_steps.time_s 对齐；不是含 warmup 的 scheduler_step 全局号。
+输出索引均为 0-based。时间从正式 episode 起点计；后继 gap 保留后续 native fallback。
+固定 victim/FCFS/准入/量子/传输机制没有修改。这里是完整策略轨迹比较，非另一个预先
+随机化的单事件试验；相同前史支持定位首次执行分叉，不证明不可观测状态相同。
+
+1. 实际动作和记录的支持域
+每臂 256 请求完成。H 两次均 14 eligible commits=14H；L 两次均 7=6H1R；
+G 两次均 9=8H1R。G 九次都在 supported 域，reason 为七次 length_above_threshold、
+一次 negative_margin、一次 nonnegative_margin。G 没有 unsupported 分支执行样本。
+H 每次另有 3 个 eligible 但 background unsupported（not_one_token_ready），margin=None；
+它们仍是 joint-eligible，不是 native fallback。L 七次均 supported。
+全部实际 commits（含非 eligible 的原生 Host-miss 重算）：H 14H22R，L 6H29R，
+G 8H26R；Host-miss fallback 分别 22/28/25；实际 preempt 分别 36/35/34。
+已检查的 supported-background 原生行按一 token 分配，serialized scope/margin 算术通过。
+这些记录不单独证明物理 KV、logit 等价，也不把未序列化的静态断言当离线观测。
+
+G 的两个短 E252 决策（两次重复完全相同的结构）如下：
+local step event known generated Host-hit free required reserved watermark background target margin G
+357        37    706   35        656      52   45       0        0         10         0      -3    H
+378        56    719   48        704      91   45       5        0         10         0      31    R
+margin=free-required-reserved-watermark-background-target。
+第一个点全容量后剩 7 块，记录的无 EOS 一轮背景增长为 10；第二个点剩 41 块，背景 10。
+这不是未来绝不抢占保证：后继 waiting 请求、未来 EOS、异步尾部等仍可改变资源。
+
+2. 干预前历史是否真的相同
+首短点 E252 known706/generated35：六臂各只有一次匹配 lookup/commit，都是 event37、
+step357、preempt ordinal1。用输入的 671 token 加该时点已产生的前 35 token 独立重建，
+SHA256=d18b7b26b0f72840dfaa251282e0f07113f53c4caf8386d9d8d12b402206b49b，
+与冻结 short spec 相同；决策前确实已有 35 个输出。六臂 15 对在 step0–356 的规范化
+原生 schedule、step 输出、所有请求已生成历史、既有 commits/preempts 全部相同。
+
+第二点 E252 known719/generated48：H0/G2/G3/H5 各一次 event56/step378/preempt2；
+输入加前 48 个已生成 token 的 SHA256=
+74174ad5df3f452e2ef3a4405e8f03d0fd8c7a564d02cc7908de0cf8920adc97。
+这四臂 6 对在 step0–377 的上述五类前史全部一致。目标之前同一步的 E249 Host lookup
+也一致：known3128/generated76、hit3056；目标自己的 free91/reserved5/hit704 等一致。
+L 两臂已在 step357 分叉，不到达同一个 719 eligible 点；不能把 L706 与 G719 当同状态对照。
+
+规范化用 raw.requests 的内部 ID→外部 ID 映射，保留原生 batch 顺序、count、
+start/end_computed、known/generated 和 free_blocks_after_schedule，去掉墙钟/全局计数。
+重复内完整规范化 schedule、逐步输出和最终 256 个输出序列分别精确一致：
+H 1993 steps；L 2024；G 2005。H/G 在 step378 首次分叉；L/G 在 step357 首次分叉。
+
+3. 第一个真实输出、后续 gap 和 E252 完成
+下面 choice→output 是 commit 所在决策到下一严格输出；following gap 是这个输出到
+再下一个输出，不能代替完整停顿分析。E252 六臂最终均 natural stop、56 个输出 token，
+整序列 SHA256=f0750f3f3ae034eea5eb547137cc1f8ed91c83815b135a7d040637bfbf169487。
+
+arm          706 action/next_ms  following_gap_ms   719 action/next_ms  following_gap_ms  completion_s max_gap_s
+00_host      H 277.778           69.201             H 137.893           69.193            69.758075    47.612959
+01_length    R  82.230        50339.746             —                   —                 75.473890    50.339746
+02_headroom  H 276.822           71.748             R  72.657           70.194            22.408960     0.489257
+03_headroom  H 323.649           82.575             R  84.210           84.733            26.771268     0.578213
+04_length    R  72.393        54815.695             —                   —                 76.884246    54.815695
+05_host      H 379.430           77.856             H 145.977           73.602            68.111036    42.057116
+
+L 的 706 重算确实先给出输出 #35，但紧接 step358 以 known707/generated36 再被抢占；
+直到 step994 的 Host-miss 原生重算才恢复。50.34/54.82 秒 gap 包括此真实后续等待与重算。
+H/G 的 706 Host 路径先 LOAD 41 块=82 MiB，然后等到计算尾部的机会；两者都经历
+step373 的第二次抢占，因此不能说 G 的负 margin Host 选择保证请求持续存活。
+
+719 点 G 直接重算，在 step378 产生 #48，随后每步连续输出至 step385 完成；
+H 在 step379 产生 #48，380/#49、381/#50 后于 step382 再次被抢占，#51 要等 step960。
+H 的 step959 event597 为 known722/generated51 的 Host-miss native recompute。
+G 的 719 decision→全部完成为 561.199/663.567 ms；H 为 48.285322/42.701743 s。
+因此 719 点的第一、第二输出 gap 还看不出 H 后面的长等待；完整历史才显示差别。
+
+4. 原生块、running 顺序和 peer 机会：719 的代价去哪里
+以下结构在各自重复内相同；free 是分配完成后的原生采样，不是连续 allocator 高水位。
+
+step  H 原生工作 / free                       G 原生工作 / free
+378   192 decode；E249/E252 尚在 LOAD /47     192 decode+E252[0,719)，共911 token/46
+379   192 decode+E249尾72+E252尾15=279 /31    192 decode+E252 decode1+E249尾72=265 /31
+380   194 decode /20                         194 decode /19
+381   194 decode /5                          194 decode /5
+382   preempt E252；193 decode /39            preempt E249；193 decode /189
+383   193 decode /23                         193 decode /173
+384   193 decode /15                         193 decode /165
+385   193 decode /5                          193 decode /155；E252完成后 free201
+386   preempt E249；192 decode /187           无 preempt；192 decode /187
+
+H 在 step379 将 E249 再将 E252 加入 running 尾部；G 的 E252 在 step378 已运行，
+E249 于379随后加入。沿用同一个 FCFS running 尾部 victim 规则，382 的受害者随顺序
+改变：H E252（known722/computed721），G E249（known3131/computed3130），两者
+抢占前 free=0。G E252 在385完成并释放46块；到386两臂 free 都回到187。
+这说明 G 避免了目标的第三次抢占，同时把较早的抢占转移给 peer；未修改 victim 规则。
+
+E249 的输出 #76/#77/#78 在 H/G 都是 step379/380/381 且内容相同。
+下一项 #79（token13，也相同）H 在 step382 获得，G 到 step972 才获得：
+从 E252 的 719 decision 计，H0/H5 为 382.429/365.216 ms，G2/G3 为
+49151.208/46225.944 ms。G 的 step971 event623 是 E249 Host-miss 原生重算。
+E249 自己的最大 generation gap：H0/H5 47.241416/41.673379 s；
+G2/G3 48.868216/45.890318 s。H 到 step386 才抢占 E249，G 是382。
+
+所以不是从更慢 step 猜测“剥夺计算”：原生 scheduled 行和同索引输出直接显示 G
+让 E252 连续获得计算，而 E249 的 #79–#82 原可在 H 的382–385发生，却延到G972–975。
+不要把这个 peer 等待与目标节省相加成服务墙钟；H 的 peer 后来也有长等待。
+E249 后续输出长度 H804/G756，且从输出 #98 才出现内容差异，因此以上 #79 对照
+是相同真实内容等待，完整 E249 完成时间却不是等输出工作对照。
+
+5. 实际计算与 LOAD 成本（STORE 仍保留）
+E252 全过程原生 scheduled 位置计数：
+policy total_scheduled unique_positions repeated_known prompt_repeated generated_repeated
+H      1510            726              784            686             98
+L      2137            726             1411           1342             69
+G      1493            726              767            686             81
+
+719 的 G 首次计算719位置，而 H LOAD 后仅计算尾15，G 当时多计算704位置；
+但 G 避免 H 后来的722位置 Host-miss 重算，完整 E252 原生工作比 H 少17位置、比 L 少644。
+这是实际位置数，不是将估计 compute 开销从墙钟中扣除。
+E252 实际 LOAD：H 两次82+88=170 MiB，G 第一次82 MiB，L 无 E252 LOAD。
+step378 H 有 E249 400556032 B 和 E252 92274688 B 两个 LOAD，G 只有前者。
+示例 H0/G2 该步 reported LOAD CUDA event time 总和为8.868608/7.232096 ms；
+这是整个步的传输观测，不能当 E252 独占 copy 时间，也不能加为服务墙钟。
+先前发生的 STORE 均保留，不能算作这次重算节省。全服务成本另见 headroom_results.txt；
+G 相对 H 的总 native scheduled 反而多9999位置，不能从单请求改善外推全局减少工作。
+
+6. 输出分歧、重复和可解释范围
+H/G 第一次内容差异已在 step378 的背景 decode 出现：E207 输出#130 为3389/30945，
+E218 #116 为9937/496。该步 E252 重算改变 batch；这是与分叉同时发生的观测，
+不是独立证明浮点根因，更不是 KV 正确性/错误判定。E252 自身全部输出始终相同。
+跨 policy 最终输出不同的请求数 H/L193、H/G196、L/G196（每对256），每个跨 policy
+比较有58个 finish/stop metadata 差异。同 policy 两次最终输出和完整 native 序列均相同。
+
+真实 makespan（仅描述）：H0/H5 97.709569/111.678829 s；L1/L4
+106.433554/98.939165 s；G2/G3 100.455651/114.256043 s。G 同策略、同输出、
+同规范化调度仍有13.800392 s漂移；H 有13.969260 s。输出总数 H189436、L189035、
+G190178。因此不能把任一臂的墙钟差直接称等工作服务加速，G也没有已建立的全局优势。
+时钟/CPU旁观测解释及边界由独立 headroom_timing_diagnostic.txt 报告，不离线校正时延。
+
+7. 是否只是一个静态长度阈值
+G 的实际短动作是 known706→H、known719→R。任何单调“known<=tau 时 R”都不可能
+同时复现这两点（需 tau<706 且 tau>=719），因此这组真实动作不等价于调整1792的
+普通长度阈值。这个有限动作模式本身不证明状态信号具有可推广的增量预测力：
+两点还同时改变已生成历史、Host覆盖和轨迹状态，G每次只有一次真实短R选择。
+事后非单调长度区间当然可能拟合有限样本，但不是预声明基线或在线收益证据。
+
+已完成数据足以核验719点 H/G的相同已观测前史和实际动作结果，无需为取得同一诊断
+再机械重复一个719试验。当前可保留的结论是：G在预声明的容量门下实现不同于单调
+长度规则的实际动作，E252连续完成在两次重复中重现；它改变原生running顺序并把
+等待转移给E249。不存在可从本组单独识别的、固定前缀和Host覆盖下的独立 state residual，
+也没有可宣称的全局自适应收益。后续若推进，应以这些已暴露的边界为依据，不做事后oracle、
+不先运行两个动作择快，不将本报告作为新GPU任务或阈值搜索请求。

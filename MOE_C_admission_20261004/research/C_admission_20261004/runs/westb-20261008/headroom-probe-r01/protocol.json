@@ -1,0 +1,88 @@
+{
+  "base_commit": "5593b5f",
+  "dev_indices": "No new development sweep in this diagnostic",
+  "test_indices": "Same 384 interleaved articles and 0.1s trace as pressure exploration",
+  "native_dev_reference": null,
+  "dev_caps": [],
+  "test_order": [
+    "baseline",
+    "headroom32",
+    "headroom32",
+    "baseline"
+  ],
+  "selection": "No new online cap or service-metric tuning. Keep cap256 and the existing KV reference;32-page probe comes from the stated three-value shadow comparison.",
+  "fixed_baseline_claim_scope": "Prior fixed128/192/256 tuning informs this diagnostic; old running+remote caps are not complete-inflight caps. This group tests one bounded action, not a method claim.",
+  "kv_floor": 3277,
+  "recovery_high": null,
+  "recovery_clear": null,
+  "sample_interval_s": null,
+  "max_signal_wait_s": null,
+  "run_timeout_s": 240,
+  "prompt_arrival_gap_s": 0.1,
+  "output_mode": "natural EOS or max 1024; no future output length read",
+  "slo_grid": {
+    "ttft": [
+      2,
+      5,
+      10,
+      20,
+      40
+    ],
+    "max_gap": [
+      0.25,
+      0.5,
+      1,
+      2
+    ],
+    "completion": 120
+  },
+  "slo_role": "Exploratory full 20-point surface, not an application SLO or chosen headline.",
+  "invariants": "Native running scheduling, victim tail, recovery path, transfer and quantum unmodified.",
+  "reset": "Same engine/compiled shapes; identical warmup per cell then connector reset; fresh policy state.",
+  "lock": "/root/autodl-tmp/moe-research-gpu.lock",
+  "host_budget_bytes": 128849018880,
+  "model": {
+    "dtype": "bfloat16",
+    "id": "allenai/OLMoE-1B-7B-0924",
+    "key": "olmoe",
+    "revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "tokenizer_revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5"
+  },
+  "input_sha256": "10493039c7f704a45d1a209c47a2b87c2de5947b9464f921b1495721a0d328e4",
+  "profile": "pro-opportunity-headroom-probe",
+  "usable_kv_pages": 32768,
+  "native_max_seqs": 256,
+  "pro_inputs_file_sha256": "6b6be96f8fec6e92b6e59390bab0fe414aeafdaab9539000d88050f8bbf22d25",
+  "evidence_role": "EXPLORATORY_FIRST_FIXED_HEADROOM_ACTION_ABBA",
+  "host_kv_gib": 16,
+  "max_model_len": 4096,
+  "precision": "bfloat16; no rope extension",
+  "population": 384,
+  "trace_sha256": "34513450387479b4257f7a01ea9042056667466b4ade5e0c137aa1f0fadb8632",
+  "trace_hash_contents": "Ordered request IDs, actual prompt token IDs, and external arrival traces",
+  "workload_sha256": "7723a0b4e88ba647da79e658cd596e00337075ea761d8692c47c494ee018533d",
+  "concurrency_comparison": "Both arms use native maximum256, complete-inflight cap256 and KV floor3277. Only the once-per-run bounded extra admission delay differs.",
+  "test_admission_caps": {
+    "baseline": 256,
+    "headroom32": 256
+  },
+  "admission_count": "Unique successfully admitted but unfinished requests, including paused/recovery.",
+  "diagnostic_cap": 256,
+  "intervention": {
+    "events_per_run": 1,
+    "hard_gate_deadline_s": 0.25,
+    "minimum_delay_s": 0,
+    "trigger": "First actually native-fit, cap/KV-allowed never-started request with positive new compute and free minus full known prefill footprint minus native watermark below32 pages. Recovery state does not control this probe.",
+    "release": "At a target allocation hook release when the same full-fit margin reaches32 pages; otherwise unconditionally remove extra gating at250ms from first actual refusal. No minimum hold. Native constraints may still delay execution.",
+    "scope": "One first target per run; retain FIFO followers within the scheduler call. Existing requests and recovery always bypass extra gating.",
+    "original_kv_age_bypass_s": 10
+  },
+  "prefix_comparison": "Same frozen inputs and policy prefix; compare recorded first-opportunity states. Separate executions are not asserted to be identical GPU-state forks.",
+  "candidate_status": "Strong simple explanation and action-value probe only. Ordinary fixed headroom is not a novelty claim or independent confirmation.",
+  "reservation_signal_kind": "fixed_headroom",
+  "fixed_headroom_blocks": 32,
+  "motivation": "Four prior baseline runs had35 pre-output preemptions. Shadow extra32-page headroom covered33 and selected23 other first allocations, while known-prefill reservation excess covered3. Each baseline first32-page opportunity had R=0 and later pre-output preemption. These are retrospective labels, not causal savings.",
+  "margin_selection": "Reuse the prior small1/16/32-page shadow comparison;32 is an action probe selected for observed coverage, not a baseline tuned on online service outcomes.",
+  "stopping_rule": "One baseline/headroom32/headroom32/baseline group with prescribed pairs 01/00 and02/03. No changed actions or inconsistent full-service distributions and the full20-point joint-SLO surface closes this probe; no nearby page/time tuning and no further repetition. Only consistent positive execution and service evidence permits comparison with strong complete-inflight fixed128/192 controls.",
+  "repeat_budget": "Exactly one ABBA group; no additional repetition."
+}

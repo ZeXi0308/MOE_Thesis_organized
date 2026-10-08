@@ -1,0 +1,54 @@
+{
+  "evidence": "STARTUP_ONLY_NO_SERVICE_COMPARISON",
+  "rows": [
+    {
+      "plan": "compact",
+      "status": "STARTUP_COMPLETE_NO_SERVICE_RUN",
+      "source_sha256": "fdb1097456cce561398de36a4d284e3d199c9aa26d1284e8e07fa8605b5db71f",
+      "actual_graphs": 19,
+      "graph_groups": {
+        "PIECEWISE": 10,
+        "FULL": 9
+      },
+      "kv_total_blocks": 36828,
+      "kv_usable_blocks": 36827,
+      "kv_storage_bytes": 77233913856,
+      "graph_estimate_bytes": 138412032,
+      "native_capture_delta_bytes": 79691776,
+      "shared_workspace_bytes": 134217728,
+      "torch_graph_pool_reserved_bytes": 29360128,
+      "torch_allocated_bytes": 91291207680,
+      "torch_reserved_bytes": 91507130368,
+      "graph_pool_attribution": "Non-default segment pool IDs only; not all driver graph metadata",
+      "device_total_bytes": 101974081536,
+      "steady_device_used_bytes": 92306341888,
+      "steady_device_nonkv_bytes": 15072428032,
+      "init_device_used_bytes": 702742528,
+      "steady_used_increase_from_init_bytes": 91603599360,
+      "steady_nonkv_increase_from_init_bytes": 14369685504,
+      "explicit_empty_cache_released_bytes": 111149056,
+      "blocks_before_cleanup": 36828,
+      "blocks_after_cleanup": 36828,
+      "graph_estimation_wall_s": 2.2911341972649097,
+      "capture_wall_s": 3.3162248246371746,
+      "engine_startup_wall_s": 35.93237452954054,
+      "independent_startup_runs": 1,
+      "performance_repeats": 0,
+      "timing_scope": "Includes startup instrumentation; compact first compile-cache encounter; not steady-state execution latency",
+      "budget_scope": "gpu_memory_utilization=0.9 is native startup policy, not a measured exact 90% all-device hard cap; initial driver/context and runner allocations reported separately",
+      "steady_nonkv_scope": "Observed entire device used minus live unique KV storages; includes model, workspace, allocator, context and driver; NOT graph-exclusive residency"
+    },
+    {
+      "plan": "dense",
+      "status": "LOCK_BUSY_NO_GPU_INITIALIZED",
+      "source_sha256": "505e279881d1de2a006776c181a9957ca5e987e138edf74e3a6462a18a122fd3"
+    }
+  ],
+  "gpu_order": "compact completed; dense lock-busy and not run",
+  "limitations": [
+    "No between-plan cost effect or noise can be estimated from one completed endpoint",
+    "Counter values and native capture delta are not mutually additive",
+    "Cache cleanup never resizes already allocated KV",
+    "Current generated-token or service throughput evidence does not exist"
+  ]
+}

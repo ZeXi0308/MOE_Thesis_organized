@@ -1,0 +1,22 @@
+E MultiNews：单个候选公式的几何边界（CPU_ONLY，2026-10-07）
+
+结论：在当前已冻结的256请求及其所有可能已知token历史上，谓词
+  known <= 2048 - N_decode，N_decode∈[0,256]
+与已固定谓词 known <= 1792 恒等。这里仅比较这一公式；若其他合法性、容量、目标及fallback条件相同，替换这一谓词不能改变动作。没有由此否定其他当前状态信号。
+
+实际原始极值（直接读取冻结输入，不读GPU输出）：
+• 64个short（64个源）：完整prompt 661–768 token，cap均256；各请求prompt+cap为917–1024，最大1024严格小于1792。最短源index134；最长源index144。
+• 192个long（27个news bundles）：完整prompt 2534–3040 token，cap均1024；各请求prompt+cap为3558–4064，最短完整prompt2534严格大于2048。最短源index54；最长源index171。
+
+证明：known使用本任务的完整输入加已经生成token的已知历史长度，不能混同已计算KV token数量；没有截断输入或删除已生成前缀。因此任何short历史满足661≤known≤1024，任何long历史满足2534≤known≤4064。候选阈值2048−N_decode的整个范围是[1792,2048]。short对两个谓词恒真，long对两个谓词恒假，包括任意自然EOS提前结束、任何合法生成进度和上述N_decode范围的组合。此证明甚至覆盖某些实际不会成为恢复事件的历史，是固定输入几何蕴含的结果，不是观测到的恢复性能。
+
+限制：2048是当前配置的名义每步token预算。实际调度时其他prefill、恢复重算片段及其他请求会占用预算，N_decode也不完整表达其token需求；2048−N_decode不能视为真实remaining token budget。真实剩余预算可能不落在上述区间，且还受调度/合法性条件约束。本结论只排除该特定候选公式在当前短长明显分离负载上提供动作差异，不判死真实预算状态或其他state-conditioned规则，不调整阈值或运行参数。
+
+已有200条CPU geometry只读计数：使用all_records[*].prompt_tokens（同一官方模板+模型wrapper的完整prompt），区间1792≤prompt_tokens≤2048内有15个source；其实际极值1792–2019。索引与长度为：3:1913，8:1945，9:1882，23:2019，35:2004，48:1883，98:1792，142:1900，148:1993，158:1992，174:1817，177:1809，181:1852，182:1850，187:1965。此处只回答指定区间的已有记录数量，没有生成新prompt、筛选新目标、评估这些源的恢复条件或构造新负载。完整prompt处于该区间本身也不证明会有合法恢复事件或动作交叉。
+
+读取材料与SHA256：
+inputs_multinews_candidate/pro6000_multinews_candidate_256.json
+00fa8875af4fa3fde61d31dff503fda9216f98839ed57d9db58ac2480a1c30c6
+inputs_multinews_candidate/cpu_geometry.json
+00dbd19809553424e0bec653bcac35996e1ced6d23a4c35ea86bc3b024ee7dec
+未修改上述文件；未访问远端、原始运行日志或GPU。

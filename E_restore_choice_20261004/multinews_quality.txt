@@ -1,0 +1,37 @@
+E MultiNews 真实输出质量核验（2026-10-07；本地CPU；不涉及服务时延推断）
+
+数据与执行：execution/oct07_multinews_r01 的六个已完成臂，顺序 H/R/L/L/R/H（00_host、01_recompute、02_length、03_length、04_recompute、05_host）。冻结 evaluate_multinews_quality.py 实际执行退出0，输出 multinews_quality.json，status=COMPLETE_VALID_QUALITY。全部256请求的inputs逐项匹配冻结输入，runtime workload hash、完成状态、natural及请求身份/gold/cap等检查通过；gold仅来自官方选中记录。未修改脚本、输入、合约或运行参数，未访问GPU/远端。GSM8K短题由根会话另评，本报告ROUGE只含192长请求。
+
+真实ROUGE结果（分值0–100；下列六臂逐项相同）：
+臂                    27-bundle宏均值       192请求加权均值      stop/length    metric/generation errors
+00_host               27.24256675703214     27.24728464356086    188 / 4        0 / 0
+01_recompute          27.24256675703214     27.24728464356086    188 / 4        0 / 0
+02_length             27.24256675703214     27.24728464356086    188 / 4        0 / 0
+03_length             27.24256675703214     27.24728464356086    188 / 4        0 / 0
+04_recompute          27.24256675703214     27.24728464356086    188 / 4        0 / 0
+05_host               27.24256675703214     27.24728464356086    188 / 4        0 / 0
+
+方法为已冻结官方LongBench ROUGE-L F1行为，rouge1.0.1/six1.17.0，每输出对官方references取max；先在各bundle的7或8次请求内均值，再对27组等权均值，另报192请求均值。完整continuation、不提前四舍五入，length输出仍在分母；实际无ROUGE异常，未采用异常0替代有效分数。每臂空输出0；length为4/192=2.0833%，均1024token，分别E007/source54、E078/source34、E114/source34、E151/source54。这里只统计其metadata，不扩大人工审阅样本。长输出token 164–1024，平均398.65625；按空白计词126–851，平均314.55729。errors=0只指评分调用和完成状态没有错误，不代表事实无误。
+
+跨臂一致性与固定选样：逐请求核对全部256个output_token_ids，其他五臂与00_host完全相同，包括全部192长请求；15个臂对的总体/逐bundle分差均0。此相同关系指同一请求身份跨臂，不把不同重复请求当作独立文档。首Host中source0的8次、source120的7次、source194的7次均为stop，没有相反length类型可选，所以严格按合约只选E001、E018、E035三个身份，未凑足六个。每个身份六臂token均相同，故去重阅读一个代表文本；独立提取的三条文本与正式评分JSON中的六臂相应text/token逐字一致。选择证据及逐臂token保存在multinews_manual_selection.json，去重文本/源hash/gold保存在multinews_manual_decoded.json。
+
+固定人工核验（只判断这三个身份；以完整context为事实依据，gold本身也可能遗漏或增加细节）：
+
+E001 / source0：360token、296词、stop；单请求ROUGE-L=22.2222217341。
+事实问题：输出“did not comply until late in the evening”引入晚间已遵令离开的含义，原文只记期限过后仍留守、部分人撤帐和未清营；“In other cities, such as Philadelphia, protesters have been met with more force”混淆城市且与自身及P1的费城和平处置叙述不一致。将允许洛杉矶留至天亮归给Mayor Villaraigosa，而P3该决定/表述来自police commanders。覆盖：提到两地期限、暂未清营和运动诉求，但遗漏核心的洛杉矶清街而非清营、后续4人被捕，以及费城施工背景和诉讼申请。重复/截断：反复概括和平、支持与阻力，结尾偏泛化评论；无明显循环复读，结尾完整、未见可见截断。
+
+E018 / source120：185token、140词、stop；单请求ROUGE-L=28.2926824283。
+事实主干基本受原文支持：Magnolia/节目、铅漆防护不足的被指违规、4万美元民事罚款、90天视频、16万美元Waco治理项目及未来合规，均可回指P1/P3；此样本未见明确与原文矛盾的主干事实。覆盖不足：没有33处房产、55.6万美元潜在罚款、已采取的认证培训和具体防护要求；这些是省略，不改判为捏造。它包含gold省略但原文支持的16万美元治理项目，应保留此区别。没有明显重复，段落完整、未见可见截断；自然stop仍不表示覆盖所有重要细节。
+
+E035 / source194：610token、470词、stop；单请求ROUGE-L=23.2227483491。
+明确错误/输入不支持：输出将妹妹写作“9-year-old Sarah”，P1写7岁，完整context/gold均未给Sarah名字；首句“injured more than 260 others”和年份2013未在材料中提供，不能据输入认证，亦不据此断言外部世界中必假。将“据报道去看父亲”写成确定的看父亲参赛，丢失转述限定。把“go to the ends of the Earth”承诺归给police，P3原归FBI officials。覆盖：写到三名死者、家庭、Campbell职业、中国学生及P3的救助/赛事停止/慰问，但完全遗漏P2医院认错身份的核心事件，也未明确Boston University。它采用Martin先、Campbell后的确认顺序，有P3/gold支持；P2存在相反说法，不把这一点机械判错。重复/截断：末段城市坚强和共同支持略重复前文；无明显循环复读，末句完整，未见可见截断。
+
+gold边界：沿用生成前冻结的multinews_review_reference.txt，不修改gold或ROUGE公式。source0 gold中的Jim Lafferty、两天宽限预期、约5am等细节未在提供context出现；source120 gold“第五个孩子”无原文支持；source194 gold的ICU场所及部分母亲引语也未见于原文，且确认身份先后存在上述P2/P3冲突。这些仅标“提供输入未支持/来源内部差异”，不能从ROUGE重叠高低直接判断忠实性。本次三身份核验仍发现自然stop输出中的事实错误，不能宣称整体摘要质量通过；192是27组的重复请求，六臂也不扩大为1152个独立文档。相同输出说明本组跨策略未产生输出质量差异，不推断恢复正确性的普遍保证，更不据质量结果解释时延。
+
+证据与再现：
+multinews_quality.json SHA256=648f031bf8eccae5e1057d7eb4da085cf5fa19bb8cd069e2ba3ca19bbfc6b20f
+multinews_manual_selection.json SHA256=5854f39b7e14e28b10155c64910db79b3da3a5357ed2405eeb28ca43628bd9c6
+multinews_manual_decoded.json SHA256=dd5409450c50dd49f1e44dcf50b9588fb1872a297ff1b40f06edeca070db28c4
+正式评分JSON保留每臂原始raw/input/config/status/runtime来源hash、逐请求全文与gold、逐reference分值、依赖源码hash和CPU公式检查。
+执行命令：
+/private/tmp/moe-a-fresh-input-env-20261001/bin/python E_restore_choice_20261004/evaluate_multinews_quality.py E_restore_choice_20261004/execution/oct07_multinews_r01 --deps /private/tmp/E-multinews-quality-20261007/site --tokenizers-extension /private/tmp/moe-a-fresh-input-env-20261001/lib/python3.13/site-packages/tokenizers/tokenizers.abi3.so --out E_restore_choice_20261004/multinews_quality.json

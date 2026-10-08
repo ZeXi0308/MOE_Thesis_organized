@@ -1,0 +1,79 @@
+E E223 单事件诊断预冻结（已提交候锁；尚无 GPU 结果；2026-10-07）
+实际已单次提交：controller25945 / SSHexec32586，WAITING_FOR_LOCK，最长1800秒。
+
+唯一问题
+在一个已观测到“Host 恢复后、产生下一输出前再次抢占”的合法当前历史上，
+只改变本次恢复方式，检验能否改变重建进展、再次抢占和其他请求的实际计算机会。
+这不是在线自适应收益验证，也不把该历史与 E249 的差异解释为状态模型残差。
+
+冻结目标与来源
+文件：one_event_e223_target_spec.json
+spec SHA256：088a8c872cfa6eb68dcbd6c013e76a4cdb3be98c205eae584365e7a719fb81ff
+schema：E.one_event_target.v1
+external_id=measured/E223，num_preemptions=2，known_tokens=3277，generated_tokens=541。
+prefix_sha256=27cd05a4a546079bb248a1e3c4a23407077c830832776f173959bef9e6d5065e。
+来源：execution/oct07_one_event_r01/00_same_engine/01_host/raw.json，event519、step874。
+raw SHA256：a96d676c39e0ead6a152e427808ec16f75b827f427599092b6605d1290e20afd
+inputs SHA256：79b53aefce3b83bb982631337d585b2d785b7be9f8d80f86cce43aeac765480a
+workload SHA256：8346ad2512661cc6595ef3e0aa53e76c690fb9980f5bf41e8007f199cfb7582a
+源码清单、selector、resources、engine_args及原归档的hash均另存于spec.source。
+
+已独立从对应输入2736个prompt token + 决策前已生成541个token复建3277个已知token，
+用 selector 同样的默认 json.dumps 编码重算 SHA，完全一致；该请求此前真实抢占数为2。
+已调用本地 validate_target_spec，并验证来源workload与记录的runtime hash一致；未使用GPU。
+来源Host命中2656只覆盖部分prompt，尚需重建621个已知尾token；不是完整prefix Host命中。
+来源事件的free416/full_required205、Hosthit2656、event519、step874和墙钟均仅作诊断记录。
+在线硬匹配只读当前身份、抢占序号、known/generated和当前历史hash；再要求native正Host命中
+与真实共同完整GPU容量可用。不要求复现原命中长度/空闲块，更不读取最终长度、下一输出或未来抢占。
+
+为何选此事件
+新组两个Host控制均在step875只完成609个尾位置[2656,3265)，满2048 token预算，
+step876再次抢占时仍少12个所需位置；之后event530再次LOAD，step887完成13位置才输出。
+event519到下一输出1.009902/1.017876s，且与event530共用该输出；pending_load两次均0。
+这给出了恢复尚未输出就被打断的具体机制，而pending_load=1目前只有极少数相关样本。
+选择依据为已复现的Host机制，尚未观察本精确checkpoint的另一动作，不按事后最快动作挑事件。
+
+冻结执行顺序与机制
+正式四臂 H→R→R→H；每臂只有本目标的一次成功allocation可按预分配动作执行。
+其余恢复保持原生Host偏好及相同native fallback，包括此前E249恢复。
+继续同一个冻结256请求外部到达序列、逐请求输出cap、greedy/native EOS和输入token。
+资源/模型与已完成组一致：GPU UUID GPU-94203fc3-1021-3a9c-a367-cff792479616，
+OLMoE BF16，native auto0.9容量（前组36916 GPU块/72.1015625GiB），Host32GiB，
+max_num_seqs256、batch_tokens2048；不人为压GPU容量，不调传输并发/分块/优先级。
+victim、恢复目标以外的顺序、FCFS、服务量子与准入全部沿现有代码。
+每臂同一全压力原生Host预热与reset；正式测量保持当前自然输出和同样timing_observer。
+不增加logits观测、状态规则、成本拟合或新执行器。当前原生代码和分析代码无需修改。
+运行期间只读小型status；不回传/压缩大型raw或日志，整组退出且释放GPU后统一归档取回。
+
+输出存储约束（root最新只读盘点）
+原数据盘仅余1134985216bytes，刚高于预检1GiB；/tmp所在overlay余21516943360bytes。
+不删除任何历史资料、不改执行器。run_group既有Path(root)/a.name支持绝对路径，
+下一组统一把日志和原始输出写至/tmp/moe-e-restore-choice-20261004/oct07_e223_r01，
+源脚本、模型仍在原E root；source_snapshots/oct07_e223_r01也保留在原root。
+四臂使用同一新输出位置和相同参数。此变更只为避免写满，仍可能改变文件I/O环境，
+因此只作新组内部反序对照，不拿新组时延与旧输出目录各组作性能胜负比较。
+
+事先判定与统计
+先核对group/parent/各cell COMPLETE，目标成功commit恰好1；未达到或失配保留完整服务，
+但标本动作对照不适用，不改变队列/资源来制造目标。多次selected lookup仍只允许一次commit。
+以首次selected lookup所在步之前作为干预前，比较规范化调度/输出/历史；成功commit时间另记。
+检查目标下一严格输出、它之前是否再抢占、每次恢复实际native计算位置、LOAD/STORE、
+其他请求获得的计算位置/输出与等待，保留全服务completion、停顿、生成内容与实际长度。
+event519后可能再抢占是一项结果，不能成为在线动作条件；没有再次抢占也不得强造。
+若仍共享下一输出，保留相关性，不当独立样本；若输出变，标明不是等输出工作加速。
+局部正确性继续核验前缀、进度和恢复后首输出；这仍不替代KV/logits和语义质量验证。
+除这一次动作外不再扩机制；结果不支持更换动作时，如实保留负结果，不搜索新参数。
+
+实际提交命令（新组oct07_e223_r01）
+在远端E根目录：
+/root/miniconda3/bin/python run_group.py \
+  --name /tmp/moe-e-restore-choice-20261004/oct07_e223_r01 \
+  --gpu-uuid GPU-94203fc3-1021-3a9c-a367-cff792479616 \
+  --arms host,recompute,recompute,host --requests 256 \
+  --workload inputs_natural_summary256/pro6000_natural_summary_256.json \
+  --target-spec one_event_e223_target_spec.json --host-gib 32 --max-num-seqs 256 \
+  --batch-tokens 2048 --max-seconds 600 --timing-observer --wait-lock-seconds 1800
+
+完成后CPU分析必须显式传本spec，不能用分析器默认的E249 spec：
+python3 analyze_one_event.py execution/oct07_e223_r01 \
+  --target-spec one_event_e223_target_spec.json

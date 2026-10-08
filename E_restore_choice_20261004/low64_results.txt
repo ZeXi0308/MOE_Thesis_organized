@@ -1,0 +1,42 @@
+E low64 首组真实结果（2026-10-07）
+数据：execution/oct07_low_r02/00_same_engine；顺序 Host → recompute。
+已独立从两臂 raw.json 重算以下指标，并核对 summary.json；未修改代码或原始数据。
+
+结论：这是零恢复动作的低压力服务对照，不能证明 Host/recompute 任一恢复方式的收益。
+两臂均无抢占、无恢复决策、无 committed action、无合法双分支恢复事件；恢复到下一输出延迟不可估计。
+
+实际请求与输出
+两臂均完成 64/64 请求，全部固定外部 arrival_s=0；实际输出均为 8,694 tokens。
+逐请求 greedy token 序列 64/64 完全一致，finish/stop 元数据无差异；这只证明本组输出一致，不是任务质量评分。
+两臂逐请求输出 cap 一致：总 cap=28,672，范围 256–512；只有 3 个请求以 length 结束，其余自然停止。
+输入 token、外部负载、固定配置、engine args、资源及预热形状指纹均匹配；两臂 warmup reset 成功。
+
+服务指标（completion 从固定外部 arrival 起算；gap 不含 TTFT）
+                            Host             recompute
+makespan (s)                9.692865         9.582993
+mean completion (s)         3.956571         3.978664
+p95 completion (s)          7.540868         7.566621
+p99 token gap (ms)         35.725633        35.479613
+全部 token gap 之和 (s)   180.329289       179.644216
+输出吞吐 (tokens/s)       896.948440       907.232212
+服务及 drain 结束 (s)       9.692929         9.583051
+两臂实际选择器动作都为零；上述差异应视为一次顺序运行的服务波动，不能归因于恢复方式。
+
+完整测量期传输成本（保留已支付 STORE，含 drain；不含共同预热和初始化）
+STORE：两臂各 21,258,829,824 bytes = 19.798828 GiB，各 685 个已报告传输。
+STORE 已报告 CUDA-event 持续时间和：Host 0.410424 s；recompute 0.413987 s。
+LOAD：两臂各 0 bytes、0 个传输、0 s。
+传输时间可以与计算/其他传输重叠，不能相加得到服务墙钟；全请求 gap 之和同样不是墙钟。
+
+实际容量与适用域
+capacity_mode=native_profile_0.9；实际 GPU KV 72.1015625 GiB、36,916 blocks；Host 32 GiB、16,384 blocks。
+两臂 GPU 最小观测 free=29,371，峰值 used=7,545/36,916=20.4383%；初始常占 1 block 已计入 used。
+两臂 Host 常驻峰值=10,137/16,384=61.8713%；step 边界 running/waiting 峰值分别为 50/62。
+GPU 峰值取 schedule/step/preempt 采样边界，非完整 allocator 高水位，更不是物理 GPU 总显存占比或输出 cap 推算的需求上界。
+实际抢占请求数=0，Host-ready 和 jointly eligible 恢复事件/请求数均为 0。
+本负载没有提供一次合法恢复选择的实证空间；后续 192 请求组需要先检查是否出现真实抢占及合法双分支事件。
+
+口径注意
+summary 中 LOAD.reporting_records=300 只是同时含空 LOAD 字段的传输元数据批次数，不代表 300 次 LOAD；实际 LOAD 数须看 observed_transfer_count=0 与 bytes=0。
+summary 不自动核验父目录 runtime_source_hashes.json，源码一致性证据应与已有独立 runtime hash 核验记录一起保存。
+本组 COMPLETE，analysis_errors/invalid_cells/incomplete_cells 均为空；未发现影响上述结论的数据口径阻断问题。

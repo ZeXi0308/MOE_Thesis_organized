@@ -1,0 +1,119 @@
+{
+  "base_commit": "5593b5f",
+  "dev_indices": "pro_inputs.dev[i], pro_inputs.test[i] interleaved; 384 unique IDs",
+  "test_indices": "Same 384-request population and arrival trace as fixed-cap development",
+  "native_dev_reference": null,
+  "dev_caps": [
+    128,
+    192,
+    256
+  ],
+  "test_order": [
+    "fixed",
+    "kv",
+    "recovery",
+    "recovery",
+    "kv",
+    "fixed"
+  ],
+  "selection": "Among complete dev arms minimize mean external-arrival-to-completion time; ties use higher cap.",
+  "fixed_baseline_claim_scope": "The selected cap is the mean-flow choice, not necessarily the best complete-service or joint-SLO baseline. All three fixed-cap raw distributions and the full exploratory SLO surface remain comparators; any benefit claim must inspect them, including TTFT tails and natural output amounts, rather than only the selected mean-flow arm.",
+  "kv_floor": 3277,
+  "recovery_high": 2,
+  "recovery_clear": 0,
+  "sample_interval_s": 0.1,
+  "max_signal_wait_s": 10,
+  "run_timeout_s": 240,
+  "prompt_arrival_gap_s": 0.1,
+  "output_mode": "natural EOS or max 1024; no future output length read",
+  "slo_grid": {
+    "ttft": [
+      2,
+      5,
+      10,
+      20,
+      40
+    ],
+    "max_gap": [
+      0.25,
+      0.5,
+      1,
+      2
+    ],
+    "completion": 120
+  },
+  "slo_role": "Exploratory full 20-point surface, not an application SLO or chosen headline.",
+  "invariants": "Native running scheduling, victim tail, recovery path, transfer and quantum unmodified.",
+  "reset": "Same engine/compiled shapes; identical warmup per cell then connector reset; fresh policy state.",
+  "lock": "/root/autodl-tmp/moe-research-gpu.lock",
+  "host_budget_bytes": 128849018880,
+  "model": {
+    "dtype": "bfloat16",
+    "id": "allenai/OLMoE-1B-7B-0924",
+    "key": "olmoe",
+    "revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "tokenizer_revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5"
+  },
+  "input_sha256": "10493039c7f704a45d1a209c47a2b87c2de5947b9464f921b1495721a0d328e4",
+  "profile": "pro-pressure-test",
+  "usable_kv_pages": 32768,
+  "native_max_seqs": 256,
+  "pro_inputs_file_sha256": "6b6be96f8fec6e92b6e59390bab0fe414aeafdaab9539000d88050f8bbf22d25",
+  "evidence_role": "EXPLORATORY_SAME_POPULATION_SAME_TRACE_NOT_INDEPENDENT_CONFIRMATION",
+  "host_kv_gib": 16,
+  "max_model_len": 4096,
+  "precision": "bfloat16; no rope extension",
+  "population": 384,
+  "trace_sha256": "34513450387479b4257f7a01ea9042056667466b4ade5e0c137aa1f0fadb8632",
+  "trace_hash_contents": "Ordered request IDs, actual prompt token IDs, and external arrival traces",
+  "workload_sha256": "7723a0b4e88ba647da79e658cd596e00337075ea761d8692c47c494ee018533d",
+  "concurrency_comparison": "Native maximum stays 256; fixed uses selected cap, KV/recovery use 256. These policies do not have identical admission concurrency limits. KV and recovery differ only by the recovery signal.",
+  "test_admission_caps": {
+    "fixed": 128,
+    "kv": 256,
+    "recovery": 256
+  },
+  "selection_source": {
+    "path": "/root/moe-c-admission-20261007-v3/pro-pressure-dev-r03/selection.json",
+    "sha256": "190284b572465f8f6e88b6b28a1e2e70af4f0f3f506a42122c677e56558b8cd3",
+    "contents": {
+      "scores": [
+        {
+          "cap": 128,
+          "mean_flow_s": 72.22686971001191,
+          "preemptions": 0
+        },
+        {
+          "cap": 192,
+          "mean_flow_s": 73.70023635187826,
+          "preemptions": 0
+        },
+        {
+          "cap": 256,
+          "mean_flow_s": 74.17840010339957,
+          "preemptions": 59
+        }
+      ],
+      "selected_cap": 128,
+      "pro_inputs_file_sha256": "6b6be96f8fec6e92b6e59390bab0fe414aeafdaab9539000d88050f8bbf22d25",
+      "profile": "pro-pressure-dev",
+      "population": 384,
+      "trace_sha256": "34513450387479b4257f7a01ea9042056667466b4ade5e0c137aa1f0fadb8632",
+      "workload_sha256": "7723a0b4e88ba647da79e658cd596e00337075ea761d8692c47c494ee018533d",
+      "selected_pressure_gap_s": 0.1,
+      "dev_caps": [
+        128,
+        192,
+        256
+      ],
+      "selection": "Among complete dev arms minimize mean external-arrival-to-completion time; ties use higher cap.",
+      "fixed_baseline_claim_scope": "The selected cap is the mean-flow choice, not necessarily the best complete-service or joint-SLO baseline. All three fixed-cap raw distributions and the full exploratory SLO surface remain comparators; any benefit claim must inspect them, including TTFT tails and natural output amounts, rather than only the selected mean-flow arm.",
+      "evidence_role": "EXPLORATORY_SAME_POPULATION_SAME_TRACE_NOT_INDEPENDENT_CONFIRMATION",
+      "test_admission_caps": {
+        "fixed": 128,
+        "kv": 256,
+        "recovery": 256
+      }
+    }
+  }
+}

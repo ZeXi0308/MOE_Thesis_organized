@@ -1,0 +1,46 @@
+# G 假设、竞争解释与最小决策模型
+
+2026-10-08 重新审查；遵守 [工作区科研约定](../AGENTS.md)。本页区分当前证据与待检验主张；旧 `DECISION.md`、协议及原始结果保留为历史。旧 10% goodput 门槛和两轮限制不作为本次科研判据。没有应用方确认的 SLO，4 s / 100 ms / 20 s 只保留为历史探索口径；主比较应报告同资源下完整请求吞吐与尾延迟的取舍。
+
+## 三层假设不可互相替代
+
+| 假设与当前状态 | 支持证据；尚不能说明什么 | 最强竞争解释 | 最便宜的区分观察；削弱或否定条件 |
+|---|---|---|---|
+| **H_problem**：在 BF16 OLMoE、当前 96 GB 单卡、冻结 low/high 到达和固定调度策略下，合理调优的执行方案仍存在可由计划—KV 联合选择控制的重要服务损失。**已测 compact 端点的 KV 约束被排除；题目整体尚未确定。** | compact 已在当前 GPU 完成启动：可用 36827 blocks，高于 high 的全请求容量界 34430；实际容量域全部吻合。在声明语义下，它运行冻结输入时不会因 KV 不足等待或抢占。历史 high 的 4.596 req/s、完成延迟 p99 30.55 s 仍不能说明 G 可消除多少损失；G 完整服务与调优比较未运行。 | 主要时间来自必需模型计算；共享池使计划差异很小，其他有竞争力计划也不会触发 KV 约束；简单调桶或固定 backend 已覆盖收益。 | 下一项仅测预先选定 dense 的新进程启动容量。若它也覆盖容量界，则这两个端点无容量取舍，不需要服务矩阵寻找该机制；未测其他 backend/组合不能据此自动否定。 |
+| **H_model**：完整集合的非可加驻留成本改变实际 KV 容量，容量与执行速度共同改变批次/排队，足以改变有意义动作的排序。**共享机制获源码与单端点观测支持；compact 的 KV 不足反馈被排除，跨计划因果链未获支持。** | compact 的共享 workspace 为 128 MiB；10 个 PIECEWISE 加 9 个 FULL graph 的整集合 native capture 差为 76 MiB、启动估计为 132 MiB。两者定义不同，不能将差额直接转为新 KV 收益。已测实际 blocks，但没有第二集合的成本/容量差，更没有服务速度比较。 | blocks 差异仅来自 profiler 保守估计；批次改变只由速度和到达时间造成；固定历史直方图虽然失真但并未选错。 | 测 dense 的实际 blocks 与完整集合成本；若低于容量界，只是不能继续排除容量瓶颈，仍须服务实测确认是否激活。固定 KV 可在有需要时辅助分解。若模型项不改变选择/误选代价，则没有本域增量决策价值。 |
+| **H_method**：以集合成本和容量反馈选择启动期静态组合，在计入开销后胜过最强简单规则及可适配近邻。**未运行，方法未获支持。** | 启动观测探针已成功运行 compact；未有候选选择器、同输入多路径正确性比较或 G 服务收益。启动成功不能证明速度与内存权衡。 | 调好的紧凑组合、局部最快组合、简单预算边际规则已达到同一取舍；所谓方法收益只是默认桶或预留修复。 | 仅在重要可控空间出现后实现一个简单候选，与同等调优机会的强简单方案比较；验证移除集合成本/容量反馈是否实际选错。候选失败只收束该方法；服务改善若无需新状态也不支持独立方法贡献。 |
+
+历史数据来自 [`historical_service_metrics.json`](evidence/historical_service_metrics.json) 与 [`historical_feasibility.json`](evidence/historical_feasibility.json)，都是另一块同型号 GPU 上 D 的单个 fixed2048 探索运行，不是 G 确认数据，也不是未经修改的强基线。本轮新证据为 [`compact.json`](evidence/review_20261008/compact.json) 与 [`capacity_envelope.json`](evidence/capacity_envelope.json)。dense 本次因锁忙退出 75、未初始化 GPU，属于 **未运行/当前资源暂不可用**，不进入负证据。
+
+## 最小模型：只保留能影响选择的量
+
+**动作与观测。** 启动动作是有限合法计划集合 `P`（backend、tile、graph 桶和实际 workspace 共享组），随后使用既有合法分派。固定精度、路由语义、请求准入、抢占恢复和调度策略。可观测状态 `x_n` 包括时钟、待到达/等待/运行请求、已完成 prefill/decode 进度、持有与空闲 KV blocks、调度批次；路由分布只在离线相同张量诊断或已有 GPU 侧机制中使用，不新增逐层 GPU→CPU 同步。未知量是计划在这些状态下的实际执行时间，以及切换计划后产生的状态分布。
+
+**资源。** 定义 `C(P, o)` 为固定启动/capture 顺序 `o` 下、完成正式 capture 并同步清空可回收缓存后的真实非 KV 常驻集合成本；瞬时峰值 `C_peak` 和 allocator 缓存单列。成本对象是全集合，不能求和单计划峰值。共享 workspace 的最大值只是可解释分项，不能替代池外 buffer、权重布局副本与 driver 数据的测量。`K(P)` 取启动实际可分配 blocks；它还受原生估计、取整和保留空间影响，不自动等于 `(预算-C(P))/block_bytes`。若校准估计释放了更多 KV，应单列工程修复，不能当成组合优化贡献。启动峰值和最终总占用都须在同一预算策略内可行。
+
+**后继与目标。** 对既定外部到达序列 `A`，一次完整步骤时间为实测 `τ(P,x_n)`，固定调度器给出
+
+`t_(n+1)=t_n+τ(P,x_n)`，`x_(n+1)=F(x_n, A[t_n,t_(n+1)), 本步结果, K(P))`。
+
+时间变短会改变到达合批、请求完成和其他请求等待；KV 变化只有在约束生效时才改变可调度集合、等待或重算。不能将计算、传输和可重叠等待直接相加，也不能把局部 kernel 节省乘层数当完整服务收益。评估从原定首到达到排空，纳入全部失败/未完成，报告吞吐、TTFT/完成延迟与请求最大 token gap，另报 blocks、批次、启动/capture 代价。固定 KV 诊断不替代同总预算主比较。
+
+**静态历史分布的边界。** `H(batch | 原计划)` 通常不等于候选部署分布；这本身不是创新证据。须证明失配改变了值得区分的动作排序，而且错误代价超过测量波动或有明确部署价值。若简单物理规则已选对，增加状态/模拟器没有依据。最优静态组合仍可能存在，候选本身也输出静态组合；可研究的是可推广的选择原则而非“静态组合无法解决”。近邻与复现边界见 [`related_work.md`](related_work.md)。
+
+## 已执行的低成本诊断与下一决定
+
+旧论据“0.17 GiB graph 小于历史峰值余量 9.24 GiB”只描述原策略轨迹。改变执行时间可改变同时在场请求数、完成时刻和 KV 峰值，不能用该比较排除反馈。
+
+更强的诊断不依赖历史时间线：冻结输入共 12/160 个非 resumable、单输出请求，每个新进程只运行这批请求；当前配置为同步、无 prefix cache / speculative decoding / KV connector 的 OLMoE full-attention 单 KV 组。以下分配语义已由本次取得的当前源码核实（路径均相对 `native_sources/`）：
+
+- `v1/core/sched/scheduler.py:240` 将 lookahead 设为 0，仅 speculative 分支改变；`engine/arg_utils.py:630`、`:675` 的 speculative / KV transfer 默认均为 `None`。无 connector 时 scheduler `:129`、`:132` 保持 connector=None、defer_block_free=False；`:927` 的 reserved_blocks=0 仅在 load_kv_async 分支改变。`config/scheduler.py:146` 的 watermark 默认 0。
+- `v1/core/kv_cache_manager.py:228` 在 prefix 关闭时返回空 cache hits，`:490` 跳过 cache 写入；`single_type_kv_cache_manager.py:123` 的 CoW 必须存在非空 prefix hit，因此此路径不产生 CoW 副本。`:169`、`:350` 按 `ceil(num_tokens/block_size)` 计算需求并只分配缺少的块，没有额外每请求预留块。
+- `kv_cache_manager.py:413` 的 full-sequence 检查使用 `min(request.num_tokens, max_model_len)`，只检查当前请求序列能否放下，不提前占据 4096-token 额度；`:429` 的实际槽位数为本步已计算加新增 tokens，lookahead 为零。
+- `sched/scheduler.py:1221` 在抢占时释放，`:2252` 在无 deferred-free 时立即调用 KV free；`single_type_kv_cache_manager.py:490` 删除持块表，`:503` 交回块池，`block_pool.py:731` 将零引用块放回 free queue。`:190` 仅保留一个 null block，比较容量时减去这一块。没有本配置下脱离请求的不可回收持块或 KV 副本。
+
+因此每请求持块数不超过其最终输出上限，且 full-ISL 的额外准入检查也在同一包络内。任意时刻逻辑需求满足
+
+`U(t) ≤ U_all = Σ_i ceil((prompt_i + max_output_i) / 16)`。
+
+CPU 从原输入逐请求取整已得到：**low 2107 blocks，high 34430 blocks（67.246 GiB）**；high 的最大完整长度 4025，不超过 4096。本轮 compact 实际启动确认单 `FullAttentionSpec` KV 组、block_size=16、无 spec/connector/prefix/async、lookahead=watermark=0，且总 36828 / 空闲 36827 blocks；比 high 包络多 **2397 blocks（4.682 GiB）**。因此该端点在声明的固定请求语义下，KV 分配与 full-ISL 准入约束均不会激活。这是启动观测加源码语义推出的容量证书，**没有运行服务，不是实测峰值、吞吐预测或所有计划的证书**；不能外推到多组/hybrid KV、speculative、多输出/beam、持续新增会话、异步 connector 或其他请求共同占池。
+
+**当前决定与最小下一项。** compact 的容量不足解释已被排除，跨计划取舍仍未知；暂不开发组合优化器。下一项仅在共享锁可用时执行已冻结的 dense 新进程启动，沿用阶段总 GPU 上限 900 s、单进程 420 s、零锁等待，不重新测 compact、不扩展矩阵。dense 若同样 `usable≥34430` 且容量域吻合，可收束这两个端点的 KV 耦合尝试；不假定任意其他子集或 backend 的内存单调性。若 dense 不覆盖界且有潜在速度价值，再以既定 high 服务对照判断约束是否真实激活。启动失败只说明该端点不可行或测量不足；锁忙仍是未运行。无论哪种结果，计算速度仍可能改变 batch/尾延迟，须另行证明，不能归为容量收益。整个诊断不改到达、输出上限或显存配额。

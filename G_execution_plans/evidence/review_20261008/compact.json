@@ -1,0 +1,667 @@
+{
+  "status": "STARTUP_COMPLETE_NO_SERVICE_RUN",
+  "plan": "compact",
+  "engine_args": {
+    "model": "/root/autodl-tmp/moe-research-20261002/model",
+    "dtype": "bfloat16",
+    "tensor_parallel_size": 1,
+    "gpu_memory_utilization": 0.9,
+    "max_model_len": 4096,
+    "max_num_batched_tokens": 2048,
+    "max_num_seqs": 256,
+    "seed": 20261008,
+    "moe_backend": "triton",
+    "worker_cls": "g_worker.GWorker",
+    "distributed_executor_backend": "uni",
+    "enforce_eager": false,
+    "enable_chunked_prefill": true,
+    "enable_prefix_caching": false,
+    "async_scheduling": false,
+    "scheduling_policy": "fcfs",
+    "scheduler_reserve_full_isl": true,
+    "long_prefill_token_threshold": 0,
+    "enable_return_routed_experts": false,
+    "compilation_config": {
+      "cudagraph_mode": "FULL_AND_PIECEWISE",
+      "cudagraph_capture_sizes": [
+        1,
+        2,
+        4,
+        8,
+        16,
+        32,
+        64,
+        128,
+        256,
+        512
+      ],
+      "max_cudagraph_capture_size": 512
+    }
+  },
+  "environment": {
+    "VLLM_ENABLE_STARTUP_PLAN": "0",
+    "VLLM_MEMORY_PROFILER_ESTIMATE_CUDAGRAPHS": "1",
+    "VLLM_ENABLE_V1_MULTIPROCESSING": "0",
+    "VLLM_USE_V2_MODEL_RUNNER": "0",
+    "VLLM_USE_FLASHINFER_SAMPLER": "0",
+    "HF_HUB_OFFLINE": "1",
+    "TRANSFORMERS_OFFLINE": "1",
+    "TOKENIZERS_PARALLELISM": "false",
+    "WISP_PLUGIN_DISABLE": "1",
+    "OMP_NUM_THREADS": "8"
+  },
+  "lock_path": "/root/autodl-tmp/moe-research-gpu.lock",
+  "stage_file": "/tmp/G_execution_plans/review_20261008/compact.stages.jsonl",
+  "pid": 29598,
+  "limitations": [
+    "Prototype untested on GPU; CPU validation does not establish backend correctness.",
+    "Native profile estimates graph memory from representative captures before KV allocation.",
+    "The complete live graph set is captured after KV allocation; no exact capture-first reallocation is implemented.",
+    "capture_model returns its native device-free-memory delta, not an attribution of graph metadata alone.",
+    "Allocator pool snapshots exclude non-PyTorch allocations; inactive reserved bytes are not necessarily releasable to KV.",
+    "Startup-only probe does not establish SLO goodput, a speed-memory tradeoff, or service capacity pressure.",
+    "Wall times include instrumentation; native allocator peaks may be reset by vLLM. An explicit cache cleanup is reported separately after startup warmup and never reallocates KV."
+  ],
+  "gpu_experiment_launched": true,
+  "compute_processes_precheck": "",
+  "gpu_before": "name, uuid, driver_version, memory.total [MiB], memory.used [MiB], memory.free [MiB], compute_cap\nNVIDIA RTX PRO 6000 Blackwell Server Edition, GPU-51b8e4bb-27b8-4b82-5254-7317aae7298c, 580.95.05, 97887 MiB, 0 MiB, 97251 MiB, 12.0",
+  "orphan_torch_modules_skipped": [
+    "flex_attention.py",
+    "flex_decoding.py",
+    "mm_scaled_grouped.py"
+  ],
+  "versions": {
+    "torch": "2.11.0+cu130",
+    "vllm": "0.26.0",
+    "cuda": "13.0",
+    "torch_module_file": "/root/autodl-tmp/moe-e-restore-choice-20261004/package_view/torch/__init__.py",
+    "vllm_module_file": "/root/miniconda3/lib/python3.12/site-packages/vllm/__init__.py"
+  },
+  "engine_startup_wall_s": 35.93237452954054,
+  "scheduler_kv_blocks_including_reserved_block": 36828,
+  "scheduler_free_kv_blocks": 36827,
+  "cache_block_size_tokens": 16,
+  "observed_capacity_domain": {
+    "num_lookahead_tokens": 0,
+    "watermark_blocks": 0,
+    "enable_prefix_caching": false,
+    "async_scheduling": false,
+    "has_kv_transfer_config": false,
+    "has_speculative_config": false,
+    "num_kv_cache_groups": 1,
+    "scheduler_block_size_tokens": 16,
+    "kv_cache_spec_types": [
+      "FullAttentionSpec"
+    ],
+    "model_type": "olmoe",
+    "scheduler_reserve_full_isl": true
+  },
+  "resolved_capture_sizes": [
+    1,
+    2,
+    4,
+    8,
+    16,
+    32,
+    64,
+    128,
+    256,
+    512
+  ],
+  "resolved_cudagraph_mode": "FULL_AND_PIECEWISE",
+  "stage_events": [
+    {
+      "event": "init_device_after",
+      "pid": 29598,
+      "rank": 0,
+      "monotonic_s": 24965002.424049757,
+      "elapsed_s": 1.231565147638321,
+      "memory": {
+        "device": "cuda:0",
+        "free_bytes": 101271339008,
+        "total_bytes": 101974081536,
+        "allocated_bytes": 8745472,
+        "reserved_bytes": 23068672,
+        "peak_allocated_bytes": 8745472,
+        "peak_reserved_bytes": 23068672,
+        "peak_scope": "native allocator history; native code may reset counters",
+        "torch_allocator_pools": {
+          "[0, 0]": {
+            "segments": 2,
+            "total_bytes": 23068672,
+            "allocated_bytes": 8745472,
+            "active_bytes": 8745472,
+            "inactive_block_bytes": 14323200
+          }
+        },
+        "pool_attribution": "Segment pool IDs only; non-Torch graph data is not attributed. Unknown means API omitted pool identity.",
+        "shared_workspace": {
+          "locked": false,
+          "tensor_views": 0,
+          "unique_storages": 0,
+          "unique_storage_bytes": 0
+        }
+      }
+    },
+    {
+      "event": "load_model_after",
+      "pid": 29598,
+      "rank": 0,
+      "monotonic_s": 24965006.83956848,
+      "elapsed_s": 4.4141101241111755,
+      "model_memory_usage_bytes": 13842551296,
+      "memory": {
+        "device": "cuda:0",
+        "free_bytes": 87396581376,
+        "total_bytes": 101974081536,
+        "allocated_bytes": 13851296768,
+        "reserved_bytes": 13897826304,
+        "peak_allocated_bytes": 13851296768,
+        "peak_reserved_bytes": 13897826304,
+        "peak_scope": "native allocator history; native code may reset counters",
+        "torch_allocator_pools": {
+          "[0, 0]": {
+            "segments": 62,
+            "total_bytes": 13897826304,
+            "allocated_bytes": 13851296768,
+            "active_bytes": 13851296768,
+            "inactive_block_bytes": 46529536
+          }
+        },
+        "pool_attribution": "Segment pool IDs only; non-Torch graph data is not attributed. Unknown means API omitted pool identity.",
+        "shared_workspace": {
+          "locked": false,
+          "tensor_views": 0,
+          "unique_storages": 0,
+          "unique_storage_bytes": 0
+        }
+      }
+    },
+    {
+      "event": "actual_moe_backends",
+      "pid": 29598,
+      "rank": 0,
+      "monotonic_s": 24965006.840039343,
+      "backend_expert_classes": [
+        [
+          "UnquantizedMoeBackend.TRITON",
+          "TritonExperts"
+        ]
+      ]
+    },
+    {
+      "event": "determine_available_memory_before",
+      "pid": 29598,
+      "rank": 0,
+      "monotonic_s": 24965006.84116881,
+      "memory": {
+        "device": "cuda:0",
+        "free_bytes": 87396581376,
+        "total_bytes": 101974081536,
+        "allocated_bytes": 13851296768,
+        "reserved_bytes": 13897826304,
+        "peak_allocated_bytes": 13851296768,
+        "peak_reserved_bytes": 13897826304,
+        "peak_scope": "native allocator history; native code may reset counters",
+        "torch_allocator_pools": {
+          "[0, 0]": {
+            "segments": 62,
+            "total_bytes": 13897826304,
+            "allocated_bytes": 13851296768,
+            "active_bytes": 13851296768,
+            "inactive_block_bytes": 46529536
+          }
+        },
+        "pool_attribution": "Segment pool IDs only; non-Torch graph data is not attributed. Unknown means API omitted pool identity.",
+        "shared_workspace": {
+          "locked": false,
+          "tensor_views": 0,
+          "unique_storages": 0,
+          "unique_storage_bytes": 0
+        }
+      }
+    },
+    {
+      "event": "profile_cudagraph_memory_before",
+      "pid": 29598,
+      "rank": 0,
+      "monotonic_s": 24965021.9108111,
+      "memory": {
+        "device": "cuda:0",
+        "free_bytes": 86983442432,
+        "total_bytes": 101974081536,
+        "allocated_bytes": 14031864832,
+        "reserved_bytes": 14298382336,
+        "peak_allocated_bytes": 14224487424,
+        "peak_reserved_bytes": 14298382336,
+        "peak_scope": "native allocator history; native code may reset counters",
+        "torch_allocator_pools": {
+          "[0, 0]": {
+            "segments": 68,
+            "total_bytes": 14298382336,
+            "allocated_bytes": 14031864832,
+            "active_bytes": 14031864832,
+            "inactive_block_bytes": 266517504
+          }
+        },
+        "pool_attribution": "Segment pool IDs only; non-Torch graph data is not attributed. Unknown means API omitted pool identity.",
+        "shared_workspace": {
+          "locked": false,
+          "tensor_views": 1,
+          "unique_storages": 1,
+          "unique_storage_bytes": 134217728
+        }
+      }
+    },
+    {
+      "event": "profile_cudagraph_memory_after",
+      "pid": 29598,
+      "rank": 0,
+      "monotonic_s": 24965024.205061108,
+      "elapsed_s": 2.2911341972649097,
+      "native_return_bytes": 138412032,
+      "memory": {
+        "device": "cuda:0",
+        "free_bytes": 86956179456,
+        "total_bytes": 101974081536,
+        "allocated_bytes": 14040384512,
+        "reserved_bytes": 14245953536,
+        "peak_allocated_bytes": 14596130816,
+        "peak_reserved_bytes": 14757658624,
+        "peak_scope": "native allocator history; native code may reset counters",
+        "torch_allocator_pools": {
+          "[0, 0]": {
+            "segments": 67,
+            "total_bytes": 14245953536,
+            "allocated_bytes": 14040384512,
+            "active_bytes": 14040384512,
+            "inactive_block_bytes": 205569024
+          }
+        },
+        "pool_attribution": "Segment pool IDs only; non-Torch graph data is not attributed. Unknown means API omitted pool identity.",
+        "shared_workspace": {
+          "locked": false,
+          "tensor_views": 1,
+          "unique_storages": 1,
+          "unique_storage_bytes": 134217728
+        }
+      },
+      "interpretation": "Representative-capture extrapolation, not exact set cost"
+    },
+    {
+      "event": "determine_available_memory_after",
+      "pid": 29598,
+      "rank": 0,
+      "monotonic_s": 24965024.50820159,
+      "elapsed_s": 17.666023690253496,
+      "native_available_kv_bytes": 77235872871,
+      "native_cudagraph_estimate_bytes": 138412032,
+      "native_peak_activation_bytes": 373190656,
+      "native_non_torch_increase_bytes": 186646528,
+      "memory": {
+        "device": "cuda:0",
+        "free_bytes": 86989733888,
+        "total_bytes": 101974081536,
+        "allocated_bytes": 14040384512,
+        "reserved_bytes": 14212399104,
+        "peak_allocated_bytes": 14596130816,
+        "peak_reserved_bytes": 14757658624,
+        "peak_scope": "native allocator history; native code may reset counters",
+        "torch_allocator_pools": {
+          "[0, 0]": {
+            "segments": 66,
+            "total_bytes": 14212399104,
+            "allocated_bytes": 14040384512,
+            "active_bytes": 14040384512,
+            "inactive_block_bytes": 172014592
+          }
+        },
+        "pool_attribution": "Segment pool IDs only; non-Torch graph data is not attributed. Unknown means API omitted pool identity.",
+        "shared_workspace": {
+          "locked": false,
+          "tensor_views": 1,
+          "unique_storages": 1,
+          "unique_storage_bytes": 134217728
+        }
+      }
+    },
+    {
+      "event": "kv_allocate_before",
+      "pid": 29598,
+      "rank": 0,
+      "monotonic_s": 24965024.509671286,
+      "num_blocks": 36828,
+      "configured_kv_tensor_bytes": 77233913856,
+      "memory": {
+        "device": "cuda:0",
+        "free_bytes": 86989733888,
+        "total_bytes": 101974081536,
+        "allocated_bytes": 14040384512,
+        "reserved_bytes": 14212399104,
+        "peak_allocated_bytes": 14596130816,
+        "peak_reserved_bytes": 14757658624,
+        "peak_scope": "native allocator history; native code may reset counters",
+        "torch_allocator_pools": {
+          "[0, 0]": {
+            "segments": 66,
+            "total_bytes": 14212399104,
+            "allocated_bytes": 14040384512,
+            "active_bytes": 14040384512,
+            "inactive_block_bytes": 172014592
+          }
+        },
+        "pool_attribution": "Segment pool IDs only; non-Torch graph data is not attributed. Unknown means API omitted pool identity.",
+        "shared_workspace": {
+          "locked": false,
+          "tensor_views": 1,
+          "unique_storages": 1,
+          "unique_storage_bytes": 134217728
+        }
+      }
+    },
+    {
+      "event": "kv_allocate_after",
+      "pid": 29598,
+      "rank": 0,
+      "monotonic_s": 24965024.562565982,
+      "elapsed_s": 0.006821520626544952,
+      "num_blocks": 36828,
+      "allocated_kv": {
+        "tensor_views": 16,
+        "unique_storages": 16,
+        "unique_storage_bytes": 77233913856
+      },
+      "memory": {
+        "device": "cuda:0",
+        "free_bytes": 9747431424,
+        "total_bytes": 101974081536,
+        "allocated_bytes": 91282686976,
+        "reserved_bytes": 91454701568,
+        "peak_allocated_bytes": 91282686976,
+        "peak_reserved_bytes": 91454701568,
+        "peak_scope": "native allocator history; native code may reset counters",
+        "torch_allocator_pools": {
+          "[0, 0]": {
+            "segments": 82,
+            "total_bytes": 91454701568,
+            "allocated_bytes": 91282686976,
+            "active_bytes": 91282686976,
+            "inactive_block_bytes": 172014592
+          }
+        },
+        "pool_attribution": "Segment pool IDs only; non-Torch graph data is not attributed. Unknown means API omitted pool identity.",
+        "shared_workspace": {
+          "locked": false,
+          "tensor_views": 1,
+          "unique_storages": 1,
+          "unique_storage_bytes": 134217728
+        }
+      }
+    },
+    {
+      "event": "compile_or_warm_up_before",
+      "pid": 29598,
+      "rank": 0,
+      "monotonic_s": 24965024.563677527,
+      "memory": {
+        "device": "cuda:0",
+        "free_bytes": 9747431424,
+        "total_bytes": 101974081536,
+        "allocated_bytes": 91282686976,
+        "reserved_bytes": 91454701568,
+        "peak_allocated_bytes": 91282686976,
+        "peak_reserved_bytes": 91454701568,
+        "peak_scope": "native allocator history; native code may reset counters",
+        "torch_allocator_pools": {
+          "[0, 0]": {
+            "segments": 82,
+            "total_bytes": 91454701568,
+            "allocated_bytes": 91282686976,
+            "active_bytes": 91282686976,
+            "inactive_block_bytes": 172014592
+          }
+        },
+        "pool_attribution": "Segment pool IDs only; non-Torch graph data is not attributed. Unknown means API omitted pool identity.",
+        "shared_workspace": {
+          "locked": false,
+          "tensor_views": 1,
+          "unique_storages": 1,
+          "unique_storage_bytes": 134217728
+        }
+      }
+    },
+    {
+      "event": "capture_model_before",
+      "pid": 29598,
+      "rank": 0,
+      "monotonic_s": 24965032.323828038,
+      "memory": {
+        "device": "cuda:0",
+        "free_bytes": 9747431424,
+        "total_bytes": 101974081536,
+        "allocated_bytes": 91282686976,
+        "reserved_bytes": 91454701568,
+        "peak_allocated_bytes": 91282724352,
+        "peak_reserved_bytes": 91454701568,
+        "peak_scope": "native allocator history; native code may reset counters",
+        "torch_allocator_pools": {
+          "[0, 0]": {
+            "segments": 82,
+            "total_bytes": 91454701568,
+            "allocated_bytes": 91282686976,
+            "active_bytes": 91282686976,
+            "inactive_block_bytes": 172014592
+          }
+        },
+        "pool_attribution": "Segment pool IDs only; non-Torch graph data is not attributed. Unknown means API omitted pool identity.",
+        "shared_workspace": {
+          "locked": false,
+          "tensor_views": 1,
+          "unique_storages": 1,
+          "unique_storage_bytes": 134217728
+        }
+      }
+    },
+    {
+      "event": "live_capture_order",
+      "pid": 29598,
+      "rank": 0,
+      "monotonic_s": 24965032.324061364,
+      "groups": [
+        {
+          "mode": "PIECEWISE",
+          "token_buckets": [
+            512,
+            256,
+            128,
+            64,
+            32,
+            16,
+            8,
+            4,
+            2,
+            1
+          ]
+        },
+        {
+          "mode": "FULL",
+          "token_buckets": [
+            256,
+            128,
+            64,
+            32,
+            16,
+            8,
+            4,
+            2,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "event": "capture_model_after",
+      "pid": 29598,
+      "rank": 0,
+      "monotonic_s": 24965035.641893446,
+      "elapsed_s": 3.3162248246371746,
+      "native_return_bytes": 79691776,
+      "memory": {
+        "device": "cuda:0",
+        "free_bytes": 9667739648,
+        "total_bytes": 101974081536,
+        "allocated_bytes": 91291207680,
+        "reserved_bytes": 91507130368,
+        "peak_allocated_bytes": 91310082048,
+        "peak_reserved_bytes": 91513421824,
+        "peak_scope": "native allocator history; native code may reset counters",
+        "torch_allocator_pools": {
+          "[0, 0]": {
+            "segments": 84,
+            "total_bytes": 91477770240,
+            "allocated_bytes": 91291207680,
+            "active_bytes": 91291207680,
+            "inactive_block_bytes": 186562560
+          },
+          "[0, 1]": {
+            "segments": 5,
+            "total_bytes": 29360128,
+            "allocated_bytes": 0,
+            "active_bytes": 0,
+            "inactive_block_bytes": 29360128
+          }
+        },
+        "pool_attribution": "Segment pool IDs only; non-Torch graph data is not attributed. Unknown means API omitted pool identity.",
+        "shared_workspace": {
+          "locked": true,
+          "tensor_views": 1,
+          "unique_storages": 1,
+          "unique_storage_bytes": 134217728
+        }
+      },
+      "interpretation": "Native whole live capture device-free-memory delta after KV allocation"
+    },
+    {
+      "event": "startup_ready",
+      "pid": 29598,
+      "rank": 0,
+      "monotonic_s": 24965036.271020383,
+      "elapsed_s": 11.705886512994766,
+      "num_blocks": 36828,
+      "memory": {
+        "device": "cuda:0",
+        "free_bytes": 9556590592,
+        "total_bytes": 101974081536,
+        "allocated_bytes": 91291207680,
+        "reserved_bytes": 91618279424,
+        "peak_allocated_bytes": 91476490240,
+        "peak_reserved_bytes": 91618279424,
+        "peak_scope": "native allocator history; native code may reset counters",
+        "torch_allocator_pools": {
+          "[0, 0]": {
+            "segments": 89,
+            "total_bytes": 91588919296,
+            "allocated_bytes": 91291207680,
+            "active_bytes": 91291207680,
+            "inactive_block_bytes": 297711616
+          },
+          "[0, 1]": {
+            "segments": 5,
+            "total_bytes": 29360128,
+            "allocated_bytes": 0,
+            "active_bytes": 0,
+            "inactive_block_bytes": 29360128
+          }
+        },
+        "pool_attribution": "Segment pool IDs only; non-Torch graph data is not attributed. Unknown means API omitted pool identity.",
+        "shared_workspace": {
+          "locked": true,
+          "tensor_views": 1,
+          "unique_storages": 1,
+          "unique_storage_bytes": 134217728
+        }
+      }
+    },
+    {
+      "event": "startup_explicit_empty_cache_before",
+      "pid": 29598,
+      "rank": 0,
+      "monotonic_s": 24965036.27201591,
+      "memory": {
+        "device": "cuda:0",
+        "free_bytes": 9556590592,
+        "total_bytes": 101974081536,
+        "allocated_bytes": 91291207680,
+        "reserved_bytes": 91618279424,
+        "peak_allocated_bytes": 91476490240,
+        "peak_reserved_bytes": 91618279424,
+        "peak_scope": "native allocator history; native code may reset counters",
+        "torch_allocator_pools": {
+          "[0, 0]": {
+            "segments": 89,
+            "total_bytes": 91588919296,
+            "allocated_bytes": 91291207680,
+            "active_bytes": 91291207680,
+            "inactive_block_bytes": 297711616
+          },
+          "[0, 1]": {
+            "segments": 5,
+            "total_bytes": 29360128,
+            "allocated_bytes": 0,
+            "active_bytes": 0,
+            "inactive_block_bytes": 29360128
+          }
+        },
+        "pool_attribution": "Segment pool IDs only; non-Torch graph data is not attributed. Unknown means API omitted pool identity.",
+        "shared_workspace": {
+          "locked": true,
+          "tensor_views": 1,
+          "unique_storages": 1,
+          "unique_storage_bytes": 134217728
+        }
+      }
+    },
+    {
+      "event": "startup_explicit_empty_cache_after",
+      "pid": 29598,
+      "rank": 0,
+      "monotonic_s": 24965036.273786426,
+      "elapsed_s": 0.000807546079158783,
+      "num_blocks": 36828,
+      "memory": {
+        "device": "cuda:0",
+        "free_bytes": 9667739648,
+        "total_bytes": 101974081536,
+        "allocated_bytes": 91291207680,
+        "reserved_bytes": 91507130368,
+        "peak_allocated_bytes": 91476490240,
+        "peak_reserved_bytes": 91618279424,
+        "peak_scope": "native allocator history; native code may reset counters",
+        "torch_allocator_pools": {
+          "[0, 0]": {
+            "segments": 84,
+            "total_bytes": 91477770240,
+            "allocated_bytes": 91291207680,
+            "active_bytes": 91291207680,
+            "inactive_block_bytes": 186562560
+          },
+          "[0, 1]": {
+            "segments": 5,
+            "total_bytes": 29360128,
+            "allocated_bytes": 0,
+            "active_bytes": 0,
+            "inactive_block_bytes": 29360128
+          }
+        },
+        "pool_attribution": "Segment pool IDs only; non-Torch graph data is not attributed. Unknown means API omitted pool identity.",
+        "shared_workspace": {
+          "locked": true,
+          "tensor_views": 1,
+          "unique_storages": 1,
+          "unique_storage_bytes": 134217728
+        }
+      }
+    }
+  ],
+  "gpu_after_startup": "name, uuid, memory.used [MiB], memory.free [MiB]\nNVIDIA RTX PRO 6000 Blackwell Server Edition, GPU-51b8e4bb-27b8-4b82-5254-7317aae7298c, 88031 MiB, 9220 MiB"
+}

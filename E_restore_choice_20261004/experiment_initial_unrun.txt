@@ -1,0 +1,64 @@
+E: native restoration method selection, first bounded experiment
+Frozen before measured GPU execution, 2026-10-04.
+
+Question: for a preempted request with ready Host KV, does choosing native Host
+restoration versus native recomputation change decision-to-next-output and the
+completion/stall cost of all requests? No crossover or adaptive advantage assumed.
+
+Only changed knob: connector lookup result for an eligible preempted request.
+Original positive result invokes native prepare_load; (0, False) invokes the
+same scheduler/model runner on the already known prompt + generated token IDs.
+No new executor, no preempt/queue/victim/admission/transfer-concurrency changes.
+STORE stays enabled identically; it remains in actual end-to-end elapsed time.
+
+Runtime: observed vLLM 0.26.0 / torch 2.11.0 / transformers 5.17.0, resident
+OLMoE model from existing local snapshot, BF16, eager, native Triton MoE backend.
+GPU: RTX PRO 6000 Blackwell Server Edition,
+GPU-bf3fc5ab-804d-b9d6-759b-4390899f15b9.
+GPU KV=1 GiB; pinned Host KV=4 GiB; FCFS; max_num_seqs=16;
+max_num_batched_tokens=512; full_sequence_must_fit=True; APC/speculation off.
+Full-sequence admission means the entire current known history must fit; no
+claim that recomputation or a partial Host prefix reduces complete-state need.
+Artificially constrained KV capacity on a larger GPU is an explicit pilot limit.
+
+Input: 16 fixed existing GSM8K eight-shot prompts, 662..763 tokens, retained in
+workload.json. All external arrivals=0; each request generates 256 tokens with
+greedy sampling, ignore_eos=True. This is equal-work system qualification,
+not a natural stopping/quality result. Common warmup: all 16 prompts,
+256 output tokens under the native Host policy with selection disabled,
+drained STORE and explicitly reset Host/GPU caches before measurement.
+Full-pressure warmup covers concurrent batch shapes that four requests would miss.
+Each arm is a new process; common same warmup, engine and resource configuration.
+Order: Host, Recompute, Recompute, Host. No post-hoc run removal.
+Per-cell timeout 180 s measured service; parent timeout 600 s including setup.
+
+Both-policy fallback: pending own transfer/lookup retains native defer; no legal
+Host hit retains native recompute. Full-capacity-not-jointly-available cases retain
+the native result and admission check, separately counted. Lookup attempts do not
+count as executed decisions; update_state_after_alloc is the commit boundary.
+All fallback reasons, preferred and actual action are retained.
+
+Measurements: every request arrival/admission/completion, every output token/time,
+every native schedule token range, preemptions, decision/commit state and time,
+reported native LOAD/STORE bytes and transfer durations, whole episode completion
+and drain. Transfer durations may overlap; never add them to infer wall time.
+Choice-to-next-output includes queue/transfer/recompute and native scheduling.
+Prefix consistency and no-output-before-rebuild are runtime assertions. Greedy
+token trajectories may differ numerically with batch shape: report differences,
+do not interpret token equality as a substitute for task quality.
+
+Minimal runnable selector: host/recompute/length. Length threshold is an explicit
+baseline, not a claimed learned policy. Add one current-state signal only after
+traces justify useful residual; use decision-time observations only. No future
+output length or action execution before choosing. Follow-up must compare best
+fixed arm and length threshold, and must stop unchanged state rule if redundant.
+
+Resource coordination: existing /root/autodl-tmp/moe-research-gpu.lock, nonblocking
+whole-group flock plus nvidia-smi before every cell. Busy/unknown -> abort, never
+terminate foreign process or exploit a gap between cells. Initial pilot_r01 was
+ABORT_LOCK_BUSY, zero E GPU cells; its receipt is preserved.
+
+Claim ceiling: native single-model controlled service pilot; no generality,
+quality, production memory-pressure, sampling-RNG or novelty claim yet.
+Prior-work audit is related_work.txt. CacheOPT/Stream2LLM style threshold must
+be recalibrated to remaining restore cost; previously paid STORE is not a saving.

@@ -1,0 +1,75 @@
+E MultiNews320 + headroom：只读 CPU preflight，2026-10-07
+状态：PREPARATION_ONLY / GPU_UNRUN / NOT_QUEUED。这是对父会话提出的
+H/R/L/G/G/L/R/H 可执行性的审阅，不是新冻结计划或提交授权；是否推进由父会话
+在计时审计之后决定。本次未改 runtime、输入、质量合约或已有六臂计划。
+
+结论与实际覆盖
+现有 evaluate_multinews_quality.py 的 multinews320 profile 可以直接评分八臂，
+并接受 policy=headroom。evaluate() 动态遍历所有 raw.json，以相对目录名标记
+arm，policy 只作元数据，无六臂限制或策略白名单；所有臂两两比较。未来若八臂
+全部合法完成，会有 8*256=2048 条长请求-arm评分记录和 28 个臂对，仍只有27个
+新闻组，不是2048篇独立文章。64个短题继续单独用既有短题CLI，动态臂数亦适用。
+
+已经执行过的质量验证范围是：默认256在已完成六臂上 EXACT 复现1152条完整
+decode/逐参考分值/finish字段、全部汇总浮点值及15个臂对；320只通过冻结输入、
+规模与资源检查，以及旧256错误组、错误maxseq的拒绝检查。没有320 GPU输出，
+没有八臂320分数或 headroom 在新闻负载上的机制/收益结果。本轮仅源码审阅，
+不重复已有CPU测试。核验依据 quality_tools/multinews_profile_validation.json，
+SHA256 ee2922467537b82d1ed2246310c58e37391c1a86ab30d63f7c23e0e053b094e5。
+
+输入和质量规则保持原冻结值
+输入 inputs_multinews320/pro6000_multinews_candidate_320.json，SHA256
+21c601c5aa8bda312ba3a4f10c88b8cc34bbecfbc2fb15f98daf2ac53f707995。
+原256条为精确前缀；追加64个long从原27源循环的source32继续。总64short+256long，
+前13源各10次、余14源各9次；完整自然输入，无截断/拼接扩充/强制输出长度。
+short cap256、long cap1024，最大prompt+cap4064<=4096。CPU静态几何不能保证
+恢复发生；实际EOS/退休/准入和 maxseq320 的重新profile仍可能得到零恢复。
+质量附录 inputs_multinews320/quality_scale_addendum.json SHA256
+7add92c6d87ec7e38fca4b73013e11d6dc6743791d3e49e4c54a6db311339bc3。
+评分器逐臂核对COMPLETE、完整冻结inputs、runtime workload hash、320身份/对应
+gold/prompt长度/arrival/cap/完成及token时间数量，核对BF16/context4096/maxseq320/
+batch2048/GPU0.9/Host32GiB/无显式KV限容。原256质量合约及官方函数不改：完整
+continuation、rouge1.0.1官方ROUGE-L、逐参考max、组内9或10次均值后27组宏平均，
+256请求均值为次要指标；length/空输出保留，异常不能冒充有效0。
+人工仍仅source0/120/194，每源首Host首请求及首个相反stop/length类型（若存在），
+合计最多6身份、跨全部臂核对；首请求身份因原前缀保持为E001/E018/E035。第二身份
+必须由新组首Host实际输出选择，不能直接移植旧256组选择或把ROUGE当忠实性认证。
+
+最少运行配置差异（仅说明，未修改或执行）
+相对现有 multinews320_next.txt 的 H/R/L/L/R/H 六臂，拟议顺序增加原G，变为
+host,recompute,length,headroom,headroom,length,recompute,host；预计目录为
+00_host/01_recompute/02_length/03_headroom/04_headroom/05_length/06_recompute/07_host。
+run_group.py / run_cell.py 已支持该名称和任意列出的有界顺序，无需改执行器。
+应使用已验证headroom运行源码及所有臂相同的观测逻辑，不使用旧六臂计划指定的
+pre-budget H/R/L源码。maxseq320/requests320、同一冻结输入、正常资源、原暖机与
+排空重置、naturalEOS、observer和1792均保留；target_spec须为null。
+G没有单独可调margin CLI：现有selector仅在共同合法、ALL-running supported、
+known<=1792且margin>=0时重算，否则Host。margin=free-full_required-reserved-
+watermark-background_next_decode_growth-target_next_decode_growth。scope及
+零margin边界沿用原实现；其一轮当前集合估计不保证免抢占或完整服务收益。
+
+最少分析差异与现有guard边界
+1. analyze.py动态聚合(policy,threshold)并做全部臂对，可直接用新本地group；
+   无256或六臂绑定。报告配对应是H00/07、R01/06、L02/05、G03/04，保留顺序漂移。
+2. analyze_headroom.py 的逐事件验证已支持H/R/L/G，且没有256请求上限，但第20行
+   EXPECTED_ARMS 固定H/L/G/G/L/H，第270行据此判定VALIDATED_COMPLETE。八臂未经
+   适配会得到INCOMPLETE。所需最薄后续改动是显式选择预期顺序（默认仍为旧六臂），
+   令新配置严格要求上述八臂；保持事件公式、1792及观察核验不变，不直接改旧默认。
+   若根本无合法事件/快照，现有UNRUN表示机制没有可验证观察，不能伪造G作用。
+3. 质量CLI不验证预定臂数/顺序/每策略次数、threshold、G语义或observer一致性；
+   COMPLETE与rglob也不能发现一个完全缺失的预期目录。后续组验收须显式核对8臂
+   manifest、父/各格COMPLETE及上述配置/源码hash一致。这属于运行/机制审计，
+   不是更改质量公式。generic analyze.py也不强制八臂完整，不可用exit0代替该检查。
+4. 不将原summary256的局部信号移植成新闻任务收益；逐事件下一输出和后续停顿、
+   同时在途者等待、真实工作/输出差异、全服务及STORE/LOAD仍须由未来原始数据核验。
+   质量评分不产生时延归因；不同输出/工作不得称等工作量加速。
+
+未来仅对已完成并取回本地的真实组评分，命令模板（本轮未执行）：
+/private/tmp/moe-a-fresh-input-env-20261001/bin/python E_restore_choice_20261004/evaluate_multinews_quality.py LOCAL_COMPLETE_MULTINEWS320_GROUP --workload-profile multinews320 --deps /private/tmp/E-multinews-quality-20261007/site --tokenizers-extension /private/tmp/moe-a-fresh-input-env-20261001/lib/python3.13/site-packages/tokenizers/tokenizers.abi3.so --out LOCAL_MULTINEWS320_QUALITY.json
+
+此次只读版本凭据：
+evaluate_multinews_quality.py 02020232de35ef874490f4b0b3a49d79ccf07eca9df4b51fca02b5e97be7d144
+selector.py 70941894705c0745e25e5b1551346d608c19228bea8ad8a674b8493e76d50b5f
+analyze.py ac20a2f2721796c95c5ee11e082d5d66708bb7cc4db4aba3f34777d65bb55eb9
+原六臂 multinews320_next.txt 保持SHA256
+6dcede6600c2295de4915d67b17ffe9b657128434723cfe365f8a24724b114a0。

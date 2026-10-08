@@ -1,0 +1,41 @@
+E 单事件R/H/H/R组：已有64短题的固定规则质量增量（纯本地重算）
+
+新组oct07_one_event_r01的四臂均为26/64=40.625%；这是从新组每条输出重新
+解码、抽取与评分所得，未直接移植旧summary256的26/64。新组四臂都只有
+E136一条length截断，不沿用旧全策略Recompute臂的3条截断统计。
+
+臂                 stop且数值相符/64   纯数值相符  无可解析数值  length  stop
+00_recompute          26 (40.625%)         26           0          1      63
+01_host               26 (40.625%)         26           0          1      63
+02_host               26 (40.625%)         26           0          1      63
+03_recompute          26 (40.625%)         26           0          1      63
+四臂E136均256输出token、缺少显式answer标记；其余63条均stop且有答案标记。
+
+继承规则，未改extract/scoring
+定义文件：summary256_short_quality.json，SHA256：
+4b5cf391dbdc807fafdf80baf361b368921d0b5822c5f40cce1b5460105b885f。
+直接加载其中的number_regex，取文本最后带可选正负号的整数/小数，去掉
+千分位逗号，用Decimal精确比较原始GSM8K最后####答案；不换算百分数/币种，
+不评价推理。主统计另要求finish_reason=stop，所有64条保留在分母，length
+始终单列，不能拿截断中的中间数值当成合格最终回答；纯数值相符另作诊断。
+
+数据与解码沿用核验依据
+只评估原已冻结的GSM8K test索引128…191、E000/E004/…/E252这64条。
+各臂新inputs文件SHA与旧已验证inputs完全相同；source gold文件与tokenizer
+文件SHA均保持不变，逐条reference_answer/gold/prompt hash仍匹配。
+复用同一本地tokenizers扩展0.23.2，版本及二进制SHA与上次一致，没有安装。
+继承此前6+1条同token文本7/7逐字一致记录及其reference_file_sha256；本次
+没有重复跑该校验。完整依赖路径/hash、继承规则、逐请求文本、token IDs、
+提取值、参考gold、结束状态和新组四份raw SHA均保存到one_event_short_quality.json。
+
+跨臂差异（新组首Host与首Recompute）
+短题中62/64条token序列相同；E232、E240两条文本有变化，但提取数值未变：
+E232 / source186：gold=5，Host=8，Recompute=8，均stop且错误。
+E240 / source188：gold=50，Host=10，Recompute=10，均stop且错误。
+64条末尾数值及判对集合均一致；两Host臂互相、两Recompute臂互相的短输出
+token序列完全一致。目标是长请求E249，以上只是其所在服务批次中短题的结果。
+
+边界：相同数值分数不证明人工质量等价；自然stop和末尾数值都不能保证
+回答完整、推导正确或抽取到的必然是最终答案。不外推长摘要质量、总体服务
+质量或独立泛化，不用该指标证明性能收益。没有远端访问、GPU任务、规则
+调整或实验脚本/论文修改。

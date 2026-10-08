@@ -1,0 +1,68 @@
+E MultiNews 六臂真实服务结果（2026-10-07，本地CPU复核）
+目录：execution/oct07_multinews_r01；顺序H/R/L/L/R/H，L阈值1792。
+归档SHA256（root已核验）：74086c8635313a20de44487cdfaab0780377c4a2b0712462b8fdfe6a071419bd。
+复用已有summary.json，额外一次解析六份正式raw以核对规范化调度、峰值与完成释放；未重跑analyze、
+未远端/GPU、未修改paper/checkpoint。以下step从0计数；所有结果仅正式测量，预热不混入。
+
+结论
+六臂每臂256/256完成、82929个输出token，共1536次请求执行；0抢占、0恢复决策、0提交、
+0 eligible、0 fallback、0 LOAD，H/R/L没有实际动作分叉。全部15对完整输出与规范化调度一致。
+实际GPU KV峰值32235/36916块=87.319861%，没有因请求的最大输出cap而虚构满容量。
+六臂makespan40.810784–41.189090s、跨度0.378305s（0.927%），是本次相同执行的时延波动，
+不能归于恢复策略、长度阈值或自适应收益；本自然任务未覆盖合法恢复域及其短侧。
+
+全服务统计（completion_s减固定外部arrival_s，所有arrival均0）
+                           H0         R1         L2         L3         R4         H5
+makespan s                40.810784  41.171699  41.157851  41.056266  41.137229  41.189090
+mean completion s        22.904240  23.119465  23.204322  23.120058  23.181908  23.146214
+p95 completion s         36.293202  36.614138  36.723231  36.601702  36.659808  36.631669
+mean TTFT s              6.441273   6.546811   6.547226   6.505792   6.579756   6.509937
+gap p50 ms               53.284494  53.642452  54.220581  53.544104  54.087386  53.795427
+gap p95 ms               72.617004  72.327690  73.153036  72.471522  72.734833  72.870847
+gap p99 ms               73.872486  74.270040  76.317487  73.951732  75.738998  76.269483
+gap max ms               99.825893  112.832783 106.451947 108.902544 114.855083 118.582387
+gap sum s                4214.519714 4242.599305 4264.216524 4253.252017 4250.150908 4258.887011
+output tokens/s          2032.036   2014.223   2014.901   2019.887   2015.911   2013.373
+service+drain s          40.810951  41.171905  41.158046  41.056483  41.137424  41.189351
+
+每臂82673个连续token gap；不含TTFT，gap sum跨并发请求求和，不是墙钟。
+实际输出：64个GSM8K共6387 tokens，192个MultiNews共76542 tokens，总82929；251个stop、5个length。
+请求最大输出cap总和212992只是上限，不是执行量或质量。质量由独立评估负责，此报告不作质量断言。
+
+实际容量峰值及请求完成释放（retirement）
+资源原生auto0.9：GPU36916块/77418463232bytes=72.1015625GiB，初始free36915；单块16tokens/2MiB。
+六臂均1197个after-schedule样本，最小free4681，唯一峰值在step298；used32235块=62.958984375GiB。
+这个used口径包含初始即非空闲的1块。峰值192个scheduled请求按实际end_computed向上取整，
+合计32234块，与observed used扣该初始1块一致；没有使用未来输出cap计算驻留。
+只有step结束采样时，最小free4771，最大used32145块=87.076065%，会漏掉90块（180MiB）的全程峰值。
+这些是原生schedule/step边界的真实观测，不宣称完整GPU allocator高水位。
+
+在step298的schedule时刻，已经完成并退出活动集合的请求为64个（43个GSM8K、21个MultiNews），
+它们累计输入89572、输出8067 tokens；仍未完成192个，本步实际scheduled1609 tokens。
+同一步又完成两个stop请求：E108（prompt700/output177，end_computed876）和E208
+（prompt681/output59，end_computed739），单组16-token块数分别ceil876/16=55、ceil739/16=47。
+两者55+47=102块，与该步实际free从4681增至4783的变化完全一致；步末running190、waiting0。
+这是实际完成时间/调度位置/空闲块变化的相互核对，不把累计退役tokens直接当作瞬时KV占用。
+六臂的这一退休顺序、请求、调度位置与块数变化均一致；只有时刻不同。
+全程running峰值192、waiting峰值254；Host常驻峰值16384/16384块=32GiB。
+Host满并不意味着存在可恢复请求：这里没有抢占请求，也没有合法恢复候选。
+
+原生工作与完整传输成本
+每臂prompt总578750、实际输出82929，native scheduled=unique positions=661423，
+且661423=578750+82929−256；repeated/known-history-recomputed位置全部为0。
+每臂STORE86503325696bytes=80.5625GiB、5742个报告传输；这是实际累计传输，可超过32GiB常驻容量。
+各臂STORE CUDA-event时间和依次1.688484/1.695364/1.702586/1.701467/1.703991/1.706157s。
+每臂LOAD bytes/time/jobs全部0。所有STORE成本保留；传输event和不能与GPU计算相加为墙钟。
+raw中的preemptions、decisions、commits列表六臂均为空；summary对应distinct preempted、
+Host-ready domain、joint eligible domain均0。记录中没有成功策略分支可供收益对照。
+
+15对输出和规范化调度检查
+base summary的15对均256/256完整token序列一致，finish/stop/completed元数据差异均0。
+额外规范化使用raw.requests显式internal→external映射，保留批内原顺序，并逐步比较
+external_id/count/start_computed/end_computed/known_tokens/generated_tokens及free_blocks_after_schedule；
+不截取随机ID后缀，不排序批内请求。六条1197步序列全部逐元素相等，15/15对通过。
+统一SHA256（sorted-key紧凑JSON）：
+e116ce419aaedb1e6de63966c732b63092c66109cb947148b90083f463d13243。
+另逐步比较running/waiting/free_blocks/pending_load_jobs/host_resident_blocks，也15/15对一致，SHA：
+ddecf3a08de81bd732313cc2d45420410bdd74e8a67e07bde1b60d7c09252923。
+因此本组是明确的零动作自然任务覆盖结果和相同工作时延波动观测；不能挑最快的名义H/R/L作为策略赢家。

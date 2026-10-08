@@ -1,0 +1,267 @@
+"""Real native continuous-service experiment with bounded same-engine arms."""
+import argparse
+import hashlib
+import importlib.metadata
+import inspect
+import json
+import os
+from pathlib import Path
+import sys
+import subprocess
+import time
+import traceback
+from selector import RestoreSelector
+
+
+def dump(path, obj):
+    path.write_text(json.dumps(obj, indent=2, allow_nan=False) + '\n')
+
+
+def host_memory():
+    paths = ['/sys/fs/cgroup/memory.max','/sys/fs/cgroup/memory.current',
+             '/sys/fs/cgroup/memory.events','/proc/meminfo']
+    return {name:Path(name).read_text() for name in paths if Path(name).is_file()}
+
+
+def drain(engine):
+    start = time.perf_counter()
+    while engine.engine_core.engine_core.scheduler.connector.has_pending_push_work():
+        assert time.perf_counter() - start < 180
+        assert not engine.step()
+
+
+def check_isolation(path):
+    gpu = subprocess.check_output(['nvidia-smi','--query-gpu=uuid,memory.used,temperature.gpu,power.draw,clocks.current.sm','--format=csv,noheader'],text=True)
+    procs = subprocess.check_output(['nvidia-smi','--query-compute-apps=pid','--format=csv,noheader'],text=True)
+    pids = [int(p.strip()) for p in procs.splitlines() if p.strip()]
+    dump(path,dict(time=time.time(),gpu=gpu,compute_pids=pids,allowed_pid=os.getpid()))
+    assert 'GPU-bf3fc5ab-804d-b9d6-759b-4390899f15b9' in gpu and set(pids) <= {os.getpid()}
+
+
+def reset_drained(engine, selector, expected_free_blocks):
+    drain(engine)
+    assert engine.reset_prefix_cache(reset_connector=True)
+    drain(engine)
+    s, cs = selector.scheduler, selector.cs
+    assert not s.requests and not s.running and not s.waiting
+    assert not s.skipped_waiting and not s._inflight_prefills
+    assert not cs._jobs and not cs._req_status
+    assert s.kv_cache_manager.block_pool.get_num_free_blocks() == expected_free_blocks
+    return dict(reset_connector=True, success=True, free_blocks=expected_free_blocks,
+                pending_jobs=0, pending_requests=0)
+
+
+def episode(engine, selector, inputs, output_tokens, interval, natural, name, max_seconds):
+    from vllm import SamplingParams
+    from vllm.sampling_params import RequestOutputKind
+    scheduler = engine.engine_core.engine_core.scheduler
+    rows = []
+    by_external = {}
+    last_scheduled = {}
+    steps = []
+    schedule_trace = []
+    native_schedule = scheduler.schedule
+    def observed_schedule():
+        result = native_schedule()
+        scheduled = []
+        last_scheduled.clear()
+        for rid, count in result.num_scheduled_tokens.items():
+            req = scheduler.requests[rid]
+            scheduled.append(dict(request_id=rid, count=count,
+                start_computed=req.num_computed_tokens-count,
+                end_computed=req.num_computed_tokens, known_tokens=req.num_tokens,
+                generated_tokens=req.num_output_tokens))
+            last_scheduled[rid] = scheduled[-1]
+        schedule_trace.append(dict(time_s=selector.now(), scheduled=scheduled,
+            free_blocks_after_schedule=scheduler.kv_cache_manager.block_pool.get_num_free_blocks()))
+        return result
+    scheduler.schedule = observed_schedule
+    selector.clear()
+    selector.partial = dict(status='INCOMPLETE', episode=name, requests=rows, steps=steps,
+        scheduler_steps=schedule_trace, decisions=selector.events, commits=selector.commits,
+        preemptions=selector.preemptions, transfers=selector.transfers)
+    epoch = time.time()
+    arrivals = [float(source.get('arrival_s', index * interval)) for index, source in enumerate(inputs)]
+    assert arrivals == sorted(arrivals) and all(x >= 0 for x in arrivals)
+    index = 0
+    while index < len(inputs) or engine.has_unfinished_requests():
+        now = selector.now()
+        if now > max_seconds:
+            raise TimeoutError(f'{name} exceeded {max_seconds}s')
+        while index < len(inputs) and arrivals[index] <= now:
+            source = inputs[index]
+            cap = int(source.get('output_tokens', output_tokens))
+            external = f'{name}/E{index:03d}'
+            params = SamplingParams(temperature=0.0, max_tokens=cap,
+                min_tokens=0 if natural else cap, ignore_eos=not natural,
+                detokenize=False, output_kind=RequestOutputKind.CUMULATIVE)
+            admitted = selector.now()
+            internal = engine.add_request(external, dict(prompt_token_ids=source['prompt_token_ids'],
+                cache_salt=f'E-{name}-{index}'), params, arrival_time=epoch+arrivals[index])
+            rows.append(dict(request_id=internal, external_id=external, arrival_s=arrivals[index],
+                admitted_s=admitted, prompt_tokens=len(source['prompt_token_ids']),
+                max_output_tokens=cap,
+                source_index=source.get('example_index'), gold=source.get('gold'),
+                output_token_ids=[], token_times_s=[], completed=False))
+            by_external[external] = rows[-1]
+            index += 1
+        if not engine.has_unfinished_requests():
+            time.sleep(min(0.001, max(0, arrivals[index]-selector.now())))
+            continue
+        before = selector.now()
+        outputs = engine.step()
+        end = selector.now()
+        selector.last_step_s = end-before
+        steps.append(dict(start_s=before, end_s=end, running=len(scheduler.running),
+            waiting=len(scheduler.waiting), free_blocks=scheduler.kv_cache_manager.block_pool.get_num_free_blocks(),
+            pending_load_jobs=sum(not j.is_store for j in selector.cs._jobs.values()),
+            host_resident_blocks=selector.cs.manager._num_allocated_blocks-len(selector.cs.manager._free_list)))
+        for output in outputs:
+            row = by_external[output.request_id]
+            assert len(output.outputs) == 1 and not row['completed']
+            completion = output.outputs[0]
+            tokens = list(completion.token_ids)
+            previous = row['output_token_ids']
+            assert tokens[:len(previous)] == previous and len(previous) <= len(tokens) <= row['max_output_tokens']
+            if len(tokens) > len(previous):
+                scheduled = last_scheduled[row['request_id']]
+                assert scheduled['end_computed'] >= scheduled['known_tokens'], 'recompute chunk emitted new output early'
+            row['token_times_s'].extend([end]*(len(tokens)-len(previous)))
+            row['output_token_ids'] = tokens
+            if output.finished:
+                row.update(completed=True, completion_s=end, finish_reason=completion.finish_reason,
+                           stop_reason=completion.stop_reason)
+                if not natural:
+                    assert len(tokens) == row['max_output_tokens'] and completion.finish_reason == 'length'
+    complete_s = selector.now()
+    assert len(rows) == len(inputs) and all(r['completed'] for r in rows)
+    drain(engine)
+    scheduler.schedule = native_schedule
+    return dict(requests=rows, steps=steps, decisions=selector.events, commits=selector.commits,
+        scheduler_steps=schedule_trace,
+        preemptions=selector.preemptions, transfers=selector.transfers, all_complete_s=complete_s,
+        service_and_drain_s=selector.now(), prefix_consistency=True)
+
+
+def main():
+    p = argparse.ArgumentParser()
+    p.add_argument('--out', type=Path, required=True)
+    p.add_argument('--policy', choices=['host','recompute','length'], required=True)
+    p.add_argument('--threshold', type=int, default=0)
+    p.add_argument('--model', required=True)
+    p.add_argument('--workload', type=Path, required=True)
+    p.add_argument('--requests', type=int, default=64)
+    p.add_argument('--output-tokens', type=int, default=256)
+    p.add_argument('--interval', type=float, default=0)
+    p.add_argument('--kv-bytes', type=int, default=None, help='Omit for normal native profiling; explicit limits are diagnostics')
+    p.add_argument('--host-gib', type=int, default=32)
+    p.add_argument('--max-num-seqs', type=int, default=256)
+    p.add_argument('--batch-tokens', type=int, default=2048)
+    p.add_argument('--policies', help='Bounded same-engine arms, e.g. host,recompute,recompute,host')
+    p.add_argument('--natural', action='store_true')
+    p.add_argument('--max-seconds', type=float, default=600)
+    a = p.parse_args()
+    a.out.mkdir(parents=True, exist_ok=False)
+    dump(a.out/'config.json', {k:str(v) if isinstance(v,Path) else v for k,v in vars(a).items()})
+    engine = None
+    try:
+        dump(a.out/'host_memory_before.json',host_memory())
+        import torch
+        from vllm.engine.arg_utils import EngineArgs
+        from vllm.v1.engine.llm_engine import LLMEngine
+        source = json.loads(a.workload.read_text())['source_requests']
+        inputs = source[:a.requests]
+        assert len(inputs) == a.requests
+        dump(a.out/'inputs.json', inputs)
+        kwargs = dict(model=a.model, tokenizer=a.model, dtype='bfloat16', seed=20261004,
+            max_model_len=4096, max_num_seqs=a.max_num_seqs, max_num_batched_tokens=a.batch_tokens,
+            kv_cache_memory_bytes=a.kv_bytes, gpu_memory_utilization=0.9,
+            enable_chunked_prefill=True, enable_prefix_caching=False,
+            scheduling_policy='fcfs', async_scheduling=False, stream_interval=1,
+            enforce_eager=True, kernel_config={'moe_backend':'triton'},
+            kv_offloading_size=a.host_gib, kv_offloading_backend='native',
+            kv_transfer_config={'kv_connector_extra_config':{'offload_prompt_only':False}})
+        dump(a.out/'engine_args.json', kwargs)
+        dump(a.out/'versions.json', {x:importlib.metadata.version(x) for x in ['vllm','torch','transformers']})
+        engine = LLMEngine.from_engine_args(EngineArgs(**kwargs), enable_multiprocessing=False)
+        dump(a.out/'host_memory_after_init.json',host_memory())
+        scheduler = engine.engine_core.engine_core.scheduler
+        scheduler.scheduler_reserve_full_isl = True
+        selector = RestoreSelector(scheduler, a.policy, a.threshold)
+        source_paths = [Path(inspect.getfile(type(obj))) for obj in
+            (scheduler, selector.cs, selector.cs.manager, scheduler.kv_cache_manager)]
+        source_paths += [Path(a.model)/'config.json', a.workload,
+                         Path(__file__), Path(__file__).with_name('selector.py')]
+        dump(a.out/'runtime_source_hashes.json', {str(path):hashlib.sha256(path.read_bytes()).hexdigest()
+                                               for path in source_paths})
+        pool = scheduler.kv_cache_manager.block_pool
+        runner = engine.engine_core.engine_core.model_executor.driver_worker.worker.model_runner
+        worker_connector = sys.modules['vllm.distributed.kv_transfer.kv_transfer_state']._KV_CONNECTOR_AGENT
+        worker = worker_connector.connector_worker.worker
+        host_tensors = list(worker._store_handler.dst_tensors) + list(worker._load_handler.src_tensors)
+        def storage_bytes(tensors):
+            return sum({(str(t.device), t.untyped_storage().data_ptr()):t.untyped_storage().nbytes()
+                        for t in tensors}.values())
+        actual_gpu_bytes = storage_bytes(runner.kv_caches)
+        actual_host_bytes = storage_bytes(host_tensors)
+        if a.kv_bytes is not None:
+            assert actual_gpu_bytes == a.kv_bytes
+        assert actual_host_bytes == a.host_gib*1024**3
+        assert all(t.is_pinned() for t in host_tensors)
+        resources = dict(gpu_blocks=pool.num_gpu_blocks,
+            free_gpu_blocks=pool.get_num_free_blocks(), host_blocks=selector.cs.manager._num_blocks,
+            group_config=[dict(tokens_per_block=c.tokens_per_block,tokens_per_chunk=c.tokens_per_chunk)
+                for c in selector.cs.config.kv_group_configs], full_sequence_must_fit=True,
+            gpu_bytes=actual_gpu_bytes, host_bytes=actual_host_bytes, host_all_pinned=True,
+            capacity_mode='native_profile_0.9' if a.kv_bytes is None else 'controlled_limited_capacity')
+        dump(a.out/'resources.json', resources)
+        policies = a.policies.split(',') if a.policies else [a.policy]
+        assert all(policy in ('host','recompute','length') for policy in policies)
+        completed = []
+        for index, policy in enumerate(policies):
+            active_out = a.out/f'{index:02d}_{policy}' if a.policies else a.out
+            if a.policies:
+                active_out.mkdir(exist_ok=False)
+                config = {k:str(v) if isinstance(v,Path) else v for k,v in vars(a).items()}
+                config.update(policy=policy, out=str(active_out))
+                dump(active_out/'config.json',config)
+                dump(active_out/'engine_args.json',kwargs)
+                dump(active_out/'inputs.json',inputs)
+                dump(active_out/'resources.json',resources)
+            selector.policy = policy
+            dump(a.out/'status.json',dict(status='RUNNING',cell=active_out.name,completed=completed))
+            # Every arm pays the same full-pressure native-Host warmup. Reset
+            # BEFORE warmup as well as after it prevents prior-arm cache reuse.
+            selector.enabled = False
+            check_isolation(active_out/'gpu_before_warmup.json')
+            reset_drained(engine, selector, resources['free_gpu_blocks'])
+            warm = episode(engine, selector, inputs, a.output_tokens, a.interval, False, 'warm', a.max_seconds)
+            dump(active_out/'warmup.json', warm)
+            reset = reset_drained(engine, selector, resources['free_gpu_blocks'])
+            dump(active_out/'warmup_reset.json',reset)
+            check_isolation(active_out/'gpu_before_measurement.json')
+            selector.enabled = True
+            data = episode(engine, selector, inputs, a.output_tokens, a.interval, a.natural, 'measured', a.max_seconds)
+            dump(active_out/'raw.json', data)
+            check_isolation(active_out/'gpu_after_measurement.json')
+            dump(active_out/'status.json', dict(status='COMPLETE', requests=len(data['requests']),
+                committed_recoveries=len(data['commits']), eligible_commits=sum(x['eligible'] for x in data['commits'])))
+            completed.append(active_out.name)
+            dump(active_out/'host_memory_after.json',host_memory())
+        if a.policies:
+            dump(a.out/'status.json',dict(status='COMPLETE',completed=completed))
+    except BaseException as exc:
+        if 'selector' in locals() and hasattr(selector, 'partial'):
+            dump((active_out if 'active_out' in locals() else a.out)/'partial_raw.json', selector.partial)
+        failure = dict(status='FAILED', error=repr(exc), traceback=traceback.format_exc())
+        if 'active_out' in locals() and active_out != a.out:
+            dump(active_out/'status.json',failure)
+        dump(a.out/'status.json',failure)
+        raise
+    finally:
+        if engine is not None:
+            engine.engine_core.shutdown()
+
+
+if __name__ == '__main__':
+    main()

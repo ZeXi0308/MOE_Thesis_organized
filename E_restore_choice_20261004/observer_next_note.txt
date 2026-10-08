@@ -1,0 +1,40 @@
+E 备用CPU旁观测修改（2026-10-07）
+状态更新：15项CPU测试通过；已部署并通过远端 CPU-only 真实字段预检（cpu_observer_preflight.json），GPU_CPU_OBSERVER_UNRUN。唯一两臂 oct07_cpu_tail_r01 已提交候公共锁；未读运行数据。
+动机仅为headroom6同工作尾部漂移且driver CPU时间≈wall；新增字段不参与任何策略。
+旧 GPU telemetry 开关四臂已完成且同工作下效应变号、OFF仍有漂移；本修改未混入该验证，现用于独立两臂诊断。
+
+只扩展timing_observer.py现有1Hz子进程，保留原GPU查询、字段与query_wall_s语义。
+新增host_cpu为独立只读快照，probe_wall_s记录新增读取耗时；sample_wall_s记录
+GPU查询加新增读取的整体跨度，以其控制剩余sleep。没有affinity/priority/clock/
+cgroup修改、request/scheduler hook、全CPU扫描或新追踪框架。未增加GPU throttle
+reason查询，避免未经支持性验证的字段影响原采样。
+
+每样正常至多6个小文件（频率fallback时7个），加2次namespace readlink：
+parent主线程/proc/PID/task/PID/{stat,status}；stat.processor指向的唯一CPU的
+scaling_cur_freq（缺失才试同CPU的cpuinfo_cur_freq）；parent cgroup membership；
+核验路径下cpu.stat/cpu.pressure。stat解析允许comm含空格/括号；保留CPU ticks、
+runtime SC_CLK_TCK、上下文切换整数计数及允许CPU列表。频率仅为该last-CPU的
+sysfs读值，单位kHz，不是任务全程频率；迁移可发生在读取之间。sysfs缺失明确
+null/error，不用其他CPU、额定频率或估算值代替。
+
+cgroup映射启动时从parent membership和observer /proc/self/mountinfo解析，
+记录原membership、mount root/mountpoint、目录及namespace来源，不盲拼宿主路径。
+每样核对parent membership未变、parent/observer的cgroup与mount namespace相同；
+变化/不可读时不复用缓存路径，相关值为null/error。hybrid明确v1 CPU controller
+优先，否则用v2；不支持的v1 per-cgroup PSI显式报不可用。v2字段保留_usec单位，
+v1 throttled_time保留其原生ns单位。cgroup计数覆盖该组，不只driver；不遍历祖先，
+故不能凭叶组零throttle排除所有上级限制。挂载信息只启动读一次，65536字符上限；
+常规文件8192、status16384、membership4096、单频率128字符上限，超限也报error。
+
+旧观察器已逐字归档，冻结执行快照未动：
+cpu_preparation/oct07_observer_cpu_v1/timing_observer.pre_cpu.py
+SHA256=4edd510cdb51346051b7993dc2f6d46aff456dc0d87ccf3ea0447e7f6a084ae3
+测试：python3 -B cpu_preparation/oct07_observer_cpu_v1/test_timing_observer_cpu.py
+覆盖复杂stat名称、字段/单位、缺失文件、路径/namespace保护、频率fallback、
+本地只读JSON样本；Probe测试禁止subprocess。当前本机无Linux /proc时只验证
+真实缺失路径的安全退化，不冒称已读到远端Linux计数。
+
+新增开销尚未在目标服务器测量。文件数量/大小有限不等于严格墙钟上限；1Hz是
+目标节奏，慢查询不会追赶补采。query_wall_s/probe_wall_s不能求和后从服务耗时
+扣除，也未分离完整观测扰动。缺失或读取异常只进入字段error，主循环保留GPU
+结果；没有更改实验引擎的失败判定。本次没有额外observer性能试运行。

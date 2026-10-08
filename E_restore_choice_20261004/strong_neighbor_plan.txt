@@ -1,0 +1,38 @@
+E 强近邻适配方案（有界主源审查；CPU_ONLY / BASELINE_GPU_UNRUN；2026-10-07）
+
+唯一推荐：实现“Stream2LLM 静态成本选择器的 E 恢复点适配”，只继承冻结的本机profile比较思想。它同时覆盖 CacheOPT §3.5 的长度/成本交叉点思想；不将二者包装为两个实质相同的独立强基线。准确命名应带 selector-only / resume-only adaptation，不能写完整 Stream2LLM 或 CacheOPT 已复现。目前没有冻结的本机剩余成本表，本文件是可落实的接口与证据计划，不是已运行性能结果；现有1792规则不改；原G八臂已搁置，独立新闻320先执行固定H/R两臂。
+
+主源事实与为何不能直接复制：
+1. CacheOPT v1 §2.5/3.5比较重算与双向swap，按硬件/模型profile得到多项式重算、线性swap及交叉长度；论文约4K只属于其设置。它的输出长度预测、padding、SLO batching、容量复用/保留及victim选择是其他机制。其v1称代码待发布；本次没有已核验作者仓库，只有论文级选择器可参照，不能把论文中的函数名字当作已执行代码。
+2. Stream2LLM v1 §4.3明确当前实现用idle-system静态profile，动态适配争用只是讨论。论文描述分段线性prefill模型；已保存commit源码却在engine_core.py:252–274用二次拟合，:462–494先把swap_in与swap_out逐样本相加再二次拟合。二者差异必须保留，不能称源码swap函数是单向/线性，也不能再乘2。
+3. v1_scheduler.py:201–284在内存申请失败后选择victim并决定丢弃或换出；:239–242比较传入的num_new_tokens。:474–496表明它是当前申请调度请求经token预算裁切的需求，并非读取victim的完整前缀。E改用恢复目标自己的已知历史是明确的语义适配，不是原调用参数照搬。engine_core.py:357–366的重算profile只计一次self.step()，不能不经核验就当任意长前缀完整恢复时延。
+
+E 的同一合法选择点与最小规则：
+固定目标、victim、排队/优先级、准入、服务量子、传输并发/分块、模型精度及容量。保持现有nativeReady与joint_capacity判定、同一native fallback；两条路径都必须容纳下一次正确输出所需的完整状态。仅在现有lookup已确认合法Host KV、并在同一alloc callback成功commit的恢复事件上生效。
+决策前读取 K=request.num_tokens（已收到输入+已生成token）、G=当前已生成数（只用于身份/状态检查）、H=native lookup返回的可恢复前缀长度、可恢复块布局对应的真实LOAD字节数，以及固定模型/精度/块大小/批token预算等配置。E当前APC关闭、local_tokens=0，不把已经计算的token数误当已知历史K。Host命中H可能小于K；Host动作仍需合法重建缺失尾部，不能假定有Host就无需计算。
+静态表给出 R_hat(K) 与 H_hat(K,H)：均定义为同一参考条件下，从成功恢复commit至原请求下一次正确新增输出的本机native路径剩余墙钟时间。Host表包含真正LOAD、native交接/等待与必要尾部计算；recompute表包含所有原生重算分块和该输出边界。用完整路径的直接时间观测建表，不把copy时间、各step时间或可重叠任务简单相加。所有候选查询参数在决策前可见；不查询真实未来输出长度或参考答案。
+若模型域内且 R_hat(K) < H_hat(K,H)，选native recompute；否则选native Host（相等选Host，与近邻严格小于比较一致）。只执行一个分支，保留request身份、采样/停止状态与生成进度，重算历史不算新输出。成功alloc后记录生效动作；没有成功alloc的lookup不算干预。容量/Host不可行继续原native fallback，不为成本基线制造另一执行器。
+
+成本口径与profile所需证据：
+• STORE在E选择点之前已经发生，是沉没成本：原swap曲线不能直接用，也不能把旧round-trip减去一个估算STORE冒充实测LOAD路径；换算除2同样不成立。STORE留在整个服务端到端统计里，不计入随后重算节省额。后续native重新STORE、计算/传输及对其他请求的影响仍在真实服务结果中，不作离线扣减。
+• 建表来源须是单独指定的已完成本机真实native校准运行，记录source/hash、K/H/字节、动作commit、下一输出、完整分块、是否再次抢占、同期工作/transfer情况；H不满覆盖的后缀不能省略。若从有争用的真实服务日志建表，只能称该固定参考负载下的static empirical profile，不能冒称idle曲线。当前transfer统计是聚合上报，不可仅用其总time冒充该请求暴露等待或决定到输出时间。
+• 原论文式static baseline不读实时pending-load数量、recent_step_s或remaining_budget来修正预测；这些量最多用于校准样本描述和后续诊断。已完成的历史观测可用于预先指定校准，但本轮不拟合、看未完成八臂结果或选择有利曲线。本次不判断已有日志是否足够覆盖成本面，更不填造系数。
+• 实现时用版本固定的profile表，预先声明插值和适用域；参考Stream2LLM论文的分段线性表即可，但必须声明不是上述commit的二次拟合逐行复现。尤其不能只建H≈K的曲线后无声用于部分Host命中。未覆盖/数据不足时标PROFILE_UNAVAILABLE，沿nativeHost并单列计数；若有实质覆盖缺口，该组不得宣传为充分实现的强近邻对照。不得凭当前结果外推/扫描阈值；若曲线实际等价于某固定长度阈值，就直接报告该等价关系，不声称自适应优势。
+
+可检验边界与不能移植的机制：
+这是对“本机静态剩余成本是否足以决定恢复方法”的一个强cost-only对照，比较最优固定方式、已冻结长度规则及E状态规则时沿用相同输入/资源/预热和全服务指标。静态表只预测局部动作成本，不承诺全局完成时间或他请求停顿最小；这些必须通过真实服务比较测得，不能由profile相加推出。没有恢复事件不是基线收益。
+不移植Stream2LLM的流式append/update输入、LCP失效/重建、两阶段scheduler、FCFS分层/LCAS/MCPS、victim规则、CPU换出换入执行器及分离prefill场景；不移植CacheOPT的输出长度预测、SLO/容量/抢占联合机制。这些会改变E固定机制，且Stream2LLM原prefill场景的TTFT结果不能直接解释本场景decode停顿。不能把其源码对Host容量的未处理假设带入E（v1_scheduler.py:260明确留TODO）。当前只完成方案与主源核验，没有安装/执行近邻系统、改runtime或启动校准/GPU。
+
+核验来源（论文2026-10-07在线核对；代码复用E已存文件并核对SHA）：
+CacheOPT v1 §2.5/3.5/4：https://arxiv.org/html/2503.13773v1
+Stream2LLM v1 §4.3/4.4：https://arxiv.org/html/2604.16395v1
+Stream2LLM commit=5e2763d51368390ec747945436c7612236258366
+https://github.com/rajveerb/stream2llm/blob/5e2763d51368390ec747945436c7612236258366/stream2llm/vllm/v1/core/scheduler.py
+https://github.com/rajveerb/stream2llm/blob/5e2763d51368390ec747945436c7612236258366/stream2llm/vllm/v1/engine/core.py
+本地related_sources/stream2llm_5e2763d/v1_scheduler.py SHA256=b7fd5fddd31ed5f8d8e9a59c4b1b49473fe74a02ad4642087d336185455ee77c
+本地related_sources/stream2llm_5e2763d/engine_core.py SHA256=cf6115b561ea27035324d49365be911c64b287d36f6b66f9a5362e82b6c23bbd
+E接口只读核对selector.py的lookup/allocated/update；未读取当前排队组的原始运行数据。
+
+2026-10-07 版本元数据补核：CacheOPT 当前最新 v2（2025-03-24），增加作者 Masahiro Tanaka，abs未列正式出版信息或作者代码入口（https://arxiv.org/abs/2503.13773）。Stream2LLM 最新 v3（2026-05-17），comments为 Accepted to MLSys 2026 / Minor formatting fixes；v2（2026-04-22）注明扩展评估、统一baseline命名和增加代码链接（https://arxiv.org/abs/2604.16395v2，https://arxiv.org/abs/2604.16395）。当前代码链接仍指 https://github.com/rajveerb/stream2llm/tree/mlsys_artifact 。上述方法审查明确基于v1全文及固定commit，不能称v1最新；仅元数据没有已确认推翻适配接口的依据，但也不能据此断言新版全文选择器语义不变。
+
+2026-10-08 限定全文补核：CacheOPT最新v2 §2.5/3.5仍比较双向swap与重算，固定硬件/模型离线profiling、回归交点长度阈值（https://arxiv.org/html/2503.13773v2）。Stream2LLM最新v3 §2.2/4.3仍在抢占时比较双向交换和重算，使用idle-system静态profile，动态争用更新仍为讨论；piecewise-linear文述与固定commit二次拟合差异保留（https://arxiv.org/html/2604.16395v3）。本次只核对相关段落，未做整篇diff；未发现改变当前恢复点增量适配的语义更新或新增选择器专属对照。不得套用roundtrip曲线、除以二或扣估计STORE。

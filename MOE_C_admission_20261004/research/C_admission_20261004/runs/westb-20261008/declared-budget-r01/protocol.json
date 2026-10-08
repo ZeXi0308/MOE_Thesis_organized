@@ -1,0 +1,94 @@
+{
+  "base_commit": "5593b5f",
+  "dev_indices": "No new development sweep in this diagnostic",
+  "test_indices": "Same 384 interleaved articles and 0.1s trace as pressure exploration",
+  "native_dev_reference": null,
+  "dev_caps": [],
+  "test_order": [
+    "fixed128",
+    "declaredbudget",
+    "declaredbudget",
+    "fixed128"
+  ],
+  "selection": "No tuning: fixed128 is the previous completed mean-flow development choice; the declared-budget threshold is the whole usable physical pool. One simple baseline comparison on the existing development trace.",
+  "fixed_baseline_claim_scope": "Fixed128 is a prior mean-flow choice, not a globally optimal joint-SLO policy. This comparison is not independent confirmation.",
+  "kv_floor": {
+    "fixed128": 0,
+    "declaredbudget": 0
+  },
+  "recovery_high": null,
+  "recovery_clear": null,
+  "sample_interval_s": null,
+  "max_signal_wait_s": null,
+  "run_timeout_s": 240,
+  "prompt_arrival_gap_s": 0.1,
+  "output_mode": "natural EOS or max 1024; no future output length read",
+  "slo_grid": {
+    "ttft": [
+      2,
+      5,
+      10,
+      20,
+      40
+    ],
+    "max_gap": [
+      0.25,
+      0.5,
+      1,
+      2
+    ],
+    "completion": 120
+  },
+  "slo_role": "Exploratory full 20-point surface, not an application SLO or chosen headline.",
+  "invariants": "Native running scheduling, victim tail, recovery path, transfer and quantum unmodified.",
+  "reset": "Same engine/compiled shapes; identical warmup per cell then connector reset; fresh policy state.",
+  "lock": "/root/autodl-tmp/moe-research-gpu.lock",
+  "host_budget_bytes": 128849018880,
+  "model": {
+    "dtype": "bfloat16",
+    "id": "allenai/OLMoE-1B-7B-0924",
+    "key": "olmoe",
+    "revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "tokenizer_revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5"
+  },
+  "input_sha256": "10493039c7f704a45d1a209c47a2b87c2de5947b9464f921b1495721a0d328e4",
+  "profile": "pro-opportunity-declared-budget",
+  "usable_kv_pages": 32768,
+  "native_max_seqs": 256,
+  "pro_inputs_file_sha256": "6b6be96f8fec6e92b6e59390bab0fe414aeafdaab9539000d88050f8bbf22d25",
+  "evidence_role": "STRONG_SIMPLE_DECLARED_TOKEN_BUDGET_BASELINE",
+  "host_kv_gib": 16,
+  "max_model_len": 4096,
+  "precision": "bfloat16; no rope extension",
+  "population": 384,
+  "trace_sha256": "34513450387479b4257f7a01ea9042056667466b4ade5e0c137aa1f0fadb8632",
+  "trace_hash_contents": "Ordered request IDs, actual prompt token IDs, and external arrival traces",
+  "workload_sha256": "7723a0b4e88ba647da79e658cd596e00337075ea761d8692c47c494ee018533d",
+  "concurrency_comparison": "Same compiled maximum256, model, inputs, arrivals, 64GiB GPU KV and16GiB host KV. Complete caps/native waiting guards128/256. Both use KV floor0. Only declaredbudget additionally gates total declared lifecycle KV commitment. Running/victim/recovery/transfer/quantum unchanged.",
+  "test_admission_caps": {
+    "fixed128": 128,
+    "declaredbudget": 256
+  },
+  "admission_count": "Unique successfully admitted but unfinished requests, including paused/recovery.",
+  "diagnostic_cap": null,
+  "intervention": {
+    "kind": "ordinary_declared_budget_vs_fixed_concurrency",
+    "extra_probe_enabled": false,
+    "reservation_probe_enabled": false,
+    "measured_work": "Same384 ordered prompts,0.1s external trace,naturalEOS/max1024.",
+    "common_setup": "Release warmup/cross-cell raw, collect before external arrivals, observe GC equally; no in-service GC change."
+  },
+  "prefix_comparison": "Separate online runs of frozen inputs; actual action prefixes and output changes are recorded, not asserted identical GPU states.",
+  "candidate_status": "Ordinary conservative token-budget baseline, no novelty claim.",
+  "native_admission_guards": {
+    "fixed128": 128,
+    "declaredbudget": 256
+  },
+  "declared_budget_blocks": 32768,
+  "declared_budget_block_size": 16,
+  "declared_budget_rule": "For every admitted unfinished request charge ceil((prompt_tokens+declared_max_tokens)/16) once. Admit a new FIFO request only if total charge including it<=32768 usable blocks. Release charge on native completion; retain it through pause/recovery. Do not additionally charge actual GPU usage or infer future realized output length.",
+  "admission_wait_rule": "Fixed cap or declared budget waits inside the scheduler in unchanged FIFO order until its ordinary capacity predicate permits. No age bypass of the declared budget. Existing requests always bypass the new gate. Same external-arrival240s observation timeout and full population accounting; no claim of a per-request waiting/SLO bound.",
+  "motivation": "The18 observed>1s gaps ended before the first legal pending-recovery new-admission opportunity. Their initial admissions hadR=0 and95-1512 full-fit headroom pages. Test ordinary declared lifecycle capacity before attributing an earlier decision principle to a new signal.",
+  "stopping_rule": "Exactly one ABBA group, pairs01/00 and02/03. Report all arrivals, all20 exploratory SLO points, raw distributions, action differences, output changes and total control cost. If this simple rule explains benefits, retain it as a simple baseline, not recovery innovation. No cap/budget sweep, hold-duration tuning or additional repeats.",
+  "repeat_budget": "One ABBA group; no additional repetition."
+}

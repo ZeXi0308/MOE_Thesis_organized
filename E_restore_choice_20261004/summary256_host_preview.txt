@@ -1,0 +1,90 @@
+E 自然摘要256：首个Host臂预览（2026-10-07，单臂诊断）
+来源：execution/oct07_summary_host_preview/00_host，原组oct07_summary_r01/00_same_engine/00_host。
+只用已落地本地raw/config/resources/inputs及provenance；CPU分析，无远端/GPU访问。预览未带warmup、runtime_source_hashes或全组其他臂。
+
+结论与严格范围
+首Host臂正式完成256/256请求，首次在正常原生GPU容量、自然EOS条件下观测到合法双分支选择域。
+36次实际恢复提交中，14次是具备就绪Host前缀及共同容量条件的Host选择，覆盖7个不同请求；其中13次已存在生成历史，覆盖6个请求。
+另外22次是Host未命中后的共同原生重算fallback，不是与这14次Host动作可交换的对手。
+只有单臂数据，不能比较Host与重算胜负、推断净收益、构造oracle或声称当前状态有增量预测价值。
+
+实际容量与恢复覆盖
+capacity_mode=native_profile_0.9；实际GPU KV为72.1015625GiB / 36,916 blocks，初始free=36,915；pinned Host为32GiB / 16,384 blocks。
+正式测量step/schedule/preempt边界均观测到free=0；peak used=36,916（100%，含初始常占块），Host常驻峰值也为100%。
+step边界running/waiting峰值为209/254。该占用是实际观测，不是cap推算或完整allocator高水位。
+发生36次抢占，涉及25/256请求（9.7656%）；均找到相应恢复提交。
+合法14次提交占36次提交的38.8889%；7个合法请求占全部请求2.7344%，占被抢占请求28%。这些比例不是随机采样意义上的可恢复概率。
+
+attempt、commit与fallback必须分列
+lookup尝试共605次、涉及25请求：
+  14次 eligible，选择Host，最终全部提交；
+  517次Host命中但共同完整容量不足，action=native，保留原生容量/准入行为，均未提交该次尝试；
+  74次Host未命中，action=native，保留原生重算，其中22次最终提交。
+因此591条fallback尝试不等于591次fallback执行；实际fallback提交为22次。
+总605次尝试中569次没有成为commit。无pending_native分支记录。
+Host-ready尝试531次涉及全部25个被抢占请求，但只有14次同时满足合法双分支容量；不能把正命中次数当作已执行LOAD数。
+36个commit的实际动作：Host 14、原生recompute 22；所有eligible的actual_action均Host，external_tokens均正且与host_hit_tokens相等。
+14条共同容量不等式均满足：full_required + reserved + watermark <= free。allocated_blocks仅反映该次原生分配阶段，不能拿部分Host前缀块数代替完整运行状态需求。
+
+生成历史与Host前缀覆盖
+全部36次提交中35次已有生成历史；eligible 14次中13次（92.8571%）已有生成历史，不只是首输出前prefill恢复。
+eligible请求及各次generated_tokens如下：
+  E222: 552；E223: 530,541,541；E225: 463,471,487,490,492；
+  E249: 76；E251: 0；E252: 35,48；E255: 1。
+14次Host命中都短于完整known_tokens，由原生计算补齐必要尾部。只有6次加载前缀越过prompt边界，直接包含部分已生成token的KV；
+“已有生成历史后恢复”不等于“Host命中已经覆盖全部生成历史”。其余动作仍须重建缺失历史，不能按少搬的前缀假设完整容量减少。
+例如E223在known_tokens=3266时仅hit768，E225在known_tokens=3539时仅hit1040；对应大量已知历史仍需原生补算。
+后续成本基线必须区分真实LOAD前缀与必要尾部重建，不能假定Host覆盖全部known prefix；同样known_tokens也不是同样动作成本或同样历史的保证。
+合法事件known_tokens范围706–3544；决策时pending_load_jobs为0的12次、为1的2次，running范围161–203，recent_step约68.28–83.15ms。
+这些只是决策前已观测的状态，没有对照动作和独立验证，不能用14个相关事件拟合或宣传状态选择模型。
+
+decision到下一次严格新输出（按内部request_id匹配，单位秒）
+                                  n       mean       p50        p95        max
+全部实际提交                     36      0.269399   0.184226   0.584093   1.480037
+eligible Host提交                14      0.359433   0.180090   1.315167   1.480037
+Host-miss原生recompute fallback   22      0.212105   0.184599   0.279006   0.280105
+未匹配下一输出/censored=0。Host与fallback两行属于不同可执行域、不同系统历史，绝不能把0.359对0.212当重算更快的比较。
+event519和530均为E223、generated_tokens=541；519后再次抢占，两commit共享同一次输出。
+两次known_tokens均3277，但Host命中由2656变为3264；这是同一恢复进程中的相关重试，不能按相同长度当作独立成本样本。
+故14个Host commit只有13个不同“request+下一输出下标”目标，全部36个commit有35个；不能当作独立因果样本。
+
+恢复选择前的排队不能遗漏
+按同请求抢占序号匹配，36次preempt→committed decision平均18.214803s，中位17.579290s，最大48.051402s。
+其中eligible Host等待均值1.133961s，Host-miss fallback等待均值29.084431s；这是已发生系统状态与等待的描述，非动作效应。
+全部preempt→下一输出均值18.484203s、最大48.235675s，远大于commit后平均0.269399s。
+最长实际生成gap=48.237217s，发生于E251的输出下标6→7（20.437719→68.674935s）。仅报告commit后局部恢复时间会遗漏主要服务停顿。
+
+完整服务与实际输出
+makespan=111.589643s；all_complete_s=111.589834；服务及drain结束=111.590078s。
+完成时延均值63.606945s，p95=100.110028s；TTFT均值8.683496s，p95=17.909597s。
+全请求token gap p50=69.369409ms，p95=88.476136ms，p99=100.036949ms，max=48.237217s；gap之和14,060.402921s不是墙钟。
+实际输出189,436 tokens，整体吞吐1697.612749 tokens/s；上限总和212,992仅是cap。
+64短请求输出6,551 tokens，均值102.359，中位90，范围19–256；63自然stop、1 length。
+192摘要输出182,885 tokens，均值952.526，中位985，范围669–1024；109自然stop、83 length。
+摘要43.2292%触及1024 cap，总计84/256请求length结束。COMPLETE仅表示服务结束，不能称所有摘要完整或高质量；事实覆盖/幻觉/截断尚需独立核对。
+
+真实计算、传输和开销口径
+STORE=103,551,074,304 bytes=96.439453GiB，12,421次已报告传输，CUDA-event时间和2.185940s。
+LOAD=4,349,493,248 bytes=4.050781GiB，14次已报告传输，CUDA-event时间和0.080246s。
+保留正式测量及drain的全部STORE；不能把已支付STORE记为重算节省。事件时间可重叠，不能相加成墙钟或替代暴露等待。
+原生scheduled tokens=860,683，其中重复scheduled位置72,886：prompt位置65,096、已生成历史位置7,790。
+这是实际调度位置计数，不是GPU时间；混合了本臂各原生恢复路径，不能把所有重复位置只归给22个fallback。
+605次lookup已计时区间之和0.081705s，adapter区间之和0.020656s；这不包含全部追踪/序列化开销，也不是无插桩对照。
+1993步wall之和108.159501s，process CPU之和109.486971s，driver-thread CPU之和108.190563s；旁观测112条1Hz样本无query错误。
+driver CPU≈wall也可能包含CUDA忙轮询，不能据此宣称CPU数学主导或排除GPU等待。
+
+状态连续性的实际证据与边界
+14/14 eligible commit记录request_state_preserved=true；独立用输入prompt + 最终输出前generated_tokens重算默认JSON SHA256，14/14匹配prefix_sha256。
+14条均满足known_tokens=prompt长度+已生成长度；decision/allocation之前实际输出数量恰等于generated_tokens，二者之间没有新增输出。
+下一输出均为最终序列零基下标generated_tokens，其原生scheduler step的end_computed=known_tokens；相关7请求最终均完成。
+全臂prefix_consistency=true，完成状态说明运行时累积输出单调扩展及“不在必要重建完成前输出”的断言未失败。
+这些是选择边界请求状态断言、历史token哈希和调度/输出进度一致性证据，不是KV张量逐元素正确性或随机采样RNG等价证明。
+本臂实际执行了Host选择及Host-miss原生重算fallback，仍未验证在同一合法双分支域选择recompute的策略臂；也没有跨臂输出/质量对照。
+预览未包含warmup/reset或运行时源码哈希文件，不能仅凭这份子集重新核验全组预热与版本来源；待完整归档补齐。
+
+来源与后续计时混杂必须保留
+本预览provenance明确：取回已完成00_host时，SSH无压缩tar回传实际与01_recompute正式测量重叠，而非预热。
+根记录的Mac回传区间为17:02:41.684–17:03:12.476 CST；01_recompute正式起点为17:01:45.895 CST。
+00_host正式服务早于该回传；重叠是后续01的Host/I/O计时混杂，不是本预览的正确性失败。
+待原组结束后再取回全部；保留01原始数据和混杂标签，不静默删除，也不能用01单独时间差归因策略。
+当前其余臂仍运行，本报告不推测其结果；单臂已证明正常自然长输出能激活有限合法恢复域，尚不能证明任何动作、阈值或状态规则的净收益。

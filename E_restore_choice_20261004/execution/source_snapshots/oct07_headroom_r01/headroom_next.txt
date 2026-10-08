@@ -1,0 +1,62 @@
+Session E: one-round KV headroom comparison, frozen 2026-10-07.
+Status at freeze: CPU_FROZEN_GPU_UNRUN. No state-aware service benefit claimed.
+
+The preceding H/R/L/B/B/L/R/H group is complete, archived and validated.
+Budget is retired: on74 eligible commits its predictions equal L1792, and all
+four L/B arms have identical2024-step schedules and256 complete outputs.
+New actual mechanism: L/B restores E252 known706 in72ms versus Host277ms,
+then immediately preempts it and causes a45.49–45.75s next generation gap.
+At that legal choice, full restoration leaves7blocks;10 current background
+decoders need a new block next round if they continue. At the later Host
+E252 known719 point, the corresponding margin is+31blocks. Only the first
+point has measured R; the later positive margin is not a performance result.
+See budget_short_event_diagnostic.txt and headroom_signal_audit.txt.
+
+Single replacement signal, G policy=headroom:
+margin = free - full_required - reserved - watermark
+         - background_next_decode_growth_blocks - target_next_decode_growth.
+Existing joint eligibility is unchanged. Supported running background must
+ALL be one-token-ready n=c+1, not prefill chunks, with no native skip conditions.
+Since native c advances at the end of schedule, these requests already received
+this step's allocation at the waiting lookup. Count n%block_tokens==0 among
+that current set; targetgrowth is1 iff its known length is a block boundary.
+G chooses R iff known<=1792 and supported and margin>=0; otherwise Host.
+If unsupported, record margin=None and explicit policy_reason, still eligible
+and native fallback=none. Never falsely label native R unavailable.
+No future EOS, output length, branch execution or parameter fitting is used.
+This is a conservative one-round demand for a known set, not a global safety
+guarantee: later admissions/async tails/stop releases can change space.
+
+Compare fresh fixed Host H (best observed fixed arm in preceding8), original
+static L1792, and G: host,length,headroom,headroom,length,host.
+All policies record the identical new eligible-event feature and native
+continuity checks. No schedule/allocator observer, engine copy or new executor.
+Fifteen CPU tests pass; actual scope/flags and actions still need GPU validation.
+No additional Recompute arm is required here: this group tests against the
+best observed fixed method and L, without claiming Host wins all domains.
+
+Exactly the existing original-summary256 input:
+inputs_natural_summary256/pro6000_natural_summary_256.json
+SHA2568346ad2512661cc6595ef3e0aa53e76c690fb9980f5bf41e8007f199cfb7582a.
+64short+192long from three complete articles; repetitions are not independent
+documents. All arrivals0; naturalEOS; caps256/1024. Existing model OLMoE BF16,
+nativeGPU0.9 profiling, pinnedHost32GiB,maxseq256,batch2048,context4096,greedy,
+APCoff/synchronous; nativevictim/queue/quantum/admission and transfers fixed.
+Same engine, same native warmup and drained reset for every arm.
+
+Outcomes: ALL requests' completion and generation gaps, target first output
+AND following progress/possible re-preemption, commits/fallbacks/policy reasons,
+supported-domain coverage, work/output changes, real STORE/LOAD, adapter cost.
+Check G vs L action differences from decision-time data and report unsupported
+counts. No labels from future outputs in online action. Full costs keep sunk
+STORE; no overlap summation or equal-work speedup claim when outputs differ.
+Preserve same-policy drift and reverse pairs. No threshold/state parameter scan.
+
+One shared whole-group flock, one E waiter. Output/tmp due scarce data volume.
+Projected small status/PID/lock reads only while E runs. Archive+retrieve only
+after all6 COMPLETE, SSHexit0, controller/worker gone and GPU lock released.
+The already CPU-frozen MultiNews320 independent-task candidate remains
+NOT_QUEUED until this concrete replacement-signal experiment is reviewed.
+
+Command from remote E code root:
+/root/miniconda3/bin/python run_group.py --name /tmp/moe-e-restore-choice-20261004/oct07_headroom_r01 --gpu-uuid GPU-94203fc3-1021-3a9c-a367-cff792479616 --requests 256 --workload inputs_natural_summary256/pro6000_natural_summary_256.json --arms host,length,headroom,headroom,length,host --threshold 1792 --timing-observer --wait-lock-seconds 1800

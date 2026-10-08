@@ -1,0 +1,141 @@
+E：一轮 decode 块增长信号的有界源码/实测核验（2026-10-07）
+范围：只读 E 保存原生源码，以及 execution/oct07_budget_r01 的 H0 两个指定恢复点；
+用 L2/B3 的首次短重算轨迹核对已经发生的再抢占。未改 runtime，未执行 GPU/远端任务。
+本文件不是新策略的性能结果，也未扫描请求、阈值或未来输出。
+
+结论
+两个指定点的数值与原生分配/释放完全相符：
+  E252 step357/event37：52−45−0−0−10−0 = −3 blocks。
+  E252 step378/event56：91−45−5−0−10−0 = +31 blocks。
+首次背景196个、第二次背景192个，全部满足 lookup 时 n=c+1；两处各有10个 n%16=0。
+原生源码支持：该 lookup 发生在 running 分配循环之后、整步 computed 递增之前，
+故在下述受限域内可以直接从当前请求对象读出这一轮背景增长，不需要读取未来 EOS。
+
+原始“只计满足 n=c+1 的子集”存在源码反例，不能当完整背景需求上界。
+root 随后提出的修订——要求所有 scheduler.running 均 n=c+1，否则候选动作选Host并
+记录背景不支持原因，且不把R伪报为不可执行——排除了该反例。
+结合同步/FCFS/无跳过条件，并拒绝任一running.is_prefill_chunk=True后，这可作为一个
+有具体机制依据、尚未GPU验证的容量信号。
+它精确描述当前 running 集合在继续生成假设下的一轮 decode 新块需求，不承诺全局下一步
+免抢占，不证明收益，也不证明相对长度/命中成本存在状态增量信息。
+
+源码与版本依据
+S = native_sources/v1/core/sched/scheduler.py
+K = native_sources/v1/core/kv_cache_manager.py
+R = native_sources/v1/request.py
+S SHA256 = 2ed2a550b6558b2495eda845a97ae38bcf0225027b9e25fbf00fc3880c1d3941
+K SHA256 = 3f4af8d247f3fe9570b0132818b832b66ae6a2ac12942588828f899f6ff77ccf
+本次逐一核验两者匹配新预算组 runtime_source_hashes.json；R 是 E 保存的辅助源码，
+该 runtime 清单没有单列 R 的 hash。当前 engine_args 明确 FCFS、APC off、async off、
+chunked prefill on、max_model_len4096、max_num_seqs256、token量子2048，原生full attention
+单KV组，block16 tokens。以下源码行号对应上述保存版本。
+
+源码事实：为什么 lookup 能看到尚未递增的 n/c
+1. S:469–620 先遍历 RUNNING。无 spec/placeholders 时，S:502–506计算 n−c；
+   成功 allocate_slots 后才在613–620记录本步调度并扣预算，未立即递增 request.c。
+   FCFS 分配失败在600–604从running末尾选victim并记录preempted_reqs。
+2. S:665–669 只有本步没有 running preemption、未暂停且预算仍正，才进入等待队列。
+   若该循环已走到恢复的 native lookup，且不存在下述skip条件，则先前全部 running
+   都已成功分配本步工作；否则若是预算耗尽，等待循环根本不会进入。
+3. S:979–1009 的异步LOAD放入 WAITING_FOR_REMOTE_KVS，而非running；其c会预置为
+   Host命中值。S:1011、1028–1031 将等待队列中成功获得计算的新/恢复请求追加running，
+   但c仍仅设置为该次计算开始前的缓存进度。本步真正统一递增在 S:1189–1191调用的
+   _update_after_schedule 内，S:1247–1249逐请求加num_scheduled_tokens。
+4. R:244–253 在输出处理时追加新token，R:267–268 的n是当前输入+已生成历史长度。
+   S:1722–1726才处理本步新输出与停止，故 lookup 不需要、也不能知道本步将生成的EOS。
+5. K:429–432、449–485 按 computed+本步新增token 分配slots；在本实验单组完整注意力、
+   无APC/滑窗/前瞻时，完成n个位置需ceil(n/16)块。若一个本步完成的请求继续生成一个
+   token，下步将计算n+1个位置：ceil((n+1)/16)−ceil(n/16)=1[n%16=0]。
+
+适用域必须覆盖全部背景，不能静默忽略不匹配者
+在同步、FCFS、APC off、无spec/输出placeholders、无encoder/multimodal、无Mamba、
+无LoRA、单PP的运行域，另检查下一decode eligible step已到、num_in_flight_tokens=0、
+known<max_model_len。S:474–559 列出了 placeholders、decode cadence、prefill throttle、
+encoder与零token的跳过点；不能只凭“sync/FCFS/APC off/noSpec”四个标签删去全部分支。
+throttle_prefills是schedule局部参数，lookup不读取它，也不通过frame或wrapper捕获。
+修订scope拒绝任一running.is_prefill_chunk=True，即使该请求n=c+1；因为S:496–500的
+defer_prefills分支只跳过该flag为真的请求，flag为false可排除此局部参数造成的跳过。
+本审计不声称在lookup实际读取或验证了throttle_prefills=False。
+
+修订后的每事件scope是：全部当前 scheduler.running 都满足 n=c+1，且上述不适用状态
+不存在。目标仍在waiting，不在背景集合内；同一waiting循环中此前已追加的请求也必须
+纳入ALL检查，不能只检查上一轮遗留running。两指定点的n/c与分配记录满足计数条件；
+raw未记录is_prefill_chunk，不能将新flag guard描述成已由raw直接测量通过。
+额外核对：357的全部196背景、378的全部192背景均在各自上一轮已计算到当时known。
+按S:1254–1262且无placeholders的语义，上轮结束后flag应为false；R:183的初值也是false，
+保存源码中仅S:1254重新赋该字段。这是原生语义推导，新候选实跑仍须显式记录验证。
+在此scope内，全部背景都已分配本步一个token，n%16=0计数是该集合若本步后继续各生成
+一次的精确新块数。忽略EOS/stop/cap释放会高估这组请求的实际需求，因此相对这个固定
+集合是保守的；不能把它扩大成整系统所有后续行为的需求上界。
+
+原始谓词的源码反例（逻辑反例，未新跑实验）
+设一个running prefill当前n=32、c=16，本步成功分配并计算16token，尚未执行
+_update_after_schedule；随后同一步进入另一个waiting恢复的lookup。前者完整32位置
+已经分配2块，_request_remaining_blocks可以为0，但此时n=c+1为false。若它本步完成
+prefill并生成一个非停止token，下步处理第33位置需要第三块。只统计n=c+1子集漏掉此1块；
+单纯减_inflight_prefill_reserved_blocks也补不回来。S:502–618、1028–1038、1247–1262
+和2522–2541共同允许这种状态，不需要async或spec。因此必须使用上述ALL scope，
+否则只能称“已识别decode子集的增长”，不能称一轮保守背景需求。
+
+实测点一：H0 step357/event37，known706/gen35
+目标：Hosthit656、full_required45、free52、reserved0、watermark0；pendingLOAD0。
+本步此前没有其他waiting成功commit；当前196个running全部以count1、start=n−1记录。
+精确10个增长请求（external ID；当前n）：
+  E001 3408；E010 3216；E029 3376；E038 3184；E059 3024；
+  E139 2928；E158 3040；E191 2864；E210 2976；E240 768。
+目标706%16=2，targetGrowth=0，当前完整分配余量52−45=7，扣背景10后margin=−3。
+
+H0实际只LOAD41块（656tokens），分配后free11；357没有请求完成释放。
+358这10个背景请求都实际继续各计算一个token，未发生抢占，free11→1，恰消耗10块。
+E252仍未计算尾50；359 E250被抢占后，360 E252才计算尾部并输出。不能将Host留下的
+11块说成其完整下一输出只需41块；其完整历史仍要45块。
+
+L2/B3的实际短R路径在357分配完整45块，free7；同一196背景及上述10个边界请求匹配。
+358 E252在free_before_preempt=0时被抢占，computed706/known707/gen36。释放45块后，
+该步全部背景增长完成，free42=7+45−10。它是已发生的分配/抢占核对，不是用估计copy
+成本模拟R。其余L/B重复完整轨迹相同，详见 budget_short_event_diagnostic.txt。
+本点能解释“当前完整容量合法，仍不足支撑这一轮背景增长”；没有单次allocator失败
+触发请求日志，故不补造是哪一个请求的调用首先耗尽free。
+
+实测点二：H0 step378/event56，known719/gen48
+目标：Hosthit704、full_required45、free91、reserved5、watermark0；pendingLOAD1。
+此前同一步E249/event55先LOAD3056tokens=191块；其known3128需要196块，尚缺5块。
+所以目标lookup的reserved5与E249完整历史剩余块吻合；async E249不在running。
+192个running背景均count1、start=n−1，精确10个边界请求为：
+  E005 3424；E033 3392；E042 3200；E063 3040；E101 3312；
+  E110 3120；E143 2944；E162 3056；E214 2992；E224 784。
+719%16=15，targetGrowth=0；91−45−5=41，扣10后margin=31。
+
+H实际LOAD目标44块（704tokens），free91→47；378没有完成释放，也没有此后成功commit。
+379背景10个序列全部实际继续；E249补尾72token需5新块，E252补尾15token需1新块，
+free47→31恰为10+5+1=16块，未发生抢占。E252于379输出，但382仍再次被抢占；
+一轮正余量本就不能承诺更长时间存活。这个匹配状态没有现成真实R719对照，不能因margin
+为正就宣称新规则会改善服务；B/L的轨迹已在357分叉，不能拿它们后续异历史事件来替代。
+
+reserved与margin的准确含义
+S:2522–2541 的reserved只汇总_inflight_prefills完成“当前known”还需分配的块，不是
+输出后所有新decode块，也不是排他预留。S:927–945只有async LOAD分配传该reserved；
+普通running的564–568未传此保留量。K:411–427完整容量检查与460–466本次分配检查
+也应区分。新信号减去reserved是保守考虑已在途当前历史的需求，不可声称原生所有路径
+已替它锁定这份空间。当前watermark=0，不以非零watermark的额外保证解释本组结果。
+
+此外，当前lookup之后仍可能继续为waiting请求分配计算或async LOAD，消耗本次free；
+这些请求不是当前背景集合。新的输入、以后步骤、connector完成/失败、EOS释放与victim
+顺序也会改变后续空间。故即使ALL scope通过且margin>=0，也不能称下一步免抢占保证。
+若目标本步不能完成整个重建，targetGrowth按known边界另减1至多是保守留量，不能据此
+断言本步必输出；不把token-budget信号重新加入这个候选规则。
+
+可冻结的候选解释（本审计未实现或运行）
+仅在原有joint-eligible域内且L1792允许R时，读取这一当前容量信号：
+  margin = free − full_required − reserved − watermark − backgroundGrowth − targetGrowth。
+ALL scope通过且margin>=0才选R，否则Host；不适用scope用明确policy_reason记录，
+仍保留eligible=true及真实原生fallback边界，H/R/L原动作不变，记录口径一致。
+backgroundGrowth仅来自当前可读n/c/block边界；targetGrowth=1[known%block==0]，不读
+未来EOS、后续输出长度或未来抢占。阈值0是块数能否覆盖这轮需求的算术边界，不是时延拟合。
+已有两个点分别落在−3与+31，但长度/已生成历史/Host覆盖也改变，尚不能辨识状态残差。
+本证据支持有边界的单信号候选，不支持泛化的一轮安全模型，也不支持任何新性能收益。
+
+附：受实现者请求，只读核对了当前selector.py的headroom_feature与lookup分支；ALL背景、
+is_prefill_chunk、cadence/model-length检查及headroom_background_unsupported原因与上述
+修订边界一致，unsupported未改变joint-eligible或伪造native fallback。未发现新的具体
+scope/runtime阻断；这不是新增测试或GPU验证，本审计未修改任何运行代码。

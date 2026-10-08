@@ -1,0 +1,25 @@
+E MultiNews 质量 CLI（2026-10-07，CPU_VERIFIED_GPU_UNRUN）
+
+入口 evaluate_multinews_quality.py；仅使用已完成的本地 group/raw、冻结的官方 gold 与 tokenizers0.23.2，不访问远端、不 import torch/CUDA、不执行生成。不传 group 只核验公式并输出 GPU_UNRUN；当前没有 MultiNews 的匹配 GPU 输出，因此没有可报告的任务质量分数。未改变冻结输入或 quality_contract.json。
+
+依赖与源码：官方 LongBench requirements 只写 rouge，未锁版本，无法据此断言作者历史环境。这里明确固定 PyPI rouge==1.0.1、six==1.17.0，两个 pure-Python wheel 共24,775 B，隔离于 /private/tmp/E-multinews-quality-20261007/site；未安装进任何环境。版本、官方 URL、PyPI wheel SHA256、所有解包源码 hash 与 import 来源保存在 quality_tools/rouge_dependency_receipt.json，并在每次 CLI 运行时核验。rouge wheel SHA256=28d118536e8c774dc47d1d15ec266479b4dd0914c4672ce117d4002789bdc644；six wheel SHA256=4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274。
+
+源码复核：rouge1.0.1 是 LongBench 所依赖的 pltrdy Python 实现，不是 Perl ROUGE-155。保留 Rouge() 默认选项与 get_scores([prediction],[reference],avg=True)[rouge-l][f]；不替换成 rouge-score、词干化版本或自行实现的 LCS。该版本默认以句点分句、压缩各句空白、区分大小写、exclusive=True。官方 metrics/eval 仍为已冻结 commit；从已核验源码 AST 提取未改动的 rouge_score/scorer 函数，仅不加载无关 jieba/fuzzywuzzy/numpy 导入，不改官方源码。CLI 对有效结果采用同一公式，每请求 max over references ×100，不提前舍入；官方 scorer 的两位小数只用于兼容核验，主报告保留精度。
+
+异常语义：官方函数裸 except 会返回0。CLI直接调用同一依赖以保留异常类型/消息；失败时 score_f=null/valid=false，同时仅在 official_compatible_* 诊断字段保留官方0。空输出、标点构成的空句也单独记录，不丢弃请求。任一 metric/generation error 使该臂的有效主/次聚合为 null、整个CLI退出非零；诊断聚合仍保留完整分母并注明不能作为有效质量。正常“无词重叠”是有效0，已与异常0区分。不得选取诊断值冒充成功评分。
+
+绑定与口径：要求 group/cell COMPLETE；256 条 inputs 按顺序逐项等于唯一冻结 workload；runtime_source_hashes[config.workload] 匹配冻结 hash；natural=True。逐请求检查 measured/E索引、source_index、gold、prompt长度、逐请求cap、arrival、completed、输出token/time数量等；gold只能来自官方选中记录，并核验完整context及模板。不会把同样使用 measured/E001 的旧文档摘要当作 MultiNews。raw没有独立prompt-token hash，绑定依赖可信执行器保存的输入与runtime记录，不声称密码学证明实际生成过程。
+
+192 长请求覆盖27个bundles，先在每组7/8个重复输出内平均，再对27组等权宏平均；另报192请求加权平均、各组值和跨臂配对差值。整段 continuation 解码，不去首行、不清洗重复；cap/EOS/空输出/错误及token、空白分词字数单列。GSM8K由原CLI另算。人工忠实/覆盖审阅未自动完成，仍遵守原合约最多6身份；ROUGE不能代替忠实性认证。合约中的“依赖尚不存在”是冻结时状态，原文件保留不变，本说明和依赖receipt记录后续可执行实现。
+
+已做CPU验证：9组固定文本（精确、部分、零重叠、大小写标点、多句、重复、空白、空串、纯句点）逐项与官方函数一致；多参考max与官方scorer一致；8/7重复的宏均值及请求加权均值不同且正确；注入RuntimeError保持无效、禁止有效聚合。结果 quality_tools/multinews_metric_cpucheck.json。实际旧 oct07_one_event_r01 在读预测评分前因inputs不等冻结输入被拒绝，退出1、summary={}，记录 multinews_old_group_rejection_check.json。以上仅CPU公式/绑定核验，不能算GPU质量正确性结果。
+
+再运行（工作目录为毕业设计）：
+1. 若专用/tmp被清理，可单独执行下列显式联网命令，仅从receipt的固定URL下载并校验小wheel，不用pip、不安装：
+python3 E_restore_choice_20261004/prepare_multinews_quality_deps.py
+2. 无GPU数据时重做CPU公式核验：
+/private/tmp/moe-a-fresh-input-env-20261001/bin/python E_restore_choice_20261004/evaluate_multinews_quality.py --deps /private/tmp/E-multinews-quality-20261007/site --out /tmp/E-multinews-cpucheck.json
+3. 将 LOCAL_COMPLETE_MULTINEWS_GROUP 替换为未来已完整取回且 COMPLETE 的本地MultiNews组；不接收旧摘要组：
+/private/tmp/moe-a-fresh-input-env-20261001/bin/python E_restore_choice_20261004/evaluate_multinews_quality.py LOCAL_COMPLETE_MULTINEWS_GROUP --deps /private/tmp/E-multinews-quality-20261007/site --tokenizers-extension /private/tmp/moe-a-fresh-input-env-20261001/lib/python3.13/site-packages/tokenizers/tokenizers.abi3.so --out /tmp/E-multinews-quality.json
+
+原始来源：https://pypi.org/project/rouge/1.0.1/ 与 https://pypi.org/project/six/1.17.0/；LongBench固定metrics URL在 inputs_multinews_candidate/sources/official_eval_source_receipt.json。短题入口仍为 evaluate_short_quality.py，未修改。

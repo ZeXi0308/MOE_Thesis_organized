@@ -1,0 +1,9 @@
+plan,effective_path,compatibility,execution_ms,steady_resident_bytes,workspace_sharing,actual_kv_blocks,status
+native_triton,installed tuned or default Triton config for same M,SM120 source-supported,NA,NA,same global workspace as other Triton tiles,NA,UNMEASURED
+T16,Triton BLOCK_SIZE_M=16 BF16,SM120 source-supported,NA,NA,same global workspace as T64,NA,UNMEASURED
+T64,Triton BLOCK_SIZE_M=64 BF16,SM120 source-supported,NA,NA,same global workspace as T16,NA,UNMEASURED
+CUTLASS,FlashInfer CUTLASS BF16,SM120 explicitly allowed but GPU correctness pending,NA,NA,shared per-ubatch manager; possible persistent weight conversion,NA,UNMEASURED
+compact,constant max graph bucket with sparse sizes,native graph dispatcher,NA,NA_GRAPH_EXCLUSIVE_NOT_ISOLATED,128 MiB workspace; 28 MiB graph pool; whole-device non-KV 15072428032 bytes includes model/context,36828,STARTUP_MEASURED_ONCE_NO_SERVICE
+native,current backend default bucket spacing,native graph dispatcher,NA,NA,one shared decoder graph pool,NA,UNMEASURED
+dense,constant max graph bucket with denser sizes,native graph dispatcher,NA,NA,one shared decoder graph pool,NA,NOT_RUN_LOCK_BUSY_EXIT75
+historical_D,43 PIECEWISE plus 27 FULL graph set,older GPU UUID and D scheduler,NA,NA,reported entire capture delta 0.17 GiB rounded; not isolated steady residency,36765,HISTORICAL_ONLY

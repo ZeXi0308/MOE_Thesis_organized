@@ -1,0 +1,22 @@
+E MultiNews评分器最薄规模适配（CPU_ONLY；320 GPU_UNRUN）
+
+evaluate_multinews_quality.py现增加显式 --workload-profile multinews256|multinews320，默认multinews256。只有冻结输入/数量/资源绑定按配置变化；官方ROUGE加载、逐参考评分、max over references、27-bundle宏平均、请求均值及异常处理函数均保持旧AST逐项相同。原quality_contract.json和原256/320输入均未改。人工仍使用原三源0/120/194、首Host首请求与首个相反stop/length类型，最多6个身份；length和空输出保留、异常不伪装有效0。
+
+320规模附录：inputs_multinews320/quality_scale_addendum.json
+SHA256=7add92c6d87ec7e38fca4b73013e11d6dc6743791d3e49e4c54a6db311339bc3
+锁定input SHA21c601c5aa8bda312ba3a4f10c88b8cc34bbecfbc2fb15f98daf2ac53f707995、320总数/64short/256long、前256记录完全等于旧输入、64追加long从source32延续完整27源循环、前13源10次/其余14源9次、maxseq320及正常资源。运行时要求原始inputs完全相等、runtime workload hash相符，额外核对320的batch2048/GPU0.9/Host32GiB/BF16/context4096/非显式KV限容。附录在结果metric_scale_addendum及provenance中明确覆盖原合约的规模文字；原合约原文与hash保留。
+
+CPU验证：
+• 320无group入口已检查冻结hash、原256前缀、追加循环/数量/multiplicity/资源范围，返回CPU_VERIFIED_GPU_UNRUN，arms={}，没有320质量分数。
+• 将已完成的旧256组交给320配置，在评分前因inputs不匹配被拒绝，退出1、arms={}；不拿旧分数移植到新负载。
+• 无raw/无GPU输出的CPU配置负例（requests320但maxseq256）被拒绝；未伪造或提交任何完成GPU数据。
+• 6个原评分相关函数AST与旧版完全相同。默认256已实际重评六臂：1152条request-arm记录的全文decode、token、官方gold、逐参考分值、finish/length字段及全部逐bundle/整体汇总浮点值均与原multinews_quality.json EXACT一致（无容差）；15个臂对比较也完全一致。每臂raw等provenance亦相同，仅顶层评分器/配置receipt新增内容不同。核验记录为quality_tools/multinews_profile_validation.json；重评完整输出为multinews256_profile_reproduced.json。
+证据分别为quality_tools/multinews320_profile_cpucheck.json、multinews320_wrong_group_check.json、multinews320_input_guards.json。独立只读审查未发现阻断。默认256现在也核对maxseq256，因此错误配置的接受范围更严格，合法旧配置评分口径不变。
+
+320只做CPU输入/公式核验：
+/private/tmp/moe-a-fresh-input-env-20261001/bin/python E_restore_choice_20261004/evaluate_multinews_quality.py --workload-profile multinews320 --deps /private/tmp/E-multinews-quality-20261007/site --out /tmp/E-multinews320-cpucheck.json
+
+未来已有完成320本地原始组时才可评分（LOCAL_COMPLETE_MULTINEWS320_GROUP需替换为真实路径）：
+/private/tmp/moe-a-fresh-input-env-20261001/bin/python E_restore_choice_20261004/evaluate_multinews_quality.py LOCAL_COMPLETE_MULTINEWS320_GROUP --workload-profile multinews320 --deps /private/tmp/E-multinews-quality-20261007/site --tokenizers-extension /private/tmp/moe-a-fresh-input-env-20261001/lib/python3.13/site-packages/tokenizers/tokenizers.abi3.so --out /tmp/E-multinews320-quality.json
+
+当前评分器SHA256=02020232de35ef874490f4b0b3a49d79ccf07eca9df4b51fca02b5e97be7d144。未修改selector.py/run_cell.py/run_group.py或正在运行实验；没有远端/GPU访问。320仍CPU_FROZEN_GPU_UNRUN、NOT_QUEUED、conditional after原summary256八臂结果；评分器准备不代表实验已执行或已授权自动提交。

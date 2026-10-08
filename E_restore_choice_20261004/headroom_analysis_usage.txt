@@ -1,0 +1,60 @@
+Headroom 本地分析用法（默认六臂；320八臂需显式profile）
+
+仅在整组结束并取回本地完整数据后运行：
+  python3 -B E_restore_choice_20261004/analyze_headroom.py LOCAL_GROUP
+可用 --out PATH 指定报告；默认写 LOCAL_GROUP/headroom_summary.json。
+分析器调用 analyze.py 一次取得真实全服务、工作量、传输与输出一致性统计，不启动GPU。
+默认正式顺序 H/L/G/G/L/H，G=headroom，L/G阈值1792。
+默认profile=summary256_headroom6，原来的六臂与旧数据UNRUN行为保持不变。
+
+未来MultiNews320八臂，仅在完整本地数据和独立冻结源码receipt均具备后运行：
+  python3 -B E_restore_choice_20261004/analyze_headroom.py LOCAL_GROUP --profile multinews320_headroom8 --source-receipt FROZEN_RECEIPT.json
+此profile严格要求H/R/L/G/G/L/R/H、requests=maxseq320、1792、natural、统一observer、
+无target_spec，完整inputs等于已固定SHA的320条source_requests，并核对实际runtime中
+workload哈希、receipt内八个源码哈希和engine maxseq。不会从被审计运行自己的源码
+记录生成“黄金”哈希，也不读取当前可变observer来决定预期哈希。receipt由根会话独立
+CPU冻结后提供；缺失、哈希或绑定不一致为INVALID，不能凭零事件获得成功状态。
+
+receipt schema E.headroom_source_receipt.v1：profile、input_sha256、expected_order、
+config={requests:320,max_num_seqs:320,threshold:1792}，runtime_source_hashes必须恰有：
+  /run_cell.py, /selector.py, /timing_observer.py,
+  /vllm/v1/core/sched/scheduler.py,
+  /vllm/distributed/kv_transfer/kv_connector/v1/offloading/scheduler.py,
+  /vllm/v1/kv_offload/cpu/manager.py, /vllm/v1/core/kv_cache_manager.py,
+  /model/config.json。
+键是实际runtime路径的唯一后缀，值为64位小写SHA256。报告保留receipt文件SHA。
+输入SHA为21c601c5aa8bda312ba3a4f10c88b8cc34bbecfbc2fb15f98daf2ac53f707995。
+
+报告与退出状态
+  VALIDATED_COMPLETE / exit0：组及same-engine父目录COMPLETE，六臂完整且观察核验通过。
+  INVALID / exit1：记录、动作、提交关联或组级状态失败；已完成格的描述性指标仍保留。
+  VALIDATED_NO_ELIGIBLE_EVENTS / exit0：仅显式320profile，全部八臂及父级COMPLETE、
+  配置/输入/独立源码receipt均通过，但没有任何eligible事件；headroom_mechanism_exercised=false。
+  这只验证零机制覆盖的完整执行，不能解释成G分支得到测试或政策收益。
+  UNRUN或INCOMPLETE / exit2：无headroom观察，或完整组条件未满足。正常旧raw无该字段为
+  UNRUN；若组明确FAILED，则失败优先，不用UNRUN遮蔽。该状态不补造G性能。
+
+cells[].observation_validation：
+  eligible lookup/commit分开统计；核对ALL running scope、计数ID、未知/重复ID、
+  known/computed/prefill/cadence/model范围与margin。unsupported必须margin=null。
+  全局scheduler_step仅用于cadence条件；按decision_s与raw.steps、schedule.time_s定位
+  episode局部步骤。受支持背景项必须在对应原生schedule中count1、start=storedcomputed、
+  end=storedknown且known不变。G实际动作和policy_reason必须符合冻结规则。
+  G对L的动作差异是同一条已观测轨迹上的规则重放，不能解释成另一轨迹的时延。
+
+cells[].recovery_progress：
+  复用原分析器按内部request_id匹配的下一严格输出，另报该输出到紧接下一token的gap。
+  gap包含中间再次抢占、排队和native fallback；不会截断到下一次恢复决策。
+  多commit共享同一次输出时逐项保留choice延迟，后继gap统计按request+输出下标去重。
+  无下一输出及最终输出后无后继token分别保留为censored/unavailable，不填零。
+
+base_analysis保留原始分析器的完整服务/成本、原生重复位置和greedy输出差异。
+STORE保留；传输event时间不加成墙钟；自然输出工作不等时不称等工作量加速。
+头寸不是全局免抢占保证，输出一致不是质量或KV/logits正确性证明。
+未序列化的spec/placeholders/inflight/encoder/LoRA及静态guard仅由运行时断言，
+离线分析不冒称独立重建这些检查；prefill flag等记录只检查逻辑一致性。
+
+有界CPU检查：
+  python3 -B -m unittest discover -s E_restore_choice_20261004 -p 'test_analyze_headroom_cpu.py' -v
+当前12项通过（含profile零事件、缺receipt/少臂、错误输入/请求数/maxseq/源码/失败状态、
+应有eligible快照却缺失等子案例）；全部合成fixture只用于合约检查，不是实验性能数据。

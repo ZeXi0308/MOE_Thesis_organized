@@ -1,0 +1,84 @@
+{
+  "base_commit": "5593b5f",
+  "dev_indices": "No new development sweep in this diagnostic",
+  "test_indices": "Same 384 interleaved articles and 0.1s trace as pressure exploration",
+  "native_dev_reference": null,
+  "dev_caps": [],
+  "test_order": [
+    "timer",
+    "progress",
+    "progress",
+    "timer"
+  ],
+  "selection": "No new tuning. Reuse the previously competitive KV256 reference, with corrected complete-lifecycle counting shared by both arms. Not a claim of optimal fixed cap.",
+  "fixed_baseline_claim_scope": "Prior fixed128/192/256 tuning informs this diagnostic; old running+remote caps are not complete-inflight caps. This group tests one bounded action, not a method claim.",
+  "kv_floor": 3277,
+  "recovery_high": null,
+  "recovery_clear": null,
+  "sample_interval_s": null,
+  "max_signal_wait_s": null,
+  "run_timeout_s": 240,
+  "prompt_arrival_gap_s": 0.1,
+  "output_mode": "natural EOS or max 1024; no future output length read",
+  "slo_grid": {
+    "ttft": [
+      2,
+      5,
+      10,
+      20,
+      40
+    ],
+    "max_gap": [
+      0.25,
+      0.5,
+      1,
+      2
+    ],
+    "completion": 120
+  },
+  "slo_role": "Exploratory full 20-point surface, not an application SLO or chosen headline.",
+  "invariants": "Native running scheduling, victim tail, recovery path, transfer and quantum unmodified.",
+  "reset": "Same engine/compiled shapes; identical warmup per cell then connector reset; fresh policy state.",
+  "lock": "/root/autodl-tmp/moe-research-gpu.lock",
+  "host_budget_bytes": 128849018880,
+  "model": {
+    "dtype": "bfloat16",
+    "id": "allenai/OLMoE-1B-7B-0924",
+    "key": "olmoe",
+    "revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "tokenizer_revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5"
+  },
+  "input_sha256": "10493039c7f704a45d1a209c47a2b87c2de5947b9464f921b1495721a0d328e4",
+  "profile": "pro-opportunity-progress",
+  "usable_kv_pages": 32768,
+  "native_max_seqs": 256,
+  "pro_inputs_file_sha256": "6b6be96f8fec6e92b6e59390bab0fe414aeafdaab9539000d88050f8bbf22d25",
+  "evidence_role": "EXPLORATORY_SINGLE_RELEASE_CONDITION_CORRECTION_NOT_CONFIRMATION",
+  "host_kv_gib": 16,
+  "max_model_len": 4096,
+  "precision": "bfloat16; no rope extension",
+  "population": 384,
+  "trace_sha256": "34513450387479b4257f7a01ea9042056667466b4ade5e0c137aa1f0fadb8632",
+  "trace_hash_contents": "Ordered request IDs, actual prompt token IDs, and external arrival traces",
+  "workload_sha256": "7723a0b4e88ba647da79e658cd596e00337075ea761d8692c47c494ee018533d",
+  "concurrency_comparison": "Both arms execute one identical first-opportunity delay. Only release differs: timer100ms versus minimum100ms then observed output progress of the trigger-time recovery set, with the same250ms hard deadline.",
+  "test_admission_caps": {
+    "timer": 256,
+    "progress": 256
+  },
+  "admission_count": "Unique successfully admitted but unfinished requests, including paused/recovery.",
+  "diagnostic_cap": 256,
+  "intervention": {
+    "events_per_run": 1,
+    "minimum_delay_s": 0.1,
+    "hard_gate_deadline_s": 0.25,
+    "timer_release": "Release after100ms from first controller block.",
+    "progress_release": "After100ms, release when every frozen pending recovery request has produced another output token or finished; unconditionally remove extra gate at250ms. Native capacity can continue to delay first prefill.",
+    "trigger": "Unchanged first actually native-fit, cap/KV-allowed never-started request with action-time unfinished recovery.",
+    "original_kv_age_bypass_s": 10
+  },
+  "prefix_comparison": "Same frozen inputs and policy prefix; compare recorded first-opportunity states. Separate executions are not asserted to be identical GPU-state forks.",
+  "candidate_status": "Diagnostic only; no recovery-controller efficacy claim.",
+  "evidence": "Prior B2 scheduled726 restored tokens and98 fresh prefill tokens together after100ms; B1 was already native-capacity blocked. This diagnoses the residual same-batch admission opportunity, not a claim that prior timer failed to protect native recovery scheduling.",
+  "stopping_rule": "One timer/progress/progress/timer group. If no actual refusal differs from timer, or no coherent recovery and complete-service improvement appears, stop this release-condition attempt; do not sweep durations. A positive signal requires a matched signal-free control before any innovation claim."
+}

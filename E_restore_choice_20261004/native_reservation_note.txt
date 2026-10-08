@@ -1,0 +1,86 @@
+E 原生容量保留与 E223 再抢占：有界本地源码说明（2026-10-07）
+仅查 E/native_sources 与已完成 oct07_one_event_r01 Host raw；没有远端读取、GPU、测试或机制修改。
+
+结论
+本版本的 full-ISL 名称不意味着只保护原始 prompt：准入 full-fit 检查和在途剩余块计算都用
+request.num_tokens，即当前输入+已生成历史（并受 max_model_len 限制）。它是当前容量检查和
+部分分配路径使用的“尚需分配块数”，不是直到下一输出前不可被抢占的容量/调度承诺。
+E223 在 computed3265 时已超过 prompt2736，但仍小于 known3277；源码不会仅因跨过prompt就
+把它从在途prefill集合移除。此刻剩余所需token为12，剩余所需新块却可以已经为0。
+
+源文件定位（以下行号对应保存的原生文件）
+S = native_sources/v1/core/sched/scheduler.py
+K = native_sources/v1/core/kv_cache_manager.py
+R = native_sources/v1/request.py
+O = native_sources/distributed/kv_transfer/kv_connector/v1/offloading/scheduler.py
+S、K、O的SHA256均逐一匹配 oct07_one_event_r01/00_same_engine/runtime_source_hashes.json。
+S=2ed2a550b6558b2495eda845a97ae38bcf0225027b9e25fbf00fc3880c1d3941；
+K=3f4af8d247f3fe9570b0132818b832b66ae6a2ac12942588828f899f6ff77ccf；
+O=89ac26a80fbc29b9bcaa5a0daba88fb6309247f9bb053e48d2d61efa7d9d66f1。
+R是E保存的辅助源码快照，当前runtime清单未单独记录其hash。实测也记录known=prompt+generated。
+
+源码事实：范围、使用点与解除条件
+1. R:247–253把新输出追加到_all_token_ids；R:267–268的num_tokens返回该序列长度。
+   S:298–300读取scheduler_reserve_full_isl，S:935–946把它传入等待/恢复请求的allocate_slots。
+   K:411–427的full-fit gate明确用min(request.num_tokens,max_model_len)，不是num_prompt_tokens。
+   gate检查整个当前序列所需容量；K:429–432、481–485实际仅分配本次所需slots，没有预分配全部未来容量。
+
+2. S:2522–2541的_inflight_prefill_reserved_blocks对集合内请求求和；每项调用coordinator，
+   目标长度同样是min(request.num_tokens,max_model_len)，使用已有分配、computed边界及admission cap。
+   因此它统计的是还需分配的块，不是还需计算的token，也不是固定总KV块数。
+   S:927–933只有新请求走async KV load时才把该和作为reserved_blocks传给原生allocate_slots；
+   K:460–466以free-reserved限制本次分配。普通running请求的S:564–568没有传入reserve。
+   不能把选择器在decision中记录的reserved_blocks等同于每条原生分配路径都扣除了该数。
+
+3. async load建立时S:997–998加入_inflight_prefills；普通chunked恢复在本chunk后仍小于
+   request.num_tokens时由S:1036–1038加入。S:1247–1255在schedule后推进num_computed_tokens，
+   以num_tokens+num_output_placeholders判定is_prefill_chunk；不再prefill才在S:1260–1262移除。
+   抢占在S:1221–1228释放块、移除集合、将computed清零并增加抢占数；完成清理在S:2212移除。
+   集合成员尚未移除时，其“剩余待分配块”也可先归零；这两种情况应分开。
+
+4. S:788–791把local hit和external hit相加为num_computed_tokens；async load时num_new_tokens=0
+   （S:828–831），S:979–998进入WAITING_FOR_REMOTE_KVS并预置该computed边界，此时不能执行。
+   收到完成信号后S:2590–2601调用更新并回PREEMPTED/WAITING，再按原生规则重新入RUNNING。
+   成功LOAD在S:2575–2582缓存已加载块；仅当computed==当前num_tokens时回退1token以重新取得logits。
+   E223部分命中2656<3277不触发该回退；S:837–841按完整当前known-computed计算待重建尾部，
+   S:1249再加本轮实际scheduled量。恢复到RUNNING后没有“尚未输出则不可抢占”的例外。
+   running分配失败时S:574–603按既有victim规则处理；本组FCFS分支使用running.pop()。
+
+与既有实测相接（source=oct07_one_event_r01/00_same_engine/01_host；02_host同轨迹）
+step874：E223 event519，prompt2736、known3277/generated541，Hosthit2656，full_required205，
+free416、reserved0，合法Host提交。LOAD阶段E223没有scheduled token。
+同step稍后的E227 event520记录reserved_blocks=39、free250；这个39正好等于205−166，
+其中205=ceil(3277/16)，166=2656/16。这是当前历史而非原prompt范围参与保留的具体观测。
+但event520是Host-miss native recompute，其原生路径不是async load；记录39不代表原生调用扣39。
+step875：E223实际计算609位置[2656,3265)，该步总预算2048用满，边界free6，尚无新输出。
+step876：抢占记录computed3265/known3277/generated541，释放前free0；E223本步没有计算。
+
+紧邻实际工作量（同一01_host/raw.json的scheduler_steps；已按request_id映射核对）
+step873：161个decode请求各1token，合计161。
+step874：160个单token请求 + E225尾部8位置[3536,3544) + E227重算1880位置[0,1880)，合计2048；
+         E223仍处于本次异步LOAD阶段，没有本轮计算。
+step875：161个单token请求 + E227余1278位置[1880,3158) + E223尾609位置[2656,3265)，合计2048。
+step876：162个单token请求，E223已再抢占，未计算剩余12位置。
+因此可直接核实：E223等待Host LOAD时，后继E227先一轮进入RUNNING并获得重算机会；
+下一轮E227继续计算，占用预算，E223的尾部本轮未能算完。这是原生调度位置证据。
+把E223改成原生重算是否改变该次序、是否避免再次抢占，仍须等待新的单事件对照，不能据此预判。
+
+两个决策点的状态并列（同一01_host/raw.json的commits，不使用事后输出作为状态）
+                  E249/event55             E223/event519
+running           192                      161
+waiting           7                        24
+recent_step       68.374990ms              69.282116ms
+pending_load      0                        0
+known/generated   3128/76                  3277/541
+Host命中/待重建尾  3056/72                  2656/621
+pending_load相同，近期step耗时也接近；waiting差异同时伴随当前历史和Host覆盖差异。
+这些行只表明状态与实际工作构成共变，不能把等待队列长度单独归因为动作收益差异，
+也不能从这两个事件证明状态信号超越长度/命中成本基线。当前不据此拟合选择器。
+
+解释与边界
+本组16-token块下，ceil(3265/16)=ceil(3277/16)=205。按源码和块算术，E223即使仍在
+inflight集合、还差12个计算位置，其自身待分配块数已经可为0；其他running请求继续扩容，
+free耗尽时原生victim仍可选中E223。这与观测相容，比“reserve只保prompt、跨prompt就失效”更准确。
+现有raw没有每次allocator失败的触发请求、集合内容或逐调用reserve返回值，因此不声称已经
+唯一确定step876的全部因果链，更不先认定原生bug。共同容量检查也不承诺下一步仍有空闲块。
+此说明只解释固定原生机制；E223新实验仍只改一次恢复动作，不改reserve、victim或准入。

@@ -1,0 +1,83 @@
+{
+  "base_commit": "5593b5f",
+  "dev_indices": "pro_inputs.dev 192 distinct articles",
+  "test_indices": "pro_inputs.test 192 disjoint articles",
+  "native_dev_reference": 256,
+  "dev_caps": [
+    96,
+    128,
+    192
+  ],
+  "test_order": [
+    "fixed",
+    "kv",
+    "recovery",
+    "recovery",
+    "kv",
+    "fixed"
+  ],
+  "selection": "Among complete dev arms minimize mean external-arrival-to-completion time; ties use higher cap.",
+  "kv_floor": 3277,
+  "recovery_high": 2,
+  "recovery_clear": 0,
+  "sample_interval_s": 0.1,
+  "max_signal_wait_s": 10,
+  "run_timeout_s": 240,
+  "prompt_arrival_gap_s": 0.0,
+  "output_mode": "natural EOS or max 1024; no future output length read",
+  "slo_grid": {
+    "ttft": [
+      2,
+      5,
+      10,
+      20,
+      40
+    ],
+    "max_gap": [
+      0.25,
+      0.5,
+      1,
+      2
+    ],
+    "completion": 120
+  },
+  "slo_role": "Exploratory full 20-point surface, not an application SLO or chosen headline.",
+  "invariants": "Native running scheduling, victim tail, recovery path, transfer and quantum unmodified.",
+  "reset": "Same engine/compiled shapes; identical warmup per cell then connector reset; fresh policy state.",
+  "lock": "/root/autodl-tmp/moe-research-gpu.lock",
+  "host_budget_bytes": 128849018880,
+  "model": {
+    "dtype": "bfloat16",
+    "id": "allenai/OLMoE-1B-7B-0924",
+    "key": "olmoe",
+    "revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "tokenizer_revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5"
+  },
+  "input_sha256": "10493039c7f704a45d1a209c47a2b87c2de5947b9464f921b1495721a0d328e4",
+  "profile": "pro-dev",
+  "usable_kv_pages": 32768,
+  "native_max_seqs": 256,
+  "pro_inputs_file_sha256": "6b6be96f8fec6e92b6e59390bab0fe414aeafdaab9539000d88050f8bbf22d25",
+  "evidence_role": "NORMAL_CAPACITY_PRO6000",
+  "pressure_probes": [
+    {
+      "label": "low",
+      "count": 64,
+      "gap": 0.5
+    },
+    {
+      "label": "near",
+      "count": 192,
+      "gap": 0.1
+    },
+    {
+      "label": "high",
+      "count": 192,
+      "gap": 0.02
+    }
+  ],
+  "pressure_selection": "First near if actual preemptions>0; else high. No preemptions even in high is a valid normal-capacity boundary, not a failed experiment.",
+  "host_kv_gib": 16,
+  "max_model_len": 4096,
+  "precision": "bfloat16; no rope extension"
+}

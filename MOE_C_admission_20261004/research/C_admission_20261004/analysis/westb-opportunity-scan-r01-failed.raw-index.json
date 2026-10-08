@@ -1,0 +1,29 @@
+{
+  "run": "westb-opportunity-scan-r01",
+  "status": "FAILED_BEFORE_GPU_INIT",
+  "source_commit": "b535785",
+  "source_probe_commit": "d477196",
+  "archive": "research/C_admission_20261004/runs/westb-opportunity-scan-r01-failed.tar.gz",
+  "archive_sha256": "f77973bdeace300c028ec9ad353b78a0e6682d93e43c939b74ad49b2adef36db",
+  "remote_archive": "/root/moe-c-admission-20261007-v5/opportunity-scan-r01-failed.tar.gz",
+  "exit_code": 1,
+  "measurement_started": false,
+  "measured_arrivals": 0,
+  "configured_population": 384,
+  "request_outcomes": "Not applicable: no measurement requests submitted; do not label384 request failures.",
+  "lock": {
+    "pid": 45139,
+    "path": "/root/autodl-tmp/moe-research-gpu.lock",
+    "device": 2304,
+    "inode": 15049831297,
+    "acquired_unix": 1791379025.7473779,
+    "waited_seconds": 1375.571059230715
+  },
+  "failure": {
+    "status": "FAILED",
+    "error": "RuntimeError('Other GPU process: 44998, /root/miniconda3/bin/python, 88188 MiB')",
+    "traceback": "Traceback (most recent call last):\n  File \"/root/moe-c-admission-20261007-v5/run.py\", line 163, in main\n    dump(out/'gpu-before.json', gpu_state())\n                                ^^^^^^^^^^^\n  File \"/root/moe-c-admission-20261007-v5/run.py\", line 36, in gpu_state\n    raise RuntimeError('Other GPU process: '+rows)\nRuntimeError: Other GPU process: 44998, /root/miniconda3/bin/python, 88188 MiB\n"
+  },
+  "interpretation": "Common lock acquired after1375.571s; previous holder44998 still visible to nvidia-smi. Subsequent ps confirmed both prior holder and C PID exited; new holder48074 legitimate GPU process. No policy effectiveness result. All logs retained.",
+  "next_action": "Add15s bounded host-only post-lock GPU-process drain check; identical frozen scan policy/workload, new package and output."
+}

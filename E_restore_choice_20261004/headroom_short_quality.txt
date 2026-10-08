@@ -1,0 +1,24 @@
+E headroom 六臂短题质量（2026-10-07；仅已完成本地CPU评分）
+
+实际数据：execution/oct07_headroom_r01，六臂H/L/Headroom/Headroom/L/H均COMPLETE。使用现有evaluate_short_quality.py、原summary256_short_quality.json冻结规则和已核验tokenizers0.23.2；未换提取/计分规则。每臂同64个GSM8K短题，分母保留全部64；完整逐请求text/token、gold、提取值、finish/length标记及原始输入/结果hash见headroom_short_quality.json。下列结果均由本组真实输出计算，不移植其他实验分数。
+
+臂             stop且数值正确       忽略stop的数值匹配    length      无法解析
+00_host        26/64 (40.625%)      26/64                1/64        0/64
+01_length      26/64 (40.625%)      26/64                1/64        0/64
+02_headroom    26/64 (40.625%)      26/64                1/64        0/64
+03_headroom    26/64 (40.625%)      26/64                1/64        0/64
+04_length      26/64 (40.625%)      26/64                1/64        0/64
+05_host        26/64 (40.625%)      26/64                1/64        0/64
+
+每臂均63个stop、1个length；触顶的是measured/E136（GSM8K test index162），256个输出token，按原规则提取48，原gold92，不匹配。没有用截断中的中间数值充当自然完成答案。
+
+同一身份跨臂output_token_ids差异（仅这64短题）：H两次完全相同，L两次完全相同，Headroom两次完全相同。L相对首H有1条不同：E240；Headroom相对首H有4条不同：E180/E224/E232/E240；Headroom与L也有4条不同。这些差异没有改变任何一个身份的stop_numeric_match判定，所以不仅总分相同，正确题集合也相同。但E224提取数值确有变化：H/L为17，Headroom为3，gold为25，两者均错；不能将同分说成输出完全相同或事实内容未变。其余变化身份的最终提取数值与首H相同。
+
+口径与限制：沿用“生成全文最后一个有符号十进制数，去千分位逗号，以Decimal精确比较原答案####后的gold”；不按百分号/货币单位缩放，不人工重解题，不据本组表现调整规则。主指标另要求finish_reason=stop；自然stop和可解析数字均不认证语义完成或推理正确。这里仅64短题的固定数值规则正确性，不评价长摘要整体质量、模型泛化或全部请求输出状态；相同判分不能证明恢复执行过程无误，也不用于解释时延。
+
+保留来源：definition SHA256=4b5cf391dbdc807fafdf80baf361b368921d0b5822c5f40cce1b5460105b885f；原GSM8K源SHA256=62f48a1835ab5d866050d291888a27827e7a2cc7b5dbceefdafac43e7c762386；tokenizer JSON SHA256=b1fb1517c84c6d516ff43adcebe7a1986ce7ed3e2533dc2c22b40337d2d24167。通用tokenizers扩展仅作解码依赖，路径/版本/hash记录在结果JSON，未读取其他会话数据。
+headroom_short_quality.json SHA256=d593e32c46ac03306da6472476f07c9710e64fe53b192de09eb9254f6c1fc9e0。
+执行命令：
+/private/tmp/moe-a-fresh-input-env-20261001/bin/python E_restore_choice_20261004/evaluate_short_quality.py E_restore_choice_20261004/execution/oct07_headroom_r01 --tokenizers-extension /private/tmp/moe-a-fresh-input-env-20261001/lib/python3.13/site-packages/tokenizers/tokenizers.abi3.so --out E_restore_choice_20261004/headroom_short_quality.json
+
+评分退出0；未修改runtime、PDF、320候选或任何评分定义，未访问远端/GPU。

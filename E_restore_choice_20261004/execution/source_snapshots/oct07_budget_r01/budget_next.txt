@@ -1,0 +1,50 @@
+Session E: exact remaining-token-budget comparison, frozen 2026-10-07.
+Status at freeze: CPU_PASS_GPU_UNRUN. No measured adaptive benefit.
+
+Motivation: E249 recomputation used two compute steps and delayed E252;
+E223 recomputation improved its own next output but shifted about 0.80 s of
+waiting to E227. A local recovery win therefore does not establish service gain.
+The independent MultiNews normal-capacity group had zero preemptions, with a
+peak of 87.32% of the GPU KV pool. Preserve that negative-domain result.
+
+Return to the already measured natural-summary workload that reaches normal
+capacity, without reducing KV capacity or forcing output. Input:
+inputs_natural_summary256/pro6000_natural_summary_256.json
+SHA256 8346ad2512661cc6595ef3e0aa53e76c690fb9980f5bf41e8007f199cfb7582a.
+64 short tasks + 192 summaries from three complete articles; repeated articles
+are not independent quality or workload samples. Natural EOS, caps256/1024.
+
+Single group: host,recompute,length,budget,budget,length,recompute,host.
+Length: known_tokens <= 1792 selects recomputation, otherwise Host.
+1792 = configured batch2048 minus max256 one-token decoders, a previously
+declared static baseline, not a fitted GPU timing crossover.
+Budget: known_tokens <= exact current native remaining scheduled-token budget
+selects recomputation, otherwise Host. No fitted parameter or parameter sweep.
+Both rules apply only after the same ready-Host and full-history joint-capacity
+checks; unavailable branches retain the same explicit native fallback.
+All four policies receive the same new observer, including common warmup.
+Every schedule must match native SchedulerOutput per-request token allocations
+and total exactly. Unsupported scope or mismatch fails the run, not silently
+approximates the signal. See budget_selector_note.txt and CPU tests.
+
+Fixed: OLMoE BF16; GPU utilization0.9 with native capacity profiling;
+Host32GiB pinned; FCFS/victim/admission; maxseq256; batch2048; APC off;
+synchronous scheduling; context4096; greedy sampling; native STORE/LOAD,
+copy concurrency and chunking. All arrivals at0, identical inputs and warm/reset.
+No identity-specific intervention and no target-spec. No future output length,
+no running both actions, no subtraction of already paid STORE, no sum of
+overlapping costs presented as wall time. Entire group under shared GPU flock.
+
+Evaluate same-policy repeats and forward/reverse pairs, all completion times,
+generation stalls, decision-to-next-output, eligible actions and fallbacks,
+native scheduled/repeated work, STORE/LOAD and measured observer overhead.
+Check whether actual eligible actions differ from the static threshold. If
+budget and length behave equivalently, report equivalence, not adaptive gain.
+Cross-action token/finish changes prevent equal-work speedup claims. Retain
+short-task score and long-summary quality limitations of the original workload.
+No second E GPU group is submitted while this group waits or runs.
+Only small status/PID/lock reads during execution; raw archival/readback only
+after all eight cells complete, worker/controller exit and lock release.
+
+Command from remote E code root:
+/root/miniconda3/bin/python run_group.py --name /tmp/moe-e-restore-choice-20261004/oct07_budget_r01 --gpu-uuid GPU-94203fc3-1021-3a9c-a367-cff792479616 --requests 256 --workload inputs_natural_summary256/pro6000_natural_summary_256.json --arms host,recompute,length,budget,budget,length,recompute,host --threshold 1792 --timing-observer --wait-lock-seconds 1800

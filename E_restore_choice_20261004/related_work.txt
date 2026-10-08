@@ -1,0 +1,129 @@
+Session E — restore versus native recompute: primary-source audit
+Checked: 2026-10-04. Independent literature work; no GPU job started.
+Scope: a legally resumable request, a valid Host KV copy, fixed target/victim/queue/quantum/admission/transfer implementation. Evidence below is literature evidence, not E measurements. Version suffixes pin what was read; this is a bounded search, not a claim of exhaustive novelty clearance.
+
+1. CacheOPT — direct mandatory baseline
+Haiying Shen and Tanmoy Sen, Mitigating KV Cache Competition to Enhance User Experience in LLM Inference, arXiv 2503.13773v1 (2025).
+https://arxiv.org/html/2503.13773v1
+Sections 2.5 and 3.5 compare sequence-length-dependent recomputation against bidirectional swap (out plus in), with an approximately 4K crossing in their setting. The selector profiles hardware/model-specific polynomial recompute and linear swap costs; it is not a runtime transfer-queue or GPU-load selector. Other CacheOPT components are load/SLO-aware, so do not describe the entire system as load-unaware. Section 5 measures tail TTFT/TBT, SLO attainment, normalized end-to-end latency, and scheduler overhead; /PSS replaces selection with recompute. The complete system changes several mechanisms beyond E. No author implementation repository was verified in this search.
+E consequence (our inference): port only the selector idea as a cost baseline, recalibrated to restore-only incremental cost. A 4K threshold and swap-out cost cannot be copied into E after STORE is already paid.
+
+2. Stream2LLM — strongest verified recent cost-only selection comparator
+Rajveer Bachkaniwala et al., Stream2LLM: Overlap Context Streaming and Prefill for Reduced Time-to-First-Token, arXiv 2604.16395v1; artifact identifies MLSys 2026.
+https://arxiv.org/html/2604.16395v1
+Section 4.3 chooses recompute or swap using hardware-specific latency profiles. It explicitly says the implementation uses static idle-system profiles; adapting those profiles to contention is discussed as a possibility. Selection is at preemption, and swap cost is round-trip. Its setting is a disaggregated prefill instance with evolving streaming input, so decode TPOT is outside that instance. Section 6.4 independently varies scheduler and eviction method. Under FCFS, crawler P99 speedup versus its baseline is 10.03x recompute, 6.69x swap, 8.62x cost-based: adaptive selection need not beat the best fixed arm. ANNS gives 1.84x, 1.26x, 2.04x respectively. These ratios are paper results, not portable expectations.
+Official artifact: https://github.com/rajveerb/stream2llm/tree/mlsys_artifact
+README specifies modified vLLM 0.8.1, real traces/logs, and performance-model JSONs. Exact scheduler source was not fetched successfully; do not claim code-level reproduction yet.
+
+3. UnboxKV — prior evidence that concurrency/capacity can change the ranking
+Characterizing the Behavior and Impact of KV Caching on Transformer Inferences under Concurrency (2025); author-hosted full text:
+https://jcernuda.com/publications/kv-caching
+Sections around Figs. 9–11 reuse synthetic request populations across configurations. They vary enqueued concurrency, spare GPU KV capacity, model, cache chunk size, and pinned/pageable host memory. With scarce spare capacity, swap outperforms recomputation; with large capacity the ranking reverses. The explanation includes repeated prefills disrupting scheduling, beyond isolated rebuild cost. Pinned host memory matters substantially. This is characterization rather than an online action selector.
+E consequence (our inference): merely demonstrating workload-dependent ranking is insufficient novelty. Fix capacity across E arms, record collateral decode stalls, and test whether a pre-decision state signal adds information beyond length under the same resource budget.
+
+4. Cake — dynamic compute/I/O competition already addressed, different action space
+Shuowei Jin et al., Compute Or Load KV Cache? Why not Both?, arXiv 2410.03065v2 (2025-02-20).
+https://arxiv.org/html/2410.03065v2
+Cake computes chunks from the front and loads cached chunks from the back concurrently; their meeting point adapts to available compute/I/O. Its adaptive scheduler prioritizes decode, uncached prefill, then cached prefill. Evaluation includes TTFT, throughput, resource fluctuations, and scheduler overhead. Its I/O bandwidth experiments delay a simulated storage backend; GPU availability is represented through token-budget allocation. This is neither E's all-or-nothing native action nor its fixed-priority first version.
+E consequence (our inference): do not claim first resource-aware restore/recompute or first awareness of other users. Later comparison needs a clear scope statement; implementing Cake now would violate E's first-round fixed-executor constraint.
+
+5. CacheGen — adaptive bandwidth-driven transfer versus recompute already exists
+Yuhan Liu et al., CacheGen: KV Cache Compression and Streaming for Fast Language Model Serving, arXiv 2310.07240v4 / SIGCOMM 2024.
+https://arxiv.org/html/2310.07240v4
+Section 5.3 streams chunks using selectable compression levels or text for local KV recomputation when bandwidth drops. It adapts to current network conditions with context-loading SLO and generation quality as objectives. This changes encoding and chunk choices and addresses remote prefix loading, unlike E's fixed native Host restoration of an in-flight request.
+Official code identified by the paper: https://github.com/UChi-JCL/CacheGen
+E consequence (our inference): a bandwidth-sensitive binary rule alone is not a broad new concept. E must establish incremental full-service benefit at its specific legal recovery boundary.
+
+6. LUMEN — load-aware recovery can deliberately abandon valid checkpoint reuse
+Zhang Cao et al., LUMEN: Coordinated Failure Recovery for Distributed LLM Serving, arXiv 2606.17787v1.
+https://arxiv.org/html/2606.17787v1
+Sections 4.2–4.3 use observed worker queue delays, reserved checkpoint footprints, and request counts. Recovery first targets checkpoint holders; overloaded holders shed requests to less-loaded workers, choosing small checkpointed prefixes first. Moving forfeits local reuse and causes full re-prefill. It preserves prompt/output token history and restores only complete valid checkpoint pages, rebuilding missing suffixes. Its action also changes destination; placement and speculation-assisted model recovery are additional mechanisms. Metrics include TTFT, TPOT, recovery time and steady-state overhead, with prototype plus simulation.
+E consequence (our inference): broad load-aware recovery novelty collides. E's distinct controlled question is method selection for a fixed target on an already fixed destination and scheduler.
+
+7. RoM/KVRS — public implementation lead; publication status unverified
+https://github.com/namdavid2904/recompute-or-migrate
+Author README describes DistServe failure recovery comparing KV bytes/current network bandwidth against an interpolated prefill-cost table. It offers always-migrate, always-recompute, and RoM, plus an SLO abort path; reported A100 experiments emulate network bandwidth. We inspected README only, not trace integrity or executable recovery semantics. Treat results as repository claims pending code audit, not a peer-reviewed result.
+E consequence (our inference): this is another prior bandwidth-state selection idea. Its abort path cannot be adopted as E's common correctness-preserving fallback.
+
+8. Neighboring execution mechanisms and interference evidence
+HCache: https://arxiv.org/html/2410.05004v1 — reconstructs KV from stored intermediate activations and combines complementary compute/I/O, requiring a different stored representation and restoration executor.
+Krul: https://arxiv.org/html/2507.08045v1 — conversation-specific cross-layer compression and recompute/load pipeline; changes numerical state and scheduling, not the binary native decision in E.
+Pensieve: https://arxiv.org/html/2312.05516v3 — stateful multi-turn GPU/CPU caching, cost-aware chunk eviction, pipelined restoration and recomputation of missing state.
+Tetris: https://saa2025.github.io/papers/Tetris%20-%20Efficient%20and%20Predictive%20KV%20Cache%20Offloading%20for%20Agentic%20and%20Reasoning%20Workloads.pdf — long-output preemption, predictive victim selection, and layerwise asynchronous transfer; changes mechanisms E fixes initially.
+ShadowServe: https://arxiv.org/html/2509.16857v1 — measures interference between KV decompression and model computation; uses SmartNIC data-plane offload. Loaded TPOT/TTFT and throughput provide useful collateral-cost precedent. E's raw Host copy has no decompression, so its measured magnitude must not be transferred.
+Official vLLM current docs: https://docs.vllm.ai/en/stable/configuration/optimization/ — V1 defaults to recompute and decode-prioritized chunked prefill. This does not establish that the installed engine has a safe Host swap path; inspect its exact version.
+
+Concrete E experiment implications (our recommendations, not literature findings)
+- Immediate arms: restore-first versus recompute-first with identical external arrivals, native state-preserving fallback and AB/BA repeats; then add a hardware-calibrated length/cost baseline if useful.
+- Capture each decision's request ID, known prefix/generated counts, legality/capacity, state signal, chosen/actual branch, fallback reason, decision-to-next-output, all request completion times and every output gap.
+- Attribute paid STORE to end-to-end cost, never as a benefit of switching to recompute. For the selector compare only remaining restore/rebuild consequences.
+- Select one signal justified by the trace (e.g. recent exposed restore waiting OR recent native step time). Compare it directly to the best fixed arm and the best training-only length threshold on held-out arrivals/natural tasks.
+- Preserve scheduling, victim, admission, transfer concurrency and chunk sizes. Report same request identities, stop/sampling state and output-progress invariants; recomputation tokens are not outputs.
+- Minimum defensible paper claim, conditional on real data: a small decision-boundary adaptation can reduce full-service cost beyond a cost-only threshold in an identified operating regime. No claim of first load-aware recovery or universal crossover is supported by this audit.
+
+Bounded Stream2LLM source follow-up (2026-10-04)
+Successfully opened official mlsys_artifact/stream2llm directory; it contains vllm/ and the artifact README identifies vLLM 0.8.1. A direct source request to https://github.com/rajveerb/stream2llm/blob/mlsys_artifact/stream2llm/vllm/core/scheduler.py failed with web-tool Cache miss. Earlier raw.githubusercontent.com retrieval also failed. Per the bounded follow-up instruction, stopped here without additional fallback infrastructure. Exact callable selector function, field names, line numbers and commit SHA remain unverified; the attempted path is a candidate, not a proven definition location.
+The paper itself establishes the formula only: section 2.2 compares C_recomp(r) against 2*C_swap(r), where C_swap is one-way KV bytes / PCIe bandwidth. Section 4.3 names recomputation_latency(T) and swap_latency(C) as cost functions and states the implemented profiles come from an idle system. Do not silently treat those paper-level names as verified Python identifiers or claim that the code's swap_latency return value is one-way rather than round-trip.
+
+2026-10-07 official source addendum (supersedes the Oct04 access limitation)
+Public raw source now retrieved successfully via curl, without installation or execution.
+Commit 5e2763d51368390ec747945436c7612236258366; two source snapshots and SHA256s
+are in related_sources/stream2llm_5e2763d/provenance.json.
+- v1/core/scheduler.py: preempt_reqs_fetch_blocks, lines201–284; choice at239–246
+  compares two frozen cost functions using num_new_tokens. This argument comes
+  from the current scheduling allocation request (see494–496), not a field read
+  from the selected preempted_req. Do not silently describe it as victim prefix
+  length or claim the paper/code are an already reproduced E baseline.
+- v1/engine/core.py: recomputation model lines252–274 fits a quadratic to means
+  of per-token-count samples; dummy request profiling lines276–369 measures one
+  engine step per sample. Swap model lines464–504 first adds swap-in and swap-out
+  samples, then fits a quadratic. Saved hardware-specific data can replace init
+  profiling. Neither selector input contains live transfer queue or step cost.
+- This is a preemption-time swap-vs-discard decision. E chooses at resume after
+  STORE already happened. A fair E cost-only adaptation must exclude sunk STORE
+  and calibrate remaining LOAD/rebuild on this hardware. Copying its old curves
+  or double-counting swap-out would compare different objectives.
+Official stable source links:
+https://github.com/rajveerb/stream2llm/blob/5e2763d51368390ec747945436c7612236258366/stream2llm/vllm/v1/core/scheduler.py
+https://github.com/rajveerb/stream2llm/blob/5e2763d51368390ec747945436c7612236258366/stream2llm/vllm/v1/engine/core.py
+
+2026-10-08 bounded follow-up: action-induced future Host coverage
+CacheOPT v2 §§2.5,3.5 compares predicted recomputation and round-trip swap for the current prefix. Its wider allocator and victim policy explicitly consider future resource release/preemption, so the gap is confined to the choice formula: no explicit continuation cost induced by that action's later Host coverage. Do not say the whole system ignores the future.
+https://arxiv.org/html/2503.13773v2
+Stream2LLM v3 §4.2 already addresses invalid CPU KV suffixes after new streaming inputs: it loads the remaining valid prefix, recomputes the suffix, and tracks invalidated tokens. Its §4.3 static comparison does not explicitly model how the chosen action changes future writeback/coverage and repeated recoveries. This is distinct from claiming that partial coverage or reconstruction is new.
+https://arxiv.org/html/2604.16395v3
+The already-frozen scheduler branch lines239–267 passes num_new_tokens to static curves; no future Host-coverage/writeback state term appears in that branch. This does not prove that the whole artifact never exhibits the phenomenon.
+https://github.com/rajveerb/stream2llm/blob/5e2763d51368390ec747945436c7612236258366/stream2llm/vllm/v1/core/scheduler.py#L239-L267
+E implication: test conditions under which one legal action changes subsequent reusable Host state and accumulated service cost. If native STORE repair removes the effect, classify that finding as implementation correctness. A selector contribution still requires real online benefit under correct writeback semantics against fixed methods and static cost; do not claim first repeated-rebuild awareness or optimal recovery.
+
+2026-10-08 bounded native CPU maintenance counterexample
+Clarification of the preceding "implementation correctness" wording: fixing a
+performance-side coverage loss does not by itself establish incorrect outputs
+or a violated cache-residency guarantee. Re-admission can have collateral costs.
+Official vLLM v0.26.0 source files fetched without installing a stack:
+https://raw.githubusercontent.com/vllm-project/vllm/v0.26.0/vllm/v1/kv_offload/cpu/policies/base.py
+saved related_sources/vllm_v0_26_0_cpu_policy/base.py
+SHA256 ca9d2fa873813e2887b1aae1d4667835a64ef85371deb4f1c88702f08d32ef9f
+https://raw.githubusercontent.com/vllm-project/vllm/v0.26.0/vllm/v1/kv_offload/cpu/policies/lru.py
+saved related_sources/vllm_v0_26_0_cpu_policy/lru.py
+SHA256 fd7ddee1f288f19197f5519fe7cd73d4e92a2460e9354892cfedcba4664b7f32
+Executable: python3 -B cpu_preparation/check_store_replay_eviction.py
+Result: cpu_preparation/store_replay_eviction_result.json
+PASS_NATIVE_CPU_MAINTENANCE_COUNTEREXAMPLE. Both arms start from the identical
+15-block full cache: A has 7 of 8 ready blocks (A2 absent), B has all 8, B0 is
+the oldest evictable block. Initialization uses actual prepare_store and
+complete_store calls, not manual LRU manipulation. A's cursor is 8; only on
+rewinds it to 2. The unchanged native STORE builder emits one A2 store; the
+official LRU and native manager evict B0. After completion the native contiguous
+prefixes are off A=2/B=8, on A=8/B=0. B1..B7 remain resident: losing contiguous
+reuse is not eviction of eight blocks. Pending A2 causes lookup to defer until
+the fixture acknowledges completion; the result records a corrected initial
+test assertion about that pending state.
+Scope: unchanged AST method bodies from saved native scheduler/manager and
+complete official LRU/BlockStatus/CachePolicy classes; fixture request/config/
+spec objects, supplied GPU block identifiers and compute progress, synchronous
+successful completion. No tensors, GPU, worker transfer, full-engine execution,
+later request execution or time measurements. This is a constructed maintenance
+counterexample, not evidence that this eviction occurred in E246, a frequency
+estimate, or a service benefit. It refutes only cost-free/unconditionally benign
+hole repair; it does not establish a correctness bug, useful policy or novelty.

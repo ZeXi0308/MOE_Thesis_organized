@@ -1,0 +1,274 @@
+{
+  "status": "HISTORICAL_FEASIBILITY_BACKGROUND_ONLY_NOT_G_PRIMARY_COMPARISON",
+  "original_gpu_uuid": "GPU-bf3fc5ab-804d-b9d6-759b-4390899f15b9",
+  "current_gpu_distinction": {
+    "current_endpoint_gpu_uuid": "GPU-51b8e4bb-27b8-4b82-5254-7317aae7298c",
+    "source": "E_restore_choice_20261004/checkpoint.json, local 2026-10-08 18:49 record",
+    "live_verified_by_this_extractor": false,
+    "warning": "D measurements belong to original_gpu_uuid, not current_endpoint_gpu_uuid."
+  },
+  "scope": "Exactly one preselected fixed2048 arm per low/high D workload; no alternative arms or traces selected.",
+  "frozen_slo": {
+    "ttft_s": 4,
+    "gap_s": 0.1,
+    "completion_s": 20
+  },
+  "metric_definitions": {
+    "goodput_requests_per_s": "Fully completed fixed-length requests meeting all three SLOs, divided by raw.elapsed_s.",
+    "complete_request_throughput_per_s": "All fully completed fixed-length requests divided by raw.elapsed_s.",
+    "denominator": "Episode origin before first admission through drained-loop end; includes arrival waiting and final drain. Both first arrivals are zero.",
+    "ttft_s": "First observed output timestamp minus planned arrival_s.",
+    "completion_latency_s": "completion_s minus planned arrival_s.",
+    "request_max_output_gap_s": "Maximum adjacent output timestamp difference within each request; first-token waiting is measured separately by TTFT.",
+    "pooled_adjacent_output_gap_s": "All adjacent token gaps pooled; token-weighted, distinct from request-level max-gap distribution.",
+    "percentiles": "Linear interpolation at (n-1)*p, as in existing D analyzer; no rounding before SLO comparisons.",
+    "batch_distributions": "One unweighted observation per recorded engine.step; running_count is after scheduling. Scheduled tokens = prefill_tokens + decode_tokens."
+  },
+  "limitations": [
+    "D fixed2048 modifies aggregate prefill budget; this is not an unmodified G scheduler baseline.",
+    "Measurements were recorded on the original D GPU UUID, not the current endpoint GPU.",
+    "One historical arm per load has no repeated-run uncertainty estimate and cannot establish a strongest simple baseline or any G method gain.",
+    "Host engine.step output timestamps include scheduler/output handling, exclude network/client delivery, and use fixed output lengths with ignore_eos."
+  ],
+  "workloads": {
+    "low": {
+      "source_raw": "D_prefill_budget_20261004/low-normal-r01/00_fixed2048/raw.json",
+      "historical_policy": "fixed2048",
+      "requests": 12,
+      "completed_requests": 12,
+      "completion_rate": 1.0,
+      "joint_slo_pass_requests": 12,
+      "joint_slo_pass_fraction": 1.0,
+      "slo_failure_request_counts_nonexclusive": {
+        "ttft_s": 0,
+        "gap_s": 0,
+        "completion_s": 0
+      },
+      "denominator_elapsed_s": 5.911142556928098,
+      "last_request_completion_s": 5.911117582581937,
+      "goodput_requests_per_s": 2.0300643884718217,
+      "complete_request_throughput_per_s": 2.0300643884718217,
+      "complete_output_tokens": 2816,
+      "complete_output_tokens_per_s": 476.3884431613875,
+      "ttft_s": {
+        "count": 12,
+        "min": 0.020240603014826775,
+        "p50": 0.05335599323734641,
+        "p95": 0.11907298462465404,
+        "p99": 0.12038254621997474,
+        "max": 0.12070993661880491,
+        "mean": 0.06268363780652488
+      },
+      "completion_latency_s": {
+        "count": 12,
+        "min": 0.9011175825819375,
+        "p50": 1.5341896959394217,
+        "p95": 3.1208905121311545,
+        "p99": 3.1208905121311545,
+        "max": 3.1208905121311545,
+        "mean": 1.7867787735008944
+      },
+      "request_max_output_gap_s": {
+        "count": 12,
+        "min": 0.005380840040743351,
+        "p50": 0.024548054672777653,
+        "p95": 0.025088651105761528,
+        "p99": 0.025088651105761528,
+        "max": 0.025088651105761528,
+        "mean": 0.019863718111688893
+      },
+      "pooled_adjacent_output_gap_s": {
+        "count": 2804,
+        "min": 0.0029867812991142273,
+        "p50": 0.007072458975017071,
+        "p95": 0.009380955761298536,
+        "p99": 0.02417065016925335,
+        "max": 0.025088651105761528,
+        "mean": 0.007378438526509428
+      },
+      "batch": {
+        "running_requests_after_schedule": {
+          "count": 919,
+          "min": 1,
+          "p50": 3.0,
+          "p95": 6.0,
+          "p99": 7.0,
+          "max": 7,
+          "mean": 3.0783460282916213
+        },
+        "scheduled_requests": {
+          "count": 919,
+          "min": 1,
+          "p50": 3.0,
+          "p95": 6.0,
+          "p99": 7.0,
+          "max": 7,
+          "mean": 3.0783460282916213
+        },
+        "scheduled_tokens": {
+          "count": 919,
+          "min": 1,
+          "p50": 3.0,
+          "p95": 6.0,
+          "p99": 2050.64,
+          "max": 2053,
+          "mean": 36.57780195865071
+        },
+        "prefill_tokens": {
+          "count": 919,
+          "min": 0,
+          "p50": 0.0,
+          "p95": 0.0,
+          "p99": 2048.0,
+          "max": 2048,
+          "mean": 33.52665941240479
+        },
+        "decode_tokens": {
+          "count": 919,
+          "min": 0,
+          "p50": 3.0,
+          "p95": 6.0,
+          "p99": 7.0,
+          "max": 7,
+          "mean": 3.0511425462459196
+        },
+        "decode_requests_before_schedule": {
+          "count": 919,
+          "min": 0,
+          "p50": 3.0,
+          "p95": 6.0,
+          "p99": 7.0,
+          "max": 7,
+          "mean": 3.0511425462459196
+        }
+      },
+      "existing_D_analyzer_validation_errors": 0,
+      "existing_D_analyzer_joint_slo_decisions_match": true
+    },
+    "high": {
+      "source_raw": "D_prefill_budget_20261004/high-normal-r01/00_fixed2048/raw.json",
+      "historical_policy": "fixed2048",
+      "requests": 160,
+      "completed_requests": 160,
+      "completion_rate": 1.0,
+      "joint_slo_pass_requests": 24,
+      "joint_slo_pass_fraction": 0.15,
+      "slo_failure_request_counts_nonexclusive": {
+        "ttft_s": 16,
+        "gap_s": 0,
+        "completion_s": 136
+      },
+      "denominator_elapsed_s": 34.814416313543916,
+      "last_request_completion_s": 34.814278178848326,
+      "goodput_requests_per_s": 0.6893695928678614,
+      "complete_request_throughput_per_s": 4.595797285785743,
+      "complete_output_tokens": 77824,
+      "complete_output_tokens_per_s": 2235.395799806185,
+      "ttft_s": {
+        "count": 160,
+        "min": 0.02659155149012804,
+        "p50": 1.6510694211535155,
+        "p95": 4.723616457328198,
+        "p99": 5.3778967121724035,
+        "max": 5.5694735480099915,
+        "mean": 1.8821917030129118
+      },
+      "completion_latency_s": {
+        "count": 160,
+        "min": 17.46660476177931,
+        "p50": 29.001499990671874,
+        "p95": 30.297901083787902,
+        "p99": 30.54863041665554,
+        "max": 30.60058395370841,
+        "mean": 27.211822713531554
+      },
+      "request_max_output_gap_s": {
+        "count": 160,
+        "min": 0.06627071276307106,
+        "p50": 0.07262762542814016,
+        "p95": 0.07262762542814016,
+        "p99": 0.07262762542814016,
+        "max": 0.07262762542814016,
+        "mean": 0.0723086878831964
+      },
+      "pooled_adjacent_output_gap_s": {
+        "count": 77664,
+        "min": 0.004286536015570164,
+        "p50": 0.05616049934178591,
+        "p95": 0.06361360009759665,
+        "p99": 0.06765253376215696,
+        "max": 0.07262762542814016,
+        "mean": 0.05218300579010845
+      },
+      "batch": {
+        "running_requests_after_schedule": {
+          "count": 781,
+          "min": 1,
+          "p50": 113.0,
+          "p95": 160.0,
+          "p99": 160.0,
+          "max": 160,
+          "mean": 99.94110115236876
+        },
+        "scheduled_requests": {
+          "count": 781,
+          "min": 1,
+          "p50": 113.0,
+          "p95": 160.0,
+          "p99": 160.0,
+          "max": 160,
+          "mean": 99.94110115236876
+        },
+        "scheduled_tokens": {
+          "count": 781,
+          "min": 1,
+          "p50": 136.0,
+          "p95": 2184.0,
+          "p99": 2202.2,
+          "max": 2207,
+          "mean": 703.6606914212548
+        },
+        "prefill_tokens": {
+          "count": 781,
+          "min": 0,
+          "p50": 0.0,
+          "p95": 2048.0,
+          "p99": 2048.0,
+          "max": 2048,
+          "mean": 604.2189500640205
+        },
+        "decode_tokens": {
+          "count": 781,
+          "min": 0,
+          "p50": 112.0,
+          "p95": 160.0,
+          "p99": 160.0,
+          "max": 160,
+          "mean": 99.44174135723432
+        },
+        "decode_requests_before_schedule": {
+          "count": 781,
+          "min": 0,
+          "p50": 112.0,
+          "p95": 160.0,
+          "p99": 160.0,
+          "max": 160,
+          "mean": 99.44174135723432
+        }
+      },
+      "existing_D_analyzer_validation_errors": 0,
+      "existing_D_analyzer_joint_slo_decisions_match": true
+    }
+  },
+  "source_sha256": {
+    "D_prefill_budget_20261004/fixed-normal-r01/environment.json": "74c9b3c00f3918b8494f5bc19dfc2cfdb30ecaed9d5717bb0ec96133b4cdd15f",
+    "G_execution_plans/evidence/historical_feasibility.json": "77db74d4875956fe780572cd4ef5a2eabefcf368bd055e40ea6db806b3253662",
+    "D_prefill_budget_20261004/analyze.py": "c434aa29ab0e5edeb25dc4c77159af6f6de8ae82edf2ffe3ef8b1332548f839c",
+    "D_prefill_budget_20261004/low-normal-r01/00_fixed2048/raw.json": "d5c91a228a6933ac04669b7c322e3ca86f629eaa28f638425dd37c86636cfefc",
+    "D_prefill_budget_20261004/low-normal-r01/protocol.json": "633fb00c4a492c1e3905291d918e7760484f6952622a1f44ef04d777c9ed0a51",
+    "G_execution_plans/inputs/workload_low.json": "2d21626800668569d93833c95f3bb9fc15e5a2a36b0a1960cb7f9502d1c0fc83",
+    "D_prefill_budget_20261004/high-normal-r01/00_fixed2048/raw.json": "0d788741fd813648b26670deed16e919949ac28cf5ab235a92abf9f2336cc176",
+    "D_prefill_budget_20261004/high-normal-r01/protocol.json": "b7c3a684caf694a1ca173aa008f5f2c718c54a55d78669e29e46a1a37c27fb47",
+    "G_execution_plans/inputs/workload_high.json": "c3c93ef5610cf16d801753e750eb5e8d3c937530e0f5b242571c9ab3dfe98865"
+  }
+}

@@ -1,0 +1,194 @@
+Session E / PRO 6000 runtime audit (read-only source review)
+2026-10-04. No GPU run or implementation changes performed by this review.
+Only E/run_cell.py, E/selector.py and E/native_sources were inspected.
+
+Recommended minimum expansion
+
+1. Keep the existing engine and selector. Make GPU KV optional: omit
+   kv_cache_memory_bytes (or use None) for the normal-capacity census and retain
+   gpu_memory_utilization=0.9. Preserve explicit bytes only for a separately
+   labelled controlled-capacity diagnostic. Expose max_num_seqs=256 and one
+   fixed max_num_batched_tokens (4096 is a reasonable first choice; do not vary
+   2048/4096 inside the comparison). Preserve BF16, eager/native backend, FCFS,
+   full current-history capacity checks, APC disabled and native STORE.
+
+2. Use one engine initialization/profile for the small low/near/high census,
+   then one engine initialization/profile for the same-resource ABBA group.
+   Reuse a single RestoreSelector instance by changing its policy. Do not stack
+   new adapter instances on already wrapped methods. This both saves loading
+   and makes actual GPU/Host allocation identical across four arms. Independent
+   auto-profiled processes are not automatically equal-resource baselines:
+   actual GPU num_blocks/bytes must match, not merely utilization=0.9.
+
+3. With max_model_len=4096 and per-request output caps up to 512, prompts must
+   satisfy prompt_len + max_tokens <= 4096. A 4096-token prompt plus 512 output
+   is outside this setting. Use context up to 3584 + 512, with short/long mixtures.
+   Existing workload has only 16 prompts of 662..763 tokens. Expanding request
+   count alone requires an explicit deterministic workload manifest. Repeated
+   prompts / constructed long contexts are a system-load test, not independent
+   natural-task evidence. cache_salt should remain unique within every episode.
+
+Pinned Host capacity and accounting
+
+4. Native CPUOffloadingSpec.create_worker() invokes CPUOffloadingWorker without
+   mmap_region. gpu_worker.py:497 uses torch.zeros(..., pin_memory=PIN_MEMORY)
+   for every backing tensor, so allocation touches the full Host capacity.
+   It is not lazy virtual capacity. LOAD src and STORE dst are the same CPU
+   tensors; deduplicate storage pointers, as existing storage_bytes() does.
+   Preserve the actual tensor.is_pinned() assertion. No new Host allocator is
+   needed. The alternative mmap warning/fallback path is not this path.
+
+5. Parent observed cgroup memory.max=120 GiB and memory.current about 34.9 GB.
+   A fixed 32 GiB Host budget is plausible with that headroom, but current usage
+   is not a model-loading peak estimate. Record cgroup memory.current/peak,
+   memory.events (oom/oom_kill), swap.current/max and /proc/meminfo MemAvailable
+   before initialization, after Host initialization, and after each episode.
+   Verify headroom before allocating, then allocate once. Keep this Host budget
+   identical for every arm; a smaller budget remains a separate configuration.
+   Host32 < GPU~70 GiB does not imply every recovery misses, nor guarantee useful
+   hits: native LRU and contiguous-prefix availability determine eligibility.
+
+6. Replace gpu_bytes == requested --kv-bytes for auto mode with recording the
+   allocated GPU storage bytes and num_gpu_blocks. For Host, native spec rounds
+   budget down to whole chunks: expected bytes derive from actual block count
+   and bytes per chunk; budget minus actual bytes must be < one chunk. Do not
+   require exact user-budget equality generically. Record pinning and both
+   requested/actual resources. With one model and group, effective token capacity
+   comes from actual usable GPU blocks times tokens_per_block; preserve the
+   empty-pool free-block baseline (the pool may reserve a null block).
+
+Reset and measurement details that matter for same-engine episodes
+
+7. Every warm/measurement must finish all requests and drain native STORE/LOAD
+   work before reset_prefix_cache(reset_connector=True). Reset itself can discard
+   scheduler job bookkeeping, so draining before reset is required for honest
+   tail-cost accounting. Assert scheduler requests/running/waiting/skipped_waiting,
+   _inflight_prefills, connector _jobs/_req_status are empty and free GPU blocks
+   equal the original empty baseline. Record end-of-service and end-of-drain
+   separately. The current 30 s drain timeout is a pilot constant; make it a
+   recorded independent bound for the larger workload, without dropping work.
+
+8. Perform the same native-selector-disabled warmup before every ABBA arm and
+   reset again before timing that arm. Changing policy must not change this
+   warmup. selector.clear() mutates lists: episode() currently returns direct
+   references to decisions/commits/transfers/preemptions. Dump each returned
+   episode immediately or deepcopy it before the next episode clears state.
+   Episode names/IDs must be unique across the engine lifecycle.
+
+9. At 256 requests, current per-output linear next(row) and next(scheduled)
+   searches become avoidable O(N^2) observation overhead per decode step.
+   Index rows by external request ID and scheduled rows by internal request ID;
+   this is a thin harness change. Keep identical instrumentation for every arm
+   and record selector overhead, actual step time and full service time.
+
+Capacity-knee visibility (few counters, no new model)
+
+10. Keep existing preemptions, commits, fallback reasons, GPU free blocks and
+    generated-token timestamps. Add per-step running/waiting/skipped counts,
+    total scheduled token count, pending LOAD/STORE jobs, full-history demand
+    of resident/in-flight requests, and capacity reservations. Summaries should
+    include min free blocks, peak live requests, fraction of time near capacity,
+    preempted requests and jointly eligible commits. Record native defaults for
+    max_num_partial_prefills, max_long_partial_prefills, watermark and full-ISL
+    reservation so a lack of preemption can be explained by an admission or
+    sequence-count limit rather than claimed to prove unlimited capacity.
+
+11. Host metrics named CPU_CACHE_USAGE_PERC measure transfer-pinned blocks, not
+    all resident cached blocks. For occupancy use _num_allocated_blocks minus
+    len(_free_list); also record _num_evictable_cache_blocks and
+    _num_write_pending_blocks. Store evictions / failed prepare_store calls and
+    ready-prefix hit length explain Host misses; a small observer around native
+    prepare_store can count these without changing policy. Do not treat zero
+    transfer-pinned usage as an empty Host cache.
+
+12. Choose three load points using the measured capacity and declared workload
+    mix, then report the actual occupancy rather than promising a knee in
+    advance. Same engine config throughout. Normal-capacity zero eligible
+    recoveries is a valid result. If max_num_seqs=256/4096 context bounds reach
+    a different bottleneck before KV pressure, report that limit before moving
+    to an explicitly controlled-capacity mechanism experiment.
+
+Scope limit: auto GPU profile internals were not copied into E/native_sources.
+A CPU-only remote source read was attempted but this review's sandbox could not
+resolve the SSH hostname. The exact auto-profile implementation must therefore
+be verified by the parent from its available remote session; no remote profile
+semantics beyond the existing EngineArgs interface are asserted here.
+
+Later successful installed-source verification (2026-10-04)
+
+The earlier sandbox DNS failure above is retained as a historical attempt.
+Later in this review the parent supplied the existing SSH control socket and
+authorized an escalated read-only SSH command. Direct reads of the installed
+files below then succeeded. No vLLM/torch import, GPU execution, implementation
+change, or access to another session's research results was performed.
+
+Installed-source root:
+  /root/miniconda3/lib/python3.12/site-packages/vllm/
+Line numbers below refer to that installation as read on 2026-10-04.
+
+Request identity and output reconstruction
+
+- v1/engine/llm_engine.py:218 defines add_request(...)->str. Line 277 returns
+  req_id for n=1 (the harness case); line 294 also returns it for the fanout case.
+  Therefore internal = engine.add_request(...) receives an actual scheduler
+  request ID, not None.
+- v1/engine/input_processor.py:223 defines assign_request_id(). Line 232 saves
+  the supplied ID into request.external_req_id; line 240 adds a random suffix
+  to request.request_id unless request-ID randomization is explicitly disabled.
+- v1/engine/output_processor.py:371 constructs RequestOutput with
+  request_id=external_req_id. Thus the harness's by_external[output.request_id]
+  and last_scheduled[row['request_id']] correctly use external and internal IDs
+  respectively.
+- v1/engine/output_processor.py:394 selects DELTA semantics only for DELTA;
+  lines 398-399 use detokenizer.output_token_ids for the non-DELTA case, including
+  CUMULATIVE. The harness copies this list before subsequent steps. Incremental
+  prefix checks therefore compare cumulative generated-token histories, not
+  prompt tokens or recomputed tokens.
+- v1/engine/output_processor.py:710-717 removes finished request state and its
+  external-to-internal mapping. Reusing the external warm/measured names after
+  full completion is not a runtime blocker in this installed implementation.
+
+Resource layout and native profile
+
+- v1/worker/gpu_model_runner.py:562 declares kv_caches as list[torch.Tensor].
+  Lines 7526-7531 pass self.kv_caches to bind_kv_cache after initialization.
+  The cross-layer allocation path at lines 7496-7507 also binds the per-layer
+  views this way. Storage-pointer deduplication in run_cell.storage_bytes()
+  correctly avoids counting shared cross-layer backing storage repeatedly.
+- v1/executor/uniproc_executor.py:48 constructs driver_worker as WorkerWrapperBase;
+  v1/worker/worker_base.py:215 declares its .worker member. The prepared harness's
+  driver_worker.worker.model_runner access matches these installed objects.
+- distributed/kv_transfer/kv_connector/v1/offloading/worker.py:47 declares
+  .worker, line 57 initializes it from the native spec, and lines 234-279 support
+  registration of the cross-layer cache. Its native CPU worker exposes the
+  STORE destination and LOAD source tensors read by the harness.
+- v1/kv_offload/cpu/manager.py:57 and 84-85 define the high-water allocation
+  counter and free-block calculation. Allocated occupied Host blocks equal
+  _num_allocated_blocks - len(_free_list), as now observed by the harness. This
+  includes pending stores; it is occupied capacity, not a count of ready legal
+  restore blocks. Eligibility still comes from the native ready-prefix lookup.
+- v1/kv_offload/cpu/gpu_worker.py:497-502 confirms torch.zeros with pin_memory
+  for the active non-mmap Host allocation. The harness deduplicates LOAD/STORE
+  tensor storage and separately asserts actual tensor.is_pinned().
+- v1/worker/gpu_worker.py:448 defines determine_available_memory(). The explicit
+  byte override is handled at lines 462-480. The auto path profiles the model at
+  lines 482-516 and calculates available_kv_cache_memory_bytes at lines 541-545
+  from requested memory minus non-KV memory and any applied CUDA-graph estimate.
+  This confirms that passing None selects native profiling; same-engine arms
+  share its one actual allocation.
+- The read-only model/config.json check found OLMoE, hidden_size=2048,
+  num_hidden_layers=16, num_key_value_heads=16, num_attention_heads=16,
+  max_position_embeddings=4096 and bfloat16. For this model's native block/chunk
+  layout, the fixed 32 GiB Host budget is divisible by its cache chunk bytes;
+  the currently retained exact Host-byte assertion is not a likely rounding
+  failure for this configuration. This is not a general claim for other models.
+
+Final harness audit conclusion
+
+The updated run_cell.py uses a single selector, saves each returned episode
+before the next clear(), drains before reset, checks empty scheduler/connector
+state and the initial free-block baseline, and repeats the same warmup before
+each arm. The actual resource keys consumed by analyze.py match resources.json.
+No concrete runtime or validity blocker was identified for the prepared normal-
+capacity low64 run. This is source validation, not a claim that GPU execution or
+the pinned allocation has already passed.

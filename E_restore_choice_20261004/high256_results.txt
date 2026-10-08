@@ -1,0 +1,88 @@
+E high256 ABBA 正式测量与零动作漂移（2026-10-07）
+实际目录：execution/oct07_high_r01/00_same_engine。
+顺序：00_host / 01_recompute / 02_recompute / 03_host；group及四个cell均COMPLETE，无analysis_errors/invalid/incomplete。
+已从正式 raw.json 独立核对调度、输出、步时与传输，并与已有 summary.json 对照；只用 E 数据、CPU分析，未改运行代码或执行GPU作业。
+
+正式测量结论
+四臂均无抢占、无恢复decision/commit、无eligible事件，合法双分支恢复覆盖为零。
+逐请求输出、每步调度与占用状态完全相同；首臂比最后同为Host的臂慢4.361749s（19.0247%），其余三臂最大差仅0.072711s（0.3179%）。
+因此首臂慢不是恢复策略效果；即便把ABBA按策略平均，也不能把这个零动作漂移包装成重算收益。
+near192中第二臂慢、此组首臂慢，说明漂移不固定跟随某个恢复标签，根因仍未确定。
+
+正式测量数据（所有completion从固定外部arrival起算；gap不含TTFT）
+                         00 Host       01 Recompute   02 Recompute   03 Host
+makespan (s)             27.288513      22.944928      22.872217      22.926764
+mean completion (s)      12.298197      11.478032      11.455358      11.498545
+p95 completion (s)       22.756637      20.948465      20.905822      20.970491
+p99 token gap (ms)       59.637936      51.881468      51.855996      52.473804
+step时间总和 (s)         26.925134      22.629507      22.587302      22.634995
+service+drain (s)        27.288744      22.945012      22.872300      22.926848
+STORE事件时间和 (s)       1.692707       1.673955       1.678274       1.685173
+
+四臂各完成256/256请求，全部arrival_s=0；各生成37,730 tokens。
+逐请求序列六个两两比较均256/256完全一致；finish/stop元数据亦一致。这是输出一致性，不是自然任务质量评分。
+每臂输出cap之和114,688，20个请求以length结束；不能把cap当作实际输出量。
+每臂均784个正式step，实际scheduled native tokens=655,437。
+
+容量与传输口径
+capacity_mode=native_profile_0.9；实际GPU KV为36,916 blocks / 72.1015625 GiB，初始free=36,915。
+正式测量四臂最小观测free=19,035，peak used=17,881/36,916=48.4370%，含初始常占1 block。
+Host常驻峰值=16,384/16,384 blocks=32 GiB；running/waiting在step边界的峰值为108/254。
+这些是实际边界采样值，不是完整allocator高水位、物理GPU总显存占比或输出cap需求推算。
+每臂STORE均85,689,630,720 bytes=79.804688 GiB，2,924个已报告传输；LOAD全部为0 bytes/0传输/0s。
+四臂STORE每批报告的bytes与sizes序列完全一致。已支付STORE完整保留；事件时间可重叠，不能当墙钟或直接相加减解释时延差。
+
+规范化调度核对
+将内部随机request_id映射成external_id，保留scheduled列表顺序及每项count/start_computed/end_computed/known_tokens/generated_tokens，
+并保留每步free_blocks_after_schedule，去掉时间戳后，四臂完整784步trace完全一致。
+四臂该规范化JSON SHA256均为：d0fd3ca84ec62ebd85d15e828fdeb0c44a7ddb55f827c6a286bd7f7d5f6fbb26。
+step的running/waiting/free_blocks/pending_load_jobs/host_resident_blocks也逐步完全一致。
+最后有prompt prefill的step是312；余下为decode。不存在靠更改调度工作解释首臂慢的证据。
+
+首臂慢在哪里：同策略00_host与03_host直接比较
+step区间（从0计、右端不含）  00 step总和(s)   03 step总和(s)   00减03(s)
+  0–100                          3.430660          3.213448         0.217212
+100–200                          4.484498          4.264063         0.220435
+200–300                          5.222097          4.926010         0.296087
+300–400                          3.745255          3.558942         0.186314
+400–500                          2.736368          2.412089         0.324279
+500–600                          2.336771          1.874275         0.462497
+600–700                          2.435232          1.338601         1.096631
+700–784                          2.534252          1.047567         1.486685
+718/784个step首臂更慢；最后184步贡献2.583316s，占step总差4.290139s的60.2%。
+最后84步首臂平均30.170ms，末臂12.471ms，约2.42倍；这是后段持续慢步，而不是只有启动成本。
+首臂最大正式step=78.594ms（step299），其余臂最大分别56.647/52.082/53.344ms，没有数秒单步尖峰。
+其余三臂对03_host的各100步区间累计差均很小：01在约-30至+23ms，02在约-27至+13ms。
+
+step内外定位（不是GPU计算时间分解）
+00/03的step start→schedule后trace时间之和=1.094650/0.677995s，差0.416654s。
+schedule trace→step end之和=25.830484/21.957000s，差3.873484s，占step差约90.3%。
+all_complete_s减step总和=0.363479/0.291796s，差0.071683s。
+故4.361749s总体差主要在engine.step内部，并主要在schedule trace之后；此区间混合主机派发、GPU执行/等待及输出处理，不能直接命名为GPU计算变慢。
+
+暖机单独报告，不能混进正式恢复覆盖
+四臂测量前都走相同原生Host暖机，selector.enabled=False；每次256请求、固定输出114,688 tokens、1,057 steps。
+暖机all_complete_s依次56.839068/56.326136/57.711100/61.539406；最大step依次309.890/159.094/169.469/179.777ms。
+四次暖机规范化调度也完全相同；最后一次暖机比第一次慢4.700338s，但最后一次正式测量反而比第一次快，不能简单以“暖机越多越快”解释。
+暖机实际minfree=0、peak used=36,916，确实占满KV容量；同请求重复scheduled positions各218，日志暖机期间出现native LOAD。
+暖机preemptions列表为空是selector.enabled=False下未记录，不能说暖机零抢占；暖机LOAD也不能补算成正式测量中的恢复事件。
+正式自然输出只有37,730 tokens、KV峰48.4370%，与固定输出暖机不同；cap上界和暖机压力均不能代替正式观测。
+四次reset均成功、free=36,915、pending jobs/requests=0。
+
+日志JIT与运行端点
+唯一可见fused_moe_kernel JIT warning在16:26:37，属于首臂暖机：before_warmup=16:26:18.467，before_measurement=16:27:16.445。
+warning约早于正式测量39s；首臂暖机309.890ms最大step的时间与该warning相符，但不能把整步都认定为编译时间。
+日志没有正式测量期间新的JIT warning；初始化和router GEMM暖机更早完成。这不能证明完全无未记录JIT，也没有证据把正式后段慢步归为该次暖机编译。
+测量前→后温度/SM时钟：00为49→50°C、2422→2430MHz；01为53→55°C、2430→2422MHz；
+02为53→55°C、2430→2422MHz；03为52→55°C、2430→2422MHz。
+12份GPU端点均同一UUID、显存88,303MiB且只见allowed PID=12082；较冷的首臂反而慢，单靠端点温度不能解释差异。
+cgroup上限120GiB，六份快照low/high/max/oom/oom_kill全0，memory.current最高37.423GiB。
+这些证据仅支持采样端点无其他可见compute PID、无记录到的cgroup限额/OOM，不能证明全程无CPU争用、时钟变化或Host等待。
+
+结合near192的限制与最小下一观测
+near192第二臂在相同调度下慢31.8%，且同为9请求时出现约34→13ms突变；本组首臂在相同调度下慢19.0%，后段持续膨胀。
+两组正式恢复动作均为零，足以说明一次顺序A/B或简单ABBA策略均值会被非策略漂移误导；现阶段没有动态恢复选择收益证据。
+已有复现证据，支持下一自然长输出组只加统一的最小旁观测：每步process_time/thread_time增量，加独立1Hz GPU时钟/功率/温度/利用率/PID采样。
+必须同时记录measurement origin的monotonic与UTC对应关系，把1Hz样本对齐现有step墙钟；四臂统一采集，不改恢复策略/调度/传输同步。
+process_time与thread_time可区分本进程各线程CPU消耗与主线程CPU消耗；wall减thread_time仍混合GPU等待、I/O和被调度出去，NVML也不是GPU执行计时。
+该观测先缩小“CPU耗时增长还是剩余等待/设备状态变化”的解释空间，不自动证明根因；1Hz对当前数秒级漂移足够作为第一步，不增微基准或更多信号。

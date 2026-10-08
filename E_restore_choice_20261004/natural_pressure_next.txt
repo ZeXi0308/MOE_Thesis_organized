@@ -1,0 +1,55 @@
+E：正常容量下的唯一后继自然负载（2026-10-07；输入已冻结，本准备未运行GPU）
+
+已有证据与尚未证实的解释
+low64：实际 GPU KV 72.1016 GiB，边界采样峰值仅20.4383%，无抢占/恢复。
+从00_host/raw.json独立复核：16条GSM8K输出均值84.1 token；48条长QA
+均值153.1、中位112.5 token，解码期（首token到完成）中位2.34秒；仅3条
+长QA达到512 cap。请求全部在t=0外部到达，但prefill逐步推进，早先任务可
+在后续任务建立KV前自然退休。因此N增加可能主要延长waiting与服务期，
+而在途KV平台化；这是解释假设，不能由64档外推证明。现high256四臂实测
+峰值48.43699%，均无抢占/合法恢复/LOAD；cap总和显然不等于实际需求。
+
+启动条件与检验边界
+既有64/192/256均无合法恢复事件，追加条件已满足。唯一后继组检验：
+相同自然全文输入和正常显存下，明确需要长输出的真实任务能否延长KV驻留，
+跨过“短答案快速退休、单纯增加N仍不形成容量竞争”的边界。不是证明策略
+收益的保证；没有抢占或两条分支不可同时合法执行，也必须如实记录。
+
+唯一负载：256条，1短:3长，全部arrival_s=0，固定master顺序
+短：沿用既有high256中的64条完整GSM8K八shot请求，output_tokens=256。
+长：192条完整文档摘要，选E/inputs_pro6000/sources/中的LongBench原始
+source_index=7、15、62（Goodwin、Born、KSTP三篇），按此顺序循环各64次。
+每条独立request身份/cache_salt。原始全文不截断、不拼接、不重复填充；这是
+3篇文章重复请求的自然任务容量探针，不是192篇独立文档或多领域质量结论。
+删除原QA问题，使用以下唯一摘要指令；原始context原样放入Document之后：
+“Produce a detailed, faithful briefing of the document below for a reader who
+has not seen it. Use 6–8 titled sections, covering the principal people or
+entities, chronology, concrete facts, supporting evidence, and any limitations.
+Aim for 600–750 words. Do not invent missing details.”
+沿用模型对话包装：<|endoftext|><|user|>\n{指令}\n\nDocument:\n{全文}
+\n<|assistant|>\n。用现有模型tokenizer在远端纯CPU已核验，三个完整prompt
+分别3052、2871、2736 token；统一output_tokens=1024后分别4076、3895、3760，
+均满足max_model_len=4096。17条已保存原始记录共9条满足此cap，实为上述
+3篇文章的重复/相近版本，故只选各篇最早source_index，未按性能筛选。
+
+执行与判断口径
+温度0，min_tokens=0，ignore_eos=False；600–750词是任务要求，不保证输出
+长度。固定OLMoE BF16、自动0.9 GPU预算、Host32GiB、maxseq256、batch2048，
+以及全部victim/准入/队列/量子/传输机制；共同预热，Host→重算→重算→Host。
+所有请求共同达到cap的16-token块取整KV为99.2422GiB，仅为需求上界推估。
+记录真实输出长度与length/EOS结束、逐步KV占用、完成/停顿、STORE/LOAD及
+合法恢复数量，再谈选择器。长度触顶输出单独标记；抽查摘要覆盖事实、幻觉
+与截断，不能把自然退休少或内容重复空泛误称有效长输出。若仍无恢复，报告
+这个正常容量适用域为空，不下调显存或强制min_tokens把该组改成阳性结果。
+
+已冻结：inputs_natural_summary256/pro6000_natural_summary_256.json；生成器
+prepare_natural_summary256.py；同目录freeze_receipt.json记录全部256条CPU重编码
+与长度/身份/salt核验，64短prompt及cap原样保留。输入SHA256：
+8346ad2512661cc6595ef3e0aa53e76c690fb9980f5bf41e8007f199cfb7582a
+测量必须传--natural；当前run_cell的共同warmup仍沿用旧规则强制cap，单独计量。
+来源：low64_results.txt、execution/oct07_high_r01/summary.json及E自有全文/tokenizer；旧冻结文件未改。
+
+2026-10-07执行补充：三档正式QA均无恢复，启动条件已满足。唯一组oct07_summary_r01
+已提交、16:44仅候共同锁。四臂统一增加每步process/thread CPU计时及独立1Hz
+GPU时钟/功率/温度/利用率/compute PID快照，并记录monotonic/UTC对齐；这是
+针对两组重复零动作漂移的被动诊断，不改选择规则、不把等待差直接命名GPU计算。

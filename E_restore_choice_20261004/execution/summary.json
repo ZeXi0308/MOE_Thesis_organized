@@ -1,0 +1,43 @@
+{
+  "schema_version": 2,
+  "group": "/Users/zhaozhenyu/Desktop/毕业设计/E_restore_choice_20261004/execution",
+  "group_status": null,
+  "definitions": {
+    "time_unit": "seconds",
+    "completion_latency": "completion_s minus fixed external arrival_s, including delayed admission",
+    "makespan": "last completion minus first fixed external arrival; null unless every request completed",
+    "throughput": "all observed output tokens / makespan",
+    "output_caps": "per-request max_output_tokens, then inputs.json output_tokens, then config output_tokens; requested maxima do not represent actual natural-output work",
+    "capacity_pressure": "actual resource capacities and observed occupancy at schedule/step/preempt boundaries, not a cap-based demand upper bound or complete GPU allocator high-water mark",
+    "successful_cells": "only raw.json episodes with cell status COMPLETE and all requests completed enter cells, policy summaries, and cross-arm comparisons",
+    "token_gaps": "consecutive output-token timestamp differences within each request; excludes TTFT; zero gaps retained",
+    "token_gap_sum": "sum over all requests, may exceed wall time because requests coexist",
+    "committed_recovery_latency": "first token timestamp strictly greater than decision_s minus decision_s, matched by internal request_id",
+    "repeated_decisions": "each commit independently matches the next strictly later output; shared matches are counted and flagged, never treated as independent causal trials",
+    "censoring": "missing internal request, missing timestamp, no later output, or inconsistent allocation timing",
+    "transfer_time": "sum of worker-reported CUDA-event durations in seconds; can overlap compute/other transfers and is NOT additive wall time",
+    "store_cost": "all observed STORE bytes/time retained, including drain; no previously paid STORE cost is subtracted from recompute",
+    "scheduler_work": "scheduled native token count is work accounting, not measured compute duration",
+    "repeated_positions": "scheduled positions already scheduled earlier for the same internal request; repeated occurrences are counted, known-history counts restrict positions below known_tokens at that step",
+    "state_diagnostics": "descriptive observations only; across-run action outcomes are not an online oracle",
+    "policy_aggregation": "descriptive statistics across per-cell metrics; no confidence interval or pooled percentile claim",
+    "percentiles": "linear interpolation at (n - 1) * q",
+    "quality": "greedy output differences are consistency diagnostics only; no task-quality claim"
+  },
+  "cells": [],
+  "policy_summary": [],
+  "greedy_token_consistency": [],
+  "incomplete_cells": [
+    {
+      "cell": "pilot_r03/00_host",
+      "partial_raw_available": false,
+      "status": {
+        "status": "FAILED",
+        "error": "AssertionError('duplicate template name')",
+        "traceback": "Traceback (most recent call last):\n  File \"/root/autodl-tmp/moe-e-restore-choice-20261004/run_cell.py\", line 125, in main\n    from vllm.engine.arg_utils import EngineArgs\n  File \"/root/miniconda3/lib/python3.12/site-packages/vllm/__init__.py\", line 14, in <module>\n    import vllm.env_override  # noqa: F401\n    ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/miniconda3/lib/python3.12/site-packages/vllm/env_override.py\", line 858, in <module>\n    _patch_inductor_fallback_allow_list()\n  File \"/root/miniconda3/lib/python3.12/site-packages/vllm/env_override.py\", line 835, in _patch_inductor_fallback_allow_list\n    from torch._inductor import lowering as _lowering\n  File \"/root/miniconda3/lib/python3.12/site-packages/torch/_inductor/lowering.py\", line 7899, in <module>\n    import_submodule(kernel)\n  File \"/root/miniconda3/lib/python3.12/site-packages/torch/_dynamo/utils.py\", line 4038, in import_submodule\n    importlib.import_module(f\"{mod.__name__}.{filename[:-3]}\")\n  File \"/root/miniconda3/lib/python3.12/importlib/__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/miniconda3/lib/python3.12/site-packages/torch/_inductor/kernel/flex_attention.py\", line 786, in <module>\n    flex_attention_template = TritonTemplate(\n                              ^^^^^^^^^^^^^^^\n  File \"/root/miniconda3/lib/python3.12/site-packages/torch/_inductor/select_algorithm.py\", line 1775, in __init__\n    assert name not in self.all_templates, \"duplicate template name\"\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: duplicate template name\n"
+      }
+    }
+  ],
+  "invalid_cells": [],
+  "analysis_errors": []
+}

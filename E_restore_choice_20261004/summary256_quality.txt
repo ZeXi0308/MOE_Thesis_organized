@@ -1,0 +1,49 @@
+E 自然summary256：限定样本质量核验（2026-10-07）
+
+结论：不能把本组长输出直接当成质量合格的摘要服务。限定样本已出现原文
+可直接核对的事实冲突、无依据补全、段落重复和未收束结尾；达到字数目标
+或自然stop均不能替代忠实度/完整性验证。这不是全体192条的错误率估计，
+也不能据此给两种恢复方式作总体质量排名。
+
+固定抽样：00_host每篇首条long，再取首条另一种stop/length结束类型；三篇
+各2个request身份，共6个。仅另解码既选E001在01_recompute的版本，不扩身份。
+来源：execution/oct07_summary_r01/00_same_engine/<arm>/raw.json及inputs.json。
+完整原文、token IDs、解码文本、逐样本批注和SHA保存于
+summary256_quality_decoded.json；远端raw四个SHA均已核对本地副本。
+解码只用现有tokenizers纯CPU，跳过特殊token；字数按英文词/数字计，内部
+连字符和撇号归同一词，含标题；不是输出token数。要求为600–750词、6–8节。
+
+首Host样本                  token / 词   结束    节数       结尾与覆盖
+Goodwin E001(source7)        915 / 680    stop    7          完整结句；履历覆盖失衡
+Goodwin E065                 1024/ 764    length  6          句中截断，且整段重复
+Born E002(source15)          1024/ 800    length  7          personal life句中截断
+Born E006                    942 / 735    stop    8          完整结句；关键证据有遗漏
+KSTP E003(source62)          1024/ 727    length  6(仅3种)   “rival W”处词中截断
+KSTP E007                    990 / 689    stop    4          人物名单逗号处结束，未收束
+
+忠实度与覆盖的具体证据（只按给定原文，未外查历史事实）
+Goodwin：E001称服役six decades，与原文1917–1957、40年冲突；称1928年
+成为naval aviator，与原文1929年1月冲突。把观察中队职务和Gambier Bay舰长
+混为一谈，并填入原文不支持的Saratoga/Enterprise/Valley Forge任职。原文
+部分舰名本来缺失，不能自行补全。E065也有错误任职、无依据S-28舰名，且
+“time in the Pacific was short-lived”开头整段连续重复。两条花大量篇幅列
+同学和泛化赞词，对战后运输、菲律宾、CONAD等实质经历覆盖不足。
+Born：E002称1993年由Clinton任命为FCIC委员，原文为2009年7月由Pelosi
+任命；多次重复ABA规则改革。E006覆盖CFTC、监管反对者及2009奖项，所核
+关键日期与原文相符，但本科英语专业/法学院经历压缩含混，漏LTCM与国会
+禁止监管等具体证据，尾部重复泛化影响评价；不据此保证其所有事实均正确。
+KSTP：两条把1927年WAMD发射台火灾写成尚未成立的KSTP，并编造次日将
+KFOY发射台移到University Avenue的情节。E003还补入未见原文的节目和
+Gophers权利截止日期；History/Programming反复循环。E007后段把1941年
+频率安排改到1948年，补入原文不支持的1978/1979 Vikings转播。两条偏重
+早期历史，未充分覆盖2010转型、2019品牌、2020裁员和信号限制。
+
+范围与跨臂说明
+首Host各篇全64次请求的length数为5/24/54，stop数59/40/10；这是停止
+元数据分布，不是质量评分。三篇重复文章不能当作192篇独立文档。
+两Host臂256条token序列完全一致，两recompute臂也互相完全一致；Host对
+recompute有197条不同。选定E001首次差异在第395个token；其recompute
+版本971token/712词、stop，仍有six decades、职务混淆和补舰名问题。
+这一个对照不能证明质量保持或谁更好。01_recompute在17:02:41–17:03:12
+存在回传I/O计时混杂；本核验不使用时延作质量依据，不据此支持性能结论。
+未修改paper、runner、冻结输入，未初始化CUDA或启动benchmark。

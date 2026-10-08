@@ -1,0 +1,273 @@
+{
+  "status": "MEASUREMENT_ONLY",
+  "repository": "/Users/zhaozhenyu/Desktop/毕业设计/MOE_Thesis_organized",
+  "scope": [
+    "strong-session-r01",
+    "lease-session-r02"
+  ],
+  "method": {
+    "join": "Internal request ID plus preemption epoch. Starting from initial admission epoch 0, increment epoch on each successful serial preempt call; match exactly one residency_admissions record with the same request and num_preemptions.",
+    "interval_start": "raw.preemption_events.method_returned_s",
+    "interval_end": "selective-store.residency_admissions.host_perf_counter_s minus raw.measurement_origin_perf_counter_s",
+    "interpretation": "Native preempt-return to actual reinsertion into running; includes waiting for remote KV, excludes later recompute/first-output latency.",
+    "backlog": "Count overlapping half-open recovery intervals [start, end); report union time and time with at least two requests.",
+    "quantiles": "Linear interpolation between adjacent sorted observations.",
+    "validation": "All six complete runs; initial epoch, unique admission epochs, serial preempt events, interval ordering and complete one-to-one coverage checked."
+  },
+  "limitations": [
+    "Raw traces retain sparse preemptions and request outputs, not full scheduler/KV snapshots.",
+    "Actual free KV is recorded only at selected victim/anchor/lease events; sampling is conditioned on those events and differs between arms.",
+    "There is no simultaneous complete running-count/free-KV/recovery snapshot series. These logs cannot directly establish incremental recovery information conditional on KV availability and concurrency.",
+    "The original arms modify recovery/victim execution. Their differences are not causal evidence for the new-prefill-only C admission mechanism.",
+    "Recovery intervals within a run are dependent observations, not independent repeats."
+  ],
+  "conclusion": "Persistent recovery waits motivate the selected pressure workload; admission decision value and service benefit remain untested by this reconstruction.",
+  "cells": [
+    {
+      "cell": "strong-session-r01/cell-00-ordinary",
+      "sources": [
+        {
+          "path": "refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/recovery_quantum_20261002/strong-session-r01/cell-00-ordinary/archive/raw.json.gz",
+          "sha256": "0dbb7849b805ff30e82a064f2d3cddce12ed96d73971eb3b3b131350fd4d68cb"
+        },
+        {
+          "path": "refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/recovery_quantum_20261002/strong-session-r01/cell-00-ordinary/archive/selective-store.json",
+          "sha256": "7b89a5515ac5cf8045c1b36d8d2a85d382e07470750898a288a34166a6dab1c8"
+        }
+      ],
+      "run_status": "COMPLETE",
+      "requests": 128,
+      "completed": 128,
+      "preemption_count": 59,
+      "matched_epochs": 59,
+      "unmatched_epochs": 0,
+      "max_backlog": 6,
+      "backlog_nonzero_s": 44.162117757834494,
+      "backlog_at_least_two_s": 30.587819741107523,
+      "wait_to_running_readmission_s": {
+        "p50": 1.0883221132680774,
+        "p95": 6.099573119822889,
+        "maximum": 10.859421582892537
+      },
+      "last_running_readmission_s": 65.6256374437362,
+      "observation_end_s": 79.29324836097658,
+      "backlog_at_end": 0,
+      "sparse_free_block_samples": {
+        "count": 119,
+        "zero_count": 58,
+        "minimum": 0,
+        "maximum": 253
+      },
+      "scheduler_diagnostics": "SPARSE_PREEMPTION_EVENTS",
+      "memory_diagnostics": "DIAGNOSTICS_DISABLED",
+      "raw_diagnostics_scope": "Only the existing _preempt_request method is chained; no schedule/allocation/KV snapshots. Caller policy hooks are preserved.",
+      "eligibility_snapshot_count": 0,
+      "selector_decision_count": 0
+    },
+    {
+      "cell": "strong-session-r01/cell-01-queue_fund",
+      "sources": [
+        {
+          "path": "refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/recovery_quantum_20261002/strong-session-r01/cell-01-queue_fund/archive/raw.json.gz",
+          "sha256": "e183625d5e5ffbe5e00e8c15113dbeb9b73176fed9b805076e3b64be69e840c7"
+        },
+        {
+          "path": "refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/recovery_quantum_20261002/strong-session-r01/cell-01-queue_fund/archive/selective-store.json",
+          "sha256": "6fbba1c47bcebdd8d978b3dbdc07736bed2b5c4926a0d440dd4cdda0ce3f7bf8"
+        }
+      ],
+      "run_status": "COMPLETE",
+      "requests": 128,
+      "completed": 128,
+      "preemption_count": 102,
+      "matched_epochs": 102,
+      "unmatched_epochs": 0,
+      "max_backlog": 7,
+      "backlog_nonzero_s": 40.825943833217025,
+      "backlog_at_least_two_s": 22.090683167800307,
+      "wait_to_running_readmission_s": {
+        "p50": 1.0980498567223549,
+        "p95": 1.6364353863522407,
+        "maximum": 2.028719107620418
+      },
+      "last_running_readmission_s": 65.89168243855238,
+      "observation_end_s": 80.51668996550143,
+      "backlog_at_end": 0,
+      "sparse_free_block_samples": {
+        "count": 338,
+        "zero_count": 44,
+        "minimum": 0,
+        "maximum": 374
+      },
+      "scheduler_diagnostics": "SPARSE_PREEMPTION_EVENTS",
+      "memory_diagnostics": "DIAGNOSTICS_DISABLED",
+      "raw_diagnostics_scope": "Only the existing _preempt_request method is chained; no schedule/allocation/KV snapshots. Caller policy hooks are preserved.",
+      "eligibility_snapshot_count": 0,
+      "selector_decision_count": 0
+    },
+    {
+      "cell": "strong-session-r01/cell-02-native",
+      "sources": [
+        {
+          "path": "refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/recovery_quantum_20261002/strong-session-r01/cell-02-native/archive/raw.json.gz",
+          "sha256": "c54d98c7133eaa4ff253d8e63a49fa664a02afd8c504c39a11990ee8c7191eec"
+        },
+        {
+          "path": "refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/recovery_quantum_20261002/strong-session-r01/cell-02-native/archive/selective-store.json",
+          "sha256": "5aab060efb413567daf25e28f1c2233c4dceb1940c0855c7641d2d38f3c26873"
+        }
+      ],
+      "run_status": "COMPLETE",
+      "requests": 128,
+      "completed": 128,
+      "preemption_count": 43,
+      "matched_epochs": 43,
+      "unmatched_epochs": 0,
+      "max_backlog": 6,
+      "backlog_nonzero_s": 43.1344212628901,
+      "backlog_at_least_two_s": 30.792309306561947,
+      "wait_to_running_readmission_s": {
+        "p50": 1.0991442408412695,
+        "p95": 8.93043928425759,
+        "maximum": 11.04226497001946
+      },
+      "last_running_readmission_s": 67.07344463001937,
+      "observation_end_s": 79.87810985744,
+      "backlog_at_end": 0,
+      "sparse_free_block_samples": {
+        "count": 47,
+        "zero_count": 40,
+        "minimum": 0,
+        "maximum": 117
+      },
+      "scheduler_diagnostics": "SPARSE_PREEMPTION_EVENTS",
+      "memory_diagnostics": "DIAGNOSTICS_DISABLED",
+      "raw_diagnostics_scope": "Only the existing _preempt_request method is chained; no schedule/allocation/KV snapshots. Caller policy hooks are preserved.",
+      "eligibility_snapshot_count": 0,
+      "selector_decision_count": 0
+    },
+    {
+      "cell": "lease-session-r02/cell-00-adaptive",
+      "sources": [
+        {
+          "path": "refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/recovery_quantum_20261002/lease-session-r02/cell-00-adaptive/archive/raw.json.gz",
+          "sha256": "cf4850fd901a477ba9676478a908db1dfe278e402e940bdf5fbee4c549a05a07"
+        },
+        {
+          "path": "refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/recovery_quantum_20261002/lease-session-r02/cell-00-adaptive/archive/selective-store.json",
+          "sha256": "73ee45889b6e2877703cbf48f0b157d84d4c2b1f4cb6f6ecb52ecd78a611d66f"
+        }
+      ],
+      "run_status": "COMPLETE",
+      "requests": 128,
+      "completed": 128,
+      "preemption_count": 150,
+      "matched_epochs": 150,
+      "unmatched_epochs": 0,
+      "max_backlog": 9,
+      "backlog_nonzero_s": 42.32844208739698,
+      "backlog_at_least_two_s": 29.006509967148304,
+      "wait_to_running_readmission_s": {
+        "p50": 1.0521906740032136,
+        "p95": 1.3413016212172804,
+        "maximum": 1.8440826432779431
+      },
+      "last_running_readmission_s": 70.20297231525183,
+      "observation_end_s": 81.57099729031324,
+      "backlog_at_end": 0,
+      "sparse_free_block_samples": {
+        "count": 952,
+        "zero_count": 144,
+        "minimum": 0,
+        "maximum": 319
+      },
+      "scheduler_diagnostics": "SPARSE_PREEMPTION_EVENTS",
+      "memory_diagnostics": "DIAGNOSTICS_DISABLED",
+      "raw_diagnostics_scope": "Only the existing _preempt_request method is chained; no schedule/allocation/KV snapshots. Caller policy hooks are preserved.",
+      "eligibility_snapshot_count": 0,
+      "selector_decision_count": 0
+    },
+    {
+      "cell": "lease-session-r02/cell-01-fixed4",
+      "sources": [
+        {
+          "path": "refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/recovery_quantum_20261002/lease-session-r02/cell-01-fixed4/archive/raw.json.gz",
+          "sha256": "a8dde5a872b24cfbeb9079c2df597b5bf532baf037572d939f1dfd67922bc728"
+        },
+        {
+          "path": "refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/recovery_quantum_20261002/lease-session-r02/cell-01-fixed4/archive/selective-store.json",
+          "sha256": "32fe01d44d4aac2c9847290c7059747dcef97fa09fa93308e341e7e5a3ab9af6"
+        }
+      ],
+      "run_status": "COMPLETE",
+      "requests": 128,
+      "completed": 128,
+      "preemption_count": 171,
+      "matched_epochs": 171,
+      "unmatched_epochs": 0,
+      "max_backlog": 9,
+      "backlog_nonzero_s": 44.74927963595837,
+      "backlog_at_least_two_s": 34.04449392389506,
+      "wait_to_running_readmission_s": {
+        "p50": 1.0491182068362832,
+        "p95": 1.5233809109777212,
+        "maximum": 2.2201994378119707
+      },
+      "last_running_readmission_s": 72.60289985779673,
+      "observation_end_s": 82.18031985033303,
+      "backlog_at_end": 0,
+      "sparse_free_block_samples": {
+        "count": 1219,
+        "zero_count": 182,
+        "minimum": 0,
+        "maximum": 387
+      },
+      "scheduler_diagnostics": "SPARSE_PREEMPTION_EVENTS",
+      "memory_diagnostics": "DIAGNOSTICS_DISABLED",
+      "raw_diagnostics_scope": "Only the existing _preempt_request method is chained; no schedule/allocation/KV snapshots. Caller policy hooks are preserved.",
+      "eligibility_snapshot_count": 0,
+      "selector_decision_count": 0
+    },
+    {
+      "cell": "lease-session-r02/cell-02-q1",
+      "sources": [
+        {
+          "path": "refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/recovery_quantum_20261002/lease-session-r02/cell-02-q1/archive/raw.json.gz",
+          "sha256": "235a7b6934be31f18bb8a4f353ad06bfa76a0443a922d98d83f11d557772864a"
+        },
+        {
+          "path": "refine-logs/expert_saturation/experiments/admission_capacity/20260929_commit_recheck/recovery_quantum_20261002/lease-session-r02/cell-02-q1/archive/selective-store.json",
+          "sha256": "699a55e6a680eba8bac13d9cad07dfa454f2ea65c3a54ce9cde912fb15e219e1"
+        }
+      ],
+      "run_status": "COMPLETE",
+      "requests": 128,
+      "completed": 128,
+      "preemption_count": 109,
+      "matched_epochs": 109,
+      "unmatched_epochs": 0,
+      "max_backlog": 9,
+      "backlog_nonzero_s": 35.55520077422261,
+      "backlog_at_least_two_s": 14.893724186345935,
+      "wait_to_running_readmission_s": {
+        "p50": 0.5555008612573147,
+        "p95": 1.705677648261189,
+        "maximum": 1.856608315370977
+      },
+      "last_running_readmission_s": 69.3057682942599,
+      "observation_end_s": 80.3154196832329,
+      "backlog_at_end": 0,
+      "sparse_free_block_samples": {
+        "count": 381,
+        "zero_count": 82,
+        "minimum": 0,
+        "maximum": 383
+      },
+      "scheduler_diagnostics": "SPARSE_PREEMPTION_EVENTS",
+      "memory_diagnostics": "DIAGNOSTICS_DISABLED",
+      "raw_diagnostics_scope": "Only the existing _preempt_request method is chained; no schedule/allocation/KV snapshots. Caller policy hooks are preserved.",
+      "eligibility_snapshot_count": 0,
+      "selector_decision_count": 0
+    }
+  ]
+}

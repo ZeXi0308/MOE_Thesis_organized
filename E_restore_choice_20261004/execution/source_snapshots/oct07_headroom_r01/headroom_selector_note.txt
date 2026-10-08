@@ -1,0 +1,80 @@
+E headroom 最薄候选（2026-10-07）
+状态：CPU_FROZEN_GPU_UNRUN；最终独立审计及 CPU 检查通过，尚未提交 GPU 组。
+本轮无远端访问。
+
+实现与固定边界
+active selector.py 新增 policy=headroom；run_cell.py choices / policies 校验和
+run_group.py arms 校验只增加该名称。退役 budget 仍不可选，其快照不变。
+一事件干预仍只接受 host/recompute。未改 victim、FCFS 队列、准入、2048 量子、
+传输、原生分配器或恢复执行器；没有 schedule/allocate_slots wrapper、栈检查、
+settrace 或逐步预算 observer。320 新闻候选未改动。
+
+复用原有 ready Host 与 full-current-history jointcapacity 判定。只有两路径共同
+合法的 lookup 才扫描 running。H/R/L/headroom 的合法 lookup 均记录同一字段与
+相同 scope；H/R/L 动作不使用此信号。pending、Host miss、容量不足仍原样返回
+同一原生 fallback，不扫描 running，headroom/headroom_supported 为 null。
+
+保留静态 L 阈值1792，拟运行组必须显式传 --threshold 1792；未拟合新阈值。
+新规则仅在 supported 且 known<=threshold 且 margin>=0 时选重算，否则 Host：
+  current_slack = free - required - reserved - watermark
+  background_growth = 当前受支持 running 中 known % block_tokens == 0 的数量
+  target_growth = int(target_known % block_tokens == 0)
+  margin = current_slack - background_growth - target_growth
+因此 CPU 合约中 block=16、known706/slack7/background10 得 margin=-3，选Host；
+known719/slack41/background10 得 margin=31，选重算。这是 CPU 决策检查，
+不是新规则的 GPU 性能结果或跨轨迹反事实收益。
+
+明确的信号适用域
+原生 scheduler.py:463--623 先为 running 分配，:663--675 在没有抢占且 token
+预算仍正时进入 waiting；:766--771 调用 Host lookup；:1010--1031 可将本轮
+更早准入者加入 running；:1236--1249 到整步末才增加 num_computed_tokens。
+所以 feature 必须检查 lookup 当时完整 running 集合，不能只检查块边界子集。
+仅当其中每项都满足以下条件，headroom.supported 和 headroom_supported 才true：
+  known == computed + 1；next_decode_eligible_step <= current_step；
+  known < max_model_len；is_prefill_chunk == False。
+任一项不满足，则保留其 ID/known/computed 与明确原因，候选选择 Host，
+policy_reason=headroom_background_unsupported。该事件仍 eligible=true、
+joint_capacity=true、fallback=none；它不表示原生重算不能执行。H/R/L 仍原动作。
+
+多 token prefill 可能本步完成并于下步增块，仅数 one-token-ready 子集会漏计。
+显式 ALL-running scope 排除该情况；另排除 is_prefill_chunk 以避免受原生局部
+throttle_prefills 参数的跳过分支影响。该调用参数没有被读取，也没有被设为0；
+这是信号适用域限制，不是调度修改。恢复目标处于 waiting，其旧 is_prefill_chunk
+不参与 running scope。恢复目标额外一块是假设完成重建后继续一个 token 的量，
+不读取未来 EOS、未来长度、max_tokens 或重新采样已有历史。
+
+启动及合法 lookup 的 scope guards 限定 FCFS、APCoff、同步、无 speculation/
+lookahead/Eagle、每步一个采样token、无 encoder/LoRA/Mamba、prefill阈值0、
+single PP/DCP/PCP/DP；target 与所有 running 还检查无 encoder、LoRA、draft token、
+输出placeholder、未结算in-flight token。请求身份/历史/采样对象/输出进度/
+停止状态的既有连续性断言保留。非支持的静态执行模式显式失败，不静默外推。
+
+这只是观察集合的一轮新增块计数，不是全局无抢占保证。lookup 后仍可有新的
+waiting 分配；集合外异步恢复、完成释放与未来服务变化也不由此信号完全描述。
+即使 supported 且 margin>=0，也不能保证下一步免抢占或全局服务获益。
+unsupported 时 margin_blocks=null，保留已识别子集的增块计数以供审计，
+不输出看似完整的margin。离线重放必须首先检查 headroom_supported。
+
+记录与审计
+事件/commit 保留 scheduler_step、policy_reason 与 detached headroom 字典。
+headroom.running_requests 记录完整集合的 ID/known/computed/is_prefill_chunk/
+next_decode_eligible_step；background_requests 记录计数项，unsupported 列表与
+原因映射记录域外项。字典不包含 live request 引用；后续分配、lookup、请求状态
+变化及 clear 不改写此前快照。headroom 构建时间在既有 adapter_seconds 范围内；
+没有据此声称分离了全部插桩开销。
+
+独立只读审计见 headroom_signal_audit.txt：当前修正 scope 未发现实质阻断。
+历史 H0 两个目标点的 running n/c 与块边界计数支持10/10及margin -3/+31；
+其前一步 end_computed==known 可据原生:1254 推导 is_prefill_chunk=false，
+但旧 raw 没有直接记录该flag。新组必须用新快照实际核验，不能将推导写成新实测。
+
+CPU 检查
+  python3 -B E_restore_choice_20261004/test_headroom_selector_cpu.py
+15 项测试通过，直接调用 adapter 边界，不复刻原生 scheduler。覆盖上述两例、零margin/
+阈值边界、目标增块、非块边界背景、unsupported scope、旧策略与同一 fallback、
+未来采样信息禁读、computed 不提前推进、commit/后续lookup/clear快照稳定、
+静态/请求 guard、退役B拒绝与一事件限制。run_cell.py --help 和 run_group.py
+--help 在本地 CPU 正常退出；无模型导入执行或 GPU 计时。
+
+下一步仅由父会话决定是否安排有界对照。当前没有新GPU
+动作分歧、输出一致性或服务代价结果，不作性能与质量结论。

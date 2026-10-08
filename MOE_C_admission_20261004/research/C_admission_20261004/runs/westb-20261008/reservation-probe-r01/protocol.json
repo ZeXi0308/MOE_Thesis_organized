@@ -1,0 +1,84 @@
+{
+  "base_commit": "5593b5f",
+  "dev_indices": "No new development sweep in this diagnostic",
+  "test_indices": "Same 384 interleaved articles and 0.1s trace as pressure exploration",
+  "native_dev_reference": null,
+  "dev_caps": [],
+  "test_order": [
+    "baseline",
+    "reservation",
+    "reservation",
+    "baseline"
+  ],
+  "selection": "No new tuning. Reuse the previously competitive KV256 reference, with corrected complete-lifecycle counting shared by both arms. Not a claim of optimal fixed cap.",
+  "fixed_baseline_claim_scope": "Prior fixed128/192/256 tuning informs this diagnostic; old running+remote caps are not complete-inflight caps. This group tests one bounded action, not a method claim.",
+  "kv_floor": 3277,
+  "recovery_high": null,
+  "recovery_clear": null,
+  "sample_interval_s": null,
+  "max_signal_wait_s": null,
+  "run_timeout_s": 240,
+  "prompt_arrival_gap_s": 0.1,
+  "output_mode": "natural EOS or max 1024; no future output length read",
+  "slo_grid": {
+    "ttft": [
+      2,
+      5,
+      10,
+      20,
+      40
+    ],
+    "max_gap": [
+      0.25,
+      0.5,
+      1,
+      2
+    ],
+    "completion": 120
+  },
+  "slo_role": "Exploratory full 20-point surface, not an application SLO or chosen headline.",
+  "invariants": "Native running scheduling, victim tail, recovery path, transfer and quantum unmodified.",
+  "reset": "Same engine/compiled shapes; identical warmup per cell then connector reset; fresh policy state.",
+  "lock": "/root/autodl-tmp/moe-research-gpu.lock",
+  "host_budget_bytes": 128849018880,
+  "model": {
+    "dtype": "bfloat16",
+    "id": "allenai/OLMoE-1B-7B-0924",
+    "key": "olmoe",
+    "revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "tokenizer_revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5"
+  },
+  "input_sha256": "10493039c7f704a45d1a209c47a2b87c2de5947b9464f921b1495721a0d328e4",
+  "profile": "pro-opportunity-reservation-probe",
+  "usable_kv_pages": 32768,
+  "native_max_seqs": 256,
+  "pro_inputs_file_sha256": "6b6be96f8fec6e92b6e59390bab0fe414aeafdaab9539000d88050f8bbf22d25",
+  "evidence_role": "EXPLORATORY_FIRST_KNOWN_PREFILL_RESERVATION_ACTION_ABBA",
+  "host_kv_gib": 16,
+  "max_model_len": 4096,
+  "precision": "bfloat16; no rope extension",
+  "population": 384,
+  "trace_sha256": "34513450387479b4257f7a01ea9042056667466b4ade5e0c137aa1f0fadb8632",
+  "trace_hash_contents": "Ordered request IDs, actual prompt token IDs, and external arrival traces",
+  "workload_sha256": "7723a0b4e88ba647da79e658cd596e00337075ea761d8692c47c494ee018533d",
+  "concurrency_comparison": "Both arms use native maximum256, complete-inflight cap256 and KV floor3277. Only the once-per-run bounded extra admission delay differs.",
+  "test_admission_caps": {
+    "baseline": 256,
+    "reservation": 256
+  },
+  "admission_count": "Unique successfully admitted but unfinished requests, including paused/recovery.",
+  "diagnostic_cap": 256,
+  "intervention": {
+    "events_per_run": 1,
+    "hard_gate_deadline_s": 0.25,
+    "trigger": "First actual new allocation with native/cap/KV allowance, positive existing native unfinished-prefill unallocated blocks, and new full known sequence plus existing unallocated blocks plus native watermark exceeding actual free.",
+    "release": "At a target allocation hook, release if the combined footprint fits or existing unallocated blocks become zero; otherwise release extra gating at 250 ms from first actual refusal. No minimum hold; native constraints remain.",
+    "scope": "Only the first target new request; FIFO followers are held within the same scheduler call. Existing requests and recovery always bypass this extra gate.",
+    "original_kv_age_bypass_s": 10
+  },
+  "prefix_comparison": "Same frozen inputs and policy prefix; compare recorded first-opportunity states. Separate executions are not asserted to be identical GPU-state forks.",
+  "candidate_status": "Diagnostic only; no recovery-controller efficacy claim.",
+  "stopping_rule": "Initial ABBA group, prescribed pairs 01/00 and 02/03. If no actual extra refusals or no coherent full-service signal, do not tune neighboring durations or reservation margins. If positive, immediately compare matched fixed headroom and complete-inflight fixed caps before claiming value of the recovery information.",
+  "repeat_budget": "At most one extra frozen ABBA group for sign-flipped or noisy service results, and only if both candidate runs actually intervene and target pre-output preemption is consistently reduced. Otherwise close this action attempt. No repeat-until-significant and no parameter changes.",
+  "motivation": "The prior observation-only scan found two full-footprint excesses of 1/2 blocks; both new targets were preempted before their first output. Chunk-footprint excesses were zero. This is a correlation motivating an action probe, not proof of harm."
+}

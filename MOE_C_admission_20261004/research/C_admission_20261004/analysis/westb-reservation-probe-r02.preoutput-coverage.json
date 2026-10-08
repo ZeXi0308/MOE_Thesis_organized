@@ -1,0 +1,1367 @@
+{
+  "schema_version": 1,
+  "source_analysis": "/Users/zhaozhenyu/Desktop/\u6bd5\u4e1a\u8bbe\u8ba1/MOE_C_admission_20261004/research/C_admission_20261004/analysis/westb-reservation-probe-r02.json",
+  "independent_unit": "run",
+  "selection": "Both disabled reservation-probe baselines from the fixed ABBA order; candidates excluded.",
+  "alignment_semantics": "A successful-new decision is the same row mutated by after_allocate. Require one such row, one first-prefill record, and a unique first native success with identical fit fields between that decision and first prefill. Failures to align remain explicit unknowns.",
+  "timing_semantics": "First prefill is host schedule return. Count successful original preempt-method calls whose entry is >= first prefill and < first host-received token. Native output counts are retained separately. These host boundaries are not GPU or DMA completion times.",
+  "inference": "Coverage and whole-lifetime flow/TTFT sums describe the observed cohort, including its prior queueing and generation work. They are not preemption-caused costs, removable savings, a causal upper bound, or evidence that another admission action improves service.",
+  "cells": [
+    {
+      "cell": "/Users/zhaozhenyu/Desktop/\u6bd5\u4e1a\u8bbe\u8ba1/MOE_C_admission_20261004/research/C_admission_20261004/runs/westb-20261008/reservation-probe-r02/probe-00-baseline",
+      "raw_sha256": "2efeacfffd1dd11c4cc5d90dcdabf36e844bca1816ce9ab9a55638b4ece8f4e8",
+      "admission_sha256": "9514b06786830df1eb908c0d2055ead43edaa0133f4ce3dec5909c1b2327d351",
+      "planned_requests": 384,
+      "outcomes": {
+        "completed": 384,
+        "failed": 0,
+        "unfinished": 0,
+        "rejected": 0,
+        "timeout": 0
+      },
+      "all_successful_preemptions": 38,
+      "unclassified_successful_preemptions": [],
+      "preoutput_after_firstprefill_requests": 8,
+      "preoutput_after_firstprefill_events": 8,
+      "native_output_zero_events": 8,
+      "population_allocation_alignment": {
+        "matched": 384,
+        "unknown": 0,
+        "unknown_requests": {}
+      },
+      "coverage": {
+        "full_commit_opportunity": {
+          "requests": {
+            "true": 0,
+            "false": 8,
+            "unknown": 0
+          },
+          "events": {
+            "true": 0,
+            "false": 8,
+            "unknown": 0
+          }
+        },
+        "positive_known_prefill_unallocated": {
+          "requests": {
+            "true": 1,
+            "false": 7,
+            "unknown": 0
+          },
+          "events": {
+            "true": 1,
+            "false": 7,
+            "unknown": 0
+          }
+        },
+        "positive_pending_recovery": {
+          "requests": {
+            "true": 1,
+            "false": 7,
+            "unknown": 0
+          },
+          "events": {
+            "true": 1,
+            "false": 7,
+            "unknown": 0
+          }
+        }
+      },
+      "events_per_affected_request": {
+        "1": 8
+      },
+      "cohort": {
+        "requests": 8,
+        "flow_s": {
+          "observed_requests": 8,
+          "missing_requests": 0,
+          "sum": 688.607083284855,
+          "mean": 86.07588541060687
+        },
+        "ttft_s": {
+          "observed_requests": 8,
+          "missing_requests": 0,
+          "sum": 282.15636079162357,
+          "mean": 35.269545098952946
+        }
+      },
+      "all_population": {
+        "requests": 384,
+        "flow_s": {
+          "observed_requests": 384,
+          "missing_requests": 0,
+          "sum": 28250.303236906977,
+          "mean": 73.56849801277859
+        },
+        "ttft_s": {
+          "observed_requests": 384,
+          "missing_requests": 0,
+          "sum": 6387.32324738577,
+          "mean": 16.63365429006711
+        }
+      },
+      "cohort_observed_time_sum_fraction": {
+        "flow_s": 0.024375210329963454,
+        "ttft_s": 0.04417442954794964
+      },
+      "requests": [
+        {
+          "request_id": "memory-train-article-0030422",
+          "preoutput_preemption_events": 1,
+          "allocation_alignment": "MATCHED",
+          "allocation_unknown_reason": null,
+          "first_allocation_decision": {
+            "request_id": "memory-train-article-0030422",
+            "t": 56.27045249193907,
+            "fits": true,
+            "free_blocks": 197,
+            "full_required_blocks": 172,
+            "chunk_required_blocks": 52,
+            "native_watermark_blocks": 0,
+            "native_reserved_blocks": 0,
+            "num_new_tokens": 824,
+            "external_computed_tokens": 0,
+            "load_kv_async": false,
+            "active": 200,
+            "running": 200,
+            "recovery_count": 0,
+            "known_prefill_unallocated_blocks": 0,
+            "known_recovery_unallocated_blocks": 0,
+            "known_nonrecovery_unallocated_blocks": 0,
+            "full_commit_opportunity": false,
+            "chunk_commit_opportunity": false,
+            "base_allowed": true,
+            "native_fit": true,
+            "native_allocation_result": true,
+            "denied": false,
+            "reason": "allow",
+            "external_time_s": 56.0166278667748
+          },
+          "first_native_allocation": {
+            "external_time_s": 56.016681201756,
+            "t": 56.27050582692027,
+            "status_before": "WAITING",
+            "preemptions": 0,
+            "predicted": true,
+            "actual": true
+          },
+          "first_prefill_schedule_return_s": 56.01824713125825,
+          "first_token_host_s": 56.553185399621725,
+          "first_prefill_to_first_host_token_s": 0.5349382683634758,
+          "arrival_s": 24.1,
+          "ttft_s": 32.453185399621724,
+          "flow_s": 92.33763564340771,
+          "signals_at_first_allocation": {
+            "full_commit_opportunity": false,
+            "positive_known_prefill_unallocated": false,
+            "positive_pending_recovery": false
+          },
+          "preemptions": [
+            {
+              "request_id": "memory-train-article-0030422",
+              "internal_request_id": "probe-00-baseline/memory-train-article-0030422-ac97b619",
+              "engine_call_index": 1274,
+              "last_returned_output_count": 0,
+              "last_new_output_s": null,
+              "native_output_count_before": 0,
+              "method_entered_s": 56.222837118431926,
+              "method_returned_s": 56.22288219630718,
+              "original_preemption_called": true,
+              "original_preemption_returned": true,
+              "after_first_prefill_s": 0.2045899871736765,
+              "before_first_host_token_s": 0.3303482811897993
+            }
+          ]
+        },
+        {
+          "request_id": "memory-train-article-0032655",
+          "preoutput_preemption_events": 1,
+          "allocation_alignment": "MATCHED",
+          "allocation_unknown_reason": null,
+          "first_allocation_decision": {
+            "request_id": "memory-train-article-0032655",
+            "t": 67.32947023399174,
+            "fits": true,
+            "free_blocks": 148,
+            "full_required_blocks": 121,
+            "chunk_required_blocks": 52,
+            "native_watermark_blocks": 0,
+            "native_reserved_blocks": 0,
+            "num_new_tokens": 821,
+            "external_computed_tokens": 0,
+            "load_kv_async": false,
+            "active": 204,
+            "running": 203,
+            "recovery_count": 1,
+            "known_prefill_unallocated_blocks": 1,
+            "known_recovery_unallocated_blocks": 1,
+            "known_nonrecovery_unallocated_blocks": 0,
+            "full_commit_opportunity": false,
+            "chunk_commit_opportunity": false,
+            "base_allowed": true,
+            "native_fit": true,
+            "native_allocation_result": true,
+            "denied": false,
+            "reason": "allow",
+            "external_time_s": 67.07564560882747
+          },
+          "first_native_allocation": {
+            "external_time_s": 67.07570682652295,
+            "t": 67.32953145168722,
+            "status_before": "WAITING",
+            "preemptions": 0,
+            "predicted": true,
+            "actual": true
+          },
+          "first_prefill_schedule_return_s": 67.07746283523738,
+          "first_token_host_s": 67.53742782212794,
+          "first_prefill_to_first_host_token_s": 0.45996498689055443,
+          "arrival_s": 28.3,
+          "ttft_s": 39.23742782212794,
+          "flow_s": 95.37417699284852,
+          "signals_at_first_allocation": {
+            "full_commit_opportunity": false,
+            "positive_known_prefill_unallocated": true,
+            "positive_pending_recovery": true
+          },
+          "preemptions": [
+            {
+              "request_id": "memory-train-article-0032655",
+              "internal_request_id": "probe-00-baseline/memory-train-article-0032655-b76a8a58",
+              "engine_call_index": 1437,
+              "last_returned_output_count": 0,
+              "last_new_output_s": null,
+              "native_output_count_before": 0,
+              "method_entered_s": 67.21264823898673,
+              "method_returned_s": 67.21267450228333,
+              "original_preemption_called": true,
+              "original_preemption_returned": true,
+              "after_first_prefill_s": 0.13518540374934673,
+              "before_first_host_token_s": 0.3247795831412077
+            }
+          ]
+        },
+        {
+          "request_id": "memory-train-article-0049714",
+          "preoutput_preemption_events": 1,
+          "allocation_alignment": "MATCHED",
+          "allocation_unknown_reason": null,
+          "first_allocation_decision": {
+            "request_id": "memory-train-article-0049714",
+            "t": 54.69473929516971,
+            "fits": true,
+            "free_blocks": 168,
+            "full_required_blocks": 152,
+            "chunk_required_blocks": 52,
+            "native_watermark_blocks": 0,
+            "native_reserved_blocks": 0,
+            "num_new_tokens": 824,
+            "external_computed_tokens": 0,
+            "load_kv_async": false,
+            "active": 200,
+            "running": 200,
+            "recovery_count": 0,
+            "known_prefill_unallocated_blocks": 0,
+            "known_recovery_unallocated_blocks": 0,
+            "known_nonrecovery_unallocated_blocks": 0,
+            "full_commit_opportunity": false,
+            "chunk_commit_opportunity": false,
+            "base_allowed": true,
+            "native_fit": true,
+            "native_allocation_result": true,
+            "denied": false,
+            "reason": "allow",
+            "external_time_s": 54.44091467000544
+          },
+          "first_native_allocation": {
+            "external_time_s": 54.44098251312971,
+            "t": 54.69480713829398,
+            "status_before": "WAITING",
+            "preemptions": 0,
+            "predicted": true,
+            "actual": true
+          },
+          "first_prefill_schedule_return_s": 54.44432132318616,
+          "first_token_host_s": 55.03857353143394,
+          "first_prefill_to_first_host_token_s": 0.5942522082477808,
+          "arrival_s": 23.700000000000003,
+          "ttft_s": 31.338573531433937,
+          "flow_s": 91.59844506829977,
+          "signals_at_first_allocation": {
+            "full_commit_opportunity": false,
+            "positive_known_prefill_unallocated": false,
+            "positive_pending_recovery": false
+          },
+          "preemptions": [
+            {
+              "request_id": "memory-train-article-0049714",
+              "internal_request_id": "probe-00-baseline/memory-train-article-0049714-bd094797",
+              "engine_call_index": 1249,
+              "last_returned_output_count": 0,
+              "last_new_output_s": null,
+              "native_output_count_before": 0,
+              "method_entered_s": 54.580118406564,
+              "method_returned_s": 54.58014881424606,
+              "original_preemption_called": true,
+              "original_preemption_returned": true,
+              "after_first_prefill_s": 0.13579708337783813,
+              "before_first_host_token_s": 0.45845512486994267
+            }
+          ]
+        },
+        {
+          "request_id": "memory-train-article-0051439",
+          "preoutput_preemption_events": 1,
+          "allocation_alignment": "MATCHED",
+          "allocation_unknown_reason": null,
+          "first_allocation_decision": {
+            "request_id": "memory-train-article-0051439",
+            "t": 68.62321886792779,
+            "fits": true,
+            "free_blocks": 65,
+            "full_required_blocks": 65,
+            "chunk_required_blocks": 5,
+            "native_watermark_blocks": 0,
+            "native_reserved_blocks": 0,
+            "num_new_tokens": 67,
+            "external_computed_tokens": 0,
+            "load_kv_async": false,
+            "active": 206,
+            "running": 206,
+            "recovery_count": 0,
+            "known_prefill_unallocated_blocks": 0,
+            "known_recovery_unallocated_blocks": 0,
+            "known_nonrecovery_unallocated_blocks": 0,
+            "full_commit_opportunity": false,
+            "chunk_commit_opportunity": false,
+            "base_allowed": true,
+            "native_fit": true,
+            "native_allocation_result": true,
+            "denied": false,
+            "reason": "allow",
+            "external_time_s": 68.36939424276352
+          },
+          "first_native_allocation": {
+            "external_time_s": 68.36945219151676,
+            "t": 68.62327681668103,
+            "status_before": "WAITING",
+            "preemptions": 0,
+            "predicted": true,
+            "actual": true
+          },
+          "first_prefill_schedule_return_s": 68.37106768228114,
+          "first_token_host_s": 68.84153875149786,
+          "first_prefill_to_first_host_token_s": 0.4704710692167282,
+          "arrival_s": 29.0,
+          "ttft_s": 39.841538751497865,
+          "flow_s": 95.40264220535755,
+          "signals_at_first_allocation": {
+            "full_commit_opportunity": false,
+            "positive_known_prefill_unallocated": false,
+            "positive_pending_recovery": false
+          },
+          "preemptions": [
+            {
+              "request_id": "memory-train-article-0051439",
+              "internal_request_id": "probe-00-baseline/memory-train-article-0051439-a6b4a1a8",
+              "engine_call_index": 1455,
+              "last_returned_output_count": 0,
+              "last_new_output_s": null,
+              "native_output_count_before": 0,
+              "method_entered_s": 68.43772381171584,
+              "method_returned_s": 68.43773953430355,
+              "original_preemption_called": true,
+              "original_preemption_returned": true,
+              "after_first_prefill_s": 0.06665612943470478,
+              "before_first_host_token_s": 0.40381493978202343
+            }
+          ]
+        },
+        {
+          "request_id": "memory-train-article-0052015",
+          "preoutput_preemption_events": 1,
+          "allocation_alignment": "MATCHED",
+          "allocation_unknown_reason": null,
+          "first_allocation_decision": {
+            "request_id": "memory-train-article-0052015",
+            "t": 70.97180844843388,
+            "fits": true,
+            "free_blocks": 153,
+            "full_required_blocks": 127,
+            "chunk_required_blocks": 37,
+            "native_watermark_blocks": 0,
+            "native_reserved_blocks": 0,
+            "num_new_tokens": 581,
+            "external_computed_tokens": 0,
+            "load_kv_async": false,
+            "active": 209,
+            "running": 209,
+            "recovery_count": 0,
+            "known_prefill_unallocated_blocks": 0,
+            "known_recovery_unallocated_blocks": 0,
+            "known_nonrecovery_unallocated_blocks": 0,
+            "full_commit_opportunity": false,
+            "chunk_commit_opportunity": false,
+            "base_allowed": true,
+            "native_fit": true,
+            "native_allocation_result": true,
+            "denied": false,
+            "reason": "allow",
+            "external_time_s": 70.7179838232696
+          },
+          "first_native_allocation": {
+            "external_time_s": 70.7180607020855,
+            "t": 70.97188532724977,
+            "status_before": "WAITING",
+            "preemptions": 0,
+            "predicted": true,
+            "actual": true
+          },
+          "first_prefill_schedule_return_s": 70.72011754661798,
+          "first_token_host_s": 71.3264078386128,
+          "first_prefill_to_first_host_token_s": 0.6062902919948101,
+          "arrival_s": 30.3,
+          "ttft_s": 41.0264078386128,
+          "flow_s": 95.33737075403333,
+          "signals_at_first_allocation": {
+            "full_commit_opportunity": false,
+            "positive_known_prefill_unallocated": false,
+            "positive_pending_recovery": false
+          },
+          "preemptions": [
+            {
+              "request_id": "memory-train-article-0052015",
+              "internal_request_id": "probe-00-baseline/memory-train-article-0052015-955c7193",
+              "engine_call_index": 1489,
+              "last_returned_output_count": 0,
+              "last_new_output_s": null,
+              "native_output_count_before": 0,
+              "method_entered_s": 70.85704115964472,
+              "method_returned_s": 70.8570686019957,
+              "original_preemption_called": true,
+              "original_preemption_returned": true,
+              "after_first_prefill_s": 0.13692361302673817,
+              "before_first_host_token_s": 0.46936667896807194
+            }
+          ]
+        },
+        {
+          "request_id": "memory-train-article-0063671",
+          "preoutput_preemption_events": 1,
+          "allocation_alignment": "MATCHED",
+          "allocation_unknown_reason": null,
+          "first_allocation_decision": {
+            "request_id": "memory-train-article-0063671",
+            "t": 52.912352215498686,
+            "fits": true,
+            "free_blocks": 65,
+            "full_required_blocks": 61,
+            "chunk_required_blocks": 9,
+            "native_watermark_blocks": 0,
+            "native_reserved_blocks": 0,
+            "num_new_tokens": 134,
+            "external_computed_tokens": 0,
+            "load_kv_async": false,
+            "active": 200,
+            "running": 200,
+            "recovery_count": 0,
+            "known_prefill_unallocated_blocks": 0,
+            "known_recovery_unallocated_blocks": 0,
+            "known_nonrecovery_unallocated_blocks": 0,
+            "full_commit_opportunity": false,
+            "chunk_commit_opportunity": false,
+            "base_allowed": true,
+            "native_fit": true,
+            "native_allocation_result": true,
+            "denied": false,
+            "reason": "allow",
+            "external_time_s": 52.658527590334415
+          },
+          "first_native_allocation": {
+            "external_time_s": 52.65859269909561,
+            "t": 52.91241732425988,
+            "status_before": "WAITING",
+            "preemptions": 0,
+            "predicted": true,
+            "actual": true
+          },
+          "first_prefill_schedule_return_s": 52.6602215077728,
+          "first_token_host_s": 53.12549216672778,
+          "first_prefill_to_first_host_token_s": 0.465270658954978,
+          "arrival_s": 23.200000000000003,
+          "ttft_s": 29.92549216672778,
+          "flow_s": 90.35216337926686,
+          "signals_at_first_allocation": {
+            "full_commit_opportunity": false,
+            "positive_known_prefill_unallocated": false,
+            "positive_pending_recovery": false
+          },
+          "preemptions": [
+            {
+              "request_id": "memory-train-article-0063671",
+              "internal_request_id": "probe-00-baseline/memory-train-article-0063671-bd27e6c5",
+              "engine_call_index": 1221,
+              "last_returned_output_count": 0,
+              "last_new_output_s": null,
+              "native_output_count_before": 0,
+              "method_entered_s": 52.726799335330725,
+              "method_returned_s": 52.72681622765958,
+              "original_preemption_called": true,
+              "original_preemption_returned": true,
+              "after_first_prefill_s": 0.06657782755792141,
+              "before_first_host_token_s": 0.3986928313970566
+            }
+          ]
+        },
+        {
+          "request_id": "memory-train-article-0064221",
+          "preoutput_preemption_events": 1,
+          "allocation_alignment": "MATCHED",
+          "allocation_unknown_reason": null,
+          "first_allocation_decision": {
+            "request_id": "memory-train-article-0064221",
+            "t": 57.46837067976594,
+            "fits": true,
+            "free_blocks": 126,
+            "full_required_blocks": 122,
+            "chunk_required_blocks": 27,
+            "native_watermark_blocks": 0,
+            "native_reserved_blocks": 0,
+            "num_new_tokens": 419,
+            "external_computed_tokens": 0,
+            "load_kv_async": false,
+            "active": 201,
+            "running": 201,
+            "recovery_count": 0,
+            "known_prefill_unallocated_blocks": 0,
+            "known_recovery_unallocated_blocks": 0,
+            "known_nonrecovery_unallocated_blocks": 0,
+            "full_commit_opportunity": false,
+            "chunk_commit_opportunity": false,
+            "base_allowed": true,
+            "native_fit": true,
+            "native_allocation_result": true,
+            "denied": false,
+            "reason": "allow",
+            "external_time_s": 57.21454605460167
+          },
+          "first_native_allocation": {
+            "external_time_s": 57.21460562199354,
+            "t": 57.46843024715781,
+            "status_before": "WAITING",
+            "preemptions": 0,
+            "predicted": true,
+            "actual": true
+          },
+          "first_prefill_schedule_return_s": 57.216157995164394,
+          "first_token_host_s": 57.83507103100419,
+          "first_prefill_to_first_host_token_s": 0.6189130358397961,
+          "arrival_s": 24.5,
+          "ttft_s": 33.33507103100419,
+          "flow_s": 34.44553489051759,
+          "signals_at_first_allocation": {
+            "full_commit_opportunity": false,
+            "positive_known_prefill_unallocated": false,
+            "positive_pending_recovery": false
+          },
+          "preemptions": [
+            {
+              "request_id": "memory-train-article-0064221",
+              "internal_request_id": "probe-00-baseline/memory-train-article-0064221-a695cb46",
+              "engine_call_index": 1291,
+              "last_returned_output_count": 0,
+              "last_new_output_s": null,
+              "native_output_count_before": 0,
+              "method_entered_s": 57.351121271029115,
+              "method_returned_s": 57.3511441424489,
+              "original_preemption_called": true,
+              "original_preemption_returned": true,
+              "after_first_prefill_s": 0.13496327586472034,
+              "before_first_host_token_s": 0.4839497599750757
+            }
+          ]
+        },
+        {
+          "request_id": "memory-train-article-0064254",
+          "preoutput_preemption_events": 1,
+          "allocation_alignment": "MATCHED",
+          "allocation_unknown_reason": null,
+          "first_allocation_decision": {
+            "request_id": "memory-train-article-0064254",
+            "t": 59.404499135911465,
+            "fits": true,
+            "free_blocks": 208,
+            "full_required_blocks": 177,
+            "chunk_required_blocks": 52,
+            "native_watermark_blocks": 0,
+            "native_reserved_blocks": 0,
+            "num_new_tokens": 825,
+            "external_computed_tokens": 0,
+            "load_kv_async": false,
+            "active": 199,
+            "running": 199,
+            "recovery_count": 0,
+            "known_prefill_unallocated_blocks": 0,
+            "known_recovery_unallocated_blocks": 0,
+            "known_nonrecovery_unallocated_blocks": 0,
+            "full_commit_opportunity": false,
+            "chunk_commit_opportunity": false,
+            "base_allowed": true,
+            "native_fit": true,
+            "native_allocation_result": true,
+            "denied": false,
+            "reason": "allow",
+            "external_time_s": 59.150674510747194
+          },
+          "first_native_allocation": {
+            "external_time_s": 59.15073101222515,
+            "t": 59.40455563738942,
+            "status_before": "WAITING",
+            "preemptions": 0,
+            "predicted": true,
+            "actual": true
+          },
+          "first_prefill_schedule_return_s": 59.15219400264323,
+          "first_token_host_s": 59.99866425059736,
+          "first_prefill_to_first_host_token_s": 0.8464702479541302,
+          "arrival_s": 25.0,
+          "ttft_s": 34.99866425059736,
+          "flow_s": 93.75911435112357,
+          "signals_at_first_allocation": {
+            "full_commit_opportunity": false,
+            "positive_known_prefill_unallocated": false,
+            "positive_pending_recovery": false
+          },
+          "preemptions": [
+            {
+              "request_id": "memory-train-article-0064254",
+              "internal_request_id": "probe-00-baseline/memory-train-article-0064254-b80a12b7",
+              "engine_call_index": 1320,
+              "last_returned_output_count": 0,
+              "last_new_output_s": null,
+              "native_output_count_before": 0,
+              "method_entered_s": 59.357452515512705,
+              "method_returned_s": 59.35749379172921,
+              "original_preemption_called": true,
+              "original_preemption_returned": true,
+              "after_first_prefill_s": 0.20525851286947727,
+              "before_first_host_token_s": 0.6412117350846529
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "cell": "/Users/zhaozhenyu/Desktop/\u6bd5\u4e1a\u8bbe\u8ba1/MOE_C_admission_20261004/research/C_admission_20261004/runs/westb-20261008/reservation-probe-r02/probe-03-baseline",
+      "raw_sha256": "0c87377606432547f2553d6b37d16f80289029cbf9a97c27a1f9b67e580fb17b",
+      "admission_sha256": "ef0ea0ece7c678c4ffe375bdeb2a224fa7fe52a0e0600cb2362212a767fc516e",
+      "planned_requests": 384,
+      "outcomes": {
+        "completed": 384,
+        "failed": 0,
+        "unfinished": 0,
+        "rejected": 0,
+        "timeout": 0
+      },
+      "all_successful_preemptions": 40,
+      "unclassified_successful_preemptions": [],
+      "preoutput_after_firstprefill_requests": 9,
+      "preoutput_after_firstprefill_events": 9,
+      "native_output_zero_events": 9,
+      "population_allocation_alignment": {
+        "matched": 384,
+        "unknown": 0,
+        "unknown_requests": {}
+      },
+      "coverage": {
+        "full_commit_opportunity": {
+          "requests": {
+            "true": 1,
+            "false": 8,
+            "unknown": 0
+          },
+          "events": {
+            "true": 1,
+            "false": 8,
+            "unknown": 0
+          }
+        },
+        "positive_known_prefill_unallocated": {
+          "requests": {
+            "true": 3,
+            "false": 6,
+            "unknown": 0
+          },
+          "events": {
+            "true": 3,
+            "false": 6,
+            "unknown": 0
+          }
+        },
+        "positive_pending_recovery": {
+          "requests": {
+            "true": 3,
+            "false": 6,
+            "unknown": 0
+          },
+          "events": {
+            "true": 3,
+            "false": 6,
+            "unknown": 0
+          }
+        }
+      },
+      "events_per_affected_request": {
+        "1": 9
+      },
+      "cohort": {
+        "requests": 9,
+        "flow_s": {
+          "observed_requests": 9,
+          "missing_requests": 0,
+          "sum": 809.1774395994842,
+          "mean": 89.90860439994269
+        },
+        "ttft_s": {
+          "observed_requests": 9,
+          "missing_requests": 0,
+          "sum": 329.95252529084684,
+          "mean": 36.66139169898298
+        }
+      },
+      "all_population": {
+        "requests": 384,
+        "flow_s": {
+          "observed_requests": 384,
+          "missing_requests": 0,
+          "sum": 28616.050800751524,
+          "mean": 74.52096562695709
+        },
+        "ttft_s": {
+          "observed_requests": 384,
+          "missing_requests": 0,
+          "sum": 6559.914635078609,
+          "mean": 17.083111028850542
+        }
+      },
+      "cohort_observed_time_sum_fraction": {
+        "flow_s": 0.028277047913901288,
+        "ttft_s": 0.05029829557940474
+      },
+      "requests": [
+        {
+          "request_id": "memory-train-article-0029965",
+          "preoutput_preemption_events": 1,
+          "allocation_alignment": "MATCHED",
+          "allocation_unknown_reason": null,
+          "first_allocation_decision": {
+            "request_id": "memory-train-article-0029965",
+            "t": 52.7490005530417,
+            "fits": true,
+            "free_blocks": 153,
+            "full_required_blocks": 141,
+            "chunk_required_blocks": 52,
+            "native_watermark_blocks": 0,
+            "native_reserved_blocks": 0,
+            "num_new_tokens": 825,
+            "external_computed_tokens": 0,
+            "load_kv_async": false,
+            "active": 199,
+            "running": 199,
+            "recovery_count": 0,
+            "known_prefill_unallocated_blocks": 0,
+            "known_recovery_unallocated_blocks": 0,
+            "known_nonrecovery_unallocated_blocks": 0,
+            "full_commit_opportunity": false,
+            "chunk_commit_opportunity": false,
+            "base_allowed": true,
+            "native_fit": true,
+            "native_allocation_result": true,
+            "denied": false,
+            "reason": "allow",
+            "external_time_s": 52.49020121619105
+          },
+          "first_native_allocation": {
+            "external_time_s": 52.490258384495974,
+            "t": 52.74905772134662,
+            "status_before": "WAITING",
+            "preemptions": 0,
+            "predicted": true,
+            "actual": true
+          },
+          "first_prefill_schedule_return_s": 52.49192387610674,
+          "first_token_host_s": 53.419699653983116,
+          "first_prefill_to_first_host_token_s": 0.9277757778763771,
+          "arrival_s": 22.900000000000002,
+          "ttft_s": 30.519699653983114,
+          "flow_s": 91.43404376916587,
+          "signals_at_first_allocation": {
+            "full_commit_opportunity": false,
+            "positive_known_prefill_unallocated": false,
+            "positive_pending_recovery": false
+          },
+          "preemptions": [
+            {
+              "request_id": "memory-train-article-0029965",
+              "internal_request_id": "probe-03-baseline/memory-train-article-0029965-8a38e333",
+              "engine_call_index": 1214,
+              "last_returned_output_count": 0,
+              "last_new_output_s": null,
+              "native_output_count_before": 0,
+              "method_entered_s": 52.62852735258639,
+              "method_returned_s": 52.628563752397895,
+              "original_preemption_called": true,
+              "original_preemption_returned": true,
+              "after_first_prefill_s": 0.13660347647964954,
+              "before_first_host_token_s": 0.7911723013967276
+            }
+          ]
+        },
+        {
+          "request_id": "memory-train-article-0030977",
+          "preoutput_preemption_events": 1,
+          "allocation_alignment": "MATCHED",
+          "allocation_unknown_reason": null,
+          "first_allocation_decision": {
+            "request_id": "memory-train-article-0030977",
+            "t": 59.31952755525708,
+            "fits": true,
+            "free_blocks": 186,
+            "full_required_blocks": 160,
+            "chunk_required_blocks": 52,
+            "native_watermark_blocks": 0,
+            "native_reserved_blocks": 0,
+            "num_new_tokens": 825,
+            "external_computed_tokens": 0,
+            "load_kv_async": false,
+            "active": 199,
+            "running": 199,
+            "recovery_count": 0,
+            "known_prefill_unallocated_blocks": 0,
+            "known_recovery_unallocated_blocks": 0,
+            "known_nonrecovery_unallocated_blocks": 0,
+            "full_commit_opportunity": false,
+            "chunk_commit_opportunity": false,
+            "base_allowed": true,
+            "native_fit": true,
+            "native_allocation_result": true,
+            "denied": false,
+            "reason": "allow",
+            "external_time_s": 59.06072821840644
+          },
+          "first_native_allocation": {
+            "external_time_s": 59.06078474409878,
+            "t": 59.319584080949426,
+            "status_before": "WAITING",
+            "preemptions": 0,
+            "predicted": true,
+            "actual": true
+          },
+          "first_prefill_schedule_return_s": 59.06212245300412,
+          "first_token_host_s": 59.597480865195394,
+          "first_prefill_to_first_host_token_s": 0.5353584121912718,
+          "arrival_s": 24.700000000000003,
+          "ttft_s": 34.89748086519539,
+          "flow_s": 94.6397270925343,
+          "signals_at_first_allocation": {
+            "full_commit_opportunity": false,
+            "positive_known_prefill_unallocated": false,
+            "positive_pending_recovery": false
+          },
+          "preemptions": [
+            {
+              "request_id": "memory-train-article-0030977",
+              "internal_request_id": "probe-03-baseline/memory-train-article-0030977-a8515304",
+              "engine_call_index": 1314,
+              "last_returned_output_count": 0,
+              "last_new_output_s": null,
+              "native_output_count_before": 0,
+              "method_entered_s": 59.26646879501641,
+              "method_returned_s": 59.26651193201542,
+              "original_preemption_called": true,
+              "original_preemption_returned": true,
+              "after_first_prefill_s": 0.2043463420122862,
+              "before_first_host_token_s": 0.3310120701789856
+            }
+          ]
+        },
+        {
+          "request_id": "memory-train-article-0032655",
+          "preoutput_preemption_events": 1,
+          "allocation_alignment": "MATCHED",
+          "allocation_unknown_reason": null,
+          "first_allocation_decision": {
+            "request_id": "memory-train-article-0032655",
+            "t": 68.38960081711411,
+            "fits": true,
+            "free_blocks": 130,
+            "full_required_blocks": 121,
+            "chunk_required_blocks": 26,
+            "native_watermark_blocks": 0,
+            "native_reserved_blocks": 0,
+            "num_new_tokens": 414,
+            "external_computed_tokens": 0,
+            "load_kv_async": false,
+            "active": 204,
+            "running": 204,
+            "recovery_count": 0,
+            "known_prefill_unallocated_blocks": 0,
+            "known_recovery_unallocated_blocks": 0,
+            "known_nonrecovery_unallocated_blocks": 0,
+            "full_commit_opportunity": false,
+            "chunk_commit_opportunity": false,
+            "base_allowed": true,
+            "native_fit": true,
+            "native_allocation_result": true,
+            "denied": false,
+            "reason": "allow",
+            "external_time_s": 68.13080148026347
+          },
+          "first_native_allocation": {
+            "external_time_s": 68.13086557202041,
+            "t": 68.38966490887105,
+            "status_before": "WAITING",
+            "preemptions": 0,
+            "predicted": true,
+            "actual": true
+          },
+          "first_prefill_schedule_return_s": 68.13247410021722,
+          "first_token_host_s": 68.74651313759387,
+          "first_prefill_to_first_host_token_s": 0.6140390373766422,
+          "arrival_s": 28.3,
+          "ttft_s": 40.44651313759387,
+          "flow_s": 96.76136786006391,
+          "signals_at_first_allocation": {
+            "full_commit_opportunity": false,
+            "positive_known_prefill_unallocated": false,
+            "positive_pending_recovery": false
+          },
+          "preemptions": [
+            {
+              "request_id": "memory-train-article-0032655",
+              "internal_request_id": "probe-03-baseline/memory-train-article-0032655-882b6a25",
+              "engine_call_index": 1445,
+              "last_returned_output_count": 0,
+              "last_new_output_s": null,
+              "native_output_count_before": 0,
+              "method_entered_s": 68.26828202605247,
+              "method_returned_s": 68.26831806451082,
+              "original_preemption_called": true,
+              "original_preemption_returned": true,
+              "after_first_prefill_s": 0.1358079258352518,
+              "before_first_host_token_s": 0.4782311115413904
+            }
+          ]
+        },
+        {
+          "request_id": "memory-train-article-0050569",
+          "preoutput_preemption_events": 1,
+          "allocation_alignment": "MATCHED",
+          "allocation_unknown_reason": null,
+          "first_allocation_decision": {
+            "request_id": "memory-train-article-0050569",
+            "t": 60.375691920518875,
+            "fits": true,
+            "free_blocks": 127,
+            "full_required_blocks": 125,
+            "chunk_required_blocks": 52,
+            "native_watermark_blocks": 0,
+            "native_reserved_blocks": 0,
+            "num_new_tokens": 826,
+            "external_computed_tokens": 0,
+            "load_kv_async": false,
+            "active": 199,
+            "running": 198,
+            "recovery_count": 1,
+            "known_prefill_unallocated_blocks": 1,
+            "known_recovery_unallocated_blocks": 1,
+            "known_nonrecovery_unallocated_blocks": 0,
+            "full_commit_opportunity": false,
+            "chunk_commit_opportunity": false,
+            "base_allowed": true,
+            "native_fit": true,
+            "native_allocation_result": true,
+            "denied": false,
+            "reason": "allow",
+            "external_time_s": 60.11689258366823
+          },
+          "first_native_allocation": {
+            "external_time_s": 60.11695607751608,
+            "t": 60.37575541436672,
+            "status_before": "WAITING",
+            "preemptions": 0,
+            "predicted": true,
+            "actual": true
+          },
+          "first_prefill_schedule_return_s": 60.11832253076136,
+          "first_token_host_s": 60.72329183667898,
+          "first_prefill_to_first_host_token_s": 0.6049693059176207,
+          "arrival_s": 24.900000000000002,
+          "ttft_s": 35.823291836678976,
+          "flow_s": 94.92149488851427,
+          "signals_at_first_allocation": {
+            "full_commit_opportunity": false,
+            "positive_known_prefill_unallocated": true,
+            "positive_pending_recovery": true
+          },
+          "preemptions": [
+            {
+              "request_id": "memory-train-article-0050569",
+              "internal_request_id": "probe-03-baseline/memory-train-article-0050569-842e1df0",
+              "engine_call_index": 1329,
+              "last_returned_output_count": 0,
+              "last_new_output_s": null,
+              "native_output_count_before": 0,
+              "method_entered_s": 60.25417836941779,
+              "method_returned_s": 60.25420770607889,
+              "original_preemption_called": true,
+              "original_preemption_returned": true,
+              "after_first_prefill_s": 0.13585583865642548,
+              "before_first_host_token_s": 0.4691134672611952
+            }
+          ]
+        },
+        {
+          "request_id": "memory-train-article-0050842",
+          "preoutput_preemption_events": 1,
+          "allocation_alignment": "MATCHED",
+          "allocation_unknown_reason": null,
+          "first_allocation_decision": {
+            "request_id": "memory-train-article-0050842",
+            "t": 63.69576524943113,
+            "fits": true,
+            "free_blocks": 190,
+            "full_required_blocks": 185,
+            "chunk_required_blocks": 52,
+            "native_watermark_blocks": 0,
+            "native_reserved_blocks": 0,
+            "num_new_tokens": 825,
+            "external_computed_tokens": 0,
+            "load_kv_async": false,
+            "active": 199,
+            "running": 199,
+            "recovery_count": 0,
+            "known_prefill_unallocated_blocks": 0,
+            "known_recovery_unallocated_blocks": 0,
+            "known_nonrecovery_unallocated_blocks": 0,
+            "full_commit_opportunity": false,
+            "chunk_commit_opportunity": false,
+            "base_allowed": true,
+            "native_fit": true,
+            "native_allocation_result": true,
+            "denied": false,
+            "reason": "allow",
+            "external_time_s": 63.43696591258049
+          },
+          "first_native_allocation": {
+            "external_time_s": 63.43702029064298,
+            "t": 63.69581962749362,
+            "status_before": "WAITING",
+            "preemptions": 0,
+            "predicted": true,
+            "actual": true
+          },
+          "first_prefill_schedule_return_s": 63.43876493535936,
+          "first_token_host_s": 64.11477724835277,
+          "first_prefill_to_first_host_token_s": 0.6760123129934072,
+          "arrival_s": 26.0,
+          "ttft_s": 38.114777248352766,
+          "flow_s": 49.198690669611096,
+          "signals_at_first_allocation": {
+            "full_commit_opportunity": false,
+            "positive_known_prefill_unallocated": false,
+            "positive_pending_recovery": false
+          },
+          "preemptions": [
+            {
+              "request_id": "memory-train-article-0050842",
+              "internal_request_id": "probe-03-baseline/memory-train-article-0050842-8c19be6e",
+              "engine_call_index": 1377,
+              "last_returned_output_count": 0,
+              "last_new_output_s": null,
+              "native_output_count_before": 0,
+              "method_entered_s": 63.64384891651571,
+              "method_returned_s": 63.64388909749687,
+              "original_preemption_called": true,
+              "original_preemption_returned": true,
+              "after_first_prefill_s": 0.20508398115634918,
+              "before_first_host_token_s": 0.47092833183705807
+            }
+          ]
+        },
+        {
+          "request_id": "memory-train-article-0064254",
+          "preoutput_preemption_events": 1,
+          "allocation_alignment": "MATCHED",
+          "allocation_unknown_reason": null,
+          "first_allocation_decision": {
+            "request_id": "memory-train-article-0064254",
+            "t": 60.64531667716801,
+            "fits": true,
+            "free_blocks": 201,
+            "full_required_blocks": 177,
+            "chunk_required_blocks": 52,
+            "native_watermark_blocks": 0,
+            "native_reserved_blocks": 0,
+            "num_new_tokens": 826,
+            "external_computed_tokens": 0,
+            "load_kv_async": false,
+            "active": 199,
+            "running": 198,
+            "recovery_count": 1,
+            "known_prefill_unallocated_blocks": 22,
+            "known_recovery_unallocated_blocks": 22,
+            "known_nonrecovery_unallocated_blocks": 0,
+            "full_commit_opportunity": false,
+            "chunk_commit_opportunity": false,
+            "base_allowed": true,
+            "native_fit": true,
+            "native_allocation_result": true,
+            "denied": false,
+            "reason": "allow",
+            "external_time_s": 60.38651734031737
+          },
+          "first_native_allocation": {
+            "external_time_s": 60.38658466003835,
+            "t": 60.645383996888995,
+            "status_before": "WAITING",
+            "preemptions": 0,
+            "predicted": true,
+            "actual": true
+          },
+          "first_prefill_schedule_return_s": 60.388184206560254,
+          "first_token_host_s": 61.06756518408656,
+          "first_prefill_to_first_host_token_s": 0.6793809775263071,
+          "arrival_s": 25.0,
+          "ttft_s": 36.06756518408656,
+          "flow_s": 95.06233516149223,
+          "signals_at_first_allocation": {
+            "full_commit_opportunity": false,
+            "positive_known_prefill_unallocated": true,
+            "positive_pending_recovery": true
+          },
+          "preemptions": [
+            {
+              "request_id": "memory-train-article-0064254",
+              "internal_request_id": "probe-03-baseline/memory-train-article-0064254-a26d8fc5",
+              "engine_call_index": 1334,
+              "last_returned_output_count": 0,
+              "last_new_output_s": null,
+              "native_output_count_before": 0,
+              "method_entered_s": 60.59327678754926,
+              "method_returned_s": 60.59331558085978,
+              "original_preemption_called": true,
+              "original_preemption_returned": true,
+              "after_first_prefill_s": 0.20509258098900318,
+              "before_first_host_token_s": 0.4742883965373039
+            }
+          ]
+        },
+        {
+          "request_id": "memory-train-article-0064312",
+          "preoutput_preemption_events": 1,
+          "allocation_alignment": "MATCHED",
+          "allocation_unknown_reason": null,
+          "first_allocation_decision": {
+            "request_id": "memory-train-article-0064312",
+            "t": 60.985265009105206,
+            "fits": true,
+            "free_blocks": 194,
+            "full_required_blocks": 190,
+            "chunk_required_blocks": 52,
+            "native_watermark_blocks": 0,
+            "native_reserved_blocks": 0,
+            "num_new_tokens": 826,
+            "external_computed_tokens": 0,
+            "load_kv_async": false,
+            "active": 199,
+            "running": 198,
+            "recovery_count": 1,
+            "known_prefill_unallocated_blocks": 23,
+            "known_recovery_unallocated_blocks": 23,
+            "known_nonrecovery_unallocated_blocks": 0,
+            "full_commit_opportunity": true,
+            "chunk_commit_opportunity": false,
+            "base_allowed": true,
+            "native_fit": true,
+            "native_allocation_result": true,
+            "denied": false,
+            "reason": "allow",
+            "external_time_s": 60.72646567225456
+          },
+          "first_native_allocation": {
+            "external_time_s": 60.72805021330714,
+            "t": 60.986849550157785,
+            "status_before": "WAITING",
+            "preemptions": 0,
+            "predicted": true,
+            "actual": true
+          },
+          "first_prefill_schedule_return_s": 60.72961471602321,
+          "first_token_host_s": 61.28969190828502,
+          "first_prefill_to_first_host_token_s": 0.5600771922618151,
+          "arrival_s": 25.1,
+          "ttft_s": 36.18969190828502,
+          "flow_s": 95.05860714018345,
+          "signals_at_first_allocation": {
+            "full_commit_opportunity": true,
+            "positive_known_prefill_unallocated": true,
+            "positive_pending_recovery": true
+          },
+          "preemptions": [
+            {
+              "request_id": "memory-train-article-0064312",
+              "internal_request_id": "probe-03-baseline/memory-train-article-0064312-87eca820",
+              "engine_call_index": 1339,
+              "last_returned_output_count": 0,
+              "last_new_output_s": null,
+              "native_output_count_before": 0,
+              "method_entered_s": 60.932760920375586,
+              "method_returned_s": 60.93279918842018,
+              "original_preemption_called": true,
+              "original_preemption_returned": true,
+              "after_first_prefill_s": 0.20314620435237885,
+              "before_first_host_token_s": 0.3569309879094362
+            }
+          ]
+        },
+        {
+          "request_id": "memory-train-article-0064446",
+          "preoutput_preemption_events": 1,
+          "allocation_alignment": "MATCHED",
+          "allocation_unknown_reason": null,
+          "first_allocation_decision": {
+            "request_id": "memory-train-article-0064446",
+            "t": 62.558535259217024,
+            "fits": true,
+            "free_blocks": 185,
+            "full_required_blocks": 157,
+            "chunk_required_blocks": 30,
+            "native_watermark_blocks": 0,
+            "native_reserved_blocks": 0,
+            "num_new_tokens": 469,
+            "external_computed_tokens": 0,
+            "load_kv_async": false,
+            "active": 199,
+            "running": 199,
+            "recovery_count": 0,
+            "known_prefill_unallocated_blocks": 0,
+            "known_recovery_unallocated_blocks": 0,
+            "known_nonrecovery_unallocated_blocks": 0,
+            "full_commit_opportunity": false,
+            "chunk_commit_opportunity": false,
+            "base_allowed": true,
+            "native_fit": true,
+            "native_allocation_result": true,
+            "denied": false,
+            "reason": "allow",
+            "external_time_s": 62.29973592236638
+          },
+          "first_native_allocation": {
+            "external_time_s": 62.299800304695964,
+            "t": 62.55859964154661,
+            "status_before": "WAITING",
+            "preemptions": 0,
+            "predicted": true,
+            "actual": true
+          },
+          "first_prefill_schedule_return_s": 62.30161226168275,
+          "first_token_host_s": 62.85005591623485,
+          "first_prefill_to_first_host_token_s": 0.5484436545521021,
+          "arrival_s": 25.6,
+          "ttft_s": 37.25005591623485,
+          "flow_s": 95.6289264407009,
+          "signals_at_first_allocation": {
+            "full_commit_opportunity": false,
+            "positive_known_prefill_unallocated": false,
+            "positive_pending_recovery": false
+          },
+          "preemptions": [
+            {
+              "request_id": "memory-train-article-0064446",
+              "internal_request_id": "probe-03-baseline/memory-train-article-0064446-aa7b9816",
+              "engine_call_index": 1361,
+              "last_returned_output_count": 0,
+              "last_new_output_s": null,
+              "native_output_count_before": 0,
+              "method_entered_s": 62.50693455338478,
+              "method_returned_s": 62.506973784416914,
+              "original_preemption_called": true,
+              "original_preemption_returned": true,
+              "after_first_prefill_s": 0.2053222917020321,
+              "before_first_host_token_s": 0.34312136285007
+            }
+          ]
+        },
+        {
+          "request_id": "memory-train-article-0066440",
+          "preoutput_preemption_events": 1,
+          "allocation_alignment": "MATCHED",
+          "allocation_unknown_reason": null,
+          "first_allocation_decision": {
+            "request_id": "memory-train-article-0066440",
+            "t": 69.6948242019862,
+            "fits": true,
+            "free_blocks": 82,
+            "full_required_blocks": 66,
+            "chunk_required_blocks": 3,
+            "native_watermark_blocks": 0,
+            "native_reserved_blocks": 0,
+            "num_new_tokens": 45,
+            "external_computed_tokens": 0,
+            "load_kv_async": false,
+            "active": 207,
+            "running": 207,
+            "recovery_count": 0,
+            "known_prefill_unallocated_blocks": 0,
+            "known_recovery_unallocated_blocks": 0,
+            "known_nonrecovery_unallocated_blocks": 0,
+            "full_commit_opportunity": false,
+            "chunk_commit_opportunity": false,
+            "base_allowed": true,
+            "native_fit": true,
+            "native_allocation_result": true,
+            "denied": false,
+            "reason": "allow",
+            "external_time_s": 69.43602486513555
+          },
+          "first_native_allocation": {
+            "external_time_s": 69.43607426062226,
+            "t": 69.6948735974729,
+            "status_before": "WAITING",
+            "preemptions": 0,
+            "predicted": true,
+            "actual": true
+          },
+          "first_prefill_schedule_return_s": 69.43765842169523,
+          "first_token_host_s": 69.84344954043627,
+          "first_prefill_to_first_host_token_s": 0.40579111874103546,
+          "arrival_s": 29.200000000000003,
+          "ttft_s": 40.643449540436265,
+          "flow_s": 96.47224657721817,
+          "signals_at_first_allocation": {
+            "full_commit_opportunity": false,
+            "positive_known_prefill_unallocated": false,
+            "positive_pending_recovery": false
+          },
+          "preemptions": [
+            {
+              "request_id": "memory-train-article-0066440",
+              "internal_request_id": "probe-03-baseline/memory-train-article-0066440-88405dcf",
+              "engine_call_index": 1464,
+              "last_returned_output_count": 0,
+              "last_new_output_s": null,
+              "native_output_count_before": 0,
+              "method_entered_s": 69.57432777620852,
+              "method_returned_s": 69.57435380108654,
+              "original_preemption_called": true,
+              "original_preemption_returned": true,
+              "after_first_prefill_s": 0.13666935451328754,
+              "before_first_host_token_s": 0.2691217642277479
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

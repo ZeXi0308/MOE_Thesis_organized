@@ -1,0 +1,3953 @@
+{
+  "cells": {
+    "diag-off": {
+      "cell": "diag-off",
+      "status": "UNRUN",
+      "comparable": false,
+      "sources": {},
+      "errors": [],
+      "runtime_status": null,
+      "config": null,
+      "host_snapshots": {}
+    },
+    "diag-on": {
+      "cell": "diag-on",
+      "status": "UNRUN",
+      "comparable": false,
+      "sources": {},
+      "errors": [],
+      "runtime_status": null,
+      "config": null,
+      "host_snapshots": {}
+    },
+    "block0-off": {
+      "cell": "block0-off",
+      "status": "COMPLETE",
+      "comparable": true,
+      "sources": {
+        "status": {
+          "path": "refine-logs/expert_saturation/outputs/admission_capacity/20260915_repeated_kv_cohort3_r01/execution_weste_26862/readback/results/block0-off/status.json",
+          "sha256": "046c4ba8d94b79115e45f2a807693552bc0486d03094dc632483d89f35ab5ca0"
+        },
+        "raw": {
+          "path": "refine-logs/expert_saturation/outputs/admission_capacity/20260915_repeated_kv_cohort3_r01/execution_weste_26862/readback/results/block0-off/raw.json",
+          "sha256": "b811a405bcac59575af59638cc1991a3d9cbb0d65c1c3058ca593daa13b6c910"
+        },
+        "config": {
+          "path": "refine-logs/expert_saturation/outputs/admission_capacity/20260915_repeated_kv_cohort3_r01/execution_weste_26862/readback/results/block0-off/config.json",
+          "sha256": "c92f84c1996fbbd313a511465caa0701354551fbb5c05e7581bc4a8c26784962"
+        },
+        "selective-store": {
+          "path": "refine-logs/expert_saturation/outputs/admission_capacity/20260915_repeated_kv_cohort3_r01/execution_weste_26862/readback/results/block0-off/selective-store.json",
+          "sha256": "e8454d76fbebaaf70976ae1db30cd3e10ebbcd90be657c1d1508085128ea4b40"
+        },
+        "offload-events": {
+          "path": "refine-logs/expert_saturation/outputs/admission_capacity/20260915_repeated_kv_cohort3_r01/execution_weste_26862/readback/results/block0-off/offload-events.json",
+          "sha256": "d021ff050cdafd07f7dbaf8a29d94dbe742d717c475f4f62ddea2cd43ada0f4c"
+        }
+      },
+      "errors": [],
+      "runtime_status": {
+        "status": "COMPLETE",
+        "requests_completed": 32,
+        "actual_preemption_count": null,
+        "preemption_mode": "native_recompute_or_external_kv",
+        "scientific_verdict": "MEASUREMENT_ONLY",
+        "error": null
+      },
+      "config": {
+        "model": {
+          "dtype": "bfloat16",
+          "id": "allenai/OLMoE-1B-7B-0924",
+          "key": "olmoe",
+          "revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+          "tokenizer_revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5"
+        },
+        "requests": 32,
+        "prompt_tokens": 3072,
+        "output_tokens": 1024,
+        "seed": 20260905,
+        "ttft_slo_s": 5.0,
+        "tpot_slo_s": 0.2,
+        "arrival_gap_s": 0.05,
+        "burst_size": 8,
+        "source": {
+          "dataset_id": "wikitext",
+          "dataset_config": "wikitext-103-raw-v1",
+          "split": "train",
+          "dataset_revision": "b08601e04326c79dfdd32d625aee71d232d685c3",
+          "arrow_file": "wikitext-train-00000-of-00002.arrow",
+          "arrow_sha256": "0c22278eac8186f5dd6060fcf84e4bcb4aa2266c51c77a279169764814f9a99e",
+          "observed_dataset_fingerprint": "2b0a0a8d61b6bc5e",
+          "model_config_sha256": "3643aa880d2f1c9b418156269ae791c73e5612d6b6b6fde0724d927cf89b6335",
+          "model_max_position_embeddings": 4096,
+          "tokenizer_files_sha256": {
+            "special_tokens_map.json": "b77491e270c6fcc5b2ecf22370f7318a6a18d3cabea09ba7bab92e9bf12656c2",
+            "tokenizer.json": "a094266ac6c4982efba277bc251349a5a6d6ad37efb39a2a90f53d8be2a40a40",
+            "tokenizer_config.json": "78a839c7851f14f9fb30e664c2b46166dc0628f2900679e5ec160656f702edff"
+          },
+          "selection_rule": "next32 complete articles with >=3072 tokens after all128 prior row intervals, in pinned shard source order; exclude duplicate document and prompt-prefix hashes",
+          "pre_run_length_rationale": "3072 prompt +1024 output retains active requests longer while later long prefills are admitted; 3968+128 could drain before 32 requests become active. This is regime qualification, chosen before GPU results.",
+          "reconstruction_rule": "concatenate original row strings exactly from one top-level title to before the next; no added separators",
+          "identity_scope": "Document, row and prompt-prefix disjoint from all 128 prior d6 requests (original and cohorts0/1/2); same WikiText train shard, model, lengths and steady-arrival distribution, not an independent population.",
+          "cohort_id": "cohort3",
+          "excluded_original_row_prefix_end_exclusive": 17106
+        },
+        "workload_sha256": "34aeca96e0537736234aa8b4cba835dcbc54fec60869959b87ab391f0dbce554",
+        "input_preparation": "offline document-disjoint holdout inputs; GPU UNRUN; inherited SLO fields are reference only",
+        "cap": 32,
+        "domain": "long",
+        "engine_max_num_seqs": 32,
+        "metric_role": "continuous request metrics primary; SLO 5s/.2s reference only",
+        "evidence_ceiling": "NATIVE_INPROCESS_CAPACITY_QUALIFICATION",
+        "max_seconds": 120,
+        "measurement_mode": "performance",
+        "requested_arm": "budget90",
+        "reservation_policy": "full",
+        "completion_policy": "native",
+        "headroom_observer": "fast",
+        "fixed_kv_cache_memory_bytes": 13960740864,
+        "gpu_memory_utilization": 0.9,
+        "rotation_victim_order": "most_output",
+        "action_scope": "repeated_staged_most_output",
+        "preemption_mode": "native_recompute_or_external_kv",
+        "offload_gib": 16,
+        "selective_save": "off",
+        "rotation_config": {
+          "min_absence_steps": 30,
+          "min_steps_between_swaps": 20,
+          "free_block_slack": 0,
+          "min_residency_steps": 30,
+          "protect_progress_fraction": 0.9,
+          "max_absences_per_request": 8,
+          "enabled": true
+        }
+      },
+      "host_snapshots": {
+        "host-after-init.json": {
+          "unix_s": 1789410046.9491825,
+          "monotonic_s": 4860850.195065697,
+          "pid": 10979,
+          "errors": {
+            "memory.peak": "FileNotFoundError: [Errno 2] No such file or directory: '/sys/fs/cgroup/memory.peak'"
+          },
+          "cpu_kv": {
+            "unique_storage_bytes": 17179869184,
+            "bytes_per_host_block": 2097152,
+            "derived_valid_host_kv_bytes": 0,
+            "derived_bytes_semantics": "Ready entries times exact allocated bytes per host block; excludes pending stores, not additional allocation.",
+            "unique_storages": 1,
+            "tensor_references": 2,
+            "storages": [
+              {
+                "storage_address": 140427244077056,
+                "bytes": 17179869184,
+                "is_pinned": true
+              }
+            ],
+            "all_tensors_pinned": true,
+            "mmap_region_is_pinned": null,
+            "worker_store_pending_events": 0,
+            "worker_load_pending_events": 0,
+            "worker_unsubmitted_store_jobs": 0,
+            "worker_load_jobs": 0,
+            "semantics": "Existing CPU KV storage only; load/store aliases counted once. Excludes transfer buffers and allocator overhead."
+          },
+          "manager": {
+            "capacity_blocks": 8192,
+            "entries": 0,
+            "valid_host_kv_entries": 0,
+            "pending_store_entries": 0,
+            "entries_with_load_references": 0,
+            "active_load_references": 0,
+            "free_blocks": 8192,
+            "recorded_pending_store_blocks": 0,
+            "semantics": "Ready means ref_cnt >= 0; entries with pending stores are not valid cached KV."
+          },
+          "pending": {
+            "scheduler_store_jobs": 0,
+            "scheduler_load_jobs": 0,
+            "pending_worker_acknowledgements": 0
+          },
+          "process_rss_bytes": 19461271552,
+          "parent_cgroup": {
+            "path": "/sys/fs/cgroup",
+            "values": {
+              "memory.max": 197568495616,
+              "memory.current": 43202621440,
+              "memory.peak": null,
+              "memory.swap.max": 0,
+              "memory.swap.current": 0
+            }
+          },
+          "accounting": "CPU KV storage, process RSS and shared cgroup charges overlap; do not add them. The parent limit is shared, not an independent process or KV hard cap. Peaks retain prior process/cgroup history.",
+          "transfer_semantics": "Pending metadata is not a CUDA completion/fence observation; no event queries.",
+          "process_peak_rss_bytes": 19461271552,
+          "cgroup_membership": "0::/",
+          "status": "PARTIAL"
+        },
+        "host-after.json": {
+          "unix_s": 1789410072.9834778,
+          "monotonic_s": 4860876.229360663,
+          "pid": 10979,
+          "errors": {
+            "memory.peak": "FileNotFoundError: [Errno 2] No such file or directory: '/sys/fs/cgroup/memory.peak'"
+          },
+          "cpu_kv": {
+            "unique_storage_bytes": 17179869184,
+            "bytes_per_host_block": 2097152,
+            "derived_valid_host_kv_bytes": 0,
+            "derived_bytes_semantics": "Ready entries times exact allocated bytes per host block; excludes pending stores, not additional allocation.",
+            "unique_storages": 1,
+            "tensor_references": 2,
+            "storages": [
+              {
+                "storage_address": 140427244077056,
+                "bytes": 17179869184,
+                "is_pinned": true
+              }
+            ],
+            "all_tensors_pinned": true,
+            "mmap_region_is_pinned": null,
+            "worker_store_pending_events": 0,
+            "worker_load_pending_events": 0,
+            "worker_unsubmitted_store_jobs": 0,
+            "worker_load_jobs": 0,
+            "semantics": "Existing CPU KV storage only; load/store aliases counted once. Excludes transfer buffers and allocator overhead."
+          },
+          "manager": {
+            "capacity_blocks": 8192,
+            "entries": 0,
+            "valid_host_kv_entries": 0,
+            "pending_store_entries": 0,
+            "entries_with_load_references": 0,
+            "active_load_references": 0,
+            "free_blocks": 8192,
+            "recorded_pending_store_blocks": 0,
+            "semantics": "Ready means ref_cnt >= 0; entries with pending stores are not valid cached KV."
+          },
+          "pending": {
+            "scheduler_store_jobs": 0,
+            "scheduler_load_jobs": 0,
+            "pending_worker_acknowledgements": 0
+          },
+          "process_rss_bytes": 19530625024,
+          "parent_cgroup": {
+            "path": "/sys/fs/cgroup",
+            "values": {
+              "memory.max": 197568495616,
+              "memory.current": 43286036480,
+              "memory.peak": null,
+              "memory.swap.max": 0,
+              "memory.swap.current": 0
+            }
+          },
+          "accounting": "CPU KV storage, process RSS and shared cgroup charges overlap; do not add them. The parent limit is shared, not an independent process or KV hard cap. Peaks retain prior process/cgroup history.",
+          "transfer_semantics": "Pending metadata is not a CUDA completion/fence observation; no event queries.",
+          "process_peak_rss_bytes": 19601743872,
+          "cgroup_membership": "0::/",
+          "status": "PARTIAL"
+        },
+        "host-before.json": {
+          "unix_s": 1789410048.0150871,
+          "monotonic_s": 4860851.260971085,
+          "pid": 10979,
+          "errors": {
+            "memory.peak": "FileNotFoundError: [Errno 2] No such file or directory: '/sys/fs/cgroup/memory.peak'"
+          },
+          "cpu_kv": {
+            "unique_storage_bytes": 17179869184,
+            "bytes_per_host_block": 2097152,
+            "derived_valid_host_kv_bytes": 0,
+            "derived_bytes_semantics": "Ready entries times exact allocated bytes per host block; excludes pending stores, not additional allocation.",
+            "unique_storages": 1,
+            "tensor_references": 2,
+            "storages": [
+              {
+                "storage_address": 140427244077056,
+                "bytes": 17179869184,
+                "is_pinned": true
+              }
+            ],
+            "all_tensors_pinned": true,
+            "mmap_region_is_pinned": null,
+            "worker_store_pending_events": 0,
+            "worker_load_pending_events": 0,
+            "worker_unsubmitted_store_jobs": 0,
+            "worker_load_jobs": 0,
+            "semantics": "Existing CPU KV storage only; load/store aliases counted once. Excludes transfer buffers and allocator overhead."
+          },
+          "manager": {
+            "capacity_blocks": 8192,
+            "entries": 0,
+            "valid_host_kv_entries": 0,
+            "pending_store_entries": 0,
+            "entries_with_load_references": 0,
+            "active_load_references": 0,
+            "free_blocks": 8192,
+            "recorded_pending_store_blocks": 0,
+            "semantics": "Ready means ref_cnt >= 0; entries with pending stores are not valid cached KV."
+          },
+          "pending": {
+            "scheduler_store_jobs": 0,
+            "scheduler_load_jobs": 0,
+            "pending_worker_acknowledgements": 0
+          },
+          "process_rss_bytes": 19521171456,
+          "parent_cgroup": {
+            "path": "/sys/fs/cgroup",
+            "values": {
+              "memory.max": 197568495616,
+              "memory.current": 43262709760,
+              "memory.peak": null,
+              "memory.swap.max": 0,
+              "memory.swap.current": 0
+            }
+          },
+          "accounting": "CPU KV storage, process RSS and shared cgroup charges overlap; do not add them. The parent limit is shared, not an independent process or KV hard cap. Peaks retain prior process/cgroup history.",
+          "transfer_semantics": "Pending metadata is not a CUDA completion/fence observation; no event queries.",
+          "process_peak_rss_bytes": 19523223552,
+          "cgroup_membership": "0::/",
+          "status": "PARTIAL"
+        },
+        "host-request-end.json": {
+          "unix_s": 1789410072.7435975,
+          "monotonic_s": 4860875.989479945,
+          "pid": 10979,
+          "errors": {
+            "memory.peak": "FileNotFoundError: [Errno 2] No such file or directory: '/sys/fs/cgroup/memory.peak'"
+          },
+          "cpu_kv": {
+            "unique_storage_bytes": 17179869184,
+            "bytes_per_host_block": 2097152,
+            "derived_valid_host_kv_bytes": 0,
+            "derived_bytes_semantics": "Ready entries times exact allocated bytes per host block; excludes pending stores, not additional allocation.",
+            "unique_storages": 1,
+            "tensor_references": 2,
+            "storages": [
+              {
+                "storage_address": 140427244077056,
+                "bytes": 17179869184,
+                "is_pinned": true
+              }
+            ],
+            "all_tensors_pinned": true,
+            "mmap_region_is_pinned": null,
+            "worker_store_pending_events": 0,
+            "worker_load_pending_events": 0,
+            "worker_unsubmitted_store_jobs": 0,
+            "worker_load_jobs": 0,
+            "semantics": "Existing CPU KV storage only; load/store aliases counted once. Excludes transfer buffers and allocator overhead."
+          },
+          "manager": {
+            "capacity_blocks": 8192,
+            "entries": 0,
+            "valid_host_kv_entries": 0,
+            "pending_store_entries": 0,
+            "entries_with_load_references": 0,
+            "active_load_references": 0,
+            "free_blocks": 8192,
+            "recorded_pending_store_blocks": 0,
+            "semantics": "Ready means ref_cnt >= 0; entries with pending stores are not valid cached KV."
+          },
+          "pending": {
+            "scheduler_store_jobs": 0,
+            "scheduler_load_jobs": 0,
+            "pending_worker_acknowledgements": 0
+          },
+          "process_rss_bytes": 19533516800,
+          "parent_cgroup": {
+            "path": "/sys/fs/cgroup",
+            "values": {
+              "memory.max": 197568495616,
+              "memory.current": 43274715136,
+              "memory.peak": null,
+              "memory.swap.max": 0,
+              "memory.swap.current": 0
+            }
+          },
+          "accounting": "CPU KV storage, process RSS and shared cgroup charges overlap; do not add them. The parent limit is shared, not an independent process or KV hard cap. Peaks retain prior process/cgroup history.",
+          "transfer_semantics": "Pending metadata is not a CUDA completion/fence observation; no event queries.",
+          "process_peak_rss_bytes": 19533516800,
+          "cgroup_membership": "0::/",
+          "status": "PARTIAL"
+        }
+      },
+      "requests": {
+        "complete": true,
+        "requests": [
+          {
+            "request_id": "memory-train-article-0017106",
+            "document_id": "memory-train-article-0017106",
+            "status": "completed",
+            "arrival_s": 0.0,
+            "completion_s": 22.853581817820668,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "4f4390887f14bf7cb27eb5fe56517ca75c43336a8218e88bab5964a79c6af9b2",
+            "prompt_sha256": "a8ff0681a6746239717c281019edca00a930b7aa2c6005fc512e9e3fada645dd",
+            "max_output": 1024,
+            "last_output_s": 22.853581817820668,
+            "completion_latency_s": 22.853581817820668,
+            "ttft_s": 0.06633254885673523,
+            "max_engine_return_gap_s": 1.3117343951016665
+          },
+          {
+            "request_id": "memory-train-article-0017190",
+            "document_id": "memory-train-article-0017190",
+            "status": "completed",
+            "arrival_s": 0.05,
+            "completion_s": 24.029910650104284,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "839a75c08ca17fb3dbb8c34d4ac04c7510402222e28d686da7f3b5bf83fa454d",
+            "prompt_sha256": "a139b5238bdab24b7e926d26bb8f548c943554caf8f904eb51227eb8dc33c6e8",
+            "max_output": 1024,
+            "last_output_s": 24.029910650104284,
+            "completion_latency_s": 23.979910650104284,
+            "ttft_s": 0.09753352385014295,
+            "max_engine_return_gap_s": 2.1773257814347744
+          },
+          {
+            "request_id": "memory-train-article-0017245",
+            "document_id": "memory-train-article-0017245",
+            "status": "completed",
+            "arrival_s": 0.1,
+            "completion_s": 23.026961327530444,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "ffd6538cf7798759edebcf410ce08366b18a5df6568b3a3163d835baeb946d57",
+            "prompt_sha256": "453dd5da650d6ea29b8978468f8d23de306958005bdcc318e2eb0e89ddc430ee",
+            "max_output": 1024,
+            "last_output_s": 23.026961327530444,
+            "completion_latency_s": 22.926961327530442,
+            "ttft_s": 0.10846708863973617,
+            "max_engine_return_gap_s": 1.3088709926232696
+          },
+          {
+            "request_id": "memory-train-article-0017380",
+            "document_id": "memory-train-article-0017380",
+            "status": "completed",
+            "arrival_s": 0.15,
+            "completion_s": 23.51761386357248,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "15a8b161db7ca4faea55b34bfd7e8059824e978eb1a93e492beb2ac360a0c185",
+            "prompt_sha256": "9aa87652684723d97ba8217fb07977c4df267557bfb2e2c9ad2e66606a5a16bd",
+            "max_output": 1024,
+            "last_output_s": 23.51761386357248,
+            "completion_latency_s": 23.36761386357248,
+            "ttft_s": 0.1193618917837739,
+            "max_engine_return_gap_s": 1.728790482506156
+          },
+          {
+            "request_id": "memory-train-article-0017453",
+            "document_id": "memory-train-article-0017453",
+            "status": "completed",
+            "arrival_s": 0.2,
+            "completion_s": 23.55790438875556,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "69504305dcfac9b05df99307734a9be2b19ff8da397e2e8778c4efc7f627ba11",
+            "prompt_sha256": "1229b44a8130b024cad93e28aa228fa1138864f2d7c755b893763fb7eba5a270",
+            "max_output": 1024,
+            "last_output_s": 23.55790438875556,
+            "completion_latency_s": 23.35790438875556,
+            "ttft_s": 0.13154989220201968,
+            "max_engine_return_gap_s": 1.7359888479113579
+          },
+          {
+            "request_id": "memory-train-article-0017643",
+            "document_id": "memory-train-article-0017643",
+            "status": "completed",
+            "arrival_s": 0.25,
+            "completion_s": 23.862543093040586,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "86b81233ccd8ebccf2a3c747d6662337a5554b554d4ae2dc232aee0af73750e3",
+            "prompt_sha256": "f9bf9900eb36277dffcdb5cf736a89838f764e7cd57dac49c9096221a83154df",
+            "max_output": 1024,
+            "last_output_s": 23.862543093040586,
+            "completion_latency_s": 23.612543093040586,
+            "ttft_s": 0.14339645113795996,
+            "max_engine_return_gap_s": 2.1425660951063037
+          },
+          {
+            "request_id": "memory-train-article-0017858",
+            "document_id": "memory-train-article-0017858",
+            "status": "completed",
+            "arrival_s": 0.3,
+            "completion_s": 23.184530165046453,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "836643b63739960cc62fb0340c14fb7f3982e5841f2620bbf7874faac71d1400",
+            "prompt_sha256": "37f112f6b501f6f01d5fb69a2214d5fd5b363450bf07851aefb1d29ac1a748b1",
+            "max_output": 1024,
+            "last_output_s": 23.184530165046453,
+            "completion_latency_s": 22.884530165046453,
+            "ttft_s": 0.15666750706732274,
+            "max_engine_return_gap_s": 1.0717677744105458
+          },
+          {
+            "request_id": "memory-train-article-0017966",
+            "document_id": "memory-train-article-0017966",
+            "status": "completed",
+            "arrival_s": 0.35,
+            "completion_s": 23.940584160387516,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "d50a5d9a0d29e605d16bd222cf2b0af5219b9f478cdd1fcb903b55af7731c0d6",
+            "prompt_sha256": "8e9f40872d5331aac828860941daa2fe78303a6561a4ca676b00c1cf3427ead5",
+            "max_output": 1024,
+            "last_output_s": 23.940584160387516,
+            "completion_latency_s": 23.590584160387515,
+            "ttft_s": 0.17054263278841975,
+            "max_engine_return_gap_s": 2.146871754899621
+          },
+          {
+            "request_id": "memory-train-article-0018032",
+            "document_id": "memory-train-article-0018032",
+            "status": "completed",
+            "arrival_s": 0.4,
+            "completion_s": 23.980267263017595,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "57390e704fecaaf09562576494bf0995511034b4994972a11e0dd34258811926",
+            "prompt_sha256": "7f09d73258d95c888792ce4429ff753b1496f4f487c005782788cd51de23b829",
+            "max_output": 1024,
+            "last_output_s": 23.980267263017595,
+            "completion_latency_s": 23.580267263017596,
+            "ttft_s": 0.1862621311098337,
+            "max_engine_return_gap_s": 2.1564106699079275
+          },
+          {
+            "request_id": "memory-train-article-0018153",
+            "document_id": "memory-train-article-0018153",
+            "status": "completed",
+            "arrival_s": 0.45,
+            "completion_s": 22.688726542517543,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "d6b06e954f004438c8068780cb07d6f136ab380671d20c44fbb3b73970a16d5b",
+            "prompt_sha256": "62cbada02ade9204dbe4fd71a6044fcf795d9fb51c17d276decf6c7f6b952819",
+            "max_output": 1024,
+            "last_output_s": 22.688726542517543,
+            "completion_latency_s": 22.238726542517544,
+            "ttft_s": 0.20206324774771928,
+            "max_engine_return_gap_s": 1.3120427913963795
+          },
+          {
+            "request_id": "memory-train-article-0018301",
+            "document_id": "memory-train-article-0018301",
+            "status": "completed",
+            "arrival_s": 0.5,
+            "completion_s": 22.77138124126941,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "82f0ce26bca7ee81e090e0f67b86fd5a41f54b900e84017241f2ebdb4548ed07",
+            "prompt_sha256": "16c425250dee2158cdf8bd5338ad1ca4343b7dc8a3bbdfed2c2ea7477ee43fbe",
+            "max_output": 1024,
+            "last_output_s": 22.77138124126941,
+            "completion_latency_s": 22.27138124126941,
+            "ttft_s": 0.21817713882774115,
+            "max_engine_return_gap_s": 1.3128364887088537
+          },
+          {
+            "request_id": "memory-train-article-0018442",
+            "document_id": "memory-train-article-0018442",
+            "status": "completed",
+            "arrival_s": 0.55,
+            "completion_s": 24.0031223827973,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "7177586801b0855fd1d5b9eb4367d1ae851b90ab9672c1934f5af5606b8c1925",
+            "prompt_sha256": "0087e36e566d859485ef46f631f6803d614444d142fd09e512b5d5f1bf8212a0",
+            "max_output": 1024,
+            "last_output_s": 24.0031223827973,
+            "completion_latency_s": 23.4531223827973,
+            "ttft_s": 0.23629365097731347,
+            "max_engine_return_gap_s": 1.5421450342983007
+          },
+          {
+            "request_id": "memory-train-article-0018866",
+            "document_id": "memory-train-article-0018866",
+            "status": "completed",
+            "arrival_s": 0.6,
+            "completion_s": 24.228515191935003,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "d69bf44dd82d851f5c22aec84376427d775c83c96bc61c3a7c7a407d7e0c7a8c",
+            "prompt_sha256": "e02c4a6fcbb6db7ab82e730bc6221841595d49311ea2f96cf6f21afe6b65b30f",
+            "max_output": 1024,
+            "last_output_s": 24.228515191935003,
+            "completion_latency_s": 23.628515191935,
+            "ttft_s": 0.252934448979795,
+            "max_engine_return_gap_s": 2.276752763427794
+          },
+          {
+            "request_id": "memory-train-article-0019035",
+            "document_id": "memory-train-article-0019035",
+            "status": "completed",
+            "arrival_s": 0.65,
+            "completion_s": 23.008529332466424,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "9c62143a0f4185b29eb0b1747dc406bf969f57dcc8e462f0a6e69f47db6ac4e3",
+            "prompt_sha256": "42b071ebf09d20c7206536d22216328325fb328377795680a6da6ef9270c9415",
+            "max_output": 1024,
+            "last_output_s": 23.008529332466424,
+            "completion_latency_s": 22.358529332466425,
+            "ttft_s": 0.27017155699431894,
+            "max_engine_return_gap_s": 1.3165837451815605
+          },
+          {
+            "request_id": "memory-train-article-0019105",
+            "document_id": "memory-train-article-0019105",
+            "status": "completed",
+            "arrival_s": 0.7,
+            "completion_s": 24.242484023794532,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "0a7bb8a03664eca4bfeff3a1e190661e8e487650bbe856439f496350da6413e2",
+            "prompt_sha256": "1fade5bf86947cac0cc9dcd6207407f640dd8f25c24d79b36a497972ed01a581",
+            "max_output": 1024,
+            "last_output_s": 24.242484023794532,
+            "completion_latency_s": 23.542484023794533,
+            "ttft_s": 0.28866580799221997,
+            "max_engine_return_gap_s": 1.7571121929213405
+          },
+          {
+            "request_id": "memory-train-article-0019205",
+            "document_id": "memory-train-article-0019205",
+            "status": "completed",
+            "arrival_s": 0.75,
+            "completion_s": 23.41391902975738,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "3fb6802d3908521608e902db23aa28f2c21400d418a8f65d475445d3392da76e",
+            "prompt_sha256": "21184655ac1b7e42a0c4c062bdc9c9a96ec40f442718ea880388740f1b5b333d",
+            "max_output": 1024,
+            "last_output_s": 23.41391902975738,
+            "completion_latency_s": 22.66391902975738,
+            "ttft_s": 0.3080000141635537,
+            "max_engine_return_gap_s": 1.7029242319986224
+          },
+          {
+            "request_id": "memory-train-article-0019436",
+            "document_id": "memory-train-article-0019436",
+            "status": "completed",
+            "arrival_s": 0.8,
+            "completion_s": 24.379275594837964,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "8f11ebc47a1ca0ffff07e22649fcff333f38352e5f8fe90bbc5feabb83b54663",
+            "prompt_sha256": "9ec56fcecc5dcb85508b39a66c2f1cf5c8684faf3c671b7de01ceb290246224d",
+            "max_output": 1024,
+            "last_output_s": 24.379275594837964,
+            "completion_latency_s": 23.579275594837963,
+            "ttft_s": 0.32832701765000816,
+            "max_engine_return_gap_s": 1.8041802234947681
+          },
+          {
+            "request_id": "memory-train-article-0019630",
+            "document_id": "memory-train-article-0019630",
+            "status": "completed",
+            "arrival_s": 0.85,
+            "completion_s": 23.502450918778777,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "0d9efa79080b893adc7e96b39032b7273954d05bb0ed0d332e145ae8c37f8247",
+            "prompt_sha256": "9ea14267473770224da7f6bd68a1523bfc4a5ab50f470e608e54a1700d785a84",
+            "max_output": 1024,
+            "last_output_s": 23.502450918778777,
+            "completion_latency_s": 22.652450918778776,
+            "ttft_s": 0.34862574059516194,
+            "max_engine_return_gap_s": 1.7254839204251766
+          },
+          {
+            "request_id": "memory-train-article-0019699",
+            "document_id": "memory-train-article-0019699",
+            "status": "completed",
+            "arrival_s": 0.9,
+            "completion_s": 24.07387550920248,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "ea38941bbb33d322293c91b06589f6b752f2b855be0e507d0141bb8bf7785af5",
+            "prompt_sha256": "47543983547146ab204e086b19bdc8e570148c1c02632f7a3cf94b4a38f77e56",
+            "max_output": 1024,
+            "last_output_s": 24.07387550920248,
+            "completion_latency_s": 23.17387550920248,
+            "ttft_s": 0.3697729179635644,
+            "max_engine_return_gap_s": 1.7385797062888741
+          },
+          {
+            "request_id": "memory-train-article-0019783",
+            "document_id": "memory-train-article-0019783",
+            "status": "completed",
+            "arrival_s": 0.95,
+            "completion_s": 24.06499631050974,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "de007f7e42c89ddc7934189ab086892b73d96e6376e17c7c1fb95f10100b8a4b",
+            "prompt_sha256": "47e2fe193296e0f3c7e6720b435449065dcf6b20334530ea364b46c0d7037bc2",
+            "max_output": 1024,
+            "last_output_s": 24.06499631050974,
+            "completion_latency_s": 23.114996310509742,
+            "ttft_s": 0.39215672314167027,
+            "max_engine_return_gap_s": 2.1405300414189696
+          },
+          {
+            "request_id": "memory-train-article-0019864",
+            "document_id": "memory-train-article-0019864",
+            "status": "completed",
+            "arrival_s": 1.0,
+            "completion_s": 23.888499660417438,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "d122c576956f908d8d1327b2f39d0e3848d7f64ce50408d0bef0298adeb7d23a",
+            "prompt_sha256": "7b43cfff216dfe3b64aed8d6431420b44eb64621279efb2b8be4fbdeba10519d",
+            "max_output": 1024,
+            "last_output_s": 23.888499660417438,
+            "completion_latency_s": 22.888499660417438,
+            "ttft_s": 0.4157135868445039,
+            "max_engine_return_gap_s": 2.145422976464033
+          },
+          {
+            "request_id": "memory-train-article-0019937",
+            "document_id": "memory-train-article-0019937",
+            "status": "completed",
+            "arrival_s": 1.05,
+            "completion_s": 24.667530744336545,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "c0ac1fc2e9e87004d0c53e3ea8fe6d749c2ac31d58cf004161bc89a00dd9b217",
+            "prompt_sha256": "7f9bd31627529f68797047db0f2368e4eb6a8bec6b82d8b2a944b574261e75f1",
+            "max_output": 1024,
+            "last_output_s": 24.667530744336545,
+            "completion_latency_s": 23.617530744336545,
+            "ttft_s": 0.44009032920002933,
+            "max_engine_return_gap_s": 2.6276453705504537
+          },
+          {
+            "request_id": "memory-train-article-0020051",
+            "document_id": "memory-train-article-0020051",
+            "status": "completed",
+            "arrival_s": 1.1,
+            "completion_s": 23.966881456784904,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "487ee03e8c65c37c5527ad4de0c0ba4e1b233e56daa97d52dec651141c78690a",
+            "prompt_sha256": "5a49adea83f97616b80b0eea16e636ebf10d314326df08c5ee05e7197d2185ad",
+            "max_output": 1024,
+            "last_output_s": 23.966881456784904,
+            "completion_latency_s": 22.866881456784903,
+            "ttft_s": 0.46613057479262343,
+            "max_engine_return_gap_s": 2.1517672911286354
+          },
+          {
+            "request_id": "memory-train-article-0020184",
+            "document_id": "memory-train-article-0020184",
+            "status": "completed",
+            "arrival_s": 1.15,
+            "completion_s": 24.0031223827973,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "97d181833b5e839ba2ae2dca588082a3def911949edd776a90f0e613c6a8c7ec",
+            "prompt_sha256": "ec2958e0aeb3ca1b14b6c0141782247b448537d4a75d5f7f67ecda34bd290e4a",
+            "max_output": 1024,
+            "last_output_s": 24.0031223827973,
+            "completion_latency_s": 22.853122382797302,
+            "ttft_s": 0.49146310556679973,
+            "max_engine_return_gap_s": 2.1603698264807463
+          },
+          {
+            "request_id": "memory-train-article-0020257",
+            "document_id": "memory-train-article-0020257",
+            "status": "completed",
+            "arrival_s": 1.2,
+            "completion_s": 22.188379532657564,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "3ab570a3b03e92cb0ea576c6d2b601667649571a3e2ff6921cd4120b56870179",
+            "prompt_sha256": "6ad994573beb3506da4cbfdac7d495c6c266aa57b49c9ca23f44216df6bb4fc3",
+            "max_output": 1024,
+            "last_output_s": 22.188379532657564,
+            "completion_latency_s": 20.988379532657564,
+            "ttft_s": 0.5164974641054869,
+            "max_engine_return_gap_s": 0.030169528909027576
+          },
+          {
+            "request_id": "memory-train-article-0020323",
+            "document_id": "memory-train-article-0020323",
+            "status": "completed",
+            "arrival_s": 1.25,
+            "completion_s": 22.27277798485011,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "50351a3665dd0f0f8469dcb65b861bf49daf95d77d2c42893abbcf4b7cdad6bd",
+            "prompt_sha256": "1f3af7f127b091818e428105a8e3f51019f0155001a06b8ef030fe036c6c688c",
+            "max_output": 1024,
+            "last_output_s": 22.27277798485011,
+            "completion_latency_s": 21.02277798485011,
+            "ttft_s": 0.541817544028163,
+            "max_engine_return_gap_s": 0.030169528909027576
+          },
+          {
+            "request_id": "memory-train-article-0020484",
+            "document_id": "memory-train-article-0020484",
+            "status": "completed",
+            "arrival_s": 1.3,
+            "completion_s": 24.256423914805055,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "a7420fd0442de607d2caa4f915cc5df880abfd43e241b1770476d18dd4562e35",
+            "prompt_sha256": "f3f9dace9a63f55e1dda93b84e0e54369b89e035c757d4f72e7349b6cfc57b56",
+            "max_output": 1024,
+            "last_output_s": 24.256423914805055,
+            "completion_latency_s": 22.956423914805054,
+            "ttft_s": 0.5931376142427325,
+            "max_engine_return_gap_s": 2.796451488509774
+          },
+          {
+            "request_id": "memory-train-article-0020734",
+            "document_id": "memory-train-article-0020734",
+            "status": "completed",
+            "arrival_s": 1.35,
+            "completion_s": 22.462707785889506,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "83fb98718bf033754473794df5345640202a6a818fa63888f2d22e177c4e25e6",
+            "prompt_sha256": "12eea8b308efcf5aa0080c0b1fa0037939e821c1584f3893739594c4ac279d64",
+            "max_output": 1024,
+            "last_output_s": 22.462707785889506,
+            "completion_latency_s": 21.112707785889505,
+            "ttft_s": 0.6212994927540421,
+            "max_engine_return_gap_s": 0.030169528909027576
+          },
+          {
+            "request_id": "memory-train-article-0020794",
+            "document_id": "memory-train-article-0020794",
+            "status": "completed",
+            "arrival_s": 1.4,
+            "completion_s": 22.548274587839842,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "216d58a16f87591044dd7c2dc685851fefc2fe001d0e0f4d858b5406b4a66d0f",
+            "prompt_sha256": "1df385f645e7e395ac9aca104effde3967dcb2adc4704c158a285562dc824608",
+            "max_output": 1024,
+            "last_output_s": 22.548274587839842,
+            "completion_latency_s": 21.148274587839843,
+            "ttft_s": 0.6514544108882547,
+            "max_engine_return_gap_s": 0.030169528909027576
+          },
+          {
+            "request_id": "memory-train-article-0020902",
+            "document_id": "memory-train-article-0020902",
+            "status": "completed",
+            "arrival_s": 1.45,
+            "completion_s": 22.632533461786807,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "ea0ccdb3bbb941a99835a1f33fa5cd80b2b8741f837951dd462581c9bf852d98",
+            "prompt_sha256": "8119c5ae760a9c1af5cab4669415e3da24cabf2ce23ed71d926535ae37ae31e8",
+            "max_output": 1024,
+            "last_output_s": 22.632533461786807,
+            "completion_latency_s": 21.182533461786807,
+            "ttft_s": 0.6808372374624014,
+            "max_engine_return_gap_s": 0.030169528909027576
+          },
+          {
+            "request_id": "memory-train-article-0020958",
+            "document_id": "memory-train-article-0020958",
+            "status": "completed",
+            "arrival_s": 1.5,
+            "completion_s": 22.716211979277432,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "1b3ff04805bc5042579a913d437de976eb75f155d56441877dd1a4f0b427dba2",
+            "prompt_sha256": "87aa7c554b1167e52900cd441093508d44d59e31d4ddd89546ee3cf05b0a3232",
+            "max_output": 1024,
+            "last_output_s": 22.716211979277432,
+            "completion_latency_s": 21.216211979277432,
+            "ttft_s": 0.7110905749723315,
+            "max_engine_return_gap_s": 0.030169528909027576
+          },
+          {
+            "request_id": "memory-train-article-0021022",
+            "document_id": "memory-train-article-0021022",
+            "status": "completed",
+            "arrival_s": 1.55,
+            "completion_s": 23.41391902975738,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "f5ea1edf615d7096c6dc56868142f6765c144c9d5abf8b272a5b0c5ac8ef3f11",
+            "prompt_sha256": "4dc12d2ff3c4e10168913f85f4e1d7ae4af9eaec703b7232dcd811365629c6c6",
+            "max_output": 1024,
+            "last_output_s": 23.41391902975738,
+            "completion_latency_s": 21.86391902975738,
+            "ttft_s": 0.7358471311628818,
+            "max_engine_return_gap_s": 0.6755131762474775
+          }
+        ],
+        "request_count": 32,
+        "full_wall_s": 24.667581422254443,
+        "requests_completed": 32,
+        "request_rate_s": 1.2972491892184632,
+        "total_output_tokens": 32768,
+        "output_token_rate_s": 1328.3831697597063,
+        "mean_completion_s": 22.70463860401069,
+        "mean_ttft_s": 0.3518962812027894,
+        "max_engine_return_gap_s": 2.796451488509774,
+        "ttft_request_count": 32,
+        "gap_request_count": 32,
+        "actual_stop_counts": {
+          "length": 32
+        },
+        "chunk_diagnostics": {
+          "multi_token_chunks": 0,
+          "max_chunk_size": 1,
+          "token_level_itl_resolved": true,
+          "interpolated": false,
+          "semantics": "Tokens returned together share one timestamp; intra-chunk ITL is unresolved."
+        }
+      }
+    },
+    "block0-on": {
+      "cell": "block0-on",
+      "status": "COMPLETE",
+      "comparable": true,
+      "sources": {
+        "status": {
+          "path": "refine-logs/expert_saturation/outputs/admission_capacity/20260915_repeated_kv_cohort3_r01/execution_weste_26862/readback/results/block0-on/status.json",
+          "sha256": "046c4ba8d94b79115e45f2a807693552bc0486d03094dc632483d89f35ab5ca0"
+        },
+        "raw": {
+          "path": "refine-logs/expert_saturation/outputs/admission_capacity/20260915_repeated_kv_cohort3_r01/execution_weste_26862/readback/results/block0-on/raw.json",
+          "sha256": "4f4a60d02b3b3ce1a65b06916aa824d84fcc989bdc2516493e32e3196d819591"
+        },
+        "config": {
+          "path": "refine-logs/expert_saturation/outputs/admission_capacity/20260915_repeated_kv_cohort3_r01/execution_weste_26862/readback/results/block0-on/config.json",
+          "sha256": "d5365eaac012335bc6a43305824b0409fd6584addd2c92f080e624b96c8e80f2"
+        },
+        "selective-store": {
+          "path": "refine-logs/expert_saturation/outputs/admission_capacity/20260915_repeated_kv_cohort3_r01/execution_weste_26862/readback/results/block0-on/selective-store.json",
+          "sha256": "101f5b9a4a1eeab23ed58e51b53cfafdee6a52799bf69c4d4e0fffc399ae1502"
+        },
+        "offload-events": {
+          "path": "refine-logs/expert_saturation/outputs/admission_capacity/20260915_repeated_kv_cohort3_r01/execution_weste_26862/readback/results/block0-on/offload-events.json",
+          "sha256": "d59e7d417bbe5ac433abe28ddc5a9861262de48a3a79df8a5b073250567d56f7"
+        }
+      },
+      "errors": [],
+      "runtime_status": {
+        "status": "COMPLETE",
+        "requests_completed": 32,
+        "actual_preemption_count": null,
+        "preemption_mode": "native_recompute_or_external_kv",
+        "scientific_verdict": "MEASUREMENT_ONLY",
+        "error": null
+      },
+      "config": {
+        "model": {
+          "dtype": "bfloat16",
+          "id": "allenai/OLMoE-1B-7B-0924",
+          "key": "olmoe",
+          "revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+          "tokenizer_revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5"
+        },
+        "requests": 32,
+        "prompt_tokens": 3072,
+        "output_tokens": 1024,
+        "seed": 20260905,
+        "ttft_slo_s": 5.0,
+        "tpot_slo_s": 0.2,
+        "arrival_gap_s": 0.05,
+        "burst_size": 8,
+        "source": {
+          "dataset_id": "wikitext",
+          "dataset_config": "wikitext-103-raw-v1",
+          "split": "train",
+          "dataset_revision": "b08601e04326c79dfdd32d625aee71d232d685c3",
+          "arrow_file": "wikitext-train-00000-of-00002.arrow",
+          "arrow_sha256": "0c22278eac8186f5dd6060fcf84e4bcb4aa2266c51c77a279169764814f9a99e",
+          "observed_dataset_fingerprint": "2b0a0a8d61b6bc5e",
+          "model_config_sha256": "3643aa880d2f1c9b418156269ae791c73e5612d6b6b6fde0724d927cf89b6335",
+          "model_max_position_embeddings": 4096,
+          "tokenizer_files_sha256": {
+            "special_tokens_map.json": "b77491e270c6fcc5b2ecf22370f7318a6a18d3cabea09ba7bab92e9bf12656c2",
+            "tokenizer.json": "a094266ac6c4982efba277bc251349a5a6d6ad37efb39a2a90f53d8be2a40a40",
+            "tokenizer_config.json": "78a839c7851f14f9fb30e664c2b46166dc0628f2900679e5ec160656f702edff"
+          },
+          "selection_rule": "next32 complete articles with >=3072 tokens after all128 prior row intervals, in pinned shard source order; exclude duplicate document and prompt-prefix hashes",
+          "pre_run_length_rationale": "3072 prompt +1024 output retains active requests longer while later long prefills are admitted; 3968+128 could drain before 32 requests become active. This is regime qualification, chosen before GPU results.",
+          "reconstruction_rule": "concatenate original row strings exactly from one top-level title to before the next; no added separators",
+          "identity_scope": "Document, row and prompt-prefix disjoint from all 128 prior d6 requests (original and cohorts0/1/2); same WikiText train shard, model, lengths and steady-arrival distribution, not an independent population.",
+          "cohort_id": "cohort3",
+          "excluded_original_row_prefix_end_exclusive": 17106
+        },
+        "workload_sha256": "34aeca96e0537736234aa8b4cba835dcbc54fec60869959b87ab391f0dbce554",
+        "input_preparation": "offline document-disjoint holdout inputs; GPU UNRUN; inherited SLO fields are reference only",
+        "cap": 32,
+        "domain": "long",
+        "engine_max_num_seqs": 32,
+        "metric_role": "continuous request metrics primary; SLO 5s/.2s reference only",
+        "evidence_ceiling": "NATIVE_INPROCESS_CAPACITY_QUALIFICATION",
+        "max_seconds": 120,
+        "measurement_mode": "performance",
+        "requested_arm": "budget90",
+        "reservation_policy": "full",
+        "completion_policy": "native",
+        "headroom_observer": "fast",
+        "fixed_kv_cache_memory_bytes": 13960740864,
+        "gpu_memory_utilization": 0.9,
+        "rotation_victim_order": "most_output",
+        "action_scope": "repeated_staged_most_output",
+        "preemption_mode": "native_recompute_or_external_kv",
+        "offload_gib": 16,
+        "selective_save": "on",
+        "rotation_config": {
+          "min_absence_steps": 30,
+          "min_steps_between_swaps": 20,
+          "free_block_slack": 0,
+          "min_residency_steps": 30,
+          "protect_progress_fraction": 0.9,
+          "max_absences_per_request": 8,
+          "enabled": true
+        }
+      },
+      "host_snapshots": {
+        "host-after-init.json": {
+          "unix_s": 1789410102.6683443,
+          "monotonic_s": 4860905.914227298,
+          "pid": 11496,
+          "errors": {
+            "memory.peak": "FileNotFoundError: [Errno 2] No such file or directory: '/sys/fs/cgroup/memory.peak'"
+          },
+          "cpu_kv": {
+            "unique_storage_bytes": 17179869184,
+            "bytes_per_host_block": 2097152,
+            "derived_valid_host_kv_bytes": 0,
+            "derived_bytes_semantics": "Ready entries times exact allocated bytes per host block; excludes pending stores, not additional allocation.",
+            "unique_storages": 1,
+            "tensor_references": 2,
+            "storages": [
+              {
+                "storage_address": 140459858984960,
+                "bytes": 17179869184,
+                "is_pinned": true
+              }
+            ],
+            "all_tensors_pinned": true,
+            "mmap_region_is_pinned": null,
+            "worker_store_pending_events": 0,
+            "worker_load_pending_events": 0,
+            "worker_unsubmitted_store_jobs": 0,
+            "worker_load_jobs": 0,
+            "semantics": "Existing CPU KV storage only; load/store aliases counted once. Excludes transfer buffers and allocator overhead."
+          },
+          "manager": {
+            "capacity_blocks": 8192,
+            "entries": 0,
+            "valid_host_kv_entries": 0,
+            "pending_store_entries": 0,
+            "entries_with_load_references": 0,
+            "active_load_references": 0,
+            "free_blocks": 8192,
+            "recorded_pending_store_blocks": 0,
+            "semantics": "Ready means ref_cnt >= 0; entries with pending stores are not valid cached KV."
+          },
+          "pending": {
+            "scheduler_store_jobs": 0,
+            "scheduler_load_jobs": 0,
+            "pending_worker_acknowledgements": 0
+          },
+          "process_rss_bytes": 19463761920,
+          "parent_cgroup": {
+            "path": "/sys/fs/cgroup",
+            "values": {
+              "memory.max": 197568495616,
+              "memory.current": 43223273472,
+              "memory.peak": null,
+              "memory.swap.max": 0,
+              "memory.swap.current": 0
+            }
+          },
+          "accounting": "CPU KV storage, process RSS and shared cgroup charges overlap; do not add them. The parent limit is shared, not an independent process or KV hard cap. Peaks retain prior process/cgroup history.",
+          "transfer_semantics": "Pending metadata is not a CUDA completion/fence observation; no event queries.",
+          "process_peak_rss_bytes": 19463761920,
+          "cgroup_membership": "0::/",
+          "status": "PARTIAL"
+        },
+        "host-after.json": {
+          "unix_s": 1789410127.1316514,
+          "monotonic_s": 4860930.377534259,
+          "pid": 11496,
+          "errors": {
+            "memory.peak": "FileNotFoundError: [Errno 2] No such file or directory: '/sys/fs/cgroup/memory.peak'"
+          },
+          "cpu_kv": {
+            "unique_storage_bytes": 17179869184,
+            "bytes_per_host_block": 2097152,
+            "derived_valid_host_kv_bytes": 12501123072,
+            "derived_bytes_semantics": "Ready entries times exact allocated bytes per host block; excludes pending stores, not additional allocation.",
+            "unique_storages": 1,
+            "tensor_references": 2,
+            "storages": [
+              {
+                "storage_address": 140459858984960,
+                "bytes": 17179869184,
+                "is_pinned": true
+              }
+            ],
+            "all_tensors_pinned": true,
+            "mmap_region_is_pinned": null,
+            "worker_store_pending_events": 0,
+            "worker_load_pending_events": 0,
+            "worker_unsubmitted_store_jobs": 0,
+            "worker_load_jobs": 0,
+            "semantics": "Existing CPU KV storage only; load/store aliases counted once. Excludes transfer buffers and allocator overhead."
+          },
+          "manager": {
+            "capacity_blocks": 8192,
+            "entries": 5961,
+            "valid_host_kv_entries": 5961,
+            "pending_store_entries": 0,
+            "entries_with_load_references": 0,
+            "active_load_references": 0,
+            "free_blocks": 2231,
+            "recorded_pending_store_blocks": 0,
+            "semantics": "Ready means ref_cnt >= 0; entries with pending stores are not valid cached KV."
+          },
+          "pending": {
+            "scheduler_store_jobs": 0,
+            "scheduler_load_jobs": 0,
+            "pending_worker_acknowledgements": 0
+          },
+          "process_rss_bytes": 19533791232,
+          "parent_cgroup": {
+            "path": "/sys/fs/cgroup",
+            "values": {
+              "memory.max": 197568495616,
+              "memory.current": 43307814912,
+              "memory.peak": null,
+              "memory.swap.max": 0,
+              "memory.swap.current": 0
+            }
+          },
+          "accounting": "CPU KV storage, process RSS and shared cgroup charges overlap; do not add them. The parent limit is shared, not an independent process or KV hard cap. Peaks retain prior process/cgroup history.",
+          "transfer_semantics": "Pending metadata is not a CUDA completion/fence observation; no event queries.",
+          "process_peak_rss_bytes": 19605602304,
+          "cgroup_membership": "0::/",
+          "status": "PARTIAL"
+        },
+        "host-before.json": {
+          "unix_s": 1789410103.7082202,
+          "monotonic_s": 4860906.95410378,
+          "pid": 11496,
+          "errors": {
+            "memory.peak": "FileNotFoundError: [Errno 2] No such file or directory: '/sys/fs/cgroup/memory.peak'"
+          },
+          "cpu_kv": {
+            "unique_storage_bytes": 17179869184,
+            "bytes_per_host_block": 2097152,
+            "derived_valid_host_kv_bytes": 0,
+            "derived_bytes_semantics": "Ready entries times exact allocated bytes per host block; excludes pending stores, not additional allocation.",
+            "unique_storages": 1,
+            "tensor_references": 2,
+            "storages": [
+              {
+                "storage_address": 140459858984960,
+                "bytes": 17179869184,
+                "is_pinned": true
+              }
+            ],
+            "all_tensors_pinned": true,
+            "mmap_region_is_pinned": null,
+            "worker_store_pending_events": 0,
+            "worker_load_pending_events": 0,
+            "worker_unsubmitted_store_jobs": 0,
+            "worker_load_jobs": 0,
+            "semantics": "Existing CPU KV storage only; load/store aliases counted once. Excludes transfer buffers and allocator overhead."
+          },
+          "manager": {
+            "capacity_blocks": 8192,
+            "entries": 0,
+            "valid_host_kv_entries": 0,
+            "pending_store_entries": 0,
+            "entries_with_load_references": 0,
+            "active_load_references": 0,
+            "free_blocks": 8192,
+            "recorded_pending_store_blocks": 0,
+            "semantics": "Ready means ref_cnt >= 0; entries with pending stores are not valid cached KV."
+          },
+          "pending": {
+            "scheduler_store_jobs": 0,
+            "scheduler_load_jobs": 0,
+            "pending_worker_acknowledgements": 0
+          },
+          "process_rss_bytes": 19524665344,
+          "parent_cgroup": {
+            "path": "/sys/fs/cgroup",
+            "values": {
+              "memory.max": 197568495616,
+              "memory.current": 43284549632,
+              "memory.peak": null,
+              "memory.swap.max": 0,
+              "memory.swap.current": 0
+            }
+          },
+          "accounting": "CPU KV storage, process RSS and shared cgroup charges overlap; do not add them. The parent limit is shared, not an independent process or KV hard cap. Peaks retain prior process/cgroup history.",
+          "transfer_semantics": "Pending metadata is not a CUDA completion/fence observation; no event queries.",
+          "process_peak_rss_bytes": 19525779456,
+          "cgroup_membership": "0::/",
+          "status": "PARTIAL"
+        },
+        "host-request-end.json": {
+          "unix_s": 1789410126.8913076,
+          "monotonic_s": 4860930.137190127,
+          "pid": 11496,
+          "errors": {
+            "memory.peak": "FileNotFoundError: [Errno 2] No such file or directory: '/sys/fs/cgroup/memory.peak'"
+          },
+          "cpu_kv": {
+            "unique_storage_bytes": 17179869184,
+            "bytes_per_host_block": 2097152,
+            "derived_valid_host_kv_bytes": 12501123072,
+            "derived_bytes_semantics": "Ready entries times exact allocated bytes per host block; excludes pending stores, not additional allocation.",
+            "unique_storages": 1,
+            "tensor_references": 2,
+            "storages": [
+              {
+                "storage_address": 140459858984960,
+                "bytes": 17179869184,
+                "is_pinned": true
+              }
+            ],
+            "all_tensors_pinned": true,
+            "mmap_region_is_pinned": null,
+            "worker_store_pending_events": 0,
+            "worker_load_pending_events": 0,
+            "worker_unsubmitted_store_jobs": 0,
+            "worker_load_jobs": 0,
+            "semantics": "Existing CPU KV storage only; load/store aliases counted once. Excludes transfer buffers and allocator overhead."
+          },
+          "manager": {
+            "capacity_blocks": 8192,
+            "entries": 5961,
+            "valid_host_kv_entries": 5961,
+            "pending_store_entries": 0,
+            "entries_with_load_references": 0,
+            "active_load_references": 0,
+            "free_blocks": 2231,
+            "recorded_pending_store_blocks": 0,
+            "semantics": "Ready means ref_cnt >= 0; entries with pending stores are not valid cached KV."
+          },
+          "pending": {
+            "scheduler_store_jobs": 0,
+            "scheduler_load_jobs": 0,
+            "pending_worker_acknowledgements": 0
+          },
+          "process_rss_bytes": 19537141760,
+          "parent_cgroup": {
+            "path": "/sys/fs/cgroup",
+            "values": {
+              "memory.max": 197568495616,
+              "memory.current": 43296948224,
+              "memory.peak": null,
+              "memory.swap.max": 0,
+              "memory.swap.current": 0
+            }
+          },
+          "accounting": "CPU KV storage, process RSS and shared cgroup charges overlap; do not add them. The parent limit is shared, not an independent process or KV hard cap. Peaks retain prior process/cgroup history.",
+          "transfer_semantics": "Pending metadata is not a CUDA completion/fence observation; no event queries.",
+          "process_peak_rss_bytes": 19537141760,
+          "cgroup_membership": "0::/",
+          "status": "PARTIAL"
+        }
+      },
+      "requests": {
+        "complete": true,
+        "requests": [
+          {
+            "request_id": "memory-train-article-0017106",
+            "document_id": "memory-train-article-0017106",
+            "status": "completed",
+            "arrival_s": 0.0,
+            "completion_s": 21.378413727506995,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "4f4390887f14bf7cb27eb5fe56517ca75c43336a8218e88bab5964a79c6af9b2",
+            "prompt_sha256": "a8ff0681a6746239717c281019edca00a930b7aa2c6005fc512e9e3fada645dd",
+            "max_output": 1024,
+            "last_output_s": 21.378413727506995,
+            "completion_latency_s": 21.378413727506995,
+            "ttft_s": 0.06504092738032341,
+            "max_engine_return_gap_s": 1.1598993260413408
+          },
+          {
+            "request_id": "memory-train-article-0017190",
+            "document_id": "memory-train-article-0017190",
+            "status": "completed",
+            "arrival_s": 0.05,
+            "completion_s": 22.499154082499444,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "839a75c08ca17fb3dbb8c34d4ac04c7510402222e28d686da7f3b5bf83fa454d",
+            "prompt_sha256": "a139b5238bdab24b7e926d26bb8f548c943554caf8f904eb51227eb8dc33c6e8",
+            "max_output": 1024,
+            "last_output_s": 22.499154082499444,
+            "completion_latency_s": 22.449154082499444,
+            "ttft_s": 0.09672804716974497,
+            "max_engine_return_gap_s": 1.9175824271515012
+          },
+          {
+            "request_id": "memory-train-article-0017245",
+            "document_id": "memory-train-article-0017245",
+            "status": "completed",
+            "arrival_s": 0.1,
+            "completion_s": 21.50311554968357,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "ffd6538cf7798759edebcf410ce08366b18a5df6568b3a3163d835baeb946d57",
+            "prompt_sha256": "453dd5da650d6ea29b8978468f8d23de306958005bdcc318e2eb0e89ddc430ee",
+            "max_output": 1024,
+            "last_output_s": 21.50311554968357,
+            "completion_latency_s": 21.40311554968357,
+            "ttft_s": 0.10814871229231357,
+            "max_engine_return_gap_s": 1.172209252603352
+          },
+          {
+            "request_id": "memory-train-article-0017380",
+            "document_id": "memory-train-article-0017380",
+            "status": "completed",
+            "arrival_s": 0.15,
+            "completion_s": 21.98631019704044,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "15a8b161db7ca4faea55b34bfd7e8059824e978eb1a93e492beb2ac360a0c185",
+            "prompt_sha256": "9aa87652684723d97ba8217fb07977c4df267557bfb2e2c9ad2e66606a5a16bd",
+            "max_output": 1024,
+            "last_output_s": 21.98631019704044,
+            "completion_latency_s": 21.83631019704044,
+            "ttft_s": 0.11946947816759348,
+            "max_engine_return_gap_s": 1.5344294318929315
+          },
+          {
+            "request_id": "memory-train-article-0017453",
+            "document_id": "memory-train-article-0017453",
+            "status": "completed",
+            "arrival_s": 0.2,
+            "completion_s": 22.025930813513696,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "69504305dcfac9b05df99307734a9be2b19ff8da397e2e8778c4efc7f627ba11",
+            "prompt_sha256": "1229b44a8130b024cad93e28aa228fa1138864f2d7c755b893763fb7eba5a270",
+            "max_output": 1024,
+            "last_output_s": 22.025930813513696,
+            "completion_latency_s": 21.825930813513697,
+            "ttft_s": 0.13189372811466454,
+            "max_engine_return_gap_s": 1.5559764010831714
+          },
+          {
+            "request_id": "memory-train-article-0017643",
+            "document_id": "memory-train-article-0017643",
+            "status": "completed",
+            "arrival_s": 0.25,
+            "completion_s": 22.729155629873276,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "86b81233ccd8ebccf2a3c747d6662337a5554b554d4ae2dc232aee0af73750e3",
+            "prompt_sha256": "f9bf9900eb36277dffcdb5cf736a89838f764e7cd57dac49c9096221a83154df",
+            "max_output": 1024,
+            "last_output_s": 22.729155629873276,
+            "completion_latency_s": 22.479155629873276,
+            "ttft_s": 0.14420321211218834,
+            "max_engine_return_gap_s": 1.9059358416125178
+          },
+          {
+            "request_id": "memory-train-article-0017858",
+            "document_id": "memory-train-article-0017858",
+            "status": "completed",
+            "arrival_s": 0.3,
+            "completion_s": 21.656642958521843,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "836643b63739960cc62fb0340c14fb7f3982e5841f2620bbf7874faac71d1400",
+            "prompt_sha256": "37f112f6b501f6f01d5fb69a2214d5fd5b363450bf07851aefb1d29ac1a748b1",
+            "max_output": 1024,
+            "last_output_s": 21.656642958521843,
+            "completion_latency_s": 21.356642958521842,
+            "ttft_s": 0.1589329343289137,
+            "max_engine_return_gap_s": 0.9580501113086939
+          },
+          {
+            "request_id": "memory-train-article-0017966",
+            "document_id": "memory-train-article-0017966",
+            "status": "completed",
+            "arrival_s": 0.35,
+            "completion_s": 23.1332994280383,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "d50a5d9a0d29e605d16bd222cf2b0af5219b9f478cdd1fcb903b55af7731c0d6",
+            "prompt_sha256": "8e9f40872d5331aac828860941daa2fe78303a6561a4ca676b00c1cf3427ead5",
+            "max_output": 1024,
+            "last_output_s": 23.1332994280383,
+            "completion_latency_s": 22.783299428038298,
+            "ttft_s": 0.1738743079826236,
+            "max_engine_return_gap_s": 2.243055395781994
+          },
+          {
+            "request_id": "memory-train-article-0018032",
+            "document_id": "memory-train-article-0018032",
+            "status": "completed",
+            "arrival_s": 0.4,
+            "completion_s": 22.45649258326739,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "57390e704fecaaf09562576494bf0995511034b4994972a11e0dd34258811926",
+            "prompt_sha256": "7f09d73258d95c888792ce4429ff753b1496f4f487c005782788cd51de23b829",
+            "max_output": 1024,
+            "last_output_s": 22.45649258326739,
+            "completion_latency_s": 22.056492583267392,
+            "ttft_s": 0.18880984038114546,
+            "max_engine_return_gap_s": 1.9229782205075026
+          },
+          {
+            "request_id": "memory-train-article-0018153",
+            "document_id": "memory-train-article-0018153",
+            "status": "completed",
+            "arrival_s": 0.45,
+            "completion_s": 21.285287781618536,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "d6b06e954f004438c8068780cb07d6f136ab380671d20c44fbb3b73970a16d5b",
+            "prompt_sha256": "62cbada02ade9204dbe4fd71a6044fcf795d9fb51c17d276decf6c7f6b952819",
+            "max_output": 1024,
+            "last_output_s": 21.285287781618536,
+            "completion_latency_s": 20.835287781618536,
+            "ttft_s": 0.2044782994315028,
+            "max_engine_return_gap_s": 1.1693155784159899
+          },
+          {
+            "request_id": "memory-train-article-0018301",
+            "document_id": "memory-train-article-0018301",
+            "status": "completed",
+            "arrival_s": 0.5,
+            "completion_s": 21.342811121605337,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "82f0ce26bca7ee81e090e0f67b86fd5a41f54b900e84017241f2ebdb4548ed07",
+            "prompt_sha256": "16c425250dee2158cdf8bd5338ad1ca4343b7dc8a3bbdfed2c2ea7477ee43fbe",
+            "max_output": 1024,
+            "last_output_s": 21.342811121605337,
+            "completion_latency_s": 20.842811121605337,
+            "ttft_s": 0.2203033184632659,
+            "max_engine_return_gap_s": 1.1684234673157334
+          },
+          {
+            "request_id": "memory-train-article-0018442",
+            "document_id": "memory-train-article-0018442",
+            "status": "completed",
+            "arrival_s": 0.55,
+            "completion_s": 22.489813424646854,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "7177586801b0855fd1d5b9eb4367d1ae851b90ab9672c1934f5af5606b8c1925",
+            "prompt_sha256": "0087e36e566d859485ef46f631f6803d614444d142fd09e512b5d5f1bf8212a0",
+            "max_output": 1024,
+            "last_output_s": 22.489813424646854,
+            "completion_latency_s": 21.939813424646854,
+            "ttft_s": 0.2368788372725248,
+            "max_engine_return_gap_s": 1.4170309584587812
+          },
+          {
+            "request_id": "memory-train-article-0018866",
+            "document_id": "memory-train-article-0018866",
+            "status": "completed",
+            "arrival_s": 0.6,
+            "completion_s": 22.6699623670429,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "d69bf44dd82d851f5c22aec84376427d775c83c96bc61c3a7c7a407d7e0c7a8c",
+            "prompt_sha256": "e02c4a6fcbb6db7ab82e730bc6221841595d49311ea2f96cf6f21afe6b65b30f",
+            "max_output": 1024,
+            "last_output_s": 22.6699623670429,
+            "completion_latency_s": 22.069962367042898,
+            "ttft_s": 0.2530192812904716,
+            "max_engine_return_gap_s": 1.759821637533605
+          },
+          {
+            "request_id": "memory-train-article-0019035",
+            "document_id": "memory-train-article-0019035",
+            "status": "completed",
+            "arrival_s": 0.65,
+            "completion_s": 21.50311554968357,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "8b7f0daf9a002d7d5883c09e438ce4a93905f4a4e3e2659d3bc252fb2909cdc6",
+            "prompt_sha256": "42b071ebf09d20c7206536d22216328325fb328377795680a6da6ef9270c9415",
+            "max_output": 1024,
+            "last_output_s": 21.50311554968357,
+            "completion_latency_s": 20.853115549683572,
+            "ttft_s": 0.2703169997781515,
+            "max_engine_return_gap_s": 1.1749354526400566
+          },
+          {
+            "request_id": "memory-train-article-0019105",
+            "document_id": "memory-train-article-0019105",
+            "status": "completed",
+            "arrival_s": 0.7,
+            "completion_s": 22.69465572759509,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "0a7bb8a03664eca4bfeff3a1e190661e8e487650bbe856439f496350da6413e2",
+            "prompt_sha256": "1fade5bf86947cac0cc9dcd6207407f640dd8f25c24d79b36a497972ed01a581",
+            "max_output": 1024,
+            "last_output_s": 22.69465572759509,
+            "completion_latency_s": 21.99465572759509,
+            "ttft_s": 0.28846791032701735,
+            "max_engine_return_gap_s": 1.5397688578814268
+          },
+          {
+            "request_id": "memory-train-article-0019205",
+            "document_id": "memory-train-article-0019205",
+            "status": "completed",
+            "arrival_s": 0.75,
+            "completion_s": 21.897419801913202,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "36200da3793ceaeb04717410a8a8df5b59852f1a4121504b674744fdeee9b85d",
+            "prompt_sha256": "21184655ac1b7e42a0c4c062bdc9c9a96ec40f442718ea880388740f1b5b333d",
+            "max_output": 1024,
+            "last_output_s": 21.897419801913202,
+            "completion_latency_s": 21.147419801913202,
+            "ttft_s": 0.3071227138862014,
+            "max_engine_return_gap_s": 1.5333695085719228
+          },
+          {
+            "request_id": "memory-train-article-0019436",
+            "document_id": "memory-train-article-0019436",
+            "status": "completed",
+            "arrival_s": 0.8,
+            "completion_s": 22.851520432159305,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "8f11ebc47a1ca0ffff07e22649fcff333f38352e5f8fe90bbc5feabb83b54663",
+            "prompt_sha256": "9ec56fcecc5dcb85508b39a66c2f1cf5c8684faf3c671b7de01ceb290246224d",
+            "max_output": 1024,
+            "last_output_s": 22.851520432159305,
+            "completion_latency_s": 22.051520432159304,
+            "ttft_s": 0.3269897604361176,
+            "max_engine_return_gap_s": 1.629679162055254
+          },
+          {
+            "request_id": "memory-train-article-0019630",
+            "document_id": "memory-train-article-0019630",
+            "status": "completed",
+            "arrival_s": 0.85,
+            "completion_s": 21.98631019704044,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "0d9efa79080b893adc7e96b39032b7273954d05bb0ed0d332e145ae8c37f8247",
+            "prompt_sha256": "9ea14267473770224da7f6bd68a1523bfc4a5ab50f470e608e54a1700d785a84",
+            "max_output": 1024,
+            "last_output_s": 21.98631019704044,
+            "completion_latency_s": 21.136310197040437,
+            "ttft_s": 0.3481806140393019,
+            "max_engine_return_gap_s": 1.5494104772806168
+          },
+          {
+            "request_id": "memory-train-article-0019699",
+            "document_id": "memory-train-article-0019699",
+            "status": "completed",
+            "arrival_s": 0.9,
+            "completion_s": 22.025930813513696,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "ea38941bbb33d322293c91b06589f6b752f2b855be0e507d0141bb8bf7785af5",
+            "prompt_sha256": "47543983547146ab204e086b19bdc8e570148c1c02632f7a3cf94b4a38f77e56",
+            "max_output": 1024,
+            "last_output_s": 22.025930813513696,
+            "completion_latency_s": 21.125930813513698,
+            "ttft_s": 0.3708249557763338,
+            "max_engine_return_gap_s": 1.551754024811089
+          },
+          {
+            "request_id": "memory-train-article-0019783",
+            "document_id": "memory-train-article-0019783",
+            "status": "completed",
+            "arrival_s": 0.95,
+            "completion_s": 22.54247926082462,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "2b76628f0d70b0b39f2cab8077424f24054c5f4d8d73b7b5e2d1d82c3cf9560a",
+            "prompt_sha256": "47e2fe193296e0f3c7e6720b435449065dcf6b20334530ea364b46c0d7037bc2",
+            "max_output": 1024,
+            "last_output_s": 22.54247926082462,
+            "completion_latency_s": 21.59247926082462,
+            "ttft_s": 0.3935565130785108,
+            "max_engine_return_gap_s": 1.9155215471982956
+          },
+          {
+            "request_id": "memory-train-article-0019864",
+            "document_id": "memory-train-article-0019864",
+            "status": "completed",
+            "arrival_s": 1.0,
+            "completion_s": 22.376214959658682,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "34542d3c498fe8a4556175f0ec2c841c9e270cefc89323dd0ed338d4978bac50",
+            "prompt_sha256": "7b43cfff216dfe3b64aed8d6431420b44eb64621279efb2b8be4fbdeba10519d",
+            "max_output": 1024,
+            "last_output_s": 22.376214959658682,
+            "completion_latency_s": 21.376214959658682,
+            "ttft_s": 0.41633934807032347,
+            "max_engine_return_gap_s": 1.9118723338469863
+          },
+          {
+            "request_id": "memory-train-article-0019937",
+            "document_id": "memory-train-article-0019937",
+            "status": "completed",
+            "arrival_s": 1.05,
+            "completion_s": 22.416155097074807,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "c0ac1fc2e9e87004d0c53e3ea8fe6d749c2ac31d58cf004161bc89a00dd9b217",
+            "prompt_sha256": "7f9bd31627529f68797047db0f2368e4eb6a8bec6b82d8b2a944b574261e75f1",
+            "max_output": 1024,
+            "last_output_s": 22.416155097074807,
+            "completion_latency_s": 21.366155097074806,
+            "ttft_s": 0.4401987370103597,
+            "max_engine_return_gap_s": 1.9230110561475158
+          },
+          {
+            "request_id": "memory-train-article-0020051",
+            "document_id": "memory-train-article-0020051",
+            "status": "completed",
+            "arrival_s": 1.1,
+            "completion_s": 22.45649258326739,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "487ee03e8c65c37c5527ad4de0c0ba4e1b233e56daa97d52dec651141c78690a",
+            "prompt_sha256": "5a49adea83f97616b80b0eea16e636ebf10d314326df08c5ee05e7197d2185ad",
+            "max_output": 1024,
+            "last_output_s": 22.45649258326739,
+            "completion_latency_s": 21.35649258326739,
+            "ttft_s": 0.4647755190730094,
+            "max_engine_return_gap_s": 1.9271072130650282
+          },
+          {
+            "request_id": "memory-train-article-0020184",
+            "document_id": "memory-train-article-0020184",
+            "status": "completed",
+            "arrival_s": 1.15,
+            "completion_s": 22.489813424646854,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "97d181833b5e839ba2ae2dca588082a3def911949edd776a90f0e613c6a8c7ec",
+            "prompt_sha256": "ec2958e0aeb3ca1b14b6c0141782247b448537d4a75d5f7f67ecda34bd290e4a",
+            "max_output": 1024,
+            "last_output_s": 22.489813424646854,
+            "completion_latency_s": 21.339813424646856,
+            "ttft_s": 0.4897922448813916,
+            "max_engine_return_gap_s": 1.9205698864534497
+          },
+          {
+            "request_id": "memory-train-article-0020257",
+            "document_id": "memory-train-article-0020257",
+            "status": "completed",
+            "arrival_s": 1.2,
+            "completion_s": 20.962934237904847,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "3ab570a3b03e92cb0ea576c6d2b601667649571a3e2ff6921cd4120b56870179",
+            "prompt_sha256": "6ad994573beb3506da4cbfdac7d495c6c266aa57b49c9ca23f44216df6bb4fc3",
+            "max_output": 1024,
+            "last_output_s": 20.962934237904847,
+            "completion_latency_s": 19.762934237904847,
+            "ttft_s": 0.5146751303225756,
+            "max_engine_return_gap_s": 0.036548626609146595
+          },
+          {
+            "request_id": "memory-train-article-0020323",
+            "document_id": "memory-train-article-0020323",
+            "status": "completed",
+            "arrival_s": 1.25,
+            "completion_s": 21.018495933152735,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "1a0098fef1cc15d9ceda31d18ac72016d7f8ace250b9f439b9ba7e668b500641",
+            "prompt_sha256": "1f3af7f127b091818e428105a8e3f51019f0155001a06b8ef030fe036c6c688c",
+            "max_output": 1024,
+            "last_output_s": 21.018495933152735,
+            "completion_latency_s": 19.768495933152735,
+            "ttft_s": 0.5397348711267114,
+            "max_engine_return_gap_s": 0.036548626609146595
+          },
+          {
+            "request_id": "memory-train-article-0020484",
+            "document_id": "memory-train-article-0020484",
+            "status": "completed",
+            "arrival_s": 1.3,
+            "completion_s": 22.6873263688758,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "a7420fd0442de607d2caa4f915cc5df880abfd43e241b1770476d18dd4562e35",
+            "prompt_sha256": "f3f9dace9a63f55e1dda93b84e0e54369b89e035c757d4f72e7349b6cfc57b56",
+            "max_output": 1024,
+            "last_output_s": 22.6873263688758,
+            "completion_latency_s": 21.3873263688758,
+            "ttft_s": 0.591696804203093,
+            "max_engine_return_gap_s": 2.162668615579605
+          },
+          {
+            "request_id": "memory-train-article-0020734",
+            "document_id": "memory-train-article-0020734",
+            "status": "completed",
+            "arrival_s": 1.35,
+            "completion_s": 21.152816344052553,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "83fb98718bf033754473794df5345640202a6a818fa63888f2d22e177c4e25e6",
+            "prompt_sha256": "12eea8b308efcf5aa0080c0b1fa0037939e821c1584f3893739594c4ac279d64",
+            "max_output": 1024,
+            "last_output_s": 21.152816344052553,
+            "completion_latency_s": 19.80281634405255,
+            "ttft_s": 0.6198280245065688,
+            "max_engine_return_gap_s": 0.036548626609146595
+          },
+          {
+            "request_id": "memory-train-article-0020794",
+            "document_id": "memory-train-article-0020794",
+            "status": "completed",
+            "arrival_s": 1.4,
+            "completion_s": 21.20995261427015,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "216d58a16f87591044dd7c2dc685851fefc2fe001d0e0f4d858b5406b4a66d0f",
+            "prompt_sha256": "1df385f645e7e395ac9aca104effde3967dcb2adc4704c158a285562dc824608",
+            "max_output": 1024,
+            "last_output_s": 21.20995261427015,
+            "completion_latency_s": 19.809952614270152,
+            "ttft_s": 0.6516562126576901,
+            "max_engine_return_gap_s": 0.036548626609146595
+          },
+          {
+            "request_id": "memory-train-article-0020902",
+            "document_id": "memory-train-article-0020902",
+            "status": "completed",
+            "arrival_s": 1.45,
+            "completion_s": 21.266034121625125,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "d33438daafdb074c988b88c1635f5c849780663630dbbd3869f1a18342f105d3",
+            "prompt_sha256": "8119c5ae760a9c1af5cab4669415e3da24cabf2ce23ed71d926535ae37ae31e8",
+            "max_output": 1024,
+            "last_output_s": 21.266034121625125,
+            "completion_latency_s": 19.816034121625126,
+            "ttft_s": 0.6822825690731407,
+            "max_engine_return_gap_s": 0.036548626609146595
+          },
+          {
+            "request_id": "memory-train-article-0020958",
+            "document_id": "memory-train-article-0020958",
+            "status": "completed",
+            "arrival_s": 1.5,
+            "completion_s": 21.32347358483821,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "1b3ff04805bc5042579a913d437de976eb75f155d56441877dd1a4f0b427dba2",
+            "prompt_sha256": "87aa7c554b1167e52900cd441093508d44d59e31d4ddd89546ee3cf05b0a3232",
+            "max_output": 1024,
+            "last_output_s": 21.32347358483821,
+            "completion_latency_s": 19.82347358483821,
+            "ttft_s": 0.7133183525875211,
+            "max_engine_return_gap_s": 0.036548626609146595
+          },
+          {
+            "request_id": "memory-train-article-0021022",
+            "document_id": "memory-train-article-0021022",
+            "status": "completed",
+            "arrival_s": 1.55,
+            "completion_s": 21.912555093877017,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "f5ea1edf615d7096c6dc56868142f6765c144c9d5abf8b272a5b0c5ac8ef3f11",
+            "prompt_sha256": "4dc12d2ff3c4e10168913f85f4e1d7ae4af9eaec703b7232dcd811365629c6c6",
+            "max_output": 1024,
+            "last_output_s": 21.912555093877017,
+            "completion_latency_s": 20.362555093877017,
+            "ttft_s": 0.7377766974270343,
+            "max_engine_return_gap_s": 0.6792336273938417
+          }
+        ],
+        "request_count": 32,
+        "full_wall_s": 23.133335961960256,
+        "requests_completed": 32,
+        "request_rate_s": 1.3832851454117907,
+        "total_output_tokens": 32768,
+        "output_token_rate_s": 1416.4839889016737,
+        "mean_completion_s": 21.222815181588523,
+        "mean_ttft_s": 0.3521660907077603,
+        "max_engine_return_gap_s": 2.243055395781994,
+        "ttft_request_count": 32,
+        "gap_request_count": 32,
+        "actual_stop_counts": {
+          "length": 32
+        },
+        "chunk_diagnostics": {
+          "multi_token_chunks": 0,
+          "max_chunk_size": 1,
+          "token_level_itl_resolved": true,
+          "interpolated": false,
+          "semantics": "Tokens returned together share one timestamp; intra-chunk ITL is unresolved."
+        }
+      }
+    },
+    "block1-on": {
+      "cell": "block1-on",
+      "status": "COMPLETE",
+      "comparable": true,
+      "sources": {
+        "status": {
+          "path": "refine-logs/expert_saturation/outputs/admission_capacity/20260915_repeated_kv_cohort3_r01/execution_weste_26862/readback/results/block1-on/status.json",
+          "sha256": "046c4ba8d94b79115e45f2a807693552bc0486d03094dc632483d89f35ab5ca0"
+        },
+        "raw": {
+          "path": "refine-logs/expert_saturation/outputs/admission_capacity/20260915_repeated_kv_cohort3_r01/execution_weste_26862/readback/results/block1-on/raw.json",
+          "sha256": "5e9d178d55e279a3d320d9f39be16e114d21ed96d8ea4b78053df23e47bb3097"
+        },
+        "config": {
+          "path": "refine-logs/expert_saturation/outputs/admission_capacity/20260915_repeated_kv_cohort3_r01/execution_weste_26862/readback/results/block1-on/config.json",
+          "sha256": "d5365eaac012335bc6a43305824b0409fd6584addd2c92f080e624b96c8e80f2"
+        },
+        "selective-store": {
+          "path": "refine-logs/expert_saturation/outputs/admission_capacity/20260915_repeated_kv_cohort3_r01/execution_weste_26862/readback/results/block1-on/selective-store.json",
+          "sha256": "f03790ca52d73c89a6704d7c8fd57a74b8419656c928e690ef07ab808b642ee8"
+        },
+        "offload-events": {
+          "path": "refine-logs/expert_saturation/outputs/admission_capacity/20260915_repeated_kv_cohort3_r01/execution_weste_26862/readback/results/block1-on/offload-events.json",
+          "sha256": "b92bcb9bd88e717d7c21a025bc262874abb0a1078b428f6f52d46ca7b39453e8"
+        }
+      },
+      "errors": [],
+      "runtime_status": {
+        "status": "COMPLETE",
+        "requests_completed": 32,
+        "actual_preemption_count": null,
+        "preemption_mode": "native_recompute_or_external_kv",
+        "scientific_verdict": "MEASUREMENT_ONLY",
+        "error": null
+      },
+      "config": {
+        "model": {
+          "dtype": "bfloat16",
+          "id": "allenai/OLMoE-1B-7B-0924",
+          "key": "olmoe",
+          "revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+          "tokenizer_revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5"
+        },
+        "requests": 32,
+        "prompt_tokens": 3072,
+        "output_tokens": 1024,
+        "seed": 20260905,
+        "ttft_slo_s": 5.0,
+        "tpot_slo_s": 0.2,
+        "arrival_gap_s": 0.05,
+        "burst_size": 8,
+        "source": {
+          "dataset_id": "wikitext",
+          "dataset_config": "wikitext-103-raw-v1",
+          "split": "train",
+          "dataset_revision": "b08601e04326c79dfdd32d625aee71d232d685c3",
+          "arrow_file": "wikitext-train-00000-of-00002.arrow",
+          "arrow_sha256": "0c22278eac8186f5dd6060fcf84e4bcb4aa2266c51c77a279169764814f9a99e",
+          "observed_dataset_fingerprint": "2b0a0a8d61b6bc5e",
+          "model_config_sha256": "3643aa880d2f1c9b418156269ae791c73e5612d6b6b6fde0724d927cf89b6335",
+          "model_max_position_embeddings": 4096,
+          "tokenizer_files_sha256": {
+            "special_tokens_map.json": "b77491e270c6fcc5b2ecf22370f7318a6a18d3cabea09ba7bab92e9bf12656c2",
+            "tokenizer.json": "a094266ac6c4982efba277bc251349a5a6d6ad37efb39a2a90f53d8be2a40a40",
+            "tokenizer_config.json": "78a839c7851f14f9fb30e664c2b46166dc0628f2900679e5ec160656f702edff"
+          },
+          "selection_rule": "next32 complete articles with >=3072 tokens after all128 prior row intervals, in pinned shard source order; exclude duplicate document and prompt-prefix hashes",
+          "pre_run_length_rationale": "3072 prompt +1024 output retains active requests longer while later long prefills are admitted; 3968+128 could drain before 32 requests become active. This is regime qualification, chosen before GPU results.",
+          "reconstruction_rule": "concatenate original row strings exactly from one top-level title to before the next; no added separators",
+          "identity_scope": "Document, row and prompt-prefix disjoint from all 128 prior d6 requests (original and cohorts0/1/2); same WikiText train shard, model, lengths and steady-arrival distribution, not an independent population.",
+          "cohort_id": "cohort3",
+          "excluded_original_row_prefix_end_exclusive": 17106
+        },
+        "workload_sha256": "34aeca96e0537736234aa8b4cba835dcbc54fec60869959b87ab391f0dbce554",
+        "input_preparation": "offline document-disjoint holdout inputs; GPU UNRUN; inherited SLO fields are reference only",
+        "cap": 32,
+        "domain": "long",
+        "engine_max_num_seqs": 32,
+        "metric_role": "continuous request metrics primary; SLO 5s/.2s reference only",
+        "evidence_ceiling": "NATIVE_INPROCESS_CAPACITY_QUALIFICATION",
+        "max_seconds": 120,
+        "measurement_mode": "performance",
+        "requested_arm": "budget90",
+        "reservation_policy": "full",
+        "completion_policy": "native",
+        "headroom_observer": "fast",
+        "fixed_kv_cache_memory_bytes": 13960740864,
+        "gpu_memory_utilization": 0.9,
+        "rotation_victim_order": "most_output",
+        "action_scope": "repeated_staged_most_output",
+        "preemption_mode": "native_recompute_or_external_kv",
+        "offload_gib": 16,
+        "selective_save": "on",
+        "rotation_config": {
+          "min_absence_steps": 30,
+          "min_steps_between_swaps": 20,
+          "free_block_slack": 0,
+          "min_residency_steps": 30,
+          "protect_progress_fraction": 0.9,
+          "max_absences_per_request": 8,
+          "enabled": true
+        }
+      },
+      "host_snapshots": {
+        "host-after-init.json": {
+          "unix_s": 1789410156.9779546,
+          "monotonic_s": 4860960.223837594,
+          "pid": 12009,
+          "errors": {
+            "memory.peak": "FileNotFoundError: [Errno 2] No such file or directory: '/sys/fs/cgroup/memory.peak'"
+          },
+          "cpu_kv": {
+            "unique_storage_bytes": 17179869184,
+            "bytes_per_host_block": 2097152,
+            "derived_valid_host_kv_bytes": 0,
+            "derived_bytes_semantics": "Ready entries times exact allocated bytes per host block; excludes pending stores, not additional allocation.",
+            "unique_storages": 1,
+            "tensor_references": 2,
+            "storages": [
+              {
+                "storage_address": 139845276008448,
+                "bytes": 17179869184,
+                "is_pinned": true
+              }
+            ],
+            "all_tensors_pinned": true,
+            "mmap_region_is_pinned": null,
+            "worker_store_pending_events": 0,
+            "worker_load_pending_events": 0,
+            "worker_unsubmitted_store_jobs": 0,
+            "worker_load_jobs": 0,
+            "semantics": "Existing CPU KV storage only; load/store aliases counted once. Excludes transfer buffers and allocator overhead."
+          },
+          "manager": {
+            "capacity_blocks": 8192,
+            "entries": 0,
+            "valid_host_kv_entries": 0,
+            "pending_store_entries": 0,
+            "entries_with_load_references": 0,
+            "active_load_references": 0,
+            "free_blocks": 8192,
+            "recorded_pending_store_blocks": 0,
+            "semantics": "Ready means ref_cnt >= 0; entries with pending stores are not valid cached KV."
+          },
+          "pending": {
+            "scheduler_store_jobs": 0,
+            "scheduler_load_jobs": 0,
+            "pending_worker_acknowledgements": 0
+          },
+          "process_rss_bytes": 19463569408,
+          "parent_cgroup": {
+            "path": "/sys/fs/cgroup",
+            "values": {
+              "memory.max": 197568495616,
+              "memory.current": 43241594880,
+              "memory.peak": null,
+              "memory.swap.max": 0,
+              "memory.swap.current": 0
+            }
+          },
+          "accounting": "CPU KV storage, process RSS and shared cgroup charges overlap; do not add them. The parent limit is shared, not an independent process or KV hard cap. Peaks retain prior process/cgroup history.",
+          "transfer_semantics": "Pending metadata is not a CUDA completion/fence observation; no event queries.",
+          "process_peak_rss_bytes": 19463569408,
+          "cgroup_membership": "0::/",
+          "status": "PARTIAL"
+        },
+        "host-after.json": {
+          "unix_s": 1789410181.5770128,
+          "monotonic_s": 4860984.822895895,
+          "pid": 12009,
+          "errors": {
+            "memory.peak": "FileNotFoundError: [Errno 2] No such file or directory: '/sys/fs/cgroup/memory.peak'"
+          },
+          "cpu_kv": {
+            "unique_storage_bytes": 17179869184,
+            "bytes_per_host_block": 2097152,
+            "derived_valid_host_kv_bytes": 12501123072,
+            "derived_bytes_semantics": "Ready entries times exact allocated bytes per host block; excludes pending stores, not additional allocation.",
+            "unique_storages": 1,
+            "tensor_references": 2,
+            "storages": [
+              {
+                "storage_address": 139845276008448,
+                "bytes": 17179869184,
+                "is_pinned": true
+              }
+            ],
+            "all_tensors_pinned": true,
+            "mmap_region_is_pinned": null,
+            "worker_store_pending_events": 0,
+            "worker_load_pending_events": 0,
+            "worker_unsubmitted_store_jobs": 0,
+            "worker_load_jobs": 0,
+            "semantics": "Existing CPU KV storage only; load/store aliases counted once. Excludes transfer buffers and allocator overhead."
+          },
+          "manager": {
+            "capacity_blocks": 8192,
+            "entries": 5961,
+            "valid_host_kv_entries": 5961,
+            "pending_store_entries": 0,
+            "entries_with_load_references": 0,
+            "active_load_references": 0,
+            "free_blocks": 2231,
+            "recorded_pending_store_blocks": 0,
+            "semantics": "Ready means ref_cnt >= 0; entries with pending stores are not valid cached KV."
+          },
+          "pending": {
+            "scheduler_store_jobs": 0,
+            "scheduler_load_jobs": 0,
+            "pending_worker_acknowledgements": 0
+          },
+          "process_rss_bytes": 19533799424,
+          "parent_cgroup": {
+            "path": "/sys/fs/cgroup",
+            "values": {
+              "memory.max": 197568495616,
+              "memory.current": 43325489152,
+              "memory.peak": null,
+              "memory.swap.max": 0,
+              "memory.swap.current": 0
+            }
+          },
+          "accounting": "CPU KV storage, process RSS and shared cgroup charges overlap; do not add them. The parent limit is shared, not an independent process or KV hard cap. Peaks retain prior process/cgroup history.",
+          "transfer_semantics": "Pending metadata is not a CUDA completion/fence observation; no event queries.",
+          "process_peak_rss_bytes": 19605635072,
+          "cgroup_membership": "0::/",
+          "status": "PARTIAL"
+        },
+        "host-before.json": {
+          "unix_s": 1789410158.026831,
+          "monotonic_s": 4860961.272714371,
+          "pid": 12009,
+          "errors": {
+            "memory.peak": "FileNotFoundError: [Errno 2] No such file or directory: '/sys/fs/cgroup/memory.peak'"
+          },
+          "cpu_kv": {
+            "unique_storage_bytes": 17179869184,
+            "bytes_per_host_block": 2097152,
+            "derived_valid_host_kv_bytes": 0,
+            "derived_bytes_semantics": "Ready entries times exact allocated bytes per host block; excludes pending stores, not additional allocation.",
+            "unique_storages": 1,
+            "tensor_references": 2,
+            "storages": [
+              {
+                "storage_address": 139845276008448,
+                "bytes": 17179869184,
+                "is_pinned": true
+              }
+            ],
+            "all_tensors_pinned": true,
+            "mmap_region_is_pinned": null,
+            "worker_store_pending_events": 0,
+            "worker_load_pending_events": 0,
+            "worker_unsubmitted_store_jobs": 0,
+            "worker_load_jobs": 0,
+            "semantics": "Existing CPU KV storage only; load/store aliases counted once. Excludes transfer buffers and allocator overhead."
+          },
+          "manager": {
+            "capacity_blocks": 8192,
+            "entries": 0,
+            "valid_host_kv_entries": 0,
+            "pending_store_entries": 0,
+            "entries_with_load_references": 0,
+            "active_load_references": 0,
+            "free_blocks": 8192,
+            "recorded_pending_store_blocks": 0,
+            "semantics": "Ready means ref_cnt >= 0; entries with pending stores are not valid cached KV."
+          },
+          "pending": {
+            "scheduler_store_jobs": 0,
+            "scheduler_load_jobs": 0,
+            "pending_worker_acknowledgements": 0
+          },
+          "process_rss_bytes": 19524579328,
+          "parent_cgroup": {
+            "path": "/sys/fs/cgroup",
+            "values": {
+              "memory.max": 197568495616,
+              "memory.current": 43302711296,
+              "memory.peak": null,
+              "memory.swap.max": 0,
+              "memory.swap.current": 0
+            }
+          },
+          "accounting": "CPU KV storage, process RSS and shared cgroup charges overlap; do not add them. The parent limit is shared, not an independent process or KV hard cap. Peaks retain prior process/cgroup history.",
+          "transfer_semantics": "Pending metadata is not a CUDA completion/fence observation; no event queries.",
+          "process_peak_rss_bytes": 19525640192,
+          "cgroup_membership": "0::/",
+          "status": "PARTIAL"
+        },
+        "host-request-end.json": {
+          "unix_s": 1789410181.331656,
+          "monotonic_s": 4860984.577538474,
+          "pid": 12009,
+          "errors": {
+            "memory.peak": "FileNotFoundError: [Errno 2] No such file or directory: '/sys/fs/cgroup/memory.peak'"
+          },
+          "cpu_kv": {
+            "unique_storage_bytes": 17179869184,
+            "bytes_per_host_block": 2097152,
+            "derived_valid_host_kv_bytes": 12501123072,
+            "derived_bytes_semantics": "Ready entries times exact allocated bytes per host block; excludes pending stores, not additional allocation.",
+            "unique_storages": 1,
+            "tensor_references": 2,
+            "storages": [
+              {
+                "storage_address": 139845276008448,
+                "bytes": 17179869184,
+                "is_pinned": true
+              }
+            ],
+            "all_tensors_pinned": true,
+            "mmap_region_is_pinned": null,
+            "worker_store_pending_events": 0,
+            "worker_load_pending_events": 0,
+            "worker_unsubmitted_store_jobs": 0,
+            "worker_load_jobs": 0,
+            "semantics": "Existing CPU KV storage only; load/store aliases counted once. Excludes transfer buffers and allocator overhead."
+          },
+          "manager": {
+            "capacity_blocks": 8192,
+            "entries": 5961,
+            "valid_host_kv_entries": 5961,
+            "pending_store_entries": 0,
+            "entries_with_load_references": 0,
+            "active_load_references": 0,
+            "free_blocks": 2231,
+            "recorded_pending_store_blocks": 0,
+            "semantics": "Ready means ref_cnt >= 0; entries with pending stores are not valid cached KV."
+          },
+          "pending": {
+            "scheduler_store_jobs": 0,
+            "scheduler_load_jobs": 0,
+            "pending_worker_acknowledgements": 0
+          },
+          "process_rss_bytes": 19537154048,
+          "parent_cgroup": {
+            "path": "/sys/fs/cgroup",
+            "values": {
+              "memory.max": 197568495616,
+              "memory.current": 43314405376,
+              "memory.peak": null,
+              "memory.swap.max": 0,
+              "memory.swap.current": 0
+            }
+          },
+          "accounting": "CPU KV storage, process RSS and shared cgroup charges overlap; do not add them. The parent limit is shared, not an independent process or KV hard cap. Peaks retain prior process/cgroup history.",
+          "transfer_semantics": "Pending metadata is not a CUDA completion/fence observation; no event queries.",
+          "process_peak_rss_bytes": 19537154048,
+          "cgroup_membership": "0::/",
+          "status": "PARTIAL"
+        }
+      },
+      "requests": {
+        "complete": true,
+        "requests": [
+          {
+            "request_id": "memory-train-article-0017106",
+            "document_id": "memory-train-article-0017106",
+            "status": "completed",
+            "arrival_s": 0.0,
+            "completion_s": 21.494587833993137,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "4f4390887f14bf7cb27eb5fe56517ca75c43336a8218e88bab5964a79c6af9b2",
+            "prompt_sha256": "a8ff0681a6746239717c281019edca00a930b7aa2c6005fc512e9e3fada645dd",
+            "max_output": 1024,
+            "last_output_s": 21.494587833993137,
+            "completion_latency_s": 21.494587833993137,
+            "ttft_s": 0.06724262982606888,
+            "max_engine_return_gap_s": 1.1816155342385173
+          },
+          {
+            "request_id": "memory-train-article-0017190",
+            "document_id": "memory-train-article-0017190",
+            "status": "completed",
+            "arrival_s": 0.05,
+            "completion_s": 22.614951533265412,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "839a75c08ca17fb3dbb8c34d4ac04c7510402222e28d686da7f3b5bf83fa454d",
+            "prompt_sha256": "a139b5238bdab24b7e926d26bb8f548c943554caf8f904eb51227eb8dc33c6e8",
+            "max_output": 1024,
+            "last_output_s": 22.614951533265412,
+            "completion_latency_s": 22.56495153326541,
+            "ttft_s": 0.09912115968763828,
+            "max_engine_return_gap_s": 1.9373110374435782
+          },
+          {
+            "request_id": "memory-train-article-0017245",
+            "document_id": "memory-train-article-0017245",
+            "status": "completed",
+            "arrival_s": 0.1,
+            "completion_s": 21.617716670036316,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "ffd6538cf7798759edebcf410ce08366b18a5df6568b3a3163d835baeb946d57",
+            "prompt_sha256": "453dd5da650d6ea29b8978468f8d23de306958005bdcc318e2eb0e89ddc430ee",
+            "max_output": 1024,
+            "last_output_s": 21.617716670036316,
+            "completion_latency_s": 21.517716670036314,
+            "ttft_s": 0.11053931582719087,
+            "max_engine_return_gap_s": 1.1811103289946914
+          },
+          {
+            "request_id": "memory-train-article-0017380",
+            "document_id": "memory-train-article-0017380",
+            "status": "completed",
+            "arrival_s": 0.15,
+            "completion_s": 22.101605902425945,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "15a8b161db7ca4faea55b34bfd7e8059824e978eb1a93e492beb2ac360a0c185",
+            "prompt_sha256": "9aa87652684723d97ba8217fb07977c4df267557bfb2e2c9ad2e66606a5a16bd",
+            "max_output": 1024,
+            "last_output_s": 22.101605902425945,
+            "completion_latency_s": 21.951605902425946,
+            "ttft_s": 0.1225444557145238,
+            "max_engine_return_gap_s": 1.538433576002717
+          },
+          {
+            "request_id": "memory-train-article-0017453",
+            "document_id": "memory-train-article-0017453",
+            "status": "completed",
+            "arrival_s": 0.2,
+            "completion_s": 22.141350977122784,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "69504305dcfac9b05df99307734a9be2b19ff8da397e2e8778c4efc7f627ba11",
+            "prompt_sha256": "1229b44a8130b024cad93e28aa228fa1138864f2d7c755b893763fb7eba5a270",
+            "max_output": 1024,
+            "last_output_s": 22.141350977122784,
+            "completion_latency_s": 21.941350977122784,
+            "ttft_s": 0.13463927544653415,
+            "max_engine_return_gap_s": 1.545369672589004
+          },
+          {
+            "request_id": "memory-train-article-0017643",
+            "document_id": "memory-train-article-0017643",
+            "status": "completed",
+            "arrival_s": 0.25,
+            "completion_s": 22.84523467347026,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "86b81233ccd8ebccf2a3c747d6662337a5554b554d4ae2dc232aee0af73750e3",
+            "prompt_sha256": "f9bf9900eb36277dffcdb5cf736a89838f764e7cd57dac49c9096221a83154df",
+            "max_output": 1024,
+            "last_output_s": 22.84523467347026,
+            "completion_latency_s": 22.59523467347026,
+            "ttft_s": 0.14710405468940735,
+            "max_engine_return_gap_s": 1.9040181962773204
+          },
+          {
+            "request_id": "memory-train-article-0017858",
+            "document_id": "memory-train-article-0017858",
+            "status": "completed",
+            "arrival_s": 0.3,
+            "completion_s": 21.771608519367874,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "836643b63739960cc62fb0340c14fb7f3982e5841f2620bbf7874faac71d1400",
+            "prompt_sha256": "37f112f6b501f6f01d5fb69a2214d5fd5b363450bf07851aefb1d29ac1a748b1",
+            "max_output": 1024,
+            "last_output_s": 21.771608519367874,
+            "completion_latency_s": 21.471608519367873,
+            "ttft_s": 0.16126879937946798,
+            "max_engine_return_gap_s": 0.9648519810289145
+          },
+          {
+            "request_id": "memory-train-article-0017966",
+            "document_id": "memory-train-article-0017966",
+            "status": "completed",
+            "arrival_s": 0.35,
+            "completion_s": 23.25018827803433,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "d50a5d9a0d29e605d16bd222cf2b0af5219b9f478cdd1fcb903b55af7731c0d6",
+            "prompt_sha256": "8e9f40872d5331aac828860941daa2fe78303a6561a4ca676b00c1cf3427ead5",
+            "max_output": 1024,
+            "last_output_s": 23.25018827803433,
+            "completion_latency_s": 22.900188278034328,
+            "ttft_s": 0.17661633491516116,
+            "max_engine_return_gap_s": 2.269050918519497
+          },
+          {
+            "request_id": "memory-train-article-0018032",
+            "document_id": "memory-train-article-0018032",
+            "status": "completed",
+            "arrival_s": 0.4,
+            "completion_s": 22.572172867134213,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "57390e704fecaaf09562576494bf0995511034b4994972a11e0dd34258811926",
+            "prompt_sha256": "7f09d73258d95c888792ce4429ff753b1496f4f487c005782788cd51de23b829",
+            "max_output": 1024,
+            "last_output_s": 22.572172867134213,
+            "completion_latency_s": 22.172172867134215,
+            "ttft_s": 0.19196565486490724,
+            "max_engine_return_gap_s": 1.9333078619092703
+          },
+          {
+            "request_id": "memory-train-article-0018153",
+            "document_id": "memory-train-article-0018153",
+            "status": "completed",
+            "arrival_s": 0.45,
+            "completion_s": 21.402264850214124,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "d6b06e954f004438c8068780cb07d6f136ab380671d20c44fbb3b73970a16d5b",
+            "prompt_sha256": "62cbada02ade9204dbe4fd71a6044fcf795d9fb51c17d276decf6c7f6b952819",
+            "max_output": 1024,
+            "last_output_s": 21.402264850214124,
+            "completion_latency_s": 20.952264850214124,
+            "ttft_s": 0.20738614089787005,
+            "max_engine_return_gap_s": 1.1809468790888786
+          },
+          {
+            "request_id": "memory-train-article-0018301",
+            "document_id": "memory-train-article-0018301",
+            "status": "completed",
+            "arrival_s": 0.5,
+            "completion_s": 21.459448625333607,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "82f0ce26bca7ee81e090e0f67b86fd5a41f54b900e84017241f2ebdb4548ed07",
+            "prompt_sha256": "16c425250dee2158cdf8bd5338ad1ca4343b7dc8a3bbdfed2c2ea7477ee43fbe",
+            "max_output": 1024,
+            "last_output_s": 21.459448625333607,
+            "completion_latency_s": 20.959448625333607,
+            "ttft_s": 0.22343742940574884,
+            "max_engine_return_gap_s": 1.1847645929083228
+          },
+          {
+            "request_id": "memory-train-article-0018442",
+            "document_id": "memory-train-article-0018442",
+            "status": "completed",
+            "arrival_s": 0.55,
+            "completion_s": 22.605578027665615,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "7177586801b0855fd1d5b9eb4367d1ae851b90ab9672c1934f5af5606b8c1925",
+            "prompt_sha256": "0087e36e566d859485ef46f631f6803d614444d142fd09e512b5d5f1bf8212a0",
+            "max_output": 1024,
+            "last_output_s": 22.605578027665615,
+            "completion_latency_s": 22.055578027665614,
+            "ttft_s": 0.2391230341047048,
+            "max_engine_return_gap_s": 1.430322871543467
+          },
+          {
+            "request_id": "memory-train-article-0018866",
+            "document_id": "memory-train-article-0018866",
+            "status": "completed",
+            "arrival_s": 0.6,
+            "completion_s": 22.78586373012513,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "d69bf44dd82d851f5c22aec84376427d775c83c96bc61c3a7c7a407d7e0c7a8c",
+            "prompt_sha256": "e02c4a6fcbb6db7ab82e730bc6221841595d49311ea2f96cf6f21afe6b65b30f",
+            "max_output": 1024,
+            "last_output_s": 22.78586373012513,
+            "completion_latency_s": 22.185863730125128,
+            "ttft_s": 0.25538117401301863,
+            "max_engine_return_gap_s": 1.7809932753443718
+          },
+          {
+            "request_id": "memory-train-article-0019035",
+            "document_id": "memory-train-article-0019035",
+            "status": "completed",
+            "arrival_s": 0.65,
+            "completion_s": 21.617716670036316,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "8b7f0daf9a002d7d5883c09e438ce4a93905f4a4e3e2659d3bc252fb2909cdc6",
+            "prompt_sha256": "42b071ebf09d20c7206536d22216328325fb328377795680a6da6ef9270c9415",
+            "max_output": 1024,
+            "last_output_s": 21.617716670036316,
+            "completion_latency_s": 20.967716670036317,
+            "ttft_s": 0.27324753943830726,
+            "max_engine_return_gap_s": 1.1877639256417751
+          },
+          {
+            "request_id": "memory-train-article-0019105",
+            "document_id": "memory-train-article-0019105",
+            "status": "completed",
+            "arrival_s": 0.7,
+            "completion_s": 22.810620267875493,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "0a7bb8a03664eca4bfeff3a1e190661e8e487650bbe856439f496350da6413e2",
+            "prompt_sha256": "1fade5bf86947cac0cc9dcd6207407f640dd8f25c24d79b36a497972ed01a581",
+            "max_output": 1024,
+            "last_output_s": 22.810620267875493,
+            "completion_latency_s": 22.110620267875493,
+            "ttft_s": 0.2911085786297918,
+            "max_engine_return_gap_s": 1.5543337538838387
+          },
+          {
+            "request_id": "memory-train-article-0019205",
+            "document_id": "memory-train-article-0019205",
+            "status": "completed",
+            "arrival_s": 0.75,
+            "completion_s": 22.012907893396914,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "36200da3793ceaeb04717410a8a8df5b59852f1a4121504b674744fdeee9b85d",
+            "prompt_sha256": "21184655ac1b7e42a0c4c062bdc9c9a96ec40f442718ea880388740f1b5b333d",
+            "max_output": 1024,
+            "last_output_s": 22.012907893396914,
+            "completion_latency_s": 21.262907893396914,
+            "ttft_s": 0.30975732300430536,
+            "max_engine_return_gap_s": 1.5433886777609587
+          },
+          {
+            "request_id": "memory-train-article-0019436",
+            "document_id": "memory-train-article-0019436",
+            "status": "completed",
+            "arrival_s": 0.8,
+            "completion_s": 22.967798258177936,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "8f11ebc47a1ca0ffff07e22649fcff333f38352e5f8fe90bbc5feabb83b54663",
+            "prompt_sha256": "9ec56fcecc5dcb85508b39a66c2f1cf5c8684faf3c671b7de01ceb290246224d",
+            "max_output": 1024,
+            "last_output_s": 22.967798258177936,
+            "completion_latency_s": 22.167798258177935,
+            "ttft_s": 0.33094800431281324,
+            "max_engine_return_gap_s": 1.6249302690848708
+          },
+          {
+            "request_id": "memory-train-article-0019630",
+            "document_id": "memory-train-article-0019630",
+            "status": "completed",
+            "arrival_s": 0.85,
+            "completion_s": 22.101605902425945,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "0d9efa79080b893adc7e96b39032b7273954d05bb0ed0d332e145ae8c37f8247",
+            "prompt_sha256": "9ea14267473770224da7f6bd68a1523bfc4a5ab50f470e608e54a1700d785a84",
+            "max_output": 1024,
+            "last_output_s": 22.101605902425945,
+            "completion_latency_s": 21.251605902425943,
+            "ttft_s": 0.3526390051469207,
+            "max_engine_return_gap_s": 1.544093300588429
+          },
+          {
+            "request_id": "memory-train-article-0019699",
+            "document_id": "memory-train-article-0019699",
+            "status": "completed",
+            "arrival_s": 0.9,
+            "completion_s": 22.141350977122784,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "ea38941bbb33d322293c91b06589f6b752f2b855be0e507d0141bb8bf7785af5",
+            "prompt_sha256": "47543983547146ab204e086b19bdc8e570148c1c02632f7a3cf94b4a38f77e56",
+            "max_output": 1024,
+            "last_output_s": 22.141350977122784,
+            "completion_latency_s": 21.241350977122785,
+            "ttft_s": 0.3777340169996023,
+            "max_engine_return_gap_s": 1.5415017697960138
+          },
+          {
+            "request_id": "memory-train-article-0019783",
+            "document_id": "memory-train-article-0019783",
+            "status": "completed",
+            "arrival_s": 0.95,
+            "completion_s": 22.65822078846395,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "2b76628f0d70b0b39f2cab8077424f24054c5f4d8d73b7b5e2d1d82c3cf9560a",
+            "prompt_sha256": "47e2fe193296e0f3c7e6720b435449065dcf6b20334530ea364b46c0d7037bc2",
+            "max_output": 1024,
+            "last_output_s": 22.65822078846395,
+            "completion_latency_s": 21.70822078846395,
+            "ttft_s": 0.400610226392746,
+            "max_engine_return_gap_s": 1.9152026660740376
+          },
+          {
+            "request_id": "memory-train-article-0019864",
+            "document_id": "memory-train-article-0019864",
+            "status": "completed",
+            "arrival_s": 1.0,
+            "completion_s": 22.49192317482084,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "34542d3c498fe8a4556175f0ec2c841c9e270cefc89323dd0ed338d4978bac50",
+            "prompt_sha256": "7b43cfff216dfe3b64aed8d6431420b44eb64621279efb2b8be4fbdeba10519d",
+            "max_output": 1024,
+            "last_output_s": 22.49192317482084,
+            "completion_latency_s": 21.49192317482084,
+            "ttft_s": 0.4230385394766927,
+            "max_engine_return_gap_s": 1.9189576273784041
+          },
+          {
+            "request_id": "memory-train-article-0019937",
+            "document_id": "memory-train-article-0019937",
+            "status": "completed",
+            "arrival_s": 1.05,
+            "completion_s": 22.53189552295953,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "c0ac1fc2e9e87004d0c53e3ea8fe6d749c2ac31d58cf004161bc89a00dd9b217",
+            "prompt_sha256": "7f9bd31627529f68797047db0f2368e4eb6a8bec6b82d8b2a944b574261e75f1",
+            "max_output": 1024,
+            "last_output_s": 22.53189552295953,
+            "completion_latency_s": 21.48189552295953,
+            "ttft_s": 0.44684601649641986,
+            "max_engine_return_gap_s": 1.9325836803764105
+          },
+          {
+            "request_id": "memory-train-article-0020051",
+            "document_id": "memory-train-article-0020051",
+            "status": "completed",
+            "arrival_s": 1.1,
+            "completion_s": 22.572172867134213,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "487ee03e8c65c37c5527ad4de0c0ba4e1b233e56daa97d52dec651141c78690a",
+            "prompt_sha256": "5a49adea83f97616b80b0eea16e636ebf10d314326df08c5ee05e7197d2185ad",
+            "max_output": 1024,
+            "last_output_s": 22.572172867134213,
+            "completion_latency_s": 21.472172867134212,
+            "ttft_s": 0.47117287162691346,
+            "max_engine_return_gap_s": 1.9490738548338413
+          },
+          {
+            "request_id": "memory-train-article-0020184",
+            "document_id": "memory-train-article-0020184",
+            "status": "completed",
+            "arrival_s": 1.15,
+            "completion_s": 22.605578027665615,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "97d181833b5e839ba2ae2dca588082a3def911949edd776a90f0e613c6a8c7ec",
+            "prompt_sha256": "ec2958e0aeb3ca1b14b6c0141782247b448537d4a75d5f7f67ecda34bd290e4a",
+            "max_output": 1024,
+            "last_output_s": 22.605578027665615,
+            "completion_latency_s": 21.455578027665617,
+            "ttft_s": 0.4963172137737275,
+            "max_engine_return_gap_s": 1.942311367020011
+          },
+          {
+            "request_id": "memory-train-article-0020257",
+            "document_id": "memory-train-article-0020257",
+            "status": "completed",
+            "arrival_s": 1.2,
+            "completion_s": 21.07797894999385,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "3ab570a3b03e92cb0ea576c6d2b601667649571a3e2ff6921cd4120b56870179",
+            "prompt_sha256": "6ad994573beb3506da4cbfdac7d495c6c266aa57b49c9ca23f44216df6bb4fc3",
+            "max_output": 1024,
+            "last_output_s": 21.07797894999385,
+            "completion_latency_s": 19.87797894999385,
+            "ttft_s": 0.5214568760246039,
+            "max_engine_return_gap_s": 0.03667784947901964
+          },
+          {
+            "request_id": "memory-train-article-0020323",
+            "document_id": "memory-train-article-0020323",
+            "status": "completed",
+            "arrival_s": 1.25,
+            "completion_s": 21.135433902032673,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "1a0098fef1cc15d9ceda31d18ac72016d7f8ace250b9f439b9ba7e668b500641",
+            "prompt_sha256": "1f3af7f127b091818e428105a8e3f51019f0155001a06b8ef030fe036c6c688c",
+            "max_output": 1024,
+            "last_output_s": 21.135433902032673,
+            "completion_latency_s": 19.885433902032673,
+            "ttft_s": 0.5468099638819695,
+            "max_engine_return_gap_s": 0.03667784947901964
+          },
+          {
+            "request_id": "memory-train-article-0020484",
+            "document_id": "memory-train-article-0020484",
+            "status": "completed",
+            "arrival_s": 1.3,
+            "completion_s": 22.803271206095815,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "a7420fd0442de607d2caa4f915cc5df880abfd43e241b1770476d18dd4562e35",
+            "prompt_sha256": "f3f9dace9a63f55e1dda93b84e0e54369b89e035c757d4f72e7349b6cfc57b56",
+            "max_output": 1024,
+            "last_output_s": 22.803271206095815,
+            "completion_latency_s": 21.503271206095814,
+            "ttft_s": 0.598294853977859,
+            "max_engine_return_gap_s": 2.1862739622592926
+          },
+          {
+            "request_id": "memory-train-article-0020734",
+            "document_id": "memory-train-article-0020734",
+            "status": "completed",
+            "arrival_s": 1.35,
+            "completion_s": 21.270673086866736,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "83fb98718bf033754473794df5345640202a6a818fa63888f2d22e177c4e25e6",
+            "prompt_sha256": "12eea8b308efcf5aa0080c0b1fa0037939e821c1584f3893739594c4ac279d64",
+            "max_output": 1024,
+            "last_output_s": 21.270673086866736,
+            "completion_latency_s": 19.920673086866735,
+            "ttft_s": 0.6269037580117582,
+            "max_engine_return_gap_s": 0.03667784947901964
+          },
+          {
+            "request_id": "memory-train-article-0020794",
+            "document_id": "memory-train-article-0020794",
+            "status": "completed",
+            "arrival_s": 1.4,
+            "completion_s": 21.32662379089743,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "216d58a16f87591044dd7c2dc685851fefc2fe001d0e0f4d858b5406b4a66d0f",
+            "prompt_sha256": "1df385f645e7e395ac9aca104effde3967dcb2adc4704c158a285562dc824608",
+            "max_output": 1024,
+            "last_output_s": 21.32662379089743,
+            "completion_latency_s": 19.92662379089743,
+            "ttft_s": 0.6565262781456114,
+            "max_engine_return_gap_s": 0.03667784947901964
+          },
+          {
+            "request_id": "memory-train-article-0020902",
+            "document_id": "memory-train-article-0020902",
+            "status": "completed",
+            "arrival_s": 1.45,
+            "completion_s": 21.382493077777326,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "d33438daafdb074c988b88c1635f5c849780663630dbbd3869f1a18342f105d3",
+            "prompt_sha256": "8119c5ae760a9c1af5cab4669415e3da24cabf2ce23ed71d926535ae37ae31e8",
+            "max_output": 1024,
+            "last_output_s": 21.382493077777326,
+            "completion_latency_s": 19.932493077777327,
+            "ttft_s": 0.6870300054550171,
+            "max_engine_return_gap_s": 0.03667784947901964
+          },
+          {
+            "request_id": "memory-train-article-0020958",
+            "document_id": "memory-train-article-0020958",
+            "status": "completed",
+            "arrival_s": 1.5,
+            "completion_s": 21.440320926718414,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "1b3ff04805bc5042579a913d437de976eb75f155d56441877dd1a4f0b427dba2",
+            "prompt_sha256": "87aa7c554b1167e52900cd441093508d44d59e31d4ddd89546ee3cf05b0a3232",
+            "max_output": 1024,
+            "last_output_s": 21.440320926718414,
+            "completion_latency_s": 19.940320926718414,
+            "ttft_s": 0.7184909507632256,
+            "max_engine_return_gap_s": 0.03667784947901964
+          },
+          {
+            "request_id": "memory-train-article-0021022",
+            "document_id": "memory-train-article-0021022",
+            "status": "completed",
+            "arrival_s": 1.55,
+            "completion_s": 22.02786287944764,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "f5ea1edf615d7096c6dc56868142f6765c144c9d5abf8b272a5b0c5ac8ef3f11",
+            "prompt_sha256": "4dc12d2ff3c4e10168913f85f4e1d7ae4af9eaec703b7232dcd811365629c6c6",
+            "max_output": 1024,
+            "last_output_s": 22.02786287944764,
+            "completion_latency_s": 20.47786287944764,
+            "ttft_s": 0.7440303487703204,
+            "max_engine_return_gap_s": 0.6793543845415115
+          }
+        ],
+        "request_count": 32,
+        "full_wall_s": 23.25023049302399,
+        "requests_completed": 32,
+        "request_rate_s": 1.3763304415240654,
+        "total_output_tokens": 32768,
+        "output_token_rate_s": 1409.362372120643,
+        "mean_completion_s": 21.33871939556557,
+        "mean_ttft_s": 0.35654161965940145,
+        "max_engine_return_gap_s": 2.269050918519497,
+        "ttft_request_count": 32,
+        "gap_request_count": 32,
+        "actual_stop_counts": {
+          "length": 32
+        },
+        "chunk_diagnostics": {
+          "multi_token_chunks": 0,
+          "max_chunk_size": 1,
+          "token_level_itl_resolved": true,
+          "interpolated": false,
+          "semantics": "Tokens returned together share one timestamp; intra-chunk ITL is unresolved."
+        }
+      }
+    },
+    "block1-off": {
+      "cell": "block1-off",
+      "status": "COMPLETE",
+      "comparable": true,
+      "sources": {
+        "status": {
+          "path": "refine-logs/expert_saturation/outputs/admission_capacity/20260915_repeated_kv_cohort3_r01/execution_weste_26862/readback/results/block1-off/status.json",
+          "sha256": "046c4ba8d94b79115e45f2a807693552bc0486d03094dc632483d89f35ab5ca0"
+        },
+        "raw": {
+          "path": "refine-logs/expert_saturation/outputs/admission_capacity/20260915_repeated_kv_cohort3_r01/execution_weste_26862/readback/results/block1-off/raw.json",
+          "sha256": "53a01ddf686b9f479aa77935a822ed4d53321a44aef361e976119a5c7739c36d"
+        },
+        "config": {
+          "path": "refine-logs/expert_saturation/outputs/admission_capacity/20260915_repeated_kv_cohort3_r01/execution_weste_26862/readback/results/block1-off/config.json",
+          "sha256": "c92f84c1996fbbd313a511465caa0701354551fbb5c05e7581bc4a8c26784962"
+        },
+        "selective-store": {
+          "path": "refine-logs/expert_saturation/outputs/admission_capacity/20260915_repeated_kv_cohort3_r01/execution_weste_26862/readback/results/block1-off/selective-store.json",
+          "sha256": "dd2d9358826b4bc6cf721028f15fcc82b616754de6cd795094bce0c1c88120d8"
+        },
+        "offload-events": {
+          "path": "refine-logs/expert_saturation/outputs/admission_capacity/20260915_repeated_kv_cohort3_r01/execution_weste_26862/readback/results/block1-off/offload-events.json",
+          "sha256": "d021ff050cdafd07f7dbaf8a29d94dbe742d717c475f4f62ddea2cd43ada0f4c"
+        }
+      },
+      "errors": [],
+      "runtime_status": {
+        "status": "COMPLETE",
+        "requests_completed": 32,
+        "actual_preemption_count": null,
+        "preemption_mode": "native_recompute_or_external_kv",
+        "scientific_verdict": "MEASUREMENT_ONLY",
+        "error": null
+      },
+      "config": {
+        "model": {
+          "dtype": "bfloat16",
+          "id": "allenai/OLMoE-1B-7B-0924",
+          "key": "olmoe",
+          "revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+          "tokenizer_revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5"
+        },
+        "requests": 32,
+        "prompt_tokens": 3072,
+        "output_tokens": 1024,
+        "seed": 20260905,
+        "ttft_slo_s": 5.0,
+        "tpot_slo_s": 0.2,
+        "arrival_gap_s": 0.05,
+        "burst_size": 8,
+        "source": {
+          "dataset_id": "wikitext",
+          "dataset_config": "wikitext-103-raw-v1",
+          "split": "train",
+          "dataset_revision": "b08601e04326c79dfdd32d625aee71d232d685c3",
+          "arrow_file": "wikitext-train-00000-of-00002.arrow",
+          "arrow_sha256": "0c22278eac8186f5dd6060fcf84e4bcb4aa2266c51c77a279169764814f9a99e",
+          "observed_dataset_fingerprint": "2b0a0a8d61b6bc5e",
+          "model_config_sha256": "3643aa880d2f1c9b418156269ae791c73e5612d6b6b6fde0724d927cf89b6335",
+          "model_max_position_embeddings": 4096,
+          "tokenizer_files_sha256": {
+            "special_tokens_map.json": "b77491e270c6fcc5b2ecf22370f7318a6a18d3cabea09ba7bab92e9bf12656c2",
+            "tokenizer.json": "a094266ac6c4982efba277bc251349a5a6d6ad37efb39a2a90f53d8be2a40a40",
+            "tokenizer_config.json": "78a839c7851f14f9fb30e664c2b46166dc0628f2900679e5ec160656f702edff"
+          },
+          "selection_rule": "next32 complete articles with >=3072 tokens after all128 prior row intervals, in pinned shard source order; exclude duplicate document and prompt-prefix hashes",
+          "pre_run_length_rationale": "3072 prompt +1024 output retains active requests longer while later long prefills are admitted; 3968+128 could drain before 32 requests become active. This is regime qualification, chosen before GPU results.",
+          "reconstruction_rule": "concatenate original row strings exactly from one top-level title to before the next; no added separators",
+          "identity_scope": "Document, row and prompt-prefix disjoint from all 128 prior d6 requests (original and cohorts0/1/2); same WikiText train shard, model, lengths and steady-arrival distribution, not an independent population.",
+          "cohort_id": "cohort3",
+          "excluded_original_row_prefix_end_exclusive": 17106
+        },
+        "workload_sha256": "34aeca96e0537736234aa8b4cba835dcbc54fec60869959b87ab391f0dbce554",
+        "input_preparation": "offline document-disjoint holdout inputs; GPU UNRUN; inherited SLO fields are reference only",
+        "cap": 32,
+        "domain": "long",
+        "engine_max_num_seqs": 32,
+        "metric_role": "continuous request metrics primary; SLO 5s/.2s reference only",
+        "evidence_ceiling": "NATIVE_INPROCESS_CAPACITY_QUALIFICATION",
+        "max_seconds": 120,
+        "measurement_mode": "performance",
+        "requested_arm": "budget90",
+        "reservation_policy": "full",
+        "completion_policy": "native",
+        "headroom_observer": "fast",
+        "fixed_kv_cache_memory_bytes": 13960740864,
+        "gpu_memory_utilization": 0.9,
+        "rotation_victim_order": "most_output",
+        "action_scope": "repeated_staged_most_output",
+        "preemption_mode": "native_recompute_or_external_kv",
+        "offload_gib": 16,
+        "selective_save": "off",
+        "rotation_config": {
+          "min_absence_steps": 30,
+          "min_steps_between_swaps": 20,
+          "free_block_slack": 0,
+          "min_residency_steps": 30,
+          "protect_progress_fraction": 0.9,
+          "max_absences_per_request": 8,
+          "enabled": true
+        }
+      },
+      "host_snapshots": {
+        "host-after-init.json": {
+          "unix_s": 1789410211.1804166,
+          "monotonic_s": 4861014.426299698,
+          "pid": 12522,
+          "errors": {
+            "memory.peak": "FileNotFoundError: [Errno 2] No such file or directory: '/sys/fs/cgroup/memory.peak'"
+          },
+          "cpu_kv": {
+            "unique_storage_bytes": 17179869184,
+            "bytes_per_host_block": 2097152,
+            "derived_valid_host_kv_bytes": 0,
+            "derived_bytes_semantics": "Ready entries times exact allocated bytes per host block; excludes pending stores, not additional allocation.",
+            "unique_storages": 1,
+            "tensor_references": 2,
+            "storages": [
+              {
+                "storage_address": 140470663512064,
+                "bytes": 17179869184,
+                "is_pinned": true
+              }
+            ],
+            "all_tensors_pinned": true,
+            "mmap_region_is_pinned": null,
+            "worker_store_pending_events": 0,
+            "worker_load_pending_events": 0,
+            "worker_unsubmitted_store_jobs": 0,
+            "worker_load_jobs": 0,
+            "semantics": "Existing CPU KV storage only; load/store aliases counted once. Excludes transfer buffers and allocator overhead."
+          },
+          "manager": {
+            "capacity_blocks": 8192,
+            "entries": 0,
+            "valid_host_kv_entries": 0,
+            "pending_store_entries": 0,
+            "entries_with_load_references": 0,
+            "active_load_references": 0,
+            "free_blocks": 8192,
+            "recorded_pending_store_blocks": 0,
+            "semantics": "Ready means ref_cnt >= 0; entries with pending stores are not valid cached KV."
+          },
+          "pending": {
+            "scheduler_store_jobs": 0,
+            "scheduler_load_jobs": 0,
+            "pending_worker_acknowledgements": 0
+          },
+          "process_rss_bytes": 19463389184,
+          "parent_cgroup": {
+            "path": "/sys/fs/cgroup",
+            "values": {
+              "memory.max": 197568495616,
+              "memory.current": 43259977728,
+              "memory.peak": null,
+              "memory.swap.max": 0,
+              "memory.swap.current": 0
+            }
+          },
+          "accounting": "CPU KV storage, process RSS and shared cgroup charges overlap; do not add them. The parent limit is shared, not an independent process or KV hard cap. Peaks retain prior process/cgroup history.",
+          "transfer_semantics": "Pending metadata is not a CUDA completion/fence observation; no event queries.",
+          "process_peak_rss_bytes": 19463389184,
+          "cgroup_membership": "0::/",
+          "status": "PARTIAL"
+        },
+        "host-after.json": {
+          "unix_s": 1789410236.9945152,
+          "monotonic_s": 4861040.240398457,
+          "pid": 12522,
+          "errors": {
+            "memory.peak": "FileNotFoundError: [Errno 2] No such file or directory: '/sys/fs/cgroup/memory.peak'"
+          },
+          "cpu_kv": {
+            "unique_storage_bytes": 17179869184,
+            "bytes_per_host_block": 2097152,
+            "derived_valid_host_kv_bytes": 0,
+            "derived_bytes_semantics": "Ready entries times exact allocated bytes per host block; excludes pending stores, not additional allocation.",
+            "unique_storages": 1,
+            "tensor_references": 2,
+            "storages": [
+              {
+                "storage_address": 140470663512064,
+                "bytes": 17179869184,
+                "is_pinned": true
+              }
+            ],
+            "all_tensors_pinned": true,
+            "mmap_region_is_pinned": null,
+            "worker_store_pending_events": 0,
+            "worker_load_pending_events": 0,
+            "worker_unsubmitted_store_jobs": 0,
+            "worker_load_jobs": 0,
+            "semantics": "Existing CPU KV storage only; load/store aliases counted once. Excludes transfer buffers and allocator overhead."
+          },
+          "manager": {
+            "capacity_blocks": 8192,
+            "entries": 0,
+            "valid_host_kv_entries": 0,
+            "pending_store_entries": 0,
+            "entries_with_load_references": 0,
+            "active_load_references": 0,
+            "free_blocks": 8192,
+            "recorded_pending_store_blocks": 0,
+            "semantics": "Ready means ref_cnt >= 0; entries with pending stores are not valid cached KV."
+          },
+          "pending": {
+            "scheduler_store_jobs": 0,
+            "scheduler_load_jobs": 0,
+            "pending_worker_acknowledgements": 0
+          },
+          "process_rss_bytes": 19532705792,
+          "parent_cgroup": {
+            "path": "/sys/fs/cgroup",
+            "values": {
+              "memory.max": 197568495616,
+              "memory.current": 43346440192,
+              "memory.peak": null,
+              "memory.swap.max": 0,
+              "memory.swap.current": 0
+            }
+          },
+          "accounting": "CPU KV storage, process RSS and shared cgroup charges overlap; do not add them. The parent limit is shared, not an independent process or KV hard cap. Peaks retain prior process/cgroup history.",
+          "transfer_semantics": "Pending metadata is not a CUDA completion/fence observation; no event queries.",
+          "process_peak_rss_bytes": 19603812352,
+          "cgroup_membership": "0::/",
+          "status": "PARTIAL"
+        },
+        "host-before.json": {
+          "unix_s": 1789410212.1973932,
+          "monotonic_s": 4861015.443276486,
+          "pid": 12522,
+          "errors": {
+            "memory.peak": "FileNotFoundError: [Errno 2] No such file or directory: '/sys/fs/cgroup/memory.peak'"
+          },
+          "cpu_kv": {
+            "unique_storage_bytes": 17179869184,
+            "bytes_per_host_block": 2097152,
+            "derived_valid_host_kv_bytes": 0,
+            "derived_bytes_semantics": "Ready entries times exact allocated bytes per host block; excludes pending stores, not additional allocation.",
+            "unique_storages": 1,
+            "tensor_references": 2,
+            "storages": [
+              {
+                "storage_address": 140470663512064,
+                "bytes": 17179869184,
+                "is_pinned": true
+              }
+            ],
+            "all_tensors_pinned": true,
+            "mmap_region_is_pinned": null,
+            "worker_store_pending_events": 0,
+            "worker_load_pending_events": 0,
+            "worker_unsubmitted_store_jobs": 0,
+            "worker_load_jobs": 0,
+            "semantics": "Existing CPU KV storage only; load/store aliases counted once. Excludes transfer buffers and allocator overhead."
+          },
+          "manager": {
+            "capacity_blocks": 8192,
+            "entries": 0,
+            "valid_host_kv_entries": 0,
+            "pending_store_entries": 0,
+            "entries_with_load_references": 0,
+            "active_load_references": 0,
+            "free_blocks": 8192,
+            "recorded_pending_store_blocks": 0,
+            "semantics": "Ready means ref_cnt >= 0; entries with pending stores are not valid cached KV."
+          },
+          "pending": {
+            "scheduler_store_jobs": 0,
+            "scheduler_load_jobs": 0,
+            "pending_worker_acknowledgements": 0
+          },
+          "process_rss_bytes": 19523252224,
+          "parent_cgroup": {
+            "path": "/sys/fs/cgroup",
+            "values": {
+              "memory.max": 197568495616,
+              "memory.current": 43319873536,
+              "memory.peak": null,
+              "memory.swap.max": 0,
+              "memory.swap.current": 0
+            }
+          },
+          "accounting": "CPU KV storage, process RSS and shared cgroup charges overlap; do not add them. The parent limit is shared, not an independent process or KV hard cap. Peaks retain prior process/cgroup history.",
+          "transfer_semantics": "Pending metadata is not a CUDA completion/fence observation; no event queries.",
+          "process_peak_rss_bytes": 19525369856,
+          "cgroup_membership": "0::/",
+          "status": "PARTIAL"
+        },
+        "host-request-end.json": {
+          "unix_s": 1789410236.7599673,
+          "monotonic_s": 4861040.005849831,
+          "pid": 12522,
+          "errors": {
+            "memory.peak": "FileNotFoundError: [Errno 2] No such file or directory: '/sys/fs/cgroup/memory.peak'"
+          },
+          "cpu_kv": {
+            "unique_storage_bytes": 17179869184,
+            "bytes_per_host_block": 2097152,
+            "derived_valid_host_kv_bytes": 0,
+            "derived_bytes_semantics": "Ready entries times exact allocated bytes per host block; excludes pending stores, not additional allocation.",
+            "unique_storages": 1,
+            "tensor_references": 2,
+            "storages": [
+              {
+                "storage_address": 140470663512064,
+                "bytes": 17179869184,
+                "is_pinned": true
+              }
+            ],
+            "all_tensors_pinned": true,
+            "mmap_region_is_pinned": null,
+            "worker_store_pending_events": 0,
+            "worker_load_pending_events": 0,
+            "worker_unsubmitted_store_jobs": 0,
+            "worker_load_jobs": 0,
+            "semantics": "Existing CPU KV storage only; load/store aliases counted once. Excludes transfer buffers and allocator overhead."
+          },
+          "manager": {
+            "capacity_blocks": 8192,
+            "entries": 0,
+            "valid_host_kv_entries": 0,
+            "pending_store_entries": 0,
+            "entries_with_load_references": 0,
+            "active_load_references": 0,
+            "free_blocks": 8192,
+            "recorded_pending_store_blocks": 0,
+            "semantics": "Ready means ref_cnt >= 0; entries with pending stores are not valid cached KV."
+          },
+          "pending": {
+            "scheduler_store_jobs": 0,
+            "scheduler_load_jobs": 0,
+            "pending_worker_acknowledgements": 0
+          },
+          "process_rss_bytes": 19535540224,
+          "parent_cgroup": {
+            "path": "/sys/fs/cgroup",
+            "values": {
+              "memory.max": 197568495616,
+              "memory.current": 43334803456,
+              "memory.peak": null,
+              "memory.swap.max": 0,
+              "memory.swap.current": 0
+            }
+          },
+          "accounting": "CPU KV storage, process RSS and shared cgroup charges overlap; do not add them. The parent limit is shared, not an independent process or KV hard cap. Peaks retain prior process/cgroup history.",
+          "transfer_semantics": "Pending metadata is not a CUDA completion/fence observation; no event queries.",
+          "process_peak_rss_bytes": 19535540224,
+          "cgroup_membership": "0::/",
+          "status": "PARTIAL"
+        }
+      },
+      "requests": {
+        "complete": true,
+        "requests": [
+          {
+            "request_id": "memory-train-article-0017106",
+            "document_id": "memory-train-article-0017106",
+            "status": "completed",
+            "arrival_s": 0.0,
+            "completion_s": 22.70585415698588,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "4f4390887f14bf7cb27eb5fe56517ca75c43336a8218e88bab5964a79c6af9b2",
+            "prompt_sha256": "a8ff0681a6746239717c281019edca00a930b7aa2c6005fc512e9e3fada645dd",
+            "max_output": 1024,
+            "last_output_s": 22.70585415698588,
+            "completion_latency_s": 22.70585415698588,
+            "ttft_s": 0.06657673884183168,
+            "max_engine_return_gap_s": 1.3188623590394855
+          },
+          {
+            "request_id": "memory-train-article-0017190",
+            "document_id": "memory-train-article-0017190",
+            "status": "completed",
+            "arrival_s": 0.05,
+            "completion_s": 23.874253449961543,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "839a75c08ca17fb3dbb8c34d4ac04c7510402222e28d686da7f3b5bf83fa454d",
+            "prompt_sha256": "a139b5238bdab24b7e926d26bb8f548c943554caf8f904eb51227eb8dc33c6e8",
+            "max_output": 1024,
+            "last_output_s": 23.874253449961543,
+            "completion_latency_s": 23.824253449961542,
+            "ttft_s": 0.09808953180909157,
+            "max_engine_return_gap_s": 2.1636107098311186
+          },
+          {
+            "request_id": "memory-train-article-0017245",
+            "document_id": "memory-train-article-0017245",
+            "status": "completed",
+            "arrival_s": 0.1,
+            "completion_s": 22.87721542827785,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "ffd6538cf7798759edebcf410ce08366b18a5df6568b3a3163d835baeb946d57",
+            "prompt_sha256": "453dd5da650d6ea29b8978468f8d23de306958005bdcc318e2eb0e89ddc430ee",
+            "max_output": 1024,
+            "last_output_s": 22.87721542827785,
+            "completion_latency_s": 22.77721542827785,
+            "ttft_s": 0.10912173017859458,
+            "max_engine_return_gap_s": 1.2987976996228099
+          },
+          {
+            "request_id": "memory-train-article-0017380",
+            "document_id": "memory-train-article-0017380",
+            "status": "completed",
+            "arrival_s": 0.15,
+            "completion_s": 23.364030800759792,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "15a8b161db7ca4faea55b34bfd7e8059824e978eb1a93e492beb2ac360a0c185",
+            "prompt_sha256": "9aa87652684723d97ba8217fb07977c4df267557bfb2e2c9ad2e66606a5a16bd",
+            "max_output": 1024,
+            "last_output_s": 23.364030800759792,
+            "completion_latency_s": 23.214030800759794,
+            "ttft_s": 0.12071955800056458,
+            "max_engine_return_gap_s": 1.705717507749796
+          },
+          {
+            "request_id": "memory-train-article-0017453",
+            "document_id": "memory-train-article-0017453",
+            "status": "completed",
+            "arrival_s": 0.2,
+            "completion_s": 23.403680061921477,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "69504305dcfac9b05df99307734a9be2b19ff8da397e2e8778c4efc7f627ba11",
+            "prompt_sha256": "1229b44a8130b024cad93e28aa228fa1138864f2d7c755b893763fb7eba5a270",
+            "max_output": 1024,
+            "last_output_s": 23.403680061921477,
+            "completion_latency_s": 23.203680061921478,
+            "ttft_s": 0.132339976914227,
+            "max_engine_return_gap_s": 1.7160932095721364
+          },
+          {
+            "request_id": "memory-train-article-0017643",
+            "document_id": "memory-train-article-0017643",
+            "status": "completed",
+            "arrival_s": 0.25,
+            "completion_s": 23.70773824956268,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "86b81233ccd8ebccf2a3c747d6662337a5554b554d4ae2dc232aee0af73750e3",
+            "prompt_sha256": "f9bf9900eb36277dffcdb5cf736a89838f764e7cd57dac49c9096221a83154df",
+            "max_output": 1024,
+            "last_output_s": 23.70773824956268,
+            "completion_latency_s": 23.45773824956268,
+            "ttft_s": 0.14408749993890524,
+            "max_engine_return_gap_s": 2.1376839773729444
+          },
+          {
+            "request_id": "memory-train-article-0017858",
+            "document_id": "memory-train-article-0017858",
+            "status": "completed",
+            "arrival_s": 0.3,
+            "completion_s": 23.03331772610545,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "836643b63739960cc62fb0340c14fb7f3982e5841f2620bbf7874faac71d1400",
+            "prompt_sha256": "37f112f6b501f6f01d5fb69a2214d5fd5b363450bf07851aefb1d29ac1a748b1",
+            "max_output": 1024,
+            "last_output_s": 23.03331772610545,
+            "completion_latency_s": 22.73331772610545,
+            "ttft_s": 0.1572232896462083,
+            "max_engine_return_gap_s": 1.0663191368803382
+          },
+          {
+            "request_id": "memory-train-article-0017966",
+            "document_id": "memory-train-article-0017966",
+            "status": "completed",
+            "arrival_s": 0.35,
+            "completion_s": 23.78554160054773,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "d50a5d9a0d29e605d16bd222cf2b0af5219b9f478cdd1fcb903b55af7731c0d6",
+            "prompt_sha256": "8e9f40872d5331aac828860941daa2fe78303a6561a4ca676b00c1cf3427ead5",
+            "max_output": 1024,
+            "last_output_s": 23.78554160054773,
+            "completion_latency_s": 23.43554160054773,
+            "ttft_s": 0.1719342475757003,
+            "max_engine_return_gap_s": 2.1387261068448424
+          },
+          {
+            "request_id": "memory-train-article-0018032",
+            "document_id": "memory-train-article-0018032",
+            "status": "completed",
+            "arrival_s": 0.4,
+            "completion_s": 23.825106100179255,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "57390e704fecaaf09562576494bf0995511034b4994972a11e0dd34258811926",
+            "prompt_sha256": "7f09d73258d95c888792ce4429ff753b1496f4f487c005782788cd51de23b829",
+            "max_output": 1024,
+            "last_output_s": 23.825106100179255,
+            "completion_latency_s": 23.425106100179256,
+            "ttft_s": 0.18679053746163843,
+            "max_engine_return_gap_s": 2.1382956812158227
+          },
+          {
+            "request_id": "memory-train-article-0018153",
+            "document_id": "memory-train-article-0018153",
+            "status": "completed",
+            "arrival_s": 0.45,
+            "completion_s": 22.54245020262897,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "d6b06e954f004438c8068780cb07d6f136ab380671d20c44fbb3b73970a16d5b",
+            "prompt_sha256": "62cbada02ade9204dbe4fd71a6044fcf795d9fb51c17d276decf6c7f6b952819",
+            "max_output": 1024,
+            "last_output_s": 22.54245020262897,
+            "completion_latency_s": 22.09245020262897,
+            "ttft_s": 0.2024815410375595,
+            "max_engine_return_gap_s": 1.3087860075756907
+          },
+          {
+            "request_id": "memory-train-article-0018301",
+            "document_id": "memory-train-article-0018301",
+            "status": "completed",
+            "arrival_s": 0.5,
+            "completion_s": 22.624692546203732,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "82f0ce26bca7ee81e090e0f67b86fd5a41f54b900e84017241f2ebdb4548ed07",
+            "prompt_sha256": "16c425250dee2158cdf8bd5338ad1ca4343b7dc8a3bbdfed2c2ea7477ee43fbe",
+            "max_output": 1024,
+            "last_output_s": 22.624692546203732,
+            "completion_latency_s": 22.124692546203732,
+            "ttft_s": 0.21889642346650362,
+            "max_engine_return_gap_s": 1.314739410765469
+          },
+          {
+            "request_id": "memory-train-article-0018442",
+            "document_id": "memory-train-article-0018442",
+            "status": "completed",
+            "arrival_s": 0.55,
+            "completion_s": 23.847731310874224,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "7177586801b0855fd1d5b9eb4367d1ae851b90ab9672c1934f5af5606b8c1925",
+            "prompt_sha256": "0087e36e566d859485ef46f631f6803d614444d142fd09e512b5d5f1bf8212a0",
+            "max_output": 1024,
+            "last_output_s": 23.847731310874224,
+            "completion_latency_s": 23.297731310874223,
+            "ttft_s": 0.23592721093446012,
+            "max_engine_return_gap_s": 1.5301452269777656
+          },
+          {
+            "request_id": "memory-train-article-0018866",
+            "document_id": "memory-train-article-0018866",
+            "status": "completed",
+            "arrival_s": 0.6,
+            "completion_s": 24.072261885739863,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "d69bf44dd82d851f5c22aec84376427d775c83c96bc61c3a7c7a407d7e0c7a8c",
+            "prompt_sha256": "e02c4a6fcbb6db7ab82e730bc6221841595d49311ea2f96cf6f21afe6b65b30f",
+            "max_output": 1024,
+            "last_output_s": 24.072261885739863,
+            "completion_latency_s": 23.47226188573986,
+            "ttft_s": 0.25214873123914006,
+            "max_engine_return_gap_s": 2.258548365905881
+          },
+          {
+            "request_id": "memory-train-article-0019035",
+            "document_id": "memory-train-article-0019035",
+            "status": "completed",
+            "arrival_s": 0.65,
+            "completion_s": 22.85948822554201,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "9c62143a0f4185b29eb0b1747dc406bf969f57dcc8e462f0a6e69f47db6ac4e3",
+            "prompt_sha256": "42b071ebf09d20c7206536d22216328325fb328377795680a6da6ef9270c9415",
+            "max_output": 1024,
+            "last_output_s": 22.85948822554201,
+            "completion_latency_s": 22.20948822554201,
+            "ttft_s": 0.2693052351474762,
+            "max_engine_return_gap_s": 1.305901549756527
+          },
+          {
+            "request_id": "memory-train-article-0019105",
+            "document_id": "memory-train-article-0019105",
+            "status": "completed",
+            "arrival_s": 0.7,
+            "completion_s": 24.08625493850559,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "0a7bb8a03664eca4bfeff3a1e190661e8e487650bbe856439f496350da6413e2",
+            "prompt_sha256": "1fade5bf86947cac0cc9dcd6207407f640dd8f25c24d79b36a497972ed01a581",
+            "max_output": 1024,
+            "last_output_s": 24.08625493850559,
+            "completion_latency_s": 23.38625493850559,
+            "ttft_s": 0.2876226475462318,
+            "max_engine_return_gap_s": 1.7429892532527447
+          },
+          {
+            "request_id": "memory-train-article-0019205",
+            "document_id": "memory-train-article-0019205",
+            "status": "completed",
+            "arrival_s": 0.75,
+            "completion_s": 23.261402340605855,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "3fb6802d3908521608e902db23aa28f2c21400d418a8f65d475445d3392da76e",
+            "prompt_sha256": "21184655ac1b7e42a0c4c062bdc9c9a96ec40f442718ea880388740f1b5b333d",
+            "max_output": 1024,
+            "last_output_s": 23.261402340605855,
+            "completion_latency_s": 22.511402340605855,
+            "ttft_s": 0.306369386613369,
+            "max_engine_return_gap_s": 1.6927945297211409
+          },
+          {
+            "request_id": "memory-train-article-0019436",
+            "document_id": "memory-train-article-0019436",
+            "status": "completed",
+            "arrival_s": 0.8,
+            "completion_s": 24.222790716215968,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "8f11ebc47a1ca0ffff07e22649fcff333f38352e5f8fe90bbc5feabb83b54663",
+            "prompt_sha256": "9ec56fcecc5dcb85508b39a66c2f1cf5c8684faf3c671b7de01ceb290246224d",
+            "max_output": 1024,
+            "last_output_s": 24.222790716215968,
+            "completion_latency_s": 23.422790716215967,
+            "ttft_s": 0.3262416476383805,
+            "max_engine_return_gap_s": 1.7918375125154853
+          },
+          {
+            "request_id": "memory-train-article-0019630",
+            "document_id": "memory-train-article-0019630",
+            "status": "completed",
+            "arrival_s": 0.85,
+            "completion_s": 23.349274557083845,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "0d9efa79080b893adc7e96b39032b7273954d05bb0ed0d332e145ae8c37f8247",
+            "prompt_sha256": "9ea14267473770224da7f6bd68a1523bfc4a5ab50f470e608e54a1700d785a84",
+            "max_output": 1024,
+            "last_output_s": 23.349274557083845,
+            "completion_latency_s": 22.499274557083844,
+            "ttft_s": 0.34621551223099234,
+            "max_engine_return_gap_s": 1.7033500568941236
+          },
+          {
+            "request_id": "memory-train-article-0019699",
+            "document_id": "memory-train-article-0019699",
+            "status": "completed",
+            "arrival_s": 0.9,
+            "completion_s": 23.917859720997512,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "ea38941bbb33d322293c91b06589f6b752f2b855be0e507d0141bb8bf7785af5",
+            "prompt_sha256": "47543983547146ab204e086b19bdc8e570148c1c02632f7a3cf94b4a38f77e56",
+            "max_output": 1024,
+            "last_output_s": 23.917859720997512,
+            "completion_latency_s": 23.017859720997514,
+            "ttft_s": 0.36723043248057363,
+            "max_engine_return_gap_s": 1.7145422929897904
+          },
+          {
+            "request_id": "memory-train-article-0019783",
+            "document_id": "memory-train-article-0019783",
+            "status": "completed",
+            "arrival_s": 0.95,
+            "completion_s": 23.90903460700065,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "de007f7e42c89ddc7934189ab086892b73d96e6376e17c7c1fb95f10100b8a4b",
+            "prompt_sha256": "47e2fe193296e0f3c7e6720b435449065dcf6b20334530ea364b46c0d7037bc2",
+            "max_output": 1024,
+            "last_output_s": 23.90903460700065,
+            "completion_latency_s": 22.95903460700065,
+            "ttft_s": 0.39054933767765765,
+            "max_engine_return_gap_s": 2.1310862442478538
+          },
+          {
+            "request_id": "memory-train-article-0019864",
+            "document_id": "memory-train-article-0019864",
+            "status": "completed",
+            "arrival_s": 1.0,
+            "completion_s": 23.733650447800756,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "d122c576956f908d8d1327b2f39d0e3848d7f64ce50408d0bef0298adeb7d23a",
+            "prompt_sha256": "7b43cfff216dfe3b64aed8d6431420b44eb64621279efb2b8be4fbdeba10519d",
+            "max_output": 1024,
+            "last_output_s": 23.733650447800756,
+            "completion_latency_s": 22.733650447800756,
+            "ttft_s": 0.4143051151186228,
+            "max_engine_return_gap_s": 2.1392247462645173
+          },
+          {
+            "request_id": "memory-train-article-0019937",
+            "document_id": "memory-train-article-0019937",
+            "status": "completed",
+            "arrival_s": 1.05,
+            "completion_s": 24.509605672210455,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "c0ac1fc2e9e87004d0c53e3ea8fe6d749c2ac31d58cf004161bc89a00dd9b217",
+            "prompt_sha256": "7f9bd31627529f68797047db0f2368e4eb6a8bec6b82d8b2a944b574261e75f1",
+            "max_output": 1024,
+            "last_output_s": 24.509605672210455,
+            "completion_latency_s": 23.459605672210454,
+            "ttft_s": 0.4396429926156997,
+            "max_engine_return_gap_s": 2.605639697983861
+          },
+          {
+            "request_id": "memory-train-article-0020051",
+            "document_id": "memory-train-article-0020051",
+            "status": "completed",
+            "arrival_s": 1.1,
+            "completion_s": 23.811734845861793,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "487ee03e8c65c37c5527ad4de0c0ba4e1b233e56daa97d52dec651141c78690a",
+            "prompt_sha256": "5a49adea83f97616b80b0eea16e636ebf10d314326df08c5ee05e7197d2185ad",
+            "max_output": 1024,
+            "last_output_s": 23.811734845861793,
+            "completion_latency_s": 22.71173484586179,
+            "ttft_s": 0.46513110268861046,
+            "max_engine_return_gap_s": 2.1345450738444924
+          },
+          {
+            "request_id": "memory-train-article-0020184",
+            "document_id": "memory-train-article-0020184",
+            "status": "completed",
+            "arrival_s": 1.15,
+            "completion_s": 23.847731310874224,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "97d181833b5e839ba2ae2dca588082a3def911949edd776a90f0e613c6a8c7ec",
+            "prompt_sha256": "ec2958e0aeb3ca1b14b6c0141782247b448537d4a75d5f7f67ecda34bd290e4a",
+            "max_output": 1024,
+            "last_output_s": 23.847731310874224,
+            "completion_latency_s": 22.697731310874225,
+            "ttft_s": 0.49095205161720523,
+            "max_engine_return_gap_s": 2.14255253598094
+          },
+          {
+            "request_id": "memory-train-article-0020257",
+            "document_id": "memory-train-article-0020257",
+            "status": "completed",
+            "arrival_s": 1.2,
+            "completion_s": 22.04801624082029,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "3ab570a3b03e92cb0ea576c6d2b601667649571a3e2ff6921cd4120b56870179",
+            "prompt_sha256": "6ad994573beb3506da4cbfdac7d495c6c266aa57b49c9ca23f44216df6bb4fc3",
+            "max_output": 1024,
+            "last_output_s": 22.04801624082029,
+            "completion_latency_s": 20.84801624082029,
+            "ttft_s": 0.5164085395634175,
+            "max_engine_return_gap_s": 0.030122810043394566
+          },
+          {
+            "request_id": "memory-train-article-0020323",
+            "document_id": "memory-train-article-0020323",
+            "status": "completed",
+            "arrival_s": 1.25,
+            "completion_s": 22.132549931295216,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "50351a3665dd0f0f8469dcb65b861bf49daf95d77d2c42893abbcf4b7cdad6bd",
+            "prompt_sha256": "1f3af7f127b091818e428105a8e3f51019f0155001a06b8ef030fe036c6c688c",
+            "max_output": 1024,
+            "last_output_s": 22.132549931295216,
+            "completion_latency_s": 20.882549931295216,
+            "ttft_s": 0.5424644183367491,
+            "max_engine_return_gap_s": 0.030122810043394566
+          },
+          {
+            "request_id": "memory-train-article-0020484",
+            "document_id": "memory-train-article-0020484",
+            "status": "completed",
+            "arrival_s": 1.3,
+            "completion_s": 24.10017106309533,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "a7420fd0442de607d2caa4f915cc5df880abfd43e241b1770476d18dd4562e35",
+            "prompt_sha256": "f3f9dace9a63f55e1dda93b84e0e54369b89e035c757d4f72e7349b6cfc57b56",
+            "max_output": 1024,
+            "last_output_s": 24.10017106309533,
+            "completion_latency_s": 22.80017106309533,
+            "ttft_s": 0.594850704818964,
+            "max_engine_return_gap_s": 2.7724634427577257
+          },
+          {
+            "request_id": "memory-train-article-0020734",
+            "document_id": "memory-train-article-0020734",
+            "status": "completed",
+            "arrival_s": 1.35,
+            "completion_s": 22.320135068148375,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "83fb98718bf033754473794df5345640202a6a818fa63888f2d22e177c4e25e6",
+            "prompt_sha256": "12eea8b308efcf5aa0080c0b1fa0037939e821c1584f3893739594c4ac279d64",
+            "max_output": 1024,
+            "last_output_s": 22.320135068148375,
+            "completion_latency_s": 20.970135068148373,
+            "ttft_s": 0.6225611424073576,
+            "max_engine_return_gap_s": 0.030122810043394566
+          },
+          {
+            "request_id": "memory-train-article-0020794",
+            "document_id": "memory-train-article-0020794",
+            "status": "completed",
+            "arrival_s": 1.4,
+            "completion_s": 22.404878430999815,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "216d58a16f87591044dd7c2dc685851fefc2fe001d0e0f4d858b5406b4a66d0f",
+            "prompt_sha256": "1df385f645e7e395ac9aca104effde3967dcb2adc4704c158a285562dc824608",
+            "max_output": 1024,
+            "last_output_s": 22.404878430999815,
+            "completion_latency_s": 21.004878430999817,
+            "ttft_s": 0.6525545440614224,
+            "max_engine_return_gap_s": 0.030122810043394566
+          },
+          {
+            "request_id": "memory-train-article-0020902",
+            "document_id": "memory-train-article-0020902",
+            "status": "completed",
+            "arrival_s": 1.45,
+            "completion_s": 22.487265673466027,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "ea0ccdb3bbb941a99835a1f33fa5cd80b2b8741f837951dd462581c9bf852d98",
+            "prompt_sha256": "8119c5ae760a9c1af5cab4669415e3da24cabf2ce23ed71d926535ae37ae31e8",
+            "max_output": 1024,
+            "last_output_s": 22.487265673466027,
+            "completion_latency_s": 21.037265673466027,
+            "ttft_s": 0.682201791740954,
+            "max_engine_return_gap_s": 0.030122810043394566
+          },
+          {
+            "request_id": "memory-train-article-0020958",
+            "document_id": "memory-train-article-0020958",
+            "status": "completed",
+            "arrival_s": 1.5,
+            "completion_s": 22.569830873981118,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "1b3ff04805bc5042579a913d437de976eb75f155d56441877dd1a4f0b427dba2",
+            "prompt_sha256": "87aa7c554b1167e52900cd441093508d44d59e31d4ddd89546ee3cf05b0a3232",
+            "max_output": 1024,
+            "last_output_s": 22.569830873981118,
+            "completion_latency_s": 21.069830873981118,
+            "ttft_s": 0.7127827098593116,
+            "max_engine_return_gap_s": 0.030122810043394566
+          },
+          {
+            "request_id": "memory-train-article-0021022",
+            "document_id": "memory-train-article-0021022",
+            "status": "completed",
+            "arrival_s": 1.55,
+            "completion_s": 23.261402340605855,
+            "stop_reason": "length",
+            "outputs": 1024,
+            "output_sha256": "f5ea1edf615d7096c6dc56868142f6765c144c9d5abf8b272a5b0c5ac8ef3f11",
+            "prompt_sha256": "4dc12d2ff3c4e10168913f85f4e1d7ae4af9eaec703b7232dcd811365629c6c6",
+            "max_output": 1024,
+            "last_output_s": 23.261402340605855,
+            "completion_latency_s": 21.711402340605854,
+            "ttft_s": 0.7388143537566065,
+            "max_engine_return_gap_s": 0.6676830546930432
+          }
+        ],
+        "request_count": 32,
+        "full_wall_s": 24.509643726050854,
+        "requests_completed": 32,
+        "request_rate_s": 1.305608533427509,
+        "total_output_tokens": 32768,
+        "output_token_rate_s": 1336.9431382297691,
+        "mean_completion_s": 22.55302970390185,
+        "mean_ttft_s": 0.3519543963426258,
+        "max_engine_return_gap_s": 2.7724634427577257,
+        "ttft_request_count": 32,
+        "gap_request_count": 32,
+        "actual_stop_counts": {
+          "length": 32
+        },
+        "chunk_diagnostics": {
+          "multi_token_chunks": 0,
+          "max_chunk_size": 1,
+          "token_level_itl_resolved": true,
+          "interpolated": false,
+          "semantics": "Tokens returned together share one timestamp; intra-chunk ITL is unresolved."
+        }
+      }
+    }
+  },
+  "performance_comparisons": [
+    {
+      "block": 0,
+      "status": "COMPLETE",
+      "on_minus_off": {
+        "full_wall_s": -1.534245460294187,
+        "request_rate_s": 0.08603595619332749,
+        "total_output_tokens": 0,
+        "output_token_rate_s": 88.10081914196735,
+        "mean_completion_s": -1.481823422422167,
+        "mean_ttft_s": 0.00026980950497090816,
+        "max_engine_return_gap_s": -0.5533960927277803
+      },
+      "request_deltas": [
+        {
+          "request_id": "memory-train-article-0017106",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.475168090313673
+        },
+        {
+          "request_id": "memory-train-article-0017190",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.5307565676048398
+        },
+        {
+          "request_id": "memory-train-article-0017245",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.5238457778468728
+        },
+        {
+          "request_id": "memory-train-article-0017380",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.5313036665320396
+        },
+        {
+          "request_id": "memory-train-article-0017453",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.5319735752418637
+        },
+        {
+          "request_id": "memory-train-article-0017643",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.1333874631673098
+        },
+        {
+          "request_id": "memory-train-article-0017858",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.5278872065246105
+        },
+        {
+          "request_id": "memory-train-article-0017966",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -0.8072847323492169
+        },
+        {
+          "request_id": "memory-train-article-0018032",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.523774679750204
+        },
+        {
+          "request_id": "memory-train-article-0018153",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.4034387608990073
+        },
+        {
+          "request_id": "memory-train-article-0018301",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.428570119664073
+        },
+        {
+          "request_id": "memory-train-article-0018442",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.5133089581504464
+        },
+        {
+          "request_id": "memory-train-article-0018866",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.5585528248921037
+        },
+        {
+          "request_id": "memory-train-article-0019035",
+          "output_identical": false,
+          "completion_latency_on_minus_off_s": -1.5054137827828526
+        },
+        {
+          "request_id": "memory-train-article-0019105",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.547828296199441
+        },
+        {
+          "request_id": "memory-train-article-0019205",
+          "output_identical": false,
+          "completion_latency_on_minus_off_s": -1.5164992278441787
+        },
+        {
+          "request_id": "memory-train-article-0019436",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.527755162678659
+        },
+        {
+          "request_id": "memory-train-article-0019630",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.5161407217383385
+        },
+        {
+          "request_id": "memory-train-article-0019699",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -2.047944695688784
+        },
+        {
+          "request_id": "memory-train-article-0019783",
+          "output_identical": false,
+          "completion_latency_on_minus_off_s": -1.5225170496851206
+        },
+        {
+          "request_id": "memory-train-article-0019864",
+          "output_identical": false,
+          "completion_latency_on_minus_off_s": -1.5122847007587552
+        },
+        {
+          "request_id": "memory-train-article-0019937",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -2.2513756472617388
+        },
+        {
+          "request_id": "memory-train-article-0020051",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.5103888735175133
+        },
+        {
+          "request_id": "memory-train-article-0020184",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.5133089581504464
+        },
+        {
+          "request_id": "memory-train-article-0020257",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.225445294752717
+        },
+        {
+          "request_id": "memory-train-article-0020323",
+          "output_identical": false,
+          "completion_latency_on_minus_off_s": -1.2542820516973734
+        },
+        {
+          "request_id": "memory-train-article-0020484",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.569097545929253
+        },
+        {
+          "request_id": "memory-train-article-0020734",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.3098914418369532
+        },
+        {
+          "request_id": "memory-train-article-0020794",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.3383219735696912
+        },
+        {
+          "request_id": "memory-train-article-0020902",
+          "output_identical": false,
+          "completion_latency_on_minus_off_s": -1.3664993401616812
+        },
+        {
+          "request_id": "memory-train-article-0020958",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.3927383944392204
+        },
+        {
+          "request_id": "memory-train-article-0021022",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.501363935880363
+        }
+      ]
+    },
+    {
+      "block": 1,
+      "status": "COMPLETE",
+      "on_minus_off": {
+        "full_wall_s": -1.2594132330268621,
+        "request_rate_s": 0.07072190809655643,
+        "total_output_tokens": 0,
+        "output_token_rate_s": 72.41923389087378,
+        "mean_completion_s": -1.2143103083362803,
+        "mean_ttft_s": 0.004587223316775635,
+        "max_engine_return_gap_s": -0.5034125242382288
+      },
+      "request_deltas": [
+        {
+          "request_id": "memory-train-article-0017106",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.211266322992742
+        },
+        {
+          "request_id": "memory-train-article-0017190",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.2593019166961312
+        },
+        {
+          "request_id": "memory-train-article-0017245",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.2594987582415342
+        },
+        {
+          "request_id": "memory-train-article-0017380",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.2624248983338475
+        },
+        {
+          "request_id": "memory-train-article-0017453",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.2623290847986937
+        },
+        {
+          "request_id": "memory-train-article-0017643",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -0.862503576092422
+        },
+        {
+          "request_id": "memory-train-article-0017858",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.261709206737578
+        },
+        {
+          "request_id": "memory-train-article-0017966",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -0.5353533225134015
+        },
+        {
+          "request_id": "memory-train-article-0018032",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.2529332330450416
+        },
+        {
+          "request_id": "memory-train-article-0018153",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.1401853524148464
+        },
+        {
+          "request_id": "memory-train-article-0018301",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.1652439208701253
+        },
+        {
+          "request_id": "memory-train-article-0018442",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.2421532832086086
+        },
+        {
+          "request_id": "memory-train-article-0018866",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.2863981556147337
+        },
+        {
+          "request_id": "memory-train-article-0019035",
+          "output_identical": false,
+          "completion_latency_on_minus_off_s": -1.241771555505693
+        },
+        {
+          "request_id": "memory-train-article-0019105",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.2756346706300974
+        },
+        {
+          "request_id": "memory-train-article-0019205",
+          "output_identical": false,
+          "completion_latency_on_minus_off_s": -1.248494447208941
+        },
+        {
+          "request_id": "memory-train-article-0019436",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.254992458038032
+        },
+        {
+          "request_id": "memory-train-article-0019630",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.2476686546579003
+        },
+        {
+          "request_id": "memory-train-article-0019699",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.7765087438747287
+        },
+        {
+          "request_id": "memory-train-article-0019783",
+          "output_identical": false,
+          "completion_latency_on_minus_off_s": -1.2508138185366988
+        },
+        {
+          "request_id": "memory-train-article-0019864",
+          "output_identical": false,
+          "completion_latency_on_minus_off_s": -1.2417272729799151
+        },
+        {
+          "request_id": "memory-train-article-0019937",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.9777101492509246
+        },
+        {
+          "request_id": "memory-train-article-0020051",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.2395619787275791
+        },
+        {
+          "request_id": "memory-train-article-0020184",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.2421532832086086
+        },
+        {
+          "request_id": "memory-train-article-0020257",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -0.9700372908264399
+        },
+        {
+          "request_id": "memory-train-article-0020323",
+          "output_identical": false,
+          "completion_latency_on_minus_off_s": -0.9971160292625427
+        },
+        {
+          "request_id": "memory-train-article-0020484",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.2968998569995165
+        },
+        {
+          "request_id": "memory-train-article-0020734",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.0494619812816381
+        },
+        {
+          "request_id": "memory-train-article-0020794",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.0782546401023865
+        },
+        {
+          "request_id": "memory-train-article-0020902",
+          "output_identical": false,
+          "completion_latency_on_minus_off_s": -1.1047725956887007
+        },
+        {
+          "request_id": "memory-train-article-0020958",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.1295099472627044
+        },
+        {
+          "request_id": "memory-train-article-0021022",
+          "output_identical": true,
+          "completion_latency_on_minus_off_s": -1.233539461158216
+        }
+      ]
+    }
+  ],
+  "semantics": [
+    "L/F are actual engine-return output times; F is within this residency, next_output_after_preempt_s can cross another zero-output preemption. Terminal completion is separate. Episode wall excludes initialization/warmup and later drain.",
+    "E is first OBSERVED PREEMPTED full-history GPU funding, with recompute fallback; no native lookup or guarantee of immediate dispatch. Fixed most uses current guards, never alternative-victim search.",
+    "E ignores target-priority/cooldown/plan-busy gates and joint prepare-batch growth; context and victim preparation growth are retained. Pending store jobs are not valid host cache. No host-cache hit is inferred from E.",
+    "S is accepted load host submission or completed recovery engine-call start, not physical transfer/kernel start. A call can enclose E/preemption; do not interpret sub-call ordering as negative waiting.",
+    "S_host_engine_call uses the earliest completed call carrying first accepted load dispatch or recovery computation, providing the same host-call entry boundary in both arms; original S is retained.",
+    "Recompute counts are confirmed executed positions, not time savings. Positive computed adjustments are separate; discarded GPU state may still be reusable on host.",
+    "Diagnostic timings include instrumentation and never enter performance comparisons. Incomplete/failed cells are retained, never compared."
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "schema": "e-pro6000-normal-plan-v1",
+  "status": "FROZEN_GPU_UNRUN",
+  "normal_capacity": true,
+  "gpu_memory_utilization": 0.9,
+  "kv_cache_memory_bytes": null,
+  "host_gib": 32,
+  "max_num_seqs": 256,
+  "max_num_batched_tokens": 2048,
+  "max_model_len": 4096,
+  "precision": "bfloat16",
+  "model": "/root/autodl-tmp/moe-research-20261002/model",
+  "natural_eos": true,
+  "mechanism_inactive_is_valid": true,
+  "same_engine_within_group": true,
+  "same_full_cap_warmup_each_arm": true,
+  "clear_gpu_and_host_kv_before_and_after_warmup": true,
+  "hold_lock_only_during_bounded_group": true,
+  "groups": [
+    {
+      "name": "low",
+      "requests": 64,
+      "workload": "inputs_pro6000/pro6000_low_64.json",
+      "arms": [
+        "host",
+        "recompute"
+      ]
+    },
+    {
+      "name": "near_capacity",
+      "requests": 192,
+      "workload": "inputs_pro6000/pro6000_near_capacity_192.json",
+      "arms": [
+        "host",
+        "recompute"
+      ]
+    },
+    {
+      "name": "high",
+      "requests": 256,
+      "workload": "inputs_pro6000/pro6000_high_256.json",
+      "arms": [
+        "host",
+        "recompute",
+        "recompute",
+        "host"
+      ]
+    }
+  ],
+  "nominal_occupancy_is_upper_bound_not_prediction": true,
+  "next_diagnostic": "Only if normal groups cannot expose both paths, separately label any fixed-output or explicit-capacity experiment as controlled diagnosis, never main normal result."
+}

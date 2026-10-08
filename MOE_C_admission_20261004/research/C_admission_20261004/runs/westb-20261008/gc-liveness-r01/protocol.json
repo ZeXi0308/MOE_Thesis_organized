@@ -1,0 +1,85 @@
+{
+  "base_commit": "5593b5f",
+  "dev_indices": "No new development sweep in this diagnostic",
+  "test_indices": "Same 384 interleaved articles and 0.1s trace as pressure exploration",
+  "native_dev_reference": null,
+  "dev_caps": [],
+  "test_order": [
+    "retained",
+    "released",
+    "released",
+    "retained"
+  ],
+  "selection": "No policy or cap tuning. Fixed192 was the previously competitive simple baseline whose strict-gap results contained four common host stalls without preemption.",
+  "fixed_baseline_claim_scope": "Same fixed192 admission rule in every cell; implemented by complete-inflight cap192 and KV floor0. No extra admission gate.",
+  "kv_floor": 0,
+  "recovery_high": null,
+  "recovery_clear": null,
+  "sample_interval_s": null,
+  "max_signal_wait_s": null,
+  "run_timeout_s": 240,
+  "prompt_arrival_gap_s": 0.1,
+  "output_mode": "natural EOS or max 1024; no future output length read",
+  "slo_grid": {
+    "ttft": [
+      2,
+      5,
+      10,
+      20,
+      40
+    ],
+    "max_gap": [
+      0.25,
+      0.5,
+      1,
+      2
+    ],
+    "completion": 120
+  },
+  "slo_role": "Exploratory full 20-point surface, not an application SLO or chosen headline.",
+  "invariants": "Native running scheduling, victim tail, recovery path, transfer and quantum unmodified.",
+  "reset": "Same engine/compiled shapes; identical warmup per cell then connector reset; fresh policy state.",
+  "lock": "/root/autodl-tmp/moe-research-gpu.lock",
+  "host_budget_bytes": 128849018880,
+  "model": {
+    "dtype": "bfloat16",
+    "id": "allenai/OLMoE-1B-7B-0924",
+    "key": "olmoe",
+    "revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "tokenizer_revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5"
+  },
+  "input_sha256": "10493039c7f704a45d1a209c47a2b87c2de5947b9464f921b1495721a0d328e4",
+  "profile": "pro-opportunity-gc-liveness",
+  "usable_kv_pages": 32768,
+  "native_max_seqs": 256,
+  "pro_inputs_file_sha256": "6b6be96f8fec6e92b6e59390bab0fe414aeafdaab9539000d88050f8bbf22d25",
+  "evidence_role": "HARNESS_HISTORY_LIVENESS_DIAGNOSTIC_NOT_ADMISSION_METHOD",
+  "host_kv_gib": 16,
+  "max_model_len": 4096,
+  "precision": "bfloat16; no rope extension",
+  "population": 384,
+  "trace_sha256": "34513450387479b4257f7a01ea9042056667466b4ade5e0c137aa1f0fadb8632",
+  "trace_hash_contents": "Ordered request IDs, actual prompt token IDs, and external arrival traces",
+  "workload_sha256": "7723a0b4e88ba647da79e658cd596e00337075ea761d8692c47c494ee018533d",
+  "concurrency_comparison": "All cells use complete-inflight cap192, native maximum256, KV floor0; running/recovery scheduling and1024 quantum unchanged.",
+  "test_admission_caps": {
+    "retained": 192,
+    "released": 192
+  },
+  "admission_count": "Unique successfully admitted but unfinished requests, including paused/recovery.",
+  "diagnostic_cap": 192,
+  "intervention": {
+    "kind": "history_raw_reference_liveness",
+    "admission_rule_changed": false,
+    "history_path": "/root/moe-c-admission-20261007-v3/pro-pressure-dev-r03/dev-cap128/raw.json",
+    "history_sha256": "8c59e1c65eafca2285768fc0cac101a1fe76a671fa25266ba20ad35fe5b7249a",
+    "retained": "Keep the identical completed dev-cap128 raw object strongly referenced through current measurement; it is not submitted to the engine.",
+    "released": "Load and validate the same history, then release it before common heap cleanup.",
+    "common_setup": "After identical warmup and before current arrivals, release warmup raw and call gc.collect() in all cells. No forced collection or threshold changes during measurement. Passive callbacks record actual collection intervals.",
+    "measured_work": "Same384 requests,0.1s arrivals, naturalEOS/max1024 and all-arrival timing."
+  },
+  "prefix_comparison": "Same frozen inputs and policy prefix; compare recorded first-opportunity states. Separate executions are not asserted to be identical GPU-state forks.",
+  "candidate_status": "Measurement credibility diagnosis only; no recovery/admission efficacy claim.",
+  "stopping_rule": "Exactly one retained/released/released/retained group, pairs01/00 and02/03. Report all service outcomes and every>250ms common host interval with GC overlap. Only aligned collection intervals support GC attribution; a service delta alone does not. If retained-history stalls align with GC and release consistently reduces them, fix common measurement lifecycle and re-establish affected strong baselines. Otherwise retain the uncertainty, do not subtract old delays or repeat until significant.",
+  "repeat_budget": "One group; no additional repeats or GC-threshold tuning."
+}
