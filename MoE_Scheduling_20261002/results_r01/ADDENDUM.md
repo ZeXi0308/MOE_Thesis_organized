@@ -1,0 +1,1 @@
+2026-10-02：原 `metrics.json` 保留不覆盖；`metrics_scoped.json` 将 `full_service_comparison_usable` 更正为 `bounded_capture_complete`，新增 `natural_completion_or_quality_established:false`，明确两臂均强制生成16个token并按length停止，且cap24/cap64显存预算不同；仅修正主张边界，不增加实验或改变测量数值。

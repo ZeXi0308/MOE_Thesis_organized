@@ -1,0 +1,109 @@
+{
+  "status": "DESCRIPTIVE_ACCOUNTING_COMPLETE",
+  "cells": {
+    "00_ar16": {
+      "output_tokens": 1416,
+      "drained_s": 17.945244874805212,
+      "engine_s": 17.928813591599464,
+      "outside_engine_and_drain_s": 0.016431283205747604,
+      "seconds_per_output_token": 0.012673195533054528,
+      "expert_bytes_per_output_token": 420630042.0338983,
+      "pure_decode_steps": 168,
+      "pure_decode_s": 15.559556484222412,
+      "pure_decode_s_per_step": 0.09261640764418103,
+      "pure_decode_expert_bytes_per_step": 3071204205.714286
+    },
+    "01_ngram4": {
+      "output_tokens": 1524,
+      "drained_s": 20.020443249493837,
+      "engine_s": 20.006014335900545,
+      "outside_engine_and_drain_s": 0.014428913593292236,
+      "seconds_per_output_token": 0.013136773785757111,
+      "expert_bytes_per_output_token": 471396835.77952754,
+      "pure_decode_steps": 127,
+      "pure_decode_s": 17.86610528640449,
+      "pure_decode_s_per_step": 0.14067799438113773,
+      "pure_decode_expert_bytes_per_step": 5050800692.409449
+    },
+    "02_ngram4": {
+      "output_tokens": 1524,
+      "drained_s": 19.57874893769622,
+      "engine_s": 19.567222699522972,
+      "outside_engine_and_drain_s": 0.011526238173246384,
+      "seconds_per_output_token": 0.012846948121847912,
+      "expert_bytes_per_output_token": 471396835.77952754,
+      "pure_decode_steps": 127,
+      "pure_decode_s": 17.420450143516064,
+      "pure_decode_s_per_step": 0.13716889876784302,
+      "pure_decode_expert_bytes_per_step": 5050800692.409449
+    },
+    "03_ar16": {
+      "output_tokens": 1416,
+      "drained_s": 17.828154183924198,
+      "engine_s": 17.814993008971214,
+      "outside_engine_and_drain_s": 0.013161174952983856,
+      "seconds_per_output_token": 0.012590504367178106,
+      "expert_bytes_per_output_token": 420630042.0338983,
+      "pure_decode_steps": 168,
+      "pure_decode_s": 15.48596683330834,
+      "pure_decode_s_per_step": 0.09217837400778774,
+      "pure_decode_expert_bytes_per_step": 3071204205.714286
+    }
+  },
+  "pairs": [
+    {
+      "baseline": "00_ar16",
+      "candidate": "01_ngram4",
+      "output_ratio": 1.076271186440678,
+      "time_ratio": 1.1156405715924314,
+      "throughput_ratio": 0.9647114078187755,
+      "time_to_match_baseline_rate_at_observed_candidate_output_s": 19.3139499923751,
+      "required_time_reduction_at_observed_candidate_output_s": 0.706493257118737,
+      "required_time_reduction_fraction": 0.03528859218122449
+    },
+    {
+      "baseline": "03_ar16",
+      "candidate": "02_ngram4",
+      "output_ratio": 1.076271186440678,
+      "time_ratio": 1.0981927088868542,
+      "throughput_ratio": 0.9800385467242846,
+      "time_to_match_baseline_rate_at_observed_candidate_output_s": 19.187928655579434,
+      "required_time_reduction_at_observed_candidate_output_s": 0.39082028211678477,
+      "required_time_reduction_fraction": 0.019961453275715413
+    }
+  ],
+  "means": {
+    "ar16": {
+      "output_tokens": 1416,
+      "drained_s": 17.886699529364705,
+      "engine_s": 17.87190330028534,
+      "outside_engine_and_drain_s": 0.01479622907936573,
+      "seconds_per_output_token": 0.012631849950116316,
+      "expert_bytes_per_output_token": 420630042.0338983,
+      "pure_decode_steps": 168,
+      "pure_decode_s": 15.522761658765376,
+      "pure_decode_s_per_step": 0.09239739082598439,
+      "pure_decode_expert_bytes_per_step": 3071204205.714286
+    },
+    "ngram4": {
+      "output_tokens": 1524,
+      "drained_s": 19.799596093595028,
+      "engine_s": 19.78661851771176,
+      "outside_engine_and_drain_s": 0.01297757588326931,
+      "seconds_per_output_token": 0.012991860953802512,
+      "expert_bytes_per_output_token": 471396835.77952754,
+      "pure_decode_steps": 127,
+      "pure_decode_s": 17.643277714960277,
+      "pure_decode_s_per_step": 0.13892344657449038,
+      "pure_decode_expert_bytes_per_step": 5050800692.409449
+    }
+  },
+  "scope": [
+    "T equals mutually exclusive engine-stage times plus outside-engine/drain time.",
+    "Throughput break-even is T_candidate/T_AR < output_candidate/output_AR.",
+    "Thresholds hold observed outputs fixed algebraically; they are not attainable savings estimates.",
+    "Policy changes can alter output, routes, cache, KV, and later work.",
+    "Expert bytes per step/token are descriptive; no DMA critical-path attribution.",
+    "No exact draft acceptance count/rate or layer-suffix opportunity is inferred."
+  ]
+}
