@@ -1,0 +1,28 @@
+EQUAL_RELEASE_HOST_ONCE_ENTRY controller_pid=19113 entry_sha256=4b2f066e5bcc432291f2f7b3608ac68a29ecd57269027e466044d192e0ad6c2f
+NATIVE_HOST_SEEDED_ENTRY controller_pid=19113 entry_sha256=8afbc4e37468387c7ceee175a100b6d996c0b0b5fe5845055ff83fd2422f5e07
+NATIVE_HOST_HANDOFF_ENTRY controller_pid=19113 entry_sha256=1ba4b922efb170b97caf0c2124dea330d647a60506657f9dc8e1d5fb825d9ee0 handoff_limit_seconds=300
+WAIT_SHARED_GPU_LOCK controller_pid=19113 limit_seconds=3600
+ACQUIRED_SHARED_GPU_LOCK waited_seconds=1014.623
+WAIT_GPU_HANDOFF controller_pid=19113 reason=compute_processes elapsed_seconds=0.168 memory_used_mib=88171 utilization_gpu_percent=0
+GPU_HANDOFF_READY controller_pid=19113 elapsed_seconds=5.334 complete_readings=2 no_retry=true
+Traceback (most recent call last):
+  File "/root/autodl-tmp/moe-a-victim-20261004/run_native_equal_release_host_once_group_seeded.py", line 16, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/root/autodl-tmp/moe-a-victim-20261004/run_native_equal_release_host_once_group_seeded.py", line 12, in main
+    return seeded.main()
+           ^^^^^^^^^^^^^
+  File "/root/autodl-tmp/moe-a-victim-20261004/run_native_host_group_seeded.py", line 41, in main
+    return handoff.main()
+           ^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/moe-a-victim-20261004/run_native_host_group_handoff.py", line 115, in main
+    return group.main()
+           ^^^^^^^^^^^^
+  File "/root/autodl-tmp/moe-a-victim-20261004/run_native_equal_release_host_once_group.py", line 108, in main
+    return base.run(plan, args.plan)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/autodl-tmp/moe-a-victim-20261004/run_native_group_seeded_base.py", line 235, in run
+    require(shutil.disk_usage(session).free >= plan["minimum_free_disk_bytes"], "Insufficient new-host disk space")
+  File "/root/autodl-tmp/moe-a-victim-20261004/run_native_group_seeded_base.py", line 23, in require
+    raise ValueError(message)
+ValueError: Insufficient new-host disk space
