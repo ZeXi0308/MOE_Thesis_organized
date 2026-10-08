@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "state": "CPU_PREPARED_GPU_UNRUN",
+  "source_branch": "agent/publish-current-moe-code",
+  "initial_source_head": "76d6d888de42081c63cd440a8a67623161d8181f",
+  "evidence_boundary": "LTR-style selected-offload component on the pinned common vLLM backend; not full LTR or a completed performance result",
+  "development_cohort": {
+    "name": "G64",
+    "inputs_sha256": "7b0b86ff8ecf11345c6f48452107c2afdd9908bd6a2e75a03cebc4ce6302ad4c",
+    "requests": 64,
+    "arrival_spacing_s": 0.2,
+    "output_cap": 1024,
+    "ignore_eos": false,
+    "min_tokens": 0,
+    "selection_use": true
+  },
+  "migration_cohort": {
+    "name": "H128",
+    "selection_use": false,
+    "interpretation": "Different articles and longer finite arrival episode; existing eager/current outcomes have already been seen, so not a fully blind test"
+  },
+  "runtime_contract": {
+    "model": "OLMoE-1B-7B-0924 pinned revision 6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "vllm": "0.26.0 pinned scheduler source sha256 2ed2a550b6558b2495eda845a97ae38bcf0225027b9e25fbf00fc3880c1d3941",
+    "scheduler": "synchronous FCFS, full initial-history reservation, APC off, one rank",
+    "offload_backend": "OffloadingConnector",
+    "max_running_requests": 32,
+    "max_scheduled_tokens": 1024,
+    "model_length": 4096,
+    "candidate_action_space": "PREEMPTED recovery target; free restore or one legal lower-priority victim, with selected native store/flush/load; count censored multi-victim opportunities",
+    "calibration_rule": "No sum-of-all-running next-block prepare prefilter; actual allocator handles growth and any natural preemption is recorded"
+  },
+  "physical_resources": {
+    "usable_gpu_blocks": 4096,
+    "gpu_kv_bytes": 8592031744,
+    "host_kv_bytes": 17179869184,
+    "block_tokens": 16,
+    "offload_backend": "OffloadingConnector"
+  },
+  "runtime_attestation": {
+    "scheduler_source_sha256": "2ed2a550b6558b2495eda845a97ae38bcf0225027b9e25fbf00fc3880c1d3941",
+    "model_revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "inputs_sha256": "7b0b86ff8ecf11345c6f48452107c2afdd9908bd6a2e75a03cebc4ce6302ad4c",
+    "output_cap": 1024,
+    "ignore_eos": false,
+    "max_num_running_reqs": 32,
+    "max_num_scheduled_tokens": 1024
+  },
+  "calibration_grid": {
+    "threshold_calls": [30, 200],
+    "positive_allocation_call_quantum": [1, 10],
+    "official_source_anchor": [200, 10],
+    "max_ltr_points": 4,
+    "training_cohort": "G64",
+    "selection": "All complete legal points with actual_output_rate >= 0.97 * same-window eager and mean arrival-to-completion <= 1.05 * same-window eager; among them minimize maximum generated host-return gap; ties higher output rate, lower mean flow, lower T, lower Q",
+    "no_qualifying_point": "Report no calibrated LTR point; retain all runs and do not expand the grid"
+  },
+  "common_horizon_s": 180,
+  "ttft_limit_s": 20,
+  "max_gap_limit_s": 3,
+  "slo_front": [
+    {"ttft_limit_s": 10, "max_gap_limit_s": 1.5},
+    {"ttft_limit_s": 20, "max_gap_limit_s": 3},
+    {"ttft_limit_s": 30, "max_gap_limit_s": 5}
+  ],
+  "calibration_reference": "selected_eager",
+  "min_output_rate_ratio": 0.97,
+  "max_mean_flow_ratio": 1.05,
+  "cells": [
+    {"name": "selected_eager", "role": "reference", "save_scope": "selected", "policy_config": {"family": "selected_eager", "min_absence_steps": 30, "min_residency_steps": 30, "protect_progress_fraction": 0.9, "max_absences_per_request": 8, "min_steps_between_swaps": 0, "victim_order": "most_output"}, "raw": "results/selected_eager/raw.json", "resource_receipt": "results/selected_eager/resource_receipt.json"},
+    {"name": "ltr_t30_q1", "role": "ltr_calibration", "threshold": 30, "quantum": 1, "save_scope": "selected", "policy_config": {"family": "ltr_style_selected", "threshold_calls": 30, "quantum_calls": 1, "victim_order": "most_output", "tie": "arrival_queue", "target_scope": "preempted"}, "raw": "results/ltr_t30_q1/raw.json", "resource_receipt": "results/ltr_t30_q1/resource_receipt.json"},
+    {"name": "ltr_t30_q10", "role": "ltr_calibration", "threshold": 30, "quantum": 10, "save_scope": "selected", "policy_config": {"family": "ltr_style_selected", "threshold_calls": 30, "quantum_calls": 10, "victim_order": "most_output", "tie": "arrival_queue", "target_scope": "preempted"}, "raw": "results/ltr_t30_q10/raw.json", "resource_receipt": "results/ltr_t30_q10/resource_receipt.json"},
+    {"name": "ltr_t200_q1", "role": "ltr_calibration", "threshold": 200, "quantum": 1, "save_scope": "selected", "policy_config": {"family": "ltr_style_selected", "threshold_calls": 200, "quantum_calls": 1, "victim_order": "most_output", "tie": "arrival_queue", "target_scope": "preempted"}, "raw": "results/ltr_t200_q1/raw.json", "resource_receipt": "results/ltr_t200_q1/resource_receipt.json"},
+    {"name": "ltr_t200_q10", "role": "ltr_calibration", "threshold": 200, "quantum": 10, "save_scope": "selected", "policy_config": {"family": "ltr_style_selected", "threshold_calls": 200, "quantum_calls": 10, "victim_order": "most_output", "tie": "arrival_queue", "target_scope": "preempted"}, "raw": "results/ltr_t200_q10/raw.json", "resource_receipt": "results/ltr_t200_q10/resource_receipt.json"},
+    {"name": "native_full", "role": "system_reference", "save_scope": "native_full", "policy_config": {"family": "native_full", "extra_rotation": false}, "raw": "results/native_full/raw.json", "resource_receipt": "results/native_full/resource_receipt.json"}
+  ],
+  "ablation": {
+    "factorial_component_contrasts": [
+      ["ltr_t30_q10", "ltr_t200_q10", "waiting promotion threshold with Q fixed at 10"],
+      ["ltr_t30_q1", "ltr_t200_q1", "waiting promotion threshold with Q fixed at 1"],
+      ["ltr_t30_q10", "ltr_t30_q1", "positive-call service quantum with T fixed at 30"],
+      ["ltr_t200_q10", "ltr_t200_q1", "positive-call service quantum with T fixed at 200"]
+    ],
+    "new_compute_share_pair": {
+      "base": "selected_eager with recovery_compute_share.install(enabled=False)",
+      "treatment": "identical selected_eager with recovery_compute_share.install(enabled=True)",
+      "only_switch": "enabled",
+      "run_condition": "The fixed input shows a resident cold-recompute conflict; otherwise record no-action and do not add pressure or lower a threshold",
+      "status": "CPU_ONLY_UNRUN_FULL_REQUEST"
+    }
+  },
+  "execution": "UNRUN_BY_USER_CONSTRAINT",
+  "measurement": "Native in-process host return times; include all planned requests, failures, output length/stop changes, throughput, TTFT, per-request gaps, flow, store/load/flush, actual ownership and drain"
+}
