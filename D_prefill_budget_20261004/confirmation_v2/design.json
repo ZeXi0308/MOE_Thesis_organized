@@ -1,0 +1,114 @@
+{
+  "source_sha256": "c3c93ef5610cf16d801753e750eb5e8d3c937530e0f5b242571c9ab3dfe98865",
+  "seeds": [
+    2026100401,
+    2026100402,
+    2026100403
+  ],
+  "arrival_rule": "Keep 24 short arrivals at 0 and 8 at 3. Within each long cohort (43/43/42), independently permute request IDs and draw sorted uniform arrivals in a window of (n-1)*0.01 seconds. Window starts are 0.6/2.5/5 plus independent uniform jitter of +/-0.15/0.25/0.5 seconds. Preserve prompts, output lengths, cohort membership and total counts.",
+  "orders": [
+    [
+      "fixed384",
+      "feedback",
+      "fixed304",
+      "decode_v2"
+    ],
+    [
+      "decode_v2",
+      "fixed304",
+      "feedback",
+      "fixed384"
+    ],
+    [
+      "fixed304",
+      "fixed384",
+      "decode_v2",
+      "feedback"
+    ]
+  ],
+  "warm_policies": [
+    "fixed304",
+    "fixed384",
+    "decode_v2",
+    "feedback"
+  ],
+  "slo": {
+    "ttft_s": 4,
+    "gap_s": 0.1,
+    "completion_s": 20
+  },
+  "blocks": [
+    {
+      "block": 1,
+      "seed": 2026100401,
+      "wave_starts": [
+        0.648941831716464,
+        2.6777418130894883,
+        5.076737154824879
+      ],
+      "workload": "arrivals_01.json",
+      "sha256": "d2d24bf89f313d3f278593d0fcae4577c4c0a36fccb254b30576510abd332190",
+      "prompt_tokens": 471895,
+      "output_tokens": 77824
+    },
+    {
+      "block": 2,
+      "seed": 2026100402,
+      "wave_starts": [
+        0.7357974524051754,
+        2.63471681695958,
+        4.58379735357336
+      ],
+      "workload": "arrivals_02.json",
+      "sha256": "e07b0e866c32cff0e44b17fb57f10315f50aa69e39253304fdcb2ab9f18cde71",
+      "prompt_tokens": 471895,
+      "output_tokens": 77824
+    },
+    {
+      "block": 3,
+      "seed": 2026100403,
+      "wave_starts": [
+        0.737226217392807,
+        2.626014525746548,
+        4.551560637183604
+      ],
+      "workload": "arrivals_03.json",
+      "sha256": "7953723cb67c7a20335467175a68a4068a05ad469cf131f76f3a1d9f18b35274",
+      "prompt_tokens": 471895,
+      "output_tokens": 77824
+    }
+  ],
+  "policies": {
+    "F": {
+      "name": "fixed384",
+      "prefill_cap": 384
+    },
+    "A": {
+      "name": "feedback",
+      "target_ms": 24,
+      "low_ms": 16.8,
+      "levels": [
+        256,
+        512,
+        1024,
+        2048
+      ],
+      "initial": 1024,
+      "no_decode": 2048,
+      "unchanged": true
+    },
+    "M": {
+      "name": "fixed304",
+      "prefill_cap": 304,
+      "old_feedback_backlog_mean_actual_p": 303.811,
+      "old_fixed304_backlog_mean_actual_p": 303.86
+    },
+    "N": {
+      "name": "decode_v2",
+      "rule": "2048 if active_decode<24 else 1024 if active_decode<35 else 256",
+      "selection": "OLD high-load feedback action distributions: D<24 gives2048 in32/36; D24..34 gives1024 in144/148; D>=35 gives256 in5774/6029. No new confirmation results used."
+    }
+  },
+  "budget_semantics": "Native total scheduled token cap4096 plus D aggregate pure-prefill allowance; analysis averages actual prompt work over all pre-step backlog-positive scheduler steps, including zero-service steps.",
+  "interpretation": "Report all three paired blocks separately and aggregate. Three blocks are initial independent arrival repetitions, not predeclared sufficient statistical power. No retuning from confirmation; primary SLO remains4s/100ms/20s; preserve all throughput/TTFT/completion costs."
+}

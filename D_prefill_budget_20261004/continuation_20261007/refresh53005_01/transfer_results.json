@@ -1,0 +1,999 @@
+{
+  "schema": "d-old-model-new-device-transfer-v1",
+  "status": "COMPLETE_DESCRIPTIVE_TRANSFER",
+  "observed_formal_runs": 4,
+  "valid_complete_formal_runs": 4,
+  "missing_formal_cells": [],
+  "controller_status": {
+    "status": "COMPLETE",
+    "runs": [
+      {
+        "policy": "fixed1024",
+        "elapsed_s": 49.20582623034716,
+        "requests": 256,
+        "output_tokens": 114688,
+        "mixed_steps": 570
+      },
+      {
+        "policy": "fixed2048",
+        "elapsed_s": 48.832127682864666,
+        "requests": 256,
+        "output_tokens": 114688,
+        "mixed_steps": 348
+      },
+      {
+        "policy": "fixed2048",
+        "elapsed_s": 48.87231697142124,
+        "requests": 256,
+        "output_tokens": 114688,
+        "mixed_steps": 348
+      },
+      {
+        "policy": "fixed1024",
+        "elapsed_s": 49.281287517398596,
+        "requests": 256,
+        "output_tokens": 114688,
+        "mixed_steps": 573
+      }
+    ]
+  },
+  "new_environment": {
+    "torch": "2.11.0+cu130",
+    "vllm": "0.26.0",
+    "cuda": "13.0",
+    "repair": [
+      "flex_attention.py",
+      "flex_decoding.py",
+      "mm_scaled_grouped.py"
+    ],
+    "kv_blocks": 36753,
+    "kv_block_size": 16,
+    "gpu": "name, uuid, driver_version, memory.total [MiB]\nNVIDIA RTX PRO 6000 Blackwell Server Edition, GPU-51b8e4bb-27b8-4b82-5254-7317aae7298c, 580.95.05, 97887 MiB\n"
+  },
+  "old_calibration_path": "/Users/zhaozhenyu/Desktop/毕业设计/D_prefill_budget_20261004/continuation_20261007/niyama_component/calibration.json",
+  "old_calibration_sha256": "64ddc734c5af941d43171bba4cac92317fc2eb9d04e725ae05ab19ad2381a13a",
+  "old_component_design_sha256": "0f80b1698fec6e2b146c588320b50843d0c23223f2bbd7c1d5c882a9b2734606",
+  "refresh_design_sha256": "266e32e0c6909a6517e39bef4294918e134426b6d419cdce2229d7324d7b03ba",
+  "unchanged_models": {
+    "total_le_512": {
+      "intercept_s": 0.007950310759135396,
+      "coefficients_s_per_unit": {
+        "P": 8.19953232228098e-06,
+        "D": 1.3048285965877188e-05,
+        "Cdecode": 1.0144383728627496e-07,
+        "Cprefill": 1.2770965161845012e-07
+      },
+      "fit_rows": 9801,
+      "rank": 4,
+      "standardized_qr_diagonal": [
+        99.00000000000003,
+        97.83286317320288,
+        60.68440226671672,
+        19.256767899362664
+      ],
+      "rank_tolerance": 9.900000000000001e-09,
+      "centered_feature_means": {
+        "P": 56.34088358330783,
+        "D": 43.24875012753801,
+        "Cdecode": 115808.94388327721,
+        "Cprefill": 229.15600448933782
+      },
+      "feature_scales": {
+        "P": 135.27299205739484,
+        "D": 36.43191898130046,
+        "Cdecode": 95978.91211030408,
+        "Cprefill": 690.8800652882571
+      }
+    },
+    "total_gt_512": {
+      "intercept_s": 0.009819821541412598,
+      "coefficients_s_per_unit": {
+        "P": 6.7283779831246325e-06,
+        "D": -1.6332772667200612e-06,
+        "Cdecode": 9.433055039349935e-08,
+        "Cprefill": -2.7648881085676278e-08
+      },
+      "fit_rows": 1395,
+      "rank": 4,
+      "standardized_qr_diagonal": [
+        37.3496987939662,
+        37.0989588570653,
+        36.27501662593391,
+        3.8751406547786953
+      ],
+      "rank_tolerance": 3.7349698793966196e-09,
+      "centered_feature_means": {
+        "P": 1486.8,
+        "D": 79.93620071684587,
+        "Cdecode": 202388.3827956989,
+        "Cprefill": 956.0867383512544
+      },
+      "feature_scales": {
+        "P": 827.6376162302455,
+        "D": 45.370693980848465,
+        "Cdecode": 114394.67765920679,
+        "Cprefill": 1078.8985231711235
+      }
+    }
+  },
+  "fixed_margin": 1.2,
+  "runs": [
+    {
+      "cell": "00_fixed1024",
+      "raw_path": "refresh53005_01/00_fixed1024/raw.json",
+      "valid": true,
+      "errors": [],
+      "raw_sha256": "7b24082bf2e0df44f4fe8b918d63713a2536f4966bda2c575bf858a945a94409",
+      "policy": "fixed1024",
+      "observed_raw_steps": 1852,
+      "observed_requests": 256,
+      "observed_output_tokens": 114688,
+      "input_contract_matches": true,
+      "checks": {
+        "parent_status": "COMPLETE",
+        "requests": 256,
+        "expected_requests": 256,
+        "unfinished_requests": 0,
+        "missing_completion_requests": 0,
+        "output_count_mismatches": 0,
+        "token_timestamp_count_mismatches": 0,
+        "prompt_tokens": 538597,
+        "output_tokens": 114688,
+        "preempted_steps": 0,
+        "raw_error_fields": {},
+        "passed": true,
+        "extraction_errors": []
+      },
+      "all_completed_step_counts_and_features": {
+        "rows": 1852,
+        "pure_decode_rows": 1281,
+        "mixed_rows": 570,
+        "pure_prefill_rows": 1,
+        "empty_rows": 0,
+        "exact_total_513_rows": 0,
+        "feature_ranges": {
+          "P": {
+            "min": 0,
+            "max": 1024
+          },
+          "D": {
+            "min": 0,
+            "max": 152
+          },
+          "Cdecode": {
+            "min": 0,
+            "max": 385565
+          },
+          "Cprefill": {
+            "min": 0,
+            "max": 3509
+          }
+        },
+        "cost_s": {
+          "min": 0.0030580051243305206,
+          "max": 0.0622231550514698,
+          "mean": 0.026291791442178237
+        }
+      },
+      "steps_over_1s_retained_in_transfer_metrics": [],
+      "all_completed_steps": {
+        "rows": 1852,
+        "actual_mean_s": 0.026291791442178237,
+        "actual_p95_s": 0.05164540912955999,
+        "prediction_min_s": 0.00803426828736438,
+        "prediction_max_s": 0.05281613555913063,
+        "negative_prediction_count": 0,
+        "negative_prediction_step_indices": [],
+        "zero_prediction_count": 0,
+        "outside_training_coordinate_ranges_count": 0,
+        "outside_training_coordinate_ranges_step_indices": [],
+        "unscaled": {
+          "mean_absolute_error_s": 0.001058732847502192,
+          "mean_signed_underprediction_s": 9.56208591606314e-06,
+          "p95_positive_underprediction_s": 0.0017648292817252962,
+          "maximum_positive_underprediction_s": 0.009819831416736494,
+          "actual_above_prediction_count": 1089,
+          "actual_above_prediction_fraction": 0.588012958963283
+        },
+        "fixed_margin_1_2": {
+          "mean_absolute_error_s": 0.005246980292224194,
+          "mean_signed_underprediction_s": -0.0052468837853363705,
+          "p95_positive_underprediction_s": 0.0,
+          "maximum_positive_underprediction_s": 8.936537812399142e-05,
+          "actual_above_prediction_count": 1,
+          "actual_above_prediction_fraction": 0.0005399568034557236
+        }
+      },
+      "by_actual_regime": {
+        "total_le_512": {
+          "counts_and_features": {
+            "rows": 1305,
+            "pure_decode_rows": 1281,
+            "mixed_rows": 24,
+            "pure_prefill_rows": 0,
+            "empty_rows": 0,
+            "exact_total_513_rows": 0,
+            "feature_ranges": {
+              "P": {
+                "min": 0,
+                "max": 441
+              },
+              "D": {
+                "min": 1,
+                "max": 150
+              },
+              "Cdecode": {
+                "min": 699,
+                "max": 379500
+              },
+              "Cprefill": {
+                "min": 0,
+                "max": 3214
+              }
+            },
+            "cost_s": {
+              "min": 0.0030580051243305206,
+              "max": 0.04775519669055939,
+              "mean": 0.021554377195478855
+            }
+          },
+          "errors": {
+            "rows": 1305,
+            "actual_mean_s": 0.021554377195478855,
+            "actual_p95_s": 0.04257816150784492,
+            "prediction_min_s": 0.00803426828736438,
+            "prediction_max_s": 0.04840548990415832,
+            "negative_prediction_count": 0,
+            "negative_prediction_step_indices": [],
+            "zero_prediction_count": 0,
+            "outside_training_coordinate_ranges_count": 0,
+            "outside_training_coordinate_ranges_step_indices": [],
+            "unscaled": {
+              "mean_absolute_error_s": 0.0013349438906758646,
+              "mean_signed_underprediction_s": -5.1409518819093585e-05,
+              "p95_positive_underprediction_s": 0.001811517881220478,
+              "maximum_positive_underprediction_s": 0.002270111416842212,
+              "actual_above_prediction_count": 783,
+              "actual_above_prediction_fraction": 0.6
+            },
+            "fixed_margin_1_2": {
+              "mean_absolute_error_s": 0.004372566861678682,
+              "mean_signed_underprediction_s": -0.004372566861678682,
+              "p95_positive_underprediction_s": 0.0,
+              "maximum_positive_underprediction_s": 0.0,
+              "actual_above_prediction_count": 0,
+              "actual_above_prediction_fraction": 0.0
+            }
+          }
+        },
+        "total_gt_512": {
+          "counts_and_features": {
+            "rows": 547,
+            "pure_decode_rows": 0,
+            "mixed_rows": 546,
+            "pure_prefill_rows": 1,
+            "empty_rows": 0,
+            "exact_total_513_rows": 0,
+            "feature_ranges": {
+              "P": {
+                "min": 441,
+                "max": 1024
+              },
+              "D": {
+                "min": 0,
+                "max": 152
+              },
+              "Cdecode": {
+                "min": 0,
+                "max": 385565
+              },
+              "Cprefill": {
+                "min": 0,
+                "max": 3509
+              }
+            },
+            "cost_s": {
+              "min": 0.015228591859340668,
+              "max": 0.0622231550514698,
+              "mean": 0.03759403201245739
+            }
+          },
+          "errors": {
+            "rows": 547,
+            "actual_mean_s": 0.03759403201245739,
+            "actual_p95_s": 0.0525138296186924,
+            "prediction_min_s": 0.014373526144066567,
+            "prediction_max_s": 0.05281613555913063,
+            "negative_prediction_count": 0,
+            "negative_prediction_step_indices": [],
+            "zero_prediction_count": 0,
+            "outside_training_coordinate_ranges_count": 0,
+            "outside_training_coordinate_ranges_step_indices": [],
+            "unscaled": {
+              "mean_absolute_error_s": 0.0003997650022706701,
+              "mean_signed_underprediction_s": 0.0001550245067193164,
+              "p95_positive_underprediction_s": 0.0009791152277111401,
+              "maximum_positive_underprediction_s": 0.009819831416736494,
+              "actual_above_prediction_count": 306,
+              "actual_above_prediction_fraction": 0.5594149908592322
+            },
+            "fixed_margin_1_2": {
+              "mean_absolute_error_s": 0.007333103741697488,
+              "mean_signed_underprediction_s": -0.007332776994428295,
+              "p95_positive_underprediction_s": 0.0,
+              "maximum_positive_underprediction_s": 8.936537812399142e-05,
+              "actual_above_prediction_count": 1,
+              "actual_above_prediction_fraction": 0.0018281535648994515
+            }
+          }
+        }
+      },
+      "status": "DESCRIPTIVE_TRANSFER_SCORED"
+    },
+    {
+      "cell": "01_fixed2048",
+      "raw_path": "refresh53005_01/01_fixed2048/raw.json",
+      "valid": true,
+      "errors": [],
+      "raw_sha256": "e44e9d3a0ae08d491fd272480d101f20fae49151675afa115b69a2630b5e9e63",
+      "policy": "fixed2048",
+      "observed_raw_steps": 1792,
+      "observed_requests": 256,
+      "observed_output_tokens": 114688,
+      "input_contract_matches": true,
+      "checks": {
+        "parent_status": "COMPLETE",
+        "requests": 256,
+        "expected_requests": 256,
+        "unfinished_requests": 0,
+        "missing_completion_requests": 0,
+        "output_count_mismatches": 0,
+        "token_timestamp_count_mismatches": 0,
+        "prompt_tokens": 538597,
+        "output_tokens": 114688,
+        "preempted_steps": 0,
+        "raw_error_fields": {},
+        "passed": true,
+        "extraction_errors": []
+      },
+      "all_completed_step_counts_and_features": {
+        "rows": 1792,
+        "pure_decode_rows": 1443,
+        "mixed_rows": 348,
+        "pure_prefill_rows": 1,
+        "empty_rows": 0,
+        "exact_total_513_rows": 0,
+        "feature_ranges": {
+          "P": {
+            "min": 0,
+            "max": 2048
+          },
+          "D": {
+            "min": 0,
+            "max": 171
+          },
+          "Cdecode": {
+            "min": 0,
+            "max": 436346
+          },
+          "Cprefill": {
+            "min": 0,
+            "max": 3453
+          }
+        },
+        "cost_s": {
+          "min": 0.00307488813996315,
+          "max": 0.06509416177868843,
+          "mean": 0.02696713814969241
+        }
+      },
+      "steps_over_1s_retained_in_transfer_metrics": [],
+      "all_completed_steps": {
+        "rows": 1792,
+        "actual_mean_s": 0.02696713814969241,
+        "actual_p95_s": 0.05162738412618635,
+        "prediction_min_s": 0.00803426828736438,
+        "prediction_max_s": 0.06419543398947312,
+        "negative_prediction_count": 0,
+        "negative_prediction_step_indices": [],
+        "zero_prediction_count": 0,
+        "outside_training_coordinate_ranges_count": 3,
+        "outside_training_coordinate_ranges_step_indices": [
+          1271,
+          1273,
+          1281
+        ],
+        "unscaled": {
+          "mean_absolute_error_s": 0.0011701580798375633,
+          "mean_signed_underprediction_s": -5.802078675343163e-05,
+          "p95_positive_underprediction_s": 0.0017669090736080334,
+          "maximum_positive_underprediction_s": 0.007371849771874349,
+          "actual_above_prediction_count": 1041,
+          "actual_above_prediction_fraction": 0.5809151785714286
+        },
+        "fixed_margin_1_2": {
+          "mean_absolute_error_s": 0.005464222758776205,
+          "mean_signed_underprediction_s": -0.005463052574042599,
+          "p95_positive_underprediction_s": 0.0,
+          "maximum_positive_underprediction_s": 0.000745369011897045,
+          "actual_above_prediction_count": 2,
+          "actual_above_prediction_fraction": 0.0011160714285714285
+        }
+      },
+      "by_actual_regime": {
+        "total_le_512": {
+          "counts_and_features": {
+            "rows": 1457,
+            "pure_decode_rows": 1443,
+            "mixed_rows": 14,
+            "pure_prefill_rows": 0,
+            "empty_rows": 0,
+            "exact_total_513_rows": 0,
+            "feature_ranges": {
+              "P": {
+                "min": 0,
+                "max": 403
+              },
+              "D": {
+                "min": 1,
+                "max": 171
+              },
+              "Cdecode": {
+                "min": 699,
+                "max": 436346
+              },
+              "Cprefill": {
+                "min": 0,
+                "max": 3396
+              }
+            },
+            "cost_s": {
+              "min": 0.00307488813996315,
+              "max": 0.05517175793647766,
+              "mean": 0.023575856016057765
+            }
+          },
+          "errors": {
+            "rows": 1457,
+            "actual_mean_s": 0.023575856016057765,
+            "actual_p95_s": 0.045094944536685944,
+            "prediction_min_s": 0.00803426828736438,
+            "prediction_max_s": 0.05444618028381733,
+            "negative_prediction_count": 0,
+            "negative_prediction_step_indices": [],
+            "zero_prediction_count": 0,
+            "outside_training_coordinate_ranges_count": 1,
+            "outside_training_coordinate_ranges_step_indices": [
+              1281
+            ],
+            "unscaled": {
+              "mean_absolute_error_s": 0.001345445903413983,
+              "mean_signed_underprediction_s": -0.00011213515703715735,
+              "p95_positive_underprediction_s": 0.001799809670282676,
+              "maximum_positive_underprediction_s": 0.007371849771874349,
+              "actual_above_prediction_count": 846,
+              "actual_above_prediction_fraction": 0.5806451612903226
+            },
+            "fixed_margin_1_2": {
+              "mean_absolute_error_s": 0.00485075654747206,
+              "mean_signed_underprediction_s": -0.004849733391656141,
+              "p95_positive_underprediction_s": 0.0,
+              "maximum_positive_underprediction_s": 0.000745369011897045,
+              "actual_above_prediction_count": 1,
+              "actual_above_prediction_fraction": 0.0006863417982155113
+            }
+          }
+        },
+        "total_gt_512": {
+          "counts_and_features": {
+            "rows": 335,
+            "pure_decode_rows": 0,
+            "mixed_rows": 334,
+            "pure_prefill_rows": 1,
+            "empty_rows": 0,
+            "exact_total_513_rows": 0,
+            "feature_ranges": {
+              "P": {
+                "min": 660,
+                "max": 2048
+              },
+              "D": {
+                "min": 0,
+                "max": 170
+              },
+              "Cdecode": {
+                "min": 0,
+                "max": 433284
+              },
+              "Cprefill": {
+                "min": 0,
+                "max": 3453
+              }
+            },
+            "cost_s": {
+              "min": 0.015050873160362244,
+              "max": 0.06509416177868843,
+              "mean": 0.0417166846234407
+            }
+          },
+          "errors": {
+            "rows": 335,
+            "actual_mean_s": 0.0417166846234407,
+            "actual_p95_s": 0.06285199597477914,
+            "prediction_min_s": 0.01437333748296578,
+            "prediction_max_s": 0.06419543398947312,
+            "negative_prediction_count": 0,
+            "negative_prediction_step_indices": [],
+            "zero_prediction_count": 0,
+            "outside_training_coordinate_ranges_count": 2,
+            "outside_training_coordinate_ranges_step_indices": [
+              1271,
+              1273
+            ],
+            "unscaled": {
+              "mean_absolute_error_s": 0.0004077868590887782,
+              "mean_signed_underprediction_s": 0.0001773363401223546,
+              "p95_positive_underprediction_s": 0.000992523958744715,
+              "maximum_positive_underprediction_s": 0.0032063623841407617,
+              "actual_above_prediction_count": 195,
+              "actual_above_prediction_fraction": 0.582089552238806
+            },
+            "fixed_margin_1_2": {
+              "mean_absolute_error_s": 0.008132342967343786,
+              "mean_signed_underprediction_s": -0.008130533316541313,
+              "p95_positive_underprediction_s": 0.0,
+              "maximum_positive_underprediction_s": 0.0003031165094140448,
+              "actual_above_prediction_count": 1,
+              "actual_above_prediction_fraction": 0.0029850746268656717
+            }
+          }
+        }
+      },
+      "status": "DESCRIPTIVE_TRANSFER_SCORED"
+    },
+    {
+      "cell": "02_fixed2048",
+      "raw_path": "refresh53005_01/02_fixed2048/raw.json",
+      "valid": true,
+      "errors": [],
+      "raw_sha256": "db6ab89dcb8f17f37c7fd27d66c4f20b9583cef908516c1bd777783234058f20",
+      "policy": "fixed2048",
+      "observed_raw_steps": 1792,
+      "observed_requests": 256,
+      "observed_output_tokens": 114688,
+      "input_contract_matches": true,
+      "checks": {
+        "parent_status": "COMPLETE",
+        "requests": 256,
+        "expected_requests": 256,
+        "unfinished_requests": 0,
+        "missing_completion_requests": 0,
+        "output_count_mismatches": 0,
+        "token_timestamp_count_mismatches": 0,
+        "prompt_tokens": 538597,
+        "output_tokens": 114688,
+        "preempted_steps": 0,
+        "raw_error_fields": {},
+        "passed": true,
+        "extraction_errors": []
+      },
+      "all_completed_step_counts_and_features": {
+        "rows": 1792,
+        "pure_decode_rows": 1443,
+        "mixed_rows": 348,
+        "pure_prefill_rows": 1,
+        "empty_rows": 0,
+        "exact_total_513_rows": 0,
+        "feature_ranges": {
+          "P": {
+            "min": 0,
+            "max": 2048
+          },
+          "D": {
+            "min": 0,
+            "max": 171
+          },
+          "Cdecode": {
+            "min": 0,
+            "max": 436306
+          },
+          "Cprefill": {
+            "min": 0,
+            "max": 3367
+          }
+        },
+        "cost_s": {
+          "min": 0.0030543282628059387,
+          "max": 0.06544045358896255,
+          "mean": 0.026990115451293865
+        }
+      },
+      "steps_over_1s_retained_in_transfer_metrics": [],
+      "all_completed_steps": {
+        "rows": 1792,
+        "actual_mean_s": 0.026990115451293865,
+        "actual_p95_s": 0.05199111606925725,
+        "prediction_min_s": 0.00803426828736438,
+        "prediction_max_s": 0.06428122000915981,
+        "negative_prediction_count": 0,
+        "negative_prediction_step_indices": [],
+        "zero_prediction_count": 0,
+        "outside_training_coordinate_ranges_count": 6,
+        "outside_training_coordinate_ranges_step_indices": [
+          1271,
+          1272,
+          1273,
+          1274,
+          1276,
+          1281
+        ],
+        "unscaled": {
+          "mean_absolute_error_s": 0.0012008713018237338,
+          "mean_signed_underprediction_s": -3.854182814139028e-05,
+          "p95_positive_underprediction_s": 0.0018302809671839923,
+          "maximum_positive_underprediction_s": 0.009980186217411514,
+          "actual_above_prediction_count": 1058,
+          "actual_above_prediction_fraction": 0.5904017857142857
+        },
+        "fixed_margin_1_2": {
+          "mean_absolute_error_s": 0.005445489958043612,
+          "mean_signed_underprediction_s": -0.00544427328402844,
+          "p95_positive_underprediction_s": 0.0,
+          "maximum_positive_underprediction_s": 0.0010901399175931928,
+          "actual_above_prediction_count": 1,
+          "actual_above_prediction_fraction": 0.0005580357142857143
+        }
+      },
+      "by_actual_regime": {
+        "total_le_512": {
+          "counts_and_features": {
+            "rows": 1458,
+            "pure_decode_rows": 1443,
+            "mixed_rows": 15,
+            "pure_prefill_rows": 0,
+            "empty_rows": 0,
+            "exact_total_513_rows": 0,
+            "feature_ranges": {
+              "P": {
+                "min": 0,
+                "max": 403
+              },
+              "D": {
+                "min": 1,
+                "max": 171
+              },
+              "Cdecode": {
+                "min": 699,
+                "max": 436306
+              },
+              "Cprefill": {
+                "min": 0,
+                "max": 3367
+              }
+            },
+            "cost_s": {
+              "min": 0.0030543282628059387,
+              "max": 0.054727766662836075,
+              "mean": 0.02362646065928318
+            }
+          },
+          "errors": {
+            "rows": 1458,
+            "actual_mean_s": 0.02362646065928318,
+            "actual_p95_s": 0.04483318906277417,
+            "prediction_min_s": 0.00803426828736438,
+            "prediction_max_s": 0.054442122530325876,
+            "negative_prediction_count": 0,
+            "negative_prediction_step_indices": [],
+            "zero_prediction_count": 0,
+            "outside_training_coordinate_ranges_count": 1,
+            "outside_training_coordinate_ranges_step_indices": [
+              1281
+            ],
+            "unscaled": {
+              "mean_absolute_error_s": 0.0013722040737674391,
+              "mean_signed_underprediction_s": -9.620185079553554e-05,
+              "p95_positive_underprediction_s": 0.0018550473088565587,
+              "maximum_positive_underprediction_s": 0.009980186217411514,
+              "actual_above_prediction_count": 866,
+              "actual_above_prediction_fraction": 0.5939643347050755
+            },
+            "fixed_margin_1_2": {
+              "mean_absolute_error_s": 0.004842229743644739,
+              "mean_signed_underprediction_s": -0.004840734352811278,
+              "p95_positive_underprediction_s": 0.0,
+              "maximum_positive_underprediction_s": 0.0010901399175931928,
+              "actual_above_prediction_count": 1,
+              "actual_above_prediction_fraction": 0.0006858710562414266
+            }
+          }
+        },
+        "total_gt_512": {
+          "counts_and_features": {
+            "rows": 334,
+            "pure_decode_rows": 0,
+            "mixed_rows": 333,
+            "pure_prefill_rows": 1,
+            "empty_rows": 0,
+            "exact_total_513_rows": 0,
+            "feature_ranges": {
+              "P": {
+                "min": 660,
+                "max": 2048
+              },
+              "D": {
+                "min": 0,
+                "max": 171
+              },
+              "Cdecode": {
+                "min": 0,
+                "max": 434600
+              },
+              "Cprefill": {
+                "min": 0,
+                "max": 3317
+              }
+            },
+            "cost_s": {
+              "min": 0.015068091452121735,
+              "max": 0.06544045358896255,
+              "mean": 0.04167337499246626
+            }
+          },
+          "errors": {
+            "rows": 334,
+            "actual_mean_s": 0.04167337499246626,
+            "actual_p95_s": 0.06355204246938229,
+            "prediction_min_s": 0.01437362047461696,
+            "prediction_max_s": 0.06428122000915981,
+            "negative_prediction_count": 0,
+            "negative_prediction_step_indices": [],
+            "zero_prediction_count": 0,
+            "outside_training_coordinate_ranges_count": 5,
+            "outside_training_coordinate_ranges_step_indices": [
+              1271,
+              1272,
+              1273,
+              1274,
+              1276
+            ],
+            "unscaled": {
+              "mean_absolute_error_s": 0.00045295758477606176,
+              "mean_signed_underprediction_s": 0.00021315970787580673,
+              "p95_positive_underprediction_s": 0.001312561303482988,
+              "maximum_positive_underprediction_s": 0.002674193489134582,
+              "actual_above_prediction_count": 192,
+              "actual_above_prediction_fraction": 0.5748502994011976
+            },
+            "fixed_margin_1_2": {
+              "mean_absolute_error_s": 0.008078883349042281,
+              "mean_signed_underprediction_s": -0.008078883349042281,
+              "p95_positive_underprediction_s": 0.0,
+              "maximum_positive_underprediction_s": 0.0,
+              "actual_above_prediction_count": 0,
+              "actual_above_prediction_fraction": 0.0
+            }
+          }
+        }
+      },
+      "status": "DESCRIPTIVE_TRANSFER_SCORED"
+    },
+    {
+      "cell": "03_fixed1024",
+      "raw_path": "refresh53005_01/03_fixed1024/raw.json",
+      "valid": true,
+      "errors": [],
+      "raw_sha256": "e01623691b7b68b9714cd2b89932039f9773d511bee154616d5708731a00f57d",
+      "policy": "fixed1024",
+      "observed_raw_steps": 1849,
+      "observed_requests": 256,
+      "observed_output_tokens": 114688,
+      "input_contract_matches": true,
+      "checks": {
+        "parent_status": "COMPLETE",
+        "requests": 256,
+        "expected_requests": 256,
+        "unfinished_requests": 0,
+        "missing_completion_requests": 0,
+        "output_count_mismatches": 0,
+        "token_timestamp_count_mismatches": 0,
+        "prompt_tokens": 538597,
+        "output_tokens": 114688,
+        "preempted_steps": 0,
+        "raw_error_fields": {},
+        "passed": true,
+        "extraction_errors": []
+      },
+      "all_completed_step_counts_and_features": {
+        "rows": 1849,
+        "pure_decode_rows": 1275,
+        "mixed_rows": 573,
+        "pure_prefill_rows": 1,
+        "empty_rows": 0,
+        "exact_total_513_rows": 0,
+        "feature_ranges": {
+          "P": {
+            "min": 0,
+            "max": 1024
+          },
+          "D": {
+            "min": 0,
+            "max": 153
+          },
+          "Cdecode": {
+            "min": 0,
+            "max": 388271
+          },
+          "Cprefill": {
+            "min": 0,
+            "max": 3498
+          }
+        },
+        "cost_s": {
+          "min": 0.003065153956413269,
+          "max": 0.06380011513829231,
+          "mean": 0.026375098386653504
+        }
+      },
+      "steps_over_1s_retained_in_transfer_metrics": [],
+      "all_completed_steps": {
+        "rows": 1849,
+        "actual_mean_s": 0.026375098386653504,
+        "actual_p95_s": 0.05198325440287589,
+        "prediction_min_s": 0.00803426828736438,
+        "prediction_max_s": 0.0530859420792968,
+        "negative_prediction_count": 0,
+        "negative_prediction_step_indices": [],
+        "zero_prediction_count": 0,
+        "outside_training_coordinate_ranges_count": 1,
+        "outside_training_coordinate_ranges_step_indices": [
+          1152
+        ],
+        "unscaled": {
+          "mean_absolute_error_s": 0.0010824851905196148,
+          "mean_signed_underprediction_s": 6.312148989938207e-05,
+          "p95_positive_underprediction_s": 0.0017911187663182488,
+          "maximum_positive_underprediction_s": 0.011884499176701924,
+          "actual_above_prediction_count": 1160,
+          "actual_above_prediction_fraction": 0.6273661438615468
+        },
+        "fixed_margin_1_2": {
+          "mean_absolute_error_s": 0.0052036279361851795,
+          "mean_signed_underprediction_s": -0.005199273889451441,
+          "p95_positive_underprediction_s": 0.0,
+          "maximum_positive_underprediction_s": 0.0024851403730718827,
+          "actual_above_prediction_count": 3,
+          "actual_above_prediction_fraction": 0.0016224986479177934
+        }
+      },
+      "by_actual_regime": {
+        "total_le_512": {
+          "counts_and_features": {
+            "rows": 1304,
+            "pure_decode_rows": 1275,
+            "mixed_rows": 29,
+            "pure_prefill_rows": 0,
+            "empty_rows": 0,
+            "exact_total_513_rows": 0,
+            "feature_ranges": {
+              "P": {
+                "min": 0,
+                "max": 441
+              },
+              "D": {
+                "min": 1,
+                "max": 150
+              },
+              "Cdecode": {
+                "min": 699,
+                "max": 379736
+              },
+              "Cprefill": {
+                "min": 0,
+                "max": 3325
+              }
+            },
+            "cost_s": {
+              "min": 0.003065153956413269,
+              "max": 0.04832693561911583,
+              "mean": 0.0216192869852337
+            }
+          },
+          "errors": {
+            "rows": 1304,
+            "actual_mean_s": 0.0216192869852337,
+            "actual_p95_s": 0.042521593347191806,
+            "prediction_min_s": 0.00803426828736438,
+            "prediction_max_s": 0.05039557731797806,
+            "negative_prediction_count": 0,
+            "negative_prediction_step_indices": [],
+            "zero_prediction_count": 0,
+            "outside_training_coordinate_ranges_count": 0,
+            "outside_training_coordinate_ranges_step_indices": [],
+            "unscaled": {
+              "mean_absolute_error_s": 0.001356066846636266,
+              "mean_signed_underprediction_s": -2.0023595586310523e-05,
+              "p95_positive_underprediction_s": 0.001833681835052619,
+              "maximum_positive_underprediction_s": 0.008116302357581633,
+              "actual_above_prediction_count": 813,
+              "actual_above_prediction_fraction": 0.6234662576687117
+            },
+            "fixed_margin_1_2": {
+              "mean_absolute_error_s": 0.004351756785708835,
+              "mean_signed_underprediction_s": -0.004347885711750312,
+              "p95_positive_underprediction_s": 0.0,
+              "maximum_positive_underprediction_s": 0.0024851403730718827,
+              "actual_above_prediction_count": 2,
+              "actual_above_prediction_fraction": 0.0015337423312883436
+            }
+          }
+        },
+        "total_gt_512": {
+          "counts_and_features": {
+            "rows": 545,
+            "pure_decode_rows": 0,
+            "mixed_rows": 544,
+            "pure_prefill_rows": 1,
+            "empty_rows": 0,
+            "exact_total_513_rows": 0,
+            "feature_ranges": {
+              "P": {
+                "min": 386,
+                "max": 1024
+              },
+              "D": {
+                "min": 0,
+                "max": 153
+              },
+              "Cdecode": {
+                "min": 0,
+                "max": 388271
+              },
+              "Cprefill": {
+                "min": 0,
+                "max": 3498
+              }
+            },
+            "cost_s": {
+              "min": 0.015102524310350418,
+              "max": 0.06380011513829231,
+              "mean": 0.03775414071225245
+            }
+          },
+          "errors": {
+            "rows": 545,
+            "actual_mean_s": 0.03775414071225245,
+            "actual_p95_s": 0.052856027334928515,
+            "prediction_min_s": 0.014373431813516174,
+            "prediction_max_s": 0.0530859420792968,
+            "negative_prediction_count": 0,
+            "negative_prediction_step_indices": [],
+            "zero_prediction_count": 0,
+            "outside_training_coordinate_ranges_count": 1,
+            "outside_training_coordinate_ranges_step_indices": [
+              1152
+            ],
+            "unscaled": {
+              "mean_absolute_error_s": 0.0004278971546001407,
+              "mean_signed_underprediction_s": 0.0002620594559055163,
+              "p95_positive_underprediction_s": 0.0010546018648615151,
+              "maximum_positive_underprediction_s": 0.011884499176701924,
+              "actual_above_prediction_count": 347,
+              "actual_above_prediction_fraction": 0.636697247706422
+            },
+            "fixed_margin_1_2": {
+              "mean_absolute_error_s": 0.007241866432003809,
+              "mean_signed_underprediction_s": -0.007236356795363869,
+              "p95_positive_underprediction_s": 0.0,
+              "maximum_positive_underprediction_s": 0.0015013759843838514,
+              "actual_above_prediction_count": 1,
+              "actual_above_prediction_fraction": 0.001834862385321101
+            }
+          }
+        }
+      },
+      "status": "DESCRIPTIVE_TRANSFER_SCORED"
+    }
+  ],
+  "scope": "OLD coefficients and training ranges only; no fitting, clipping, margin/threshold search, or filtering of completed host durations above 1s. Actual features are P,D,sum(computed_start+1) over scheduled decode rows,sum(computed_start) over scheduled prefill rows; regimes use actual P+D<=512 and >512. Warm runs are excluded. These are host engine.step prediction errors on new hardware/driver, not GPU-only costs, service effects, same-hardware causal evidence, or an online-SLO guarantee. Full service comparison is separate in analyze_fixed.py."
+}

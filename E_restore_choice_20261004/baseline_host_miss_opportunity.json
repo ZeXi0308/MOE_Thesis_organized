@@ -1,0 +1,2702 @@
+{
+  "schema": "E.baseline_Host_miss_opportunity.v1",
+  "scope": "Two completed fixed-Host baselines only; no GPU/wall-clock comparison or counterfactual execution.",
+  "definitions": [
+    "Only committed fallback=host_miss_native_recompute with actual_action=recompute, external_tokens=0 and host_hit_tokens=0 counts as a miss execution; failed lookups are not executions.",
+    "Recovery attempt work starts at allocation and ends at the earliest next strictly later output, next preemption, or next recovery; native scheduled intervals are counted once per disjoint attempt.",
+    "Repeated positions are per-request positions already scheduled earlier in the complete episode; they are real work counts, not wall-clock costs or proven avoidable savings.",
+    "Adjacent-miss overlap counts positions rebuilt in both miss attempts; decode work between misses can make total second-miss repeated work larger.",
+    "No STORE-cursor, residency, eviction, or future cache retention is inferred from host misses."
+  ],
+  "groups": [
+    {
+      "group": "oct08_e246_history53005_r01",
+      "cell": "E_restore_choice_20261004/execution/oct08_e246_history53005_r01/00_same_engine/00_host",
+      "raw_sha256": "6da20b52d87d2e446ce8a08acc9a6b8a35375520143a61b24ebe7f7a303dcc43",
+      "status": "COMPLETE",
+      "configuration": {
+        "model": "/root/autodl-tmp/moe-research-20261002/model",
+        "host_gib": 32,
+        "batch_tokens": 2048,
+        "max_num_seqs": 320,
+        "requests": 320,
+        "natural": false,
+        "kv_bytes": null,
+        "gpu_blocks": 36911,
+        "gpu_bytes": 77407977472,
+        "host_bytes": 34359738368,
+        "capacity_mode": "native_profile_0.9",
+        "max_model_len": 4096,
+        "gpu_before_measurement": {
+          "time": 1791458039.5707946,
+          "gpu": "GPU-51b8e4bb-27b8-4b82-5254-7317aae7298c, 88303 MiB, 61, 95.36 W, 2422 MHz\n",
+          "compute_pids": [
+            21783
+          ],
+          "allowed_pid": 21783
+        }
+      },
+      "summary": {
+        "requests": 320,
+        "fallback_commits": 23,
+        "distinct_miss_requests": 23,
+        "requests_with_multiple_misses": 0,
+        "misses_with_any_later_recovery": 0,
+        "all_miss_attempt_scheduled_positions": 74955,
+        "all_miss_attempt_repeated_positions": 74932,
+        "second_or_later_miss_scheduled_positions": 0,
+        "second_or_later_miss_repeated_positions": 0,
+        "positions_from_previous_miss_rebuilt_again": 0,
+        "whole_episode_position_work": {
+          "scheduled": 1113393,
+          "unique_positions": 1034170,
+          "repeated_positions": 79223
+        },
+        "second_or_later_miss_repeated_fraction_of_episode": 0.0
+      },
+      "requests_with_miss": [
+        {
+          "external_id": "measured/E217",
+          "prompt_tokens": 2871,
+          "output_tokens": 1024,
+          "finish_reason": "length",
+          "total_recovery_commits": 1,
+          "positive_Host_commits_before_first_miss": 0,
+          "fallback_event_sequence": [
+            507
+          ],
+          "recoveries_from_first_miss": [
+            {
+              "recovery_ordinal": 1,
+              "event": 507,
+              "step": 1028,
+              "known_tokens": 3577,
+              "generated_tokens": 706,
+              "host_hit_tokens": 0,
+              "external_tokens": 0,
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute",
+              "joint_capacity": true,
+              "eligible": false,
+              "attempt_end": "next_output",
+              "attempt_end_step": 1030,
+              "next_strict_output_index": 706,
+              "next_strict_output_step": 1030,
+              "scheduled_positions": 3577,
+              "repeated_positions": 3576,
+              "native_ranges": [
+                {
+                  "step": 1028,
+                  "start": 0,
+                  "end": 553,
+                  "count": 553,
+                  "repeated": 553
+                },
+                {
+                  "step": 1029,
+                  "start": 553,
+                  "end": 2442,
+                  "count": 1889,
+                  "repeated": 1889
+                },
+                {
+                  "step": 1030,
+                  "start": 2442,
+                  "end": 3577,
+                  "count": 1135,
+                  "repeated": 1134
+                }
+              ]
+            }
+          ],
+          "adjacent_miss_pairs": [],
+          "whole_request_position_work": {
+            "scheduled": 7470,
+            "unique_positions": 3894,
+            "repeated_positions": 3576
+          }
+        },
+        {
+          "external_id": "measured/E218",
+          "prompt_tokens": 2943,
+          "output_tokens": 1024,
+          "finish_reason": "length",
+          "total_recovery_commits": 1,
+          "positive_Host_commits_before_first_miss": 0,
+          "fallback_event_sequence": [
+            508
+          ],
+          "recoveries_from_first_miss": [
+            {
+              "recovery_ordinal": 1,
+              "event": 508,
+              "step": 1030,
+              "known_tokens": 3626,
+              "generated_tokens": 683,
+              "host_hit_tokens": 0,
+              "external_tokens": 0,
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute",
+              "joint_capacity": true,
+              "eligible": false,
+              "attempt_end": "next_output",
+              "attempt_end_step": 1032,
+              "next_strict_output_index": 683,
+              "next_strict_output_step": 1032,
+              "scheduled_positions": 3626,
+              "repeated_positions": 3625,
+              "native_ranges": [
+                {
+                  "step": 1030,
+                  "start": 0,
+                  "end": 755,
+                  "count": 755,
+                  "repeated": 755
+                },
+                {
+                  "step": 1031,
+                  "start": 755,
+                  "end": 2645,
+                  "count": 1890,
+                  "repeated": 1890
+                },
+                {
+                  "step": 1032,
+                  "start": 2645,
+                  "end": 3626,
+                  "count": 981,
+                  "repeated": 980
+                }
+              ]
+            }
+          ],
+          "adjacent_miss_pairs": [],
+          "whole_request_position_work": {
+            "scheduled": 7591,
+            "unique_positions": 3966,
+            "repeated_positions": 3625
+          }
+        },
+        {
+          "external_id": "measured/E219",
+          "prompt_tokens": 2942,
+          "output_tokens": 1024,
+          "finish_reason": "length",
+          "total_recovery_commits": 1,
+          "positive_Host_commits_before_first_miss": 0,
+          "fallback_event_sequence": [
+            509
+          ],
+          "recoveries_from_first_miss": [
+            {
+              "recovery_ordinal": 1,
+              "event": 509,
+              "step": 1032,
+              "known_tokens": 3601,
+              "generated_tokens": 659,
+              "host_hit_tokens": 0,
+              "external_tokens": 0,
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute",
+              "joint_capacity": true,
+              "eligible": false,
+              "attempt_end": "next_output",
+              "attempt_end_step": 1034,
+              "next_strict_output_index": 659,
+              "next_strict_output_step": 1034,
+              "scheduled_positions": 3601,
+              "repeated_positions": 3600,
+              "native_ranges": [
+                {
+                  "step": 1032,
+                  "start": 0,
+                  "end": 910,
+                  "count": 910,
+                  "repeated": 910
+                },
+                {
+                  "step": 1033,
+                  "start": 910,
+                  "end": 2800,
+                  "count": 1890,
+                  "repeated": 1890
+                },
+                {
+                  "step": 1034,
+                  "start": 2800,
+                  "end": 3601,
+                  "count": 801,
+                  "repeated": 800
+                }
+              ]
+            }
+          ],
+          "adjacent_miss_pairs": [],
+          "whole_request_position_work": {
+            "scheduled": 7565,
+            "unique_positions": 3965,
+            "repeated_positions": 3600
+          }
+        },
+        {
+          "external_id": "measured/E221",
+          "prompt_tokens": 2605,
+          "output_tokens": 1024,
+          "finish_reason": "length",
+          "total_recovery_commits": 1,
+          "positive_Host_commits_before_first_miss": 0,
+          "fallback_event_sequence": [
+            510
+          ],
+          "recoveries_from_first_miss": [
+            {
+              "recovery_ordinal": 1,
+              "event": 510,
+              "step": 1034,
+              "known_tokens": 3242,
+              "generated_tokens": 637,
+              "host_hit_tokens": 0,
+              "external_tokens": 0,
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute",
+              "joint_capacity": true,
+              "eligible": false,
+              "attempt_end": "next_output",
+              "attempt_end_step": 1036,
+              "next_strict_output_index": 637,
+              "next_strict_output_step": 1036,
+              "scheduled_positions": 3242,
+              "repeated_positions": 3241,
+              "native_ranges": [
+                {
+                  "step": 1034,
+                  "start": 0,
+                  "end": 1090,
+                  "count": 1090,
+                  "repeated": 1090
+                },
+                {
+                  "step": 1035,
+                  "start": 1090,
+                  "end": 2981,
+                  "count": 1891,
+                  "repeated": 1891
+                },
+                {
+                  "step": 1036,
+                  "start": 2981,
+                  "end": 3242,
+                  "count": 261,
+                  "repeated": 260
+                }
+              ]
+            }
+          ],
+          "adjacent_miss_pairs": [],
+          "whole_request_position_work": {
+            "scheduled": 6869,
+            "unique_positions": 3628,
+            "repeated_positions": 3241
+          }
+        },
+        {
+          "external_id": "measured/E222",
+          "prompt_tokens": 2919,
+          "output_tokens": 1024,
+          "finish_reason": "length",
+          "total_recovery_commits": 1,
+          "positive_Host_commits_before_first_miss": 0,
+          "fallback_event_sequence": [
+            511
+          ],
+          "recoveries_from_first_miss": [
+            {
+              "recovery_ordinal": 1,
+              "event": 511,
+              "step": 1036,
+              "known_tokens": 3534,
+              "generated_tokens": 615,
+              "host_hit_tokens": 0,
+              "external_tokens": 0,
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute",
+              "joint_capacity": true,
+              "eligible": false,
+              "attempt_end": "next_output",
+              "attempt_end_step": 1038,
+              "next_strict_output_index": 615,
+              "next_strict_output_step": 1038,
+              "scheduled_positions": 3534,
+              "repeated_positions": 3533,
+              "native_ranges": [
+                {
+                  "step": 1036,
+                  "start": 0,
+                  "end": 1630,
+                  "count": 1630,
+                  "repeated": 1630
+                },
+                {
+                  "step": 1037,
+                  "start": 1630,
+                  "end": 3521,
+                  "count": 1891,
+                  "repeated": 1891
+                },
+                {
+                  "step": 1038,
+                  "start": 3521,
+                  "end": 3534,
+                  "count": 13,
+                  "repeated": 12
+                }
+              ]
+            }
+          ],
+          "adjacent_miss_pairs": [],
+          "whole_request_position_work": {
+            "scheduled": 7475,
+            "unique_positions": 3942,
+            "repeated_positions": 3533
+          }
+        },
+        {
+          "external_id": "measured/E223",
+          "prompt_tokens": 2534,
+          "output_tokens": 1024,
+          "finish_reason": "length",
+          "total_recovery_commits": 1,
+          "positive_Host_commits_before_first_miss": 0,
+          "fallback_event_sequence": [
+            512
+          ],
+          "recoveries_from_first_miss": [
+            {
+              "recovery_ordinal": 1,
+              "event": 512,
+              "step": 1038,
+              "known_tokens": 3128,
+              "generated_tokens": 594,
+              "host_hit_tokens": 0,
+              "external_tokens": 0,
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute",
+              "joint_capacity": true,
+              "eligible": false,
+              "attempt_end": "next_output",
+              "attempt_end_step": 1039,
+              "next_strict_output_index": 594,
+              "next_strict_output_step": 1039,
+              "scheduled_positions": 3128,
+              "repeated_positions": 3127,
+              "native_ranges": [
+                {
+                  "step": 1038,
+                  "start": 0,
+                  "end": 1879,
+                  "count": 1879,
+                  "repeated": 1879
+                },
+                {
+                  "step": 1039,
+                  "start": 1879,
+                  "end": 3128,
+                  "count": 1249,
+                  "repeated": 1248
+                }
+              ]
+            }
+          ],
+          "adjacent_miss_pairs": [],
+          "whole_request_position_work": {
+            "scheduled": 6684,
+            "unique_positions": 3557,
+            "repeated_positions": 3127
+          }
+        },
+        {
+          "external_id": "measured/E225",
+          "prompt_tokens": 2542,
+          "output_tokens": 1024,
+          "finish_reason": "length",
+          "total_recovery_commits": 1,
+          "positive_Host_commits_before_first_miss": 0,
+          "fallback_event_sequence": [
+            513
+          ],
+          "recoveries_from_first_miss": [
+            {
+              "recovery_ordinal": 1,
+              "event": 513,
+              "step": 1039,
+              "known_tokens": 3116,
+              "generated_tokens": 574,
+              "host_hit_tokens": 0,
+              "external_tokens": 0,
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute",
+              "joint_capacity": true,
+              "eligible": false,
+              "attempt_end": "next_output",
+              "attempt_end_step": 1041,
+              "next_strict_output_index": 574,
+              "next_strict_output_step": 1041,
+              "scheduled_positions": 3116,
+              "repeated_positions": 3115,
+              "native_ranges": [
+                {
+                  "step": 1039,
+                  "start": 0,
+                  "end": 642,
+                  "count": 642,
+                  "repeated": 642
+                },
+                {
+                  "step": 1040,
+                  "start": 642,
+                  "end": 2533,
+                  "count": 1891,
+                  "repeated": 1891
+                },
+                {
+                  "step": 1041,
+                  "start": 2533,
+                  "end": 3116,
+                  "count": 583,
+                  "repeated": 582
+                }
+              ]
+            }
+          ],
+          "adjacent_miss_pairs": [],
+          "whole_request_position_work": {
+            "scheduled": 6680,
+            "unique_positions": 3565,
+            "repeated_positions": 3115
+          }
+        },
+        {
+          "external_id": "measured/E226",
+          "prompt_tokens": 2948,
+          "output_tokens": 1024,
+          "finish_reason": "length",
+          "total_recovery_commits": 1,
+          "positive_Host_commits_before_first_miss": 0,
+          "fallback_event_sequence": [
+            514
+          ],
+          "recoveries_from_first_miss": [
+            {
+              "recovery_ordinal": 1,
+              "event": 514,
+              "step": 1041,
+              "known_tokens": 3499,
+              "generated_tokens": 551,
+              "host_hit_tokens": 0,
+              "external_tokens": 0,
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute",
+              "joint_capacity": true,
+              "eligible": false,
+              "attempt_end": "next_output",
+              "attempt_end_step": 1043,
+              "next_strict_output_index": 551,
+              "next_strict_output_step": 1043,
+              "scheduled_positions": 3499,
+              "repeated_positions": 3498,
+              "native_ranges": [
+                {
+                  "step": 1041,
+                  "start": 0,
+                  "end": 1309,
+                  "count": 1309,
+                  "repeated": 1309
+                },
+                {
+                  "step": 1042,
+                  "start": 1309,
+                  "end": 3200,
+                  "count": 1891,
+                  "repeated": 1891
+                },
+                {
+                  "step": 1043,
+                  "start": 3200,
+                  "end": 3499,
+                  "count": 299,
+                  "repeated": 298
+                }
+              ]
+            }
+          ],
+          "adjacent_miss_pairs": [],
+          "whole_request_position_work": {
+            "scheduled": 7469,
+            "unique_positions": 3971,
+            "repeated_positions": 3498
+          }
+        },
+        {
+          "external_id": "measured/E227",
+          "prompt_tokens": 2674,
+          "output_tokens": 1024,
+          "finish_reason": "length",
+          "total_recovery_commits": 1,
+          "positive_Host_commits_before_first_miss": 0,
+          "fallback_event_sequence": [
+            515
+          ],
+          "recoveries_from_first_miss": [
+            {
+              "recovery_ordinal": 1,
+              "event": 515,
+              "step": 1043,
+              "known_tokens": 3205,
+              "generated_tokens": 531,
+              "host_hit_tokens": 0,
+              "external_tokens": 0,
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute",
+              "joint_capacity": true,
+              "eligible": false,
+              "attempt_end": "next_output",
+              "attempt_end_step": 1044,
+              "next_strict_output_index": 531,
+              "next_strict_output_step": 1044,
+              "scheduled_positions": 3205,
+              "repeated_positions": 3204,
+              "native_ranges": [
+                {
+                  "step": 1043,
+                  "start": 0,
+                  "end": 1593,
+                  "count": 1593,
+                  "repeated": 1593
+                },
+                {
+                  "step": 1044,
+                  "start": 1593,
+                  "end": 3205,
+                  "count": 1612,
+                  "repeated": 1611
+                }
+              ]
+            }
+          ],
+          "adjacent_miss_pairs": [],
+          "whole_request_position_work": {
+            "scheduled": 6901,
+            "unique_positions": 3697,
+            "repeated_positions": 3204
+          }
+        },
+        {
+          "external_id": "measured/E229",
+          "prompt_tokens": 2743,
+          "output_tokens": 1024,
+          "finish_reason": "length",
+          "total_recovery_commits": 1,
+          "positive_Host_commits_before_first_miss": 0,
+          "fallback_event_sequence": [
+            516
+          ],
+          "recoveries_from_first_miss": [
+            {
+              "recovery_ordinal": 1,
+              "event": 516,
+              "step": 1044,
+              "known_tokens": 3253,
+              "generated_tokens": 510,
+              "host_hit_tokens": 0,
+              "external_tokens": 0,
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute",
+              "joint_capacity": true,
+              "eligible": false,
+              "attempt_end": "next_output",
+              "attempt_end_step": 1046,
+              "next_strict_output_index": 510,
+              "next_strict_output_step": 1046,
+              "scheduled_positions": 3253,
+              "repeated_positions": 3252,
+              "native_ranges": [
+                {
+                  "step": 1044,
+                  "start": 0,
+                  "end": 280,
+                  "count": 280,
+                  "repeated": 280
+                },
+                {
+                  "step": 1045,
+                  "start": 280,
+                  "end": 2171,
+                  "count": 1891,
+                  "repeated": 1891
+                },
+                {
+                  "step": 1046,
+                  "start": 2171,
+                  "end": 3253,
+                  "count": 1082,
+                  "repeated": 1081
+                }
+              ]
+            }
+          ],
+          "adjacent_miss_pairs": [],
+          "whole_request_position_work": {
+            "scheduled": 7018,
+            "unique_positions": 3766,
+            "repeated_positions": 3252
+          }
+        },
+        {
+          "external_id": "measured/E230",
+          "prompt_tokens": 2775,
+          "output_tokens": 1024,
+          "finish_reason": "length",
+          "total_recovery_commits": 1,
+          "positive_Host_commits_before_first_miss": 0,
+          "fallback_event_sequence": [
+            517
+          ],
+          "recoveries_from_first_miss": [
+            {
+              "recovery_ordinal": 1,
+              "event": 517,
+              "step": 1046,
+              "known_tokens": 3265,
+              "generated_tokens": 490,
+              "host_hit_tokens": 0,
+              "external_tokens": 0,
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute",
+              "joint_capacity": true,
+              "eligible": false,
+              "attempt_end": "next_output",
+              "attempt_end_step": 1048,
+              "next_strict_output_index": 490,
+              "next_strict_output_step": 1048,
+              "scheduled_positions": 3265,
+              "repeated_positions": 3264,
+              "native_ranges": [
+                {
+                  "step": 1046,
+                  "start": 0,
+                  "end": 810,
+                  "count": 810,
+                  "repeated": 810
+                },
+                {
+                  "step": 1047,
+                  "start": 810,
+                  "end": 2702,
+                  "count": 1892,
+                  "repeated": 1892
+                },
+                {
+                  "step": 1048,
+                  "start": 2702,
+                  "end": 3265,
+                  "count": 563,
+                  "repeated": 562
+                }
+              ]
+            }
+          ],
+          "adjacent_miss_pairs": [],
+          "whole_request_position_work": {
+            "scheduled": 7062,
+            "unique_positions": 3798,
+            "repeated_positions": 3264
+          }
+        },
+        {
+          "external_id": "measured/E231",
+          "prompt_tokens": 2654,
+          "output_tokens": 1024,
+          "finish_reason": "length",
+          "total_recovery_commits": 1,
+          "positive_Host_commits_before_first_miss": 0,
+          "fallback_event_sequence": [
+            518
+          ],
+          "recoveries_from_first_miss": [
+            {
+              "recovery_ordinal": 1,
+              "event": 518,
+              "step": 1048,
+              "known_tokens": 3124,
+              "generated_tokens": 470,
+              "host_hit_tokens": 0,
+              "external_tokens": 0,
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute",
+              "joint_capacity": true,
+              "eligible": false,
+              "attempt_end": "next_output",
+              "attempt_end_step": 1049,
+              "next_strict_output_index": 470,
+              "next_strict_output_step": 1049,
+              "scheduled_positions": 3124,
+              "repeated_positions": 3123,
+              "native_ranges": [
+                {
+                  "step": 1048,
+                  "start": 0,
+                  "end": 1329,
+                  "count": 1329,
+                  "repeated": 1329
+                },
+                {
+                  "step": 1049,
+                  "start": 1329,
+                  "end": 3124,
+                  "count": 1795,
+                  "repeated": 1794
+                }
+              ]
+            }
+          ],
+          "adjacent_miss_pairs": [],
+          "whole_request_position_work": {
+            "scheduled": 6800,
+            "unique_positions": 3677,
+            "repeated_positions": 3123
+          }
+        },
+        {
+          "external_id": "measured/E233",
+          "prompt_tokens": 2660,
+          "output_tokens": 1024,
+          "finish_reason": "length",
+          "total_recovery_commits": 1,
+          "positive_Host_commits_before_first_miss": 0,
+          "fallback_event_sequence": [
+            519
+          ],
+          "recoveries_from_first_miss": [
+            {
+              "recovery_ordinal": 1,
+              "event": 519,
+              "step": 1049,
+              "known_tokens": 3110,
+              "generated_tokens": 450,
+              "host_hit_tokens": 0,
+              "external_tokens": 0,
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute",
+              "joint_capacity": true,
+              "eligible": false,
+              "attempt_end": "next_output",
+              "attempt_end_step": 1051,
+              "next_strict_output_index": 450,
+              "next_strict_output_step": 1051,
+              "scheduled_positions": 3110,
+              "repeated_positions": 3109,
+              "native_ranges": [
+                {
+                  "step": 1049,
+                  "start": 0,
+                  "end": 97,
+                  "count": 97,
+                  "repeated": 97
+                },
+                {
+                  "step": 1050,
+                  "start": 97,
+                  "end": 1989,
+                  "count": 1892,
+                  "repeated": 1892
+                },
+                {
+                  "step": 1051,
+                  "start": 1989,
+                  "end": 3110,
+                  "count": 1121,
+                  "repeated": 1120
+                }
+              ]
+            }
+          ],
+          "adjacent_miss_pairs": [],
+          "whole_request_position_work": {
+            "scheduled": 6792,
+            "unique_positions": 3683,
+            "repeated_positions": 3109
+          }
+        },
+        {
+          "external_id": "measured/E234",
+          "prompt_tokens": 2843,
+          "output_tokens": 1024,
+          "finish_reason": "length",
+          "total_recovery_commits": 1,
+          "positive_Host_commits_before_first_miss": 0,
+          "fallback_event_sequence": [
+            520
+          ],
+          "recoveries_from_first_miss": [
+            {
+              "recovery_ordinal": 1,
+              "event": 520,
+              "step": 1051,
+              "known_tokens": 3274,
+              "generated_tokens": 431,
+              "host_hit_tokens": 0,
+              "external_tokens": 0,
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute",
+              "joint_capacity": true,
+              "eligible": false,
+              "attempt_end": "next_output",
+              "attempt_end_step": 1053,
+              "next_strict_output_index": 431,
+              "next_strict_output_step": 1053,
+              "scheduled_positions": 3274,
+              "repeated_positions": 3273,
+              "native_ranges": [
+                {
+                  "step": 1051,
+                  "start": 0,
+                  "end": 771,
+                  "count": 771,
+                  "repeated": 771
+                },
+                {
+                  "step": 1052,
+                  "start": 771,
+                  "end": 2663,
+                  "count": 1892,
+                  "repeated": 1892
+                },
+                {
+                  "step": 1053,
+                  "start": 2663,
+                  "end": 3274,
+                  "count": 611,
+                  "repeated": 610
+                }
+              ]
+            }
+          ],
+          "adjacent_miss_pairs": [],
+          "whole_request_position_work": {
+            "scheduled": 7139,
+            "unique_positions": 3866,
+            "repeated_positions": 3273
+          }
+        },
+        {
+          "external_id": "measured/E235",
+          "prompt_tokens": 2994,
+          "output_tokens": 1024,
+          "finish_reason": "length",
+          "total_recovery_commits": 1,
+          "positive_Host_commits_before_first_miss": 0,
+          "fallback_event_sequence": [
+            521
+          ],
+          "recoveries_from_first_miss": [
+            {
+              "recovery_ordinal": 1,
+              "event": 521,
+              "step": 1053,
+              "known_tokens": 3403,
+              "generated_tokens": 409,
+              "host_hit_tokens": 0,
+              "external_tokens": 0,
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute",
+              "joint_capacity": true,
+              "eligible": false,
+              "attempt_end": "next_output",
+              "attempt_end_step": 1055,
+              "next_strict_output_index": 409,
+              "next_strict_output_step": 1055,
+              "scheduled_positions": 3403,
+              "repeated_positions": 3402,
+              "native_ranges": [
+                {
+                  "step": 1053,
+                  "start": 0,
+                  "end": 1282,
+                  "count": 1282,
+                  "repeated": 1282
+                },
+                {
+                  "step": 1054,
+                  "start": 1282,
+                  "end": 3174,
+                  "count": 1892,
+                  "repeated": 1892
+                },
+                {
+                  "step": 1055,
+                  "start": 3174,
+                  "end": 3403,
+                  "count": 229,
+                  "repeated": 228
+                }
+              ]
+            }
+          ],
+          "adjacent_miss_pairs": [],
+          "whole_request_position_work": {
+            "scheduled": 7419,
+            "unique_positions": 4017,
+            "repeated_positions": 3402
+          }
+        },
+        {
+          "external_id": "measured/E237",
+          "prompt_tokens": 2603,
+          "output_tokens": 1024,
+          "finish_reason": "length",
+          "total_recovery_commits": 1,
+          "positive_Host_commits_before_first_miss": 0,
+          "fallback_event_sequence": [
+            522
+          ],
+          "recoveries_from_first_miss": [
+            {
+              "recovery_ordinal": 1,
+              "event": 522,
+              "step": 1055,
+              "known_tokens": 2993,
+              "generated_tokens": 390,
+              "host_hit_tokens": 0,
+              "external_tokens": 0,
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute",
+              "joint_capacity": true,
+              "eligible": false,
+              "attempt_end": "next_output",
+              "attempt_end_step": 1056,
+              "next_strict_output_index": 390,
+              "next_strict_output_step": 1056,
+              "scheduled_positions": 2993,
+              "repeated_positions": 2992,
+              "native_ranges": [
+                {
+                  "step": 1055,
+                  "start": 0,
+                  "end": 1664,
+                  "count": 1664,
+                  "repeated": 1664
+                },
+                {
+                  "step": 1056,
+                  "start": 1664,
+                  "end": 2993,
+                  "count": 1329,
+                  "repeated": 1328
+                }
+              ]
+            }
+          ],
+          "adjacent_miss_pairs": [],
+          "whole_request_position_work": {
+            "scheduled": 6618,
+            "unique_positions": 3626,
+            "repeated_positions": 2992
+          }
+        },
+        {
+          "external_id": "measured/E238",
+          "prompt_tokens": 2863,
+          "output_tokens": 1024,
+          "finish_reason": "length",
+          "total_recovery_commits": 1,
+          "positive_Host_commits_before_first_miss": 0,
+          "fallback_event_sequence": [
+            523
+          ],
+          "recoveries_from_first_miss": [
+            {
+              "recovery_ordinal": 1,
+              "event": 523,
+              "step": 1056,
+              "known_tokens": 3234,
+              "generated_tokens": 371,
+              "host_hit_tokens": 0,
+              "external_tokens": 0,
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute",
+              "joint_capacity": true,
+              "eligible": false,
+              "attempt_end": "next_output",
+              "attempt_end_step": 1058,
+              "next_strict_output_index": 371,
+              "next_strict_output_step": 1058,
+              "scheduled_positions": 3234,
+              "repeated_positions": 3233,
+              "native_ranges": [
+                {
+                  "step": 1056,
+                  "start": 0,
+                  "end": 564,
+                  "count": 564,
+                  "repeated": 564
+                },
+                {
+                  "step": 1057,
+                  "start": 564,
+                  "end": 2456,
+                  "count": 1892,
+                  "repeated": 1892
+                },
+                {
+                  "step": 1058,
+                  "start": 2456,
+                  "end": 3234,
+                  "count": 778,
+                  "repeated": 777
+                }
+              ]
+            }
+          ],
+          "adjacent_miss_pairs": [],
+          "whole_request_position_work": {
+            "scheduled": 7119,
+            "unique_positions": 3886,
+            "repeated_positions": 3233
+          }
+        },
+        {
+          "external_id": "measured/E239",
+          "prompt_tokens": 2768,
+          "output_tokens": 1024,
+          "finish_reason": "length",
+          "total_recovery_commits": 1,
+          "positive_Host_commits_before_first_miss": 0,
+          "fallback_event_sequence": [
+            524
+          ],
+          "recoveries_from_first_miss": [
+            {
+              "recovery_ordinal": 1,
+              "event": 524,
+              "step": 1058,
+              "known_tokens": 3120,
+              "generated_tokens": 352,
+              "host_hit_tokens": 0,
+              "external_tokens": 0,
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute",
+              "joint_capacity": true,
+              "eligible": false,
+              "attempt_end": "next_output",
+              "attempt_end_step": 1060,
+              "next_strict_output_index": 352,
+              "next_strict_output_step": 1060,
+              "scheduled_positions": 3120,
+              "repeated_positions": 3119,
+              "native_ranges": [
+                {
+                  "step": 1058,
+                  "start": 0,
+                  "end": 1115,
+                  "count": 1115,
+                  "repeated": 1115
+                },
+                {
+                  "step": 1059,
+                  "start": 1115,
+                  "end": 3008,
+                  "count": 1893,
+                  "repeated": 1893
+                },
+                {
+                  "step": 1060,
+                  "start": 3008,
+                  "end": 3120,
+                  "count": 112,
+                  "repeated": 111
+                }
+              ]
+            }
+          ],
+          "adjacent_miss_pairs": [],
+          "whole_request_position_work": {
+            "scheduled": 6910,
+            "unique_positions": 3791,
+            "repeated_positions": 3119
+          }
+        },
+        {
+          "external_id": "measured/E241",
+          "prompt_tokens": 2994,
+          "output_tokens": 1024,
+          "finish_reason": "length",
+          "total_recovery_commits": 1,
+          "positive_Host_commits_before_first_miss": 0,
+          "fallback_event_sequence": [
+            525
+          ],
+          "recoveries_from_first_miss": [
+            {
+              "recovery_ordinal": 1,
+              "event": 525,
+              "step": 1060,
+              "known_tokens": 3325,
+              "generated_tokens": 331,
+              "host_hit_tokens": 0,
+              "external_tokens": 0,
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute",
+              "joint_capacity": true,
+              "eligible": false,
+              "attempt_end": "next_output",
+              "attempt_end_step": 1061,
+              "next_strict_output_index": 331,
+              "next_strict_output_step": 1061,
+              "scheduled_positions": 3325,
+              "repeated_positions": 3324,
+              "native_ranges": [
+                {
+                  "step": 1060,
+                  "start": 0,
+                  "end": 1781,
+                  "count": 1781,
+                  "repeated": 1781
+                },
+                {
+                  "step": 1061,
+                  "start": 1781,
+                  "end": 3325,
+                  "count": 1544,
+                  "repeated": 1543
+                }
+              ]
+            }
+          ],
+          "adjacent_miss_pairs": [],
+          "whole_request_position_work": {
+            "scheduled": 7341,
+            "unique_positions": 4017,
+            "repeated_positions": 3324
+          }
+        },
+        {
+          "external_id": "measured/E242",
+          "prompt_tokens": 2709,
+          "output_tokens": 1024,
+          "finish_reason": "length",
+          "total_recovery_commits": 1,
+          "positive_Host_commits_before_first_miss": 0,
+          "fallback_event_sequence": [
+            526
+          ],
+          "recoveries_from_first_miss": [
+            {
+              "recovery_ordinal": 1,
+              "event": 526,
+              "step": 1061,
+              "known_tokens": 3022,
+              "generated_tokens": 313,
+              "host_hit_tokens": 0,
+              "external_tokens": 0,
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute",
+              "joint_capacity": true,
+              "eligible": false,
+              "attempt_end": "next_output",
+              "attempt_end_step": 1063,
+              "next_strict_output_index": 313,
+              "next_strict_output_step": 1063,
+              "scheduled_positions": 3022,
+              "repeated_positions": 3021,
+              "native_ranges": [
+                {
+                  "step": 1061,
+                  "start": 0,
+                  "end": 349,
+                  "count": 349,
+                  "repeated": 349
+                },
+                {
+                  "step": 1062,
+                  "start": 349,
+                  "end": 2242,
+                  "count": 1893,
+                  "repeated": 1893
+                },
+                {
+                  "step": 1063,
+                  "start": 2242,
+                  "end": 3022,
+                  "count": 780,
+                  "repeated": 779
+                }
+              ]
+            }
+          ],
+          "adjacent_miss_pairs": [],
+          "whole_request_position_work": {
+            "scheduled": 6753,
+            "unique_positions": 3732,
+            "repeated_positions": 3021
+          }
+        },
+        {
+          "external_id": "measured/E243",
+          "prompt_tokens": 2913,
+          "output_tokens": 1024,
+          "finish_reason": "length",
+          "total_recovery_commits": 1,
+          "positive_Host_commits_before_first_miss": 0,
+          "fallback_event_sequence": [
+            527
+          ],
+          "recoveries_from_first_miss": [
+            {
+              "recovery_ordinal": 1,
+              "event": 527,
+              "step": 1063,
+              "known_tokens": 3206,
+              "generated_tokens": 293,
+              "host_hit_tokens": 0,
+              "external_tokens": 0,
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute",
+              "joint_capacity": true,
+              "eligible": false,
+              "attempt_end": "next_output",
+              "attempt_end_step": 1065,
+              "next_strict_output_index": 293,
+              "next_strict_output_step": 1065,
+              "scheduled_positions": 3206,
+              "repeated_positions": 3205,
+              "native_ranges": [
+                {
+                  "step": 1063,
+                  "start": 0,
+                  "end": 1113,
+                  "count": 1113,
+                  "repeated": 1113
+                },
+                {
+                  "step": 1064,
+                  "start": 1113,
+                  "end": 3006,
+                  "count": 1893,
+                  "repeated": 1893
+                },
+                {
+                  "step": 1065,
+                  "start": 3006,
+                  "end": 3206,
+                  "count": 200,
+                  "repeated": 199
+                }
+              ]
+            }
+          ],
+          "adjacent_miss_pairs": [],
+          "whole_request_position_work": {
+            "scheduled": 7141,
+            "unique_positions": 3936,
+            "repeated_positions": 3205
+          }
+        },
+        {
+          "external_id": "measured/E245",
+          "prompt_tokens": 2602,
+          "output_tokens": 1024,
+          "finish_reason": "length",
+          "total_recovery_commits": 1,
+          "positive_Host_commits_before_first_miss": 0,
+          "fallback_event_sequence": [
+            528
+          ],
+          "recoveries_from_first_miss": [
+            {
+              "recovery_ordinal": 1,
+              "event": 528,
+              "step": 1065,
+              "known_tokens": 2878,
+              "generated_tokens": 276,
+              "host_hit_tokens": 0,
+              "external_tokens": 0,
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute",
+              "joint_capacity": true,
+              "eligible": false,
+              "attempt_end": "next_output",
+              "attempt_end_step": 1066,
+              "next_strict_output_index": 276,
+              "next_strict_output_step": 1066,
+              "scheduled_positions": 2878,
+              "repeated_positions": 2877,
+              "native_ranges": [
+                {
+                  "step": 1065,
+                  "start": 0,
+                  "end": 1694,
+                  "count": 1694,
+                  "repeated": 1694
+                },
+                {
+                  "step": 1066,
+                  "start": 1694,
+                  "end": 2878,
+                  "count": 1184,
+                  "repeated": 1183
+                }
+              ]
+            }
+          ],
+          "adjacent_miss_pairs": [],
+          "whole_request_position_work": {
+            "scheduled": 6502,
+            "unique_positions": 3625,
+            "repeated_positions": 2877
+          }
+        },
+        {
+          "external_id": "measured/E246",
+          "prompt_tokens": 3040,
+          "output_tokens": 1024,
+          "finish_reason": "length",
+          "total_recovery_commits": 28,
+          "positive_Host_commits_before_first_miss": 27,
+          "fallback_event_sequence": [
+            529
+          ],
+          "recoveries_from_first_miss": [
+            {
+              "recovery_ordinal": 28,
+              "event": 529,
+              "step": 1066,
+              "known_tokens": 3220,
+              "generated_tokens": 180,
+              "host_hit_tokens": 0,
+              "external_tokens": 0,
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute",
+              "joint_capacity": true,
+              "eligible": false,
+              "attempt_end": "next_output",
+              "attempt_end_step": 1068,
+              "next_strict_output_index": 180,
+              "next_strict_output_step": 1068,
+              "scheduled_positions": 3220,
+              "repeated_positions": 3219,
+              "native_ranges": [
+                {
+                  "step": 1066,
+                  "start": 0,
+                  "end": 709,
+                  "count": 709,
+                  "repeated": 709
+                },
+                {
+                  "step": 1067,
+                  "start": 709,
+                  "end": 2602,
+                  "count": 1893,
+                  "repeated": 1893
+                },
+                {
+                  "step": 1068,
+                  "start": 2602,
+                  "end": 3220,
+                  "count": 618,
+                  "repeated": 617
+                }
+              ]
+            }
+          ],
+          "adjacent_miss_pairs": [],
+          "whole_request_position_work": {
+            "scheduled": 9461,
+            "unique_positions": 4063,
+            "repeated_positions": 5398
+          }
+        }
+      ]
+    },
+    {
+      "group": "oct07_e223_r01",
+      "cell": "E_restore_choice_20261004/execution/oct07_e223_r01/00_same_engine/00_host",
+      "raw_sha256": "589fbce1b5a7ebe3bc0f0845445b9a77155815dc8405af0d1ba1f5f62f28cfea",
+      "status": "COMPLETE",
+      "configuration": {
+        "model": "/root/autodl-tmp/moe-research-20261002/model",
+        "host_gib": 32,
+        "batch_tokens": 2048,
+        "max_num_seqs": 256,
+        "requests": 256,
+        "natural": true,
+        "kv_bytes": null,
+        "gpu_blocks": 36916,
+        "gpu_bytes": 77418463232,
+        "host_bytes": 34359738368,
+        "capacity_mode": "native_profile_0.9",
+        "max_model_len": 4096,
+        "gpu_before_measurement": {
+          "time": 1791369925.8700187,
+          "gpu": "GPU-94203fc3-1021-3a9c-a367-cff792479616, 88303 MiB, 53, 101.23 W, 2430 MHz\n",
+          "compute_pids": [
+            27647
+          ],
+          "allowed_pid": 27647
+        }
+      },
+      "summary": {
+        "requests": 256,
+        "fallback_commits": 22,
+        "distinct_miss_requests": 21,
+        "requests_with_multiple_misses": 1,
+        "misses_with_any_later_recovery": 1,
+        "all_miss_attempt_scheduled_positions": 66078,
+        "all_miss_attempt_repeated_positions": 66056,
+        "second_or_later_miss_scheduled_positions": 2922,
+        "second_or_later_miss_repeated_positions": 2921,
+        "positions_from_previous_miss_rebuilt_again": 2911,
+        "whole_episode_position_work": {
+          "scheduled": 860683,
+          "unique_positions": 787797,
+          "repeated_positions": 72886
+        },
+        "second_or_later_miss_repeated_fraction_of_episode": 0.040076283511236724
+      },
+      "requests_with_miss": [
+        {
+          "external_id": "measured/E226",
+          "prompt_tokens": 2871,
+          "output_tokens": 743,
+          "finish_reason": "stop",
+          "total_recovery_commits": 1,
+          "positive_Host_commits_before_first_miss": 0,
+          "fallback_event_sequence": [
+            489
+          ],
+          "recoveries_from_first_miss": [
+            {
+              "recovery_ordinal": 1,
+              "event": 489,
+              "step": 829,
+              "known_tokens": 3314,
+              "generated_tokens": 443,
+              "host_hit_tokens": 0,
+              "external_tokens": 0,
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute",
+              "joint_capacity": false,
+              "eligible": false,
+              "attempt_end": "next_output",
+              "attempt_end_step": 831,
+              "next_strict_output_index": 443,
+              "next_strict_output_step": 831,
+              "scheduled_positions": 3314,
+              "repeated_positions": 3313,
+              "native_ranges": [
+                {
+                  "step": 829,
+                  "start": 0,
+                  "end": 1312,
+                  "count": 1312,
+                  "repeated": 1312
+                },
+                {
+                  "step": 830,
+                  "start": 1312,
+                  "end": 3198,
+                  "count": 1886,
+                  "repeated": 1886
+                },
+                {
+                  "step": 831,
+                  "start": 3198,
+                  "end": 3314,
+                  "count": 116,
+                  "repeated": 115
+                }
+              ]
+            }
+          ],
+          "adjacent_miss_pairs": [],
+          "whole_request_position_work": {
+            "scheduled": 6926,
+            "unique_positions": 3613,
+            "repeated_positions": 3313
+          }
+        },
+        {
+          "external_id": "measured/E227",
+          "prompt_tokens": 2736,
+          "output_tokens": 1024,
+          "finish_reason": "length",
+          "total_recovery_commits": 1,
+          "positive_Host_commits_before_first_miss": 0,
+          "fallback_event_sequence": [
+            520
+          ],
+          "recoveries_from_first_miss": [
+            {
+              "recovery_ordinal": 1,
+              "event": 520,
+              "step": 874,
+              "known_tokens": 3158,
+              "generated_tokens": 422,
+              "host_hit_tokens": 0,
+              "external_tokens": 0,
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute",
+              "joint_capacity": true,
+              "eligible": false,
+              "attempt_end": "next_output",
+              "attempt_end_step": 875,
+              "next_strict_output_index": 422,
+              "next_strict_output_step": 875,
+              "scheduled_positions": 3158,
+              "repeated_positions": 3157,
+              "native_ranges": [
+                {
+                  "step": 874,
+                  "start": 0,
+                  "end": 1880,
+                  "count": 1880,
+                  "repeated": 1880
+                },
+                {
+                  "step": 875,
+                  "start": 1880,
+                  "end": 3158,
+                  "count": 1278,
+                  "repeated": 1277
+                }
+              ]
+            }
+          ],
+          "adjacent_miss_pairs": [],
+          "whole_request_position_work": {
+            "scheduled": 6916,
+            "unique_positions": 3759,
+            "repeated_positions": 3157
+          }
+        },
+        {
+          "external_id": "measured/E229",
+          "prompt_tokens": 3052,
+          "output_tokens": 803,
+          "finish_reason": "stop",
+          "total_recovery_commits": 1,
+          "positive_Host_commits_before_first_miss": 0,
+          "fallback_event_sequence": [
+            532
+          ],
+          "recoveries_from_first_miss": [
+            {
+              "recovery_ordinal": 1,
+              "event": 532,
+              "step": 887,
+              "known_tokens": 3452,
+              "generated_tokens": 400,
+              "host_hit_tokens": 0,
+              "external_tokens": 0,
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute",
+              "joint_capacity": true,
+              "eligible": false,
+              "attempt_end": "next_output",
+              "attempt_end_step": 888,
+              "next_strict_output_index": 400,
+              "next_strict_output_step": 888,
+              "scheduled_positions": 3452,
+              "repeated_positions": 3451,
+              "native_ranges": [
+                {
+                  "step": 887,
+                  "start": 0,
+                  "end": 1876,
+                  "count": 1876,
+                  "repeated": 1876
+                },
+                {
+                  "step": 888,
+                  "start": 1876,
+                  "end": 3452,
+                  "count": 1576,
+                  "repeated": 1575
+                }
+              ]
+            }
+          ],
+          "adjacent_miss_pairs": [],
+          "whole_request_position_work": {
+            "scheduled": 7305,
+            "unique_positions": 3854,
+            "repeated_positions": 3451
+          }
+        },
+        {
+          "external_id": "measured/E230",
+          "prompt_tokens": 2871,
+          "output_tokens": 845,
+          "finish_reason": "stop",
+          "total_recovery_commits": 1,
+          "positive_Host_commits_before_first_miss": 0,
+          "fallback_event_sequence": [
+            533
+          ],
+          "recoveries_from_first_miss": [
+            {
+              "recovery_ordinal": 1,
+              "event": 533,
+              "step": 888,
+              "known_tokens": 3251,
+              "generated_tokens": 380,
+              "host_hit_tokens": 0,
+              "external_tokens": 0,
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute",
+              "joint_capacity": true,
+              "eligible": false,
+              "attempt_end": "next_output",
+              "attempt_end_step": 890,
+              "next_strict_output_index": 380,
+              "next_strict_output_step": 890,
+              "scheduled_positions": 3251,
+              "repeated_positions": 3250,
+              "native_ranges": [
+                {
+                  "step": 888,
+                  "start": 0,
+                  "end": 312,
+                  "count": 312,
+                  "repeated": 312
+                },
+                {
+                  "step": 889,
+                  "start": 312,
+                  "end": 2199,
+                  "count": 1887,
+                  "repeated": 1887
+                },
+                {
+                  "step": 890,
+                  "start": 2199,
+                  "end": 3251,
+                  "count": 1052,
+                  "repeated": 1051
+                }
+              ]
+            }
+          ],
+          "adjacent_miss_pairs": [],
+          "whole_request_position_work": {
+            "scheduled": 6965,
+            "unique_positions": 3715,
+            "repeated_positions": 3250
+          }
+        },
+        {
+          "external_id": "measured/E231",
+          "prompt_tokens": 2736,
+          "output_tokens": 1024,
+          "finish_reason": "length",
+          "total_recovery_commits": 1,
+          "positive_Host_commits_before_first_miss": 0,
+          "fallback_event_sequence": [
+            534
+          ],
+          "recoveries_from_first_miss": [
+            {
+              "recovery_ordinal": 1,
+              "event": 534,
+              "step": 890,
+              "known_tokens": 3096,
+              "generated_tokens": 360,
+              "host_hit_tokens": 0,
+              "external_tokens": 0,
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute",
+              "joint_capacity": true,
+              "eligible": false,
+              "attempt_end": "next_output",
+              "attempt_end_step": 892,
+              "next_strict_output_index": 360,
+              "next_strict_output_step": 892,
+              "scheduled_positions": 3096,
+              "repeated_positions": 3095,
+              "native_ranges": [
+                {
+                  "step": 890,
+                  "start": 0,
+                  "end": 836,
+                  "count": 836,
+                  "repeated": 836
+                },
+                {
+                  "step": 891,
+                  "start": 836,
+                  "end": 2723,
+                  "count": 1887,
+                  "repeated": 1887
+                },
+                {
+                  "step": 892,
+                  "start": 2723,
+                  "end": 3096,
+                  "count": 373,
+                  "repeated": 372
+                }
+              ]
+            }
+          ],
+          "adjacent_miss_pairs": [],
+          "whole_request_position_work": {
+            "scheduled": 6854,
+            "unique_positions": 3759,
+            "repeated_positions": 3095
+          }
+        },
+        {
+          "external_id": "measured/E233",
+          "prompt_tokens": 3052,
+          "output_tokens": 904,
+          "finish_reason": "stop",
+          "total_recovery_commits": 1,
+          "positive_Host_commits_before_first_miss": 0,
+          "fallback_event_sequence": [
+            546
+          ],
+          "recoveries_from_first_miss": [
+            {
+              "recovery_ordinal": 1,
+              "event": 546,
+              "step": 903,
+              "known_tokens": 3390,
+              "generated_tokens": 338,
+              "host_hit_tokens": 0,
+              "external_tokens": 0,
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute",
+              "joint_capacity": true,
+              "eligible": false,
+              "attempt_end": "next_output",
+              "attempt_end_step": 904,
+              "next_strict_output_index": 338,
+              "next_strict_output_step": 904,
+              "scheduled_positions": 3390,
+              "repeated_positions": 3389,
+              "native_ranges": [
+                {
+                  "step": 903,
+                  "start": 0,
+                  "end": 1888,
+                  "count": 1888,
+                  "repeated": 1888
+                },
+                {
+                  "step": 904,
+                  "start": 1888,
+                  "end": 3390,
+                  "count": 1502,
+                  "repeated": 1501
+                }
+              ]
+            }
+          ],
+          "adjacent_miss_pairs": [],
+          "whole_request_position_work": {
+            "scheduled": 7344,
+            "unique_positions": 3955,
+            "repeated_positions": 3389
+          }
+        },
+        {
+          "external_id": "measured/E234",
+          "prompt_tokens": 2871,
+          "output_tokens": 763,
+          "finish_reason": "stop",
+          "total_recovery_commits": 1,
+          "positive_Host_commits_before_first_miss": 0,
+          "fallback_event_sequence": [
+            547
+          ],
+          "recoveries_from_first_miss": [
+            {
+              "recovery_ordinal": 1,
+              "event": 547,
+              "step": 904,
+              "known_tokens": 3190,
+              "generated_tokens": 319,
+              "host_hit_tokens": 0,
+              "external_tokens": 0,
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute",
+              "joint_capacity": true,
+              "eligible": false,
+              "attempt_end": "next_output",
+              "attempt_end_step": 906,
+              "next_strict_output_index": 319,
+              "next_strict_output_step": 906,
+              "scheduled_positions": 3190,
+              "repeated_positions": 3189,
+              "native_ranges": [
+                {
+                  "step": 904,
+                  "start": 0,
+                  "end": 386,
+                  "count": 386,
+                  "repeated": 386
+                },
+                {
+                  "step": 905,
+                  "start": 386,
+                  "end": 2273,
+                  "count": 1887,
+                  "repeated": 1887
+                },
+                {
+                  "step": 906,
+                  "start": 2273,
+                  "end": 3190,
+                  "count": 917,
+                  "repeated": 916
+                }
+              ]
+            }
+          ],
+          "adjacent_miss_pairs": [],
+          "whole_request_position_work": {
+            "scheduled": 6822,
+            "unique_positions": 3633,
+            "repeated_positions": 3189
+          }
+        },
+        {
+          "external_id": "measured/E235",
+          "prompt_tokens": 2736,
+          "output_tokens": 1024,
+          "finish_reason": "length",
+          "total_recovery_commits": 1,
+          "positive_Host_commits_before_first_miss": 0,
+          "fallback_event_sequence": [
+            556
+          ],
+          "recoveries_from_first_miss": [
+            {
+              "recovery_ordinal": 1,
+              "event": 556,
+              "step": 914,
+              "known_tokens": 3036,
+              "generated_tokens": 300,
+              "host_hit_tokens": 0,
+              "external_tokens": 0,
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute",
+              "joint_capacity": true,
+              "eligible": false,
+              "attempt_end": "next_output",
+              "attempt_end_step": 915,
+              "next_strict_output_index": 300,
+              "next_strict_output_step": 915,
+              "scheduled_positions": 3036,
+              "repeated_positions": 3035,
+              "native_ranges": [
+                {
+                  "step": 914,
+                  "start": 0,
+                  "end": 1887,
+                  "count": 1887,
+                  "repeated": 1887
+                },
+                {
+                  "step": 915,
+                  "start": 1887,
+                  "end": 3036,
+                  "count": 1149,
+                  "repeated": 1148
+                }
+              ]
+            }
+          ],
+          "adjacent_miss_pairs": [],
+          "whole_request_position_work": {
+            "scheduled": 6794,
+            "unique_positions": 3759,
+            "repeated_positions": 3035
+          }
+        },
+        {
+          "external_id": "measured/E237",
+          "prompt_tokens": 3052,
+          "output_tokens": 966,
+          "finish_reason": "stop",
+          "total_recovery_commits": 1,
+          "positive_Host_commits_before_first_miss": 0,
+          "fallback_event_sequence": [
+            558
+          ],
+          "recoveries_from_first_miss": [
+            {
+              "recovery_ordinal": 1,
+              "event": 558,
+              "step": 916,
+              "known_tokens": 3331,
+              "generated_tokens": 279,
+              "host_hit_tokens": 0,
+              "external_tokens": 0,
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute",
+              "joint_capacity": true,
+              "eligible": false,
+              "attempt_end": "next_output",
+              "attempt_end_step": 917,
+              "next_strict_output_index": 279,
+              "next_strict_output_step": 917,
+              "scheduled_positions": 3331,
+              "repeated_positions": 3330,
+              "native_ranges": [
+                {
+                  "step": 916,
+                  "start": 0,
+                  "end": 1888,
+                  "count": 1888,
+                  "repeated": 1888
+                },
+                {
+                  "step": 917,
+                  "start": 1888,
+                  "end": 3331,
+                  "count": 1443,
+                  "repeated": 1442
+                }
+              ]
+            }
+          ],
+          "adjacent_miss_pairs": [],
+          "whole_request_position_work": {
+            "scheduled": 7347,
+            "unique_positions": 4017,
+            "repeated_positions": 3330
+          }
+        },
+        {
+          "external_id": "measured/E238",
+          "prompt_tokens": 2871,
+          "output_tokens": 1024,
+          "finish_reason": "length",
+          "total_recovery_commits": 1,
+          "positive_Host_commits_before_first_miss": 0,
+          "fallback_event_sequence": [
+            559
+          ],
+          "recoveries_from_first_miss": [
+            {
+              "recovery_ordinal": 1,
+              "event": 559,
+              "step": 917,
+              "known_tokens": 3131,
+              "generated_tokens": 260,
+              "host_hit_tokens": 0,
+              "external_tokens": 0,
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute",
+              "joint_capacity": true,
+              "eligible": false,
+              "attempt_end": "next_output",
+              "attempt_end_step": 919,
+              "next_strict_output_index": 260,
+              "next_strict_output_step": 919,
+              "scheduled_positions": 3131,
+              "repeated_positions": 3130,
+              "native_ranges": [
+                {
+                  "step": 917,
+                  "start": 0,
+                  "end": 445,
+                  "count": 445,
+                  "repeated": 445
+                },
+                {
+                  "step": 918,
+                  "start": 445,
+                  "end": 2332,
+                  "count": 1887,
+                  "repeated": 1887
+                },
+                {
+                  "step": 919,
+                  "start": 2332,
+                  "end": 3131,
+                  "count": 799,
+                  "repeated": 798
+                }
+              ]
+            }
+          ],
+          "adjacent_miss_pairs": [],
+          "whole_request_position_work": {
+            "scheduled": 7024,
+            "unique_positions": 3894,
+            "repeated_positions": 3130
+          }
+        },
+        {
+          "external_id": "measured/E239",
+          "prompt_tokens": 2736,
+          "output_tokens": 1023,
+          "finish_reason": "stop",
+          "total_recovery_commits": 1,
+          "positive_Host_commits_before_first_miss": 0,
+          "fallback_event_sequence": [
+            567
+          ],
+          "recoveries_from_first_miss": [
+            {
+              "recovery_ordinal": 1,
+              "event": 567,
+              "step": 926,
+              "known_tokens": 2978,
+              "generated_tokens": 242,
+              "host_hit_tokens": 0,
+              "external_tokens": 0,
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute",
+              "joint_capacity": true,
+              "eligible": false,
+              "attempt_end": "next_output",
+              "attempt_end_step": 927,
+              "next_strict_output_index": 242,
+              "next_strict_output_step": 927,
+              "scheduled_positions": 2978,
+              "repeated_positions": 2977,
+              "native_ranges": [
+                {
+                  "step": 926,
+                  "start": 0,
+                  "end": 1887,
+                  "count": 1887,
+                  "repeated": 1887
+                },
+                {
+                  "step": 927,
+                  "start": 1887,
+                  "end": 2978,
+                  "count": 1091,
+                  "repeated": 1090
+                }
+              ]
+            }
+          ],
+          "adjacent_miss_pairs": [],
+          "whole_request_position_work": {
+            "scheduled": 6735,
+            "unique_positions": 3758,
+            "repeated_positions": 2977
+          }
+        },
+        {
+          "external_id": "measured/E241",
+          "prompt_tokens": 3052,
+          "output_tokens": 878,
+          "finish_reason": "stop",
+          "total_recovery_commits": 1,
+          "positive_Host_commits_before_first_miss": 0,
+          "fallback_event_sequence": [
+            572
+          ],
+          "recoveries_from_first_miss": [
+            {
+              "recovery_ordinal": 1,
+              "event": 572,
+              "step": 931,
+              "known_tokens": 3268,
+              "generated_tokens": 216,
+              "host_hit_tokens": 0,
+              "external_tokens": 0,
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute",
+              "joint_capacity": true,
+              "eligible": false,
+              "attempt_end": "next_output",
+              "attempt_end_step": 932,
+              "next_strict_output_index": 216,
+              "next_strict_output_step": 932,
+              "scheduled_positions": 3268,
+              "repeated_positions": 3267,
+              "native_ranges": [
+                {
+                  "step": 931,
+                  "start": 0,
+                  "end": 1887,
+                  "count": 1887,
+                  "repeated": 1887
+                },
+                {
+                  "step": 932,
+                  "start": 1887,
+                  "end": 3268,
+                  "count": 1381,
+                  "repeated": 1380
+                }
+              ]
+            }
+          ],
+          "adjacent_miss_pairs": [],
+          "whole_request_position_work": {
+            "scheduled": 7196,
+            "unique_positions": 3929,
+            "repeated_positions": 3267
+          }
+        },
+        {
+          "external_id": "measured/E242",
+          "prompt_tokens": 2871,
+          "output_tokens": 940,
+          "finish_reason": "stop",
+          "total_recovery_commits": 1,
+          "positive_Host_commits_before_first_miss": 0,
+          "fallback_event_sequence": [
+            573
+          ],
+          "recoveries_from_first_miss": [
+            {
+              "recovery_ordinal": 1,
+              "event": 573,
+              "step": 932,
+              "known_tokens": 3069,
+              "generated_tokens": 198,
+              "host_hit_tokens": 0,
+              "external_tokens": 0,
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute",
+              "joint_capacity": true,
+              "eligible": false,
+              "attempt_end": "next_output",
+              "attempt_end_step": 934,
+              "next_strict_output_index": 198,
+              "next_strict_output_step": 934,
+              "scheduled_positions": 3069,
+              "repeated_positions": 3068,
+              "native_ranges": [
+                {
+                  "step": 932,
+                  "start": 0,
+                  "end": 507,
+                  "count": 507,
+                  "repeated": 507
+                },
+                {
+                  "step": 933,
+                  "start": 507,
+                  "end": 2395,
+                  "count": 1888,
+                  "repeated": 1888
+                },
+                {
+                  "step": 934,
+                  "start": 2395,
+                  "end": 3069,
+                  "count": 674,
+                  "repeated": 673
+                }
+              ]
+            }
+          ],
+          "adjacent_miss_pairs": [],
+          "whole_request_position_work": {
+            "scheduled": 6878,
+            "unique_positions": 3810,
+            "repeated_positions": 3068
+          }
+        },
+        {
+          "external_id": "measured/E243",
+          "prompt_tokens": 2736,
+          "output_tokens": 942,
+          "finish_reason": "stop",
+          "total_recovery_commits": 2,
+          "positive_Host_commits_before_first_miss": 0,
+          "fallback_event_sequence": [
+            574,
+            588
+          ],
+          "recoveries_from_first_miss": [
+            {
+              "recovery_ordinal": 1,
+              "event": 574,
+              "step": 934,
+              "known_tokens": 2911,
+              "generated_tokens": 175,
+              "host_hit_tokens": 0,
+              "external_tokens": 0,
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute",
+              "joint_capacity": true,
+              "eligible": false,
+              "attempt_end": "next_output",
+              "attempt_end_step": 935,
+              "next_strict_output_index": 175,
+              "next_strict_output_step": 935,
+              "scheduled_positions": 2911,
+              "repeated_positions": 2910,
+              "native_ranges": [
+                {
+                  "step": 934,
+                  "start": 0,
+                  "end": 1214,
+                  "count": 1214,
+                  "repeated": 1214
+                },
+                {
+                  "step": 935,
+                  "start": 1214,
+                  "end": 2911,
+                  "count": 1697,
+                  "repeated": 1696
+                }
+              ]
+            },
+            {
+              "recovery_ordinal": 2,
+              "event": 588,
+              "step": 949,
+              "known_tokens": 2922,
+              "generated_tokens": 186,
+              "host_hit_tokens": 0,
+              "external_tokens": 0,
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute",
+              "joint_capacity": true,
+              "eligible": false,
+              "attempt_end": "next_output",
+              "attempt_end_step": 950,
+              "next_strict_output_index": 186,
+              "next_strict_output_step": 950,
+              "scheduled_positions": 2922,
+              "repeated_positions": 2921,
+              "native_ranges": [
+                {
+                  "step": 949,
+                  "start": 0,
+                  "end": 1888,
+                  "count": 1888,
+                  "repeated": 1888
+                },
+                {
+                  "step": 950,
+                  "start": 1888,
+                  "end": 2922,
+                  "count": 1034,
+                  "repeated": 1033
+                }
+              ]
+            }
+          ],
+          "adjacent_miss_pairs": [
+            {
+              "previous_miss_event": 574,
+              "next_miss_event": 588,
+              "positive_Host_recovery_events_between": [],
+              "next_miss_scheduled_positions": 2922,
+              "next_miss_repeated_positions": 2921,
+              "positions_from_previous_miss_rebuilt_again": 2911
+            }
+          ],
+          "whole_request_position_work": {
+            "scheduled": 9508,
+            "unique_positions": 3677,
+            "repeated_positions": 5831
+          }
+        },
+        {
+          "external_id": "measured/E245",
+          "prompt_tokens": 3052,
+          "output_tokens": 880,
+          "finish_reason": "stop",
+          "total_recovery_commits": 1,
+          "positive_Host_commits_before_first_miss": 0,
+          "fallback_event_sequence": [
+            590
+          ],
+          "recoveries_from_first_miss": [
+            {
+              "recovery_ordinal": 1,
+              "event": 590,
+              "step": 951,
+              "known_tokens": 3208,
+              "generated_tokens": 156,
+              "host_hit_tokens": 0,
+              "external_tokens": 0,
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute",
+              "joint_capacity": true,
+              "eligible": false,
+              "attempt_end": "next_output",
+              "attempt_end_step": 952,
+              "next_strict_output_index": 156,
+              "next_strict_output_step": 952,
+              "scheduled_positions": 3208,
+              "repeated_positions": 3207,
+              "native_ranges": [
+                {
+                  "step": 951,
+                  "start": 0,
+                  "end": 1888,
+                  "count": 1888,
+                  "repeated": 1888
+                },
+                {
+                  "step": 952,
+                  "start": 1888,
+                  "end": 3208,
+                  "count": 1320,
+                  "repeated": 1319
+                }
+              ]
+            }
+          ],
+          "adjacent_miss_pairs": [],
+          "whole_request_position_work": {
+            "scheduled": 7138,
+            "unique_positions": 3931,
+            "repeated_positions": 3207
+          }
+        },
+        {
+          "external_id": "measured/E246",
+          "prompt_tokens": 2871,
+          "output_tokens": 1024,
+          "finish_reason": "length",
+          "total_recovery_commits": 1,
+          "positive_Host_commits_before_first_miss": 0,
+          "fallback_event_sequence": [
+            591
+          ],
+          "recoveries_from_first_miss": [
+            {
+              "recovery_ordinal": 1,
+              "event": 591,
+              "step": 952,
+              "known_tokens": 3001,
+              "generated_tokens": 130,
+              "host_hit_tokens": 0,
+              "external_tokens": 0,
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute",
+              "joint_capacity": true,
+              "eligible": false,
+              "attempt_end": "next_output",
+              "attempt_end_step": 954,
+              "next_strict_output_index": 130,
+              "next_strict_output_step": 954,
+              "scheduled_positions": 3001,
+              "repeated_positions": 3000,
+              "native_ranges": [
+                {
+                  "step": 952,
+                  "start": 0,
+                  "end": 568,
+                  "count": 568,
+                  "repeated": 568
+                },
+                {
+                  "step": 953,
+                  "start": 568,
+                  "end": 2456,
+                  "count": 1888,
+                  "repeated": 1888
+                },
+                {
+                  "step": 954,
+                  "start": 2456,
+                  "end": 3001,
+                  "count": 545,
+                  "repeated": 544
+                }
+              ]
+            }
+          ],
+          "adjacent_miss_pairs": [],
+          "whole_request_position_work": {
+            "scheduled": 6894,
+            "unique_positions": 3894,
+            "repeated_positions": 3000
+          }
+        },
+        {
+          "external_id": "measured/E247",
+          "prompt_tokens": 2736,
+          "output_tokens": 839,
+          "finish_reason": "stop",
+          "total_recovery_commits": 1,
+          "positive_Host_commits_before_first_miss": 0,
+          "fallback_event_sequence": [
+            592
+          ],
+          "recoveries_from_first_miss": [
+            {
+              "recovery_ordinal": 1,
+              "event": 592,
+              "step": 954,
+              "known_tokens": 2844,
+              "generated_tokens": 108,
+              "host_hit_tokens": 0,
+              "external_tokens": 0,
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute",
+              "joint_capacity": true,
+              "eligible": false,
+              "attempt_end": "next_output",
+              "attempt_end_step": 955,
+              "next_strict_output_index": 108,
+              "next_strict_output_step": 955,
+              "scheduled_positions": 2844,
+              "repeated_positions": 2843,
+              "native_ranges": [
+                {
+                  "step": 954,
+                  "start": 0,
+                  "end": 1343,
+                  "count": 1343,
+                  "repeated": 1343
+                },
+                {
+                  "step": 955,
+                  "start": 1343,
+                  "end": 2844,
+                  "count": 1501,
+                  "repeated": 1500
+                }
+              ]
+            }
+          ],
+          "adjacent_miss_pairs": [],
+          "whole_request_position_work": {
+            "scheduled": 6417,
+            "unique_positions": 3574,
+            "repeated_positions": 2843
+          }
+        },
+        {
+          "external_id": "measured/E249",
+          "prompt_tokens": 3052,
+          "output_tokens": 804,
+          "finish_reason": "stop",
+          "total_recovery_commits": 2,
+          "positive_Host_commits_before_first_miss": 1,
+          "fallback_event_sequence": [
+            596
+          ],
+          "recoveries_from_first_miss": [
+            {
+              "recovery_ordinal": 2,
+              "event": 596,
+              "step": 958,
+              "known_tokens": 3135,
+              "generated_tokens": 83,
+              "host_hit_tokens": 0,
+              "external_tokens": 0,
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute",
+              "joint_capacity": true,
+              "eligible": false,
+              "attempt_end": "next_output",
+              "attempt_end_step": 959,
+              "next_strict_output_index": 83,
+              "next_strict_output_step": 959,
+              "scheduled_positions": 3135,
+              "repeated_positions": 3134,
+              "native_ranges": [
+                {
+                  "step": 958,
+                  "start": 0,
+                  "end": 1887,
+                  "count": 1887,
+                  "repeated": 1887
+                },
+                {
+                  "step": 959,
+                  "start": 1887,
+                  "end": 3135,
+                  "count": 1248,
+                  "repeated": 1247
+                }
+              ]
+            }
+          ],
+          "adjacent_miss_pairs": [],
+          "whole_request_position_work": {
+            "scheduled": 7060,
+            "unique_positions": 3855,
+            "repeated_positions": 3205
+          }
+        },
+        {
+          "external_id": "measured/E250",
+          "prompt_tokens": 2871,
+          "output_tokens": 1024,
+          "finish_reason": "length",
+          "total_recovery_commits": 1,
+          "positive_Host_commits_before_first_miss": 0,
+          "fallback_event_sequence": [
+            598
+          ],
+          "recoveries_from_first_miss": [
+            {
+              "recovery_ordinal": 1,
+              "event": 598,
+              "step": 960,
+              "known_tokens": 2928,
+              "generated_tokens": 57,
+              "host_hit_tokens": 0,
+              "external_tokens": 0,
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute",
+              "joint_capacity": true,
+              "eligible": false,
+              "attempt_end": "next_output",
+              "attempt_end_step": 961,
+              "next_strict_output_index": 57,
+              "next_strict_output_step": 961,
+              "scheduled_positions": 2928,
+              "repeated_positions": 2927,
+              "native_ranges": [
+                {
+                  "step": 960,
+                  "start": 0,
+                  "end": 1804,
+                  "count": 1804,
+                  "repeated": 1804
+                },
+                {
+                  "step": 961,
+                  "start": 1804,
+                  "end": 2928,
+                  "count": 1124,
+                  "repeated": 1123
+                }
+              ]
+            }
+          ],
+          "adjacent_miss_pairs": [],
+          "whole_request_position_work": {
+            "scheduled": 6821,
+            "unique_positions": 3894,
+            "repeated_positions": 2927
+          }
+        },
+        {
+          "external_id": "measured/E251",
+          "prompt_tokens": 2736,
+          "output_tokens": 1024,
+          "finish_reason": "length",
+          "total_recovery_commits": 2,
+          "positive_Host_commits_before_first_miss": 1,
+          "fallback_event_sequence": [
+            602
+          ],
+          "recoveries_from_first_miss": [
+            {
+              "recovery_ordinal": 2,
+              "event": 602,
+              "step": 964,
+              "known_tokens": 2743,
+              "generated_tokens": 7,
+              "host_hit_tokens": 0,
+              "external_tokens": 0,
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute",
+              "joint_capacity": true,
+              "eligible": false,
+              "attempt_end": "next_output",
+              "attempt_end_step": 965,
+              "next_strict_output_index": 7,
+              "next_strict_output_step": 965,
+              "scheduled_positions": 2743,
+              "repeated_positions": 2742,
+              "native_ranges": [
+                {
+                  "step": 964,
+                  "start": 0,
+                  "end": 1886,
+                  "count": 1886,
+                  "repeated": 1886
+                },
+                {
+                  "step": 965,
+                  "start": 1886,
+                  "end": 2743,
+                  "count": 857,
+                  "repeated": 856
+                }
+              ]
+            }
+          ],
+          "adjacent_miss_pairs": [],
+          "whole_request_position_work": {
+            "scheduled": 6503,
+            "unique_positions": 3759,
+            "repeated_positions": 2744
+          }
+        },
+        {
+          "external_id": "measured/E252",
+          "prompt_tokens": 671,
+          "output_tokens": 56,
+          "finish_reason": "stop",
+          "total_recovery_commits": 3,
+          "positive_Host_commits_before_first_miss": 2,
+          "fallback_event_sequence": [
+            597
+          ],
+          "recoveries_from_first_miss": [
+            {
+              "recovery_ordinal": 3,
+              "event": 597,
+              "step": 959,
+              "known_tokens": 722,
+              "generated_tokens": 51,
+              "host_hit_tokens": 0,
+              "external_tokens": 0,
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute",
+              "joint_capacity": true,
+              "eligible": false,
+              "attempt_end": "next_output",
+              "attempt_end_step": 960,
+              "next_strict_output_index": 51,
+              "next_strict_output_step": 960,
+              "scheduled_positions": 722,
+              "repeated_positions": 721,
+              "native_ranges": [
+                {
+                  "step": 959,
+                  "start": 0,
+                  "end": 639,
+                  "count": 639,
+                  "repeated": 639
+                },
+                {
+                  "step": 960,
+                  "start": 639,
+                  "end": 722,
+                  "count": 83,
+                  "repeated": 82
+                }
+              ]
+            }
+          ],
+          "adjacent_miss_pairs": [],
+          "whole_request_position_work": {
+            "scheduled": 1510,
+            "unique_positions": 726,
+            "repeated_positions": 784
+          }
+        }
+      ]
+    }
+  ],
+  "decision": [
+    "Latest field domain: every committed miss is the final recovery of a different request; no observed subsequent reuse opportunity for post-miss STORE replenishment. Stop that candidate in this measured domain.",
+    "Historical E223 Host baseline may identify a repeated-miss deployment condition only; it does not establish this opportunity on the current card or show that replenishment would persist or improve service."
+  ]
+}

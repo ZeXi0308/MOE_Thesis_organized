@@ -1,0 +1,59 @@
+{
+  "schema": "c-research-direction-v1",
+  "recorded_at_utc": "2026-10-01T17:44:53.339597+00:00",
+  "user_instruction_sha256": "51577f96be5004446c1d1fb96ae9dc901dd10c7435e443ca811cb590f73ff761",
+  "active_goal": "Viable CCF C paper; not achieved",
+  "direction": "Fix usable Qwen7B math workload, attribute residual cost after simple native tuning, directly test admission/recovery actions before developing a lightweight method.",
+  "implementation_priority": "Actual code and paired measurements; exploration may adapt with records; independent confirmation later.",
+  "current_math_experiment": {
+    "requests": 128,
+    "model": "Qwen2.5-7B-Instruct",
+    "source_order": "GSM8K original rows 0..127",
+    "arms": [
+      [
+        128,
+        2048
+      ],
+      [
+        64,
+        2048
+      ]
+    ],
+    "kv_bytes": 8589934592,
+    "APC": true,
+    "max_output_tokens": 1024,
+    "prompt": "Same Q0 eight-shot chat plus Answer:",
+    "launcher_pid": 34096,
+    "start_ticks": "1206004589",
+    "last_observed_unix_s": 1790876661.8549268,
+    "last_status": "WAITING_SHARED_LOCK",
+    "wait_timeout_s": 1200,
+    "scope": "Development, not held-out confirmation"
+  },
+  "new_mechanism_evidence_from_existing_QA": {
+    "native_restore_already_prioritized": true,
+    "native_repeated_scheduled_token_positions": 3706,
+    "preemptions_per_native_episode": 4,
+    "repeat_preemptions_same_request": 0,
+    "restore_and_new_competition_boundaries": 56,
+    "two_restore_candidates_boundaries": 14,
+    "competition_head_restore_allocation_none": 52,
+    "fixed64_recompute_positions": 0,
+    "interpretation": "Restore-wait cache-hit loss exists, but this batch has no residual recovery cost after fixed64; no new policy benefit shown.",
+    "evidence": "qa_action_evidence_v1.json"
+  },
+  "deferred": "Past-Future APC/chunked adapter; preserve source review but no GPU port priority until an actionable residual requires this baseline.",
+  "no_go_scope": [
+    "Original M0 novelty remains withdrawn.",
+    "Summary qualification failure remains recorded but does not gate mathematical scheduling experiments.",
+    "Absent recovery competition only rejects that mechanism on the measured workload; does not reject all serving research."
+  ],
+  "reporting": [
+    "SLO-only goodput separate from correct-and-SLO goodput",
+    "All arrivals, failed/capped/empty/incomplete outputs retained",
+    "Report request-level winners and losers and output token changes",
+    "Do not claim seed implies equal outputs",
+    "Do not shrink KV or disable APC solely to manufacture a bottleneck",
+    "Mechanism differentiation must specify same legal state, different action and complete-request consequence"
+  ]
+}

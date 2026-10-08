@@ -1,0 +1,66 @@
+{
+  "schema": "c-math-action-exploration-v1",
+  "stage": "exploration",
+  "purpose": "Find actionable residual scheduling cost on fixed useful math task; no accuracy threshold gates systems measurement.",
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "inputs": "math_inputs128_v1.json",
+  "requests": 128,
+  "arrivals": "all zero",
+  "order": [
+    {
+      "name": "native128",
+      "max_num_seqs": 128,
+      "max_num_batched_tokens": 2048
+    },
+    {
+      "name": "fixed64",
+      "max_num_seqs": 64,
+      "max_num_batched_tokens": 2048
+    }
+  ],
+  "optional_next_arm": {
+    "name": "native128-b4096",
+    "max_num_seqs": 128,
+    "max_num_batched_tokens": 4096,
+    "condition": "Only launch after first pair if prefill/decode timing rather than KV recovery warrants batch-budget control."
+  },
+  "fixed": {
+    "max_model_len": 4096,
+    "max_tokens": 1024,
+    "min_tokens": 0,
+    "ignore_eos": false,
+    "kv_cache_memory_bytes": 8589934592,
+    "enable_prefix_caching": true,
+    "batch_invariant": false,
+    "temperature": 0,
+    "seed": 20260905
+  },
+  "metrics": [
+    "all-request completion/TTFT/max host generation gap",
+    "all output tokens per wall second",
+    "SLO-only and correct+SLO goodput separately",
+    "failures/incomplete/truncated/empty/repeated retained",
+    "actual allocation rejection/preemption/recompute and scheduler CPU overhead"
+  ],
+  "diagnostic_slo": {
+    "ttft_s": 20,
+    "max_host_gap_s": 4,
+    "scope": "Prior diagnostic only; not selected to show gains; report if nonbinding."
+  },
+  "decisions": [
+    "No recovery priority prototype without actual competing state evidence.",
+    "Do not reduce KV budget or disable APC to fabricate pressure.",
+    "Use actual cost attribution to select at most one direct action prototype next.",
+    "All development outcomes retained; later held-out confirmation separate."
+  ],
+  "execution_sha256": {
+    "math_action_launch_v1.py": "3587a3bd9fd959ce9a8531c6724551525ef74de8f8942004a4a783fa949e9bed",
+    "math_action_cell_v1.py": "4c44ba564a1b09fd8fcf7ec04940865faf0e579f7596c7ef65ab5bb66e3d38b9",
+    "math_inputs128_v1.json": "251a6a9b4894292b3402979b2e9cc7da76baeff84a6b1efdf5e4c5ec74b9db6d",
+    "health_native.py": "8afa5257e57e2a7e667e0209831626c65bd039c010b9e60a45933583ea6c54ab",
+    "native_pressure_observer_v1.py": "8ed2404a1b2546094927e9132eb47336b80e2d99e2a61ab4a2b2f678bd555877",
+    "qwen7b_launch_v2.py": "93e74aef3e883e7421eb95ec14c9a29e27b269ca90c20d55bff6cdd0e6f04485",
+    "health_launch.py": "578638992afb30e4cd1b0ac76bff95d554d4716c2ae940447b771e2b3ab33d5d",
+    "range_download_v2.py": "34045006d61c8b04c124adfbbfc3027870f784adc2bcabc7ac87ac09d12d01d7"
+  }
+}

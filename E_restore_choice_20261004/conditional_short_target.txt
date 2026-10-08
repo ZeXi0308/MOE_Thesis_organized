@@ -1,0 +1,57 @@
+E 短恢复条件备用目标（FROZEN_GPU_UNRUN；2026-10-07）
+仅本地CPU准备，不提交新组；GPU当前自然任务六臂的执行优先级不变。
+仅当该独立自然组未触发合法短恢复时，才考虑使用本备用目标。没有按事后时延挑选事件、
+扫描候选或搜索阈值；本文件不声称重算会胜出，也不构成当前状态收益证据。
+
+已声明条件与确定性选择
+来源固定为execution/oct07_one_event_r01/00_same_engine/01_host。
+按raw.decisions的原始时间顺序取首个：已抢占、有已生成历史、known_tokens<=1792、
+正native Host命中、joint_capacity=true且eligible=true。1792沿用此前声明，不重新调参。
+首个命中唯一定位到event37、step357、measured/E252；对应(request_id,event)恰一成功commit。
+该事件是来源E249单事件组中的非目标原生Host恢复，早于E249的event55，不受其干预。
+
+冻结已知历史
+external_id=measured/E252；num_preemptions=1；prompt671；generated35；known706。
+来源为冻结GSM8K test index191（原请求顺序252），不是新选题或新质量标签。
+已独立用671个输入token+当时已生成35个token重建706个token；hash按默认json.dumps编码：
+d18b7b26b0f72840dfaa251282e0f07113f53c4caf8386d9d8d12b402206b49b。
+决策前已输出计数为35、此前实际抢占计数为1，与日志完全一致。
+标准spec：one_event_short_target_spec.json；已调用validate_target_spec通过。
+spec SHA256：1ee8ea7e79dd200c7cb2d1ee02c09cdf76f76ed88118b53c18a6e530b41fff22
+raw SHA256：a96d676c39e0ead6a152e427808ec16f75b827f427599092b6605d1290e20afd
+inputs SHA256：79b53aefce3b83bb982631337d585b2d785b7be9f8d80f86cce43aeac765480a
+workload SHA256：8346ad2512661cc6595ef3e0aa53e76c690fb9980f5bf41e8007f199cfb7582a
+其他runtime/source/resources/engine_args来源hash在spec.source中保留。
+
+合法容量与来源状态
+Hosthit656，仅覆盖部分prompt，恢复后仍需50个已知尾token（15个prompt+35个已生成token）。
+16 tokens/block；ceil(706/16)=45，free52、reserved0、watermark0，因此两分支共同完整容量合法。
+decision时扣除完整45块需求后的余量只有7块；该余量是已观测诊断，不是新的阈值或动作条件。
+Host实际先分配41块并LOAD85983232bytes（82MiB）；不可把这41块视为完整下一输出容量。
+decision running196、waiting5、pending_load0、pending_transfer10、recent_step约68.871ms。
+上述命中量、空闲量、event/step号仅为来源诊断，不增加成新的在线硬匹配条件。
+
+相邻原生布局（均为已完成Host真实数据，不是重算测量）
+step356：197个单token计算；本目标未调度。
+step357：196个单token计算，本目标异步LOAD，没有尾部计算；schedule后free11。
+step358：196个单token计算，本目标仍未调度；schedule后free1。
+step359：195个单token计算，E250在释放前free0时被抢占；本目标仍未调度；边界free171。
+step360：195个单token计算+E252尾50位置[656,706)，总245；本目标输出下标35，边界free154。
+step357末pending_load_jobs已为0并报送该LOAD统计，此后358/359仍未获得尾部计算机会，直到360。
+来源decision_s=20.180251433，allocation_s=20.180518040；下一输出20.456201857，间隔275.950424ms。
+LOAD的单项reported CUDA-event时间1.570624ms；不能把约276ms服务延迟解释成纯复制耗时。
+因此真实Host路径不只是“一轮LOAD加一轮计算”；还出现后续未调度步骤和邻请求抢占。
+step358的容量紧张与未能立即补尾相容，但raw未记录逐次allocator失败原因，不补造因果链。
+
+待检验的问题与边界
+在来源step357，2048预算中仅196个其他decode token，算术剩余1852足以容纳706个已知token；
+共同容量检查也满足。这给出了原生一次计算能容纳短恢复的理由，尚不是实际R分支输出结果。
+若启用备用诊断，只预分配本次动作，其他恢复/队列/victim/准入/量子/传输规则仍保持原生Host。
+“减少一个服务步”目前只是未验证假设；检查实际是否少占一个或多个服务步、下一正确输出、
+其他请求机会、原生计算、LOAD/STORE与全服务。
+不能预定一定只少一轮或一定获益；自然输出若变，不能称等工作加速；已有STORE保留。
+运行时仅匹配身份、抢占序号、当前known/generated及当前已知历史hash，再查正Host与共同容量。
+不得读取未来输出、未来抢占或未来时延决定动作；不双执行择快；失配/无目标明确记不适用。
+本备用只检验现有长度阈值短侧的一处真实执行机制，不解释为state residual或自适应优势。
+7块余量与后续容量变化只提供可能影响恢复后生存/计算机会的诊断，未证明头寸信号有增量信息，
+不据此生成在线规则。先等待正在运行的MultiNews结果，不另提或提交GPU任务。

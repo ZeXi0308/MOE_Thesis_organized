@@ -1,0 +1,131 @@
+{
+  "name": "D replacement-device 53005 fixed baseline and cost-transfer qualification",
+  "status_at_freeze": "PRE_GPU_FROZEN",
+  "frozen_timestamp_cst": "2026-10-08T16:45:38.262053+08:00",
+  "intended_output_name": "refresh53005_01",
+  "workload": "../mixed_arrivals/workload_high_rate.json",
+  "workload_sha256": "395fd015ceb9bef4a4a59e30e0203e83167a4967fffe2ba7160409f0ac738a15",
+  "input_totals": {
+    "request_count": 256,
+    "prompt_tokens": 538597,
+    "declared_output_tokens": 114688
+  },
+  "primary_slo": {
+    "ttft_s": 4,
+    "gap_s": 0.1,
+    "completion_s": 20
+  },
+  "policies": [
+    "fixed1024",
+    "fixed2048",
+    "fixed2048",
+    "fixed1024"
+  ],
+  "warm_policies": [
+    "fixed1024",
+    "fixed2048"
+  ],
+  "legal_caps": [
+    1024,
+    2048
+  ],
+  "formal_attempt_limit": 4,
+  "warm_attempt_limit": 2,
+  "timeout_s": 180,
+  "max_wait_lock_s": 7200,
+  "gpu_uuid": "GPU-51b8e4bb-27b8-4b82-5254-7317aae7298c",
+  "expected_driver_version": "580.95.05",
+  "shared_lock": "/root/autodl-tmp/moe-research-gpu.lock",
+  "shared_lock_inode": 4312099778,
+  "root_start_free_bytes_required": 2147483648,
+  "root_between_episode_free_bytes_required": 1610612736,
+  "resource_probe_filesystem": "/tmp on the root filesystem",
+  "resource_policy": "New-host operational reserve, explicitly replacing only this new design local threshold: 2GiB before queue and after lock before GPU initialization; 1.5GiB before each full warm/formal episode, outside the unchanged original episode clock. Preserve partial/failure status and stop on failed preflight; no automatic retry or weakened check inside a timed step. UUID/driver/lock inode checked at the same boundaries.",
+  "resource_evidence": {
+    "measured_old_groups_bytes": {
+      "pressure01": {
+        "six_raw": 190923094,
+        "total": 192111810
+      },
+      "moderate01": {
+        "six_raw": 189914215,
+        "total": 191095211
+      },
+      "highrate01": {
+        "six_raw": 188442420,
+        "total": 189650361
+      },
+      "timing01": {
+        "six_raw": 200067946,
+        "total": 201812384
+      }
+    },
+    "measured_current_cache_bytes": {
+      "vllm": 82477056,
+      "triton": 22040576,
+      "total": 104517632
+    },
+    "planned_raw_log_budget_bytes": 524288000,
+    "planned_new_cache_budget_bytes": 536870912,
+    "protected_floor_bytes": 1073741824,
+    "interpretation": "500MiB raw/log exceeds 2.5 times the largest measured full group; 512MiB new cache exceeds 5 times measured current cache. Start2GiB covers those budgets plus1GiB floor. Between-episode1.5GiB retains1GiB floor plus at least500MiB remaining raw/log allowance. External changes remain possible, hence repeated checks; this is an operational budget, not a memory guarantee.",
+    "history": "Old frozen4GiB designs and negative initialization records remain untouched. User did not mandate a universal4GiB reserve; newer shared A/B notices used3GiB. This new-host revision is explicit and evidence-based."
+  },
+  "engine_args": {
+    "model": "/root/autodl-tmp/moe-research-20261002/model",
+    "dtype": "bfloat16",
+    "seed": 20261004,
+    "max_model_len": 4096,
+    "max_num_seqs": 192,
+    "max_num_batched_tokens": 4096,
+    "long_prefill_token_threshold": 0,
+    "enable_chunked_prefill": true,
+    "enable_prefix_caching": false,
+    "scheduling_policy": "fcfs",
+    "async_scheduling": false,
+    "scheduler_reserve_full_isl": true,
+    "stream_interval": 1,
+    "enforce_eager": false,
+    "enable_return_routed_experts": false,
+    "gpu_memory_utilization": 0.9
+  },
+  "expected_software": "Parent/runtime source hashes unchanged; root separately verified Torch2.11.0, vLLM0.26, Triton3.6 and migrated model. Actual environment.json remains authoritative.",
+  "purpose": "One baseline/cost-transfer qualification group after endpoint and physical GPU/driver replacement. OldPRO6000 GPU-94203fc3-1021-3a9c-a367-cff792479616 driver595.71.05 differs from this device. Do not assume old fitted Niyama coefficients transfer.",
+  "not_a_search": "Fixed1024/2048 pair already chosen; no reopened cap/load search, no new controller, no extra formal attempts or automatic rerun.",
+  "controls": "Exact unchanged parent episode and normal wall-clock arrival/add/output/full-drain loop; BF16 model, normal KV utilization0.9, total4096, maxseq192, maxcontext4096, native FCFS/admission/victims/recovery/kernels unchanged. Wrapper only validates startup/episode-boundary resources and supplements protocol metadata.",
+  "warmup": "Original full trace once at fixed1024 and once at fixed2048 in the shared engine before four formals. Report actual coverage and any formal compilation separately; never discard failed attempts.",
+  "output_contract": "Same256 request IDs, arrivals, prompt tokens and declared fixed min=max output counts with ignoreEOS. Counts do not establish identical content/routing/computation/quality.",
+  "analysis": "Reuse mixed_arrivals/analyze_fixed.py with --small-cap1024 --large-cap2048 and this design. Same raw throughput, TTFT, completion flow, per-request maximum generation gap and4s/100ms/20s joint SLO with full elapsed denominator. Existing3%goodput/5%latency guard remains unchanged; device/cost transfer decision is assessed separately by root from actual new-device evidence.",
+  "stopping": "One two-warm/four-formal group only; no command loop. Root retains all complete/partial output and failure metadata. No automatic transfer claim, retry, threshold retuning or Niyama launch from this wrapper.",
+  "source_sha256": {
+    "run_refresh.py": "fe0dd9a843fce10f5c83ff2c83f419dc28f43bcb2c2219bcb9b004ccc1a17a7f",
+    "launch.sh": "145b5e1a7e27646754dfdd6c8db9cfb944933d2757310e8ebd37840a5072bdd0",
+    "../run_confirmation.py": "67cb25770693252d64efcb93ea1aaf45ab99ce92926b77189dd03c324b0ee166",
+    "../prefill_policy.py": "1aedafb440597a5903539eb05e5e3e5cd0eaa12a0eda292f345df6d883cbe960",
+    "../runtime_bootstrap.py": "dafbad576b9d2e956dd981da9309c72336a3af1e2b8ccad2cb24980c67c09778"
+  },
+  "analysis_source_sha256": {
+    "../mixed_arrivals/analyze_fixed.py": "dd1feb203120e37f4db86fb5c459d60a7719944e6be00e167d3884d61ea434cc",
+    "../../analyze.py": "c434aa29ab0e5edeb25dc4c77159af6f6de8ae82edf2ffe3ef8b1332548f839c",
+    "../../confirmation_v2/paired_comparison.py": "79375f29520bbec2dcb365e0e1e4be095554620f45f2e585699b9a949b14ad10",
+    "assess_transfer.py": "a19eb8556bee415e4cf9247fe4e94fb736a6b1d760abfba2537cace0e73f5f04"
+  },
+  "after_lock_idle_check": {
+    "max_utilization_percent": 5,
+    "max_memory_used_mib": 16,
+    "consecutive_readings": 2,
+    "sample_separation_s": 0.5,
+    "grace_s": 5
+  },
+  "after_lock_idle_scope": "Only after common lock acquisition and parent compute-app cleanup, before GPU initialization. Require two consecutive readings <=5% utilization and <=16MiB used, separated by at least0.5s within a5s total idle-query grace. Query timeout and sleeps use remaining grace; fail RESOURCE_BLOCKED_NO_GPU_INITIALIZED if not confirmed. Never run this idle check before an episode because our own engine is then loaded. No resets, kills or concurrent-job changes.",
+  "operational_preupload_revision": "Before any upload/submission of this group, shared B observed0MiB/no compute apps with100% GPU utilization; add the bounded after-lock idle predicate to catch that observed failure mode. Science, workload, policies, episode loop and metrics unchanged. Existing old frozen designs/history remain untouched.",
+  "analysis_source_scope": "analysis_source_sha256 is local post-readback provenance metadata, already checked locally by root. The execution host checks only source_sha256 and workload; it need not contain or import analysis files. --check-only verifies GPU execution inputs, not local analysis dependencies or live resources.",
+  "cost_transfer_decision": {
+    "scope": "Every formal run and each of le512/gt512; observed actual P,D,Cd,Cp only; no SLO guarantee",
+    "max_fraction_actual_exceeds_1p2_prediction": 0.01,
+    "required_negative_predictions": 0,
+    "require_nonempty_regimes": true,
+    "pass": "Old coefficients usable as a transfer diagnostic on these observed states, not proven valid on all candidate actions.",
+    "fail": "Fit the same linear family on first two new-device formal runs and validate the reversed last two; CPU only, no automatic extra GPU group. Unsupported or empty regime does not pass."
+  }
+}

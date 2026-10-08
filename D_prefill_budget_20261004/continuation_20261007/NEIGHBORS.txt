@@ -1,0 +1,143 @@
+会话 D：限定近邻原文/实现核验
+Access date: 2026-10-07. Evidence: primary papers + official source; no GPU execution.
+All four requested arXiv identifiers resolve to the intended titles.
+Scope: only prefill-token budget; no change to admission, ordering, decode priority or KV rules.
+
+1. SLOWeave — 2609.07883v1, submitted 2026-09-07
+Paper: https://arxiv.org/html/2609.07883v1
+Version metadata: https://arxiv.org/abs/2609.07883v1
+State/action/objective: latest-output deadlines; maximize feasible prefill using decode count, cached context, candidate tokens.
+Guarantee: single-step safety/progress, conditional on accurate monotone cost and feasible decode-only execution.
+Calibration (§5.1/6.4): profile isolated-prefill/decode-only/mixed grids; retain P50/P99; cumulative-max along chunks; interpolate; schedule using P99.
+Undefined: grid/ranges/repeats, context aggregation membership, prefix-sharing treatment, interpolation details, checkpoints/runtime versions.
+Margin (§3.3): one-sided residual bound; quantile regression/high-percentile table suggested; numerical delta/quantile/window/update frequency unspecified.
+Fallback: zero prefill when infeasible or excessive residuals.
+Aging/overload (§3.4): bounded deadline exception; reject/redirect near decode-only saturation. Thresholds, exception magnitude/duration/counters unspecified.
+Batching: oldest-first, one prefill; multi-prefill extension discussed.
+GPU (§5.2): A100/H100-80GB nodes; 8B single-GPU, 70B TP4/8, long-context 8B; 5min warmup/10min measurement; five matched repeats; fixed256/512/1024/2048.
+Simulation (§4): 1000 requests/five seeds, Cmax4096, fixed64/256/1024, TPOT10/25/50ms; chat/mixed/long/bursty rates110/90/60/70req/s; TTFT1/1/5/1.5s.
+Prompt/output medians: chat256/96; mixed70%chat+30%prompt1800, output100; long1800/180; bursty=mixed/two-state.
+Simulation milliseconds: T=0.35+I[n>0]*(0.90+0.055*n)+I[c>0]*(0.40+0.006*c).
+Goodput: TTFT plus within-request P99 TPOT; not maximum gap.
+Limitations: finite configurations; calibration drift; shared TPOT; starvation/admission unresolved; no preemption/KV-transfer cost.
+Implementation availability: no author code URL located in the inspected paper or targeted searches; not proof that none exists.
+Correction: the earlier find-based statement “no Limitations section” is withdrawn; directly opening the ending reveals Limitations after §8.
+
+2. Niyama — 2503.22562v1, submitted 2025-03-28
+Paper: https://arxiv.org/html/2503.22562v1
+State: current deadline slack and decode characteristics; paper predictor: Vidur-profile-trained random forest (§3.6).
+Action: dynamic chunk plus hybrid request ordering and relegation; objective: QoS capacity/fair overload degradation.
+Deadline (§3.2): arrival+TTFT+(n-1)*TBT; it can accumulate slack, unlike a latest-output-based deadline.
+Transition: §3.1 explicitly moves completed prefills into decode; no explicit action-conditioned future transition-count objective found.
+Guarantee boundary: do not infer multi-step optimality from maximizing the current feasible chunk.
+Full-system ordering/relegation is outside D's permitted action space; a chunk-only adaptation must be labelled as such.
+Official artifact: https://zenodo.org/records/18218177 (v1, 2026-01-12; branch niyama_asplos2026).
+Pinned commit: 72339db5b120614033b317880ad3a05a5e4c9415, committer date 2026-01-07T08:57:42Z.
+Scheduler: https://github.com/microsoft/sarathi-serve/blob/72339db5b120614033b317880ad3a05a5e4c9415/sarathi/core/scheduler/deadline_scheduler.py
+Metadata: https://github.com/microsoft/sarathi-serve/blob/72339db5b120614033b317880ad3a05a5e4c9415/sarathi/core/datatypes/sequence.py
+Fitter: https://github.com/microsoft/sarathi-serve/blob/72339db5b120614033b317880ad3a05a5e4c9415/chunk_size_predictor/predictor.py
+Code differs from paper: two linear cost regimes at total_tokens=512, not RF; features include prefill/decode tokens and both contexts.
+Code searches total-token tiers, subtracts decode tokens, applies 1.2 cost margin, and restricts tiers under low free-block budget.
+Nonpositive slack returns minimum-tier available prefill, rather than SLOWeave's zero-prefill fallback.
+sequence.py:_get_TBT_deadline uses arrival+max(actual_e2e_prefill,ttft_target)+threshold*(len(output_ids)+1).
+Thus code rebases after late prefill; do not silently equate it with the paper's deadline formula.
+Do not transplant its hardware/model-specific coefficients into D; independently calibrate any controlled adaptation.
+
+3. Sarathi-Serve — 2403.02310v3, revised 2024-06-17
+Paper: https://arxiv.org/html/2403.02310v3
+State/action: decode-first packing and unfinished prefills under a fixed total-token budget; objective: throughput/TBT tradeoff.
+Guarantee boundary: no candidate-dependent future decode-transfer optimization found in the inspected scheduler.
+Pinned main: 96f9911790ecc00af12ee9fae47cb8fa9ba0d199, committer date 2026-01-08T05:10:57Z.
+Code: https://github.com/microsoft/sarathi-serve/blob/96f9911790ecc00af12ee9fae47cb8fa9ba0d199/sarathi/core/scheduler/sarathi_scheduler.py
+Current code additionally supports a prompt-progress-stage schedule reducing high to low chunks, with 32-token alignment.
+It subtracts already scheduled tokens from each budget; nominal budget is not executed prefill workload.
+Current main is a versioned implementation reference, not proof of the exact 2024 experimental artifact or D's installed runtime.
+
+4. AccelGen — 2503.13737v1, submitted 2025-03-17
+Paper: https://arxiv.org/html/2503.13737v1
+State: minimum iteration SLO, measured GPU saturation pivot, GPU/KV availability.
+Budget (§4.2): pivot_size*SLO_min/pivot_latency; other actions include long-prompt concurrency limitation, SLO ordering and resource-based selection.
+Objective: heterogeneous-SLO goodput/throughput with GPU and KV utilization; its claims do not establish D's budget-only guarantee.
+Its batch organization affects future load; do not claim prior work universally ignores cross-step consequences.
+§7 leaves output-length-assisted long-term KV scheduling, long-prompt chunk delay and scheduling overhead as open issues.
+No author implementation URL located in inspected paper/targeted searches; “paper-component reimplementation” is the supported label.
+
+5. D claim boundary and suggested controlled baseline (our inference/recommendation)
+No inspected single-step objective explicitly optimizes f(s,c)=prefills completed under candidate budget c.
+This is a narrow missing objective, not proof that f supplies independent action value or that existing policies fail.
+Existing policies update decode/context after transitions, so their reactive behavior may absorb the proposed benefit.
+First measure whether f differs across native tiers; constant f or one-tier collapse supplies no dynamic-selection evidence.
+Use common-prefix budget interventions, then a common continuation policy; independently measure downstream state and all request outcomes.
+Do not compare diverged A/R traces as identical counterfactual states; do not use future arrivals or true generation exits online.
+Recommended main prior-art control: “SLOWeave chunk primitive adapted to D's native runtime”, with native request order preserved.
+Retain context-sensitive calibrated costs, prediction margin, infeasible/residual fallback, and an explicit bounded aging exception.
+Freeze all unspecified parameters on development traces; preserve calibration budget and report its GPU/time cost separately.
+Document exact context aggregation and native multi-prefill adaptation; do not present either as an author-specified implementation.
+Reject/redirect admission is incompatible with D; document this controlled-component boundary rather than weakening or claiming full-system reproduction.
+Preserve D's existing joint SLO and per-request maximum gap; source-paper P99-TPOT goodput is not an interchangeable metric.
+Compare against tuned fixed/R/count-only controls before claiming residual value; calibrate workload-matched controls on development data only.
+No controller implemented; no GPU launched; source files were only downloaded to /private/tmp/d_neighbors_20261007.
+
+6. Past-only joint-SLO viability: limited two-neighbor check, 2026-10-07
+Niyama v1 §3.4: already/momentarily infeasible TTFT/TTLT requests are relegated; the broad “protect others from doomed work” motivation is prior art.
+Source: https://arxiv.org/html/2503.22562v1#S3.SS4
+The paper also excludes decode requests from selective preemption and protects current decode deadlines (§3.3–3.4).
+Pinned scheduler below: relegation is inside the prefill queue, guarded by drop==0 and mem_allocated==False; it estimates remaining prefill service time.
+https://github.com/microsoft/sarathi-serve/blob/72339db5b120614033b317880ad3a05a5e4c9415/sarathi/core/scheduler/deadline_scheduler.py#L259
+Its scheduled decodes all contribute to min_slack; no permanent-failure mask from past TTFT, historical maximum gap or request age appears in this path.
+sequence.py:111–116 instead rebases late-prefill timing with max(actual_prefill_time,ttft_target) and continues assigning future decode deadlines.
+SLOWeave v1 §3 uses latest-output+D for every active decode; §3.4 aging/admission exceptions do not specify a historical joint-SLO-failure mask.
+Source: https://arxiv.org/html/2609.07883v1#S3
+Thus the inspected paths do not implement the exact proposed protection-set filter; this limited absence is not a novelty claim.
+Objective mismatch: D's maximum-gap violation is irreversible; SLOWeave's within-request P99 gap can change as more tokens arrive.
+TTFT>4s / observed maxgap>100ms / age>20s are sufficient past-only failures only under D's unchanged conjunction and timing definitions.
+Potential distinction: keep executing all native decodes but alter which deadlines constrain the prefill budget; do not relegate/reorder/drop requests.
+Cost features must still include every executed decode and its context; failed eligibility does not remove GPU work.
+Action-value gate: when all next-token deadlines coincide, removing failed requests changes minimum slack only if no eligible constraint remains.
+Coverage risk: Niyama already addresses deadline infeasibility and SLOWeave separates objective-specific protection; check actual budget divergence before any candidate.
+Claim ceiling: CPU opportunity check only; binary-goodput recovery would not establish improved service for failed requests or full-system superiority.
+
+7. Accumulated completion versus next-token gaps: bounded check, 2026-10-08
+Motivation: pressure01 fixed2048 reduces mean TTFT but increases generation duration by1.7s; fixed2048 still qualifies all requests.
+SLOWeavev1 §3.1/Algorithm1 uses latest_output+D; §4.3 qualification is TTFT plus within-requestP99TPOT. No completion/output-length term appears in that inspected primitive.
+https://arxiv.org/html/2609.07883v1#S3.SS1
+Niyamav1 §3.2–3.4 explicitly includes TTLT and conservative application output-length estimates. Therefore accumulated completion awareness is already prior art.
+https://arxiv.org/html/2503.22562v1#S3.SS2
+Pinned scheduler230–236 sets B=TTLT-Lhat*tau_batch for tier>=1: Lhat is externally supplied num_decode_tokens, or configured output_len_pred when -1; this path does not automatically use max_tokens.
+https://github.com/microsoft/sarathi-serve/blob/72339db5b120614033b317880ad3a05a5e4c9415/sarathi/core/scheduler/deadline_scheduler.py#L230
+Pinned sequence111–116 assigns d_next=a+max(actual_prefill_elapsed,B)+(m+1)*tau. Slack accumulates; late prefill shifts future deadlines.
+https://github.com/microsoft/sarathi-serve/blob/72339db5b120614033b317880ad3a05a5e4c9415/sarathi/core/datatypes/sequence.py#L111
+Derived boundary: final-token deadline is a+TTLT+max(0,F-B)+(M-Lhat)*tau_batch; rebasing/length error can move it beyond originalTTLT. External length provenance is not established by these files.
+Decision: do not claim cumulative-completion novelty or reopen retiredK merely from this boundary. No new controller; moderate01 fixed comparison remains the decisive experiment. D's raw generation-cost increase alone does not show failure of a properly adapted Niyama baseline.
+
+8. Remaining cohort service accounting, bounded incremental-principle check, 2026-10-08
+New evidence: niyama53005_01 has a10.5s negative-token-slack/minimum-tier interval despite small actual-feature cost errors; this motivates a question, not a novelty claim.
+Niyama full system section3.4 Eq5 already uses arrival+TTLT+alpha*(Prefill_rem+Decode_rem) for noninteractive priority. Do not claim first completion/remaining-work awareness.
+https://arxiv.org/html/2503.22562v1#S3.SS4
+Inspected pinned chunk scheduler230-236 converts declared/estimated output length into B=TTLT-Lhat*tau; sequence111-116 creates cumulative token deadlines. Scheduler259-282 and106-171 use current min-slack and one-step costs; no per-decoder remaining-length exit rollout found in this primitive.
+https://github.com/microsoft/sarathi-serve/blob/72339db5b120614033b317880ad3a05a5e4c9415/sarathi/core/scheduler/deadline_scheduler.py#L230
+https://github.com/microsoft/sarathi-serve/blob/72339db5b120614033b317880ad3a05a5e4c9415/sarathi/core/datatypes/sequence.py#L111
+SLOWeave sections3.1-3.3/Algorithm1 uses last_output+D and current context-sensitive step cost; no remaining-output/cohort-completion-cost term in the inspected primitive. Aging already exists.
+https://arxiv.org/html/2609.07883v1#S3
+Past-Future Scheduler section3.3 Eq2-4 predicts request exits from estimated remaining outputs and computes future context/KV peaks for admission. Thus forecasting cohort exits is also prior art. This inspected memory-admission calculation does not accumulate execution costs into a prefill-cap completion budget.
+https://arxiv.org/html/2507.10150v1#S3.SS3
+Narrow candidate question: same native order/admission and same cost function, does conditional multi-step cohort execution cost improve cap choice over uniform token deadlines, count and ordinary aging? Bounded source inspection cannot establish absence throughout literature.
+Pure-decode suffix accounting ignores new decoders admitted by the chosen prefill or subsequent arrivals. It is a conditional cost reference, not a lower/upper bound, causal counterfactual or SLO guarantee. Known fixed-length contracts do not imply natural EOS is known. Keep TTFT, maximum gap and completion constraints distinct; rolling re-evaluation alone does not reserve future service.
+
+9. Latest-output deadline saturation screen, 2026-10-08 (D CPU diagnostic, not a reproduced system)
+Primary primitive: SLOWeave v1 section3 chooses maximal c under min(last_output+D-now) and a conservative cost; section6.2 notes the full-prefill case when it fits.
+https://arxiv.org/html/2609.07883v1#S3
+D's existing cohort03 F00/F05/C02/C03 decision snapshots: 1791 backlog+D>0 states, all latest-output budget about98.597-99.983ms. With OLD frozen N cost*1.2 and original N total tiers, all choose highest total2552; minimum predicted reserve17.786ms. This is P=2552-D, NOT fixed pure P2048. Four D=0 states counted separately; no newGPU or service outcome.
+Candidate predictions are not actual actions; C has12coordinate-extrapolation states per run, and coordinate support is not joint support. Head-prefill vs aggregate calibration context is another limitation. No statement about native4096, different margins or fullSLOWeave, and no claim of having beaten it.
+Result/script: cohort53005_03/latest_deadline_screen.json; fixed_half_53005/screen_latest_deadline.py. This lack of observed constraint switching deprioritizes a controlled-component GPU run in the current100ms study domain; the unmeasured competitive-neighbor limitation remains.
+
+10. Prefill deadline demand density, 2026-10-08 (bounded new-baseline check)
+Yao–Demers–Shenker, FOCS1995, A Scheduling Model for Reduced CPU Energy, sections3–4/pp375–376:
+https://perso.ens-lyon.fr/loris.marchal/scheduling/Yao-FOCS95-Energy.pdf
+Optimal Available treats arrived residual jobs as available now and recomputes the critical-density EDF schedule. In this already-released special case, deriving r=max_j(sum_{i<=j}remaining_work_i)/(deadline_j-now) is the classical OA/EDF density principle, not a new D principle. Common TTFT target preserves FCFS/deadline order.
+Niyama pinned official scheduler287–305 already maintains actual-prefill-throughput EMA and tests remaining_prompt/throughput against TTFT slack before relegation:
+https://github.com/microsoft/sarathi-serve/blob/72339db5b120614033b317880ad3a05a5e4c9415/sarathi/core/scheduler/deadline_scheduler.py#L287
+Its inspected test is per-request/relegation; its chunk rule still maximizes work inside decode slack. SLOWeave section3 also maximizes safe chunk, without the inspected cumulative prefill-prefix minimum-service-rate rule. Limited source search did not locate an identical LLM implementation; this is not proof of absence.
+Candidate classification: ordinary OA-style cap adaptation, currently only a CPU opportunity diagnostic. Map prefix rate to smallest existing cap whose conservative current mixed-step rate is sufficient. No reorder/drop/admission change or future-arrival/EOS input.
+The fluid guarantee does not carry over: a batch may finish after a near deadline, actual P can underfill, and future D/context/service costs change. Expired deadlines must remain represented; max-cap progress fallback is not a feasibility guarantee.
+If actual service improves, strongest initial control is current fixed1024; then same costs/tiers/fallback with head-only residual-work/slack isolates prefix contribution. Match a fixed actual mean workload if average P explains results. Prior-art adaptation or ordinary pacing gains alone are not an independent D contribution.

@@ -1,0 +1,96 @@
+Thu Oct  1 09:08:55 UTC 2026
+{
+  "approved_total_wall_seconds": 3200,
+  "authorization_reference": "User-authorized single RTX5090. One fixed capacity=true q1 identical-policy first/second pair on the same frozen H128 input. The prior completed A/A runtime cache is copied into two independent private per-cell runtime caches under the common nonblocking lock before either measurement; default cache remains for offline model resolution. This checks whether early output curves, cache writes and full-request metrics converge under identical warm seeds. One pair is descriptive, not statistical confirmation. No parameter scan, no retries. 900s/cell, 3200s/group, 90GiB cgroup and 2GiB system free after cache copies.",
+  "cells": [
+    {
+      "archive_status": "VERIFIED",
+      "argv": [
+        "/root/moe-a-capacity-warm-identical-stage-r02-20261001/first/candidate_capacity_victim_r01/pkg/run.sh",
+        "eager",
+        "performance",
+        "on",
+        "/root/moe-a-capacity-warm-identical-output-first-r02-20261001"
+      ],
+      "arm": "capacity_reference_first_on",
+      "exit_code": 0,
+      "finished_unix_s": 1790843593.6304522,
+      "gpu_process_rows_after": [],
+      "gpu_process_state_after": "EMPTY",
+      "launch_status": "FINISHED",
+      "output_dir": "/root/moe-a-capacity-warm-identical-output-first-r02-20261001",
+      "started_unix_s": 1790843343.3088727,
+      "timed_out": false
+    },
+    {
+      "archive_status": "VERIFIED",
+      "argv": [
+        "/root/moe-a-capacity-warm-identical-stage-r02-20261001/second/candidate_capacity_victim_r01/pkg/run.sh",
+        "eager",
+        "performance",
+        "on",
+        "/root/moe-a-capacity-warm-identical-output-second-r02-20261001"
+      ],
+      "arm": "capacity_reference_second_on",
+      "exit_code": 0,
+      "finished_unix_s": 1790843843.857612,
+      "gpu_process_rows_after": [],
+      "gpu_process_state_after": "EMPTY",
+      "launch_status": "FINISHED",
+      "output_dir": "/root/moe-a-capacity-warm-identical-output-second-r02-20261001",
+      "started_unix_s": 1790843594.0421345,
+      "timed_out": false
+    }
+  ],
+  "elapsed_wall_s": 541.3652741909027,
+  "finished_unix_s": 1790843844.1746023,
+  "held_lock_device_inode": "2304:29005388732",
+  "model_identity": {
+    "offline_resolution_receipt": "model-offline-resolution-receipt.json",
+    "private_view_receipt": "model-private-view-receipt.json",
+    "shared_source_receipt": "model-identity-receipt.json",
+    "status": "VERIFIED_PRIVATE_MODEL_VIEW",
+    "verifier_sha256": "d78c6726a8d010f3a02d50c79220084520c186f9b05f4b4a10c1598ac5fe9a90"
+  },
+  "plan_sha256": "6cd1ef6a30ecdc5f256014ac1fd8a47580f4e7273a707c692dea85b269a349c8",
+  "started_unix_s": 1790843302.809328,
+  "status": "CELLS_COMPLETE"
+}
+{
+  "approved_total_wall_seconds": 3200,
+  "authorization_reference": "User-authorized single RTX5090; CONDITIONAL pilot after warm-cache A/A analysis. Same frozen H128, capacity victim enabled, Q1/Q10 differ only in post-first-output protection. Q10 extends only with known native R=0, pure decode, no pending load, and sufficient future block growth budget; changed/unknown conditions fall back. Both arms get the same seed cache in independent copies and identical sparse new telemetry. Primary question: do actual safe extensions yield more outputs before next native preemption and what are complete-request target/peer costs? Require full cohort, actual extension-to-output chains and complete release-to-completion follow-up. No zero-action efficacy claim. Favorable exploration requires output rate >=97%, mean flow <=105%, lower max gap versus matched Q1, preserving per-request losses and all failed/uncompleted requests; one ordered pair is not confirmation. 900s/cell,3200s/group,90GiB cgroup,existing common nonblocking lock. No parameter or seed rescue.",
+  "cells": [
+    {
+      "archive_status": "NOT_STARTED",
+      "argv": [
+        "/root/moe-a-capacity-protection-stage-r03-20261001/first/candidate_capacity_protection_r01/pkg/run.sh",
+        "eager",
+        "performance",
+        "q1",
+        "/root/moe-a-capacity-protection-output-first-r03-20261001"
+      ],
+      "arm": "capacity_protection_q1",
+      "gpu_process_state_after": "UNKNOWN",
+      "launch_status": "STARTING",
+      "output_dir": "/root/moe-a-capacity-protection-output-first-r03-20261001",
+      "started_unix_s": 1790845654.8662329
+    }
+  ],
+  "held_lock_device_inode": "2304:29005388732",
+  "model_identity": {
+    "offline_resolution_receipt": "model-offline-resolution-receipt.json",
+    "private_view_receipt": "model-private-view-receipt.json",
+    "shared_source_receipt": "model-identity-receipt.json",
+    "status": "VERIFIED_PRIVATE_MODEL_VIEW",
+    "verifier_sha256": "d78c6726a8d010f3a02d50c79220084520c186f9b05f4b4a10c1598ac5fe9a90"
+  },
+  "plan_sha256": "b3540840069ff883b69fd207e0d112ebd056ef3866b5b3b309f5785daf8d88c1",
+  "started_unix_s": 1790845623.280763,
+  "status": "RUNNING"
+}
+6360, /root/autodl-tmp/moe-a-runtime-20260930/venv/bin/python, 22300 MiB
+  6235   6220       01:52 /root/autodl-tmp/moe-a-runtime-20260930/venv/bin/python -B -c import pathlib,json,subprocess,sys s=pathlib.Path('/root/moe-a-capacity-protection-session-r03-20261001') script='/root/moe-a-capacity-protection-stage-r03-20261001/run_capacity_protection_pair_r03.py' pids=[] for p in pathlib.Path('/proc').iterdir():  if not p.name.isdigit():continue  try:args=(p/'cmdline').read_bytes().split(bytes([0]))  except OSError:continue  if script.encode() in args:pids.append(int(p.name)) print(json.dumps({'session_exists':s.exists(),'matching_controller_pids':pids}),flush=True) if s.exists():  p=s/'receipt.json';print(p.read_text() if p.exists() else 'SESSION_WITHOUT_RECEIPT',flush=True);raise SystemExit(0) if pids:raise SystemExit(0) rc=subprocess.call(['/root/autodl-tmp/moe-a-runtime-20260930/venv/bin/python','-B',script,'/root/moe-a-capacity-protection-stage-r03-20261001/CAPACITY_PROTECTION_PAIR_PLAN_R03_20261001.json','--expected-plan-sha256','b3540840069ff883b69fd207e0d112ebd056ef3866b5b3b309f5785daf8d88c1']) if rc==75:  lock=pathlib.Path('/root/autodl-tmp/moe-research-gpu.lock').stat()  print(json.dumps({'lock_rows':[l for l in pathlib.Path('/proc/locks').read_text().splitlines() if ':'+str(lock.st_ino)+' ' in l],'gpu_processes':subprocess.run(['nvidia-smi','--query-compute-apps=pid,process_name,used_memory','--format=csv,noheader'],capture_output=True,text=True).stdout.strip()}),flush=True) raise SystemExit(rc) 
+  6236   6235       01:52 /root/autodl-tmp/moe-a-runtime-20260930/venv/bin/python -B /root/moe-a-capacity-protection-stage-r03-20261001/run_capacity_protection_pair_r03.py /root/moe-a-capacity-protection-stage-r03-20261001/CAPACITY_PROTECTION_PAIR_PLAN_R03_20261001.json --expected-plan-sha256 b3540840069ff883b69fd207e0d112ebd056ef3866b5b3b309f5785daf8d88c1
+  7014   6145       00:00 bash -c date -u; cat /root/moe-a-capacity-warm-identical-session-r02-20261001/receipt.json; cat /root/moe-a-capacity-protection-session-r03-20261001/receipt.json; nvidia-smi --query-compute-apps=pid,process_name,used_memory --format=csv,noheader; ps -eo pid,ppid,etime,args | grep -E "run_capacity_protection_pair_r03|C_NATIVE_RETIREMENT_FRESH_BLOCK"; stat -c "%d:%i" /root/autodl-tmp/moe-research-gpu.lock
+  7021   7014       00:00 grep -E run_capacity_protection_pair_r03|C_NATIVE_RETIREMENT_FRESH_BLOCK
+2304:29005388732

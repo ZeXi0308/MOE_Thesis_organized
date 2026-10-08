@@ -1,0 +1,59 @@
+{
+  "schema": "c-math-recovery-action-development-v1",
+  "stage": "exploration",
+  "workload": "Same1024 natural-generation math requests in source order; all at zero. No answer keys in runtime.",
+  "arms": [
+    {
+      "name": "math1024-native768",
+      "max_seqs": 768,
+      "policy": "native"
+    },
+    {
+      "name": "math1024-restore-fifo",
+      "max_seqs": 1024,
+      "policy": "restore-fifo"
+    },
+    {
+      "name": "math1024-native1024-repeat",
+      "max_seqs": 1024,
+      "policy": "native"
+    }
+  ],
+  "fixed": {
+    "batch_tokens": 2048,
+    "KV_bytes": 8589934592,
+    "context": 4096,
+    "APC": true,
+    "seed": 20260905,
+    "temperature": 0,
+    "max_output_tokens": 1024,
+    "min_output_tokens": 0,
+    "async_scheduling": false,
+    "scheduler_reserve_full_isl": true,
+    "batch_invariant": false
+  },
+  "evidence": "Native1024:120 preemptions affecting82 requests,31 repeated victims,17265 repeated scheduled positions. At91 schedule boundaries multiple recovery candidates; no never-admitted new requests remain. Native head often most recently preempted; recovery FIFO by preempt event changes choice.",
+  "hypotheses": [
+    "Oldest interrupted first may reduce long recovery waits but can sacrifice cache retention and throughput; full1024 outcomes decide.",
+    "Native768 may cover benefits without a new mechanism; include it as a strong simple baseline.",
+    "Native1024 repeat checks run variation and compares identical cell/resource profile; no single-run confirmation claim."
+  ],
+  "intervention": "Only PREEMPTED queue slots reordered by monotonically increasing sequence of each request's latest native _preempt_request event; fresh waiting relative and absolute positions preserved. No future lengths, EOS oracle, allocation changes, victim changes, backend changes, or resource shrinking.",
+  "comparison": "Paired complete policies under natural generation; cannot assume identical tokens from identical seed. Matching request prompt IDs and common execution prefix will be checked where available.",
+  "metrics": "All original1024 arrivals: completion, TTFT, request max host token gap, output throughput, SLO-only and correct+SLO goodput under preexisting diagnostic20s/4s; correctness/EOS/caps/repeats, preemption cycles/recompute, per-request wins/losses. No quality filtering.",
+  "resource_profile": "Reuse identical owned executable cache math_scale_runtime_cache_v2 and CUDA data cache; raw new RAM directory. Existing GPU lock/GPU idle checks,768MiB disk/2GiB shm/26GiB memory guards. No further cache cleanup.",
+  "scope": "Minimal action baseline, not a new contribution. Same development inputs; no held-out or deployment claim. Instrumented scheduler wall includes observer and is not process CPU.",
+  "execution_sha256": {
+    "math_inputs1024_v1.json": "513ae9ac6dff4e36693c07c1c37cd9d6d6101612beda5aad59bb33994104e13a",
+    "math_scale_source_v1.json": "eaa5da63063b4a3fa3e9cb334178c904b483e41736687f58e355a9049dc7ce20",
+    "health_native.py": "8afa5257e57e2a7e667e0209831626c65bd039c010b9e60a45933583ea6c54ab",
+    "native_pressure_observer_v1.py": "8ed2404a1b2546094927e9132eb47336b80e2d99e2a61ab4a2b2f678bd555877",
+    "qwen7b_launch_v2.py": "93e74aef3e883e7421eb95ec14c9a29e27b269ca90c20d55bff6cdd0e6f04485",
+    "health_launch.py": "578638992afb30e4cd1b0ac76bff95d554d4716c2ae940447b771e2b3ab33d5d",
+    "range_download_v2.py": "34045006d61c8b04c124adfbbfc3027870f784adc2bcabc7ac87ac09d12d01d7",
+    "restore_fifo_policy_v1.py": "daf5b948b8e2524dafc4a903b00efb19905e894603603d2ff5a3ac98eca16758",
+    "math_recovery_cell_v1.py": "8ec27e9d886a1dcd9de64f72ca8dbe95758b1c39d45d7926a3cda46f13352588",
+    "math_recovery_launch_v1.py": "86b2b8969cd741383b6e47ae2a4237d92ccd410fa2ba868226780e8f3cb25921",
+    "math_scale_protocol_v2.json": "16371b1aa4bdf2c2cb61014a894c6aca5fab2fa3bc8984be73aeeee569d15ac9"
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "stage": "exploration",
+  "workload": "Same1024 natural-generation math requests in source order; all at zero. No answer keys in runtime.",
+  "fixed": {
+    "KV_bytes": 8589934592,
+    "context": 4096,
+    "APC": true,
+    "seed": 20260905,
+    "temperature": 0,
+    "max_output_tokens": 1024,
+    "min_output_tokens": 0,
+    "async_scheduling": false,
+    "scheduler_reserve_full_isl": true,
+    "batch_invariant": false
+  },
+  "metrics": "All original1024 arrivals: completion, TTFT, request max host token gap, output throughput, SLO-only and correct+SLO goodput under preexisting diagnostic20s/4s; correctness/EOS/caps/repeats, preemption cycles/recompute, per-request wins/losses. No quality filtering.",
+  "resource_recovery": "Resource wait releases shared GPU lock every15s. Recheck after model hashes. Per-unit1200s total deadline; native GPU child launched at most once. Post-child SHA-verified lossless xz compression of only three large own raw logs. Decompress with receipt SHA verification before local analysis.",
+  "schema": "c-math-new-bypass-development-v1",
+  "arms": [
+    {
+      "name": "math1024-s896-fixed48-b2048",
+      "max_seqs": 896,
+      "policy": "restore-fixed-margin",
+      "batch_tokens": 2048,
+      "fixed_margin_blocks": 48
+    },
+    {
+      "name": "math1024-s896-newbypass-b2048",
+      "max_seqs": 896,
+      "policy": "restore-new-bypass",
+      "batch_tokens": 2048,
+      "fixed_margin_blocks": 48
+    },
+    {
+      "name": "math1024-s896-fixed48-b4096",
+      "max_seqs": 896,
+      "policy": "restore-fixed-margin",
+      "batch_tokens": 4096,
+      "fixed_margin_blocks": 48
+    },
+    {
+      "name": "math1024-s896-newbypass-b4096",
+      "max_seqs": 896,
+      "policy": "restore-new-bypass",
+      "batch_tokens": 4096,
+      "fixed_margin_blocks": 48
+    }
+  ],
+  "rationale": "Observed native896/B2048 has56 restoration+fresh competition boundaries and27 with restore None, but fresh alternative feasibility was not logged. Execute candidate selection at the real native queue-selector hook.",
+  "hypothesis": "When a restoration head fails fixed48 full-known+1 admission, a physically eligible fresh candidate may reduce avoidable head-of-line waiting; it may instead consume runway and worsen existing requests. All whole-request outcomes decide.",
+  "scope": "Four complete policy runs, same1024 natural requests and all arrivals. Known competition domain B2048, tuned token budget B4096. No claim that bypass, reservation, or backfill alone is novel.",
+  "execution_sha256": {
+    "math_inputs1024_v1.json": "513ae9ac6dff4e36693c07c1c37cd9d6d6101612beda5aad59bb33994104e13a",
+    "math_scale_source_v1.json": "eaa5da63063b4a3fa3e9cb334178c904b483e41736687f58e355a9049dc7ce20",
+    "health_native.py": "8afa5257e57e2a7e667e0209831626c65bd039c010b9e60a45933583ea6c54ab",
+    "native_pressure_observer_v1.py": "8ed2404a1b2546094927e9132eb47336b80e2d99e2a61ab4a2b2f678bd555877",
+    "qwen7b_launch_v2.py": "93e74aef3e883e7421eb95ec14c9a29e27b269ca90c20d55bff6cdd0e6f04485",
+    "health_launch.py": "578638992afb30e4cd1b0ac76bff95d554d4716c2ae940447b771e2b3ab33d5d",
+    "range_download_v2.py": "34045006d61c8b04c124adfbbfc3027870f784adc2bcabc7ac87ac09d12d01d7",
+    "math_scale_protocol_v2.json": "16371b1aa4bdf2c2cb61014a894c6aca5fab2fa3bc8984be73aeeee569d15ac9",
+    "restore_fixed_margin_policy_v1.py": "5b881b64f321d1e3ace653178eb544209abf04e7d96f3f51f3ca3cc161e16063",
+    "restore_new_bypass_policy_v1.py": "846ae39f4b205e583471124a7895755c897eca03a4710b513d132f352904692d",
+    "math_new_bypass_cell_v1.py": "0f7cf83774227177cbd411a2604d11673a8617587784742cdc8c5db2aac85c29",
+    "math_new_bypass_launch_v1.py": "8f99b675983e17dbcb3b22ef824d7b9da227da03e7a843ceec4b536fc960a73e"
+  },
+  "decision_rule": "First require actual bypass admissions and completed candidate outcomes. Compare all1024 mean completion, TTFT, host-gap tail, output throughput and quality against same896 fixed48 and existing stronger1024/B4096 fixed48/native. No method GO from beating a weaker configuration alone. If no actual candidates fit, stop this action in this domain; if local proxies improve but full outcomes worsen, scoped NO-GO.",
+  "created_unix_s": 1790885300.458766,
+  "action_contract": {
+    "trigger": "restore head fails fixed48 candidate full-known+1 physical gate; not necessarily native allocation None",
+    "candidate": "first fit among at most16 freshWAITING candidates; skipPREEMPTED prefix, count entries visited",
+    "choice": "same free-block ledger/APC query and48 margin for head and new candidate",
+    "execution": "remove/prepend only selected fresh; native original allocation and model execution; rollback if allocation None",
+    "future_information": false,
+    "persistent_reservation": false
+  },
+  "evidence_ceiling": "NATIVE_SERVING exploratory finite-burst paired policy; not steady-state/fresh-holdout/causal-equal-output/novelty proof.",
+  "authority": {
+    "repository_head": "76d6d888de42081c63cd440a8a67623161d8181f",
+    "existing_dirty_files_preserved": [
+      "CURRENT_EXPERIMENT.json",
+      "PAPER_ARGUMENT.md",
+      "SERVING_RESOURCE_STUDY.md",
+      "RESULT_LEDGER.md",
+      "check_staged_rotation_closures.py",
+      "staged_store_rotation.py"
+    ],
+    "read": [
+      "AGENTS.md",
+      "GPU_COORDINATION.md",
+      "RESULT_LEDGER.md",
+      "math_action_pivot_result_v1.json"
+    ],
+    "shared_competitor": "A ordinary eligible backfill is an established strong simple action in a different native-full-save/offload backend; do not claim independent novelty from reproducing queue bypass."
+  },
+  "code_scope": "New action hook reuses frozen fixed48 gate, math cell, observer and launcher infrastructure; four bounded CPU checks target only action identity/rollback/observation separation."
+}

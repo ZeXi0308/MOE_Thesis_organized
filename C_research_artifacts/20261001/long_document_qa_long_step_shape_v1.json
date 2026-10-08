@@ -1,0 +1,262 @@
+{
+  "schema": "c-longqa-long-step-shape-v1",
+  "scope": "Scheduler-level total scheduled token shape in the four completed ABBA cells; structural observation only, no compiler or kernel-causality attribution.",
+  "threshold_tokens": 256,
+  "target_measured_call": 380,
+  "definitions": {
+    "odd_large": "scheduled_tokens_total > 256 and odd",
+    "residue_15_large": "scheduled_tokens_total > 256 and scheduled_tokens_total % 16 == 15",
+    "prior": "warmup-first then warmup-last then measured calls 0..379 within the same cell",
+    "host_gap": "scheduler_calls[381].host_s - scheduler_calls[380].host_s"
+  },
+  "arms": {
+    "dfs1": {
+      "trace_sha256": {
+        "warmup-first": "48c47a596d5a8b8fc9d6313a785bda03c745fd6566b04b3290b7dc603337cf4c",
+        "warmup-last": "49008efade54f6ebde8595aac0aa738c77714d259069e56bd937e5f339465f0d",
+        "measured": "cda7486a5a359102f9461c4dfda032c9b2430d5c07947bb64792806bb489a4da"
+      },
+      "call_counts": {
+        "warmup-first": 8,
+        "warmup-last": 19,
+        "measured": 441
+      },
+      "warmup_large_token_counts": {
+        "warmup-first": {
+          "438": 1,
+          "1024": 1
+        },
+        "warmup-last": {
+          "425": 1,
+          "1024": 3
+        }
+      },
+      "measured_large_token_counts": {
+        "944": 1,
+        "1024": 380
+      },
+      "measured_before_380_large_odd_count": 0,
+      "prior_large_odd_witnesses": [
+        {
+          "phase": "warmup-last",
+          "call": 3,
+          "tokens": 425
+        }
+      ],
+      "prior_large_residue_15_witnesses": [],
+      "prior_exact_tail_token_witnesses": [],
+      "tail": {
+        "call": 380,
+        "scheduled_tokens_total": 944,
+        "odd": false,
+        "mod16": 0,
+        "scheduled_request_count": 10,
+        "running_after": 10,
+        "waiting_after": 0,
+        "host_s": 9.507273457944393,
+        "next_call": 381,
+        "next_scheduled_tokens_total": 9,
+        "next_host_s": 9.532391831278801,
+        "host_gap_to_next_s": 0.025118373334407806,
+        "first_measured_odd_large": false,
+        "first_measured_same_mod16_large": false
+      },
+      "prior_same_parity_large_count": 385,
+      "prior_same_parity_large_first": {
+        "phase": "warmup-first",
+        "call": 0,
+        "tokens": 1024
+      },
+      "prior_same_mod16_large_count": 384,
+      "prior_same_mod16_large_first": {
+        "phase": "warmup-first",
+        "call": 0,
+        "tokens": 1024
+      }
+    },
+    "density1": {
+      "trace_sha256": {
+        "warmup-first": "cda3e9ed324e8e94b8141907f5349c70f55735a6dd338c9503db9af91d089aae",
+        "warmup-last": "264a308d6674781015d34af2fd1beec4a983cd5a045026b890c15a44783ed061",
+        "measured": "851b3874d0dda111b69f05bd977aee879466653aff0634ef63895b3d1e3cef6e"
+      },
+      "call_counts": {
+        "warmup-first": 8,
+        "warmup-last": 19,
+        "measured": 434
+      },
+      "warmup_large_token_counts": {
+        "warmup-first": {
+          "438": 1,
+          "1024": 1
+        },
+        "warmup-last": {
+          "425": 1,
+          "1024": 3
+        }
+      },
+      "measured_large_token_counts": {
+        "911": 1,
+        "1024": 380
+      },
+      "measured_before_380_large_odd_count": 0,
+      "prior_large_odd_witnesses": [
+        {
+          "phase": "warmup-last",
+          "call": 3,
+          "tokens": 425
+        }
+      ],
+      "prior_large_residue_15_witnesses": [],
+      "prior_exact_tail_token_witnesses": [],
+      "tail": {
+        "call": 380,
+        "scheduled_tokens_total": 911,
+        "odd": true,
+        "mod16": 15,
+        "scheduled_request_count": 11,
+        "running_after": 11,
+        "waiting_after": 0,
+        "host_s": 9.545338347554207,
+        "next_call": 381,
+        "next_scheduled_tokens_total": 11,
+        "next_host_s": 10.246424667537212,
+        "host_gap_to_next_s": 0.7010863199830055,
+        "first_measured_odd_large": true,
+        "first_measured_same_mod16_large": true
+      },
+      "prior_same_parity_large_count": 1,
+      "prior_same_parity_large_first": {
+        "phase": "warmup-last",
+        "call": 3,
+        "tokens": 425
+      },
+      "prior_same_mod16_large_count": 0,
+      "prior_same_mod16_large_first": null
+    },
+    "density2": {
+      "trace_sha256": {
+        "warmup-first": "3c503e4d0bd3dc5639ee1fbc378e7fb9b6087f042d9041bbe9cd7c1086517097",
+        "warmup-last": "713ece915f7adeef353eb56dc12087e7cfd83fc8df6e6e25309ab59863e9e96a",
+        "measured": "a2904cc78f15921fbde3d6ec18929f70f55c7eb2a20b10a7d2204026327ba7d9"
+      },
+      "call_counts": {
+        "warmup-first": 8,
+        "warmup-last": 19,
+        "measured": 434
+      },
+      "warmup_large_token_counts": {
+        "warmup-first": {
+          "438": 1,
+          "1024": 1
+        },
+        "warmup-last": {
+          "425": 1,
+          "1024": 3
+        }
+      },
+      "measured_large_token_counts": {
+        "911": 1,
+        "1024": 380
+      },
+      "measured_before_380_large_odd_count": 0,
+      "prior_large_odd_witnesses": [
+        {
+          "phase": "warmup-last",
+          "call": 3,
+          "tokens": 425
+        }
+      ],
+      "prior_large_residue_15_witnesses": [],
+      "prior_exact_tail_token_witnesses": [],
+      "tail": {
+        "call": 380,
+        "scheduled_tokens_total": 911,
+        "odd": true,
+        "mod16": 15,
+        "scheduled_request_count": 11,
+        "running_after": 11,
+        "waiting_after": 0,
+        "host_s": 9.37962881103158,
+        "next_call": 381,
+        "next_scheduled_tokens_total": 11,
+        "next_host_s": 10.096518825739622,
+        "host_gap_to_next_s": 0.7168900147080421,
+        "first_measured_odd_large": true,
+        "first_measured_same_mod16_large": true
+      },
+      "prior_same_parity_large_count": 1,
+      "prior_same_parity_large_first": {
+        "phase": "warmup-last",
+        "call": 3,
+        "tokens": 425
+      },
+      "prior_same_mod16_large_count": 0,
+      "prior_same_mod16_large_first": null
+    },
+    "dfs2": {
+      "trace_sha256": {
+        "warmup-first": "831e83945e34f4618c75f377764b6cba06d3353b3216a442245bdbb6a75cab23",
+        "warmup-last": "f02980c10f6af2ea69c71c2866076e9285dff65cbbdb4dd2735d2804489e6036",
+        "measured": "ff6d96e7de509fce1a47426597c4fa4a1ef5b038594f6de26a33583f44de17e6"
+      },
+      "call_counts": {
+        "warmup-first": 8,
+        "warmup-last": 19,
+        "measured": 441
+      },
+      "warmup_large_token_counts": {
+        "warmup-first": {
+          "438": 1,
+          "1024": 1
+        },
+        "warmup-last": {
+          "425": 1,
+          "1024": 3
+        }
+      },
+      "measured_large_token_counts": {
+        "944": 1,
+        "1024": 380
+      },
+      "measured_before_380_large_odd_count": 0,
+      "prior_large_odd_witnesses": [
+        {
+          "phase": "warmup-last",
+          "call": 3,
+          "tokens": 425
+        }
+      ],
+      "prior_large_residue_15_witnesses": [],
+      "prior_exact_tail_token_witnesses": [],
+      "tail": {
+        "call": 380,
+        "scheduled_tokens_total": 944,
+        "odd": false,
+        "mod16": 0,
+        "scheduled_request_count": 10,
+        "running_after": 10,
+        "waiting_after": 0,
+        "host_s": 9.367929227650166,
+        "next_call": 381,
+        "next_scheduled_tokens_total": 9,
+        "next_host_s": 9.392759051173925,
+        "host_gap_to_next_s": 0.024829823523759842,
+        "first_measured_odd_large": false,
+        "first_measured_same_mod16_large": false
+      },
+      "prior_same_parity_large_count": 385,
+      "prior_same_parity_large_first": {
+        "phase": "warmup-first",
+        "call": 0,
+        "tokens": 1024
+      },
+      "prior_same_mod16_large_count": 384,
+      "prior_same_mod16_large_first": {
+        "phase": "warmup-first",
+        "call": 0,
+        "tokens": 1024
+      }
+    }
+  }
+}

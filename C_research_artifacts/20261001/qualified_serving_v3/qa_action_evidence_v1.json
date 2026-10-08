@@ -1,0 +1,811 @@
+{
+  "schema": "qa-action-evidence-v1",
+  "scope": "Four existing QA runs only; no GPU, SSH, counterfactual execution, or mathematical-workload extrapolation.",
+  "runs": {
+    "native128_first": {
+      "raw_directory": "docqa128_raw_v1_20261002/qwen7b-native-docqa128-v1/native",
+      "raw_sha256": {
+        "measured-pressure.json": "229e99dd7aa8aec21fbebe757047946c66d66bea3ff9cf635e0105e17fc1bdff",
+        "measured-outputs.json": "23641d2867abea6e9485eae72152902ffc3d045548bd784c0827026b0ef3c7b5",
+        "measured-steps.json": "fc38427486286dce5c4b7bcf156f7936d153f7ed145697a686342d9f5cbea056",
+        "runtime.json": "c153537753897441149a45eb8163a87d27222a34926a483a9dae3f6e44dff813"
+      },
+      "runtime": {
+        "vllm": "0.26.0",
+        "scheduler_source_sha256": "2ed2a550b6558b2495eda845a97ae38bcf0225027b9e25fbf00fc3880c1d3941"
+      },
+      "completed": 128,
+      "natural_eos": 128,
+      "output_tokens": 26176,
+      "episode_last_step_return_s": 33.68338811211288,
+      "completed_request_flow_s": {
+        "n": 128,
+        "mean": 25.222791143518407,
+        "median": 27.567573401145637,
+        "p95": 31.639173256792127,
+        "minimum": 12.744148675352335,
+        "maximum": 33.68338811211288
+      },
+      "scheduler_calls": 672,
+      "gate_counts": {
+        "TOKEN_BUDGET_GATE": 117,
+        "KV_ALLOCATION_REJECTED": 193,
+        "PREEMPTION_GATE": 4,
+        "OTHER": 362
+      },
+      "allocation_none_by_status": {
+        "WAITING": 128,
+        "RUNNING": 4,
+        "PREEMPTED": 61
+      },
+      "preemptions": 4,
+      "distinct_preempted_requests": 4,
+      "max_preemptions_per_request": 1,
+      "repeated_preempt_restore_cycles_observed": 0,
+      "repeated_scheduled_token_positions": 3706,
+      "total_scheduled_tokens": 297851,
+      "recovery_competition": {
+        "pending_restore_schedule_starts": 65,
+        "pending_head_is_preempted": 65,
+        "successful_resumes": 4,
+        "new_attempt_while_restore_pending": 0,
+        "new_admit_while_restore_pending": 0,
+        "restore_and_never_admitted_new_schedule_starts": 56,
+        "concurrent_preempted_histogram": {
+          "1": 42,
+          "2": 14
+        },
+        "maximum_concurrent_preempted": 2,
+        "at_least_two_preempted_schedule_starts": 14,
+        "at_least_two_preempted_call_ids": [
+          114,
+          115,
+          116,
+          117,
+          118,
+          119,
+          120,
+          121,
+          122,
+          123,
+          124,
+          125,
+          126,
+          127
+        ],
+        "competition_calls_with_restore_allocation_none": 53,
+        "competition_calls_with_starting_head_allocation_none": 52,
+        "multiple_preempted_calls_with_starting_head_allocation_none": 13,
+        "competition_call_ids": [
+          89,
+          90,
+          91,
+          92,
+          93,
+          94,
+          95,
+          96,
+          97,
+          98,
+          99,
+          100,
+          101,
+          102,
+          103,
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110,
+          111,
+          112,
+          113,
+          114,
+          115,
+          116,
+          117,
+          118,
+          119,
+          120,
+          121,
+          122,
+          123,
+          124,
+          125,
+          126,
+          127,
+          128,
+          129,
+          130,
+          131,
+          132,
+          133,
+          134,
+          135,
+          136,
+          158,
+          159,
+          160,
+          161,
+          162,
+          163,
+          164,
+          165
+        ]
+      },
+      "preempted_requests": [
+        {
+          "request_id": "memory-train-article-0135280",
+          "preempt_call": 88,
+          "resume_call": 136,
+          "preempt_to_resume_allocation_s": 1.5433745887130499,
+          "running_before": 69,
+          "waiting_before": 59,
+          "free_blocks_before": 1,
+          "waiting_head_before": {
+            "request_id": "measured/memory-train-article-0135315-b4803258",
+            "status": "WAITING"
+          },
+          "waiting_head_after": {
+            "request_id": "measured/memory-train-article-0135280-bdc3cb16",
+            "status": "PREEMPTED"
+          },
+          "restore_attempts": 34,
+          "restore_none_returns": 33,
+          "prompt_tokens": 1841,
+          "tokens_at_resume": 1857,
+          "first_attempt_cache_hit_tokens": 1728,
+          "resume_cache_hit_tokens": 64,
+          "resume_scheduled_tokens": 1793,
+          "repeated_scheduled_token_positions": 1792,
+          "completed_flow_s": 31.485270902514458,
+          "maximum_host_return_gap_s": 1.6984563041478395
+        },
+        {
+          "request_id": "memory-train-article-0135253",
+          "preempt_call": 113,
+          "resume_call": 127,
+          "preempt_to_resume_allocation_s": 0.43069225549697876,
+          "running_before": 68,
+          "waiting_before": 60,
+          "free_blocks_before": 5,
+          "waiting_head_before": {
+            "request_id": "measured/memory-train-article-0135280-bdc3cb16",
+            "status": "PREEMPTED"
+          },
+          "waiting_head_after": {
+            "request_id": "measured/memory-train-article-0135253-8f7e03f6",
+            "status": "PREEMPTED"
+          },
+          "restore_attempts": 14,
+          "restore_none_returns": 13,
+          "prompt_tokens": 1483,
+          "tokens_at_resume": 1525,
+          "first_attempt_cache_hit_tokens": 1488,
+          "resume_cache_hit_tokens": 608,
+          "resume_scheduled_tokens": 917,
+          "repeated_scheduled_token_positions": 916,
+          "completed_flow_s": 24.085897451266646,
+          "maximum_host_return_gap_s": 0.5281633492559195
+        },
+        {
+          "request_id": "memory-train-article-0135645",
+          "preempt_call": 157,
+          "resume_call": 165,
+          "preempt_to_resume_allocation_s": 0.2424431350082159,
+          "running_before": 67,
+          "waiting_before": 54,
+          "free_blocks_before": 3,
+          "waiting_head_before": {
+            "request_id": "measured/memory-train-article-0135668-b8dd5270",
+            "status": "WAITING"
+          },
+          "waiting_head_after": {
+            "request_id": "measured/memory-train-article-0135645-921b2bf5",
+            "status": "PREEMPTED"
+          },
+          "restore_attempts": 8,
+          "restore_none_returns": 7,
+          "prompt_tokens": 1828,
+          "tokens_at_resume": 1829,
+          "first_attempt_cache_hit_tokens": 1760,
+          "resume_cache_hit_tokens": 1360,
+          "resume_scheduled_tokens": 469,
+          "repeated_scheduled_token_positions": 468,
+          "completed_flow_s": 29.422389656305313,
+          "maximum_host_return_gap_s": 0.3122477736324072
+        },
+        {
+          "request_id": "memory-train-article-0143834",
+          "preempt_call": 305,
+          "resume_call": 314,
+          "preempt_to_resume_allocation_s": 0.2785097137093544,
+          "running_before": 68,
+          "waiting_before": 0,
+          "free_blocks_before": 5,
+          "waiting_head_before": null,
+          "waiting_head_after": {
+            "request_id": "measured/memory-train-article-0143834-aef1d7de",
+            "status": "PREEMPTED"
+          },
+          "restore_attempts": 9,
+          "restore_none_returns": 8,
+          "prompt_tokens": 2512,
+          "tokens_at_resume": 2515,
+          "first_attempt_cache_hit_tokens": 2400,
+          "resume_cache_hit_tokens": 1984,
+          "resume_scheduled_tokens": 531,
+          "repeated_scheduled_token_positions": 530,
+          "completed_flow_s": 33.1425905842334,
+          "maximum_host_return_gap_s": 0.3549183998256922
+        }
+      ]
+    },
+    "fixed64_first": {
+      "raw_directory": "docqa_concurrency64_raw_v1_20261002/qwen7b-docqa-concurrency64-v1/native",
+      "raw_sha256": {
+        "measured-pressure.json": "475f88f5f9f23ba4f27a1754e459381749a44a5dd4795d43f6c46311c6f8a6ba",
+        "measured-outputs.json": "573396b78a037171d67b2820b22c4e45b7e96ecd87bb67256c6c954bfb3a0c2a",
+        "measured-steps.json": "b972c2ff642aa4ec445be9a6ad5157731f20a52bbf7c55e6ee5eb12fee6ff603",
+        "runtime.json": "c153537753897441149a45eb8163a87d27222a34926a483a9dae3f6e44dff813"
+      },
+      "runtime": {
+        "vllm": "0.26.0",
+        "scheduler_source_sha256": "2ed2a550b6558b2495eda845a97ae38bcf0225027b9e25fbf00fc3880c1d3941"
+      },
+      "completed": 128,
+      "natural_eos": 128,
+      "output_tokens": 26076,
+      "episode_last_step_return_s": 33.13553072884679,
+      "completed_request_flow_s": {
+        "n": 128,
+        "mean": 24.476813266941463,
+        "median": 26.64205924794078,
+        "p95": 31.28552462346852,
+        "minimum": 11.96810763515532,
+        "maximum": 33.13553072884679
+      },
+      "scheduler_calls": 683,
+      "gate_counts": {
+        "TOKEN_BUDGET_GATE": 113,
+        "SEQ_LIMIT_GATE": 212,
+        "OTHER": 358
+      },
+      "allocation_none_by_status": {},
+      "preemptions": 0,
+      "distinct_preempted_requests": 0,
+      "max_preemptions_per_request": 0,
+      "repeated_preempt_restore_cycles_observed": 0,
+      "repeated_scheduled_token_positions": 0,
+      "total_scheduled_tokens": 294061,
+      "recovery_competition": {
+        "pending_restore_schedule_starts": 0,
+        "pending_head_is_preempted": 0,
+        "successful_resumes": 0,
+        "new_attempt_while_restore_pending": 0,
+        "new_admit_while_restore_pending": 0,
+        "restore_and_never_admitted_new_schedule_starts": 0,
+        "concurrent_preempted_histogram": {},
+        "maximum_concurrent_preempted": 0,
+        "at_least_two_preempted_schedule_starts": 0,
+        "at_least_two_preempted_call_ids": [],
+        "competition_calls_with_restore_allocation_none": 0,
+        "competition_calls_with_starting_head_allocation_none": 0,
+        "multiple_preempted_calls_with_starting_head_allocation_none": 0,
+        "competition_call_ids": []
+      },
+      "preempted_requests": []
+    },
+    "native128_confirmation": {
+      "raw_directory": "docqa_concurrency_confirmation_raw_v1_20261002/qwen7b-native-docqa128-confirm-v1/native",
+      "raw_sha256": {
+        "measured-pressure.json": "fe180803383f5510e4deba6ad9ad8697bd75d6b778b555ec7fa70894fd75234a",
+        "measured-outputs.json": "5319ff2c59d970ac914043ab8fe2bf4737fa1ed7aff7391f3dc5bec98049e11f",
+        "measured-steps.json": "7fd304149496c208b399ab5463cd11cc9bc95466d41f686ddefc1b941b10cd78",
+        "runtime.json": "c153537753897441149a45eb8163a87d27222a34926a483a9dae3f6e44dff813"
+      },
+      "runtime": {
+        "vllm": "0.26.0",
+        "scheduler_source_sha256": "2ed2a550b6558b2495eda845a97ae38bcf0225027b9e25fbf00fc3880c1d3941"
+      },
+      "completed": 128,
+      "natural_eos": 128,
+      "output_tokens": 26176,
+      "episode_last_step_return_s": 33.800793623551726,
+      "completed_request_flow_s": {
+        "n": 128,
+        "mean": 25.294292775681242,
+        "median": 27.61513547319919,
+        "p95": 31.757149260491133,
+        "minimum": 12.807787833735347,
+        "maximum": 33.800793623551726
+      },
+      "scheduler_calls": 672,
+      "gate_counts": {
+        "TOKEN_BUDGET_GATE": 117,
+        "KV_ALLOCATION_REJECTED": 193,
+        "PREEMPTION_GATE": 4,
+        "OTHER": 362
+      },
+      "allocation_none_by_status": {
+        "WAITING": 128,
+        "RUNNING": 4,
+        "PREEMPTED": 61
+      },
+      "preemptions": 4,
+      "distinct_preempted_requests": 4,
+      "max_preemptions_per_request": 1,
+      "repeated_preempt_restore_cycles_observed": 0,
+      "repeated_scheduled_token_positions": 3706,
+      "total_scheduled_tokens": 297851,
+      "recovery_competition": {
+        "pending_restore_schedule_starts": 65,
+        "pending_head_is_preempted": 65,
+        "successful_resumes": 4,
+        "new_attempt_while_restore_pending": 0,
+        "new_admit_while_restore_pending": 0,
+        "restore_and_never_admitted_new_schedule_starts": 56,
+        "concurrent_preempted_histogram": {
+          "1": 42,
+          "2": 14
+        },
+        "maximum_concurrent_preempted": 2,
+        "at_least_two_preempted_schedule_starts": 14,
+        "at_least_two_preempted_call_ids": [
+          114,
+          115,
+          116,
+          117,
+          118,
+          119,
+          120,
+          121,
+          122,
+          123,
+          124,
+          125,
+          126,
+          127
+        ],
+        "competition_calls_with_restore_allocation_none": 53,
+        "competition_calls_with_starting_head_allocation_none": 52,
+        "multiple_preempted_calls_with_starting_head_allocation_none": 13,
+        "competition_call_ids": [
+          89,
+          90,
+          91,
+          92,
+          93,
+          94,
+          95,
+          96,
+          97,
+          98,
+          99,
+          100,
+          101,
+          102,
+          103,
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110,
+          111,
+          112,
+          113,
+          114,
+          115,
+          116,
+          117,
+          118,
+          119,
+          120,
+          121,
+          122,
+          123,
+          124,
+          125,
+          126,
+          127,
+          128,
+          129,
+          130,
+          131,
+          132,
+          133,
+          134,
+          135,
+          136,
+          158,
+          159,
+          160,
+          161,
+          162,
+          163,
+          164,
+          165
+        ]
+      },
+      "preempted_requests": [
+        {
+          "request_id": "memory-train-article-0135280",
+          "preempt_call": 88,
+          "resume_call": 136,
+          "preempt_to_resume_allocation_s": 1.5629933923482895,
+          "running_before": 69,
+          "waiting_before": 59,
+          "free_blocks_before": 1,
+          "waiting_head_before": {
+            "request_id": "measured/memory-train-article-0135315-b29abe33",
+            "status": "WAITING"
+          },
+          "waiting_head_after": {
+            "request_id": "measured/memory-train-article-0135280-ae1951ad",
+            "status": "PREEMPTED"
+          },
+          "restore_attempts": 34,
+          "restore_none_returns": 33,
+          "prompt_tokens": 1841,
+          "tokens_at_resume": 1857,
+          "first_attempt_cache_hit_tokens": 1728,
+          "resume_cache_hit_tokens": 64,
+          "resume_scheduled_tokens": 1793,
+          "repeated_scheduled_token_positions": 1792,
+          "completed_flow_s": 31.602583264932036,
+          "maximum_host_return_gap_s": 1.7184567619115114
+        },
+        {
+          "request_id": "memory-train-article-0135253",
+          "preempt_call": 113,
+          "resume_call": 127,
+          "preempt_to_resume_allocation_s": 0.4319628793746233,
+          "running_before": 68,
+          "waiting_before": 60,
+          "free_blocks_before": 5,
+          "waiting_head_before": {
+            "request_id": "measured/memory-train-article-0135280-ae1951ad",
+            "status": "PREEMPTED"
+          },
+          "waiting_head_after": {
+            "request_id": "measured/memory-train-article-0135253-9ba2c1ff",
+            "status": "PREEMPTED"
+          },
+          "restore_attempts": 14,
+          "restore_none_returns": 13,
+          "prompt_tokens": 1483,
+          "tokens_at_resume": 1525,
+          "first_attempt_cache_hit_tokens": 1488,
+          "resume_cache_hit_tokens": 608,
+          "resume_scheduled_tokens": 917,
+          "repeated_scheduled_token_positions": 916,
+          "completed_flow_s": 24.136653492227197,
+          "maximum_host_return_gap_s": 0.5308125130832195
+        },
+        {
+          "request_id": "memory-train-article-0135645",
+          "preempt_call": 157,
+          "resume_call": 165,
+          "preempt_to_resume_allocation_s": 0.2474168725311756,
+          "running_before": 67,
+          "waiting_before": 54,
+          "free_blocks_before": 3,
+          "waiting_head_before": {
+            "request_id": "measured/memory-train-article-0135668-97c3808e",
+            "status": "WAITING"
+          },
+          "waiting_head_after": {
+            "request_id": "measured/memory-train-article-0135645-873af305",
+            "status": "PREEMPTED"
+          },
+          "restore_attempts": 8,
+          "restore_none_returns": 7,
+          "prompt_tokens": 1828,
+          "tokens_at_resume": 1829,
+          "first_attempt_cache_hit_tokens": 1760,
+          "resume_cache_hit_tokens": 1360,
+          "resume_scheduled_tokens": 469,
+          "repeated_scheduled_token_positions": 468,
+          "completed_flow_s": 29.503755131736398,
+          "maximum_host_return_gap_s": 0.31813559122383595
+        },
+        {
+          "request_id": "memory-train-article-0143834",
+          "preempt_call": 305,
+          "resume_call": 314,
+          "preempt_to_resume_allocation_s": 0.27812875248491764,
+          "running_before": 68,
+          "waiting_before": 0,
+          "free_blocks_before": 5,
+          "waiting_head_before": null,
+          "waiting_head_after": {
+            "request_id": "measured/memory-train-article-0143834-8f63ac7f",
+            "status": "PREEMPTED"
+          },
+          "restore_attempts": 9,
+          "restore_none_returns": 8,
+          "prompt_tokens": 2512,
+          "tokens_at_resume": 2515,
+          "first_attempt_cache_hit_tokens": 2400,
+          "resume_cache_hit_tokens": 1984,
+          "resume_scheduled_tokens": 531,
+          "repeated_scheduled_token_positions": 530,
+          "completed_flow_s": 33.26120400801301,
+          "maximum_host_return_gap_s": 0.3544520288705826
+        }
+      ]
+    },
+    "fixed64_confirmation": {
+      "raw_directory": "docqa_concurrency_confirmation_raw_v1_20261002/qwen7b-docqa-concurrency64-confirm-v1/native",
+      "raw_sha256": {
+        "measured-pressure.json": "fde689d41663bcb47ec44c119359aec4be4d9a77d3c1dfb8b46d00279f48b32b",
+        "measured-outputs.json": "40fcf711b3e73c4fffd4c5b7542ebda4ae92023588c7eb3d99892eb8b2f092ee",
+        "measured-steps.json": "95c619c7cba7042412f30362843af81a35cce74003fc9885671cc2b5d0194a14",
+        "runtime.json": "c153537753897441149a45eb8163a87d27222a34926a483a9dae3f6e44dff813"
+      },
+      "runtime": {
+        "vllm": "0.26.0",
+        "scheduler_source_sha256": "2ed2a550b6558b2495eda845a97ae38bcf0225027b9e25fbf00fc3880c1d3941"
+      },
+      "completed": 128,
+      "natural_eos": 128,
+      "output_tokens": 26076,
+      "episode_last_step_return_s": 33.05075715109706,
+      "completed_request_flow_s": {
+        "n": 128,
+        "mean": 24.31834357319167,
+        "median": 26.458571268245578,
+        "p95": 31.128069426864386,
+        "minimum": 11.901256445795298,
+        "maximum": 33.05075715109706
+      },
+      "scheduler_calls": 683,
+      "gate_counts": {
+        "TOKEN_BUDGET_GATE": 113,
+        "SEQ_LIMIT_GATE": 212,
+        "OTHER": 358
+      },
+      "allocation_none_by_status": {},
+      "preemptions": 0,
+      "distinct_preempted_requests": 0,
+      "max_preemptions_per_request": 0,
+      "repeated_preempt_restore_cycles_observed": 0,
+      "repeated_scheduled_token_positions": 0,
+      "total_scheduled_tokens": 294061,
+      "recovery_competition": {
+        "pending_restore_schedule_starts": 0,
+        "pending_head_is_preempted": 0,
+        "successful_resumes": 0,
+        "new_attempt_while_restore_pending": 0,
+        "new_admit_while_restore_pending": 0,
+        "restore_and_never_admitted_new_schedule_starts": 0,
+        "concurrent_preempted_histogram": {},
+        "maximum_concurrent_preempted": 0,
+        "at_least_two_preempted_schedule_starts": 0,
+        "at_least_two_preempted_call_ids": [],
+        "competition_calls_with_restore_allocation_none": 0,
+        "competition_calls_with_starting_head_allocation_none": 0,
+        "multiple_preempted_calls_with_starting_head_allocation_none": 0,
+        "competition_call_ids": []
+      },
+      "preempted_requests": []
+    }
+  },
+  "paired_descriptive_comparisons": {
+    "first": {
+      "all_128": {
+        "delta_flow_s": {
+          "n": 128,
+          "mean": -0.7459778765769443,
+          "median": -0.6767621003091335,
+          "p95": 1.6467314096167653,
+          "minimum": -9.22822785191238,
+          "maximum": 9.653504716232419
+        },
+        "fixed_faster": 116,
+        "fixed_slower": 12,
+        "fixed_faster_by_over_1s": 40,
+        "fixed_slower_by_over_1s": 8
+      },
+      "exact_output_subset": {
+        "delta_flow_s": {
+          "n": 86,
+          "mean": -0.785644741144118,
+          "median": -0.7874220795929432,
+          "p95": -0.049882969819009304,
+          "minimum": -2.370163729414344,
+          "maximum": 4.215130994096398
+        },
+        "fixed_faster": 82,
+        "fixed_slower": 4,
+        "fixed_faster_by_over_1s": 30,
+        "fixed_slower_by_over_1s": 3
+      },
+      "changed_output_subset": {
+        "delta_flow_s": {
+          "n": 42,
+          "mean": -0.6647552491298744,
+          "median": -0.46811659913510084,
+          "p95": 2.5170492280274597,
+          "minimum": -9.22822785191238,
+          "maximum": 9.653504716232419
+        },
+        "fixed_faster": 34,
+        "fixed_slower": 8,
+        "fixed_faster_by_over_1s": 10,
+        "fixed_slower_by_over_1s": 5
+      },
+      "fixed_minus_native_episode_s": -0.5478573832660913,
+      "preempted_request_deltas": [
+        {
+          "request_id": "memory-train-article-0135253",
+          "fixed_minus_native_flow_s": 2.5561617966741323,
+          "same_output_tokens": false
+        },
+        {
+          "request_id": "memory-train-article-0135280",
+          "fixed_minus_native_flow_s": -0.25952307879924774,
+          "same_output_tokens": false
+        },
+        {
+          "request_id": "memory-train-article-0135645",
+          "fixed_minus_native_flow_s": -0.4000373147428036,
+          "same_output_tokens": true
+        },
+        {
+          "request_id": "memory-train-article-0143834",
+          "fixed_minus_native_flow_s": -0.434060575440526,
+          "same_output_tokens": true
+        }
+      ],
+      "largest_improvements": [
+        {
+          "request_id": "memory-train-article-0130839",
+          "fixed_minus_native_flow_s": -9.22822785191238,
+          "same_output_tokens": false
+        },
+        {
+          "request_id": "memory-train-article-0130330",
+          "fixed_minus_native_flow_s": -7.268682662397623,
+          "same_output_tokens": false
+        },
+        {
+          "request_id": "memory-train-article-0128327",
+          "fixed_minus_native_flow_s": -7.114523718133569,
+          "same_output_tokens": false
+        }
+      ],
+      "largest_regressions": [
+        {
+          "request_id": "memory-train-article-0127965",
+          "fixed_minus_native_flow_s": 9.653504716232419,
+          "same_output_tokens": false
+        },
+        {
+          "request_id": "memory-train-article-0135071",
+          "fixed_minus_native_flow_s": 4.215130994096398,
+          "same_output_tokens": true
+        },
+        {
+          "request_id": "memory-train-article-0134950",
+          "fixed_minus_native_flow_s": 4.149035695940256,
+          "same_output_tokens": true
+        }
+      ]
+    },
+    "confirmation": {
+      "all_128": {
+        "delta_flow_s": {
+          "n": 128,
+          "mean": -0.9759492024895735,
+          "median": -0.9128910843282938,
+          "p95": 1.4463828432373669,
+          "minimum": -9.41817557066679,
+          "maximum": 9.416935499757528
+        },
+        "fixed_faster": 118,
+        "fixed_slower": 10,
+        "fixed_faster_by_over_1s": 54,
+        "fixed_slower_by_over_1s": 8
+      },
+      "exact_output_subset": {
+        "delta_flow_s": {
+          "n": 86,
+          "mean": -1.0060918058030481,
+          "median": -0.97042718809098,
+          "p95": -0.3507724963128567,
+          "minimum": -2.566542511805892,
+          "maximum": 3.98217636346817
+        },
+        "fixed_faster": 83,
+        "fixed_slower": 3,
+        "fixed_faster_by_over_1s": 40,
+        "fixed_slower_by_over_1s": 3
+      },
+      "changed_output_subset": {
+        "delta_flow_s": {
+          "n": 42,
+          "mean": -0.914228633800078,
+          "median": -0.7681265557184815,
+          "p95": 2.2850855904631286,
+          "minimum": -9.41817557066679,
+          "maximum": 9.416935499757528
+        },
+        "fixed_faster": 35,
+        "fixed_slower": 7,
+        "fixed_faster_by_over_1s": 14,
+        "fixed_slower_by_over_1s": 5
+      },
+      "fixed_minus_native_episode_s": -0.7500364724546671,
+      "preempted_request_deltas": [
+        {
+          "request_id": "memory-train-article-0135253",
+          "fixed_minus_native_flow_s": 2.321917776018381,
+          "same_output_tokens": false
+        },
+        {
+          "request_id": "memory-train-article-0135280",
+          "fixed_minus_native_flow_s": -0.5354662053287029,
+          "same_output_tokens": false
+        },
+        {
+          "request_id": "memory-train-article-0135645",
+          "fixed_minus_native_flow_s": -0.70533362403512,
+          "same_output_tokens": true
+        },
+        {
+          "request_id": "memory-train-article-0143834",
+          "fixed_minus_native_flow_s": -0.6948614958673716,
+          "same_output_tokens": true
+        }
+      ],
+      "largest_improvements": [
+        {
+          "request_id": "memory-train-article-0130839",
+          "fixed_minus_native_flow_s": -9.41817557066679,
+          "same_output_tokens": false
+        },
+        {
+          "request_id": "memory-train-article-0130330",
+          "fixed_minus_native_flow_s": -7.483237765729427,
+          "same_output_tokens": false
+        },
+        {
+          "request_id": "memory-train-article-0128327",
+          "fixed_minus_native_flow_s": -7.231373159214854,
+          "same_output_tokens": false
+        }
+      ],
+      "largest_regressions": [
+        {
+          "request_id": "memory-train-article-0127965",
+          "fixed_minus_native_flow_s": 9.416935499757528,
+          "same_output_tokens": false
+        },
+        {
+          "request_id": "memory-train-article-0135071",
+          "fixed_minus_native_flow_s": 3.98217636346817,
+          "same_output_tokens": true
+        },
+        {
+          "request_id": "memory-train-article-0134950",
+          "fixed_minus_native_flow_s": 3.9373490177094936,
+          "same_output_tokens": true
+        }
+      ]
+    }
+  },
+  "interpretation": [
+    "Native already prioritizes PREEMPTED ahead of never-admitted requests in every observed recovery competition; no new-request bypass was observed.",
+    "Repeated allocation None retries do not execute recomputation. Repeated token positions count only emitted scheduled tokens overlapping earlier scheduled positions of the same request.",
+    "Each native victim is preempted and resumed once. Both fixed64 runs remove all observed preemption and repeated-token-position costs; these costs are already covered by simple throttling.",
+    "Cache-hit decline during rejected recovery attempts is observed; it motivates measuring cache survival cost but does not establish a new recovery-policy benefit.",
+    "Full queue contents and alternative required-block checks were not logged. Head allocation None blocks unattempted successors, but no successor feasibility or beneficial reordering is established.",
+    "All four cells complete 128 requests. Cross-arm latency differences are descriptive: 42 outputs change, and admission, batching, cache behavior, and generation can all contribute.",
+    "Host return gaps and preemption-to-allocation intervals are wall-clock observations, not device ITL or isolated recomputation runtime."
+  ]
+}

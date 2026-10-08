@@ -1,0 +1,56 @@
+{
+  "avoided_full_block_equivalents": 2156.0,
+  "avoided_scheduled_tokens_vs_no_apc": 34496,
+  "block_tokens": 16,
+  "decode_scheduled_tokens_one_pass": 3792,
+  "eos_accounting": "EOS is last output_token_id for every stop; length outputs have 64 IDs and no EOS; all output IDs include final generated token",
+  "eos_token_id": 50279,
+  "finish_reason_counts": {
+    "length": 23,
+    "stop": 127
+  },
+  "ideal_max_prompt_savings_vs_no_apc_tokens": 107152,
+  "ideal_prefix_mandatory_per_request_tail_tokens": 1362,
+  "ideal_prefix_unique_block_tokens": 385136,
+  "ideal_prefix_unique_reusable_blocks": 24071,
+  "ideal_prompt_work_lower_bound_tokens": 386498,
+  "ideal_total_work_lower_bound_tokens": 390290,
+  "input_sha256": {
+    "workload.json": "3e34bc8a46abc1329744e22b6c97b18582a540f0abd98de55f012f560aac92fc"
+  },
+  "interpretation": [
+    "The no-APC number is the P plus O-minus-one one-pass schedule account, not a measured no-APC run.",
+    "The aggregate difference is avoided scheduled token work consistent with 16-token APC reuse; aggregate logs do not identify individual cache hits, completed-prefix eviction, or causes of the remaining gap.",
+    "For this audited cohort only, the trie lower bound assumes infinite cache and perfect request order, shares full 16-token prompt prefixes, leaves at least one prompt token uncached per request, and has no terminal-block double count.",
+    "It ignores generated-prefix sharing and holds observed output work fixed; it is not a general formula or a global bound over different generation trajectories.",
+    "The cohort-conditional lower bound is not achievable capacity evidence for 4096 blocks or an online latency/goodput counterfactual."
+  ],
+  "native_minus_ideal_total_tokens": 72656,
+  "native_schedule_calls": 512,
+  "native_scheduled_tokens": 462946,
+  "no_apc_one_pass_scheduled_tokens": 497442,
+  "output_token_ids_including_eos": 3942,
+  "prompt_relation_audit": {
+    "exact_duplicate_prompt_groups": [
+      [
+        38,
+        123
+      ]
+    ],
+    "full_block_terminal_rows": [
+      48,
+      141
+    ],
+    "strict_full_prompt_prefix_pairs": [],
+    "terminal_block_reuse_pairs": []
+  },
+  "prompt_tokens_no_apc_one_pass": 493650,
+  "requests": 150,
+  "run_sha256": {
+    "measured-outputs.json": "51a96ee529a9aecd5a4c2bbb78b08d80b300163a16d1742d429c0223400b30c1",
+    "measured-steps.json": "15a06db9f4a83db29be515d9e35b8d5489d449664c9731cad48dbf8da7c93d29",
+    "resolved-eos.json": "84b8ee62f600bb4607dcc9539e06526da03efb6b734e34686c03bf0f848eb96b"
+  },
+  "schema": "c-longbench-multifieldqa-en-cache-headroom-v1",
+  "scope": "CPU accounting of frozen full-150 native trace; prompt-prefix-only and fixed observed output work; no online counterfactual or capacity claim"
+}

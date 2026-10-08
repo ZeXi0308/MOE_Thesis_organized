@@ -1,0 +1,93 @@
+{
+  "schema": "c-math-runway-nearest-methods-v1",
+  "status": "BOUNDED_SOURCE_COMPARISON_NOT_EXECUTED_BASELINES",
+  "scope": "Only CacheOPT, JITServe, and UniBoost main mechanisms relevant to recovery, headroom and protection. No new GPU run, implementation, or broader novelty search.",
+  "local_witness": {
+    "source": "/Users/zhaozhenyu/Desktop/毕业设计/C_research_artifacts/20261001/qualified_serving_v3/math_runway_common_prefix_v1.json",
+    "sha256": "e5f48296cd4ac61ba331d2e7c702a177bbfd954c7772fedfa8b4ec92eefbe09e",
+    "call_id": 115,
+    "head_request_id": "measured/gsm8k-test-0967",
+    "observed_common_prefix_calls": 115,
+    "free_blocks_at_head": 13,
+    "candidate_full_known_plus_one_blocks": 8,
+    "resident_next_step_growth_blocks": 46,
+    "known_sequence_tokens": 856,
+    "apc_credit_tokens": 736,
+    "target_tokens": 857,
+    "partial_running_count": 0,
+    "gate_test": "8 + 46 = 54 > 13 -> defer before native allocation",
+    "native_action": "Restore succeeds; consumes 8 blocks; same request re-preempted at call 116.",
+    "runway_action": "Defers at call 115; restores at call 161 and completes.",
+    "information_contract": "Known prompt plus already generated tokens, current APC credit and resident block boundaries; no future output length or EOS oracle, speculative completion release, persistent reservation, or guaranteed protected interval.",
+    "limits": "Observed counters, successful allocations, schedules and output prefixes agree before call 115; full block ownership and GPU state were not recorded. Subsequent policy trajectories differ."
+  },
+  "methods": [
+    {
+      "name": "CacheOPT",
+      "source": "https://arxiv.org/html/2503.13773v2",
+      "sections": [
+        "3.3.1-3.3.3",
+        "3.4",
+        "4"
+      ],
+      "mechanism": "Predicts padded output demand; embeds requests in allocated-but-unused capacity; orders waiting/preempted requests by remaining TTFT/TBT allowance. Critical demand can trigger eviction. Proactive allocation and a separately tracked shared reserve reduce allocation failures.",
+      "overlap": "Direct prior coverage of advance capacity provisioning and avoiding preemption. The printed policy is not the exact one-step physical sum.",
+      "action_on_local_state": "UNDETERMINED: free13/candidate8/resident-next46 omits its predicted demand, criticality, allocations and reserve. It may change the victim or request selection; do not assert admission versus deferral.",
+      "minimum_extra_state": [
+        "Padded length estimates and confidence parameters",
+        "TTFT/TBT contracts, remaining allowances, critical sets, historical maximum iteration time",
+        "Per-request allocated/used capacity; embedding and expected release dependencies",
+        "Reserve inventory, allocation quantum, proactive horizon and victim order"
+      ],
+      "minimum_implementation": "Selection, proactive/reserve allocator and eviction policy; map logical reservations to shared physical APC blocks without double credit. Resolve allocation-quantum units instead of equating the paper example with our eight blocks."
+    },
+    {
+      "name": "JITServe",
+      "source": "https://www.usenix.org/system/files/nsdi26-zhang-wei.pdf",
+      "sections": [
+        "4.2, PDF pages 8-9 (printed 831-832)",
+        "5, PDF page 10 (printed 833)"
+      ],
+      "mechanism": "Schedules goodput per estimated serving bandwidth within frames. It models swap/recompute stalls and permits priority-driven preemption only when projected gain exceeds cost; frame boundaries suppress churn. Its backend inherits prefix caching.",
+      "overlap": "Direct prior treatment of recovery cost and stability. A scheduling frame is not, in these sections, a physical KV reservation guaranteeing residency throughout that frame.",
+      "action_on_local_state": "UNDETERMINED: the three block counts cannot identify its selected batch or gain-versus-cost decision. No explicit resident-next-block sum was found in these sections.",
+      "minimum_extra_state": [
+        "Actual SLO/deadline and goodput contracts",
+        "Online remaining-length bounds, token-time estimates and aging",
+        "Frame duration/phase, service already granted, priority, cutoff and group size",
+        "Hardware-calibrated swap/recompute costs, candidate gain and selected batch"
+      ],
+      "minimum_implementation": "Frame scheduler, online estimates, grouping and cost test, plus declared handling of forced allocator evictions. Preserve APC. A retrospective diagnostic latency threshold cannot substitute for an actual SLO contract."
+    },
+    {
+      "name": "UniBoost / MemGuard",
+      "source": "https://arxiv.org/html/2606.18431v1",
+      "sections": [
+        "3.2-3.3",
+        "A.1 Algorithm 1",
+        "A.5"
+      ],
+      "mechanism": "Quantizes attained work geometrically and protects dispatched requests until the next threshold. Algorithm 1 checks U+KVNeed(r,c)<=B for the next chunk/step; no explicit protected-window reservation formula appears. A.5 proposes cache-hit credit in effective work, not physical shared-block accounting.",
+      "overlap": "Strongest overlap: prediction-free stabilization and minimum useful service after dispatch. Our admission-only one-step gate is not a minimum-run guarantee.",
+      "action_on_local_state": "UNDETERMINED. Conditionally, the printed capacity check passes if this head is selected and KVNeed=8. This is not a full MemGuard action: priorities, protected victims and memory-pressure handling remain unresolved.",
+      "minimum_extra_state": [
+        "Attained decode work, bin k, next threshold, dispatch/protection flags and recomputation semantics",
+        "Arrival/phase-entry, gamma, hysteresis, queue priorities, per-request KVNeed and eligible victims"
+      ],
+      "minimum_implementation": "Priority/bin/protection state machine; define forced-memory eviction and no-eligible-victim behavior. A guaranteed window additionally needs physical growth-to-threshold, APC ownership and reservation/release accounting; that would be an adapter addition.",
+      "version_limit": "HTML and PDF v1 checked. PMLR entry confirmed; its PDF text was not verified. Missing-detail findings apply only to v1."
+    }
+  ],
+  "fair_comparison_contract": [
+    "Run an implemented policy or an explicitly named component adapter under the same model, input, capacity, APC, block size, token budget and decode contract; do not reconstruct a policy verdict from missing state.",
+    "For each decision log physical free/reclaimable counts, shared-block/refcount ownership, current reservations, candidate identity, policy state, chosen action, successful allocations and later preemption/recovery.",
+    "Use only information available at the decision. Do not use final output lengths, future EOS or uncommitted future release as online inputs.",
+    "Separate priority-caused eviction from native allocator pressure, and failed native allocation from policy deferral.",
+    "Keep exact-action comparison conditional on a common observable prestate; use whole-policy comparisons after trajectories diverge."
+  ],
+  "conclusion": {
+    "mechanism_novelty": "Substantial prior coverage; one-step recovery gate alone is not supported as a new contribution.",
+    "exact_action_equivalence": "Not established for any of the three methods on this witness. Absence of an identical printed inequality does not establish novelty or a contrary baseline action.",
+    "bounded_next_step": "If comparing this mechanism, implement and label the nearest protection/reserve component with explicit missing-state choices before claiming benefit beyond those mechanisms."
+  }
+}

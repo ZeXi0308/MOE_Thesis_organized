@@ -1,0 +1,77 @@
+{
+  "name": "D existing Niyama deadline chunk component versus tuned fixed cap",
+  "status_at_freeze": "PRE_GPU_FROZEN",
+  "frozen_timestamp_cst": "2026-10-08T04:40:44.177862+08:00",
+  "workload": "../mixed_arrivals/workload_high_rate.json",
+  "workload_sha256": "395fd015ceb9bef4a4a59e30e0203e83167a4967fffe2ba7160409f0ac738a15",
+  "primary_slo": {
+    "ttft_s": 4,
+    "gap_s": 0.1,
+    "completion_s": 20
+  },
+  "timeout_s": 180,
+  "policies": [
+    "fixed1024",
+    "niyama_component",
+    "niyama_component",
+    "fixed1024"
+  ],
+  "warm_policies": [
+    "fixed1024",
+    "niyama_component"
+  ],
+  "formal_attempt_limit": 4,
+  "question": "Does an existing completion-deadline chunk principle improve complete service over the tuned fixed cap in the observed completion-limited domain?",
+  "reason": "Effective matched-prefill timing01 pulse changed phase transitions without frozen service benefit; highrate fixed comparisons have only completion misses. Existing TTLT baseline has not been executed here. This is a prior-art baseline development screen, not a new-signal or novelty experiment.",
+  "fixed_selection": "1024 selected by unchanged full joint SLO goodput from the already closed small fixed development set; no per-segment hindsight algorithm.",
+  "artifact_commit": "72339db5b120614033b317880ad3a05a5e4c9415",
+  "component_scope": "Niyama chunk-size/decode-deadline component adapted to vLLM FCFS only; not the entire original system. No original hybrid sorting/relegation/admission/KV manager is transplanted.",
+  "batch_token_deadline_s": 0.03125,
+  "length_input": "Each request declared fixed max_tokens from min=max/ignoreEOS contract, passed as original num_decode_tokens metadata path. No future emitted content, actual natural-EOS length, arrivals or routes observed. Natural-EOS setting not tested.",
+  "deadline": "a + max(observed_first_output-a, 20-declared_output_tokens*tau) + (observed_outputs+1)*tau; minimum over ALL current native decoders. Preserve source late-prefill rebasing and cumulative slack, no K filtering.",
+  "objective_mapping": "tau31.25ms derived once from (completion20-TTFT4)/maximum declared length512; internal TTFT allocation4s for512 and8s for384. Evaluator remains joint4s/100ms/20s. Internal8s is NOT a relaxed measured TTFT SLO and no hard TTFT/max-gap/TTLT guarantee is claimed.",
+  "normal_total_tiers": [
+    128,
+    256,
+    512,
+    768,
+    1024,
+    1280,
+    1536,
+    1792,
+    2048,
+    2552
+  ],
+  "low_memory_total_tiers": [
+    128,
+    256,
+    384,
+    512
+  ],
+  "low_memory_rule": "(current_native_free_blocks*block_size)//32 < 1000; read-only feature, no KV policy change.",
+  "pure_prefill_cap": "max(0,selected_total_tier-current_D); native total4096 unchanged and ALL native decodes must still execute.",
+  "prediction_margin": 1.2,
+  "search_adaptation": "Enumerate original ten total tiers and take largest predicted-feasible tier. The local two-regime fit has observed512->768 declines up to2.987ms, making original binary-search monotonicity unsafe. Enumeration preserves maximum-feasible intent; source minimum-tier fallback unchanged; no fit clipping/monotonic envelope/new model.",
+  "prefill_context_adaptation": "Current first unfinished prefill in native running order, else waiting order, replaces original reordered heap top. Its computed tokens estimate is preserved as source head proxy, not a claimed exact multi-prefill context. Log actual executed prefill context separately.",
+  "zero_prefill_rule": "Nonpositive slack or no feasible tier returns min-total128 minus D, hence P0 ifD>=128. Existing decodes always progress, no arrival pause/reject/order change. Source fallback retained without new aging/controller. Finite fixed-output input continues to full drain or original180s timeout; no general waiting/SLO bound claimed.",
+  "calibration_sha256": "64ddc734c5af941d43171bba4cac92317fc2eb9d04e725ae05ab19ad2381a13a",
+  "calibration": "Existing five real native training runs, five reverse held-out runs; same two linear model family with total=P+D redundant column removed. Actual P/D/contexts, hostengine completion label. No GPU profiling, no additional prediction model. Intended online<=512/>512 branch used, correcting fitter>513 exclusion boundary; zero observed513 rows. Per-run errors retained. Nonmonotonic diagnostic remains in calibration JSON; enumeration resolves search assumption only, not model error.",
+  "controls": "Unchanged parent normal arrival/add/output/drain loop, BF16OLMoE, engine resources/native scheduler patch. Candidate compute and logging overhead included. Both policy warm runs precede all formal measurements; no changed kernels/precision or extra forward/synchronization.",
+  "fair_timing": "Require no new formal compilation/capture/autotuning; report observed warm/formal total-tier and actualP coverage. Formal compile is interpretability failure, not mechanism loss. Preserve all failures and attempts, no automatic rerun.",
+  "decision": "Both reversed pairs require all arrivals valid complete, actual cap-binding execution difference, full jointU>=3%, raw output throughput not down, TTFT/flow/per-request-maxgap p95<=1.05reference, and no added100ms gap-failure IDs. Retain all raw metrics, qualification migrations and harmed requests even if gate fails.",
+  "stopping": "Zero actual change: one interface/opportunity diagnosis, no expansion. Negative/subgate/inconsistent complete effect: stop this mapping, no automatic tau/margin/cap tuning; investigate only an observed new explanation. A positive result means an existing principle has utility here, NOT a D contribution, full Niyama reproduction, or independent confirmation. No second-model/parameter matrix based on this screen.",
+  "gpu_uuid": "GPU-94203fc3-1021-3a9c-a367-cff792479616",
+  "shared_lock": "/root/autodl-tmp/moe-research-gpu.lock",
+  "shared_lock_inode": 15049831297,
+  "root_free_bytes_required": 4294967296,
+  "resources": "One D process under existing host-wide sharedflock;7200s boundedwait;2warm+4formal;no automatic retries. Check4GiBrootreserve beforequeue and afterlock;release on exit. No fee/remaining-budget telemetry.",
+  "output_contract": "Identical external arrivals/prompts/fixed counts; counts do not imply identical output content/routes/computation/quality.",
+  "source_sha256": {
+    "run_component.py": "46524607172d533738e92bcf9712009c152d6059d8f8a30010172ee31afa51ef",
+    "launch.sh": "c5f2243c7efc713799c224262543665d31aef20fb6d699a7e8ed6ce25dc24cd8",
+    "calibrate.py": "d84ec4073330015a3573b1ad730a44fbbfd27e180e051fdfdfbc0305cbb7d716",
+    "../run_confirmation.py": "67cb25770693252d64efcb93ea1aaf45ab99ce92926b77189dd03c324b0ee166",
+    "../prefill_policy.py": "1aedafb440597a5903539eb05e5e3e5cd0eaa12a0eda292f345df6d883cbe960",
+    "../runtime_bootstrap.py": "dafbad576b9d2e956dd981da9309c72336a3af1e2b8ccad2cb24980c67c09778"
+  }
+}

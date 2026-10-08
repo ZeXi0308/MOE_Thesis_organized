@@ -1,0 +1,476 @@
+{
+  "config/scheduler.py": {
+    "sha256": "a816cf79a3e74ffc0984f9bebb274275b26f46be8b28cb77a29388a0996263c8",
+    "lines": [
+      {
+        "line": 35,
+        "text": "    is_encoder_decoder: InitVar[bool]"
+      },
+      {
+        "line": 36,
+        "text": "    \"\"\"True if the model is an encoder-decoder model."
+      },
+      {
+        "line": 37,
+        "text": ""
+      },
+      {
+        "line": 38,
+        "text": "    Note: This is stored in the ModelConfig, and is used only here to"
+      },
+      {
+        "line": 39,
+        "text": "    disable chunked prefill and prefix caching for encoder-decoder models."
+      },
+      {
+        "line": 40,
+        "text": "    \"\"\""
+      },
+      {
+        "line": 41,
+        "text": ""
+      },
+      {
+        "line": 42,
+        "text": "    DEFAULT_MAX_NUM_BATCHED_TOKENS: ClassVar[int] = 2048"
+      },
+      {
+        "line": 43,
+        "text": "    DEFAULT_MAX_NUM_BATCHED_TOKENS_FOR_BATCHED_DP: ClassVar[int] = 256"
+      },
+      {
+        "line": 44,
+        "text": "    DEFAULT_MAX_NUM_SEQS: ClassVar[int] = 128"
+      },
+      {
+        "line": 45,
+        "text": ""
+      },
+      {
+        "line": 46,
+        "text": "    runner_type: RunnerType = \"generate\""
+      },
+      {
+        "line": 47,
+        "text": "    \"\"\"The runner type to launch for the model.\"\"\""
+      },
+      {
+        "line": 48,
+        "text": ""
+      },
+      {
+        "line": 49,
+        "text": "    max_num_batched_tokens: int = Field(default=DEFAULT_MAX_NUM_BATCHED_TOKENS, ge=1)"
+      },
+      {
+        "line": 50,
+        "text": "    \"\"\"Maximum number of tokens that can be processed in a single iteration."
+      },
+      {
+        "line": 51,
+        "text": ""
+      },
+      {
+        "line": 52,
+        "text": "    The default value here is mainly for convenience when testing."
+      },
+      {
+        "line": 53,
+        "text": "    In real usage, this should be set in `EngineArgs.create_engine_config`."
+      },
+      {
+        "line": 54,
+        "text": "    \"\"\""
+      },
+      {
+        "line": 55,
+        "text": ""
+      },
+      {
+        "line": 56,
+        "text": "    max_num_scheduled_tokens: int | None = Field(default=None, ge=0)"
+      },
+      {
+        "line": 57,
+        "text": "    \"\"\"Maximum number of tokens that the scheduler may issue in a single iteration."
+      },
+      {
+        "line": 58,
+        "text": "    "
+      },
+      {
+        "line": 59,
+        "text": "    This is usually equal to max_num_batched_tokens, but can be smaller in cases"
+      },
+      {
+        "line": 60,
+        "text": "    when the model might append tokens into the batch (such as speculative decoding)."
+      },
+      {
+        "line": 61,
+        "text": "    Defaults to max_num_batched_tokens.\"\"\""
+      },
+      {
+        "line": 62,
+        "text": ""
+      },
+      {
+        "line": 63,
+        "text": "    max_num_seqs: int = Field(default=DEFAULT_MAX_NUM_SEQS, ge=1)"
+      },
+      {
+        "line": 64,
+        "text": "    \"\"\"Maximum number of sequences to be processed in a single iteration."
+      },
+      {
+        "line": 65,
+        "text": ""
+      },
+      {
+        "line": 66,
+        "text": "    The default value here is mainly for convenience when testing."
+      },
+      {
+        "line": 67,
+        "text": "    In real usage, this should be set in `EngineArgs.create_engine_config`."
+      },
+      {
+        "line": 68,
+        "text": "    \"\"\""
+      }
+    ]
+  },
+  "engine/arg_utils.py": {
+    "sha256": "e46d992fb2553f7ecd71d9b64459ecbc7daa740305b19e862493389d1b68d11a",
+    "lines": [
+      {
+        "line": 2639,
+        "text": ""
+      },
+      {
+        "line": 2640,
+        "text": "        orig_max_num_batched_tokens = self.max_num_batched_tokens"
+      },
+      {
+        "line": 2641,
+        "text": "        orig_max_num_seqs = self.max_num_seqs"
+      },
+      {
+        "line": 2642,
+        "text": ""
+      },
+      {
+        "line": 2643,
+        "text": "        if self.max_num_batched_tokens is None:"
+      },
+      {
+        "line": 2644,
+        "text": "            if parallel_config.use_batched_dp_moe:"
+      },
+      {
+        "line": 2645,
+        "text": "                self.max_num_batched_tokens = ("
+      },
+      {
+        "line": 2646,
+        "text": "                    SchedulerConfig.DEFAULT_MAX_NUM_BATCHED_TOKENS_FOR_BATCHED_DP"
+      },
+      {
+        "line": 2647,
+        "text": "                )"
+      },
+      {
+        "line": 2648,
+        "text": "            else:"
+      },
+      {
+        "line": 2649,
+        "text": "                self.max_num_batched_tokens = default_max_num_batched_tokens.get("
+      },
+      {
+        "line": 2650,
+        "text": "                    usage_context,"
+      },
+      {
+        "line": 2651,
+        "text": "                    SchedulerConfig.DEFAULT_MAX_NUM_BATCHED_TOKENS,"
+      },
+      {
+        "line": 2652,
+        "text": "                )"
+      },
+      {
+        "line": 2653,
+        "text": ""
+      },
+      {
+        "line": 2654,
+        "text": "        if self.max_num_seqs is None:"
+      },
+      {
+        "line": 2655,
+        "text": "            self.max_num_seqs = default_max_num_seqs.get("
+      },
+      {
+        "line": 2656,
+        "text": "                usage_context,"
+      },
+      {
+        "line": 2657,
+        "text": "                SchedulerConfig.DEFAULT_MAX_NUM_SEQS,"
+      },
+      {
+        "line": 2658,
+        "text": "            )"
+      },
+      {
+        "line": 2659,
+        "text": ""
+      },
+      {
+        "line": 2660,
+        "text": "        # If throughput mode is set, double max_num_batched_tokens and max_num_seqs."
+      },
+      {
+        "line": 2661,
+        "text": "        if self.performance_mode == \"throughput\":"
+      },
+      {
+        "line": 2662,
+        "text": "            if orig_max_num_batched_tokens is None:"
+      },
+      {
+        "line": 2663,
+        "text": "                self.max_num_batched_tokens *= 2"
+      },
+      {
+        "line": 2664,
+        "text": "            if orig_max_num_seqs is None:"
+      },
+      {
+        "line": 2665,
+        "text": "                self.max_num_seqs *= 2"
+      },
+      {
+        "line": 2666,
+        "text": ""
+      },
+      {
+        "line": 2667,
+        "text": "        if orig_max_num_batched_tokens is None:"
+      },
+      {
+        "line": 2668,
+        "text": "            assert model_config.max_model_len is not None, ("
+      },
+      {
+        "line": 2669,
+        "text": "                \"max_model_len must be set by this point\""
+      },
+      {
+        "line": 2670,
+        "text": "            )"
+      },
+      {
+        "line": 2671,
+        "text": "            if not self.enable_chunked_prefill:"
+      },
+      {
+        "line": 2672,
+        "text": "                # If max_model_len is too short, use the default for higher throughput."
+      },
+      {
+        "line": 2673,
+        "text": "                self.max_num_batched_tokens = max("
+      },
+      {
+        "line": 2674,
+        "text": "                    model_config.max_model_len,"
+      },
+      {
+        "line": 2675,
+        "text": "                    self.max_num_batched_tokens,"
+      },
+      {
+        "line": 2676,
+        "text": "                )"
+      },
+      {
+        "line": 2677,
+        "text": ""
+      },
+      {
+        "line": 2678,
+        "text": "            # For multimodal prefix-LM models (e.g., Gemma 4) that disable"
+      },
+      {
+        "line": 2679,
+        "text": "            # chunked MM input, a single multimodal item must fit in one batch."
+      },
+      {
+        "line": 2680,
+        "text": "            # Raise the floor to accommodate the largest per-item token count."
+      },
+      {
+        "line": 2681,
+        "text": "            if model_config.is_multimodal_model and model_config.is_mm_prefix_lm:"
+      },
+      {
+        "line": 2682,
+        "text": "                result = self._get_min_mm_batched_tokens(model_config)"
+      },
+      {
+        "line": 2683,
+        "text": "                if result is not None and result[0] > self.max_num_batched_tokens:"
+      },
+      {
+        "line": 2684,
+        "text": "                    mm_min, modality = result"
+      },
+      {
+        "line": 2685,
+        "text": "                    logger.info("
+      },
+      {
+        "line": 2686,
+        "text": "                        \"Raising max_num_batched_tokens from %d to %d to \""
+      },
+      {
+        "line": 2687,
+        "text": "                        \"accommodate '%s' input for prefix-LM model %s.\","
+      },
+      {
+        "line": 2688,
+        "text": "                        self.max_num_batched_tokens,"
+      },
+      {
+        "line": 2689,
+        "text": "                        mm_min,"
+      },
+      {
+        "line": 2690,
+        "text": "                        modality,"
+      },
+      {
+        "line": 2691,
+        "text": "                        model_config.model,"
+      },
+      {
+        "line": 2692,
+        "text": "                    )"
+      },
+      {
+        "line": 2693,
+        "text": "                    self.max_num_batched_tokens = mm_min"
+      },
+      {
+        "line": 2694,
+        "text": ""
+      },
+      {
+        "line": 2695,
+        "text": "            # When using default settings,"
+      },
+      {
+        "line": 2696,
+        "text": "            # Ensure max_num_batched_tokens does not exceed model limit."
+      },
+      {
+        "line": 2697,
+        "text": "            # Some models (e.g., Whisper) have embeddings tied to max length."
+      },
+      {
+        "line": 2698,
+        "text": "            self.max_num_batched_tokens = min("
+      },
+      {
+        "line": 2699,
+        "text": "                self.max_num_seqs * model_config.max_model_len,"
+      },
+      {
+        "line": 2700,
+        "text": "                self.max_num_batched_tokens,"
+      },
+      {
+        "line": 2701,
+        "text": "            )"
+      },
+      {
+        "line": 2702,
+        "text": ""
+      },
+      {
+        "line": 2703,
+        "text": "            logger.debug("
+      },
+      {
+        "line": 2704,
+        "text": "                \"Defaulting max_num_batched_tokens to %d for %s usage context.\","
+      },
+      {
+        "line": 2705,
+        "text": "                self.max_num_batched_tokens,"
+      },
+      {
+        "line": 2706,
+        "text": "                usage_context.value if usage_context else None,"
+      },
+      {
+        "line": 2707,
+        "text": "            )"
+      },
+      {
+        "line": 2708,
+        "text": ""
+      },
+      {
+        "line": 2709,
+        "text": "        if orig_max_num_seqs is None:"
+      },
+      {
+        "line": 2710,
+        "text": "            assert self.max_num_batched_tokens is not None  # For type checking"
+      },
+      {
+        "line": 2711,
+        "text": "            self.max_num_seqs = min(self.max_num_seqs, self.max_num_batched_tokens)"
+      },
+      {
+        "line": 2712,
+        "text": ""
+      },
+      {
+        "line": 2713,
+        "text": "            logger.debug("
+      },
+      {
+        "line": 2714,
+        "text": "                \"Defaulting max_num_seqs to %d for %s usage context.\","
+      },
+      {
+        "line": 2715,
+        "text": "                self.max_num_seqs,"
+      },
+      {
+        "line": 2716,
+        "text": "                usage_context.value if usage_context else None,"
+      },
+      {
+        "line": 2717,
+        "text": "            )"
+      },
+      {
+        "line": 2718,
+        "text": ""
+      },
+      {
+        "line": 2719,
+        "text": ""
+      },
+      {
+        "line": 2720,
+        "text": "@dataclass"
+      }
+    ]
+  }
+}

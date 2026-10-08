@@ -1,0 +1,50 @@
+{
+  "schema": "c-math-preemption-selection-opportunity-v1",
+  "created_unix_s": 1790888688.811407,
+  "evidence_stage": "READ_ONLY_EXISTING_NATIVE_LOGS_AND_SOURCE",
+  "run": "/Users/zhaozhenyu/Desktop/\u6bd5\u4e1a\u8bbe\u8ba1/C_research_artifacts/20261001/qualified_serving_v3/math_restore_order_raw_v1_20261002/math1024-order-fixed48-b4096/native",
+  "pressure_sha256": "78235263c23e37242339cab56df8bfb522b1dd1eddc48589f7545dfd7aa43ddf",
+  "scheduler_source_sha256": "2ed2a550b6558b2495eda845a97ae38bcf0225027b9e25fbf00fc3880c1d3941",
+  "runtime_scheduler_source_sha256": "2ed2a550b6558b2495eda845a97ae38bcf0225027b9e25fbf00fc3880c1d3941",
+  "source_matches_runtime": true,
+  "observed": {
+    "preemption_calls": 28,
+    "native_running_allocation_none": 78,
+    "actual_preemptions": 78,
+    "current_request_in_same_call_victim_set": 0,
+    "next_allocation_retries_same_current_successfully": 78,
+    "free_block_increase_after_preempt_before_retry": {
+      "min": 7,
+      "max": 15,
+      "median": 10
+    }
+  },
+  "source_constrained_reconstruction": {
+    "unprocessed_running_suffix_after_current": {
+      "min": 1,
+      "max": 757,
+      "median": 207
+    },
+    "events_with_at_least_two_other_unprocessed_candidates": 77,
+    "only_one_other_candidate": {
+      "count": 1,
+      "call_id": 105
+    },
+    "validation": "For each preemption call, successful RUNNING count + victim count equals running_before; FCFS suffix pop and zero current-self cases constrain the loop accounting. Candidate count is reconstructed, not a directly logged candidate inventory."
+  },
+  "safe_boundary": {
+    "source": "vllm_pf_source_v1/v1/core/sched/scheduler.py",
+    "line": 575,
+    "trigger": "Native RUNNING allocate_slots returned None, before FCFS running.pop().",
+    "candidate_scope": "Only residents after the allocation-failed current in the not-yet-processed running suffix.",
+    "possible_action": "Move a selected suffix resident to the tail, then preserve the original pop, preempt/free, queue insertion and retry path.",
+    "invalid_boundary": "_preempt_request at line1214 is after victim removal; it is too late to substitute the victim safely."
+  },
+  "limitations": [
+    "Existing records do not directly establish the per-None victim ordering within a multi-preemption call.",
+    "Alternative candidates actual APC hits, exclusive blocks released and outcome under replacement were not recorded.",
+    "Zero current-self events means the shared A current-self guard would have no action trigger here; it does not eliminate other victim-selection actions.",
+    "This is an opportunity/source-contract result, not an implemented new policy, GPU comparison, novelty or latency-benefit result."
+  ],
+  "next_action": "Choose one bounded victim-selection rule with a strong simple/published comparison; actual online candidate measurements and full outcomes must decide."
+}

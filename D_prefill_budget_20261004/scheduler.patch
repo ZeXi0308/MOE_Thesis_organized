@@ -1,0 +1,46 @@
+--- native.schedule
++++ D.schedule
+@@ -19,6 +19,7 @@
+     req_to_new_blocks: dict[str, KVCacheBlocks] = {}
+     num_scheduled_tokens: dict[str, int] = {}
+     token_budget = self.max_num_scheduled_tokens
++    d_prefill_left = self.d_prefill_budget
+     if self._pause_state == PauseState.PAUSED_ALL:
+         # Do not schedule any requests when paused.
+         token_budget = 0
+@@ -83,6 +84,8 @@
+         if 0 < self.scheduler_config.long_prefill_token_threshold < num_new_tokens:
+             num_new_tokens = self.scheduler_config.long_prefill_token_threshold
+         num_new_tokens = min(num_new_tokens, token_budget)
++        if request.num_prompt_tokens - request.num_computed_tokens > d_prefill_left:
++            num_new_tokens = min(num_new_tokens, d_prefill_left)
+ 
+         # Make sure the input position does not exceed the max model len.
+         # This is necessary when using spec decoding.
+@@ -193,6 +196,7 @@
+         req_to_new_blocks[request_id] = new_blocks
+         num_scheduled_tokens[request_id] = num_new_tokens
+         token_budget -= num_new_tokens
++        d_prefill_left -= min(num_new_tokens, max(0, request.num_prompt_tokens - request.num_computed_tokens))
+         req_index += 1
+ 
+         # Speculative decode related.
+@@ -449,6 +453,10 @@
+                     break
+ 
+                 num_new_tokens = min(num_new_tokens, token_budget)
++                if request.num_prompt_tokens - num_computed_tokens > d_prefill_left:
++                    num_new_tokens = min(num_new_tokens, d_prefill_left)
++                    if num_new_tokens == 0:
++                        break
+                 assert num_new_tokens > 0
+ 
+                 # Schedule encoder inputs.
+@@ -603,6 +611,7 @@
+             )
+             num_scheduled_tokens[request_id] = num_new_tokens
+             token_budget -= num_new_tokens
++            d_prefill_left -= min(num_new_tokens, max(0, request.num_prompt_tokens - num_computed_tokens))
+             request.status = RequestStatus.RUNNING
+             request.num_computed_tokens = num_computed_tokens
+             if pad_spec_decode:

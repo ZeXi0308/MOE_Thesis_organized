@@ -1,0 +1,64 @@
+{
+  "name": "D bounded prefill-cap order probe under normal arrivals",
+  "status_at_freeze": "PRE_GPU_FROZEN",
+  "workload": "../mixed_arrivals/workload_high_rate.json",
+  "workload_sha256": "395fd015ceb9bef4a4a59e30e0203e83167a4967fffe2ba7160409f0ac738a15",
+  "primary_slo": {
+    "ttft_s": 4,
+    "gap_s": 0.1,
+    "completion_s": 20
+  },
+  "timeout_s": 180,
+  "policies": [
+    "pulse_hl",
+    "pulse_lh",
+    "pulse_lh",
+    "pulse_hl"
+  ],
+  "warm_policies": [
+    "fixed1024",
+    "fixed2048"
+  ],
+  "formal_attempt_limit": 4,
+  "legal_caps": [
+    1024,
+    2048
+  ],
+  "common_cap": 1024,
+  "trigger": {
+    "decode_count_at_least": 128,
+    "prefill_backlog_at_least": 32768,
+    "selection": "first current native scheduling decision satisfying both; once per run; no outcome-based anchor selection"
+  },
+  "half_steps": 16,
+  "action_steps": 32,
+  "nominal_prefill_tokens_in_window": 49152,
+  "question": "Does the order of one bounded, common-cap-multiset pulse alter complete service when immediate mixed gaps are not the failed SLO?",
+  "reason": "highrate01 largecap changes actual work timing and increases mean generation by0.547/0.527s despite lowerTTFT; interval partition has lessmixed but morepuredecode exposure. Fixedcap/load search is closed. This is a local timing intervention, not a new controller or nearby cap/load tuning. Old2step burstprobe hadalreadyfailedTTFT and gives no evidence for this normalarrival completion-limited domain.",
+  "opportunity": "Existing1024 firstguard at steps1264/1258,t30.091344/30.082133,D148,backlog34152/34447. No observedTTFT/age failure among presentrequests; minimumcompletionheadroom~170/179ms. CurrentC(1024)==C(2048),so firststep does not itself change prefills-completed count; pulse tests accumulated timing only.",
+  "controls": "Original parent arrival clock/addloop/outputcontract/nativeinstall/resources; fixed1024 before and after one32step pulse; no request pauses/reorder/admission/decodepriority changes. Nominalcap multiset same, actualP must be checked. Botharms diagnostic overhead included.",
+  "execution_matching": "Each formal must execute exactly32 pulse decisions and16 ups to2048; actualP must equal49152 without capunderfill to interpret as matchedprefillamount. Actualdecodework/outputs/state may differ endogenously. No repair/padding/drop/extra steps if mismatched. Retain all complete metrics even if interpretation guard fails.",
+  "prefix_guard": {
+    "max_paired_trigger_time_difference_s": 0.1,
+    "max_paired_D_difference": 2,
+    "max_paired_backlog_difference_tokens": 2048,
+    "max_paired_context_relative_difference": 0.03,
+    "min_paired_present_ID_jaccard": 0.98,
+    "required_observed_irreversible_failures_each": 0,
+    "scope": "Even passing is approximate common-policy prefix, not exact logicalstate/KV/compute counterfactual. Log full native order/computed/outputcounts. No prefixtime subtraction fromfullservice.",
+    "context_distance_formula": "abs(context_HL-context_LH)/max(context_HL,context_LH); bothzero ->0; symmetric pair distance"
+  },
+  "decision": "Require both reversedpairs: fulljointU >=3%, allarrivalscompletevalid,rawoutputthroughputnotdecreased,TTFT/flow/maxgap p95<=1.05reference,noadded100msgapfailures,actualdosematches andprefixguardpasses. Passing only warrants further comparison with concurrent fixed1024 and stateindependenttiming control; it does not establish a deployable selector or independent signal.",
+  "stopping": "Zeroactualdifference -> one entrypoint/legality diagnosis; actualP mismatch -> nonmatched timing interpretation, no compensatorydose; inconsistent/sub3%fullservice orcostfailure -> stop thispulse, no anchor/dose/thresholdscan orautomaticrepeat. Observational invalidity is not performance failure.",
+  "resources": "One hostsharedflock /root/autodl-tmp/moe-research-gpu.lock inode15049831297; oneD job;7200swait;2warm+4formal;releaseonexit;4GiBprelaunchreserve. No expense telemetry.",
+  "output_contract": "Same promptIDs and fixedoutputcounts/ignoreEOS; not same content/routing/computation/quality. Development mechanistic probe,not independentconfirmation orcapacityclaim.",
+  "source_sha256": {
+    "../run_confirmation.py": "67cb25770693252d64efcb93ea1aaf45ab99ce92926b77189dd03c324b0ee166",
+    "../prefill_policy.py": "1aedafb440597a5903539eb05e5e3e5cd0eaa12a0eda292f345df6d883cbe960",
+    "../runtime_bootstrap.py": "dafbad576b9d2e956dd981da9309c72336a3af1e2b8ccad2cb24980c67c09778",
+    "run_timing.py": "61245707d3b29cb4ab35646428ad21163f8ecfcfdb100758b39ca336391fa9ad",
+    "launch.sh": "1c381d5ac32e4ac7cb2b89b805c84f5ea0db38dbbe1381b2f9badfc2dfba6c14"
+  },
+  "frozen_timestamp_cst": "2026-10-08T03:53:05.799964+08:00",
+  "analysis_scope": "Full original SLO uses existingnativeanalyze; pulsevalidity/prefix/fullservice criteria fixedabove beforeGPU. No thresholds chosen fromprobeoutputs."
+}

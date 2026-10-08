@@ -1,0 +1,91 @@
+会话 E：oct07_budget_r01 结果初稿（2026-10-07）
+
+结论：淘汰当前 remaining-token-budget 规则作为有增量价值的状态选择器。
+本组没有识别到它相对固定长度阈值 L1792 的动作差异；B/L 四臂的规范化
+原生调度轨迹、256 个请求的逐 token 输出、实际计算量和传输字节均完全相同。
+保留这次实现与实验作为有效负结果，不把小幅墙钟差宣传为自适应收益。
+
+数据与执行检查
+归档 SHA256（主会话已核验远端/本地一致）：
+cad652360789c0801f242d4d1fe9a75200d1807349fb88cfa708b6cea4ba5759
+本地命令：python3 -B E_restore_choice_20261004/analyze_budget.py
+          E_restore_choice_20261004/execution/oct07_budget_r01
+结果：exit 0，VALIDATED_COMPLETE；正式顺序 H/R/L/B/B/L/R/H。
+8 个正式 episode、8 个共同预热全部通过，共 33,010 个 CHECKED，ERROR=0。
+33,010 是调度观测完整性检查数，不是独立性能试验数；全组 74 个合法 commit
+也不是 74 次独立试验。每种策略仅有两次运行，且请求间存在干扰与重复抢占。
+正式调度步数依次 1993/2016/2024/2024/2024/2024/2016/1993；预热各 2112。
+本组每个 episode 的 budget/scheduler/service 步数恰好一致；无额外 drain 调度步。
+逐步预算初值、余额、分配总量、成功请求数、调用数与原生 scheduled tokens 对齐；
+服务时间包含关系、decision/commit 关联、实际 B/L 动作及 fallback 检查均通过。
+分析错误、无效正式臂、预算错误均为 0；未调整数据，也无需修复或放松 schema 检查。
+运行时执行过逐请求分配量与原生 SchedulerOutput 的完全相等断言；离线记录仅含
+分配聚合量，所以离线核验不伪称重建了未记录的独立分配轨迹。
+实际 GPU KV=77418463232 bytes (72.101562 GiB)，
+36916 blocks / 36915 初始可用 blocks；
+Host KV=32 GiB，实际 pinned；native_profile_0.9，所有臂资源及预热指纹相同。
+
+动作与原生轨迹
+全组 74 个 eligible decision/commit 上，B 与 L1792 重放预测分歧为 0。
+在 02_length/03_budget/04_budget/05_length 的各自实际轨迹上，每臂均为
+7 个合法选择：6 Host + 1 重算；另有 28 次 Host-miss 原生重算 fallback。
+四臂以下合法序列完全一致（已知 token / 当时剩余预算 / 动作）：
+2736 / 1845 / H；706 / 1852 / R；3128 / 1856 / H；3222 / 1882 / H；
+3226 / 1883 / H；3234 / 1884 / H；3515 / 1884 / H。
+预算只在 1845–1884 变化，而可恢复前缀在 706 与 2736 之间没有样本。
+因此任何 706–2735 的整数长度阈值都能重现这些动作。这是事后等价性诊断，
+不是新阈值调参结果，也不是跨臂反事实性能比较。B 没有退化成单一固定动作；
+它在当前合法恢复域内退化成了与固定长度阈值完全相同的规则。
+四臂 2024 步规范化 trace SHA256：
+fdf4b73363c38a4c9bf79ee7aa8df7dae4cafe24bb631a3a21db390747885625
+规范化保留每步顺序、外部 request ID、count、start/end computed、known/generated；
+只去除随机内部 request ID 和墙钟时间。256/256 请求输出一致，各对输出差异为 0。
+
+全局与恢复指标（秒；gap 为毫秒；仅描述观察结果）
+臂             makespan  mean完成  p95完成  p95gap  p99gap  eligible决策到输出均值
+00_host          88.244   57.033   83.746  79.214  82.615     0.310405
+01_recompute     89.455   57.900   84.557  80.954  82.250     0.158448
+02_length        89.281   57.623   83.255  80.157  83.234     0.153893
+03_budget        89.369   57.693   83.309  81.138  83.678     0.153813
+04_budget        89.414   57.728   83.390  80.911  83.683     0.154003
+05_length        89.675   57.916   83.669  80.311  85.341     0.154513
+06_recompute     91.072   59.023   86.046  81.594  87.098     0.159063
+07_host          89.577   57.866   84.965  80.161  83.304     0.314198
+
+前序配对 L02→B03：B makespan 慢 0.088194 秒；反序 B04→L05：B 快 0.260532 秒。
+B 两次均值 89.391496 秒，L 两次均值 89.477665 秒，相差约 0.096%。
+由于实际动作、trace 和输出完全相同，这个微小均值差不构成状态选择收益。
+所有恢复匹配均无 censor；重复抢占和共享后续输出不能当独立因果样本。
+
+真实生成工作、原生计算、STORE/LOAD（同策略两次工作量一致）
+策略   输出tokens  原生scheduled tokens  已知历史重复计算tokens  STORE bytes    LOAD bytes
+host        189436       860683              72886   103551074304   4349493248
+recompute   191080       894640             105199   103309901824            0
+length      189035       876883              89487   103083409408   1983905792
+budget      189035       876883              89487   103083409408   1983905792
+
+L/B 每臂 LOAD=6 次；STORE=12,390 次；B 两臂累计 CUDA STORE 时间约 2.082 秒/臂、
+LOAD 约 0.0359 秒/臂。它们可能与计算重叠，不得相加得到墙钟，也未扣除之前 STORE。
+所有臂完整保留 STORE 与服务排队；service_and_drain_s 见完整 JSON。
+H 的观察均值 makespan 最低，但 H/R/L/B 自然生成量不同，不能把跨策略时延
+直接解释为等输出工作加速。H 对 L/B 有 193/256 请求输出不同，H 对 R 有 197/256
+请求不同；greedy 一致性不是独立任务质量判定。自然输出上限为 256/1024 混合，
+总 cap=212,992 tokens；H/L/B 各 84 请求到 cap，R 各 94 请求到 cap。
+
+下一步建议
+停止推进当前 budget 规则及其参数搜索；保留 H/R/L 作为后续比较。主会话决定
+从 active runtime 撤下 budget 路径和 observer，恢复已有跑通版本；本子任务未改
+runtime。budget 实现保存在 execution/source_snapshots/oct07_budget_r01，原始数据
+和核验记录保留为可复现负结果。不要为制造动作分歧去改固定服务量子、victim、
+准入或传输机制。
+新的状态候选必须先由已收集真实 trace 中的可重复残差支持；本组只证实预算值
+没有带来超出长度阈值的实际动作信息，不能推出所有负载上的状态选择都无效。
+若继续质量/完整代价结论，优先解释 H/R/L 自然输出差异及已有恢复事件的全局影响；
+不要将本组固定阈值等价性包装成新的在线策略优势。
+
+计时限制：budget start/end 包住原生 schedule，统计的是 native+wrapper span。
+adapter_seconds 只含局部 lookup adapter；完整 instrumentation overhead 未分离。
+
+交付：execution/oct07_budget_r01/budget_summary.json（完整正式分析）
+      execution/oct07_budget_r01/budget_trace_consistency.json（四臂原生trace佐证）
+      budget_results.txt（本初稿）。canonical summary.json 未由本子任务修改。

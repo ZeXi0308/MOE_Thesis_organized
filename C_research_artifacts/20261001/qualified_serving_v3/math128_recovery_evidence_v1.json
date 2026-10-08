@@ -1,0 +1,64 @@
+{
+  "schema": "math-recovery-evidence-v1",
+  "run": "/Users/zhaozhenyu/Desktop/毕业设计/C_research_artifacts/20261001/qualified_serving_v3/math_native128_raw_v1_20261002/qwen7b-math-native128-v1/native",
+  "raw_sha256": {
+    "source-input.json": "251a6a9b4894292b3402979b2e9cc7da76baeff84a6b1efdf5e4c5ec74b9db6d",
+    "measured-native-sampling.json": "2c8525ec639c3d287b3593b7f0c963baf2b0a21969aa16f40e3b917e3f81faf3",
+    "measured-pressure.json": "d3d24d5fc8428a04857a7d67adfe8787d7220b5a322cdf67882a93fc1c567ba8"
+  },
+  "scope": "Observed scheduler replay only; workload integrity and quality are delegated to math_scale_analyze_v1.py.",
+  "expected_requests": 128,
+  "first_admitted_requests": 128,
+  "scheduler_calls": 510,
+  "observation_status": "COMPLETE",
+  "recovery_status": "NO_PREEMPTION_OBSERVED",
+  "preemptions": 0,
+  "distinct_preempted_requests": 0,
+  "max_preemptions_per_request": 0,
+  "requests_with_repeated_preemptions": 0,
+  "successful_resumes": 0,
+  "pending_at_end": [],
+  "allocation_none_by_status": {
+    "WAITING": 0,
+    "PREEMPTED": 0,
+    "RUNNING": 0
+  },
+  "other_allocation_none_statuses": {},
+  "repeated_scheduled_token_positions": 0,
+  "repeated_positions_by_request": {},
+  "total_emitted_scheduled_tokens": 33488,
+  "repeated_positions_without_observed_preemption": 0,
+  "recovery_wait_s": {
+    "count": 0,
+    "sum": 0,
+    "maximum": 0
+  },
+  "cache_hit_loss_first_attempt_to_resume_tokens": 0,
+  "competition": {
+    "pending_restore_schedule_starts": 0,
+    "restore_and_new_waiting_schedule_starts": 0,
+    "at_least_two_pending_schedule_starts": 0,
+    "maximum_pending": 0,
+    "pending_count_histogram": {},
+    "new_waiting_count_histogram_while_pending": {},
+    "pending_and_new_count_histogram": [],
+    "pending_regular_waiting_head_is_preempted": 0,
+    "new_allocation_attempts_while_restore_pending": 0,
+    "new_admissions_while_restore_pending": 0,
+    "competition_calls_with_restore_none": 0,
+    "pending_calls_with_starting_regular_head_none": 0,
+    "pending_call_ranges": [],
+    "competition_call_ranges": [],
+    "at_least_two_pending_call_ranges": [],
+    "first_24_pending_states": []
+  },
+  "recovery_episodes": [],
+  "limitations": [
+    "New-waiting counts require the checked initial full-source burst and no cancellation or replacement; full workload qualification is separate.",
+    "Allocation None retries execute no model tokens. Repeated positions count only emitted successful schedules overlapping earlier schedules of the same request, not device FLOPs or isolated GPU time.",
+    "Shared cache positions never previously executed by this request do not count as repeated request execution.",
+    "Pending counts come from observed preemption and successful emitted resume transitions; snapshots expose regular queue heads, not full alternative feasibility.",
+    "Cache-hit loss is first attempted restore minus successful restore; a negative value means an observed gain. It is not a causal benefit estimate for a different policy.",
+    "Zero preemptions is a valid observed outcome, with zero recovery/recomputation evidence; it does not invalidate the workload."
+  ]
+}

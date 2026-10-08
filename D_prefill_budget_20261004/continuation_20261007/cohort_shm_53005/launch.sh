@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "$0")"
+: "${D_GPU_UUID:?Set D_GPU_UUID to the selected physical GPU}"
+export LD_LIBRARY_PATH="/root/miniconda3/lib/python3.12/site-packages/nvidia/cu13/lib:/root/miniconda3/lib/python3.12/site-packages/torch/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+D_COHORT_CACHE_DIR="/dev/shm/moe-d-prefill-continuation-20261007/cohort53005_02.cache"
+export VLLM_CACHE_ROOT="$D_COHORT_CACHE_DIR/vllm"
+export TRITON_CACHE_DIR="$D_COHORT_CACHE_DIR/triton"
+export TORCH_EXTENSIONS_DIR="$D_COHORT_CACHE_DIR/torch_extensions"
+export FLASHINFER_WORKSPACE_BASE="$D_COHORT_CACHE_DIR/flashinfer"
+export XDG_CACHE_HOME="$D_COHORT_CACHE_DIR/xdg"
+export CUDA_CACHE_PATH="$D_COHORT_CACHE_DIR/cuda"
+export TMPDIR="$D_COHORT_CACHE_DIR/tmp"
+mkdir -p "$TMPDIR"
+exec /root/miniconda3/bin/python -u run_shm.py "$@"

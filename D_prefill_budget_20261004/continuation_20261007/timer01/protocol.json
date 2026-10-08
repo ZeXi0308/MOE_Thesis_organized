@@ -1,0 +1,103 @@
+{
+  "policies": [
+    "timer19",
+    "viability_escape",
+    "viability_escape",
+    "timer19"
+  ],
+  "request_count": 160,
+  "workload_sha256": "288f3a2010a960b9952177ae42a1a033ca5a57523f454c3de0afe0b38c27293e",
+  "slo": {
+    "ttft_s": 4,
+    "gap_s": 0.1,
+    "completion_s": 20
+  },
+  "target_ms": 24.0,
+  "output_contract": "Fixed lengths and ignore_eos for scheduling causality; not natural ending quality evaluation.",
+  "warmup": "Both policies replay and fully drain the same workload before formal runs.",
+  "warm_policies": [
+    "timer19",
+    "viability_escape"
+  ],
+  "timing": "Host engine.step includes both arms' viability diagnostics and native scheduling; outer output bookkeeping remains in full elapsed and output gaps.",
+  "source_sha256": {
+    "prefill_policy.py": "1aedafb440597a5903539eb05e5e3e5cd0eaa12a0eda292f345df6d883cbe960",
+    "run_block.py": "b047b6352f08338f980b6649e7176582ec4a0919767fa7248f911da9194b5e2c",
+    "run_confirmation.py": "67cb25770693252d64efcb93ea1aaf45ab99ce92926b77189dd03c324b0ee166",
+    "runtime_bootstrap.py": "dafbad576b9d2e956dd981da9309c72336a3af1e2b8ccad2cb24980c67c09778",
+    "verify_g.py": "0172fe1eeee0f46b37fd67e1e154a01e5e2f00881ba23b541be03b813fa8fdd8",
+    "timer_control/run_timer.py": "c6b42af88dcdeea16094683ad9736c6d46fa9edc92cb85e63a6ae8a7a8807a9b",
+    "timer_control/launch.sh": "19957601778bd4844601485b6b23bed9ba61931fa3da01814ce18e198601e56e",
+    "timer_control/design.json": "99b883e82423b8e951eb9ed38531c0a3f19b95ce0560132912c6dcf36df3acf2"
+  },
+  "experiment_kind": "NORMAL_ARRIVAL_TIMER_ABLATION_NOT_CONFIRMATION",
+  "arrival_mode": "Original wall-clock injection loop; no ledger replay or custom waits.",
+  "legal_prefill_caps": [
+    256,
+    512,
+    1024,
+    2048
+  ],
+  "viability_design": {
+    "name": "D timer19 structural ablation",
+    "status_at_freeze": "PRE_GPU_FROZEN",
+    "question": "Does observed decoder qualification K add full-service value beyond a fixed late throughput switch selected from the old R traces?",
+    "evidence": "Timer19.0s fixed in preceding R/V design before its GPU outcomes; old R K=0 first18.72\u201319.04s. Never fit timer to candidate traces or this test outcome.",
+    "role": "One developer trace, two reversed T/V pairs; no independent confirmation or equivalence claim.",
+    "workload": "../arrivals_01.json",
+    "workload_sha256": "288f3a2010a960b9952177ae42a1a033ca5a57523f454c3de0afe0b38c27293e",
+    "model": "existing BF16 OLMoE",
+    "normal_kv": true,
+    "policies": [
+      "timer19",
+      "viability_escape",
+      "viability_escape",
+      "timer19"
+    ],
+    "warm_policies": [
+      "timer19",
+      "viability_escape"
+    ],
+    "formal_attempt_limit": 4,
+    "automatic_retries": false,
+    "primary_slo": {
+      "ttft_s": 4,
+      "gap_s": 0.1,
+      "completion_s": 20
+    },
+    "denominator": "All external-arrival through full drained elapsed; fixed180s timeout retains partial and all arrivals.",
+    "baseline": "T uses exact baseR until decision_time>=19s; then requests2048 iff D>0 and backlog>baseRcap. Same action range and D/backlog guards, ignores K. All diagnostic overhead retained.",
+    "candidate": "V exactly previous run: baseR,2048 iffD>0,K=0,backlog>baseRcap. Same current workload and full output contract.",
+    "K": "Number of current native running decoders without a previously observed TTFT>4s, any emitted gap>100ms, current time-lastoutput>100ms, or arrival age>20s. Not a prediction of success.",
+    "invariants": "No admission/request-order/decode-priority/victim/recovery/precision/kernel/KV change. All decode work remains included and all requests drain. No future outputs or future arrivals used. Same predecision diagnostics both arms.",
+    "action_trace": "At real schedule entry: current time,D,K,backlog,baseline/candidate/requested/executed caps, supported cap range, choice/cancellation reason, actual P/D, contexts and native allocation outcome.",
+    "decision": "Independent K value only provisionally supported if V/T joint goodput >=3% in both pairs, all complete/samefixedlengths, no qualifying IDs lost, TTFT/flowp95<=1.05T, no new100msgap violations. Otherwise no independent state value established here; no additional timer thresholds or repeats. Report all metrics and uncertainty, not equivalence.",
+    "no_signal": "Delete K novelty claim for this observed late-drain result. Do not rename same mechanism. Reopen only with a concrete new workload or observable effect absent from this domain; no threshold search.",
+    "positive_next": "Independent normal mixed and burst/recovery trace; competitivefixed and closestdynamicprimitive stillrequired beforecontributionclaim.",
+    "output_contract": "Same prompt IDs and required generated-token counts, not same output content, routes, actual computation or quality. Report token divergence; never discard divergent requests.",
+    "source_version": "Files frozen and recorded at launch in supplementary protocol; parent files remain unchanged.",
+    "resources": "Same shared host flock; whole warm+fourformal group; release on exit. No command loop or dependent jobs.",
+    "source_sha256": {
+      "run_timer.py": "c6b42af88dcdeea16094683ad9736c6d46fa9edc92cb85e63a6ae8a7a8807a9b",
+      "launch.sh": "19957601778bd4844601485b6b23bed9ba61931fa3da01814ce18e198601e56e",
+      "../run_confirmation.py": "67cb25770693252d64efcb93ea1aaf45ab99ce92926b77189dd03c324b0ee166",
+      "../prefill_policy.py": "1aedafb440597a5903539eb05e5e3e5cd0eaa12a0eda292f345df6d883cbe960",
+      "../runtime_bootstrap.py": "dafbad576b9d2e956dd981da9309c72336a3af1e2b8ccad2cb24980c67c09778",
+      "../launch.sh": "9b306857aac6ea64cf72838bb76a6d4f619ea66ab3645063f5a878a0bb691e51"
+    },
+    "freeze_timestamp_cst": "2026-10-07T23:28:33.563861+08:00",
+    "action_value_prerequisite": {
+      "group": "viability01",
+      "all_four_complete": true,
+      "pair_goodput_gain_percent": [
+        18.122510490870148,
+        17.72410162444633
+      ],
+      "qualified_count_each_run": 54,
+      "actual_upshift_count_each_V": 107,
+      "scope": "Only gate for this planned simple baseline; not independent contribution. All37 incumbent decoders slower bymean4.18/4.24s; fullmeanflowworse0.375/0.444s."
+    }
+  },
+  "timer_control": "T ignores K and uses decision_time_s>=19s with the same D/backlog guards; candidate_cap/escape_condition remain shadow V recommendations in both arms.",
+  "viability_signal": "K counts running decoders with no observed TTFT/gap/open-gap/age failure; reason counts overlap, any counts their union. No future outputs or waiting/unarrived requests enter K."
+}

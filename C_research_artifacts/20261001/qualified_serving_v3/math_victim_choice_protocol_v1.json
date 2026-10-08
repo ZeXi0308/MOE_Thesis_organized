@@ -1,0 +1,106 @@
+{
+  "schema": "c-math-full-running-victim-choice-development-v1",
+  "stage": "exploration",
+  "previous_turn_classification": "PROGRESS",
+  "question": "Under the strongest tested fixed48 restoration gate, does physical maximum-release victim choice improve full-request service against native tail and full-running official-default BidKV score?",
+  "arms": [
+    {
+      "name": "math1024-victim-fixed48-b4096",
+      "max_seqs": 1024,
+      "policy": "restore-fixed-margin",
+      "batch_tokens": 4096,
+      "fixed_margin_blocks": 48
+    },
+    {
+      "name": "math1024-victim-bidkv-b4096",
+      "max_seqs": 1024,
+      "policy": "victim-bidkv-full",
+      "batch_tokens": 4096,
+      "fixed_margin_blocks": 48
+    },
+    {
+      "name": "math1024-victim-maxfree-b4096",
+      "max_seqs": 1024,
+      "policy": "victim-max-free-full",
+      "batch_tokens": 4096,
+      "fixed_margin_blocks": 48
+    }
+  ],
+  "fixed": {
+    "KV_bytes": 8589934592,
+    "context": 4096,
+    "APC": true,
+    "seed": 20260905,
+    "temperature": 0,
+    "max_output_tokens": 1024,
+    "min_output_tokens": 0,
+    "async_scheduling": false,
+    "scheduler_reserve_full_isl": true,
+    "batch_invariant": false
+  },
+  "workload": "Same1024 GSM8K development requests in source order, all arrivals at zero, same Q0 eight-shot prompt and literal Answer: cue; no answer keys in runtime.",
+  "action_contract": {
+    "trigger": "Only after genuine native RUNNING allocation_slots None; original native self-victim break remains.",
+    "candidate_domain": "Full native removable running domain: unscheduled suffix including current plus already-scheduled prefix. Report excluded unscheduled prefix if any; do not assume suffix-only is full BidKV.",
+    "bidkv": "Official default score max computed_tokens/(1+0.5*clip(output/max_output_cap,0,1)+0.3*num_preemptions+1e-6); earliest arrival then lexical request_id ties.",
+    "max_free": "Choose maximum number of distinct non-null physical KV blocks made free by releasing all references owned by one candidate; prefer latest running position on ties. Reads current blocks/refcounts only.",
+    "execution": "Reuse the pinned native priority-removal rollback path, with pure selector replacement. FCFS admission, native allocation/free/restore mechanisms and fixed48 admission gate remain.",
+    "causal_cutoff": "No future EOS, actual remaining output length, gold answer, offline future trajectory or model outputs beyond the current state.",
+    "cost": "Scoring and observations execute within measured episode. Log selector wall separately; whole-policy comparison includes all overhead.",
+    "guarantee": "No starvation or future-run guarantee; native self-break kept; no A current guard or continuation mechanism.",
+    "join": "initial_scheduler_step plus every actual selector/preempt event joined to native observer preemption IDs and corresponding native RUNNING failure; verify predicted physical release vs actual pool free delta.",
+    "APC_qualification": "Selected victim must have computed>=prompt and known tokens=computed+1; scheduled prefix must have exactly1 pending token. No catchup/prefill victims in this probe. Cell verifies distinct prefix-free prompt token sequences, so generated-region cache keys cannot be reused cross-request. Native same-request restore cap num_tokens-1 excludes unexecuted final-token full block."
+  },
+  "metrics": "All original1024 requests: completed/failed/unfinished, correctness/EOS/caps/repetition, TTFT, flow, per-request maximum successive host token gap, token throughput, diagnostic20s/4s SLO-only and correct+SLO goodput, preemption/recomputation and per-request benefit/harm. Policy None and native None separate.",
+  "decision_rule": {
+    "actual_action": "Require recorded alternative victim selected and actual native preempt execution; source/CPU fixture alone is UNRUN.",
+    "initial_qualification": "A pilot signal for repeat requires at least3% lower all-request mean completion or3% higher diagnostic SLO goodput against BOTH controls, with output-token-rate loss at most3% and meanflow increase at most5%. Alternatively at least20% lower worst host gap with those same efficiency guardrails merits a scoped tradeoff repeat.",
+    "quality": "Retain/report all correctness/EOS/cap changes and every request. A signal with quality or termination regression remains conditional; no filtered-quality timing claim.",
+    "baseline_win": "If official-default BidKV or native tail covers maximum-free selection, reject independent value of that simple maximum-free rule in this regime. Keep stronger measured control for later work.",
+    "negative": "Do not tune score weights or add current guard/continuation to rescue this exact pilot on the same outcomes.",
+    "invalid": "Preserve failed artifacts; diagnose implementation/accounting failure separately from negative policy evidence.",
+    "evidence_ceiling": "One same-development episode per arm, no significance, no pure equal-work speedup, no held-out or novel algorithm claim."
+  },
+  "resource_recovery": "Same26GiB RAM,768MiB root disk,2GiB shm guards and inode-verified shared GPU lock.1200s total per arm, release lock during15s waits, child at most once, verify model weights each arm. Post-child lossless xz of three large logs.",
+  "resource_budget": "3 GPU episodes;1200s each total including bounded resource waits. Each launcher launches its child at most once.",
+  "code_scope": "Reuse native generation, model staging, resource guards, output analysis and paired comparison. New core code only substitutes the native victim expression and exposes selected physical block release; rollback copied from pinned native source. Two arms would conflate physical maximum-release with an omitted nearest published scoring baseline. No new framework.",
+  "interpretation": "Known-style victim rules tested as real action-value experiments. BidKV selector transplanted into C with APC on and fixed48 is a score-component comparison, not full Ascend BidKV system reproduction.",
+  "created_unix_s": 1790889298.431714,
+  "authority": {
+    "repository_head": "76d6d888de42081c63cd440a8a67623161d8181f",
+    "original_evidence_preserved": true,
+    "other_owner_dirty_files_preserved": true,
+    "shared_lock_identity": [
+      2304,
+      25841682495
+    ],
+    "previous_snapshot": "checkpoint_after_restore_order_20261002_v2.json"
+  },
+  "prior_art": {
+    "official_commit": "5ee80256d263d58b1e512d9d436d47e9bac564ba",
+    "selector_sha256": "3ad8af893f3693a5ffbe3b9367153cca14fed50fb1b195cdbab924b1e5849a99",
+    "selector_url": "https://github.com/vLLM-HUST/vllm-ascend-hust-bidkv/blob/5ee80256d263d58b1e512d9d436d47e9bac564ba/vllm_ascend_bidkv/selector.py",
+    "publication_status": "Not asserted; source implementation only."
+  },
+  "execution_sha256": {
+    "math_inputs1024_v1.json": "513ae9ac6dff4e36693c07c1c37cd9d6d6101612beda5aad59bb33994104e13a",
+    "math_scale_source_v1.json": "eaa5da63063b4a3fa3e9cb334178c904b483e41736687f58e355a9049dc7ce20",
+    "health_native.py": "8afa5257e57e2a7e667e0209831626c65bd039c010b9e60a45933583ea6c54ab",
+    "native_pressure_observer_v1.py": "8ed2404a1b2546094927e9132eb47336b80e2d99e2a61ab4a2b2f678bd555877",
+    "qwen7b_launch_v2.py": "93e74aef3e883e7421eb95ec14c9a29e27b269ca90c20d55bff6cdd0e6f04485",
+    "health_launch.py": "578638992afb30e4cd1b0ac76bff95d554d4716c2ae940447b771e2b3ab33d5d",
+    "range_download_v2.py": "34045006d61c8b04c124adfbbfc3027870f784adc2bcabc7ac87ac09d12d01d7",
+    "math_scale_protocol_v2.json": "16371b1aa4bdf2c2cb61014a894c6aca5fab2fa3bc8984be73aeeee569d15ac9",
+    "restore_fixed_margin_policy_v1.py": "5b881b64f321d1e3ace653178eb544209abf04e7d96f3f51f3ca3cc161e16063",
+    "victim_choice_policy_v1.py": "68af8d48523d5475699dcc08db0ffb6df732ac3d58fdcf0a1aef7eb4bcfeee87",
+    "math_victim_choice_cell_v1.py": "3681fd4e8d3e0b3d921e80e4b8fb701843e57cd97046a668ecbcc52e4d00f39c",
+    "math_victim_choice_launch_v1.py": "35bde133e52923ee9202e08fb4c73adf6568727292577b8d42949c3b1d61403a"
+  },
+  "cpu_validation": {
+    "status": "PASS",
+    "policy_sha256": "68af8d48523d5475699dcc08db0ffb6df732ac3d58fdcf0a1aef7eb4bcfeee87",
+    "check_file": "check_victim_choice_v1.py",
+    "check_sha256": "305325f4546048da264e4a41341d34be11b193cc7630be1ba6c9a5168ae5c331",
+    "scope": "AST/native rollback, physical refs, ties/self-break and APC fail-closed fixture; no GPU result."
+  }
+}

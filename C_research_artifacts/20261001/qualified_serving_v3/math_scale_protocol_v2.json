@@ -1,0 +1,57 @@
+{
+  "schema": "c-math-scale-exploration-v2",
+  "stage": "development",
+  "task": "GSM8K same Qwen7B8shot prompt and EOS-only1024 cap",
+  "source_selection": "official test source order0..1023; first128 identical; final295 unused",
+  "questions": 1024,
+  "arrival": "all zero burst",
+  "order": [
+    512,
+    1024
+  ],
+  "fixed": {
+    "batch_tokens": 2048,
+    "KV_bytes": 8589934592,
+    "context": 4096,
+    "APC": true,
+    "seed": 20260905,
+    "temperature": 0,
+    "max_output_tokens": 1024,
+    "min_output_tokens": 0,
+    "sync": true,
+    "full_current_ISL_reserve": true
+  },
+  "rationale": "At128 requests native peak KV13.8%, no recovery competition; fixed64 loses27.7% output tokens/s. Increase same-task offered load and native concurrency to inspect capacity region without shrinking physical KV or altering cache/backends.",
+  "hypotheses": [
+    "512 should improve GPU utilization over the previously tested small active set, but compare only same1024 arms for performance.",
+    "1024 may reach real capacity/recovery competition; absence is a valid result and forbids a restore-priority benefit claim.",
+    "Only implement an action intervention after measured residual relative to fixed512."
+  ],
+  "resource_profile": {
+    "outputs": "/dev/shm/c-math-scale-runs-20261002-v2",
+    "runtime_cache": "/root/c-qualified-serving-20261001/math_scale_runtime_cache_v2",
+    "reason": "Existing /dev/shm is noexec. Raw data/CUDA data cache use tmpfs, executable JIT caches use private disk directory.",
+    "root_min_free_bytes": 805306368,
+    "shm_min_free_bytes": 2147483648,
+    "memory_min_headroom_bytes": 27917287424,
+    "old_own_cache_action": "Old own compile-cache relocation already completed by v1; v2 instead releases only exact SHA-verified public1.5B stage to restore RAM headroom, preserving26GiB guard."
+  },
+  "metrics": "Full original arrivals with latency/token throughput/SLO-only and correct-SLO separately, all failures/caps/EOS and native KV/preempt/recompute; diagnostic20sTTFT/4sgap not final business SLO.",
+  "limitations": [
+    "One execution per arm, development source, instrumented burst; not held-out or steady-state claim.",
+    "Private cache and RAM output profile identical across512/1024; do not directly compare timing to old128 disk-output cells as policy effect."
+  ],
+  "execution_sha256": {
+    "math_scale_cell_v1.py": "cce7d5fcd4b5d88dce46d4dd483bde7c1c11514e15747ec1ac9965445df827bb",
+    "math_inputs1024_v1.json": "513ae9ac6dff4e36693c07c1c37cd9d6d6101612beda5aad59bb33994104e13a",
+    "math_scale_source_v1.json": "eaa5da63063b4a3fa3e9cb334178c904b483e41736687f58e355a9049dc7ce20",
+    "health_native.py": "8afa5257e57e2a7e667e0209831626c65bd039c010b9e60a45933583ea6c54ab",
+    "native_pressure_observer_v1.py": "8ed2404a1b2546094927e9132eb47336b80e2d99e2a61ab4a2b2f678bd555877",
+    "qwen7b_launch_v2.py": "93e74aef3e883e7421eb95ec14c9a29e27b269ca90c20d55bff6cdd0e6f04485",
+    "health_launch.py": "578638992afb30e4cd1b0ac76bff95d554d4716c2ae940447b771e2b3ab33d5d",
+    "range_download_v2.py": "34045006d61c8b04c124adfbbfc3027870f784adc2bcabc7ac87ac09d12d01d7",
+    "math_scale_launch_v2.py": "139d6bcba84d42552021dd9f028c8ccc1de341b5ff7e50b8fba2df76c09f80f1",
+    "model_manifest.json": "e31db308d9d68a3592d16669953863feb6e8299c452568c650b2a9b7d4ee97f3"
+  },
+  "repair": "v1 stopped before child launch because RAM headroom below26GiB. Retire only SHA-verified public1.5B cache from stopped branch; retain all raw experiment data. Same GPU scientific configuration."
+}

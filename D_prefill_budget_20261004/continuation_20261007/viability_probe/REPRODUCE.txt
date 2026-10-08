@@ -1,0 +1,24 @@
+D normal-arrival viability escape probe (development only)
+Read ../RESULTS.md and design.json. No stage ledger replay. No new model/install.
+First verify no live D controller/waiter; do not repeat an existing output directory.
+Use the shared host /root/autodl-tmp/moe-research-gpu.lock, never a local alternative.
+
+Authorized host root@connect.westb.seetacloud.com:25495; do not store credentials here.
+Remote parent /tmp/moe-d-prefill-continuation-20261007 contains frozen parent modules/workload.
+After source hash verification, run exactly once on the remote host:
+D_GPU_UUID=GPU-94203fc3-1021-3a9c-a367-cff792479616 bash /tmp/moe-d-prefill-continuation-20261007/viability_probe/launch.sh --output /tmp/moe-d-prefill-continuation-20261007/viability01 --wait-lock 7200
+
+The entry enforces design/source/workload, uses the parent engine and shared lock, warms both
+policies, then runs baseline_r/viability_escape/viability_escape/baseline_r and releases on exit.
+No CUDA/model initialization outside the shared lock. No command loop or automatic retry.
+Both arms compute K; all decoder costs/requests remain, zero admission/ordering changes.
+Never sum overlapped phases into an end-to-end gain. Postintervention tokens may diverge.
+After terminal process AND lock release, fetch viability01 and its log, retaining any failure.
+From continuation_20261007:
+python3 -B viability_probe/analyze_viability.py viability01
+
+Primary full joint SLO=4s TTFT/100ms maximum generation gap/20s completion from external arrival.
+All arrivals and full drain count. Per-request failure/unfinished paths retained by parent raw schema.
+Output counts are fixed; contents/routes/actual compute/quality are not assumed equal.
+A positive R comparison only establishes late-drain action value in this developer trace;
+next is timer19s from old R traces, not a novelty or generalization claim.

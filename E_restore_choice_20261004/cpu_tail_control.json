@@ -1,0 +1,36 @@
+{
+  "schema": "E.cpu_tail_diagnostic.v1",
+  "frozen_at": "2026-10-07T23:01:15.711431+08:00",
+  "group": "oct07_cpu_tail_r01",
+  "arms": [
+    "host",
+    "host"
+  ],
+  "gpu_telemetry_modes": [
+    "on",
+    "on"
+  ],
+  "timing_observer": true,
+  "requests": 256,
+  "max_num_seqs": 256,
+  "threshold": 1792,
+  "input": "inputs_natural_summary256/pro6000_natural_summary_256.json",
+  "input_sha256": "8346ad2512661cc6595ef3e0aa53e76c690fb9980f5bf41e8007f199cfb7582a",
+  "telemetry_script": "source_snapshots/oct07_cpu_tail_r01/timing_observer.py",
+  "source_hashes": {
+    "run_cell.py": "3b53e2ddf7ca6f3160e114c24a2e41dcf7bcdbd9dd302d5d76df2a69b5c66909",
+    "run_group.py": "83ba6bb3fb483588fbf93f3b555ba2c2e0aafa5d0aa4e3532e3668cf526b0134",
+    "selector.py": "70941894705c0745e25e5b1551346d608c19228bea8ad8a674b8493e76d50b5f",
+    "timing_observer.py": "49f41f15af24f10a7b51ff5eb68a52af528a8b3f43273c95bdb1fb90d7b9d8d7",
+    "analyze.py": "ac20a2f2721796c95c5ee11e082d5d66708bb7cc4db4aba3f34777d65bb55eb9"
+  },
+  "run_cap": 2,
+  "question": "Whether previously observed same-work slow small-batch tail coincides with observable main-driver CPU frequency or cgroup throttling/pressure changes.",
+  "primary_metrics": [
+    "all-request completion and gaps",
+    "fixed native-matched tail after last >32 scheduled requests",
+    "1Hz main-driver CPU frequency/context switches and cgroup counter deltas"
+  ],
+  "decision_rule": "One pair only. Correlated evidence can motivate one process-local controlled test, not establish causality. If differences do not recur, fields are unavailable, or counters do not distinguish slow intervals, do not automatically repeat or tune; preserve unresolved timing and suspend whole-service superiority claims.",
+  "limits": "No newselector, no process affinity/priority/clock or cgroup changes. Same Host actions and native resources. CPU snapshot frequency may lag/migrate; cgroup counters cover the container and do not expose every ancestor. CPU includes CUDA polling. No timing correction or SLO threshold selection."
+}

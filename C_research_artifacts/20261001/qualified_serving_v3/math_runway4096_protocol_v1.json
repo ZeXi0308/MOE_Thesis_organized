@@ -1,0 +1,43 @@
+{
+  "stage": "exploration",
+  "workload": "Same1024 natural-generation math requests in source order; all at zero. No answer keys in runtime.",
+  "fixed": {
+    "KV_bytes": 8589934592,
+    "context": 4096,
+    "APC": true,
+    "seed": 20260905,
+    "temperature": 0,
+    "max_output_tokens": 1024,
+    "min_output_tokens": 0,
+    "async_scheduling": false,
+    "scheduler_reserve_full_isl": true,
+    "batch_invariant": false
+  },
+  "metrics": "All original1024 arrivals: completion, TTFT, request max host token gap, output throughput, SLO-only and correct+SLO goodput under preexisting diagnostic20s/4s; correctness/EOS/caps/repeats, preemption cycles/recompute, per-request wins/losses. No quality filtering.",
+  "resource_recovery": "Resource wait releases shared GPU lock every15s. Recheck after model hashes. Per-unit1200s total deadline; native GPU child launched at most once. Post-child SHA-verified lossless xz compression of only three large own raw logs. Decompress with receipt SHA verification before local analysis.",
+  "schema": "c-math-tuned-restoration-development-v1",
+  "arms": [
+    {
+      "name": "math1024-restore-runway-b4096",
+      "max_seqs": 1024,
+      "policy": "restore-runway",
+      "batch_tokens": 4096
+    }
+  ],
+  "rationale": "Native1024 with batch4096 is a stronger control than the original batch2048. Apply the unchanged one-step physical-restoration gate at4096 before claiming any benefit beyond baseline tuning.",
+  "hypothesis": "Avoiding immediate re-preemption may improve complete-request outcomes after tuning; overhead or waiting may cancel the gain. Full1024 natural outputs and identical-output sensitivity are both reported.",
+  "scope": "Exploratory paired full policy against already executed native1024/b4096. No novel method or held-out claim. No policy threshold change.",
+  "execution_sha256": {
+    "math_inputs1024_v1.json": "513ae9ac6dff4e36693c07c1c37cd9d6d6101612beda5aad59bb33994104e13a",
+    "math_scale_source_v1.json": "eaa5da63063b4a3fa3e9cb334178c904b483e41736687f58e355a9049dc7ce20",
+    "health_native.py": "8afa5257e57e2a7e667e0209831626c65bd039c010b9e60a45933583ea6c54ab",
+    "native_pressure_observer_v1.py": "8ed2404a1b2546094927e9132eb47336b80e2d99e2a61ab4a2b2f678bd555877",
+    "qwen7b_launch_v2.py": "93e74aef3e883e7421eb95ec14c9a29e27b269ca90c20d55bff6cdd0e6f04485",
+    "health_launch.py": "578638992afb30e4cd1b0ac76bff95d554d4716c2ae940447b771e2b3ab33d5d",
+    "range_download_v2.py": "34045006d61c8b04c124adfbbfc3027870f784adc2bcabc7ac87ac09d12d01d7",
+    "math_scale_protocol_v2.json": "16371b1aa4bdf2c2cb61014a894c6aca5fab2fa3bc8984be73aeeee569d15ac9",
+    "restore_runway_policy_v2.py": "60155a3fd0658f402c62b33e312745160972b2bd07884371c56f4433770b1b93",
+    "math_runway_cell_v1.py": "92f7a2f798f86e14bd8879baff689ef1884f78f5f907675e71f75959716e801b",
+    "math_runway4096_launch_v1.py": "1d5d476ebdd73533baf6e80abeff2acab74111e92449bc38fae02447e9f4fa09"
+  }
+}

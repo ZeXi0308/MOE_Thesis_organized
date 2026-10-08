@@ -1,0 +1,71 @@
+{
+  "stage": "exploration",
+  "workload": "Same1024 natural-generation math requests in source order; all at zero. No answer keys in runtime.",
+  "fixed": {
+    "KV_bytes": 8589934592,
+    "context": 4096,
+    "APC": true,
+    "seed": 20260905,
+    "temperature": 0,
+    "max_output_tokens": 1024,
+    "min_output_tokens": 0,
+    "async_scheduling": false,
+    "scheduler_reserve_full_isl": true,
+    "batch_invariant": false
+  },
+  "metrics": "All original1024 arrivals: completion, TTFT, request max host token gap, output throughput, SLO-only and correct+SLO goodput under preexisting diagnostic20s/4s; correctness/EOS/caps/repeats, preemption cycles/recompute, per-request wins/losses. No quality filtering.",
+  "resource_recovery": "Resource wait releases shared GPU lock every15s. Recheck after model hashes. Per-unit1200s total deadline; native GPU child launched at most once. Post-child SHA-verified lossless xz compression of only three large own raw logs. Decompress with receipt SHA verification before local analysis.",
+  "schema": "c-math-restoration-repetition-development-v1",
+  "arms": [
+    {
+      "name": "math1024-fixedmargin48-b4096-repeat",
+      "max_seqs": 1024,
+      "policy": "restore-fixed-margin",
+      "batch_tokens": 4096,
+      "fixed_margin_blocks": 48
+    },
+    {
+      "name": "math1024-runway4096-repeat",
+      "max_seqs": 1024,
+      "policy": "restore-runway",
+      "batch_tokens": 4096,
+      "fixed_margin_blocks": null
+    },
+    {
+      "name": "math1024-native4096-repeat",
+      "max_seqs": 1024,
+      "policy": "native",
+      "batch_tokens": 4096,
+      "fixed_margin_blocks": null
+    }
+  ],
+  "rationale": "Fixed48 mean29.307066 vs dynamic29.298921 differs only8.1ms in the first development sample. One repeat per arm, reverse order of original native/runway/fixed sequence, tests whether added dynamic state has a resolvable benefit.",
+  "hypothesis": "Repeated full-request outcomes distinguish small timing noise from a persistent incremental benefit of dynamic state.",
+  "scope": "Same first1024 development data, unchanged frozen policy/cell/helpers; only repetition order differs. Not confirmation on new data.",
+  "execution_sha256": {
+    "math_inputs1024_v1.json": "513ae9ac6dff4e36693c07c1c37cd9d6d6101612beda5aad59bb33994104e13a",
+    "math_scale_source_v1.json": "eaa5da63063b4a3fa3e9cb334178c904b483e41736687f58e355a9049dc7ce20",
+    "health_native.py": "8afa5257e57e2a7e667e0209831626c65bd039c010b9e60a45933583ea6c54ab",
+    "native_pressure_observer_v1.py": "8ed2404a1b2546094927e9132eb47336b80e2d99e2a61ab4a2b2f678bd555877",
+    "qwen7b_launch_v2.py": "93e74aef3e883e7421eb95ec14c9a29e27b269ca90c20d55bff6cdd0e6f04485",
+    "health_launch.py": "578638992afb30e4cd1b0ac76bff95d554d4716c2ae940447b771e2b3ab33d5d",
+    "range_download_v2.py": "34045006d61c8b04c124adfbbfc3027870f784adc2bcabc7ac87ac09d12d01d7",
+    "math_scale_protocol_v2.json": "16371b1aa4bdf2c2cb61014a894c6aca5fab2fa3bc8984be73aeeee569d15ac9",
+    "restore_fixed_margin_policy_v1.py": "5b881b64f321d1e3ace653178eb544209abf04e7d96f3f51f3ca3cc161e16063",
+    "math_fixed_margin_cell_v1.py": "d069470254b6b88d0e8d80857829af3bf9d915703228836fba34417f1c3389d8",
+    "restore_runway_policy_v2.py": "60155a3fd0658f402c62b33e312745160972b2bd07884371c56f4433770b1b93",
+    "math_runway_cell_v1.py": "92f7a2f798f86e14bd8879baff689ef1884f78f5f907675e71f75959716e801b",
+    "math_restoration_repeat_launch_v1.py": "1f526fd401c3233b06d9ddc5055b9f96c26f3d5e2c9a3b3c47e226994a5de5d3"
+  },
+  "decision_rule": "Report two episodes per selected arm, output consistency within arm and whole-request metrics. Fixed48 covers dynamic within same-arm variation => no evidence for necessity of dynamic resident state on this workload. No statistical significance or held-out claim from two episodes.",
+  "selection": {
+    "rule": "lowest observed all1024 mean completion among fixed32/48/64; all have862correct and1024EOS",
+    "selected_margin_blocks": 48,
+    "development_only": true,
+    "source_analyses": [
+      "math_fixedmargin32_analysis_v1.json",
+      "math_fixedmargin48_analysis_v1.json",
+      "math_fixedmargin64_analysis_v1.json"
+    ]
+  }
+}

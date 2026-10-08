@@ -1,0 +1,532 @@
+{
+  "status": "CPU_DIAGNOSTIC",
+  "input_directory": "/Users/zhaozhenyu/Desktop/\u6bd5\u4e1a\u8bbe\u8ba1/D_prefill_budget_20261004/continuation_20261007/cohort53005_03",
+  "script_sha256": "2f4817d07f784f740428b10228448d5bc1d5f846a8a325900e0485ea468f55bc",
+  "calibration_path": "/Users/zhaozhenyu/Desktop/\u6bd5\u4e1a\u8bbe\u8ba1/D_prefill_budget_20261004/continuation_20261007/niyama_component/calibration.json",
+  "calibration_sha256": "64ddc734c5af941d43171bba4cac92317fc2eb9d04e725ae05ab19ad2381a13a",
+  "native_schedule_sha256": "db9921b57acd9ff230c7f4a11ff5ce5180f4394122c193da301c5c793d8e1ef6",
+  "shared_prediction_helper_sha256": "6ad79f1dce15acb6b1243c62da476589b4363bafaa4f3e8c0f4171dce9bc58cf",
+  "caps": [
+    512,
+    1024,
+    2048
+  ],
+  "ttft_s": 4.0,
+  "cost_margin": 1.2,
+  "scope": "Original fixed1024 states only, no alternate service outcomes or deployed actions. Known FCFS submission order is reconstructed from stable external-arrival order and actual add_s; executed prefill prefixes, head and total backlog are checked on every step. This establishes recorded-path consistency in the no-preemption/no-skip domain, not arbitrary scheduler behavior. Only past actual scheduled P reduces known prompt work. No future arrivals/outputs/EOS are used. An expired deadline or insufficient predicted capacity picks2048 for progress, not a guarantee. Frozen candidate-cost predictions/head-context approximation are not counterfactual measurements. Existing OA/EDF demand principles are not a novelty claim.",
+  "formula": "r=max_j(sum_{i<=j}remaining_prompt_i)/(arrival_j+4-decision_time). Head-only changes only r. p_eff=min(cap,backlog); capacity=p_eff/(1.2*T(p_eff,D,Cd,headCp)); enumerate512/1024/2048 and choose minimum feasible cap; any nonpositive pending slack or no feasible cap falls back2048. No backlog is counted separately.",
+  "runs": [
+    {
+      "cell": "00_fixed1024",
+      "raw_path": "/Users/zhaozhenyu/Desktop/\u6bd5\u4e1a\u8bbe\u8ba1/D_prefill_budget_20261004/continuation_20261007/cohort53005_03/00_fixed1024/raw.json",
+      "raw_sha256": "6e1885dbeb3778ae20b674fd1e14810c7288f6492b812640bb2360c071570b2b",
+      "status": "CPU_DIAGNOSTIC",
+      "request_count": 256,
+      "counts": {
+        "steps": 1849,
+        "aligned_steps": 1849,
+        "backlog_steps": 572,
+        "backlog_steps_zero_actual_P": 0,
+        "no_backlog_steps": 1277
+      },
+      "errors": [],
+      "scored_backlog_decisions": 572,
+      "cumulative_cap_distribution": {
+        "512": 526,
+        "1024": 46
+      },
+      "head_only_cap_distribution": {
+        "512": 572
+      },
+      "cumulative_reason_distribution": {
+        "minimum_feasible_cap": 572
+      },
+      "head_only_reason_distribution": {
+        "minimum_feasible_cap": 572
+      },
+      "cumulative_vs_fixed1024": {
+        "lower": 526,
+        "same": 46,
+        "higher": 0
+      },
+      "original_P_above_shadow_cap_count": 490,
+      "original_P_by_shadow_cap": {
+        "512": {
+          "n": 526,
+          "min": 19,
+          "max": 1024,
+          "mean": 934.3973384030418
+        },
+        "1024": {
+          "n": 46,
+          "min": 1024,
+          "max": 1024,
+          "mean": 1024.0
+        },
+        "2048": {
+          "n": 0,
+          "min": null,
+          "max": null,
+          "mean": null
+        }
+      },
+      "cumulative_vs_head_only": {
+        "different": 46,
+        "higher": 46,
+        "lower": 0,
+        "joint_cap_counts": {
+          "512/512": 526,
+          "1024/512": 46
+        }
+      },
+      "nonhead_demand_limiter_count": 339,
+      "consecutive_backlog_decision_cap_changes": 4,
+      "expired_pending_decision_count": 0,
+      "ranges": {
+        "backlog": {
+          "n": 572,
+          "min": 19,
+          "max": 47292,
+          "mean": 8170.103146853146
+        },
+        "pending_count": {
+          "n": 572,
+          "min": 1,
+          "max": 20,
+          "mean": 3.81993006993007
+        },
+        "D": {
+          "n": 572,
+          "min": 0,
+          "max": 152,
+          "mean": 89.23076923076923
+        },
+        "Cd": {
+          "n": 572,
+          "min": 0,
+          "max": 385887,
+          "mean": 221575.28846153847
+        },
+        "Cp": {
+          "n": 572,
+          "min": 0,
+          "max": 3498,
+          "mean": 1393.437062937063
+        },
+        "demand_tokens_per_s": {
+          "n": 572,
+          "min": 4.833456728476056,
+          "max": 11853.172599136295,
+          "mean": 2225.3981274006405
+        },
+        "head_demand_tokens_per_s": {
+          "n": 572,
+          "min": 4.1713511095615345,
+          "max": 1935.7973670307647,
+          "mean": 455.61182287833304
+        },
+        "oldest_remaining_deadline_s": {
+          "n": 572,
+          "min": 1.5248851054792922,
+          "max": 3.9997070450317853,
+          "mean": 3.6356411857395314
+        },
+        "actual_original_P": {
+          "n": 572,
+          "min": 19,
+          "max": 1024,
+          "mean": 941.6031468531469
+        }
+      },
+      "candidate_capacity_tokens_per_s": {
+        "512": {
+          "n": 572,
+          "min": 347.74522202686194,
+          "max": 35121.01694479594,
+          "mean": 14187.166470688755
+        },
+        "1024": {
+          "n": 572,
+          "min": 347.74522202686194,
+          "max": 50830.008199137876,
+          "mean": 23528.291934838155
+        },
+        "2048": {
+          "n": 572,
+          "min": 347.74522202686194,
+          "max": 71993.12821008042,
+          "mean": 35427.034836822844
+        }
+      },
+      "candidate_cost_s": {
+        "512": {
+          "n": 572,
+          "min": 0.011149126625908789,
+          "max": 0.04997675368286708,
+          "mean": 0.03394248217967724
+        },
+        "1024": {
+          "n": 572,
+          "min": 0.011149126625908789,
+          "max": 0.05285273374066923,
+          "mean": 0.03690346143087222
+        },
+        "2048": {
+          "n": 572,
+          "min": 0.011149126625908789,
+          "max": 0.05974259279538886,
+          "mean": 0.042083300868601
+        }
+      },
+      "different_head_only_examples": [
+        {
+          "step": 1263,
+          "decision_time_s": 30.39901401102543,
+          "backlog": 36018,
+          "pending_count": 15,
+          "D": 147,
+          "Cd": 376948,
+          "Cp": 2560,
+          "expired_pending_count": 0,
+          "demand_tokens_per_s": 9026.688527951334,
+          "head_demand_tokens_per_s": 313.78952627187607,
+          "head_request_id": "high-long-42",
+          "limiting_request_id": "high-long-122",
+          "cap": 1024,
+          "reason": "minimum_feasible_cap",
+          "head_cap": 512,
+          "head_reason": "minimum_feasible_cap",
+          "actual_original_P": 1024,
+          "oldest_remaining_deadline_s": 3.0370675889745726,
+          "capacity_tokens_per_s": {
+            "512": 8795.149002610193,
+            "1024": 16423.98938833919,
+            "2048": 29002.067650237546
+          },
+          "candidate_cost_s": {
+            "512": 0.048511590484714026,
+            "1024": 0.051956520012073834,
+            "2048": 0.058846379066793464
+          }
+        },
+        {
+          "step": 1264,
+          "decision_time_s": 30.45224091783166,
+          "backlog": 34994,
+          "pending_count": 14,
+          "D": 148,
+          "Cd": 380609,
+          "Cp": 71,
+          "expired_pending_count": 0,
+          "demand_tokens_per_s": 8888.627699802279,
+          "head_demand_tokens_per_s": 1148.54471026607,
+          "head_request_id": "high-long-30",
+          "limiting_request_id": "high-long-122",
+          "cap": 1024,
+          "reason": "minimum_feasible_cap",
+          "head_cap": 512,
+          "head_reason": "minimum_feasible_cap",
+          "actual_original_P": 1024,
+          "oldest_remaining_deadline_s": 2.996835882168341,
+          "capacity_tokens_per_s": {
+            "512": 8720.988169986293,
+            "1024": 16294.611999398168,
+            "2048": 28800.170713235664
+          },
+          "candidate_cost_s": {
+            "512": 0.04892411941746015,
+            "1024": 0.05236904894481996,
+            "2048": 0.05925890799953959
+          }
+        },
+        {
+          "step": 1265,
+          "decision_time_s": 30.504893865436316,
+          "backlog": 33970,
+          "pending_count": 14,
+          "D": 148,
+          "Cd": 380757,
+          "Cp": 1095,
+          "expired_pending_count": 0,
+          "demand_tokens_per_s": 8745.490118490356,
+          "head_demand_tokens_per_s": 821.2804889307387,
+          "head_request_id": "high-long-30",
+          "limiting_request_id": "high-long-122",
+          "cap": 1024,
+          "reason": "minimum_feasible_cap",
+          "head_cap": 512,
+          "head_reason": "minimum_feasible_cap",
+          "actual_original_P": 1024,
+          "oldest_remaining_deadline_s": 2.9441829345636847,
+          "capacity_tokens_per_s": {
+            "512": 8723.547158772211,
+            "1024": 16299.078698084251,
+            "2048": 28807.14733047315
+          },
+          "candidate_cost_s": {
+            "512": 0.048909767884686664,
+            "1024": 0.05235469741204647,
+            "2048": 0.05924455646676609
+          }
+        }
+      ],
+      "first_capacity_insufficient_example": null
+    },
+    {
+      "cell": "05_fixed1024",
+      "raw_path": "/Users/zhaozhenyu/Desktop/\u6bd5\u4e1a\u8bbe\u8ba1/D_prefill_budget_20261004/continuation_20261007/cohort53005_03/05_fixed1024/raw.json",
+      "raw_sha256": "24a62df17aa78dd739b0cbcfb61b9a04cd54ca35cdd122d33e4338c14c3d84e1",
+      "status": "CPU_DIAGNOSTIC",
+      "request_count": 256,
+      "counts": {
+        "steps": 1842,
+        "aligned_steps": 1842,
+        "backlog_steps": 573,
+        "backlog_steps_zero_actual_P": 0,
+        "no_backlog_steps": 1269
+      },
+      "errors": [],
+      "scored_backlog_decisions": 573,
+      "cumulative_cap_distribution": {
+        "512": 519,
+        "1024": 54
+      },
+      "head_only_cap_distribution": {
+        "512": 573
+      },
+      "cumulative_reason_distribution": {
+        "minimum_feasible_cap": 573
+      },
+      "head_only_reason_distribution": {
+        "minimum_feasible_cap": 573
+      },
+      "cumulative_vs_fixed1024": {
+        "lower": 519,
+        "same": 54,
+        "higher": 0
+      },
+      "original_P_above_shadow_cap_count": 482,
+      "original_P_by_shadow_cap": {
+        "512": {
+          "n": 519,
+          "min": 19,
+          "max": 1024,
+          "mean": 931.2157996146435
+        },
+        "1024": {
+          "n": 54,
+          "min": 1024,
+          "max": 1024,
+          "mean": 1024.0
+        },
+        "2048": {
+          "n": 0,
+          "min": null,
+          "max": null,
+          "mean": null
+        }
+      },
+      "cumulative_vs_head_only": {
+        "different": 54,
+        "higher": 54,
+        "lower": 0,
+        "joint_cap_counts": {
+          "512/512": 519,
+          "1024/512": 54
+        }
+      },
+      "nonhead_demand_limiter_count": 336,
+      "consecutive_backlog_decision_cap_changes": 6,
+      "expired_pending_decision_count": 0,
+      "ranges": {
+        "backlog": {
+          "n": 573,
+          "min": 19,
+          "max": 48316,
+          "mean": 8346.956369982548
+        },
+        "pending_count": {
+          "n": 573,
+          "min": 1,
+          "max": 21,
+          "mean": 3.8952879581151834
+        },
+        "D": {
+          "n": 573,
+          "min": 0,
+          "max": 155,
+          "mean": 89.46247818499127
+        },
+        "Cd": {
+          "n": 573,
+          "min": 0,
+          "max": 389779,
+          "mean": 222035.74345549737
+        },
+        "Cp": {
+          "n": 573,
+          "min": 0,
+          "max": 3477,
+          "mean": 1384.4694589877836
+        },
+        "demand_tokens_per_s": {
+          "n": 573,
+          "min": 4.844868372701397,
+          "max": 12156.133856142347,
+          "mean": 2284.666762356441
+        },
+        "head_demand_tokens_per_s": {
+          "n": 573,
+          "min": 3.6728567262534932,
+          "max": 2035.4871980773978,
+          "mean": 460.3628816123712
+        },
+        "oldest_remaining_deadline_s": {
+          "n": 573,
+          "min": 1.4401827552800697,
+          "max": 3.999693981450509,
+          "mean": 3.6235652531462392
+        },
+        "actual_original_P": {
+          "n": 573,
+          "min": 19,
+          "max": 1024,
+          "mean": 939.9598603839441
+        }
+      },
+      "candidate_capacity_tokens_per_s": {
+        "512": {
+          "n": 573,
+          "min": 347.93514559884886,
+          "max": 35121.01694479594,
+          "mean": 14156.769254567915
+        },
+        "1024": {
+          "n": 573,
+          "min": 347.93514559884886,
+          "max": 50830.008199137876,
+          "mean": 23457.388252026227
+        },
+        "2048": {
+          "n": 573,
+          "min": 347.93514559884886,
+          "max": 71993.12821008042,
+          "mean": 35297.38847442926
+        }
+      },
+      "candidate_cost_s": {
+        "512": {
+          "n": 573,
+          "min": 0.011149228069746076,
+          "max": 0.05050875067134549,
+          "mean": 0.033978825627365455
+        },
+        "1024": {
+          "n": 573,
+          "min": 0.011149228069746076,
+          "max": 0.05321823496553402,
+          "mean": 0.036932101023594385
+        },
+        "2048": {
+          "n": 573,
+          "min": 0.011149228069746076,
+          "max": 0.06010809402025365,
+          "mean": 0.0420934362517383
+        }
+      },
+      "different_head_only_examples": [
+        {
+          "step": 1249,
+          "decision_time_s": 30.073039028793573,
+          "backlog": 35471,
+          "pending_count": 15,
+          "D": 149,
+          "Cd": 376269,
+          "Cp": 3158,
+          "expired_pending_count": 0,
+          "demand_tokens_per_s": 8911.170186438034,
+          "head_demand_tokens_per_s": 111.12412702597597,
+          "head_request_id": "high-long-16",
+          "limiting_request_id": "high-long-92",
+          "cap": 1024,
+          "reason": "minimum_feasible_cap",
+          "head_cap": 512,
+          "head_reason": "minimum_feasible_cap",
+          "actual_original_P": 1024,
+          "oldest_remaining_deadline_s": 3.1946257712064323,
+          "capacity_tokens_per_s": {
+            "512": 8810.377512212295,
+            "1024": 16450.538406151394,
+            "2048": 29043.45207158338
+          },
+          "candidate_cost_s": {
+            "512": 0.04842773945557416,
+            "1024": 0.05187266898293397,
+            "2048": 0.0587625280376536
+          }
+        },
+        {
+          "step": 1250,
+          "decision_time_s": 30.12623755261302,
+          "backlog": 34447,
+          "pending_count": 14,
+          "D": 150,
+          "Cd": 379932,
+          "Cp": 669,
+          "expired_pending_count": 0,
+          "demand_tokens_per_s": 8771.140821323788,
+          "head_demand_tokens_per_s": 22.17571720211515,
+          "head_request_id": "high-background-extra-068",
+          "limiting_request_id": "high-long-92",
+          "cap": 1024,
+          "reason": "minimum_feasible_cap",
+          "head_cap": 512,
+          "head_reason": "minimum_feasible_cap",
+          "actual_original_P": 1024,
+          "oldest_remaining_deadline_s": 3.201700281117759,
+          "capacity_tokens_per_s": {
+            "512": 8735.926984363141,
+            "1024": 16320.68517041978,
+            "2048": 28840.8885920731
+          },
+          "candidate_cost_s": {
+            "512": 0.04884045704942108,
+            "1024": 0.05228538657678089,
+            "2048": 0.05917524563150052
+          }
+        },
+        {
+          "step": 1252,
+          "decision_time_s": 30.233404867351055,
+          "backlog": 35912,
+          "pending_count": 14,
+          "D": 151,
+          "Cd": 380974,
+          "Cp": 1977,
+          "expired_pending_count": 0,
+          "demand_tokens_per_s": 8993.600450774033,
+          "head_demand_tokens_per_s": 483.0245893889241,
+          "head_request_id": "high-long-108",
+          "limiting_request_id": "high-long-4",
+          "cap": 1024,
+          "reason": "minimum_feasible_cap",
+          "head_cap": 512,
+          "head_reason": "minimum_feasible_cap",
+          "actual_original_P": 1024,
+          "oldest_remaining_deadline_s": 3.179962332648941,
+          "capacity_tokens_per_s": {
+            "512": 8725.11993831782,
+            "1024": 16301.823889244393,
+            "2048": 28811.434873424532
+          },
+          "candidate_cost_s": {
+            "512": 0.048900951469204326,
+            "1024": 0.052345880996564134,
+            "2048": 0.05923574005128375
+          }
+        }
+      ],
+      "first_capacity_insufficient_example": null
+    }
+  ]
+}

@@ -1,0 +1,764 @@
+{
+  "schema": "d-confirmation-v2-controls-development-freeze-v1",
+  "data_scope": "Only retained high-normal-r01, extra-controls-high, extra-controls-high384; no confirmation results used.",
+  "accounting": "Before each engine.step: arrived/submitted requests with cumulative actually scheduled prompt tokens below prompt length. Include P=0 backlog steps. Prefix caching and preemption are absent.",
+  "semantics": {
+    "total_scheduled_token_limit": 4096,
+    "total_limit_constant": true,
+    "selected_prefill_cap": "aggregate prompt-token cap across all requests; not total batched-token cap or per-request limit",
+    "source": "prefill_policy.install adds one shared d_prefill_left, clips running/waiting allocations and debits successful prompt portions only",
+    "engine_max_num_seqs": 192,
+    "maximum_possible_total_for_largest_tested_cap": 4032,
+    "source_sha256": {
+      "prefill_policy.py": "f33abddb24e81d798bb76560fcce92e0ae5e14aaf4e2b31a018d6abeec8c266c",
+      "run_normal.py": "9ec455c78ed9ccc76236fccf38b84dcc3dff53540b6df608979c902bd75d3171",
+      "fixed-normal-r01/patched_schedule.py": "db9921b57acd9ff230c7f4a11ff5ce5180f4394122c193da301c5c793d8e1ef6",
+      "fixed-normal-r01/engine_args.json": "8a3eb6765b4dd4a9e85e6fe00286522488f0a304d7c99fd0d1531043560cbc92"
+    }
+  },
+  "M": {
+    "policy": "fixed304",
+    "cap": 304,
+    "feedback_backlog_steps": 6213,
+    "feedback_backlog_actual_prefill_mean": 303.81136327056174,
+    "feedback_zero_prefill_backlog_steps": 0,
+    "fixed_comparisons": {
+      "304": {
+        "runs": 2,
+        "backlog_steps": 3106,
+        "mean_actual_prefill": 303.86027044430136,
+        "relative_difference_from_feedback": 0.00016097875080478552
+      },
+      "384": {
+        "runs": 2,
+        "backlog_steps": 2460,
+        "mean_actual_prefill": 383.6544715447154,
+        "relative_difference_from_feedback": 0.2628048780487804
+      }
+    },
+    "rationale": "304 matches pooled actual prompt work per backlog step within 0.02%; 384 is a separate competitive fixed baseline, not work-matched."
+  },
+  "N": {
+    "policy": "decode_v2",
+    "formula": "2048 if D < 24 else 1024 if D < 35 else 256",
+    "signal": "D = current visible running requests whose computed tokens have reached prompt length",
+    "levels": [
+      2048,
+      1024,
+      256
+    ],
+    "thresholds": [
+      24,
+      35
+    ],
+    "memory": false,
+    "rationale": "Three coarse bands of the existing feedback action distribution. D=24 is the first sustained move from 2048 to 1024; D>=35 is dominated by 256 in the observed long-context backlog. Replaces the untuned D<8 rule.",
+    "old_feedback_action_agreement_count": 5950,
+    "old_feedback_action_agreement_fraction": 0.9576694028649606,
+    "old_feedback_state_shadow_mean_cap": 284.6779333655239,
+    "restriction": "Shadow action agreement is diagnostic only. N must independently execute all requests; no replay service or goodput claim.",
+    "development_bands": [
+      {
+        "decode_min": 0,
+        "decode_max": 23,
+        "steps": 36,
+        "by_cap": {
+          "1024": {
+            "steps": 4,
+            "mean_duration_ms": 16.462684841826558,
+            "mean_decode_context_length": 680.3333333333334
+          },
+          "2048": {
+            "steps": 32,
+            "mean_duration_ms": 22.840117890154943,
+            "mean_decode_context_length": 605.4768019809138
+          }
+        }
+      },
+      {
+        "decode_min": 24,
+        "decode_max": 34,
+        "steps": 148,
+        "by_cap": {
+          "1024": {
+            "steps": 144,
+            "mean_duration_ms": 20.138784551009948,
+            "mean_decode_context_length": 1217.9264695911309
+          },
+          "2048": {
+            "steps": 4,
+            "mean_duration_ms": 25.127490051090717,
+            "mean_decode_context_length": 734.625
+          }
+        }
+      },
+      {
+        "decode_min": 35,
+        "decode_max": 42,
+        "steps": 2602,
+        "by_cap": {
+          "256": {
+            "steps": 2490,
+            "mean_duration_ms": 25.19936635080411,
+            "mean_decode_context_length": 3753.1388376650975
+          },
+          "1024": {
+            "steps": 112,
+            "mean_duration_ms": 22.85338774423248,
+            "mean_decode_context_length": 1815.0854183654226
+          }
+        }
+      },
+      {
+        "decode_min": 43,
+        "decode_max": 48,
+        "steps": 2097,
+        "by_cap": {
+          "256": {
+            "steps": 1954,
+            "mean_duration_ms": 25.965506688500074,
+            "mean_decode_context_length": 3346.328612258839
+          },
+          "512": {
+            "steps": 143,
+            "mean_duration_ms": 22.730482820343305,
+            "mean_decode_context_length": 2105.901351389886
+          }
+        }
+      },
+      {
+        "decode_min": 49,
+        "decode_max": null,
+        "steps": 1330,
+        "by_cap": {
+          "256": {
+            "steps": 1330,
+            "mean_duration_ms": 27.050766135965073,
+            "mean_decode_context_length": 2906.5402970024443
+          }
+        }
+      }
+    ]
+  },
+  "limitation": "Identical D has different contexts/costs and feedback actions across trajectory phases; the coarse count rule intentionally tests whether recent execution time has independent value. No claim of optimal count rule or new predictive model.",
+  "cells": {
+    "high-normal-r01/00_fixed2048": {
+      "policy": "fixed2048",
+      "request_count": 160,
+      "prompt_tokens": 471895,
+      "output_tokens": 77824,
+      "total_steps": 781,
+      "arrived_submitted_set_mismatches": 0,
+      "max_scheduled_total_tokens": 2207,
+      "backlog": {
+        "arrived": {
+          "steps": 232,
+          "zero_prefill_steps": 0,
+          "sum_actual_prefill": 471895,
+          "mean_actual_prefill": 2034.030172413793,
+          "mean_chosen_cap": 2048
+        },
+        "submitted": {
+          "steps": 232,
+          "zero_prefill_steps": 0,
+          "sum_actual_prefill": 471895,
+          "mean_actual_prefill": 2034.030172413793,
+          "mean_chosen_cap": 2048
+        }
+      },
+      "workload_sha256": "c3c93ef5610cf16d801753e750eb5e8d3c937530e0f5b242571c9ab3dfe98865",
+      "raw_sha256": "0d788741fd813648b26670deed16e919949ac28cf5ab235a92abf9f2336cc176"
+    },
+    "high-normal-r01/01_fixed1024": {
+      "policy": "fixed1024",
+      "request_count": 160,
+      "prompt_tokens": 471895,
+      "output_tokens": 77824,
+      "total_steps": 1003,
+      "arrived_submitted_set_mismatches": 0,
+      "max_scheduled_total_tokens": 1159,
+      "backlog": {
+        "arrived": {
+          "steps": 462,
+          "zero_prefill_steps": 0,
+          "sum_actual_prefill": 471895,
+          "mean_actual_prefill": 1021.4177489177489,
+          "mean_chosen_cap": 1024
+        },
+        "submitted": {
+          "steps": 462,
+          "zero_prefill_steps": 0,
+          "sum_actual_prefill": 471895,
+          "mean_actual_prefill": 1021.4177489177489,
+          "mean_chosen_cap": 1024
+        }
+      },
+      "workload_sha256": "c3c93ef5610cf16d801753e750eb5e8d3c937530e0f5b242571c9ab3dfe98865",
+      "raw_sha256": "ffcdc5f8e2255ade63ae173bd17b9316fe8341fd5abc3d436031ab8d3ed943a8"
+    },
+    "high-normal-r01/02_decode": {
+      "policy": "decode",
+      "request_count": 160,
+      "prompt_tokens": 471895,
+      "output_tokens": 77824,
+      "total_steps": 1446,
+      "arrived_submitted_set_mismatches": 0,
+      "max_scheduled_total_tokens": 2053,
+      "backlog": {
+        "arrived": {
+          "steps": 914,
+          "zero_prefill_steps": 0,
+          "sum_actual_prefill": 471895,
+          "mean_actual_prefill": 516.2964989059082,
+          "mean_chosen_cap": 517.0415754923414
+        },
+        "submitted": {
+          "steps": 914,
+          "zero_prefill_steps": 0,
+          "sum_actual_prefill": 471895,
+          "mean_actual_prefill": 516.2964989059082,
+          "mean_chosen_cap": 517.0415754923414
+        }
+      },
+      "workload_sha256": "c3c93ef5610cf16d801753e750eb5e8d3c937530e0f5b242571c9ab3dfe98865",
+      "raw_sha256": "ec884a1f7d443c86d77c0aa17ff51e3ad23d4ac494ae8b84170f5f0078349750"
+    },
+    "high-normal-r01/03_feedback": {
+      "policy": "feedback",
+      "request_count": 160,
+      "prompt_tokens": 471895,
+      "output_tokens": 77824,
+      "total_steps": 2098,
+      "arrived_submitted_set_mismatches": 0,
+      "max_scheduled_total_tokens": 2072,
+      "backlog": {
+        "arrived": {
+          "steps": 1549,
+          "zero_prefill_steps": 0,
+          "sum_actual_prefill": 471895,
+          "mean_actual_prefill": 304.64493221433185,
+          "mean_chosen_cap": 305.249838605552
+        },
+        "submitted": {
+          "steps": 1549,
+          "zero_prefill_steps": 0,
+          "sum_actual_prefill": 471895,
+          "mean_actual_prefill": 304.64493221433185,
+          "mean_chosen_cap": 305.249838605552
+        }
+      },
+      "workload_sha256": "c3c93ef5610cf16d801753e750eb5e8d3c937530e0f5b242571c9ab3dfe98865",
+      "raw_sha256": "b388d99bae6145c84b52f3d3ef23b20d86dfb37c9a94ff0b94fd7b0fb707827a"
+    },
+    "high-normal-r01/04_feedback": {
+      "policy": "feedback",
+      "request_count": 160,
+      "prompt_tokens": 471895,
+      "output_tokens": 77824,
+      "total_steps": 2114,
+      "arrived_submitted_set_mismatches": 0,
+      "max_scheduled_total_tokens": 2072,
+      "backlog": {
+        "arrived": {
+          "steps": 1565,
+          "zero_prefill_steps": 0,
+          "sum_actual_prefill": 471895,
+          "mean_actual_prefill": 301.53035143769966,
+          "mean_chosen_cap": 302.1290734824281
+        },
+        "submitted": {
+          "steps": 1565,
+          "zero_prefill_steps": 0,
+          "sum_actual_prefill": 471895,
+          "mean_actual_prefill": 301.53035143769966,
+          "mean_chosen_cap": 302.1290734824281
+        }
+      },
+      "workload_sha256": "c3c93ef5610cf16d801753e750eb5e8d3c937530e0f5b242571c9ab3dfe98865",
+      "raw_sha256": "148c558f7362eb2dfddaeb1fa057a8620b65af301c1bf75c3861be19fac98a95"
+    },
+    "high-normal-r01/05_decode": {
+      "policy": "decode",
+      "request_count": 160,
+      "prompt_tokens": 471895,
+      "output_tokens": 77824,
+      "total_steps": 1446,
+      "arrived_submitted_set_mismatches": 0,
+      "max_scheduled_total_tokens": 2053,
+      "backlog": {
+        "arrived": {
+          "steps": 914,
+          "zero_prefill_steps": 0,
+          "sum_actual_prefill": 471895,
+          "mean_actual_prefill": 516.2964989059082,
+          "mean_chosen_cap": 517.0415754923414
+        },
+        "submitted": {
+          "steps": 914,
+          "zero_prefill_steps": 0,
+          "sum_actual_prefill": 471895,
+          "mean_actual_prefill": 516.2964989059082,
+          "mean_chosen_cap": 517.0415754923414
+        }
+      },
+      "workload_sha256": "c3c93ef5610cf16d801753e750eb5e8d3c937530e0f5b242571c9ab3dfe98865",
+      "raw_sha256": "5065cd04f94f0326ebc99ddf89a47b06d16b205ba1ddd60653deb31451f5c70d"
+    },
+    "high-normal-r01/06_fixed1024": {
+      "policy": "fixed1024",
+      "request_count": 160,
+      "prompt_tokens": 471895,
+      "output_tokens": 77824,
+      "total_steps": 1003,
+      "arrived_submitted_set_mismatches": 0,
+      "max_scheduled_total_tokens": 1159,
+      "backlog": {
+        "arrived": {
+          "steps": 462,
+          "zero_prefill_steps": 0,
+          "sum_actual_prefill": 471895,
+          "mean_actual_prefill": 1021.4177489177489,
+          "mean_chosen_cap": 1024
+        },
+        "submitted": {
+          "steps": 462,
+          "zero_prefill_steps": 0,
+          "sum_actual_prefill": 471895,
+          "mean_actual_prefill": 1021.4177489177489,
+          "mean_chosen_cap": 1024
+        }
+      },
+      "workload_sha256": "c3c93ef5610cf16d801753e750eb5e8d3c937530e0f5b242571c9ab3dfe98865",
+      "raw_sha256": "8277fea41cd07b8f392e64d3fd6a5e11b17cd31e2b1bcadefd0c97a68bbc3813"
+    },
+    "high-normal-r01/07_fixed2048": {
+      "policy": "fixed2048",
+      "request_count": 160,
+      "prompt_tokens": 471895,
+      "output_tokens": 77824,
+      "total_steps": 781,
+      "arrived_submitted_set_mismatches": 0,
+      "max_scheduled_total_tokens": 2207,
+      "backlog": {
+        "arrived": {
+          "steps": 232,
+          "zero_prefill_steps": 0,
+          "sum_actual_prefill": 471895,
+          "mean_actual_prefill": 2034.030172413793,
+          "mean_chosen_cap": 2048
+        },
+        "submitted": {
+          "steps": 232,
+          "zero_prefill_steps": 0,
+          "sum_actual_prefill": 471895,
+          "mean_actual_prefill": 2034.030172413793,
+          "mean_chosen_cap": 2048
+        }
+      },
+      "workload_sha256": "c3c93ef5610cf16d801753e750eb5e8d3c937530e0f5b242571c9ab3dfe98865",
+      "raw_sha256": "ff12ce0e4fe5a1ea5eaf2bcfd89e0015a17db39eef7a3fe3d75d353f5c6aa172"
+    },
+    "extra-controls-high/00_fixed3840": {
+      "policy": "fixed3840",
+      "request_count": 160,
+      "prompt_tokens": 471895,
+      "output_tokens": 77824,
+      "total_steps": 683,
+      "arrived_submitted_set_mismatches": 0,
+      "max_scheduled_total_tokens": 3998,
+      "backlog": {
+        "arrived": {
+          "steps": 125,
+          "zero_prefill_steps": 0,
+          "sum_actual_prefill": 471895,
+          "mean_actual_prefill": 3775.16,
+          "mean_chosen_cap": 3840
+        },
+        "submitted": {
+          "steps": 125,
+          "zero_prefill_steps": 0,
+          "sum_actual_prefill": 471895,
+          "mean_actual_prefill": 3775.16,
+          "mean_chosen_cap": 3840
+        }
+      },
+      "workload_sha256": "c3c93ef5610cf16d801753e750eb5e8d3c937530e0f5b242571c9ab3dfe98865",
+      "raw_sha256": "3b17bafb3aa660f9e8d1c8f0530b478f6d81151b1df02a212e53c0b3e9705ac9"
+    },
+    "extra-controls-high/01_fixed256": {
+      "policy": "fixed256",
+      "request_count": 160,
+      "prompt_tokens": 471895,
+      "output_tokens": 77824,
+      "total_steps": 2355,
+      "arrived_submitted_set_mismatches": 0,
+      "max_scheduled_total_tokens": 303,
+      "backlog": {
+        "arrived": {
+          "steps": 1844,
+          "zero_prefill_steps": 0,
+          "sum_actual_prefill": 471895,
+          "mean_actual_prefill": 255.9083514099783,
+          "mean_chosen_cap": 256
+        },
+        "submitted": {
+          "steps": 1844,
+          "zero_prefill_steps": 0,
+          "sum_actual_prefill": 471895,
+          "mean_actual_prefill": 255.9083514099783,
+          "mean_chosen_cap": 256
+        }
+      },
+      "workload_sha256": "c3c93ef5610cf16d801753e750eb5e8d3c937530e0f5b242571c9ab3dfe98865",
+      "raw_sha256": "912b6c334b7f7af4617761951cb9cfd06892883ec55280aad3c3816395d52e79"
+    },
+    "extra-controls-high/02_fixed512": {
+      "policy": "fixed512",
+      "request_count": 160,
+      "prompt_tokens": 471895,
+      "output_tokens": 77824,
+      "total_steps": 1445,
+      "arrived_submitted_set_mismatches": 0,
+      "max_scheduled_total_tokens": 593,
+      "backlog": {
+        "arrived": {
+          "steps": 923,
+          "zero_prefill_steps": 0,
+          "sum_actual_prefill": 471895,
+          "mean_actual_prefill": 511.2621885157096,
+          "mean_chosen_cap": 512
+        },
+        "submitted": {
+          "steps": 923,
+          "zero_prefill_steps": 0,
+          "sum_actual_prefill": 471895,
+          "mean_actual_prefill": 511.2621885157096,
+          "mean_chosen_cap": 512
+        }
+      },
+      "workload_sha256": "c3c93ef5610cf16d801753e750eb5e8d3c937530e0f5b242571c9ab3dfe98865",
+      "raw_sha256": "3c25413d8148fddeecb2b9d643724b7afeea50b0a17765083b47e52d5b0d36fe"
+    },
+    "extra-controls-high/03_fixed304": {
+      "policy": "fixed304",
+      "request_count": 160,
+      "prompt_tokens": 471895,
+      "output_tokens": 77824,
+      "total_steps": 2064,
+      "arrived_submitted_set_mismatches": 0,
+      "max_scheduled_total_tokens": 356,
+      "backlog": {
+        "arrived": {
+          "steps": 1553,
+          "zero_prefill_steps": 0,
+          "sum_actual_prefill": 471895,
+          "mean_actual_prefill": 303.86027044430136,
+          "mean_chosen_cap": 304
+        },
+        "submitted": {
+          "steps": 1553,
+          "zero_prefill_steps": 0,
+          "sum_actual_prefill": 471895,
+          "mean_actual_prefill": 303.86027044430136,
+          "mean_chosen_cap": 304
+        }
+      },
+      "workload_sha256": "c3c93ef5610cf16d801753e750eb5e8d3c937530e0f5b242571c9ab3dfe98865",
+      "raw_sha256": "a6259949d7d57bdd6c718364fc2f42858ca22244379ca7ac516d04c85a2249d4"
+    },
+    "extra-controls-high/04_fixed768": {
+      "policy": "fixed768",
+      "request_count": 160,
+      "prompt_tokens": 471895,
+      "output_tokens": 77824,
+      "total_steps": 1151,
+      "arrived_submitted_set_mismatches": 0,
+      "max_scheduled_total_tokens": 887,
+      "backlog": {
+        "arrived": {
+          "steps": 615,
+          "zero_prefill_steps": 0,
+          "sum_actual_prefill": 471895,
+          "mean_actual_prefill": 767.3089430894308,
+          "mean_chosen_cap": 768
+        },
+        "submitted": {
+          "steps": 615,
+          "zero_prefill_steps": 0,
+          "sum_actual_prefill": 471895,
+          "mean_actual_prefill": 767.3089430894308,
+          "mean_chosen_cap": 768
+        }
+      },
+      "workload_sha256": "c3c93ef5610cf16d801753e750eb5e8d3c937530e0f5b242571c9ab3dfe98865",
+      "raw_sha256": "c687c1740609d7eb8f7187d5a5f72dc011efa24b83ea4cc36dd121940052a48d"
+    },
+    "extra-controls-high/05_feedback": {
+      "policy": "feedback",
+      "request_count": 160,
+      "prompt_tokens": 471895,
+      "output_tokens": 77824,
+      "total_steps": 2098,
+      "arrived_submitted_set_mismatches": 0,
+      "max_scheduled_total_tokens": 2072,
+      "backlog": {
+        "arrived": {
+          "steps": 1549,
+          "zero_prefill_steps": 0,
+          "sum_actual_prefill": 471895,
+          "mean_actual_prefill": 304.64493221433185,
+          "mean_chosen_cap": 305.249838605552
+        },
+        "submitted": {
+          "steps": 1549,
+          "zero_prefill_steps": 0,
+          "sum_actual_prefill": 471895,
+          "mean_actual_prefill": 304.64493221433185,
+          "mean_chosen_cap": 305.249838605552
+        }
+      },
+      "workload_sha256": "c3c93ef5610cf16d801753e750eb5e8d3c937530e0f5b242571c9ab3dfe98865",
+      "raw_sha256": "bdffa40d843e0c79d2c813afb16b18d43261778bc54adf330e20e3ba71cc914e"
+    },
+    "extra-controls-high/06_feedback": {
+      "policy": "feedback",
+      "request_count": 160,
+      "prompt_tokens": 471895,
+      "output_tokens": 77824,
+      "total_steps": 2099,
+      "arrived_submitted_set_mismatches": 0,
+      "max_scheduled_total_tokens": 2072,
+      "backlog": {
+        "arrived": {
+          "steps": 1550,
+          "zero_prefill_steps": 0,
+          "sum_actual_prefill": 471895,
+          "mean_actual_prefill": 304.4483870967742,
+          "mean_chosen_cap": 305.05290322580646
+        },
+        "submitted": {
+          "steps": 1550,
+          "zero_prefill_steps": 0,
+          "sum_actual_prefill": 471895,
+          "mean_actual_prefill": 304.4483870967742,
+          "mean_chosen_cap": 305.05290322580646
+        }
+      },
+      "workload_sha256": "c3c93ef5610cf16d801753e750eb5e8d3c937530e0f5b242571c9ab3dfe98865",
+      "raw_sha256": "bd4f3ff30e1014f7dfcd9e5785f9e51e369ad321253c752099f776633cfa9b8d"
+    },
+    "extra-controls-high/07_fixed768": {
+      "policy": "fixed768",
+      "request_count": 160,
+      "prompt_tokens": 471895,
+      "output_tokens": 77824,
+      "total_steps": 1150,
+      "arrived_submitted_set_mismatches": 0,
+      "max_scheduled_total_tokens": 887,
+      "backlog": {
+        "arrived": {
+          "steps": 615,
+          "zero_prefill_steps": 0,
+          "sum_actual_prefill": 471895,
+          "mean_actual_prefill": 767.3089430894308,
+          "mean_chosen_cap": 768
+        },
+        "submitted": {
+          "steps": 615,
+          "zero_prefill_steps": 0,
+          "sum_actual_prefill": 471895,
+          "mean_actual_prefill": 767.3089430894308,
+          "mean_chosen_cap": 768
+        }
+      },
+      "workload_sha256": "c3c93ef5610cf16d801753e750eb5e8d3c937530e0f5b242571c9ab3dfe98865",
+      "raw_sha256": "5bcfa07b4de513b87f2b7e5a7550fd8a710c5d378b5b9a39a40495a08d556ea8"
+    },
+    "extra-controls-high/08_fixed304": {
+      "policy": "fixed304",
+      "request_count": 160,
+      "prompt_tokens": 471895,
+      "output_tokens": 77824,
+      "total_steps": 2064,
+      "arrived_submitted_set_mismatches": 0,
+      "max_scheduled_total_tokens": 356,
+      "backlog": {
+        "arrived": {
+          "steps": 1553,
+          "zero_prefill_steps": 0,
+          "sum_actual_prefill": 471895,
+          "mean_actual_prefill": 303.86027044430136,
+          "mean_chosen_cap": 304
+        },
+        "submitted": {
+          "steps": 1553,
+          "zero_prefill_steps": 0,
+          "sum_actual_prefill": 471895,
+          "mean_actual_prefill": 303.86027044430136,
+          "mean_chosen_cap": 304
+        }
+      },
+      "workload_sha256": "c3c93ef5610cf16d801753e750eb5e8d3c937530e0f5b242571c9ab3dfe98865",
+      "raw_sha256": "75832e9621e57d750aa5feedb4af3a55b7cbb5a11497e8dee7ba5c5e6a70970b"
+    },
+    "extra-controls-high/09_fixed512": {
+      "policy": "fixed512",
+      "request_count": 160,
+      "prompt_tokens": 471895,
+      "output_tokens": 77824,
+      "total_steps": 1446,
+      "arrived_submitted_set_mismatches": 0,
+      "max_scheduled_total_tokens": 593,
+      "backlog": {
+        "arrived": {
+          "steps": 923,
+          "zero_prefill_steps": 0,
+          "sum_actual_prefill": 471895,
+          "mean_actual_prefill": 511.2621885157096,
+          "mean_chosen_cap": 512
+        },
+        "submitted": {
+          "steps": 923,
+          "zero_prefill_steps": 0,
+          "sum_actual_prefill": 471895,
+          "mean_actual_prefill": 511.2621885157096,
+          "mean_chosen_cap": 512
+        }
+      },
+      "workload_sha256": "c3c93ef5610cf16d801753e750eb5e8d3c937530e0f5b242571c9ab3dfe98865",
+      "raw_sha256": "8f1fe9025e838ed87dd65c48b91bcf80df2fc827aefcc37c98a5c4b1be39f84c"
+    },
+    "extra-controls-high/10_fixed256": {
+      "policy": "fixed256",
+      "request_count": 160,
+      "prompt_tokens": 471895,
+      "output_tokens": 77824,
+      "total_steps": 2355,
+      "arrived_submitted_set_mismatches": 0,
+      "max_scheduled_total_tokens": 303,
+      "backlog": {
+        "arrived": {
+          "steps": 1844,
+          "zero_prefill_steps": 0,
+          "sum_actual_prefill": 471895,
+          "mean_actual_prefill": 255.9083514099783,
+          "mean_chosen_cap": 256
+        },
+        "submitted": {
+          "steps": 1844,
+          "zero_prefill_steps": 0,
+          "sum_actual_prefill": 471895,
+          "mean_actual_prefill": 255.9083514099783,
+          "mean_chosen_cap": 256
+        }
+      },
+      "workload_sha256": "c3c93ef5610cf16d801753e750eb5e8d3c937530e0f5b242571c9ab3dfe98865",
+      "raw_sha256": "9741f0cb40aaca82a01fe9a0c3e0cb01147aaed835f4b84b55de3db979b11f6b"
+    },
+    "extra-controls-high/11_fixed3840": {
+      "policy": "fixed3840",
+      "request_count": 160,
+      "prompt_tokens": 471895,
+      "output_tokens": 77824,
+      "total_steps": 682,
+      "arrived_submitted_set_mismatches": 0,
+      "max_scheduled_total_tokens": 3998,
+      "backlog": {
+        "arrived": {
+          "steps": 125,
+          "zero_prefill_steps": 0,
+          "sum_actual_prefill": 471895,
+          "mean_actual_prefill": 3775.16,
+          "mean_chosen_cap": 3840
+        },
+        "submitted": {
+          "steps": 125,
+          "zero_prefill_steps": 0,
+          "sum_actual_prefill": 471895,
+          "mean_actual_prefill": 3775.16,
+          "mean_chosen_cap": 3840
+        }
+      },
+      "workload_sha256": "c3c93ef5610cf16d801753e750eb5e8d3c937530e0f5b242571c9ab3dfe98865",
+      "raw_sha256": "af1a2d187e337ee86885c3be82f858c8f3f02bead3b2c41fe8dedfcc9807076d"
+    },
+    "extra-controls-high384/00_fixed384": {
+      "policy": "fixed384",
+      "request_count": 160,
+      "prompt_tokens": 471895,
+      "output_tokens": 77824,
+      "total_steps": 1742,
+      "arrived_submitted_set_mismatches": 0,
+      "max_scheduled_total_tokens": 447,
+      "backlog": {
+        "arrived": {
+          "steps": 1230,
+          "zero_prefill_steps": 0,
+          "sum_actual_prefill": 471895,
+          "mean_actual_prefill": 383.6544715447154,
+          "mean_chosen_cap": 384
+        },
+        "submitted": {
+          "steps": 1230,
+          "zero_prefill_steps": 0,
+          "sum_actual_prefill": 471895,
+          "mean_actual_prefill": 383.6544715447154,
+          "mean_chosen_cap": 384
+        }
+      },
+      "workload_sha256": "c3c93ef5610cf16d801753e750eb5e8d3c937530e0f5b242571c9ab3dfe98865",
+      "raw_sha256": "7460cefac61ca7e6234521a21c1af9c3e6318204513e88bda9050a8cd957cd2c"
+    },
+    "extra-controls-high384/01_fixed384": {
+      "policy": "fixed384",
+      "request_count": 160,
+      "prompt_tokens": 471895,
+      "output_tokens": 77824,
+      "total_steps": 1742,
+      "arrived_submitted_set_mismatches": 0,
+      "max_scheduled_total_tokens": 447,
+      "backlog": {
+        "arrived": {
+          "steps": 1230,
+          "zero_prefill_steps": 0,
+          "sum_actual_prefill": 471895,
+          "mean_actual_prefill": 383.6544715447154,
+          "mean_chosen_cap": 384
+        },
+        "submitted": {
+          "steps": 1230,
+          "zero_prefill_steps": 0,
+          "sum_actual_prefill": 471895,
+          "mean_actual_prefill": 383.6544715447154,
+          "mean_chosen_cap": 384
+        }
+      },
+      "workload_sha256": "c3c93ef5610cf16d801753e750eb5e8d3c937530e0f5b242571c9ab3dfe98865",
+      "raw_sha256": "4a4c3aab32055f813020b830bb0686a98a33d7a520748dfa52edbb2f9c87c39b"
+    }
+  },
+  "source_hashes": {
+    "high-normal-r01/00_fixed2048/raw.json": "0d788741fd813648b26670deed16e919949ac28cf5ab235a92abf9f2336cc176",
+    "high-normal-r01/01_fixed1024/raw.json": "ffcdc5f8e2255ade63ae173bd17b9316fe8341fd5abc3d436031ab8d3ed943a8",
+    "high-normal-r01/02_decode/raw.json": "ec884a1f7d443c86d77c0aa17ff51e3ad23d4ac494ae8b84170f5f0078349750",
+    "high-normal-r01/03_feedback/raw.json": "b388d99bae6145c84b52f3d3ef23b20d86dfb37c9a94ff0b94fd7b0fb707827a",
+    "high-normal-r01/04_feedback/raw.json": "148c558f7362eb2dfddaeb1fa057a8620b65af301c1bf75c3861be19fac98a95",
+    "high-normal-r01/05_decode/raw.json": "5065cd04f94f0326ebc99ddf89a47b06d16b205ba1ddd60653deb31451f5c70d",
+    "high-normal-r01/06_fixed1024/raw.json": "8277fea41cd07b8f392e64d3fd6a5e11b17cd31e2b1bcadefd0c97a68bbc3813",
+    "high-normal-r01/07_fixed2048/raw.json": "ff12ce0e4fe5a1ea5eaf2bcfd89e0015a17db39eef7a3fe3d75d353f5c6aa172",
+    "extra-controls-high/00_fixed3840/raw.json": "3b17bafb3aa660f9e8d1c8f0530b478f6d81151b1df02a212e53c0b3e9705ac9",
+    "extra-controls-high/01_fixed256/raw.json": "912b6c334b7f7af4617761951cb9cfd06892883ec55280aad3c3816395d52e79",
+    "extra-controls-high/02_fixed512/raw.json": "3c25413d8148fddeecb2b9d643724b7afeea50b0a17765083b47e52d5b0d36fe",
+    "extra-controls-high/03_fixed304/raw.json": "a6259949d7d57bdd6c718364fc2f42858ca22244379ca7ac516d04c85a2249d4",
+    "extra-controls-high/04_fixed768/raw.json": "c687c1740609d7eb8f7187d5a5f72dc011efa24b83ea4cc36dd121940052a48d",
+    "extra-controls-high/05_feedback/raw.json": "bdffa40d843e0c79d2c813afb16b18d43261778bc54adf330e20e3ba71cc914e",
+    "extra-controls-high/06_feedback/raw.json": "bd4f3ff30e1014f7dfcd9e5785f9e51e369ad321253c752099f776633cfa9b8d",
+    "extra-controls-high/07_fixed768/raw.json": "5bcfa07b4de513b87f2b7e5a7550fd8a710c5d378b5b9a39a40495a08d556ea8",
+    "extra-controls-high/08_fixed304/raw.json": "75832e9621e57d750aa5feedb4af3a55b7cbb5a11497e8dee7ba5c5e6a70970b",
+    "extra-controls-high/09_fixed512/raw.json": "8f1fe9025e838ed87dd65c48b91bcf80df2fc827aefcc37c98a5c4b1be39f84c",
+    "extra-controls-high/10_fixed256/raw.json": "9741f0cb40aaca82a01fe9a0c3e0cb01147aaed835f4b84b55de3db979b11f6b",
+    "extra-controls-high/11_fixed3840/raw.json": "af1a2d187e337ee86885c3be82f858c8f3f02bead3b2c41fe8dedfcc9807076d",
+    "extra-controls-high384/00_fixed384/raw.json": "7460cefac61ca7e6234521a21c1af9c3e6318204513e88bda9050a8cd957cd2c",
+    "extra-controls-high384/01_fixed384/raw.json": "4a4c3aab32055f813020b830bb0686a98a33d7a520748dfa52edbb2f9c87c39b"
+  }
+}

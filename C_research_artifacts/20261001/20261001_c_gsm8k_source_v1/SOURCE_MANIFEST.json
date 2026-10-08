@@ -1,0 +1,85 @@
+{
+  "historical_open_instruct": {
+    "commit": "4c0e9e803616661f1188372acaceecf0f03870dd",
+    "commit_date_utc": "2024-08-30T20:27:52Z",
+    "eight_shot_prefix": {
+      "derivation": "Exact run_eval.py CoT branch with eight ordered EXAMPLARS; length is exactly eight, so no random exemplar subsample",
+      "local": "eight_shot_prefix.txt",
+      "sha256": "bc98d2864d2c74ae324561ed4fa497c577cd251cc06aeae2c2a23bd5ef60c404"
+    },
+    "files": {
+      "eval/gsm/examplars.py": {
+        "git_blob_sha1": "9477909866b59be3688ecaa365cbf1886bcc8997",
+        "local": "examplars.py",
+        "sha256": "298a63c99677153d1345971a08130c9135042f929dbd885fc8c68d102acd2bd0"
+      },
+      "eval/gsm/run_eval.py": {
+        "git_blob_sha1": "219576d03dc39aca14ac0cd247f2e876e8bf52f3",
+        "local": "run_eval.py",
+        "sha256": "bba2cfa7d67b53e3b368b5c863ec9621b814247e2da65e4238f66d5a8d16dfda"
+      },
+      "eval/templates.py": {
+        "git_blob_sha1": "9d10c276b5e03b2e12daeba2de216400b2ed54b5",
+        "local": "templates.py",
+        "sha256": "75b8d299b862f0da9a885e2a9646430eeb5fea2af915d1a2ee40784f16c9c277"
+      }
+    },
+    "historical_generation": "Deterministic non-vLLM branch uses max_new_tokens=512, do_sample=False and model chat EOS; OLMoE driver does not set --use_vllm",
+    "historical_scoring": "After removing digit-group commas, regex extracts last numeric substring from the generated output; exact_match compares to normalized gold.",
+    "model_tokenizer_chat_template": "NOT_PINNED_IN_THIS_SOURCE_BUNDLE; must use exact released OLMoE Instruct/DPO tokenizer snapshot",
+    "per_question_composition": "One user message containing prefix + \"Question: \" + question.strip(); tokenizer.apply_chat_template(messages, add_generation_prompt=True, tokenize=False); then append \"Answer:\" if trailing newline/space, else \" Answer:\".",
+    "repository": "allenai/open-instruct",
+    "selection_reason": "last main commit before the pinned OLMoE adapteval.sh commit date 2024-09-02; exact installed evaluator revision used in OLMoE authors run is not recorded in the driver"
+  },
+  "official_test": {
+    "commit": "b0bb162abedc65e1fdd8e93ed090fd7598ee68bc",
+    "first16_numeric_gold_after_comma_normalization": [
+      "18",
+      "3",
+      "70000",
+      "540",
+      "20",
+      "64",
+      "260",
+      "160",
+      "45",
+      "460",
+      "366",
+      "694",
+      "13",
+      "18",
+      "60",
+      "125"
+    ],
+    "full_source_bytes": 749738,
+    "full_source_git_blob_sha1": "e4c2ff4942b9a78bd74f04141224c11e28d12dc9",
+    "full_source_rows": 1319,
+    "full_source_sha256": "3730d312f6e3440559ace48831e51066acaca737f6eabec99bccb9e4b3c39d14",
+    "gold_field": "answer.split(\"####\")[1].strip(); remove digit-group comma with re.sub(r\"(\\d),(\\d)\", r\"\\1\\2\", answer)",
+    "local_slice": "test-first16.jsonl",
+    "local_slice_sha256": "a3b9a9809f91f3c1db8195342fc002d2acdcbc9385a8283661228d0d0cea3e11",
+    "path": "grade_school_math/data/test.jsonl",
+    "repository": "openai/grade-school-math",
+    "selection": "first 16 physical JSONL rows in source order; fixed before model output; no selection by answers",
+    "url": "https://github.com/openai/grade-school-math/blob/b0bb162abedc65e1fdd8e93ed090fd7598ee68bc/grade_school_math/data/test.jsonl"
+  },
+  "olmoe_driver": {
+    "cohort_boundary": "The original 200-example evaluator uses random.seed(42) then random.sample(test_data, 200). The proposed first-16 source-order qualification is a separate pilot and must not be reported as the authors 200-example score.",
+    "commit": "4db0ce5f6ec21c8d3dec90ae470a816d1a0ad088",
+    "commit_date_utc": "2024-09-02T21:56:36Z",
+    "git_blob_sha1": "9dcaa0c9b6e367a7d8327e47c242af509eb15036",
+    "gsm_flags": [
+      "--n_shot 8",
+      "--use_chat_format",
+      "--chat_formatting_function eval.templates.create_prompt_with_huggingface_tokenizer_template",
+      "--max_num_examples 200"
+    ],
+    "local": "adapteval.sh",
+    "path": "scripts/adapteval.sh",
+    "repository": "allenai/OLMoE",
+    "sha256": "7acbfdafdae9701b6176584df6ae29f79b5a10b6184f4e1e37c75aa30831e4b6",
+    "url": "https://github.com/allenai/OLMoE/blob/4db0ce5f6ec21c8d3dec90ae470a816d1a0ad088/scripts/adapteval.sh"
+  },
+  "schema": "c-gsm8k-source-v1",
+  "status": "CPU_SOURCE_ONLY_NO_MODEL_NO_GPU"
+}

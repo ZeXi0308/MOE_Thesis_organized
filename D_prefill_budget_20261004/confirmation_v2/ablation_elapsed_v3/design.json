@@ -1,0 +1,313 @@
+{
+  "schema": "d-elapsed-ablation-v3-frozen-design",
+  "preparation_status_at_freeze": "CPU_PREPARED_NOT_UPLOADED_NOT_RUN",
+  "activation_condition": "Root may start GPU work only after the third original confirmation block is complete and valid, with A joint SLO goodput still higher than F, M and N in the same direction as blocks 01 and 02. Preparation is not activation.",
+  "question": "Does recent measured step elapsed time add service value beyond the predetermined early-large/later-small prefill-cap sequence?",
+  "policy_labels": {
+    "A": "feedback",
+    "R": "elapsed_replay"
+  },
+  "A": {
+    "name": "feedback",
+    "target_ms": 24,
+    "low_ms": 16.8,
+    "levels": [
+      256,
+      512,
+      1024,
+      2048
+    ],
+    "initial": 1024,
+    "no_decode": 2048,
+    "unchanged": true
+  },
+  "R": {
+    "name": "elapsed_replay",
+    "signal_removed": "actual recent elapsed_s is never consumed",
+    "state": "m: number of previously completed steps with actually scheduled prefill_tokens > 0 and decode_tokens > 0; reset to zero at each episode",
+    "no_decode_cap": 2048,
+    "cap_when_decode_present": [
+      {
+        "m_min": 0,
+        "m_max": 0,
+        "cap": 1024
+      },
+      {
+        "m_min": 1,
+        "m_max": 8,
+        "cap": 2048
+      },
+      {
+        "m_min": 9,
+        "m_max": 72,
+        "cap": 1024
+      },
+      {
+        "m_min": 73,
+        "m_max": 112,
+        "cap": 512
+      },
+      {
+        "m_min": 113,
+        "m_max": null,
+        "cap": 256
+      }
+    ],
+    "advance": "Only observe(prefill>0, decode>0) increments m once. Pure prefill, pure decode, idle and choose calls never advance m.",
+    "frozen_switch_boundaries": [
+      1,
+      9,
+      73,
+      113
+    ],
+    "selection": "Boundaries 1,9,73 occur in all four OLD traces. Final boundaries are 113,97,113,112; select the unique mode 113, which also equals the earliest OLD canonical trace. No new confirmation outcome selects a threshold."
+  },
+  "blocks": [
+    {
+      "block": 1,
+      "output": "block01",
+      "workload": "../arrivals_01.json",
+      "workload_sha256": "d2d24bf89f313d3f278593d0fcae4577c4c0a36fccb254b30576510abd332190",
+      "request_count": 160,
+      "prompt_tokens": 471895,
+      "output_tokens": 77824,
+      "policies": [
+        "feedback",
+        "elapsed_replay",
+        "elapsed_replay",
+        "feedback"
+      ],
+      "warm_policies": [
+        "feedback",
+        "elapsed_replay"
+      ],
+      "command": "bash launch.sh --output block01 --workload ../arrivals_01.json --policies feedback,elapsed_replay,elapsed_replay,feedback --warm-policies feedback,elapsed_replay --target-ms 24 --wait-lock 7200"
+    },
+    {
+      "block": 2,
+      "output": "block02",
+      "workload": "../arrivals_02.json",
+      "workload_sha256": "e07b0e866c32cff0e44b17fb57f10315f50aa69e39253304fdcb2ab9f18cde71",
+      "request_count": 160,
+      "prompt_tokens": 471895,
+      "output_tokens": 77824,
+      "policies": [
+        "elapsed_replay",
+        "feedback",
+        "feedback",
+        "elapsed_replay"
+      ],
+      "warm_policies": [
+        "feedback",
+        "elapsed_replay"
+      ],
+      "command": "bash launch.sh --output block02 --workload ../arrivals_02.json --policies elapsed_replay,feedback,feedback,elapsed_replay --warm-policies feedback,elapsed_replay --target-ms 24 --wait-lock 7200"
+    },
+    {
+      "block": 3,
+      "output": "block03",
+      "workload": "../arrivals_03.json",
+      "workload_sha256": "7953723cb67c7a20335467175a68a4068a05ad469cf131f76f3a1d9f18b35274",
+      "request_count": 160,
+      "prompt_tokens": 471895,
+      "output_tokens": 77824,
+      "policies": [
+        "feedback",
+        "elapsed_replay",
+        "elapsed_replay",
+        "feedback"
+      ],
+      "warm_policies": [
+        "feedback",
+        "elapsed_replay"
+      ],
+      "command": "bash launch.sh --output block03 --workload ../arrivals_03.json --policies feedback,elapsed_replay,elapsed_replay,feedback --warm-policies feedback,elapsed_replay --target-ms 24 --wait-lock 7200"
+    }
+  ],
+  "slo": {
+    "ttft_s": 4,
+    "gap_s": 0.1,
+    "completion_s": 20
+  },
+  "engine_invariants": {
+    "dtype": "bfloat16",
+    "model": "/root/autodl-tmp/moe-research-20261002/model",
+    "max_model_len": 4096,
+    "max_num_seqs": 192,
+    "max_num_batched_tokens": 4096,
+    "gpu_memory_utilization": 0.9,
+    "kv_cache_memory_bytes": "unspecified: unchanged normal vLLM memory allocation",
+    "long_prefill_token_threshold": 0,
+    "enable_chunked_prefill": true,
+    "enable_prefix_caching": false,
+    "scheduling_policy": "fcfs",
+    "async_scheduling": false,
+    "scheduler_reserve_full_isl": true,
+    "stream_interval": 1,
+    "enforce_eager": false,
+    "seed": 20261004,
+    "output_contract": "Same 160 requests, same prompts and fixed per-request lengths, ignore_eos=True, greedy; all requests must complete.",
+    "shared_lock": "/root/autodl-tmp/moe-research-gpu.lock",
+    "only_action": "aggregate prefill token cap; unchanged scheduling order, admission, victim/recovery path, precision and kernels"
+  },
+  "measurement": {
+    "measured_episodes": 12,
+    "warmup": "Before measurement in each block, A and R each replay that same block workload completely, in order A then R. Same engine/compilation domain; no new synchronization or forward pass.",
+    "pairing": "Two adjacent A/R pairs per block: cells (0,1) and (2,3), preserving every run. Formal block orders ARRA, RAAR, ARRA.",
+    "primary": "Original joint SLO request goodput: number of requests meeting TTFT<=4s, per-request max generation gap<=0.1s and completion flow<=20s, divided by full elapsed service time. Retain output-token goodput as secondary.",
+    "secondary": [
+      "joint SLO qualified output tokens/s",
+      "raw output tokens/s",
+      "TTFT distribution",
+      "completion/flow distribution",
+      "per-request maximum generation interval",
+      "prefill work per backlog-positive step including P=0",
+      "budget switches and first A/R action difference"
+    ],
+    "interpretation": "Report all three paired blocks; do not treat the prior roughly 1% A/F difference as statistically established. R is independently executed, not an offline masked serving result. A>R supports only superiority to this one frozen open-loop control; R approximately A weakens necessity of recent elapsed in this regime. No claim that every possible fixed schedule is inferior.",
+    "retention": "Keep all attempts, complete and failed; no selective omission or retuning after any ablation result."
+  },
+  "old_development_evidence": [
+    {
+      "path": "../../high-normal-r01/03_feedback/raw.json",
+      "sha256": "b388d99bae6145c84b52f3d3ef23b20d86dfb37c9a94ff0b94fd7b0fb707827a",
+      "mixed_steps": 1548,
+      "switches": [
+        {
+          "completed_mixed_steps_before": 0,
+          "prefill_cap": 1024
+        },
+        {
+          "completed_mixed_steps_before": 1,
+          "prefill_cap": 2048
+        },
+        {
+          "completed_mixed_steps_before": 9,
+          "prefill_cap": 1024
+        },
+        {
+          "completed_mixed_steps_before": 73,
+          "prefill_cap": 512
+        },
+        {
+          "completed_mixed_steps_before": 113,
+          "prefill_cap": 256
+        }
+      ]
+    },
+    {
+      "path": "../../high-normal-r01/04_feedback/raw.json",
+      "sha256": "148c558f7362eb2dfddaeb1fa057a8620b65af301c1bf75c3861be19fac98a95",
+      "mixed_steps": 1564,
+      "switches": [
+        {
+          "completed_mixed_steps_before": 0,
+          "prefill_cap": 1024
+        },
+        {
+          "completed_mixed_steps_before": 1,
+          "prefill_cap": 2048
+        },
+        {
+          "completed_mixed_steps_before": 9,
+          "prefill_cap": 1024
+        },
+        {
+          "completed_mixed_steps_before": 73,
+          "prefill_cap": 512
+        },
+        {
+          "completed_mixed_steps_before": 97,
+          "prefill_cap": 256
+        }
+      ]
+    },
+    {
+      "path": "../../extra-controls-high/05_feedback/raw.json",
+      "sha256": "bdffa40d843e0c79d2c813afb16b18d43261778bc54adf330e20e3ba71cc914e",
+      "mixed_steps": 1548,
+      "switches": [
+        {
+          "completed_mixed_steps_before": 0,
+          "prefill_cap": 1024
+        },
+        {
+          "completed_mixed_steps_before": 1,
+          "prefill_cap": 2048
+        },
+        {
+          "completed_mixed_steps_before": 9,
+          "prefill_cap": 1024
+        },
+        {
+          "completed_mixed_steps_before": 73,
+          "prefill_cap": 512
+        },
+        {
+          "completed_mixed_steps_before": 113,
+          "prefill_cap": 256
+        }
+      ]
+    },
+    {
+      "path": "../../extra-controls-high/06_feedback/raw.json",
+      "sha256": "bd4f3ff30e1014f7dfcd9e5785f9e51e369ad321253c752099f776633cfa9b8d",
+      "mixed_steps": 1549,
+      "switches": [
+        {
+          "completed_mixed_steps_before": 0,
+          "prefill_cap": 1024
+        },
+        {
+          "completed_mixed_steps_before": 1,
+          "prefill_cap": 2048
+        },
+        {
+          "completed_mixed_steps_before": 9,
+          "prefill_cap": 1024
+        },
+        {
+          "completed_mixed_steps_before": 73,
+          "prefill_cap": 512
+        },
+        {
+          "completed_mixed_steps_before": 112,
+          "prefill_cap": 256
+        }
+      ]
+    }
+  ],
+  "reuse_sources": {
+    "original_confirmation_design": {
+      "path": "../design.json",
+      "sha256": "94db5cae2c2f93cbeb14946677e7f56b638839f60b9dbc6a5195284ccf18156e"
+    },
+    "original_A_policy": {
+      "path": "../prefill_policy.py",
+      "sha256": "0fe67a4de7d5376b31b595302b0a1e0e75aa7e2e93a11617bbfb0e756e88e941"
+    },
+    "copied_driver": {
+      "path": "../run_confirmation.py",
+      "sha256": "749c69cbce95850b6f839bbd03eac14eb66dbe0070b71a18bb5c7a56e92b06ff"
+    },
+    "source_hashes": {
+      "run_confirmation.py": "67cb25770693252d64efcb93ea1aaf45ab99ce92926b77189dd03c324b0ee166",
+      "prefill_policy.py": "6e825ed6c7a8d51be09e391c544e30c852920b358f48e0286b86d0ea49b8914a",
+      "runtime_bootstrap.py": "dafbad576b9d2e956dd981da9309c72336a3af1e2b8ccad2cb24980c67c09778",
+      "launch.sh": "9b306857aac6ea64cf72838bb76a6d4f619ea66ab3645063f5a878a0bb691e51",
+      "verify_policy.py": "f6c733d0d6f47b740ba35479b5253adf73d7e0d19d0cb76df7cbd70af1d5bbe0"
+    }
+  },
+  "cpu_validation": {
+    "command": "python3 verify_policy.py",
+    "checks": [
+      "scheduler install AST unchanged",
+      "episode AST unchanged",
+      "A identical choose/state evolution on all four OLD real event streams and recorded budgets",
+      "R switches at both sides of 1/9/73/113",
+      "R advances only after actual mixed steps",
+      "R never consumes elapsed and preserves D=0 cap2048"
+    ]
+  },
+  "execution_note": "Requires the existing ../arrivals_01.json, ../arrivals_02.json and ../arrivals_03.json in the remote parent directory. launch.sh requires the actual selected D_GPU_UUID; root supplies it. No upload or GPU command has been executed by this preparation."
+}

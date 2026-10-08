@@ -1,0 +1,144 @@
+{
+  "schema": "d-phase-two-step-diagnostic-v1",
+  "status_at_freeze": "PRE_GPU_FROZEN",
+  "frozen_at_utc": "2026-10-07T13:48:04.929546+00:00",
+  "scope": "Bounded local mechanism diagnostic only. Full research goal remains OPEN; no X controller is implemented.",
+  "activation": "Launch only after G block03 has completed, exited and been analyzed. One D runner/waiter; shared flock; no automatic dependent launch.",
+  "reference": "Original block01 R submission-step ledger. All160 requests submitted bystep260; no future arrival retiming after fork.",
+  "cancelled_before_GPU": "Single512-pulse at291 vs293: both advance the same head completion to293, so proposed distinct conversion trajectories were redundant. No GPU run used this design.",
+  "anchors": [
+    291,
+    293
+  ],
+  "actions": {
+    "hl": [
+      512,
+      256
+    ],
+    "lh": [
+      256,
+      512
+    ]
+  },
+  "common_policy": "Frozen elapsed_replay before and after the two interventions; observe each actual mixed step as before.",
+  "only_action": "Aggregate pure prefill cap. Admission, native order, decode priority, KV, victim/recovery, precision, operators and output stopping remain unchanged.",
+  "expected_geometry": {
+    "291": {
+      "head_remaining": 843,
+      "C_hl": [
+        0,
+        0
+      ],
+      "C_lh": [
+        0,
+        0
+      ],
+      "decode_hl": [
+        58,
+        58
+      ],
+      "decode_lh": [
+        58,
+        58
+      ],
+      "head_remaining_after": 75
+    },
+    "293": {
+      "head_remaining": 331,
+      "C_hl": [
+        1,
+        0
+      ],
+      "C_lh": [
+        0,
+        1
+      ],
+      "decode_hl": [
+        58,
+        59
+      ],
+      "decode_lh": [
+        58,
+        58
+      ],
+      "head_computed_hl": 3514,
+      "head_computed_lh": 3513,
+      "next_prefill_after": 437
+    }
+  },
+  "work_matching": "Two-step actual pure prefill=768 for each arm; total tokens differ endogenously at293:885 vs884. Do not suppress or match away the extra decode token.",
+  "warm_policies": [
+    "s291_hl_warm",
+    "s291_lh_warm",
+    "s293_hl_warm",
+    "s293_lh_warm"
+  ],
+  "policies": [
+    "s291_hl_r1",
+    "s291_lh_r1",
+    "s293_lh_r1",
+    "s293_hl_r1",
+    "s293_hl_r2",
+    "s293_lh_r2",
+    "s291_lh_r2",
+    "s291_hl_r2"
+  ],
+  "attempt_budget": {
+    "warm": 4,
+    "formal": 8,
+    "repeats": 2,
+    "no_additions": "Retain every failed/ineligible attempt. No outcome-dependent retries, anchor searches or threshold adjustment."
+  },
+  "request_contract": {
+    "requests": 160,
+    "prompt_tokens": 471895,
+    "output_tokens": 77824,
+    "fixed_lengths": true,
+    "ignore_eos": true,
+    "full_drain": true
+  },
+  "arrival_mode": "Replay submit step/order. Wait until original arrival if necessary, never inject early; keep actual/reference add drift and explicit waits. This is not normal arrival-clock E2E.",
+  "qualification": "Capture lightweight logical state and output-prefix lengths before fork. Offline compare all prior schedule signatures, full token prefixes, running/waiting/submitted order, computed/output positions and R count against reference and paired branch. Ineligible executions remain in results, without causal interpretation or replacement. No bitwise KV equality claim.",
+  "timing": "Host engine.step includes scheduler and internal engine output handling, excludes outer rows bookkeeping. Full elapsed and true output gaps retain bookkeeping, explicit waits and prefix snapshot overhead; no added GPU synchronize.",
+  "primary_utility": {
+    "definition": "old joint-qualified requests / full elapsed_s, including prefix, waits and drain",
+    "ttft_s": 4,
+    "gap_s": 0.1,
+    "completion_s": 20,
+    "diagnostic_only": true
+  },
+  "windows": {
+    "short": "engine steps anchor..anchor+31 inclusive",
+    "incumbent": "58 decoders visible before fork; start gap at prior last output, no horizon extension",
+    "residual": "completion minus own fork start for common unfinished request set; diagnostic only, never replaces primary utility"
+  },
+  "decision": {
+    "service_effect_floor_percent": 1.0,
+    "paired_repeats_required": 2,
+    "drift_rule": "Both paired signed effects exceed floor and absolute effect>2*max same-arm repeat drift. This is descriptive screening, not confidence or significance.",
+    "reversal": "Only opposite eligible E/L preferences at the two anchors support a local service preference reversal. Otherwise this probe does not justify constructing X.",
+    "local_effect_floors_ms": {
+      "residual_mean": 5,
+      "residual_p95": 5,
+      "incumbent_maxgap_p95": 2,
+      "head_ttft": 5
+    },
+    "limitation": "Head one-step advancement and C/D manipulation alone are not independent action value; second-step count/context baselines may absorb the cost. No equivalence or global-negative claim fromn2."
+  },
+  "source_sha256": {
+    "run_probe.py": "aa2d9018df7e34ca47f6a50668be37aae674e1ef5b7781c0ebc46cf998b7cd2d",
+    "frozen_prefix.json": "b4ba979fd4a26120200c7d5e6d256c78a4b98fc4aa678951001243ddb641d5a7",
+    "workload.json": "d2d24bf89f313d3f278593d0fcae4577c4c0a36fccb254b30576510abd332190",
+    "../run_confirmation.py": "67cb25770693252d64efcb93ea1aaf45ab99ce92926b77189dd03c324b0ee166",
+    "../prefill_policy.py": "1aedafb440597a5903539eb05e5e3e5cd0eaa12a0eda292f345df6d883cbe960",
+    "../runtime_bootstrap.py": "dafbad576b9d2e956dd981da9309c72336a3af1e2b8ccad2cb24980c67c09778"
+  },
+  "analysis_source_sha256": {
+    "analyze_probe.py": "22700e45011826b9cd3ccc4d71d084bfdab427e522a2012e406f381acab89e3c",
+    "build_prefix.py": "99421f25a9a238f64044e13953020c6b1e27e99035be011b386685d5b8331a49",
+    "DIAGNOSTIC_DESIGN_DRAFT.txt": "f4379dc4ba027e0da233860d40f05dfb81cd9991eae3d33e6765545688afb669",
+    "../../analyze.py": "c434aa29ab0e5edeb25dc4c77159af6f6de8ae82edf2ffe3ef8b1332548f839c"
+  },
+  "shared_lock": "/root/autodl-tmp/moe-research-gpu.lock",
+  "output_filesystem": "/tmp with free space verified before launch"
+}

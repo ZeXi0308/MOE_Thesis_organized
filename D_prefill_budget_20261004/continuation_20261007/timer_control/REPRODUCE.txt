@@ -1,0 +1,12 @@
+D timer19 structural ablation; read design.json and ../RESULTS.md.
+Only execute after no live D process/waiter. Whole group uses common host GPU flock.
+Same parent engine/model/BF16/normalKV/workload; T/V/V/T, both full warm, max4formal.
+T uses frozen19s timer from oldR, ignoresK; V unchanged. Both still recordK/actualP.
+Only aggregateprefill cap changes; allrequests drain, no hiddenwait/reject/reorder.
+Remote:
+D_GPU_UUID=GPU-94203fc3-1021-3a9c-a367-cff792479616 bash /tmp/moe-d-prefill-continuation-20261007/timer_control/launch.sh --output /tmp/moe-d-prefill-continuation-20261007/timer01 --wait-lock 7200
+After whole group terminal/process exit/lockrelease, fetch timer01 and timer01.log.
+From continuation_20261007:
+python3 -B timer_control/analyze_timer.py timer01
+No timer threshold tuning or extra repeats after result. V/T gate descriptive, not equivalence/significance.
+Same prompts/output token counts do not imply same content/routes/compute/quality.

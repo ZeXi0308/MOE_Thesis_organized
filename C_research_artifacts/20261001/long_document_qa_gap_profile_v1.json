@@ -1,0 +1,121 @@
+{
+  "schema": "c-longqa-selected-step-python-profile-result-v1",
+  "scope": "Diagnostic cProfile of synchronous engine.step at fixed steps379/380/381; inclusive nested call times must not be summed; profiling overhead retained; no CUDA kernel timing or policy performance claim",
+  "source_sha256": {
+    "selected-step-python-profile.json": "ff5742061052ff85ba158046952d8ca189caf83724bc60adf150c0312b5b44d5",
+    "measured-steps.json": "f598bef8be5478d8a879120092bd653c94dc68d0787e0e02902a6754a4121538",
+    "measured-outputs.json": "ad48c239ec7423709f17950d83b868456c1fc12930c360f08d90c9c72ed4c8f3",
+    "status.json": "8897f6fed2517c42026b016c83511401b81f1f56d488056fbeb21d5bbf9bd8c9"
+  },
+  "archive": {
+    "name": "density-gap-profile-dev-v1-complete.tar.gz",
+    "size_bytes": 3394118,
+    "sha256": "60f74ee849ca1c40889475186d9b0fc6de3ce0a5af6ff584bd658f6cc507b636"
+  },
+  "episode": {
+    "status": "COMPLETE",
+    "request_count": 150,
+    "schedule_calls": 434,
+    "output_tokens": 3951,
+    "finish_reason_counts": {
+      "length": 24,
+      "stop": 126
+    },
+    "preemptions": 0
+  },
+  "steps": {
+    "379": {
+      "wall_engine_step_s": 0.026791933923959732,
+      "scheduler_total_tokens": 1024,
+      "scheduler_request_count": 11,
+      "running_after_schedule": 11,
+      "waiting_after_schedule": 0,
+      "cprofile_self_sum_s": 0.02660121500000001,
+      "cprofile_function_rows": 680,
+      "selected_functions": {}
+    },
+    "380": {
+      "wall_engine_step_s": 0.7331884242594242,
+      "scheduler_total_tokens": 911,
+      "scheduler_request_count": 11,
+      "running_after_schedule": 11,
+      "waiting_after_schedule": 0,
+      "cprofile_self_sum_s": 0.5913320119999999,
+      "cprofile_function_rows": 1325,
+      "selected_functions": {
+        "triton_make_cubin": {
+          "function": "make_cubin",
+          "filename": "/root/autodl-tmp/c-vllm-v026-venv/lib/python3.12/site-packages/triton/backends/nvidia/compiler.py",
+          "calls": 2,
+          "recursive_calls": 0,
+          "cumulative_call_s": 0.220961762,
+          "self_call_s": 0.00012767
+        },
+        "posix_waitpid": {
+          "function": "<built-in method posix.waitpid>",
+          "filename": null,
+          "calls": 2,
+          "recursive_calls": 0,
+          "cumulative_call_s": 0.21786955200000002,
+          "self_call_s": 0.21786955200000002
+        },
+        "llvm_optimize_module": {
+          "function": "<built-in method triton._C.libtriton.llvm.optimize_module>",
+          "filename": null,
+          "calls": 2,
+          "recursive_calls": 0,
+          "cumulative_call_s": 0.082756407,
+          "self_call_s": 0.082756407
+        },
+        "llvm_translate_to_asm": {
+          "function": "<built-in method triton._C.libtriton.llvm.translate_to_asm>",
+          "filename": null,
+          "calls": 2,
+          "recursive_calls": 0,
+          "cumulative_call_s": 0.060390564,
+          "self_call_s": 0.060390564
+        },
+        "codegen_visit": {
+          "function": "visit",
+          "filename": "/root/autodl-tmp/c-vllm-v026-venv/lib/python3.12/site-packages/triton/compiler/code_generator.py",
+          "calls": 139,
+          "recursive_calls": 139,
+          "cumulative_call_s": 0.0,
+          "self_call_s": 0.063766771
+        }
+      }
+    },
+    "381": {
+      "wall_engine_step_s": 0.015348725020885468,
+      "scheduler_total_tokens": 11,
+      "scheduler_request_count": 11,
+      "running_after_schedule": 11,
+      "waiting_after_schedule": 0,
+      "cprofile_self_sum_s": 0.015244430000000014,
+      "cprofile_function_rows": 407,
+      "selected_functions": {}
+    }
+  },
+  "primary_density_output_and_schedule_checks": {
+    "density1": {
+      "measured_outputs_sha256": "1cda3c4525802eab41ea3f5689931eb0fb38aeab94cb9bbb5eba3ceab974ef75",
+      "output_ids_same_150": true,
+      "output_text_same_150": true,
+      "finish_reason_same_150": true,
+      "prompt_ids_sha_same_150": true,
+      "scheduled_tokens_and_request_counts_same_434_calls": true,
+      "submission_order_same": true
+    },
+    "density2": {
+      "measured_outputs_sha256": "27dd56a5e6d3bef5116daae7f3f13e4f88de5db5ccb0070d859c0d3da88fc287",
+      "output_ids_same_150": true,
+      "output_text_same_150": true,
+      "finish_reason_same_150": true,
+      "prompt_ids_sha_same_150": true,
+      "scheduled_tokens_and_request_counts_same_434_calls": true,
+      "submission_order_same": true
+    }
+  },
+  "accounting_caveat": "Nested cumulative call times overlap. cProfile has recursive rows with cumulative_call_s=0 while self_call_s>0; total self time at step380 is not a complete wall-clock partition, and no CUDA kernel time or residual-GPU time is inferred.",
+  "interpretation": "Significant Triton JIT compilation activity is directly visible during the long profiled step. The exact specialization trigger and causal effect of density/group contiguity are not established."
+}

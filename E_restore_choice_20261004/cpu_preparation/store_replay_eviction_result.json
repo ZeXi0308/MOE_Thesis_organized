@@ -1,0 +1,768 @@
+{
+  "status": "PASS_NATIVE_CPU_MAINTENANCE_COUNTEREXAMPLE",
+  "hypothesis": "Re-admitting one missing target block can evict another request's prefix head, reducing its immediately loadable prefix.",
+  "fixture": {
+    "host_capacity_blocks": 15,
+    "tokens_per_chunk": 16,
+    "A_known_chunks": 8,
+    "A_initial_ready_chunks": 7,
+    "B_initial_ready_chunks": 8,
+    "initial_store_cursor": 8,
+    "cache_policy": "official v0.26.0 LRU",
+    "precondition": "No in-flight transfers; B0 is an unprotected ref_cnt=0 oldest block."
+  },
+  "arms": {
+    "off": {
+      "initial": {
+        "residents": {
+          "B0": {
+            "block_id": 0,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "B1": {
+            "block_id": 1,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "B2": {
+            "block_id": 2,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "B3": {
+            "block_id": 3,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "B4": {
+            "block_id": 4,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "B5": {
+            "block_id": 5,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "B6": {
+            "block_id": 6,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "B7": {
+            "block_id": 7,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "A0": {
+            "block_id": 8,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "A1": {
+            "block_id": 9,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "A3": {
+            "block_id": 10,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "A4": {
+            "block_id": 11,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "A5": {
+            "block_id": 12,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "A6": {
+            "block_id": 13,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "A7": {
+            "block_id": 14,
+            "ref_cnt": 0,
+            "ready": true
+          }
+        },
+        "lru_oldest_first": [
+          "B0",
+          "B1",
+          "B2",
+          "B3",
+          "B4",
+          "B5",
+          "B6",
+          "B7",
+          "A0",
+          "A1",
+          "A3",
+          "A4",
+          "A5",
+          "A6",
+          "A7"
+        ],
+        "prefix_chunks": {
+          "A": 2,
+          "B": 8
+        },
+        "cursor": 8,
+        "free_blocks": 0,
+        "allocated_blocks": 15,
+        "evictable_blocks": 15,
+        "write_pending_blocks": 0
+      },
+      "cursor_after_intervention": 8,
+      "pending": {
+        "residents": {
+          "B0": {
+            "block_id": 0,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "B1": {
+            "block_id": 1,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "B2": {
+            "block_id": 2,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "B3": {
+            "block_id": 3,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "B4": {
+            "block_id": 4,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "B5": {
+            "block_id": 5,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "B6": {
+            "block_id": 6,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "B7": {
+            "block_id": 7,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "A0": {
+            "block_id": 8,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "A1": {
+            "block_id": 9,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "A3": {
+            "block_id": 10,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "A4": {
+            "block_id": 11,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "A5": {
+            "block_id": 12,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "A6": {
+            "block_id": 13,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "A7": {
+            "block_id": 14,
+            "ref_cnt": 0,
+            "ready": true
+          }
+        },
+        "lru_oldest_first": [
+          "B0",
+          "B1",
+          "B2",
+          "B3",
+          "B4",
+          "B5",
+          "B6",
+          "B7",
+          "A0",
+          "A1",
+          "A3",
+          "A4",
+          "A5",
+          "A6",
+          "A7"
+        ],
+        "prefix_chunks": {
+          "A": 2,
+          "B": 8
+        },
+        "cursor": 8,
+        "free_blocks": 0,
+        "allocated_blocks": 15,
+        "evictable_blocks": 15,
+        "write_pending_blocks": 0
+      },
+      "submitted_transfers": [],
+      "final": {
+        "residents": {
+          "B0": {
+            "block_id": 0,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "B1": {
+            "block_id": 1,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "B2": {
+            "block_id": 2,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "B3": {
+            "block_id": 3,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "B4": {
+            "block_id": 4,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "B5": {
+            "block_id": 5,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "B6": {
+            "block_id": 6,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "B7": {
+            "block_id": 7,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "A0": {
+            "block_id": 8,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "A1": {
+            "block_id": 9,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "A3": {
+            "block_id": 10,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "A4": {
+            "block_id": 11,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "A5": {
+            "block_id": 12,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "A6": {
+            "block_id": 13,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "A7": {
+            "block_id": 14,
+            "ref_cnt": 0,
+            "ready": true
+          }
+        },
+        "lru_oldest_first": [
+          "B0",
+          "B1",
+          "B2",
+          "B3",
+          "B4",
+          "B5",
+          "B6",
+          "B7",
+          "A0",
+          "A1",
+          "A3",
+          "A4",
+          "A5",
+          "A6",
+          "A7"
+        ],
+        "prefix_chunks": {
+          "A": 2,
+          "B": 8
+        },
+        "cursor": 8,
+        "free_blocks": 0,
+        "allocated_blocks": 15,
+        "evictable_blocks": 15,
+        "write_pending_blocks": 0
+      },
+      "removed_keys": [],
+      "added_keys": []
+    },
+    "on": {
+      "initial": {
+        "residents": {
+          "B0": {
+            "block_id": 0,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "B1": {
+            "block_id": 1,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "B2": {
+            "block_id": 2,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "B3": {
+            "block_id": 3,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "B4": {
+            "block_id": 4,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "B5": {
+            "block_id": 5,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "B6": {
+            "block_id": 6,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "B7": {
+            "block_id": 7,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "A0": {
+            "block_id": 8,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "A1": {
+            "block_id": 9,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "A3": {
+            "block_id": 10,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "A4": {
+            "block_id": 11,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "A5": {
+            "block_id": 12,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "A6": {
+            "block_id": 13,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "A7": {
+            "block_id": 14,
+            "ref_cnt": 0,
+            "ready": true
+          }
+        },
+        "lru_oldest_first": [
+          "B0",
+          "B1",
+          "B2",
+          "B3",
+          "B4",
+          "B5",
+          "B6",
+          "B7",
+          "A0",
+          "A1",
+          "A3",
+          "A4",
+          "A5",
+          "A6",
+          "A7"
+        ],
+        "prefix_chunks": {
+          "A": 2,
+          "B": 8
+        },
+        "cursor": 8,
+        "free_blocks": 0,
+        "allocated_blocks": 15,
+        "evictable_blocks": 15,
+        "write_pending_blocks": 0
+      },
+      "cursor_after_intervention": 2,
+      "pending": {
+        "residents": {
+          "B1": {
+            "block_id": 1,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "B2": {
+            "block_id": 2,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "B3": {
+            "block_id": 3,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "B4": {
+            "block_id": 4,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "B5": {
+            "block_id": 5,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "B6": {
+            "block_id": 6,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "B7": {
+            "block_id": 7,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "A0": {
+            "block_id": 8,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "A1": {
+            "block_id": 9,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "A3": {
+            "block_id": 10,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "A4": {
+            "block_id": 11,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "A5": {
+            "block_id": 12,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "A6": {
+            "block_id": 13,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "A7": {
+            "block_id": 14,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "A2": {
+            "block_id": 0,
+            "ref_cnt": -1,
+            "ready": false
+          }
+        },
+        "lru_oldest_first": [
+          "B1",
+          "B2",
+          "B3",
+          "B4",
+          "B5",
+          "B6",
+          "B7",
+          "A7",
+          "A6",
+          "A5",
+          "A4",
+          "A3",
+          "A1",
+          "A0"
+        ],
+        "prefix_chunks": {
+          "A": null,
+          "B": 0
+        },
+        "cursor": 8,
+        "free_blocks": 0,
+        "allocated_blocks": 15,
+        "evictable_blocks": 14,
+        "write_pending_blocks": 1
+      },
+      "submitted_transfers": [
+        {
+          "job_id": 0,
+          "keys": [
+            "A2"
+          ],
+          "src_gpu_ids": [
+            3
+          ],
+          "dst_cpu_ids": [
+            0
+          ]
+        }
+      ],
+      "final": {
+        "residents": {
+          "B1": {
+            "block_id": 1,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "B2": {
+            "block_id": 2,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "B3": {
+            "block_id": 3,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "B4": {
+            "block_id": 4,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "B5": {
+            "block_id": 5,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "B6": {
+            "block_id": 6,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "B7": {
+            "block_id": 7,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "A0": {
+            "block_id": 8,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "A1": {
+            "block_id": 9,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "A3": {
+            "block_id": 10,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "A4": {
+            "block_id": 11,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "A5": {
+            "block_id": 12,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "A6": {
+            "block_id": 13,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "A7": {
+            "block_id": 14,
+            "ref_cnt": 0,
+            "ready": true
+          },
+          "A2": {
+            "block_id": 0,
+            "ref_cnt": 0,
+            "ready": true
+          }
+        },
+        "lru_oldest_first": [
+          "B1",
+          "B2",
+          "B3",
+          "B4",
+          "B5",
+          "B6",
+          "B7",
+          "A7",
+          "A6",
+          "A5",
+          "A4",
+          "A3",
+          "A1",
+          "A0",
+          "A2"
+        ],
+        "prefix_chunks": {
+          "A": 8,
+          "B": 0
+        },
+        "cursor": 8,
+        "free_blocks": 0,
+        "allocated_blocks": 15,
+        "evictable_blocks": 15,
+        "write_pending_blocks": 0
+      },
+      "removed_keys": [
+        "B0"
+      ],
+      "added_keys": [
+        "A2"
+      ]
+    }
+  },
+  "findings": {
+    "stored_chunks": 1,
+    "evicted_chunks": 1,
+    "A_prefix_change_chunks": 6,
+    "B_prefix_change_chunks": -8,
+    "interpretation": "A gains a complete reusable prefix while B loses contiguous prefix reuse. B1..B7 remain resident; this is not loss of eight physical blocks."
+  },
+  "scope": {
+    "executed": "Unchanged native STORE builder, prefix lookup, manager constructor/prepare_store/complete_store/lookup; official complete BlockStatus, CachePolicy and LRU classes.",
+    "fixture_only": "Opaque string keys, request/config/spec DTOs, supplied GPU block IDs and compute progress, synchronous successful STORE acknowledgement, no model values.",
+    "limitations": [
+      "No GPU, tensor payload, actual transfer, worker completion path, concurrent scheduler or full inference engine.",
+      "One deterministic constructed LRU state, not evidence of occurrence in E246 or a workload frequency estimate.",
+      "No future requests/resumes are executed; prefix losses are not measured recomputation or wall-clock costs.",
+      "Does not establish incorrect outputs, a universal repair, a useful policy, or a paper contribution."
+    ]
+  },
+  "native_ast_references": {
+    "TransferJobStatus": {
+      "source": "native_sources/distributed/kv_transfer/kv_connector/v1/offloading/scheduler.py",
+      "line": 59
+    },
+    "RequestGroupState": {
+      "source": "native_sources/distributed/kv_transfer/kv_connector/v1/offloading/scheduler.py",
+      "line": 234
+    },
+    "RequestOffloadState": {
+      "source": "native_sources/distributed/kv_transfer/kv_connector/v1/offloading/scheduler.py",
+      "line": 245
+    },
+    "OffloadingConnectorScheduler": {
+      "source": "native_sources/distributed/kv_transfer/kv_connector/v1/offloading/scheduler.py",
+      "line": 358,
+      "methods": {
+        "_maybe_observe_lookup_async_delay": 423,
+        "_generate_job_id": 435,
+        "_calc_num_offloadable_tokens": 447,
+        "_maybe_cleanup_finished_req": 458,
+        "_maximal_prefix_lookup": 465,
+        "_touch": 520,
+        "_lookup": 539,
+        "get_num_new_matched_tokens": 720,
+        "update_state_after_alloc": 777,
+        "_build_store_jobs": 926
+      }
+    },
+    "CPUOffloadingManager": {
+      "source": "native_sources/v1/kv_offload/cpu/manager.py",
+      "line": 37,
+      "methods": {
+        "_get_num_free_blocks": 84,
+        "_allocate_blocks": 87,
+        "_free_block": 103,
+        "_get_load_store_spec": 106,
+        "lookup": 120,
+        "prepare_load": 137,
+        "touch": 156,
+        "complete_load": 160,
+        "prepare_store": 173,
+        "complete_store": 246
+      }
+    }
+  },
+  "sources": [
+    {
+      "path": "related_sources/vllm_v0_26_0_cpu_policy/base.py",
+      "sha256": "ca9d2fa873813e2887b1aae1d4667835a64ef85371deb4f1c88702f08d32ef9f",
+      "url": "https://raw.githubusercontent.com/vllm-project/vllm/v0.26.0/vllm/v1/kv_offload/cpu/policies/base.py",
+      "version": "v0.26.0"
+    },
+    {
+      "path": "related_sources/vllm_v0_26_0_cpu_policy/lru.py",
+      "sha256": "fd7ddee1f288f19197f5519fe7cd73d4e92a2460e9354892cfedcba4664b7f32",
+      "url": "https://raw.githubusercontent.com/vllm-project/vllm/v0.26.0/vllm/v1/kv_offload/cpu/policies/lru.py",
+      "version": "v0.26.0"
+    },
+    {
+      "path": "native_sources/v1/kv_offload/cpu/manager.py",
+      "sha256": "a7a166f7756d76e18a0e571828555d5ec66113425bd09911ecab7cf27f146416"
+    },
+    {
+      "path": "native_sources/distributed/kv_transfer/kv_connector/v1/offloading/scheduler.py",
+      "sha256": "89ac26a80fbc29b9bcaa5a0daba88fb6309247f9bb053e48d2d61efa7d9d66f1"
+    },
+    {
+      "path": "cpu_preparation/check_recompute_store_semantics.py",
+      "sha256": "9e716262f0a115493c59b988fe2917b29517d1a87ab486c2f96e2edb4c8f5dd3"
+    },
+    {
+      "path": "cpu_preparation/check_store_replay_eviction.py",
+      "sha256": "d92cb647e20dbe73143cf293df6928b6cb40e89f1ace07937674166d7bec24ad"
+    }
+  ],
+  "verification_note": "The first test assertion incorrectly expected A's pending prefix to be 2. Inspection showed native lookup correctly returns None (defer) while A2 is not ready; the assertion was corrected. No native body or final prediction changed."
+}

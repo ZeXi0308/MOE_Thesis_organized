@@ -1,0 +1,19 @@
+{
+  "schema": "c-math-exploration-prediction-v1",
+  "recorded_at_utc": "2026-10-01T17:46:36.841432+00:00",
+  "before_new128_outputs": true,
+  "evidence": "Qwen7B Q0 first16 outputs; current128 shares eight-shot prefix and same 8GiB KV",
+  "first16_output_mean": 234.6875,
+  "first16_output_max": 380,
+  "predictions": [
+    {
+      "claim": "Native128 math has zero or very few KV preemptions; prefix reuse and short natural outputs likely leave ample capacity.",
+      "falsification": "Native128 shows persistent KV rejects or repeated preempt/recompute cost."
+    },
+    {
+      "claim": "Fixed64 is not assumed to improve math merely because it improved long-document QA.",
+      "comparison": "Complete-request outcomes and token throughput of pair; keep all 128 requests."
+    }
+  ],
+  "next_action_rule": "If no recovery competition occurs, do not implement restore priority on this batch. Use measured prefill/decode or scheduling cost to choose one direct next intervention; batch4096 control is available if warranted."
+}

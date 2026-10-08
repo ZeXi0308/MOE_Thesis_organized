@@ -1,0 +1,90 @@
+{
+  "schema": "c-longqa-grain-revisit-v1",
+  "block_tokens": 16,
+  "reusable_rule": "complete 16-token prefix blocks, at most P-1 prompt tokens per request",
+  "first_token_rule": "prior first output observed before current schedule call implies its full prompt prefill had completed",
+  "interval_rule": "sum of scheduled tokens over [previous first-allocation call, current first-allocation call); not unique KV blocks or cache footprint",
+  "limitation": "No per-block hash/eviction events were recorded; missing hits show absent reusable APC prefix, not exact eviction time or victim blocks",
+  "actions_sha256": "7dc52a12e9b442fdec007fe52751aa3c98f26141e2908f763db0603b5d634d56",
+  "raw_sha256": {
+    "whole": {
+      "measured-steps.json": "0f931ae6fd1aa6f4e8a10ee4890a8cde2eb0c606624432921cfeee38280ed4d4",
+      "measured-outputs.json": "10cc5b15803e57ab48e0a8bdd6a9b9a234f0126c5cbaf3721185ffb8f6dd5ae0"
+    },
+    "1": {
+      "measured-steps.json": "653cc8629d73380ff21a3e3f96466bb0acfee6cde7878afb53bba86579531aa4",
+      "measured-outputs.json": "d14ad9fcbc8a6d3fd980e6d3417554e969e2856ead192d322766d558399346a8"
+    },
+    "2": {
+      "measured-steps.json": "fa98db28a916bda2f27120bc98801b6d5a2eb8c014aea37028930dfdbdd5d31c",
+      "measured-outputs.json": "528bbb4c0a6950ae4c3615c632d630ed766e6f68f82bc0122dfec481111b0953"
+    }
+  },
+  "arms": {
+    "whole": {
+      "theoretical_prior_prompt_prefix_opportunity_tokens": 107152,
+      "actual_first_allocation_prefix_hit_tokens": 107152,
+      "missing_hit_tokens": 0,
+      "prior_first_token_completed_opportunity_tokens": 13952,
+      "missing_hit_tokens_with_completed_prior_prompt": 0,
+      "same_group_revisits": 50,
+      "same_group_revisits_after_prior_first_token": 0,
+      "median_completed_revisit_schedule_call_gap": null,
+      "median_completed_revisit_interval_scheduled_tokens": null
+    },
+    "1": {
+      "theoretical_prior_prompt_prefix_opportunity_tokens": 107152,
+      "actual_first_allocation_prefix_hit_tokens": 13952,
+      "missing_hit_tokens": 93200,
+      "prior_first_token_completed_opportunity_tokens": 107136,
+      "missing_hit_tokens_with_completed_prior_prompt": 93200,
+      "same_group_revisits": 50,
+      "same_group_revisits_after_prior_first_token": 50,
+      "median_completed_revisit_schedule_call_gap": 328.0,
+      "median_completed_revisit_interval_scheduled_tokens": 335872.0
+    },
+    "2": {
+      "theoretical_prior_prompt_prefix_opportunity_tokens": 107152,
+      "actual_first_allocation_prefix_hit_tokens": 80640,
+      "missing_hit_tokens": 26512,
+      "prior_first_token_completed_opportunity_tokens": 40432,
+      "missing_hit_tokens_with_completed_prior_prompt": 26512,
+      "same_group_revisits": 50,
+      "same_group_revisits_after_prior_first_token": 13,
+      "median_completed_revisit_schedule_call_gap": 360,
+      "median_completed_revisit_interval_scheduled_tokens": 368640
+    }
+  },
+  "examples": {
+    "1": {
+      "previous_source_index": 38,
+      "source_index": 123,
+      "group_id": 9,
+      "previous_first_token_before_allocation": true,
+      "schedule_call_gap": 332,
+      "interval_scheduled_tokens": 339968,
+      "shared_reusable_tokens": 3504,
+      "actual_prefix_hit_tokens": 16,
+      "exact_prompt_duplicate": true,
+      "previous_first_token_host_s": 0.7476234175264835,
+      "current_first_allocation_schedule_host_s": 8.701527304947376,
+      "previous_schedule_call": 21,
+      "current_schedule_call": 353
+    },
+    "2": {
+      "previous_source_index": 141,
+      "source_index": 63,
+      "group_id": 6,
+      "previous_first_token_before_allocation": true,
+      "schedule_call_gap": 363,
+      "interval_scheduled_tokens": 371712,
+      "shared_reusable_tokens": 3264,
+      "actual_prefix_hit_tokens": 16,
+      "exact_prompt_duplicate": false,
+      "previous_first_token_host_s": 0.5806607492268085,
+      "current_first_allocation_schedule_host_s": 9.445668160915375,
+      "previous_schedule_call": 16,
+      "current_schedule_call": 379
+    }
+  }
+}

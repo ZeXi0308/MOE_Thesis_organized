@@ -1,0 +1,107 @@
+All 57 measured episodes completed, covering 4,636 request completions and 1,974,016 generated tokens. No measured request is dropped from the denominator. All token accounting checks pass.
+
+\subsection{The fixed-budget tradeoff is real}
+
+On the development trace, fixed 2,048 improves output throughput by 6.60\% relative to 512. Request maximum-gap P95 rises from 19.10 to 28.69 ms. Both satisfy the same primary joint SLO for every request. Thus a finer gap tradeoff exists even where the declared SLO does not reward smaller chunks.
+
+\begin{table}[H]\centering\small
+\begin{tabular}{lrrrrrr}
+\toprule
+Policy & $n$ & Output/s & TTFT P95 & Mean flow & Gap P95 & Goodput/s \\
+ & & tokens & seconds & seconds & ms & requests \\ \midrule
+Fixed 256 & 2 & 951.1 & 1.454 & 3.942 & 17.34 & 4.053 \\
+Fixed 512 & 2 & 1037.0 & 0.651 & 3.492 & 19.10 & 4.419 \\
+Fixed 1024 & 2 & 1085.7 & 0.266 & 3.244 & 21.45 & 4.626 \\
+Fixed 2048 & 2 & 1105.4 & 0.104 & 3.134 & 28.69 & 4.711 \\
+Decode count & 2 & 1036.8 & 0.650 & 3.457 & 22.80 & 4.418 \\
+Feedback & 2 & 1087.5 & 0.254 & 3.221 & 26.83 & 4.634 \\
+\bottomrule\end{tabular}
+\caption{Development trace; fixed selection and candidate construction use these observations. Values are means of complete-run statistics; Gap P95 is across per-request maximum observed gaps, not pooled token gaps.}
+\end{table}
+
+\subsection{Frozen long-document confirmation}
+
+On the long-document holdout, feedback changes throughput by -0.89\% and joint goodput by -0.89\% versus the development-selected fixed 2,048. The short background prompts are shared with development. The three main-policy repetitions provide repeatability evidence, not a broad workload-population confidence interval.
+
+\begin{table}[H]\centering\small
+\begin{tabular}{lrrrrrr}
+\toprule
+Policy & $n$ & Output/s & TTFT P95 & Mean flow & Gap P95 & Goodput/s \\
+ & & tokens & seconds & seconds & ms & requests \\ \midrule
+Fixed 2048 & 3 & 1103.6 & 0.101 & 3.146 & 28.44 & 4.703 \\
+Fixed 1024 & 2 & 1092.7 & 0.251 & 3.212 & 21.56 & 4.656 \\
+Decode count & 3 & 1042.2 & 0.616 & 3.436 & 22.69 & 4.441 \\
+Feedback & 3 & 1093.8 & 0.244 & 3.193 & 25.99 & 4.661 \\
+\bottomrule\end{tabular}
+\caption{Frozen long-document holdout. Values are means of complete-run statistics; Gap P95 is across per-request maximum observed gaps, not pooled token gaps.}
+\end{table}
+
+\subsection{Normal-memory pressure extension}
+
+\begin{table}[H]\centering\small
+\begin{tabular}{lrrrrrr}
+\toprule
+Policy & $n$ & Output/s & TTFT P95 & Mean flow & Gap P95 & Goodput/s \\
+ & & tokens & seconds & seconds & ms & requests \\ \midrule
+Fixed 1024 & 2 & 2114.7 & 11.349 & 25.913 & 66.74 & 0.652 \\
+Fixed 2048 & 2 & 2232.1 & 4.760 & 27.263 & 70.54 & 0.688 \\
+Decode count & 2 & 1867.6 & 22.391 & 25.228 & 44.37 & 1.092 \\
+Feedback & 2 & 1600.9 & 32.452 & 25.438 & 32.07 & 1.121 \\
+\bottomrule\end{tabular}
+\caption{High load: 160 requests, normal memory allocation. Values are means of complete-run statistics; Gap P95 is across per-request maximum observed gaps, not pooled token gaps.}
+\end{table}
+
+\begin{table}[H]\centering\small
+\begin{tabular}{lrrrrrr}
+\toprule
+Policy & $n$ & Output/s & TTFT P95 & Mean flow & Gap P95 & Goodput/s \\
+ & & tokens & seconds & seconds & ms & requests \\ \midrule
+Fixed 2048 & 4 & 476.1 & 0.118 & 1.786 & 25.15 & 2.029 \\
+Feedback & 2 & 476.5 & 0.158 & 1.806 & 24.87 & 2.030 \\
+\bottomrule\end{tabular}
+\caption{Low load: 12 requests. Decode-count and fixed 2,048 choose exactly the same cap at every step and are merged here. Values are means of complete-run statistics; Gap P95 is across per-request maximum observed gaps, not pooled token gaps.}
+\end{table}
+
+\subsection{Dominant-level and mean-budget controls}
+
+In development, feedback selects 1,024 in 84 of 88 mixed steps in each repetition, with four selections of 2,048. Its mean mixed cap is 1,070.55. Fixed 1,024 is the direct dominant-level control; fixed 1,072 additionally approximates the mean allowance. This comparison counts full realized service time, rather than assuming identical state trajectories from similar average caps.
+
+\begin{table}[H]\centering\small
+\begin{tabular}{lrrrrrr}
+\toprule
+Policy & $n$ & Output/s & TTFT P95 & Mean flow & Gap P95 & Goodput/s \\
+ & & tokens & seconds & seconds & ms & requests \\ \midrule
+Fixed 1072 & 2 & 1093.5 & 0.239 & 3.214 & 21.81 & 4.660 \\
+Fixed 3840 & 2 & 1103.3 & 0.057 & 3.152 & 39.69 & 4.701 \\
+Feedback & 2 & 1087.0 & 0.256 & 3.227 & 26.95 & 4.632 \\
+\bottomrule\end{tabular}
+\caption{Additional exploratory controls: matched mean cap and upper fixed endpoint. Values are means of complete-run statistics; Gap P95 is across per-request maximum observed gaps, not pooled token gaps.}
+\end{table}
+
+\begin{table}[H]\centering\small
+\begin{tabular}{lrrrrrr}
+\toprule
+Policy & $n$ & Output/s & TTFT P95 & Mean flow & Gap P95 & Goodput/s \\
+ & & tokens & seconds & seconds & ms & requests \\ \midrule
+Fixed 256 & 2 & 1513.5 & 35.271 & 27.227 & 28.36 & 0.778 \\
+Fixed 304 & 2 & 1622.1 & 31.387 & 26.117 & 38.50 & 0.896 \\
+Fixed 384 & 2 & 1748.5 & 26.934 & 25.315 & 35.46 & 1.078 \\
+Fixed 512 & 2 & 1858.2 & 22.577 & 25.437 & 77.30 & 0.825 \\
+Fixed 768 & 2 & 2028.5 & 15.724 & 25.455 & 61.65 & 0.834 \\
+Fixed 3840 & 2 & 2273.5 & 2.058 & 28.029 & 83.14 & 0.000 \\
+Feedback & 2 & 1605.9 & 32.336 & 25.381 & 32.68 & 1.125 \\
+\bottomrule\end{tabular}
+\caption{Additional high-load fixed controls; constants apply to the entire trace, never individual segments. Values are means of complete-run statistics; Gap P95 is across per-request maximum observed gaps, not pooled token gaps.}
+\end{table}
+
+Across measured episodes, peak resident concurrency is 160 and peak observed KV occupancy is 88.31\%. All measured preemption counts are zero. The largest per-run P95 policy-choice time is 3.56 microseconds; this excludes common observation construction, which remains included in all end-to-end times. No second model is introduced because an independently useful extra signal has not yet been established.
+
+\subsection{A conditional gain, not a uniform improvement}
+
+In the additional high-load comparison, feedback reaches 1.125 qualified requests/s versus 1.078 for fixed 384, the highest mean among the tested high-load fixed constants. This is 4.28\% higher goodput, alongside 8.15\% lower raw throughput, 20.06\% higher TTFT P95, and 9.52\% higher completion-latency P95. This is a measured tradeoff, not Pareto dominance. Fixed 304 approximates feedback's 303.42-token realized mixed-step mean and 304.03-token mean cap in this supplementary group, but has only 0.896 qualified requests/s. Mean work alone does not explain the high-load goodput difference.
+
+The original high-load main group has zero gap-SLO failures. Feedback admits 30--31 first-wave long requests into the joint SLO versus 21--22 for the count rule; later waves fail under both. Compared with count-only scheduling, feedback improves complete-request mean outcomes for 87 of 160 request IDs and worsens 73; the joint-goodput increment comes only from early requests crossing thresholds. Third-wave mean completion rises from 34.57 to 39.62 seconds. This explicitly exposes the service cost of the gain.
+
+All fixed-512 supplementary trials remain in the report: its goodput ranges from 0.571 to 1.078 requests/s. In the slower-SLO trial, an observed 108.97 ms gap causes 67 gap failures; the associated step envelope is 108.47 ms and scheduler time is 1.07 ms. This record is neither removed nor attributed to a specific GPU or host cause. Fixed-3840 goodput is zero because all 160 requests exceed the 20-second completion constraint, despite the largest raw throughput; none fails its gap condition. These results show sensitivity to the full SLO conjunction, not only average step latency.
+
+The complete retained log contains one monitored Triton JIT warning during the initial 512 warmup and no recorded JIT compilation warning in the measured episodes. This is a log-based check, not a claim that every source of runtime jitter is observable.

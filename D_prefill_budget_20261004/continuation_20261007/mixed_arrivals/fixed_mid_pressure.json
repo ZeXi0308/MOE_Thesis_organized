@@ -1,0 +1,42 @@
+{
+  "primary_slo": {
+    "ttft_s": 4,
+    "gap_s": 0.1,
+    "completion_s": 20
+  },
+  "timeout_s": 180,
+  "output_contract": "Fixedgen-count/ignoreEOS exploration only; differenttokensnot equalcontent/routes/computation/quality.",
+  "source_sha256": {
+    "../run_confirmation.py": "67cb25770693252d64efcb93ea1aaf45ab99ce92926b77189dd03c324b0ee166",
+    "../prefill_policy.py": "1aedafb440597a5903539eb05e5e3e5cd0eaa12a0eda292f345df6d883cbe960",
+    "../runtime_bootstrap.py": "dafbad576b9d2e956dd981da9309c72336a3af1e2b8ccad2cb24980c67c09778",
+    "../launch.sh": "9b306857aac6ea64cf72838bb76a6d4f619ea66ab3645063f5a878a0bb691e51"
+  },
+  "name": "D one fixed1024 moderation check on higher short-background workload",
+  "status_at_freeze": "PRE_GPU_FROZEN",
+  "workload": "workload_more_decode.json",
+  "workload_sha256": "234d2ead360a51b098a543478b2573b225b39a6c3510a6eab27c7debca9fe6f2",
+  "request_count": 256,
+  "policies": [
+    "fixed1024",
+    "fixed2048",
+    "fixed2048",
+    "fixed1024"
+  ],
+  "warm_policies": [
+    "fixed1024",
+    "fixed2048"
+  ],
+  "formal_attempt_limit": 4,
+  "question": "Does one ordinary intermediate fixed budget absorb the observed prefill-wait versus cumulative-generation tradeoff?",
+  "primary_changed_factor": "Only constant pure-prefill cap1024 versus2048. Exactly pressure01 external input, model, BF16, normal KV, native rules and parent driver.",
+  "input_generation": "build_more_decode.py; seed2026100802; added96 independent uniform0-40s; original16templates repeated6times each; fixed384output. Prepared before upper01 results. Not independent confirmation.",
+  "input_builder_sha256": "f2422a5a25dfb41cdaad02cdad2d80f3010afe35f7b132874c96376617627b0e",
+  "reason": "pressure01 fixed2048 reaches256/256 qualification but mean generation duration increases1.716/1.763s versus384 while meanTTFT falls2.517/2.515s; actual cap changes executed356/350 steps above384. This larger cumulative cost motivates a single existing native midpoint before investing in any selector. The maxgap relative guard includes a pure-decode scheduling tail event and is not claimed as a stable mixed-prefill bottleneck.",
+  "geometry": "maxlen4025. Largest192 terminal KV ceilings in16tokenblocks=36664 versus prior36764usable, margin100blocks. Geometric bound only, not measured resident state/native admission guarantee.",
+  "decision": "First require actual execution differences. One fixed cap is provisionally sufficient for the primary objective if its fulljointgoodput improves>=3% in both reversedpairs, allrequestscomplete, rawthroughputdoesnotdecrease, and TTFT/flow/maxgap p95 do not worsen>5%, with noadded100msgapfailures. Otherwise report the completefixedfrontier and whether tradeoff signs repeat; noisy/mixed signs are inconclusive. Only a reproducible tradeoff plus observable state variation warrants count/closest-dynamic comparisons and a new signal. No controller or intermediate-cap grid; same gates retained. All qualification changes reported.",
+  "interpretation": "Fresh fixed-baseline tuning on an already observed development workload, not independent confirmation. Fourformal cap1024/2048/2048/1024, no cap grid or automatic repeats. Preserve original3% effect and all raw/gap/TTFT/flow guards. If1024 fully wins, retain simple fixed explanation. If2048 fully wins or1024 sacrifices qualification/throughput without new state-specific evidence, stop midpoint/threshold search. A residual descriptive frontier alone is insufficient to invent a selector.",
+  "execution": "Unmodified parent run_confirmation.py/launch.sh; cap-only native patch. Existing no-preempt/all-decoder-service checks remain; any failure is a preserved observation failure, not a negative performance result.",
+  "resources": "Shared physical hostflock; oneD task only;7200s wait;2warm4formalgroup; releaseonexit. Keep4GiBprelaunch diskreserve. No costtelemetry.",
+  "prepared_timestamp_cst": "2026-10-08T02:16:04.391398+08:00"
+}

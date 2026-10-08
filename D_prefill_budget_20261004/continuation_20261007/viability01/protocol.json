@@ -1,0 +1,91 @@
+{
+  "policies": [
+    "baseline_r",
+    "viability_escape",
+    "viability_escape",
+    "baseline_r"
+  ],
+  "request_count": 160,
+  "workload_sha256": "288f3a2010a960b9952177ae42a1a033ca5a57523f454c3de0afe0b38c27293e",
+  "slo": {
+    "ttft_s": 4,
+    "gap_s": 0.1,
+    "completion_s": 20
+  },
+  "target_ms": 24.0,
+  "output_contract": "Fixed lengths and ignore_eos for scheduling causality; not natural ending quality evaluation.",
+  "warmup": "Both policies replay and fully drain the same workload before formal runs.",
+  "warm_policies": [
+    "baseline_r",
+    "viability_escape"
+  ],
+  "timing": "Host engine.step includes both arms' viability diagnostics and native scheduling; outer output bookkeeping remains in full elapsed and output gaps.",
+  "source_sha256": {
+    "prefill_policy.py": "1aedafb440597a5903539eb05e5e3e5cd0eaa12a0eda292f345df6d883cbe960",
+    "run_block.py": "b047b6352f08338f980b6649e7176582ec4a0919767fa7248f911da9194b5e2c",
+    "run_confirmation.py": "67cb25770693252d64efcb93ea1aaf45ab99ce92926b77189dd03c324b0ee166",
+    "runtime_bootstrap.py": "dafbad576b9d2e956dd981da9309c72336a3af1e2b8ccad2cb24980c67c09778",
+    "verify_g.py": "0172fe1eeee0f46b37fd67e1e154a01e5e2f00881ba23b541be03b813fa8fdd8",
+    "viability_probe/run_viability.py": "451d8c3375ff3b1d292ec3a4fee4866ea8d85e81a72d25f356837fa157dc0dd4",
+    "viability_probe/launch.sh": "5571941d6d2fdb497607037bf5d1be428b966dbcd54b5fae32c485f246071b3f",
+    "viability_probe/design.json": "45f30f155862c5edd441359ca913eba34b005681d27bd21008930e70737e50e2"
+  },
+  "experiment_kind": "NORMAL_ARRIVAL_VIABILITY_ACTION_VALUE_PROBE_NOT_CONFIRMATION",
+  "arrival_mode": "Original wall-clock injection loop; no ledger replay or custom waits.",
+  "legal_prefill_caps": [
+    256,
+    512,
+    1024,
+    2048
+  ],
+  "viability_design": {
+    "name": "D viability escape action-value probe",
+    "status_at_freeze": "PRE_GPU_FROZEN",
+    "question": "Does increasing prefill cap only when every active decoder has irreversibly failed the fixed joint SLO improve full-service drain, without hiding harm to failed requests?",
+    "evidence": "Existing normal-arrival R blocks: 855/855/841 actualP256 steps with D>0,K=0 and backlog>cap; all pending prefill already failed. This predicts no rescued qualification and is not a new controller contribution.",
+    "role": "Development action-value probe, not independent confirmation; existing arrivals01 has been inspected.",
+    "workload": "../arrivals_01.json",
+    "workload_sha256": "288f3a2010a960b9952177ae42a1a033ca5a57523f454c3de0afe0b38c27293e",
+    "model": "existing BF16 OLMoE",
+    "normal_kv": true,
+    "policies": [
+      "baseline_r",
+      "viability_escape",
+      "viability_escape",
+      "baseline_r"
+    ],
+    "warm_policies": [
+      "baseline_r",
+      "viability_escape"
+    ],
+    "formal_attempt_limit": 4,
+    "automatic_retries": false,
+    "primary_slo": {
+      "ttft_s": 4,
+      "gap_s": 0.1,
+      "completion_s": 20
+    },
+    "denominator": "All external-arrival through full drained elapsed; fixed180s timeout retains partial and all arrivals.",
+    "baseline": "Exact parent Policy(elapsed_replay,24), observed on actualP andD each step.",
+    "candidate": "Same R; cap2048 iff D>0,K=0,prefill backlog>baseline cap, otherwise R. Not latched; eligibility recomputed at each native schedule entry.",
+    "K": "Number of current native running decoders without a previously observed TTFT>4s, any emitted gap>100ms, current time-lastoutput>100ms, or arrival age>20s. Not a prediction of success.",
+    "invariants": "No admission/request-order/decode-priority/victim/recovery/precision/kernel/KV change. All decode work remains included and all requests drain. No future outputs or future arrivals used. Same predecision diagnostics both arms.",
+    "action_trace": "At real schedule entry: current time,D,K,backlog,baseline/candidate/requested/executed caps, supported cap range, choice/cancellation reason, actual P/D, contexts and native allocation outcome.",
+    "decision": "Provisional action value only if both adjacent R/V pairs improve full joint goodput >=3%, complete all same requests/counts, lose no qualifying requests, have TTFT and flow p95 <=1.05x pairedR, and add no request exceeding100ms maxgap. Report full raw distributions and per-request benefit/harm even if gates pass. n2 descriptive; no significance claim.",
+    "no_signal": "Stop this mechanism/domain; no nearby threshold tuning, added predictor, or outcome-driven extra repeats.",
+    "positive_next": "Freeze simple timer-only late-cap2048 switch from the old R developer traces (19.0s), same action range/baseR, then compare against V. Need independent arrival/load with useful pending requests before any broad claim.",
+    "output_contract": "Same prompt IDs and required generated-token counts, not same output content, routes, actual computation or quality. Report token divergence; never discard divergent requests.",
+    "source_version": "Files frozen and recorded at launch in supplementary protocol; parent files remain unchanged.",
+    "resources": "Same shared host flock; whole warm+fourformal group; release on exit. No command loop or dependent jobs.",
+    "source_sha256": {
+      "run_viability.py": "451d8c3375ff3b1d292ec3a4fee4866ea8d85e81a72d25f356837fa157dc0dd4",
+      "launch.sh": "5571941d6d2fdb497607037bf5d1be428b966dbcd54b5fae32c485f246071b3f",
+      "../run_confirmation.py": "67cb25770693252d64efcb93ea1aaf45ab99ce92926b77189dd03c324b0ee166",
+      "../prefill_policy.py": "1aedafb440597a5903539eb05e5e3e5cd0eaa12a0eda292f345df6d883cbe960",
+      "../runtime_bootstrap.py": "dafbad576b9d2e956dd981da9309c72336a3af1e2b8ccad2cb24980c67c09778",
+      "../launch.sh": "9b306857aac6ea64cf72838bb76a6d4f619ea66ab3645063f5a878a0bb691e51"
+    },
+    "freeze_timestamp_cst": "2026-10-07 23:00"
+  },
+  "viability_signal": "K counts running decoders with no observed TTFT/gap/open-gap/age failure; reason counts overlap, any counts their union. No future outputs or waiting/unarrived requests enter K."
+}

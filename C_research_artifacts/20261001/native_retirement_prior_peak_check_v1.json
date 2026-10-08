@@ -1,0 +1,465 @@
+{
+  "schema": "c-native-retirement-prior-peak-check-v1",
+  "status": "ALGEBRAIC_IDENTITY_AND_SYNTHETIC_CHECK_ONLY",
+  "source_receipt": [
+    {
+      "file": "conservative-router-req_queue.py",
+      "url": "https://raw.githubusercontent.com/WuSiYu/lightllm-ae/d93ff69c07d4097b0a6a4ee67ea355e8780e3095/lightllm-server-conservative/lightllm/server/router/req_queue.py",
+      "sha256": "de12407c7d1d8b690ab76240da38d71df15872d52afc1ab6994132c7d464640f",
+      "bytes": 10735
+    },
+    {
+      "file": "conservative-io_struct.py",
+      "url": "https://raw.githubusercontent.com/WuSiYu/lightllm-ae/d93ff69c07d4097b0a6a4ee67ea355e8780e3095/lightllm-server-conservative/lightllm/server/io_struct.py",
+      "sha256": "1ce02f1d1ba1094d057157699d38ebdc170c50b4e064a3cb7600f53de8e04603",
+      "bytes": 13960
+    },
+    {
+      "file": "pastfuture-router-req_queue.py",
+      "url": "https://raw.githubusercontent.com/WuSiYu/lightllm-ae/d93ff69c07d4097b0a6a4ee67ea355e8780e3095/lightllm-server-pastfuture/lightllm/server/router/req_queue.py",
+      "sha256": "79b3526ff983b759f41dd2fdc0a2eae1df8134486c11a4ee98c5e7b6d86bfbdc",
+      "bytes": 10600
+    },
+    {
+      "file": "pastfuture-io_struct.py",
+      "url": "https://raw.githubusercontent.com/WuSiYu/lightllm-ae/d93ff69c07d4097b0a6a4ee67ea355e8780e3095/lightllm-server-pastfuture/lightllm/server/io_struct.py",
+      "sha256": "5107b13ef94c861b86ff5e066c1c15749687f2a8d15816fc1d9d1e64979f2ccb",
+      "bytes": 13902
+    }
+  ],
+  "current_queue": {
+    "path": "/private/tmp/c-lightllm-primary-20261001/current-queue.py",
+    "sha256": "a7f58b0b88f5252521e23474298534b327c62339d1d471b21b6695bd129d4f4c"
+  },
+  "c_function": "C_NATIVE_RETIREMENT_ADMISSION_V1.py:decode_envelope (imported unchanged)",
+  "trace_coverage": [
+    {
+      "label": "retirement_1",
+      "path": "/Users/zhaozhenyu/Desktop/毕业设计/C_research_artifacts/20261001/c-native-retirement-fresh-v1/retirement_1/native_retirement/retirement-envelope.json",
+      "step_count": 6175,
+      "eligible_calls": 5998,
+      "eligible_nonempty_states": 5997,
+      "observed_nonempty_states_compared": 0,
+      "trivial_observed_empty_states_compared": 1,
+      "eligible_step_fields": [
+        "admissions_beyond_full_bound",
+        "call",
+        "conditional_decode_peak",
+        "decision_s",
+        "eligible_all_decode",
+        "full_bound_after",
+        "full_bound_before",
+        "native_preemptions",
+        "newly_running",
+        "protected_decode_requests",
+        "running_before",
+        "selected",
+        "used_blocks_after_schedule",
+        "waiting_before"
+      ],
+      "recorded_conditional_peak_range_blocks": [
+        0,
+        4074
+      ],
+      "missing": "Per-resident identity, P, O and M at eligible boundaries; aggregate peaks cannot reconstruct them.",
+      "replay_status": "NONEMPTY_OBSERVED_STATE_COMPARISON_UNAVAILABLE"
+    },
+    {
+      "label": "retirement_2",
+      "path": "/Users/zhaozhenyu/Desktop/毕业设计/C_research_artifacts/20261001/c-native-retirement-fresh-v1/retirement_2/native_retirement/retirement-envelope.json",
+      "step_count": 6170,
+      "eligible_calls": 5992,
+      "eligible_nonempty_states": 5991,
+      "observed_nonempty_states_compared": 0,
+      "trivial_observed_empty_states_compared": 1,
+      "eligible_step_fields": [
+        "admissions_beyond_full_bound",
+        "call",
+        "conditional_decode_peak",
+        "decision_s",
+        "eligible_all_decode",
+        "full_bound_after",
+        "full_bound_before",
+        "native_preemptions",
+        "newly_running",
+        "protected_decode_requests",
+        "running_before",
+        "selected",
+        "used_blocks_after_schedule",
+        "waiting_before"
+      ],
+      "recorded_conditional_peak_range_blocks": [
+        0,
+        4063
+      ],
+      "missing": "Per-resident identity, P, O and M at eligible boundaries; aggregate peaks cannot reconstruct them.",
+      "replay_status": "NONEMPTY_OBSERVED_STATE_COMPARISON_UNAVAILABLE"
+    }
+  ],
+  "algebra": {
+    "domain": "x_j=P_j+O_j>=0; h_j=M_j-O_j>=0; occupancy retained at t=h_j; block size B=16.",
+    "c": "max_{t in {0,h_j}} sum_{j:h_j>=t} ceil((x_j+t)/B)",
+    "prior_token": "Sort h_1>=...>=h_n; max_{i=1..n}(sum_{j<=i} x_j + i*h_i).",
+    "prior_paged_same_endpoint": "max_{i=1..n} sum_{j<=i} ceil((x_j+h_i)/B)",
+    "identity": "C equals the per-request-paged sorted-prefix expression at the same endpoints.",
+    "proof": "At t=h_i, active residents are the prefix ending at the last index with that horizon. Within a tie, shorter prefixes cannot exceed its last prefix because allocations are nonnegative. t=0 is dominated by the smallest nonnegative horizon endpoint. Between releases each surviving allocation is nondecreasing. The same argument without ceil proves token equality.",
+    "paging": "ceil(prior_token_peak/B) <= C; per-request rounding cannot be replaced by rounding the aggregate once. The gap is at most n-1 blocks for n>0."
+  },
+  "synthetic_examples": [
+    {
+      "name": "empty",
+      "evidence": "SYNTHETIC_INTEGER_STATE",
+      "resident_P_O_M": [],
+      "same_endpoint_rows_x_h": [],
+      "c_source_decode_envelope_blocks": 0,
+      "prior_same_endpoint_per_request_paged_blocks": 0,
+      "prior_same_endpoint_token_peak": 0,
+      "ceil_of_aggregate_token_peak_blocks": 0,
+      "per_request_paging_extra_blocks": 0,
+      "ae_normal_running_cap_h_minus_1_token_peak": 0
+    },
+    {
+      "name": "one_resident",
+      "evidence": "SYNTHETIC_INTEGER_STATE",
+      "resident_P_O_M": [
+        [
+          1500,
+          400,
+          1024
+        ]
+      ],
+      "same_endpoint_rows_x_h": [
+        [
+          1900,
+          624
+        ]
+      ],
+      "c_source_decode_envelope_blocks": 158,
+      "prior_same_endpoint_per_request_paged_blocks": 158,
+      "prior_same_endpoint_token_peak": 2524,
+      "ceil_of_aggregate_token_peak_blocks": 158,
+      "per_request_paging_extra_blocks": 0,
+      "ae_normal_running_cap_h_minus_1_token_peak": 2523
+    },
+    {
+      "name": "equal_horizons_paging",
+      "evidence": "SYNTHETIC_INTEGER_STATE",
+      "resident_P_O_M": [
+        [
+          16,
+          1,
+          2
+        ],
+        [
+          16,
+          1,
+          2
+        ]
+      ],
+      "same_endpoint_rows_x_h": [
+        [
+          17,
+          1
+        ],
+        [
+          17,
+          1
+        ]
+      ],
+      "c_source_decode_envelope_blocks": 4,
+      "prior_same_endpoint_per_request_paged_blocks": 4,
+      "prior_same_endpoint_token_peak": 36,
+      "ceil_of_aggregate_token_peak_blocks": 3,
+      "per_request_paging_extra_blocks": 1,
+      "ae_normal_running_cap_h_minus_1_token_peak": 34
+    },
+    {
+      "name": "three_tied_horizons",
+      "evidence": "SYNTHETIC_INTEGER_STATE",
+      "resident_P_O_M": [
+        [
+          1,
+          1,
+          2
+        ],
+        [
+          1,
+          1,
+          2
+        ],
+        [
+          1,
+          1,
+          2
+        ]
+      ],
+      "same_endpoint_rows_x_h": [
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "c_source_decode_envelope_blocks": 3,
+      "prior_same_endpoint_per_request_paged_blocks": 3,
+      "prior_same_endpoint_token_peak": 9,
+      "ceil_of_aggregate_token_peak_blocks": 1,
+      "per_request_paging_extra_blocks": 2,
+      "ae_normal_running_cap_h_minus_1_token_peak": 6
+    },
+    {
+      "name": "staggered_cap_retirement",
+      "evidence": "SYNTHETIC_INTEGER_STATE",
+      "resident_P_O_M": [
+        [
+          2976,
+          988,
+          1024
+        ],
+        [
+          2976,
+          988,
+          1024
+        ],
+        [
+          2976,
+          988,
+          1024
+        ],
+        [
+          2976,
+          988,
+          1024
+        ],
+        [
+          2976,
+          988,
+          1024
+        ],
+        [
+          2976,
+          988,
+          1024
+        ],
+        [
+          2976,
+          988,
+          1024
+        ],
+        [
+          2976,
+          988,
+          1024
+        ],
+        [
+          2976,
+          64,
+          1024
+        ],
+        [
+          2976,
+          64,
+          1024
+        ],
+        [
+          2976,
+          64,
+          1024
+        ],
+        [
+          2976,
+          64,
+          1024
+        ],
+        [
+          2976,
+          64,
+          1024
+        ],
+        [
+          2976,
+          64,
+          1024
+        ],
+        [
+          2976,
+          64,
+          1024
+        ],
+        [
+          2976,
+          64,
+          1024
+        ]
+      ],
+      "same_endpoint_rows_x_h": [
+        [
+          3964,
+          36
+        ],
+        [
+          3964,
+          36
+        ],
+        [
+          3964,
+          36
+        ],
+        [
+          3964,
+          36
+        ],
+        [
+          3964,
+          36
+        ],
+        [
+          3964,
+          36
+        ],
+        [
+          3964,
+          36
+        ],
+        [
+          3964,
+          36
+        ],
+        [
+          3040,
+          960
+        ],
+        [
+          3040,
+          960
+        ],
+        [
+          3040,
+          960
+        ],
+        [
+          3040,
+          960
+        ],
+        [
+          3040,
+          960
+        ],
+        [
+          3040,
+          960
+        ],
+        [
+          3040,
+          960
+        ],
+        [
+          3040,
+          960
+        ]
+      ],
+      "c_source_decode_envelope_blocks": 3544,
+      "prior_same_endpoint_per_request_paged_blocks": 3544,
+      "prior_same_endpoint_token_peak": 56608,
+      "ceil_of_aggregate_token_peak_blocks": 3538,
+      "per_request_paging_extra_blocks": 6,
+      "ae_normal_running_cap_h_minus_1_token_peak": 56592
+    },
+    {
+      "name": "mixed_horizons",
+      "evidence": "SYNTHETIC_INTEGER_STATE",
+      "resident_P_O_M": [
+        [
+          15,
+          1,
+          2
+        ],
+        [
+          17,
+          2,
+          17
+        ],
+        [
+          130,
+          23,
+          100
+        ]
+      ],
+      "same_endpoint_rows_x_h": [
+        [
+          16,
+          1
+        ],
+        [
+          19,
+          15
+        ],
+        [
+          153,
+          77
+        ]
+      ],
+      "c_source_decode_envelope_blocks": 15,
+      "prior_same_endpoint_per_request_paged_blocks": 15,
+      "prior_same_endpoint_token_peak": 230,
+      "ceil_of_aggregate_token_peak_blocks": 15,
+      "per_request_paging_extra_blocks": 0,
+      "ae_normal_running_cap_h_minus_1_token_peak": 229
+    },
+    {
+      "name": "indexing_crosses_page",
+      "evidence": "SYNTHETIC_INTEGER_STATE",
+      "resident_P_O_M": [
+        [
+          15,
+          1,
+          2
+        ]
+      ],
+      "same_endpoint_rows_x_h": [
+        [
+          16,
+          1
+        ]
+      ],
+      "c_source_decode_envelope_blocks": 2,
+      "prior_same_endpoint_per_request_paged_blocks": 2,
+      "prior_same_endpoint_token_peak": 17,
+      "ceil_of_aggregate_token_peak_blocks": 2,
+      "per_request_paging_extra_blocks": 0,
+      "ae_normal_running_cap_h_minus_1_token_peak": 16
+    }
+  ],
+  "admission_example": {
+    "evidence": "SYNTHETIC_NORMALIZED_GROWTH_ONLY",
+    "old_x_h": [
+      [
+        31,
+        1
+      ]
+    ],
+    "waiting_x_h": [
+      16,
+      64
+    ],
+    "c_resident_peak_plus_new_full_blocks": 7,
+    "jointly_modeled_peak_blocks": 5,
+    "limit": "Illustrates separate full charge versus joint growth; does not model real waiting prefill or prove a new native admission safe."
+  },
+  "policy_differences": {
+    "new_requests": "C adds each waiting/partial-prefill request's full ceil((P+M)/16) to the old decode peak, and stops admitting while any resident prefills. Prior _can_add_new_req appends each new tuple before recomputing the joint sorted-prefix peak.",
+    "length_estimate": "AE NormalReq uses max_output_len already when busy or ignore_eos; otherwise min(max_output_len,max(int(1.1*O),router_max_new_token_len)). C always uses the known cap. Cap use alone is not novel relative to the prior conservative branch.",
+    "indexing": "AE NormalReq RUNNING (zero prompt cache) returns (P+O,max(0,L-O-1)); WAIT_IN_QUEUE returns (P+1,max(0,L-2)). C uses (P+O,M-O), one token beyond current computed KV. Equality above normalizes endpoints and is not literal equality of these raw tuples. AE SplitFuseReq additionally counts pending prefill chunks.",
+    "capacity_test": "Official prior queue uses peak < available_token_capacity; C accepts paged peak plus full new quotas <=4096 blocks. Prior also charges paused/cache state and queue limits outside the formula.",
+    "progress_contract": "C checks all-decode eligibility, a protected running prefix, one scheduled and produced output token per call until completion, and aborts on preemption or violation in a synchronous single-GPU/no-offload domain. The inspected prior queue/tuple functions do not implement these C-specific runtime checks; this is not an audit of the whole LightLLM engine."
+  },
+  "conclusion": "The resident cap-retirement peak is the same prior peak accounting after endpoint normalization and per-request paging. This check does not support a new peak formula claim; any residual claim must be about a demonstrated policy/execution contract, not this identity.",
+  "limits": "No nonempty observed-state replay, prior runtime execution, matched performance comparison, new controller, or GPU work. Synthetic states are mathematical examples, not measured opportunities or benefits."
+}

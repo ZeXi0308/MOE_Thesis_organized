@@ -1,0 +1,178 @@
+E 静态剩余成本基线覆盖核验（2026-10-07）
+状态：CPU_ONLY / COVERAGE_CHECKED / NO_PROFILE_FIT / CALIBRATION_GPU_UNRUN。
+仅读取 strong_neighbor_plan.txt、已完成的本地 budget8/E249/E223 与对应 native 源码。
+未读当前 headroom6 原始数据、未访问远端/GPU、未改冻结 runtime 或320候选。
+
+结论与可冻结边界
+已有数据足以保留四个具有双动作观测的精确(K,H)经验点，但不足以冻结覆盖实际
+恢复域的通用静态剩余成本函数，更不足以声称充分实现了 Stream2LLM/CacheOPT
+强近邻对照。若现在只做精确点字典，必须命名 restricted exact-point empirical
+resume baseline，不插值/外推；域外 PROFILE_UNAVAILABLE 后原生Host并单列数量。
+本次不计算均值表、拟合系数或动作阈值，不实际写入/启用该baseline。
+
+合法标签应为同一已指定参考服务运行中 next_correct_output_s - allocation_s。
+allocation_s 是现有成功 native allocation/connector callback 后记录的commit。
+原 lookup/选择/分配之前的耗时仍在完整服务指标中；不能混作commit剩余时间。
+以下数值均由实际时间戳直接相减，未相加step/copy/CUDA时间，未减去已付STORE。
+所有样本都来自有争用的真实自然摘要服务，不是idle profile。
+
+本次读取范围和计数
+  oct07_budget_r01       8格 74合法提交 = 52 Host + 22 Recompute，25个(K,H)
+  oct07_one_event_r01    4格 50合法提交 = 48 Host +  2 Recompute，21个(K,H)
+  oct07_e223_r01         4格 54合法提交 = 52 Host +  2 Recompute，15个(K,H)
+并集16格、178合法提交、32个(K,H)，其中24点有Host、12点有R，仅4点两者都有。
+这些是本次三组的覆盖计数，不是论文全量累计，也不是178次独立干预。
+不使用有混杂的原始 summary R1；这里 budget 的01_recompute属于重新运行并
+完成审计的 oct07_budget_r01，不能与那个被排除的历史R1混为一谈。
+
+完整经验支持表（计数包含各组所有合法提交；不将非目标点当独立随机化校准）
+      K      H   Host   R       K      H   Host   R
+    706    656     10   4     2736   1616      2   0
+    719    704     10   0     2736   1840     14   2
+   2737   2736      6   0     2872   2864      0   2
+   3128   3056     12   2     3222    768      4   0
+   3226   3216      6   0     3234   3232      4   0
+   3243    768      0   2     3257    768      0   2
+   3264    768      0   2     3266    768      8   0
+   3277   2656      6   2     3277   3264      6   0
+   3313   3200      2   0     3314   2848      0   2
+   3314   3312      2   0     3379   2848      2   0
+   3393   2304      2   0     3423   2848      8   0
+   3451   3376      2   0     3515   3024     12   0
+   3523   3520      8   0     3536   3024      0   2
+   3538   3024      0   2     3539   1040      8   0
+   3542   3536      8   0     3543   3024      0   2
+   3544   3536      8   0     3602   3040      2   0
+
+四个双动作点的可信剩余路径支持（K/H是token；时间为commit→下一输出ms）
+1. budget8 E252 (706,656)，已生成35，尾部50：
+   H0/H7 = 276.167668 / 278.321913；
+   L2/B3/B4/L5实际R = 72.081633 / 72.196931 / 71.964815 / 72.069785。
+   这6臂截至决策前的全部原生scheduled序列、所有请求已发token前缀、
+   既往commit动作序列及目标prefix hash分别完全一致；不是只比较K相等。
+   commit在step357；R同一步计算[0,706)并输出，H在step360计算[656,706)。
+   期间目标均无再次抢占。L/B重复是相同策略轨迹的重复，不能按4个独立状态算。
+2. budget8 E251 (2736,1840)，尚未生成，尾部896：
+   H0/L2/B3/B4/L5/H7实际H = 215.648143 / 218.559923 / 218.305143 /
+      218.354993 / 220.226971 / 218.175991；R1/R6 = 153.639395 / 154.157002。
+   8臂目标前同样四类一致性成立，且此前无成功恢复commit。
+   commit在step319；R按319/320计算[0,1845)、[1845,2736)，H在321计算
+   [1840,2736)；均无再次抢占。这是被抢占prefill恢复，不是有生成历史的decode点。
+3. 单事件E249 (3128,3056)，已生成76，尾部72：
+   R0/H1/H2/R3 = 155.811885 / 138.254495 / 140.011184 / 156.733200。
+   commit378；H在379计算[3056,3128)，R在378/379计算[0,1856)、
+   [1856,3128)；均无再次抢占。四臂全部6对目标前完整检查通过。
+4. 单事件E223 (3277,2656)，已生成541，尾部621：
+   H0/R1/R2/H3 = 1017.000655 / 160.018839 / 161.061980 / 1020.352928。
+   commit874；R在874/875计算[0,1880)、[1880,3277)后输出，无再次抢占。
+   H在875只完成[2656,3265)，876再抢占，886第二次Host恢复命中3264，887
+   计算[3264,3277)后输出。其1.02s标签包含真实再排队/第二次LOAD等完整剩余
+   路径，不能改称一次LOAD+尾部的原语成本，也不能删除这些“慢样本”再拟合。
+   四臂全部6对目标前检查通过，原始输入加已生成前缀hash复核通过。
+
+budget原始74个合法commit的实际时间戳与canonical summary残余时延逐一一致；
+其下一输出index等于当时generated_tokens，身份保持/joint_capacity标记均通过。
+上述新预算prefix检查用外部ID替换随机内部ID，保留每步请求顺序及所有scheduled
+字段，只去掉墙钟；另独立比较decision前全请求已发token前缀和既往commit。
+这种执行序列对齐不代表物理GPU时钟/传输完成时刻完全相同，也不是idle条件。
+
+传输量口径
+固定实测资源为36916 GPU blocks、77418463232 bytes，Host16384 blocks/32GiB，
+每块16token/2MiB，single KV group，local APC=0。四点首次Host路径的布局量分别
+为82、230、382、332MiB；719/704缺口点为88MiB。它们是固定块布局对应字节数。
+budget8每臂所有Host commit的H×131072字节多集与worker实际LOAD sizes多集相等：
+H各14次/4349493248B；L/B各6次/1983905792B；R零LOAD。
+当前worker报告的time仍按上报聚合，没有逐request/job的CUDA暴露等待绑定。
+不能把相同size匹配扩大成已测出该request独立copy时间，亦不能用该time建成本表。
+E223第二次LOAD是剩余服务实际发生的工作；之前已付STORE保留全服务统计，
+既不在当前动作增量中重复收费，也不算R节省。
+
+为什么尚不能冻结充分覆盖的强成本基线
+• 没有720--2735、K<706或K>3602的合法样本；尤其1792附近和2048分块边界缺口大。
+  不能把相距2030token的点连线后称跨量子路径已验证。
+• 32点中28点没有直接双动作支持。严格4点域只覆盖budget8的22/74合法commit；
+  在全部本次178提交中覆盖52/178。这是历史覆盖诊断，不是未来策略命中率预测。
+• H/K从约0.235到接近1，但没有固定K、独立受控H网格。K3277/H3264的Host
+  是再次恢复状态，不能仅因已有R(3277)就声称与H2656的初始参考状态相同。
+• K706和719的命中/排队背景不同；719没有实际R。用706的R直接填719属于
+  未声明插值；更不能把E223的再抢占成本搬给其他相近K/部分命中点。
+• 单事件两组各只两次/动作，预算组只有少量固定轨迹。其observer、运行时段
+  和背景分布也不同；不是一张统一idle硬件曲线的IID采样。不能把全组非目标
+  Host点与另组不同背景下的R点随意拼成配对反事实。
+• 尚无独立任务上的有恢复成本域验证；MultiNews零恢复不提供可校准cost点。
+因此当前最多可冻结“来源分 cohort、精确点、域外可见”的受限查表契约，
+不能现在宣布强近邻基线完成。本文也不据这些计时寻找阈值或宣称全服务收益。
+
+唯一建议的新原生校准：E252第二次恢复719/704，四臂H/R/R/H（PROPOSED_ONLY）
+启用门槛：主会话随后告知headroom6已完成、正在归档；本次未读取它的raw，
+以上历史覆盖计数完全不含该组。应先检查其是否已在706保留Host后，于719/704
+提供实际双动作及相同前历史；若已有合格支持，直接复用新证据，取消重复GPU
+校准。下面只是该点仍缺失时的唯一保留方案，不提交、不自动追加实验。
+选择依据是上表中紧邻已有短前缀域、反复出现且缺R的真实合法点；未读取当前
+headroom组来挑目标，也不按未见R结果选择曲线。只补这一个缺失点，不展开长度、
+Host覆盖或并发网格。它仍不足以补成全成本面；补后也必须报告受限覆盖。
+
+复用现有one-event target_spec格式与run_group/run_cell，不写新executor。
+目标spec需另建新文件，不能覆盖原one_event_short_target_spec.json（其目标706）：
+  schema: E.one_event_target.v1
+  target.external_id: measured/E252
+  target.num_preemptions: 2
+  target.known_tokens: 719
+  target.generated_tokens: 48
+  target.prefix_sha256: 74174ad5df3f452e2ef3a4405e8f03d0fd8c7a564d02cc7908de0cf8920adc97
+参考点H=704作为expected_profile_domain元数据单列，不塞入现有target身份字典。
+只使用已知输入+48个已发token构造hash；输入按requests与inputs的相同行序对齐，
+不是按source_index（原始题目索引191）找第191条服务输入。已在本地复核第252行
+拼接后恰为719token及上述hash。
+
+指定参考源为execution/oct07_one_event_r01/00_same_engine/01_host/raw.json的event56。
+配置保持同自然summary256清单、OLMoE BF16/context4096、normal GPU auto0.9、
+Host32GiB、maxseq256、batch2048、arrival0、自然EOS及原256/1024混合cap、同预热。
+新组重新记录实际GPU容量，不强制复制旧profile字节。除唯一成功目标commit的
+H/R选择外，全部其他恢复按现有one-event逻辑Host，所有不可行分支原fallback。
+既有当前headroom代码不为此改动；以后若实施也冻结独立source receipt。
+
+调用参数配方（本次不创建spec、不执行或排队）：
+  run_group.py --arms host,recompute,recompute,host --target-spec <新719目标spec>
+  --workload inputs_natural_summary256/pro6000_natural_summary_256.json
+  --requests 256 --host-gib 32 --max-num-seqs 256 --batch-tokens 2048
+  --output-tokens 256 --timing-observer --max-seconds 600
+  省略--kv-bytes与--fixed-output；name/GPU UUID由主会话按锁交接核实。
+运行后仍用现有analyze_one_event.py核验：每臂恰一目标commit、四臂目标前history/
+native trace对齐、相同实际K/H/Host布局及资源；若H漂移或未达目标则保留失败/
+域偏移记录，不自动换点或扫参数。两动作只各执行两次，不在在线决策中执行两条。
+记录真实commit→正确下一输出、分块/再抢占/后续恢复、全请求完成与停顿、
+token/停止状态及完整STORE/LOAD；继续完成整episode，不只截取局部恢复窗口。
+不能为制造“idle”取消其他请求或暂停背景，也不能重置/预填伪Host KV。
+
+最薄证据补强仅在未来确有需要时：现有allocated回调在原生_alloc返回后可读取
+cs._req_status[rid].transfer_jobs 与 cs._current_batch_load_jobs[job_id] 的req_id、
+src/dst specs及group_sizes作被动布局快照；原生offloading/scheduler.py:851--865
+已建立该映射，不必修改分配/传输。该快照只能补request↔LOAD布局关联，不能
+冒充GPU完成时间；当前直接墙钟标签无需增加计时执行器。当前任务没有实现它。
+
+预先限制后续表使用：本校准的全部四臂只能作为calibration cohort；不得在同一
+四臂上把按事后较快动作选择的时延报告成online收益。后续表的固定聚合、查询域、
+相等选Host、PROFILE_UNAVAILABLE计数应在独立评价前另行冻结；不能以当前组
+未来输出长度、EOS或事后最佳恢复路径作为查询输入。本次没有生成任何表系数。
+
+主要来源SHA256（本地已完成归档；路径均相对E根）
+execution/oct07_budget_r01/summary.json
+  4da23d2233d5891be699a8ffb4e5a33f3dd2e3fe9213136e00a9b5581090b7e5
+execution/oct07_one_event_r01/one_event_summary.json
+  55674fc6c90807be2efc081ec68792dbe60479a425d3ecf9fb2bdfee64a5260d
+execution/oct07_e223_r01/one_event_summary.json
+  3aa8904bbbe9d5a76b4bd0aecda763525c12ce25a2610376e3080682e244dc1c
+拟719目标源01_host/raw.json
+  a96d676c39e0ead6a152e427808ec16f75b827f427599092b6605d1290e20afd
+拟719目标源01_host/inputs.json
+  79b53aefce3b83bb982631337d585b2d785b7be9f8d80f86cce43aeac765480a
+拟719目标源01_host/resources.json
+  45edf4f6cec094a9d802be03c7c65e2cbce46d577443d1b0ef51d9309239dbdc
+拟719目标源01_host/engine_args.json
+  6b414f9da0b783683839fa1aeafb69f17d5b904e4d60ad01749b69be8ebe3c18
+inputs_natural_summary256/pro6000_natural_summary_256.json
+  8346ad2512661cc6595ef3e0aa53e76c690fb9980f5bf41e8007f199cfb7582a
+
+本文件交付覆盖结论与唯一有界下一步；没有授权/启动额外GPU工作，也未将
+真实参考负载下局部成本排序推广为质量合格或全服务最优策略。

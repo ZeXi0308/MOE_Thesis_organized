@@ -1,0 +1,169 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[margin=23mm]{geometry}
+\usepackage{booktabs,amsmath,graphicx,microtype,xcolor,float}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage[colorlinks=true,urlcolor=blue,citecolor=blue,linkcolor=blue]{hyperref}
+\title{Completion-Time Feedback for Prefill Budgets:\\A Controlled Single-GPU Serving Study}
+\author{Session D --- independent experimental report}
+\date{4 October 2026}
+\hypersetup{pdftitle={Completion-Time Feedback for Prefill Budgets},pdfauthor={Session D}}
+\raggedbottom
+\begin{document}
+\maketitle
+\begin{abstract}
+\input{abstract_result.tex}
+\end{abstract}
+
+\section{Question and scope}
+Long prompt processing shares execution time with ongoing token generation in
+continuous batching. We test whether changing only the aggregate number of prompt
+tokens allowed per iteration improves complete-service outcomes over a tuned,
+deployable fixed cap. Equal token counts need not imply equal iteration costs,
+but this is a hypothesis to test, not a premise establishing adaptive superiority.
+This report distinguishes an observed throughput--stall tradeoff, an informative
+state signal, and an end-to-end improvement: none implies the next automatically.
+
+\section{Runtime intervention}
+An initial launch failed before any request was executed because an environment
+default overrode the requested in-process mode; it is retained as a zero-measurement
+startup failure. Explicitly disabling the default multiprocessing environment
+flag restores the requested in-process configuration. The runtime is vLLM 0.26.0, serving OLMoE-1B-7B-0924-Instruct in BF16 on one NVIDIA RTX PRO 6000
+Blackwell Server Edition (97,887 MiB reported memory). The engine has a fixed
+4,096 total-token limit, 192 sequence slots and 4,096 maximum context length. The normal-capacity
+engine uses the runtime memory profiler with a 90\% device-memory target; no
+manual small-KV limit is imposed. Resolved KV capacity is recorded. Prefix caching, speculative decoding and asynchronous
+scheduling are disabled for every arm. The FCFS admission/allocation logic,
+victim selection, model weights, precision and operators are common to all arms.
+The first experiment is resident serving with no KV connector; zero preemptions
+are checked, so recovery behavior is outside the evaluated regime.
+
+A process-local scheduler patch introduces one counter $P$ per iteration. For
+the running and waiting request loops, it clips only work beyond the remaining
+prompt-token allowance. The counter is decremented only after successful native
+allocation. Waiting requests use the native computed-prefix position; running
+requests use their current position. The patch neither sorts requests nor changes
+decode priority. At runtime we check prompt work $\leq P$, no preemption, and
+exactly one scheduled token for every decoder already resident before the step.
+The original installed scheduler is not modified.
+
+The candidate action set is $P\in\{256,512,1024,2048\}$. Additional fixed
+controls use 1,072 to match its development mean cap and 3,840 as a stronger
+upper-budget endpoint; both receive dedicated full-trace warmups. Fixed arms use one cap for the
+whole service trace. The count-only rule uses 2,048 below eight active decoders
+and 512 otherwise. The feedback rule uses the same levels and adds the elapsed
+time of the most recent completed mixed step. Starting at 1,024, it decreases
+one level when the step exceeds a target $T=24$ ms, increases one level below $0.7T$,
+and otherwise holds. With no active decoder it uses 2,048. The target is chosen after the first fixed comparison, whose mixed steps
+span roughly 14--28 ms, and is frozen before the long-document holdout.
+Only completed observations are used; no expert routing, extra forward pass, learned model,
+full shape scan, or synchronization is added. The positive minimum cap and the
+finite workload prevent indefinite withholding of prefill service in this domain.
+This is not a worst-case wall-clock guarantee under arbitrary arrivals.
+
+\section{Experimental method}
+Each development trace has 36 requests: 12 short GSM8K prompts with 384 generated
+tokens each and 24 long QMSum prompts with 160 tokens each. Eight short requests
+arrive at zero, four at 3 seconds. Long requests arrive in three waves beginning
+at 0.6, 2.5 and 5 seconds, with eight requests per wave and 40 ms within-wave
+spacing. Arrivals are a common absolute clock, not completions from another
+policy. The development prompt total is 92,625 tokens and every arm must generate
+8,448 tokens and drain all requests. EOS is ignored for this controlled
+scheduling experiment; this does not evaluate natural termination or task quality.
+The PRO 6000 extension also includes 12-request low-load and 160-request high-load
+traces. The high-load trace combines 32 short requests and 128 long prompts with
+512 output tokens each (within the model context limit), totaling 471,895 prompt
+tokens and 77,824 output tokens. Actual resident count and KV occupancy are
+measured; the label high load alone does not prove a capacity bottleneck.
+A separate long-document source trace replaces the 24 QMSum prompts; the short
+background prompts are shared and therefore this is not a fully disjoint holdout.
+
+All four cap levels run the full development trace as warmup before measurement,
+using one common engine and compilation domain. Request state drains between
+episodes and prefix caching is disabled. The first fixed comparison is ordered
+512, 2,048, 2,048, 512. The 1,024 and 256 fixed controls and both dynamic rules are then compared
+in forward and reverse orders. Fixed 2,048 is selected by development joint
+goodput before holdout. The later 3,840 endpoint is an explicitly labeled
+additional exploratory control. Later selection and confirmation steps are identified
+separately in the results. A common host lock protects the complete campaign;
+the controller verifies no other GPU process before initialization.
+
+Every step records actual prompt/decode work, pre-step decoder count and summed
+decoder context, policy selection overhead, scheduler time, and the elapsed
+\texttt{engine.step()} envelope. This envelope includes host and device work
+through returned outputs; it is not a CUDA-event kernel time. There is no added
+device synchronization. Every request retains planned arrival, actual submission,
+first scheduling, completion, output IDs, and every host-observed output time.
+
+Throughput uses all generated tokens (8,448 in development) divided by the full trace duration,
+including waiting and drain. TTFT and completion latency are relative to planned
+arrival. For each request, maximum generation gap is the maximum difference
+between consecutive observed output timestamps, excluding TTFT. Repeated
+timestamps are reported rather than interpreted as observable intra-return token
+timing. The primary joint SLO requires TTFT $\leq4$ s, maximum generation gap
+$\leq100$ ms, and completion latency $\leq20$ s. Request goodput is the count
+passing all three divided by full trace duration; output goodput counts only
+outputs of passing requests. These thresholds are fixed before observing results
+and describe an experimental contract, not a claimed production requirement.
+
+\section{Results}
+\input{results.tex}
+\input{mechanism.tex}
+
+\section{Related work and interpretation}
+Sarathi-Serve establishes chunked prefills and decode-maximal batches as tools for
+the throughput--latency tradeoff~\cite{sarathi}. Its current official implementation
+also supports decreasing chunk sizes with progress through a prompt~\cite{sarathicode}.
+QoServe chooses chunks using deadline state and predicted execution cost from
+request count and context information~\cite{qoserve}. These are direct prior art,
+so neither adaptive chunking nor context awareness is claimed here as new.
+DLFP is particularly close: it uses proportional latency feedback to bound
+overlapping prefill, and reports both small-model gains and failed transfer to
+larger configurations~\cite{dlfp}. Its asynchronous scheduler-cadence measurement
+and unsuccessful completion-aware revision make measurement fidelity and strong
+fixed controls central to this experiment. A synchronous host completion
+envelope is a practical observation choice here, not by itself a novelty claim.
+
+\section{Limitations and conclusion}
+\input{conclusion.tex}
+
+\clearpage
+\section*{Artifact and reproduction}
+The accompanying artifact contains the process-local scheduler intervention,
+the serving driver, frozen tokenized workloads, exact executed phase commands,
+per-step and per-request originals, numerical analysis, and this paper's sources.
+The \texttt{reproduction/} directory is a clean execution bundle: its command
+files are reconstructed from the retained executed protocols, including the
+warmup-only phases. The repository README gives the launch and analysis commands.
+Replaying the campaign requires the recorded vLLM/Torch environment and the
+model weights; the artifact does not package weights or credentials.
+
+The resolved stack is Torch 2.11.0+cu130, CUDA 13.0, vLLM 0.26.0 and NVIDIA
+driver 595.71.05. The model revision is
+\texttt{7f1c97f440f06ce36705e4f2b843edb5925f4498}; all three weight-shard SHA-256
+digests match the retained model manifest. Native and patched scheduler digests
+are recorded in the initial phase's \texttt{patch.json}.
+The memory profiler allocated 71.81 GiB of KV cache, with 36,765 blocks of
+16 tokens (one block is reserved). This is normal device-capacity allocation,
+not a reduced-cache mechanism experiment.
+
+The analyzer validates request count, completion, fixed output length, prompt
+and decode token conservation, timestamp counts, and prefill budget compliance.
+The report builder excludes warmups and the failed zero-request startup from
+its 57 measured episodes. All 108 archived remote originals were verified
+byte-for-byte after transfer. The campaign released its shared GPU lock after
+the last comparison; analysis and document preparation continued locally.
+
+\begin{thebibliography}{9}
+\bibitem{sarathi} A. Agrawal et al. Taming Throughput-Latency Tradeoff in LLM
+Inference with Sarathi-Serve. OSDI, 2024.
+\url{https://arxiv.org/abs/2403.02310}
+\bibitem{sarathicode} Microsoft. Sarathi-Serve scheduler source, accessed 4 October 2026.
+\url{https://github.com/microsoft/sarathi-serve/blob/main/sarathi/core/scheduler/sarathi_scheduler.py}
+\bibitem{qoserve} QoServe: Breaking the Silos of LLM Inference Serving. ASPLOS, 2026.
+\url{https://www.microsoft.com/en-us/research/wp-content/uploads/2025/10/QoServe_CC_final_v2.pdf}
+\bibitem{dlfp} G. Agarwal, A. Garg and I. Singhal. Decode-Latency Feedback Prefill:
+A Model-Free Controller and Its Generalization Limits. 2026.
+\url{https://arxiv.org/abs/2609.38386}
+\end{thebibliography}
+\end{document}

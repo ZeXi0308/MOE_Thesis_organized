@@ -1,0 +1,230 @@
+{
+  "policies": [
+    "fixed1024",
+    "niyama_component",
+    "niyama_component",
+    "fixed1024"
+  ],
+  "request_count": 256,
+  "workload_sha256": "395fd015ceb9bef4a4a59e30e0203e83167a4967fffe2ba7160409f0ac738a15",
+  "slo": {
+    "ttft_s": 4,
+    "gap_s": 0.1,
+    "completion_s": 20
+  },
+  "target_ms": 24.0,
+  "output_contract": "Fixed lengths and ignore_eos for scheduling causality; not natural ending quality evaluation.",
+  "warmup": "Each policy replays the same confirmation trace before measurement; same process, drained engine, no APC",
+  "warm_policies": [
+    "fixed1024",
+    "niyama_component"
+  ],
+  "timing": "Host engine.step completion, no extra GPU synchronize; includes scheduler and output handling",
+  "source_sha256": {
+    "prefill_policy.py": "1aedafb440597a5903539eb05e5e3e5cd0eaa12a0eda292f345df6d883cbe960",
+    "run_block.py": "b047b6352f08338f980b6649e7176582ec4a0919767fa7248f911da9194b5e2c",
+    "run_confirmation.py": "67cb25770693252d64efcb93ea1aaf45ab99ce92926b77189dd03c324b0ee166",
+    "runtime_bootstrap.py": "dafbad576b9d2e956dd981da9309c72336a3af1e2b8ccad2cb24980c67c09778",
+    "verify_g.py": "0172fe1eeee0f46b37fd67e1e154a01e5e2f00881ba23b541be03b813fa8fdd8"
+  },
+  "experiment_kind": "NIYAMA_CHUNK_COMPONENT_DEVELOPMENT",
+  "frozen_component_design": {
+    "name": "D replacement-device 53005 existing Niyama component versus tuned fixed cap",
+    "status_at_freeze": "PRE_GPU_FROZEN",
+    "frozen_timestamp_cst": "2026-10-08T17:04:11.255172+08:00",
+    "workload": "../mixed_arrivals/workload_high_rate.json",
+    "workload_sha256": "395fd015ceb9bef4a4a59e30e0203e83167a4967fffe2ba7160409f0ac738a15",
+    "primary_slo": {
+      "ttft_s": 4,
+      "gap_s": 0.1,
+      "completion_s": 20
+    },
+    "timeout_s": 180,
+    "policies": [
+      "fixed1024",
+      "niyama_component",
+      "niyama_component",
+      "fixed1024"
+    ],
+    "warm_policies": [
+      "fixed1024",
+      "niyama_component"
+    ],
+    "formal_attempt_limit": 4,
+    "question": "Does an existing completion-deadline chunk principle improve complete service over the tuned fixed cap in the observed completion-limited domain?",
+    "reason": "Effective matched-prefill timing01 pulse changed phase transitions without frozen service benefit; highrate fixed comparisons have only completion misses. Existing TTLT baseline has not been executed here. This is a prior-art baseline development screen, not a new-signal or novelty experiment.",
+    "fixed_selection": "1024 selected by unchanged full joint SLO goodput from the already closed small fixed development set; no per-segment hindsight algorithm.",
+    "artifact_commit": "72339db5b120614033b317880ad3a05a5e4c9415",
+    "component_scope": "Niyama chunk-size/decode-deadline component adapted to vLLM FCFS only; not the entire original system. No original hybrid sorting/relegation/admission/KV manager is transplanted.",
+    "batch_token_deadline_s": 0.03125,
+    "length_input": "Each request declared fixed max_tokens from min=max/ignoreEOS contract, passed as original num_decode_tokens metadata path. No future emitted content, actual natural-EOS length, arrivals or routes observed. Natural-EOS setting not tested.",
+    "deadline": "a + max(observed_first_output-a, 20-declared_output_tokens*tau) + (observed_outputs+1)*tau; minimum over ALL current native decoders. Preserve source late-prefill rebasing and cumulative slack, no K filtering.",
+    "objective_mapping": "tau31.25ms derived once from (completion20-TTFT4)/maximum declared length512; internal TTFT allocation4s for512 and8s for384. Evaluator remains joint4s/100ms/20s. Internal8s is NOT a relaxed measured TTFT SLO and no hard TTFT/max-gap/TTLT guarantee is claimed.",
+    "normal_total_tiers": [
+      128,
+      256,
+      512,
+      768,
+      1024,
+      1280,
+      1536,
+      1792,
+      2048,
+      2552
+    ],
+    "low_memory_total_tiers": [
+      128,
+      256,
+      384,
+      512
+    ],
+    "low_memory_rule": "(current_native_free_blocks*block_size)//32 < 1000; read-only feature, no KV policy change.",
+    "pure_prefill_cap": "max(0,selected_total_tier-current_D); native total4096 unchanged and ALL native decodes must still execute.",
+    "prediction_margin": 1.2,
+    "search_adaptation": "Enumerate original ten total tiers and take largest predicted-feasible tier. The local two-regime fit has observed512->768 declines up to2.987ms, making original binary-search monotonicity unsafe. Enumeration preserves maximum-feasible intent; source minimum-tier fallback unchanged; no fit clipping/monotonic envelope/new model.",
+    "prefill_context_adaptation": "Current first unfinished prefill in native running order, else waiting order, replaces original reordered heap top. Its computed tokens estimate is preserved as source head proxy, not a claimed exact multi-prefill context. Log actual executed prefill context separately.",
+    "zero_prefill_rule": "Nonpositive slack or no feasible tier returns min-total128 minus D, hence P0 ifD>=128. Existing decodes always progress, no arrival pause/reject/order change. Source fallback retained without new aging/controller. Finite fixed-output input continues to full drain or original180s timeout; no general waiting/SLO bound claimed.",
+    "calibration_sha256": "64ddc734c5af941d43171bba4cac92317fc2eb9d04e725ae05ab19ad2381a13a",
+    "calibration": "Existing five real native training runs, five reverse held-out runs; same two linear model family with total=P+D redundant column removed. Actual P/D/contexts, hostengine completion label. No GPU profiling, no additional prediction model. Intended online<=512/>512 branch used, correcting fitter>513 exclusion boundary; zero observed513 rows. Per-run errors retained. Nonmonotonic diagnostic remains in calibration JSON; enumeration resolves search assumption only, not model error.",
+    "controls": "Unchanged parent normal arrival/add/output/drain loop, BF16OLMoE, engine resources/native scheduler patch. Candidate compute and logging overhead included. Both policy warm runs precede all formal measurements; no changed kernels/precision or extra forward/synchronization.",
+    "fair_timing": "Require no new formal compilation/capture/autotuning; report observed warm/formal total-tier and actualP coverage. Formal compile is interpretability failure, not mechanism loss. Preserve all failures and attempts, no automatic rerun.",
+    "decision": "Both reversed pairs require all arrivals valid complete, actual cap-binding execution difference, full jointU>=3%, raw output throughput not down, TTFT/flow/per-request-maxgap p95<=1.05reference, and no added100ms gap-failure IDs. Retain all raw metrics, qualification migrations and harmed requests even if gate fails.",
+    "stopping": "Zero actual change: one interface/opportunity diagnosis, no expansion. Negative/subgate/inconsistent complete effect: stop this mapping, no automatic tau/margin/cap tuning; investigate only an observed new explanation. A positive result means an existing principle has utility here, NOT a D contribution, full Niyama reproduction, or independent confirmation. No second-model/parameter matrix based on this screen.",
+    "gpu_uuid": "GPU-51b8e4bb-27b8-4b82-5254-7317aae7298c",
+    "shared_lock": "/root/autodl-tmp/moe-research-gpu.lock",
+    "shared_lock_inode": 4312099778,
+    "resources": "One D process under unchanged host-wide shared lock; maximum7200s wait; exactly2warm+4formal episodes; no automatic retry. New-host refresh resource checks require2GiB before queue/afterlock and1.5GiB before each episode, outside episode clock. Afterlock idle check preserved. No fee/remaining-budget telemetry.",
+    "output_contract": "Identical external arrivals/prompts/fixed counts; counts do not imply identical output content/routes/computation/quality.",
+    "source_sha256": {
+      "run_component.py": "746846e113c53cb016fbf3639b6cda9ce8081d19373b770d230a5be4e626c276",
+      "launch.sh": "c5f2243c7efc713799c224262543665d31aef20fb6d699a7e8ed6ce25dc24cd8",
+      "../niyama_component/run_component.py": "46524607172d533738e92bcf9712009c152d6059d8f8a30010172ee31afa51ef",
+      "../device_refresh_53005/run_refresh.py": "fe0dd9a843fce10f5c83ff2c83f419dc28f43bcb2c2219bcb9b004ccc1a17a7f",
+      "../run_confirmation.py": "67cb25770693252d64efcb93ea1aaf45ab99ce92926b77189dd03c324b0ee166",
+      "../prefill_policy.py": "1aedafb440597a5903539eb05e5e3e5cd0eaa12a0eda292f345df6d883cbe960",
+      "../runtime_bootstrap.py": "dafbad576b9d2e956dd981da9309c72336a3af1e2b8ccad2cb24980c67c09778"
+    },
+    "intended_output_name": "niyama53005_01",
+    "calibration_file": "../niyama_component/calibration.json",
+    "expected_driver_version": "580.95.05",
+    "root_start_free_bytes_required": 2147483648,
+    "root_between_episode_free_bytes_required": 1610612736,
+    "resource_probe_filesystem": "/tmp on the root filesystem",
+    "resource_policy": "New-host operational reserve, explicitly replacing only this new design local threshold: 2GiB before queue and after lock before GPU initialization; 1.5GiB before each full warm/formal episode, outside the unchanged original episode clock. Preserve partial/failure status and stop on failed preflight; no automatic retry or weakened check inside a timed step. UUID/driver/lock inode checked at the same boundaries.",
+    "resource_evidence": {
+      "measured_old_groups_bytes": {
+        "pressure01": {
+          "six_raw": 190923094,
+          "total": 192111810
+        },
+        "moderate01": {
+          "six_raw": 189914215,
+          "total": 191095211
+        },
+        "highrate01": {
+          "six_raw": 188442420,
+          "total": 189650361
+        },
+        "timing01": {
+          "six_raw": 200067946,
+          "total": 201812384
+        }
+      },
+      "measured_current_cache_bytes": {
+        "vllm": 82477056,
+        "triton": 22040576,
+        "total": 104517632
+      },
+      "planned_raw_log_budget_bytes": 524288000,
+      "planned_new_cache_budget_bytes": 536870912,
+      "protected_floor_bytes": 1073741824,
+      "interpretation": "500MiB raw/log exceeds 2.5 times the largest measured full group; 512MiB new cache exceeds 5 times measured current cache. Start2GiB covers those budgets plus1GiB floor. Between-episode1.5GiB retains1GiB floor plus at least500MiB remaining raw/log allowance. External changes remain possible, hence repeated checks; this is an operational budget, not a memory guarantee.",
+      "history": "Old frozen4GiB designs and negative initialization records remain untouched. User did not mandate a universal4GiB reserve; newer shared A/B notices used3GiB. This new-host revision is explicit and evidence-based."
+    },
+    "after_lock_idle_check": {
+      "max_utilization_percent": 5,
+      "max_memory_used_mib": 16,
+      "consecutive_readings": 2,
+      "sample_separation_s": 0.5,
+      "grace_s": 5
+    },
+    "after_lock_idle_scope": "Only after common lock acquisition and parent compute-app cleanup, before GPU initialization. Require two consecutive readings <=5% utilization and <=16MiB used, separated by at least0.5s within a5s total idle-query grace. Query timeout and sleeps use remaining grace; fail RESOURCE_BLOCKED_NO_GPU_INITIALIZED if not confirmed. Never run this idle check before an episode because our own engine is then loaded. No resets, kills or concurrent-job changes.",
+    "engine_args": {
+      "model": "/root/autodl-tmp/moe-research-20261002/model",
+      "dtype": "bfloat16",
+      "seed": 20261004,
+      "max_model_len": 4096,
+      "max_num_seqs": 192,
+      "max_num_batched_tokens": 4096,
+      "long_prefill_token_threshold": 0,
+      "enable_chunked_prefill": true,
+      "enable_prefix_caching": false,
+      "scheduling_policy": "fcfs",
+      "async_scheduling": false,
+      "scheduler_reserve_full_isl": true,
+      "stream_interval": 1,
+      "enforce_eager": false,
+      "enable_return_routed_experts": false,
+      "gpu_memory_utilization": 0.9
+    },
+    "expected_software": "Parent/runtime source hashes unchanged; root separately verified Torch2.11.0, vLLM0.26, Triton3.6 and migrated model. Actual environment.json remains authoritative.",
+    "input_totals": {
+      "request_count": 256,
+      "prompt_tokens": 538597,
+      "declared_output_tokens": 114688
+    },
+    "warm_attempt_limit": 2,
+    "max_wait_lock_s": 7200,
+    "device_transfer": "Refresh53005_01 completed the predeclared four-run/two-regime cost transfer diagnostic. Reuse original calibration without refit. This permits the prior-art component development screen on the observed domain; no universal candidate-state prediction validity, independent confirmation, SLO guarantee, or novelty is claimed.",
+    "original_component_design_sha256": "0f80b1698fec6e2b146c588320b50843d0c23223f2bbd7c1d5c882a9b2734606",
+    "transfer_evidence_metadata": {
+      "path": "../refresh53005_01/transfer_results.json",
+      "sha256": "5710ad6084be844f1aea0ca10ef604421d4692c40d2f39b1334b6334edef291c",
+      "scope": "Local analysis provenance only; not imported or required by GPU entrypoint"
+    },
+    "analysis_source_sha256": {
+      "../niyama_component/analyze_component.py": "bd9360c6b7666c8539f6d67f5abd4262a47be84e74f133da3a7fd04c81c204a7",
+      "../niyama_component/calibrate.py": "d84ec4073330015a3573b1ad730a44fbbfd27e180e051fdfdfbc0305cbb7d716",
+      "../mixed_arrivals/analyze_fixed.py": "dd1feb203120e37f4db86fb5c459d60a7719944e6be00e167d3884d61ea434cc",
+      "../../analyze.py": "c434aa29ab0e5edeb25dc4c77159af6f6de8ae82edf2ffe3ef8b1332548f839c",
+      "../../confirmation_v2/paired_comparison.py": "79375f29520bbec2dcb365e0e1e4be095554620f45f2e585699b9a949b14ad10",
+      "../device_refresh_53005/assess_transfer.py": "a19eb8556bee415e4cf9247fe4e94fb736a6b1d760abfba2537cace0e73f5f04"
+    },
+    "analysis_source_scope": "Metadata for local post-readback analysis; not GPU execution dependencies. New entrypoint verifies only source_sha256, workload and unchanged calibration."
+  },
+  "frozen_component_design_sha256": "915c032b04103511aee16083cffc61d70e70480a2b7a436c7ea192e28fb63ff1",
+  "startup_resource_checks": {
+    "before_queue": {
+      "phase": "before_queue",
+      "gpu_uuid": "GPU-51b8e4bb-27b8-4b82-5254-7317aae7298c",
+      "driver_version": "580.95.05",
+      "shared_lock_inode": 4312099778,
+      "root_free_bytes": 2617880576,
+      "root_free_bytes_required": 2147483648
+    },
+    "after_lock": {
+      "phase": "after_lock",
+      "gpu_uuid": "GPU-51b8e4bb-27b8-4b82-5254-7317aae7298c",
+      "driver_version": "580.95.05",
+      "shared_lock_inode": 4312099778,
+      "root_free_bytes": 2463961088,
+      "root_free_bytes_required": 2147483648,
+      "gpu_idle_check": {
+        "status": "IDLE_CONFIRMED",
+        "samples": [
+          {
+            "elapsed_s": 0.08811817690730095,
+            "utilization_percent": 0.0,
+            "memory_used_mib": 0.0
+          },
+          {
+            "elapsed_s": 0.6707105115056038,
+            "utilization_percent": 0.0,
+            "memory_used_mib": 0.0
+          }
+        ]
+      }
+    }
+  },
+  "episode_scope": "Exact imported original component episode for fixed and dynamic policies; resource guards run outside its clock."
+}

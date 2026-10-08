@@ -1,0 +1,809 @@
+{
+  "schema": "c-math-fifo-common-prefix-v1",
+  "created_utc": "2026-10-01T18:45:23.531268+00:00",
+  "status": "OBSERVABLE_COMMON_PRESTATE_CONFIRMED",
+  "scope": "One paired development execution; exact observed prefix comparison only, not full machine-state equality or attribution of total episode differences.",
+  "identity_normalization": "health_analyze_v2.native_id_mapping; full 1024-request inventory checked bijective in both arms",
+  "inputs_sha256": "513ae9ac6dff4e36693c07c1c37cd9d6d6101612beda5aad59bb33994104e13a",
+  "evidence": {
+    "native": {
+      "run_root": "/Users/zhaozhenyu/Desktop/毕业设计/C_research_artifacts/20261001/qualified_serving_v3/math_scale1024_raw_v2_20261002/math1024-seqs1024/native",
+      "files": {
+        "measured-native-sampling.json": "d92e462a4430f21448884a4540462a5fd40e6e558f32e6ed75fc9dfc61cd0c31",
+        "measured-pressure.json": "def1a0913e3fcf835e1784a7d00efa6155a29a0869416f56781b9fbc40432173",
+        "measured-steps.json": "d71f7df0f430415e279e0b6ea8ccd2843ee101745f6cc30e9df4190bf6820bb0",
+        "measured-host-returns.jsonl": "4dcf355ffd4ca729202d7505a2de3c111d6e5bb9a303d2dbbb4e434de4b1bbb8",
+        "config.json": "ef6674892ff06120a5f70b0403531c72e82054448799e19e6148964e64ef357d",
+        "rendered-inputs.json": "9fcd3e45473cccfe41aba7c8eb762c05dcc8140f73cd4f83892db9dd07aa70ae",
+        "measured-outputs.json": "e19d5c95a3ee0041ef59adc3db8a48dbd7ad76e649ba62674c39dc78f69fe0f1"
+      }
+    },
+    "fifo": {
+      "run_root": "/Users/zhaozhenyu/Desktop/毕业设计/C_research_artifacts/20261001/qualified_serving_v3/math_recovery_fifo_raw_v1_20261002/math1024-restore-fifo/native",
+      "files": {
+        "measured-native-sampling.json": "1f026decafe09b00531b153d32088df515f87d4ea5ea49b560a5a67620c9ff7a",
+        "measured-pressure.json": "f6e438b20c0d26ea2b440bae2177743069b424cbcb0121477df01890a3879d99",
+        "measured-steps.json": "0bdf7f69b4ddc3ad01a0cfe06130d5f8a90e69242dd5b65b0a1341b3a8f4ec14",
+        "measured-host-returns.jsonl": "3ae9601fced2779af97e72a2860a6d1453a0c106b4d81d6a50dea9ddf164cf1e",
+        "config.json": "212c40786030d6b6b3b02933492f6c0a1c2f9e4e35b41d1f74ee1412e6b79b10",
+        "rendered-inputs.json": "9fcd3e45473cccfe41aba7c8eb762c05dcc8140f73cd4f83892db9dd07aa70ae",
+        "restore-policy.json": "0a8bd89a5916bd627a2217a1cee8cdb2f56e7e631aa1ad0058b90d44437f7f1a",
+        "measured-outputs.json": "e2298d43ac1ed61c460051fe2b72ef9fdcff19cadc1db1ef36730339be743c2e"
+      }
+    }
+  },
+  "prefix_calls_exclusive_end": 99,
+  "checks": {
+    "scheduled_tokens": {
+      "equal": true,
+      "first_difference_call": null
+    },
+    "before": {
+      "equal": true,
+      "first_difference_call": null
+    },
+    "after": {
+      "equal": true,
+      "first_difference_call": null
+    },
+    "attempt_ids": {
+      "equal": true,
+      "first_difference_call": null
+    },
+    "classifications": {
+      "equal": true,
+      "first_difference_call": null
+    },
+    "remaining_token_budget": {
+      "equal": true,
+      "first_difference_call": null
+    },
+    "waiting_rejection_attempt_ids": {
+      "equal": true,
+      "first_difference_call": null
+    },
+    "budget_exhausted_at_return": {
+      "equal": true,
+      "first_difference_call": null
+    },
+    "seq_limit_reached_at_return": {
+      "equal": true,
+      "first_difference_call": null
+    },
+    "scheduled_mapping_iteration_order": {
+      "equal": true
+    },
+    "preempted_membership": {
+      "equal": true
+    },
+    "preempted_array_order": {
+      "equal": false,
+      "differing_calls": [
+        98
+      ],
+      "explanation": "Native Scheduler.reset_preempted_req_ids is a set; observer materializes list(set). Its array order is not native _preempt_request call order.",
+      "source": "vllm/v1/core/sched/scheduler.py lines 195, 1157, 1284",
+      "differing_values": [
+        {
+          "call": 98,
+          "native": [
+            "measured/gsm8k-test-1021",
+            "measured/gsm8k-test-1022",
+            "measured/gsm8k-test-1023"
+          ],
+          "fifo": [
+            "measured/gsm8k-test-1023",
+            "measured/gsm8k-test-1021",
+            "measured/gsm8k-test-1022"
+          ]
+        }
+      ]
+    },
+    "native_allocation_attempts": {
+      "equal": true,
+      "count_native": 79077,
+      "count_fifo": 79077,
+      "sha256_native": "4fe0a515701c55623ad6886ebe3fd4177e601a3f003a64e3c9caa64252b889fd",
+      "sha256_fifo": "4fe0a515701c55623ad6886ebe3fd4177e601a3f003a64e3c9caa64252b889fd"
+    },
+    "host_delivery_events_by_step": {
+      "equal": true,
+      "first_difference_call": null,
+      "through_call_inclusive": 98,
+      "compared_fields": [
+        "delta_token_ids",
+        "cumulative_tokens",
+        "finished",
+        "finish_reason",
+        "stop_reason"
+      ],
+      "timestamps_excluded": true
+    },
+    "generated_token_prefixes": {
+      "equal": true,
+      "request_count": 1024,
+      "native_tokens": 79026,
+      "fifo_tokens": 79026,
+      "sha256_native": "4d74fec86ffda1d354e2e5cbf23d0a2428061428b8613fdad201029d8c16abab",
+      "sha256_fifo": "4d74fec86ffda1d354e2e5cbf23d0a2428061428b8613fdad201029d8c16abab"
+    },
+    "action_call_before_reorder_boundary": {
+      "equal": true,
+      "native": {
+        "total_blocks": 9362,
+        "usable_blocks": 9361,
+        "free_blocks": 57,
+        "running": 956,
+        "waiting": 3,
+        "skipped_waiting": 0,
+        "waiting_head": {
+          "request_id": "measured/gsm8k-test-1021",
+          "status": "PREEMPTED"
+        },
+        "skipped_waiting_head": null,
+        "effective_running": 956,
+        "seq_limit": 1024,
+        "token_budget_initial": 2048,
+        "pause_state": "UNPAUSED"
+      },
+      "fifo_before_policy_reorder": {
+        "total_blocks": 9362,
+        "usable_blocks": 9361,
+        "free_blocks": 57,
+        "running": 956,
+        "waiting": 3,
+        "skipped_waiting": 0,
+        "waiting_head": {
+          "request_id": "measured/gsm8k-test-1021",
+          "status": "PREEMPTED"
+        },
+        "skipped_waiting_head": null,
+        "effective_running": 956,
+        "seq_limit": 1024,
+        "token_budget_initial": 2048,
+        "pause_state": "UNPAUSED"
+      }
+    }
+  },
+  "first_policy_action": {
+    "schedule_call": 99,
+    "native_head": {
+      "request_id": "measured/gsm8k-test-1021",
+      "status": "PREEMPTED"
+    },
+    "fifo_head": {
+      "request_id": "measured/gsm8k-test-1023",
+      "status": "PREEMPTED"
+    },
+    "policy_queue_before": [
+      {
+        "request_id": "measured/gsm8k-test-1021",
+        "status": "PREEMPTED",
+        "preempt_event_sequence": 2
+      },
+      {
+        "request_id": "measured/gsm8k-test-1022",
+        "status": "PREEMPTED",
+        "preempt_event_sequence": 1
+      },
+      {
+        "request_id": "measured/gsm8k-test-1023",
+        "status": "PREEMPTED",
+        "preempt_event_sequence": 0
+      }
+    ],
+    "policy_queue_after": [
+      {
+        "request_id": "measured/gsm8k-test-1023",
+        "status": "PREEMPTED",
+        "preempt_event_sequence": 0
+      },
+      {
+        "request_id": "measured/gsm8k-test-1022",
+        "status": "PREEMPTED",
+        "preempt_event_sequence": 1
+      },
+      {
+        "request_id": "measured/gsm8k-test-1021",
+        "status": "PREEMPTED",
+        "preempt_event_sequence": 2
+      }
+    ],
+    "shared_boundary_pre_reorder": {
+      "total_blocks": 9362,
+      "usable_blocks": 9361,
+      "free_blocks": 57,
+      "running": 956,
+      "waiting": 3,
+      "skipped_waiting": 0,
+      "waiting_head": {
+        "request_id": "measured/gsm8k-test-1021",
+        "status": "PREEMPTED"
+      },
+      "skipped_waiting_head": null,
+      "effective_running": 956,
+      "seq_limit": 1024,
+      "token_budget_initial": 2048,
+      "pause_state": "UNPAUSED"
+    },
+    "arms": {
+      "native": {
+        "restoration_attempts": [
+          {
+            "call_id": 99,
+            "host_s": 18.84132363460958,
+            "request_id": "measured/gsm8k-test-1021",
+            "status_before": "PREEMPTED",
+            "num_prompt_tokens": 810,
+            "num_tokens": 860,
+            "num_computed_tokens": 0,
+            "arguments": {
+              "num_new_tokens": 124,
+              "num_new_computed_tokens": 736,
+              "num_lookahead_tokens": 0,
+              "num_external_computed_tokens": 0,
+              "delay_cache_blocks": false,
+              "num_encoder_tokens": 0,
+              "full_sequence_must_fit": true,
+              "reserved_blocks": 0,
+              "has_scheduled_reqs": true
+            },
+            "free_blocks_before": 0,
+            "returned_none": true,
+            "succeeded": false,
+            "free_blocks_after": 0
+          }
+        ],
+        "scheduled_tokens_sha256": "68c5880371da29050e07d7c14591cb0613de3d7c25ea28ea5932301720f2dc9c"
+      },
+      "fifo": {
+        "restoration_attempts": [
+          {
+            "call_id": 99,
+            "host_s": 18.838549023494124,
+            "request_id": "measured/gsm8k-test-1023",
+            "status_before": "PREEMPTED",
+            "num_prompt_tokens": 784,
+            "num_tokens": 834,
+            "num_computed_tokens": 0,
+            "arguments": {
+              "num_new_tokens": 98,
+              "num_new_computed_tokens": 736,
+              "num_lookahead_tokens": 0,
+              "num_external_computed_tokens": 0,
+              "delay_cache_blocks": false,
+              "num_encoder_tokens": 0,
+              "full_sequence_must_fit": true,
+              "reserved_blocks": 0,
+              "has_scheduled_reqs": true
+            },
+            "free_blocks_before": 0,
+            "returned_none": true,
+            "succeeded": false,
+            "free_blocks_after": 0
+          }
+        ],
+        "scheduled_tokens_sha256": "68c5880371da29050e07d7c14591cb0613de3d7c25ea28ea5932301720f2dc9c"
+      }
+    }
+  },
+  "first_scheduled_token_mapping_difference_call": 115,
+  "first_scheduled_iteration_order_difference_call": 115,
+  "first_generated_event_difference_call_within_checked_window": 115,
+  "generated_event_comparison_calls_exclusive_end": 118,
+  "affected_requests": {
+    "measured/gsm8k-test-1021": {
+      "question": "In a 60-item quiz, 40% of the questions are easy, and the rest are equally divided as average and difficult questions. If Aries is sure to get 75% of the easy questions, and half of the average and difficult questions correctly, how many points is she sure to get?",
+      "gold": "36",
+      "arms": {
+        "native": {
+          "progress_before_action": {
+            "delivered_output_tokens": 50,
+            "last_token_host_s": 18.676299775019288,
+            "last_observed_allocation": {
+              "call_id": 97,
+              "host_s": 18.577561374753714,
+              "request_id": "measured/gsm8k-test-1021",
+              "status_before": "RUNNING",
+              "num_prompt_tokens": 810,
+              "num_tokens": 859,
+              "num_computed_tokens": 858,
+              "arguments": {
+                "num_new_tokens": 1,
+                "num_new_computed_tokens": 0,
+                "num_lookahead_tokens": 0,
+                "num_external_computed_tokens": 0,
+                "delay_cache_blocks": false,
+                "num_encoder_tokens": 0,
+                "full_sequence_must_fit": false,
+                "reserved_blocks": 0,
+                "has_scheduled_reqs": true
+              },
+              "free_blocks_before": 23,
+              "returned_none": false,
+              "succeeded": true,
+              "free_blocks_after": 23
+            }
+          },
+          "first_restore_success": {
+            "call_id": 189,
+            "host_s": 32.656538778916,
+            "request_id": "measured/gsm8k-test-1021",
+            "status_before": "PREEMPTED",
+            "num_prompt_tokens": 810,
+            "num_tokens": 860,
+            "num_computed_tokens": 0,
+            "arguments": {
+              "num_new_tokens": 124,
+              "num_new_computed_tokens": 736,
+              "num_lookahead_tokens": 0,
+              "num_external_computed_tokens": 0,
+              "delay_cache_blocks": false,
+              "num_encoder_tokens": 0,
+              "full_sequence_must_fit": true,
+              "reserved_blocks": 0,
+              "has_scheduled_reqs": true
+            },
+            "free_blocks_before": 36,
+            "returned_none": false,
+            "succeeded": true,
+            "free_blocks_after": 28
+          },
+          "first_episode_wait_bounds": {
+            "lower_s": 13.953140566125512,
+            "upper_s": 13.969666128978133,
+            "meaning": "Time from actual first preemption (bounded by schedule-call start/end) to first successful PREEMPTED allocate_slots attempt start; not completion of recomputation."
+          },
+          "first_post_action_token_step": 189,
+          "first_post_action_token_host_s": 32.83546140789986,
+          "first_post_action_host_gap_s": 14.159161632880569,
+          "total_preemptions": 1,
+          "preempt_calls": [
+            98
+          ],
+          "successful_restore_calls": [
+            189
+          ],
+          "finished": true,
+          "finish_reason": "stop",
+          "stop_reason": null,
+          "output_tokens": 360,
+          "output_token_ids_sha256": "754c272c3cf70090551ff9578d8949417cc7817674c20863db88c04eebe77a46",
+          "ttft_s": 12.201400397345424,
+          "flow_s": 44.73222789540887,
+          "max_host_token_gap_s": 14.159161632880569,
+          "prediction": "36",
+          "correct": true,
+          "output_text": " First, let's break down the total number of questions and the distribution of easy, average, and difficult questions.\n\n- Total number of questions: 60\n- Percentage of easy questions: 40%\n- Number of easy questions: \\( 60 \\times 0.40 = 24 \\)\n- Number of average and difficult questions combined: \\( 60 - 24 = 36 \\)\n- Since the average and difficult questions are equally divided, the number of average questions is the same as the number of difficult questions, which is \\( \\frac{36}{2} = 18 \\) each.\n\nNow, let's calculate the number of questions Aries is sure to get correct in each category:\n\n- Aries is sure to get 75% of the easy questions correct:\n  - Number of easy questions she is sure to get correct: \\( 24 \\times 0.75 = 18 \\)\n\n- Aries is sure to get half of the average questions correct:\n  - Number of average questions she is sure to get correct: \\( 18 \\times 0.50 = 9 \\)\n\n- Aries is sure to get half of the difficult questions correct:\n  - Number of difficult questions she is sure to get correct: \\( 18 \\times 0.50 = 9 \\)\n\nFinally, we add up the number of questions she is sure to get correct from each category to find the total number of points she is sure to get:\n\n- Total number of questions she is sure to get correct: \\( 18 + 9 + 9 = 36 \\)\n\nSo, Aries is sure to get 36 points."
+        },
+        "fifo": {
+          "progress_before_action": {
+            "delivered_output_tokens": 50,
+            "last_token_host_s": 18.668327309191227,
+            "last_observed_allocation": {
+              "call_id": 97,
+              "host_s": 18.57462047599256,
+              "request_id": "measured/gsm8k-test-1021",
+              "status_before": "RUNNING",
+              "num_prompt_tokens": 810,
+              "num_tokens": 859,
+              "num_computed_tokens": 858,
+              "arguments": {
+                "num_new_tokens": 1,
+                "num_new_computed_tokens": 0,
+                "num_lookahead_tokens": 0,
+                "num_external_computed_tokens": 0,
+                "delay_cache_blocks": false,
+                "num_encoder_tokens": 0,
+                "full_sequence_must_fit": false,
+                "reserved_blocks": 0,
+                "has_scheduled_reqs": true
+              },
+              "free_blocks_before": 23,
+              "returned_none": false,
+              "succeeded": true,
+              "free_blocks_after": 23
+            }
+          },
+          "first_restore_success": {
+            "call_id": 117,
+            "host_s": 21.21328005567193,
+            "request_id": "measured/gsm8k-test-1021",
+            "status_before": "PREEMPTED",
+            "num_prompt_tokens": 810,
+            "num_tokens": 860,
+            "num_computed_tokens": 0,
+            "arguments": {
+              "num_new_tokens": 124,
+              "num_new_computed_tokens": 736,
+              "num_lookahead_tokens": 0,
+              "num_external_computed_tokens": 0,
+              "delay_cache_blocks": false,
+              "num_encoder_tokens": 0,
+              "full_sequence_must_fit": true,
+              "reserved_blocks": 0,
+              "has_scheduled_reqs": true
+            },
+            "free_blocks_before": 18,
+            "returned_none": false,
+            "succeeded": true,
+            "free_blocks_after": 10
+          },
+          "first_episode_wait_bounds": {
+            "lower_s": 2.505972484126687,
+            "upper_s": 2.530707599595189,
+            "meaning": "Time from actual first preemption (bounded by schedule-call start/end) to first successful PREEMPTED allocate_slots attempt start; not completion of recomputation."
+          },
+          "first_post_action_token_step": 117,
+          "first_post_action_token_host_s": 21.42095229588449,
+          "first_post_action_host_gap_s": 2.752624986693263,
+          "total_preemptions": 2,
+          "preempt_calls": [
+            98,
+            118
+          ],
+          "successful_restore_calls": [
+            117,
+            168
+          ],
+          "finished": true,
+          "finish_reason": "stop",
+          "stop_reason": null,
+          "output_tokens": 360,
+          "output_token_ids_sha256": "3812e06a6f655c3cc8d8b138d07cb8d02623edd5e302e69d95fb5d33e162ca39",
+          "ttft_s": 12.221193633973598,
+          "flow_s": 45.0681620221585,
+          "max_host_token_gap_s": 8.23936254158616,
+          "prediction": "36",
+          "correct": true,
+          "output_text": " First, let's break down the total number of questions and the distribution of easy, average, and difficult questions.\n\n- Total number of questions: 60\n- Percentage of easy questions: 40%\n- Number of easy questions: \\( 60 \\times 0.40 = 24 \\)\n- Number of average and difficult questions combined: \\( 60 - 24 = 36 \\)\n- Since the average and difficult questions are equally divided, the number of average questions is the same as the number of difficult questions, which is \\( \\frac{36}{2} = 18 \\) each.\n\nNow, let's calculate the number of questions Aries is sure to get correct in each category.\n\n- Aries is sure to get 75% of the easy questions correct:\n  - Number of easy questions she is sure to get correct: \\( 24 \\times 0.75 = 18 \\)\n\n- Aries is sure to get half of the average questions correct:\n  - Number of average questions she is sure to get correct: \\( 18 \\times 0.50 = 9 \\)\n\n- Aries is sure to get half of the difficult questions correct:\n  - Number of difficult questions she is sure to get correct: \\( 18 \\times 0.50 = 9 \\)\n\nFinally, we add up the number of questions she is sure to get correct from each category to find the total number of points she is sure to get.\n\n- Total number of questions she is sure to get correct: \\( 18 + 9 + 9 = 36 \\)\n\nSo, Aries is sure to get 36 points."
+        }
+      }
+    },
+    "measured/gsm8k-test-1022": {
+      "question": "Teresa sells large stuffed animals for three times the price of small stuffed animals. Today, she sold twice as many small stuffed animals as large ones and earned $120 from the sales. Each small stuffed animal costs $4. How many small stuffed animals did she sell?",
+      "gold": "12",
+      "arms": {
+        "native": {
+          "progress_before_action": {
+            "delivered_output_tokens": 50,
+            "last_token_host_s": 18.676299775019288,
+            "last_observed_allocation": {
+              "call_id": 97,
+              "host_s": 18.57758527249098,
+              "request_id": "measured/gsm8k-test-1022",
+              "status_before": "RUNNING",
+              "num_prompt_tokens": 800,
+              "num_tokens": 849,
+              "num_computed_tokens": 848,
+              "arguments": {
+                "num_new_tokens": 1,
+                "num_new_computed_tokens": 0,
+                "num_lookahead_tokens": 0,
+                "num_external_computed_tokens": 0,
+                "delay_cache_blocks": false,
+                "num_encoder_tokens": 0,
+                "full_sequence_must_fit": false,
+                "reserved_blocks": 0,
+                "has_scheduled_reqs": true
+              },
+              "free_blocks_before": 23,
+              "returned_none": false,
+              "succeeded": true,
+              "free_blocks_after": 22
+            }
+          },
+          "first_restore_success": {
+            "call_id": 189,
+            "host_s": 32.656688226386905,
+            "request_id": "measured/gsm8k-test-1022",
+            "status_before": "PREEMPTED",
+            "num_prompt_tokens": 800,
+            "num_tokens": 850,
+            "num_computed_tokens": 0,
+            "arguments": {
+              "num_new_tokens": 114,
+              "num_new_computed_tokens": 736,
+              "num_lookahead_tokens": 0,
+              "num_external_computed_tokens": 0,
+              "delay_cache_blocks": false,
+              "num_encoder_tokens": 0,
+              "full_sequence_must_fit": true,
+              "reserved_blocks": 0,
+              "has_scheduled_reqs": true
+            },
+            "free_blocks_before": 28,
+            "returned_none": false,
+            "succeeded": true,
+            "free_blocks_after": 20
+          },
+          "first_episode_wait_bounds": {
+            "lower_s": 13.953290013596416,
+            "upper_s": 13.969815576449037,
+            "meaning": "Time from actual first preemption (bounded by schedule-call start/end) to first successful PREEMPTED allocate_slots attempt start; not completion of recomputation."
+          },
+          "first_post_action_token_step": 189,
+          "first_post_action_token_host_s": 32.83546140789986,
+          "first_post_action_host_gap_s": 14.159161632880569,
+          "total_preemptions": 1,
+          "preempt_calls": [
+            98
+          ],
+          "successful_restore_calls": [
+            189
+          ],
+          "finished": true,
+          "finish_reason": "stop",
+          "stop_reason": null,
+          "output_tokens": 279,
+          "output_token_ids_sha256": "0c8e9b96c0581ca79acd568ebd86a157d5a86ecc223ceb6d2aad0ff86fad2eaf",
+          "ttft_s": 12.201400397345424,
+          "flow_s": 43.36217614263296,
+          "max_host_token_gap_s": 14.159161632880569,
+          "prediction": "12",
+          "correct": true,
+          "output_text": " Let's denote the price of a small stuffed animal as \\( S \\) and the price of a large stuffed animal as \\( L \\). According to the problem, \\( L = 3S \\). Given that each small stuffed animal costs $4, we have \\( S = 4 \\) and thus \\( L = 3 \\times 4 = 12 \\).\n\nLet's denote the number of large stuffed animals sold as \\( x \\). Since she sold twice as many small stuffed animals as large ones, the number of small stuffed animals sold is \\( 2x \\).\n\nThe total earnings from the sales can be expressed as:\n\\[ \\text{Total earnings} = (2x \\times S) + (x \\times L) \\]\nSubstituting the values of \\( S \\) and \\( L \\):\n\\[ 120 = (2x \\times 4) + (x \\times 12) \\]\n\\[ 120 = 8x + 12x \\]\n\\[ 120 = 20x \\]\n\\[ x = \\frac{120}{20} \\]\n\\[ x = 6 \\]\n\nSo, Teresa sold \\( 2x = 2 \\times 6 = 12 \\) small stuffed animals. Therefore, the answer is 12."
+        },
+        "fifo": {
+          "progress_before_action": {
+            "delivered_output_tokens": 50,
+            "last_token_host_s": 18.668327309191227,
+            "last_observed_allocation": {
+              "call_id": 97,
+              "host_s": 18.574647506698966,
+              "request_id": "measured/gsm8k-test-1022",
+              "status_before": "RUNNING",
+              "num_prompt_tokens": 800,
+              "num_tokens": 849,
+              "num_computed_tokens": 848,
+              "arguments": {
+                "num_new_tokens": 1,
+                "num_new_computed_tokens": 0,
+                "num_lookahead_tokens": 0,
+                "num_external_computed_tokens": 0,
+                "delay_cache_blocks": false,
+                "num_encoder_tokens": 0,
+                "full_sequence_must_fit": false,
+                "reserved_blocks": 0,
+                "has_scheduled_reqs": true
+              },
+              "free_blocks_before": 23,
+              "returned_none": false,
+              "succeeded": true,
+              "free_blocks_after": 22
+            }
+          },
+          "first_restore_success": {
+            "call_id": 117,
+            "host_s": 21.213109351694584,
+            "request_id": "measured/gsm8k-test-1022",
+            "status_before": "PREEMPTED",
+            "num_prompt_tokens": 800,
+            "num_tokens": 850,
+            "num_computed_tokens": 0,
+            "arguments": {
+              "num_new_tokens": 114,
+              "num_new_computed_tokens": 736,
+              "num_lookahead_tokens": 0,
+              "num_external_computed_tokens": 0,
+              "delay_cache_blocks": false,
+              "num_encoder_tokens": 0,
+              "full_sequence_must_fit": true,
+              "reserved_blocks": 0,
+              "has_scheduled_reqs": true
+            },
+            "free_blocks_before": 26,
+            "returned_none": false,
+            "succeeded": true,
+            "free_blocks_after": 18
+          },
+          "first_episode_wait_bounds": {
+            "lower_s": 2.5058017801493406,
+            "upper_s": 2.5305368956178427,
+            "meaning": "Time from actual first preemption (bounded by schedule-call start/end) to first successful PREEMPTED allocate_slots attempt start; not completion of recomputation."
+          },
+          "first_post_action_token_step": 117,
+          "first_post_action_token_host_s": 21.42095229588449,
+          "first_post_action_host_gap_s": 2.752624986693263,
+          "total_preemptions": 2,
+          "preempt_calls": [
+            98,
+            118
+          ],
+          "successful_restore_calls": [
+            117,
+            168
+          ],
+          "finished": true,
+          "finish_reason": "stop",
+          "stop_reason": null,
+          "output_tokens": 302,
+          "output_token_ids_sha256": "f8c391cabb15790d52a55348e20afbaa8e273821f3b84f4f4d813078a8b802ab",
+          "ttft_s": 12.221193633973598,
+          "flow_s": 44.05178670398891,
+          "max_host_token_gap_s": 8.23936254158616,
+          "prediction": "12",
+          "correct": true,
+          "output_text": " Let's denote the price of a small stuffed animal as \\( S \\) and the price of a large stuffed animal as \\( L \\). According to the problem, \\( L = 3S \\). Given that each small stuffed animal costs $4, we have \\( S = 4 \\) and thus \\( L = 3 \\times 4 = 12 \\).\n\nLet's denote the number of large stuffed animals sold as \\( x \\). Since she sold twice as many small stuffed animals as large ones, the number of small stuffed animals sold is \\( 2x \\).\n\nThe total earnings from the sales can be expressed as:\n\\[ \\text{Total earnings} = (2x \\times S) + (x \\times L) \\]\nSubstituting the values of \\( S \\) and \\( L \\):\n\\[ 120 = (2x \\times 4) + (x \\times 12) \\]\n\\[ 120 = 8x + 12x \\]\n\\[ 120 = 20x \\]\n\\[ x = \\frac{120}{20} \\]\n\\[ x = 6 \\]\n\nSo, Teresa sold 6 large stuffed animals. Since she sold twice as many small stuffed animals as large ones, the number of small stuffed animals sold is:\n\\[ 2x = 2 \\times 6 = 12 \\]\n\nSo the answer is 12."
+        }
+      }
+    },
+    "measured/gsm8k-test-1023": {
+      "question": "A man eats 5 sandwiches per day, his wife eats 4 sandwiches per day, and their son eats 2 sandwiches per day. How many sandwiches does this family eat in one week?",
+      "gold": "77",
+      "arms": {
+        "native": {
+          "progress_before_action": {
+            "delivered_output_tokens": 50,
+            "last_token_host_s": 18.676299775019288,
+            "last_observed_allocation": {
+              "call_id": 97,
+              "host_s": 18.57761894725263,
+              "request_id": "measured/gsm8k-test-1023",
+              "status_before": "RUNNING",
+              "num_prompt_tokens": 784,
+              "num_tokens": 833,
+              "num_computed_tokens": 832,
+              "arguments": {
+                "num_new_tokens": 1,
+                "num_new_computed_tokens": 0,
+                "num_lookahead_tokens": 0,
+                "num_external_computed_tokens": 0,
+                "delay_cache_blocks": false,
+                "num_encoder_tokens": 0,
+                "full_sequence_must_fit": false,
+                "reserved_blocks": 0,
+                "has_scheduled_reqs": true
+              },
+              "free_blocks_before": 22,
+              "returned_none": false,
+              "succeeded": true,
+              "free_blocks_after": 21
+            }
+          },
+          "first_restore_success": {
+            "call_id": 189,
+            "host_s": 32.656830633059144,
+            "request_id": "measured/gsm8k-test-1023",
+            "status_before": "PREEMPTED",
+            "num_prompt_tokens": 784,
+            "num_tokens": 834,
+            "num_computed_tokens": 0,
+            "arguments": {
+              "num_new_tokens": 98,
+              "num_new_computed_tokens": 736,
+              "num_lookahead_tokens": 0,
+              "num_external_computed_tokens": 0,
+              "delay_cache_blocks": false,
+              "num_encoder_tokens": 0,
+              "full_sequence_must_fit": true,
+              "reserved_blocks": 0,
+              "has_scheduled_reqs": true
+            },
+            "free_blocks_before": 20,
+            "returned_none": false,
+            "succeeded": true,
+            "free_blocks_after": 13
+          },
+          "first_episode_wait_bounds": {
+            "lower_s": 13.953432420268655,
+            "upper_s": 13.969957983121276,
+            "meaning": "Time from actual first preemption (bounded by schedule-call start/end) to first successful PREEMPTED allocate_slots attempt start; not completion of recomputation."
+          },
+          "first_post_action_token_step": 189,
+          "first_post_action_token_host_s": 32.83546140789986,
+          "first_post_action_host_gap_s": 14.159161632880569,
+          "total_preemptions": 1,
+          "preempt_calls": [
+            98
+          ],
+          "successful_restore_calls": [
+            189
+          ],
+          "finished": true,
+          "finish_reason": "stop",
+          "stop_reason": null,
+          "output_tokens": 133,
+          "output_token_ids_sha256": "097ba38b2287a3d22fb61d7872ebe145b3f77f1c1cbb86f8b3cc52b036110a4f",
+          "ttft_s": 12.201400397345424,
+          "flow_s": 38.63932415097952,
+          "max_host_token_gap_s": 14.159161632880569,
+          "prediction": "77",
+          "correct": true,
+          "output_text": " The man eats 5 sandwiches per day, so in one week (7 days), he eats 5 x 7 = 35 sandwiches. The wife eats 4 sandwiches per day, so in one week, she eats 4 x 7 = 28 sandwiches. The son eats 2 sandwiches per day, so in one week, he eats 2 x 7 = 14 sandwiches. \n\nTo find the total number of sandwiches the family eats in one week, we add the amounts together: 35 + 28 + 14 = 77 sandwiches. \n\nSo the answer is 77 sandwiches."
+        },
+        "fifo": {
+          "progress_before_action": {
+            "delivered_output_tokens": 50,
+            "last_token_host_s": 18.668327309191227,
+            "last_observed_allocation": {
+              "call_id": 97,
+              "host_s": 18.574677500873804,
+              "request_id": "measured/gsm8k-test-1023",
+              "status_before": "RUNNING",
+              "num_prompt_tokens": 784,
+              "num_tokens": 833,
+              "num_computed_tokens": 832,
+              "arguments": {
+                "num_new_tokens": 1,
+                "num_new_computed_tokens": 0,
+                "num_lookahead_tokens": 0,
+                "num_external_computed_tokens": 0,
+                "delay_cache_blocks": false,
+                "num_encoder_tokens": 0,
+                "full_sequence_must_fit": false,
+                "reserved_blocks": 0,
+                "has_scheduled_reqs": true
+              },
+              "free_blocks_before": 22,
+              "returned_none": false,
+              "succeeded": true,
+              "free_blocks_after": 21
+            }
+          },
+          "first_restore_success": {
+            "call_id": 115,
+            "host_s": 20.878631968051195,
+            "request_id": "measured/gsm8k-test-1023",
+            "status_before": "PREEMPTED",
+            "num_prompt_tokens": 784,
+            "num_tokens": 834,
+            "num_computed_tokens": 0,
+            "arguments": {
+              "num_new_tokens": 98,
+              "num_new_computed_tokens": 736,
+              "num_lookahead_tokens": 0,
+              "num_external_computed_tokens": 0,
+              "delay_cache_blocks": false,
+              "num_encoder_tokens": 0,
+              "full_sequence_must_fit": true,
+              "reserved_blocks": 0,
+              "has_scheduled_reqs": true
+            },
+            "free_blocks_before": 13,
+            "returned_none": false,
+            "succeeded": true,
+            "free_blocks_after": 6
+          },
+          "first_episode_wait_bounds": {
+            "lower_s": 2.171324396505952,
+            "upper_s": 2.196059511974454,
+            "meaning": "Time from actual first preemption (bounded by schedule-call start/end) to first successful PREEMPTED allocate_slots attempt start; not completion of recomputation."
+          },
+          "first_post_action_token_step": 115,
+          "first_post_action_token_host_s": 21.068161329254508,
+          "first_post_action_host_gap_s": 2.399834020063281,
+          "total_preemptions": 3,
+          "preempt_calls": [
+            98,
+            116,
+            162
+          ],
+          "successful_restore_calls": [
+            115,
+            161,
+            185
+          ],
+          "finished": true,
+          "finish_reason": "stop",
+          "stop_reason": null,
+          "output_tokens": 133,
+          "output_token_ids_sha256": "097ba38b2287a3d22fb61d7872ebe145b3f77f1c1cbb86f8b3cc52b036110a4f",
+          "ttft_s": 12.221193633973598,
+          "flow_s": 39.184425842016935,
+          "max_host_token_gap_s": 7.431569471955299,
+          "prediction": "77",
+          "correct": true,
+          "output_text": " The man eats 5 sandwiches per day, so in one week (7 days), he eats 5 x 7 = 35 sandwiches. The wife eats 4 sandwiches per day, so in one week, she eats 4 x 7 = 28 sandwiches. The son eats 2 sandwiches per day, so in one week, he eats 2 x 7 = 14 sandwiches. \n\nTo find the total number of sandwiches the family eats in one week, we add the amounts together: 35 + 28 + 14 = 77 sandwiches. \n\nSo the answer is 77 sandwiches."
+        }
+      }
+    }
+  },
+  "limitations": [
+    "Native preempted_req_ids has set semantics; its serialized array order is explicitly not used as preemption-event order.",
+    "No per-block ownership or cache-content snapshot exists; physical free counts and observed allocation arguments are compared, not all internal KV state.",
+    "Host timestamps differ across arms and are excluded from exact prefix equality; they describe realized waits, not device token ITL.",
+    "The first queue-order change rejects both heads; subsequent first successful restorations and outputs are reported separately.",
+    "Later outcomes are descriptive per-request observations; cannot attribute all global latency differences to this one reorder."
+  ]
+}

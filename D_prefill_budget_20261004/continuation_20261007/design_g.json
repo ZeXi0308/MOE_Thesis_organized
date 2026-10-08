@@ -1,0 +1,128 @@
+{
+  "schema": "D-minimum-level-recovery-screen-v1",
+  "status_at_freeze": "PRE_GPU",
+  "scope": "Only bounded G diagnostic; full research objective remains open after this screen.",
+  "source_workload": "workload_high.json",
+  "source_sha256": {
+    "run_block.py": "b047b6352f08338f980b6649e7176582ec4a0919767fa7248f911da9194b5e2c",
+    "prefill_policy.py": "1aedafb440597a5903539eb05e5e3e5cd0eaa12a0eda292f345df6d883cbe960",
+    "run_confirmation.py": "67cb25770693252d64efcb93ea1aaf45ab99ce92926b77189dd03c324b0ee166",
+    "runtime_bootstrap.py": "dafbad576b9d2e956dd981da9309c72336a3af1e2b8ccad2cb24980c67c09778"
+  },
+  "budget_semantics": "Aggregate pure prompt cap; unchanged native total token cap4096. Actual work measured per positive pre-step backlog, including P=0.",
+  "policies": {
+    "F": "fixed384",
+    "R": "elapsed_replay",
+    "A": "feedback",
+    "G": "feedback_floor_recover"
+  },
+  "G_only_change": "For A index==0, upshift if previous actual mixed step elapsed<24ms instead of<16.8ms. All higher levels retain16.8ms; >24ms downshift unchanged; same initial1024,D0cap2048,levels256/512/1024/2048.",
+  "R_frozen_source": "../confirmation_v2/ablation_elapsed_v3/design.json: old four trace switches1/9/73/113",
+  "G_evidence": "Six existing complete ablation A traces:8654 full P256 mixed steps,0 below16.8ms,330 in[16.8,24)ms; no preemption, positive actual work in backlog steps. Evidence suggests a gated opportunity only, not full-service improvement.",
+  "no_retuning": "One change,3blocks,12formal episodes. No threshold sweep or outcome-dependent addition of repeats.",
+  "request_contract": {
+    "count": 160,
+    "prompt_tokens": 471895,
+    "output_tokens": 77824,
+    "same_prompt_and_output_work_as_prior": true,
+    "ignore_eos": true,
+    "full_drain": true
+  },
+  "slo": {
+    "ttft_s": 4,
+    "gap_s": 0.1,
+    "completion_s": 20
+  },
+  "timing": "Existing host engine.step/output time, no added synchronize; full episode includes arrival waits+drain; all output lengths required.",
+  "screen": {
+    "comparisons": [
+      "G/R",
+      "G/A",
+      "G/F"
+    ],
+    "minimum_meaningful_goodput_percent": 3,
+    "positive_blocks_required": 3,
+    "max_output_throughput_degradation_percent": 3,
+    "max_ttft_p95_degradation_percent": 5,
+    "max_completion_p95_degradation_percent": 5,
+    "max_request_max_gap_p95_degradation_percent": 10,
+    "all_requests_complete": true,
+    "unit": "independent complete arrival block",
+    "claim": "screen only; n=3 insufficient final statistical proof",
+    "G_only_beats_A": "stop A patches; not an independent contribution",
+    "G_beats_R": "still requires budget matching and strong dynamic baseline before method claim"
+  },
+  "arrival_rule": "Reuse original request cohorts and token inputs; preserve24short@0,8short@3. Independently permute long IDs within43/43/42 cohorts and draw sorted uniform arrivals in windows of width(n-1)*.01; window starts.6/2.5/5 with uniform jitter+/-.15/.25/.5. Seeds new, never used for prior tuning. New arrival realizations, not new document holdout.",
+  "warm_policies": [
+    "fixed384",
+    "elapsed_replay",
+    "feedback",
+    "feedback_floor_recover"
+  ],
+  "shared_lock": "/root/autodl-tmp/moe-research-gpu.lock",
+  "output_filesystem": "/tmp system volume with free space checked before startup",
+  "repo_relationship": {
+    "D": "sibling independent directory, not a git checkout",
+    "repository": "../MOE_Thesis_organized",
+    "remote": "https://github.com/ZeXi0308/MOE_Thesis_organized.git",
+    "head_observed": "5593b5ff0fb602f479b10f82ca682ba8f9adc86d",
+    "dirty": "GPU_COORDINATION, A_progress, RESULT_LEDGER and A untracked directory; do not modify others",
+    "pushed": false
+  },
+  "blocks": [
+    {
+      "block": 1,
+      "seed": 2026100701,
+      "workload": "arrivals_01.json",
+      "sha256": "288f3a2010a960b9952177ae42a1a033ca5a57523f454c3de0afe0b38c27293e",
+      "wave_starts": [
+        0.7493806524536487,
+        2.5088132282162032,
+        5.386356605182951
+      ],
+      "policies": [
+        "fixed384",
+        "elapsed_replay",
+        "feedback",
+        "feedback_floor_recover"
+      ],
+      "output": "block01"
+    },
+    {
+      "block": 2,
+      "seed": 2026100702,
+      "workload": "arrivals_02.json",
+      "sha256": "1860082f0c037d29458e3e912ac0a003d412c7304fb68184f5acb158a27b13ce",
+      "wave_starts": [
+        0.46501961825922833,
+        2.593734440273682,
+        5.280371180428935
+      ],
+      "policies": [
+        "feedback_floor_recover",
+        "feedback",
+        "elapsed_replay",
+        "fixed384"
+      ],
+      "output": "block02"
+    },
+    {
+      "block": 3,
+      "seed": 2026100703,
+      "workload": "arrivals_03.json",
+      "sha256": "29f63bff3fcbf535e8cad8cbd2defe8e3029807d2c1d1952b71f5125666f0d8e",
+      "wave_starts": [
+        0.46433718786285516,
+        2.5893830708198267,
+        4.967129113514688
+      ],
+      "policies": [
+        "feedback",
+        "fixed384",
+        "feedback_floor_recover",
+        "elapsed_replay"
+      ],
+      "output": "block03"
+    }
+  ]
+}

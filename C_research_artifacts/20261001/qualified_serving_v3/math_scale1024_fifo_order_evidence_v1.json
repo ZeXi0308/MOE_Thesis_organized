@@ -1,0 +1,103 @@
+{
+  "schema": "math-scale1024-fifo-order-evidence-v1",
+  "pressure_sha256": "def1a0913e3fcf835e1784a7d00efa6155a29a0869416f56781b9fbc40432173",
+  "recovery_evidence_sha256": "ab963b3cf94f075fc98708df317bc8a64c7a32e473f15efac45391060a5d69be",
+  "definitions": {
+    "source_fifo": "Earliest source-input request index among currently pending requests; all source arrivals are simultaneous.",
+    "recovery_fifo": "Earliest current preemption episode schedule-call ID among currently pending requests. Same-call ties are not counted as a strict discrepancy."
+  },
+  "counts": {
+    "pending_boundaries": 91,
+    "head_later_than_oldest_pending_preempt_call": 89,
+    "head_not_earliest_source_input_pending": 0,
+    "pending_boundaries_with_further_preemptions": 43,
+    "restore_attempts": 165,
+    "attempted_request_later_than_oldest_pending_preempt_call": 161,
+    "restore_attempts_with_multiple_pending": 164,
+    "successful_resumes": 120,
+    "resumed_request_later_than_oldest_pending_preempt_call": 117,
+    "resumed_request_not_earliest_source_input_pending": 0
+  },
+  "examples": [
+    {
+      "call_id": 101,
+      "head": "measured/gsm8k-test-1019",
+      "head_preempt_call": 100,
+      "oldest_pending_preempt_call": 98,
+      "pending_count": 5
+    },
+    {
+      "call_id": 102,
+      "head": "measured/gsm8k-test-1014",
+      "head_preempt_call": 101,
+      "oldest_pending_preempt_call": 98,
+      "pending_count": 10
+    },
+    {
+      "call_id": 103,
+      "head": "measured/gsm8k-test-1009",
+      "head_preempt_call": 102,
+      "oldest_pending_preempt_call": 98,
+      "pending_count": 15
+    },
+    {
+      "call_id": 104,
+      "head": "measured/gsm8k-test-1007",
+      "head_preempt_call": 103,
+      "oldest_pending_preempt_call": 98,
+      "pending_count": 17
+    }
+  ],
+  "successful_resume_examples": [
+    {
+      "call_id": 115,
+      "resumed": "measured/gsm8k-test-0967",
+      "resumed_preempt_call": 114,
+      "oldest_pending_preempt_call": 98,
+      "pending_count_before": 57,
+      "scheduled_tokens": 120
+    },
+    {
+      "call_id": 117,
+      "resumed": "measured/gsm8k-test-0965",
+      "resumed_preempt_call": 116,
+      "oldest_pending_preempt_call": 98,
+      "pending_count_before": 59,
+      "scheduled_tokens": 215
+    },
+    {
+      "call_id": 117,
+      "resumed": "measured/gsm8k-test-0966",
+      "resumed_preempt_call": 116,
+      "oldest_pending_preempt_call": 98,
+      "pending_count_before": 58,
+      "scheduled_tokens": 189
+    },
+    {
+      "call_id": 123,
+      "resumed": "measured/gsm8k-test-0955",
+      "resumed_preempt_call": 121,
+      "oldest_pending_preempt_call": 98,
+      "pending_count_before": 69,
+      "scheduled_tokens": 140
+    }
+  ],
+  "repeated_cycles": {
+    "extra_cycles_after_first": 38,
+    "repeated_scheduled_positions_on_extra_cycles": 5685
+  },
+  "first_restore_hit_token_histogram": {
+    "736": 120
+  },
+  "conclusion": {
+    "source_fifo_action_difference_observed": false,
+    "recovery_fifo_candidate_difference_observed": true,
+    "alternative_allocation_feasibility_measured": false,
+    "alternative_latency_or_throughput_benefit_measured": false
+  },
+  "limitations": [
+    "This is observed queue-choice evidence, not a counterfactual execution or an isolated preemption-cost estimate.",
+    "No from-preemption cache-hit trace exists for requests hidden behind the recovery head; zero first-attempt-to-success loss does not prove zero loss before the first attempt.",
+    "Simple seqs512 removes these costs but completed more slowly than native seqs1024 in the supplied pair; zero preemptions alone is not the objective."
+  ]
+}

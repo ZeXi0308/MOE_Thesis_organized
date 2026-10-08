@@ -1,0 +1,43 @@
+{
+  "schema": "c-math-restore-order-cache-drift-v1",
+  "integrity": "VALID",
+  "run": "/Users/zhaozhenyu/Desktop/毕业设计/C_research_artifacts/20261001/qualified_serving_v3/math_restore_order_raw_v1_20261002/math1024-order-minrecompute-b4096/native",
+  "counts": {
+    "candidate_observations": 2154,
+    "adjacent_observations": 2082,
+    "changed_known_excluded": 7,
+    "intervening_success_excluded": 0,
+    "eligible_adjacent_pairs": 2075,
+    "decreased_pairs": 0,
+    "increased_pairs": 0,
+    "unchanged_pairs": 2075,
+    "gross_cached_tokens_lost": 0,
+    "gross_cached_tokens_gained": 0,
+    "observed_requests": 72,
+    "compared_requests": 60,
+    "requests_with_cache_loss": 0
+  },
+  "input_sha256": {
+    "source-input.json": "513ae9ac6dff4e36693c07c1c37cd9d6d6101612beda5aad59bb33994104e13a",
+    "measured-native-sampling.json": "28e98e73d521ec9b42bcc088a824f5d85f9d6eaf9d23d17deaacae540a65df32",
+    "restore-cost-order-policy.json": "2f17abb016b7f4558ef951fcaf5cfda8768aa3383097f72b30fc278974f4ce0d",
+    "restore-cost-order-fixed-gate.json": "4424858dfdc73686a25eb2b9e89cc7c8ec17c260fa0664b0003bb6a4d56ddfaa",
+    "measured-pressure.json": "0e3b0ae5384b837c2874b51fa1a20702a234882c63e4729d4bb6c370ed07c472"
+  },
+  "analyzer_sha256": "302609fdbaf9c1889cfd1d4c3c8c9c34cf48f05e66962dc225486eabbc10a1a6",
+  "largest_observed_loss": null,
+  "observed_losses": [],
+  "pressure_validation": {
+    "preempted_native_allocation_attempts": 79,
+    "fixed_gate_decisions": 145,
+    "successful_preempted_allocations": 79,
+    "scheduler_step_minus_call_id": 33,
+    "ambiguous_joins": 0
+  },
+  "interval_rule": "Each candidate snapshot precedes its selector's selected-or-head fixed-gate event. Reject any pressure-confirmed successful PREEMPTED allocation at gate indices [old_anchor,new_anchor); this also orders snapshots within one call. Compare only adjacent observations of the same native ID with unchanged known_tokens.",
+  "limitations": [
+    "Only observed bounded-prefix candidates; no claim about unobserved waiting requests.",
+    "Gross token losses sum adjacent observed decreases, not unique evicted tokens, avoidable GPU time, or policy benefit.",
+    "Different restoration episodes are excluded through native allocation events; no future EOS or output length is used."
+  ]
+}

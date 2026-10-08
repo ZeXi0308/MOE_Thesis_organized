@@ -1,0 +1,74 @@
+{
+  "name": "D fresh extended mixed-arrival fixed-cap probe",
+  "status_at_freeze": "PRE_GPU_FROZEN",
+  "question": "Does the small/large fixed-prefill tradeoff persist on a longer changing arrival trace, beyond the old one-burst all-failed drain?",
+  "motivation": "R/V actionvalue survived, but timer19 absorbed K on the oldtrace. Retire K claim there; no K/R/T/controller run in this new probe. Existing fixed384 was tuned for earlier burst, and2048 is throughput-competitive; neither is declaredbestfornewtrace.",
+  "role": "Fresh development workload for action-value/frontier exploration, not independent confirmation of a selected controller.",
+  "seed": 2026100801,
+  "primary_changed_factor": "External arrival process including order; same160requestIDs/content/max_tokens/model/precision/normalKV.",
+  "workload": "workload.json",
+  "workload_sha256": "2744b6dbe29475abecf5b7d72d898a997a2766b48444b944a76bee5915284516",
+  "source_workload": "../arrivals_01.json",
+  "request_count": 160,
+  "source_preservation": "Only arrival_s changed; complete per-ID promptIDs,max_tokens and source metadata unchanged.",
+  "arrival_windows": [
+    {
+      "start_s": 0.0,
+      "end_s": 12.0,
+      "count": 24,
+      "nominal_rate_per_s": 2.0
+    },
+    {
+      "start_s": 12.0,
+      "end_s": 20.0,
+      "count": 56,
+      "nominal_rate_per_s": 7.0
+    },
+    {
+      "start_s": 20.0,
+      "end_s": 36.0,
+      "count": 48,
+      "nominal_rate_per_s": 3.0
+    },
+    {
+      "start_s": 36.0,
+      "end_s": 40.0,
+      "count": 32,
+      "nominal_rate_per_s": 8.0
+    }
+  ],
+  "arrival_method": "Condition on fixed counts per window; sorted uniform arrivals; seeded request-order permutation; firstarrival0. No response-dependent source throttling.",
+  "interpretation": "Nominal low/base/burst load changes; actual capacity knee and KV pressure are outcomes, not assumed. Normal GPU .9/maxseq192 and original maxlen4096 unchanged; no artificial KV cap.",
+  "policies": [
+    "fixed384",
+    "fixed2048",
+    "fixed2048",
+    "fixed384"
+  ],
+  "warm_policies": [
+    "fixed384",
+    "fixed2048"
+  ],
+  "formal_attempt_limit": 4,
+  "primary_slo": {
+    "ttft_s": 4,
+    "gap_s": 0.1,
+    "completion_s": 20
+  },
+  "timeout_s": 180,
+  "metrics": "All arrivals/full elapsed and drain; fulljointgoodput,rawthroughput,TTFT,flow,perrequestmaxgap,allfailures,clientaddlag; actualP/D/context/backlog. Per-windowdiagnosticsnotposthocdeployableoracle.",
+  "decision": "First require actual execution differences. One fixed cap is provisionally sufficient for the primary objective if its fulljointgoodput improves>=3% in both reversedpairs, allrequestscomplete, rawthroughputdoesnotdecrease, and TTFT/flow/maxgap p95 do not worsen>5%, with noadded100msgapfailures. Otherwise report the completefixedfrontier and whether tradeoff signs repeat; noisy/mixed signs are inconclusive. Only a reproducible tradeoff plus observable state variation warrants count/closest-dynamic comparisons and a new signal. No K rescue or posthocsegmentoracle, no automatic extra repeats/grid.",
+  "no_signal": "No controller claim; do not manufacture pressure or retune SLO. Retain bounded fixed-budget frontier result and reassess problem within originalscope.",
+  "resources": "Reuseparentdriver/install/model/sharedflock;2warm4formal serial;noautoretry;releaseonexit.",
+  "output_contract": "Fixedgen-count/ignoreEOS exploration only; differenttokensnot equalcontent/routes/computation/quality.",
+  "source_sha256": {
+    "run_fixed_trace.py": "67c4ae277c12079609c6915ce77813a95d1d763dec723869015e9b1860a01ddb",
+    "launch.sh": "001340e5ee95ca882c7fffba14a750ffd884152312b7f90bc580306eeacf57d4",
+    "../run_confirmation.py": "67cb25770693252d64efcb93ea1aaf45ab99ce92926b77189dd03c324b0ee166",
+    "../prefill_policy.py": "1aedafb440597a5903539eb05e5e3e5cd0eaa12a0eda292f345df6d883cbe960",
+    "../runtime_bootstrap.py": "dafbad576b9d2e956dd981da9309c72336a3af1e2b8ccad2cb24980c67c09778",
+    "../launch.sh": "9b306857aac6ea64cf72838bb76a6d4f619ea66ab3645063f5a878a0bb691e51"
+  },
+  "prepared_timestamp_cst": "2026-10-07T23:50:24.826888+08:00",
+  "freeze_timestamp_cst": "2026-10-07T23:52:16.188272+08:00"
+}

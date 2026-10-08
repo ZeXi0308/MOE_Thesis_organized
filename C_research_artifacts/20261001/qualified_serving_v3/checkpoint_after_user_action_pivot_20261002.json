@@ -1,0 +1,96 @@
+{
+  "schema": "qualified-serving-progress-v1",
+  "created_at_utc": "2026-10-01T17:47:35.985977+00:00",
+  "goal_status": "active",
+  "paper_viable": false,
+  "this_goal_turn_classification": "PROGRESS: user direction applied, new executed CPU attribution of four GPU logs, math GPU pair implementation verified and launched; new GPU results still pending shared resource.",
+  "latest_user_instruction_file": "/Users/zhaozhenyu/.codex/attachments/a47870be-8c4e-403b-886e-db3d489c2049/已粘贴的文本.txt",
+  "direction_record": "research_direction_after_user_20261002.json",
+  "new_evidence": "qa_action_evidence_v1.json",
+  "scientific_findings": {
+    "native_already_restore_first": true,
+    "native_QA_repeated_token_positions": 3706,
+    "fixed64_QA_repeated_token_positions": 0,
+    "native_QA_restore_and_new_competition_boundaries": 56,
+    "native_QA_two_restore_candidates_boundaries": 14,
+    "interpretation": "No evidence for naive restore-priority benefit. Existing fixed64 covers measured QA recovery loss; need residual before new method."
+  },
+  "current_gpu_job": {
+    "host": "connect.westd.seetacloud.com",
+    "port": 45495,
+    "socket": "/private/tmp/c-qualified-serving-45495.sock",
+    "base": "/root/c-qualified-serving-20261001",
+    "python": "/root/autodl-tmp/c-vllm-v026-venv/bin/python",
+    "pid": 34096,
+    "start_ticks": "1206004589",
+    "started_unix_s": 1790876455.9537745,
+    "last_observed_unix_s": 1790876752.0944169,
+    "last_observed_status": "WAITING_SHARED_LOCK",
+    "driver_log": "math_action_driver_v1.log",
+    "start_receipt": "math_action_start_v1.json",
+    "command": "math_action_launch_v1.py --arm pair",
+    "own_output_dirs": [
+      "qwen7b-math-native128-v1",
+      "qwen7b-math-fixed64-v1"
+    ],
+    "lock_wait_timeout_s_per_unit": 1200,
+    "child_timeout_s": 1200,
+    "generation_timeout_s": 900,
+    "do_not_restart_while_live": true
+  },
+  "math_scope": {
+    "inputs": "math_inputs128_v1.json",
+    "answers_local_only": "math_answers128_v1.json",
+    "native_arms": [
+      [
+        128,
+        2048
+      ],
+      [
+        64,
+        2048
+      ]
+    ],
+    "model": "Qwen2.5-7B-Instruct",
+    "KV_bytes": 8589934592,
+    "context": 4096,
+    "output_cap": 1024,
+    "APC": true,
+    "natural_EOS": true,
+    "all_128_arrive_at_zero": true,
+    "quality_does_not_gate_systems_measurement": true
+  },
+  "analyzer": {
+    "script": "math_action_analyze_v1.py",
+    "command": "python3 -B math_action_analyze_v1.py --run <downloaded-unit>/native --answers math_answers128_v1.json --output <new-name>.json",
+    "cpu_fixtures": "PASS full128, wrong-answer nongate, missing-denominator, removed-allocation mapping, recompute-vs-decode, APC/resume, overlapping gate coverage",
+    "sha256": "91836aa594034bfc2ef0bc58b30959356454240ce692ac7f70f525ea3e88bb15"
+  },
+  "next_unique_action": [
+    "Observe existing parent PID+startticks and receipts, never duplicate active launch.",
+    "When COMPLETE, preserve raw archives exclusively, analyze both cells with all128 denominator and separate SLO/correct-SLO goodput.",
+    "Compare all-request flow/TTFT/gap/tokenwork and quality; find actual residual cost.",
+    "If no KV recovery competition, do not implement restore-priority on this batch; consider one measured batch-token-budget control (128/4096) only if warranted.",
+    "If real residual occurs, implement at most one small action intervention and paired full-policy execution before new framework."
+  ],
+  "deferred": "PF component adapter; reviewer proposed conservative no-APC-credit/partial-prefill gate but no code or GPU result. Do not count adapter as a new mechanism.",
+  "retained_prior_checkpoint": "checkpoint_after_direct_concurrency_20261002.json",
+  "unfulfilled_paper_requirements": [
+    "Independent mechanism beyond strong simple and nearest published baselines",
+    "Useful complete-request performance frontier with full overhead and all arrivals",
+    "Independent held-out episodes and repeated confirmation after development",
+    "Broader task/model coverage required by original goal, including healthy summary/code and second model; not a launch gate for present exploration"
+  ],
+  "files_sha256": {
+    "math_action_cell_v1.py": "4c44ba564a1b09fd8fcf7ec04940865faf0e579f7596c7ef65ab5bb66e3d38b9",
+    "math_action_launch_v1.py": "3587a3bd9fd959ce9a8531c6724551525ef74de8f8942004a4a783fa949e9bed",
+    "math_action_protocol_v1.json": "425b06cf0704e1cb7c40001cfbb42572bcb71bf3f8461f59a7f18d459170b89e",
+    "math_inputs128_v1.json": "251a6a9b4894292b3402979b2e9cc7da76baeff84a6b1efdf5e4c5ec74b9db6d",
+    "math_answers128_v1.json": "b74e89ff98e3ffbdf41d6fc03b7af06f369fb6047aa02b605a84fa5d87bf979d",
+    "math_source_receipt_v1.json": "3bca6b6b7e7b9a05083858c4afe39618cf82f82aac1b2e104cd1dcc63afc0e4b",
+    "qa_action_evidence_v1.py": "278d404a06a244f9d90efb78a3f8390eafd14f0787bfb72f678966f8a5779916",
+    "qa_action_evidence_v1.json": "30841d99b4c96b6d264729520c0e1caead9f418f7ad87920f245fb697537fec4",
+    "research_direction_after_user_20261002.json": "ed5bbe3fcbfd9efe0acadfcb1a6ea340d9631b92490f4ee3a2a613eb4e03b59f",
+    "math_action_prediction_v1.json": "7fe56b7bc5e5e16389b9939d6830b7b27f7dfcaeae33065091bc24f49ed2cace"
+  }
+}

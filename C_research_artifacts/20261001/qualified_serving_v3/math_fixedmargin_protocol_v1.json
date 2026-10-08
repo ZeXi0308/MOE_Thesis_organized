@@ -1,0 +1,59 @@
+{
+  "stage": "exploration",
+  "workload": "Same1024 natural-generation math requests in source order; all at zero. No answer keys in runtime.",
+  "fixed": {
+    "KV_bytes": 8589934592,
+    "context": 4096,
+    "APC": true,
+    "seed": 20260905,
+    "temperature": 0,
+    "max_output_tokens": 1024,
+    "min_output_tokens": 0,
+    "async_scheduling": false,
+    "scheduler_reserve_full_isl": true,
+    "batch_invariant": false
+  },
+  "metrics": "All original1024 arrivals: completion, TTFT, request max host token gap, output throughput, SLO-only and correct+SLO goodput under preexisting diagnostic20s/4s; correctness/EOS/caps/repeats, preemption cycles/recompute, per-request wins/losses. No quality filtering.",
+  "resource_recovery": "Resource wait releases shared GPU lock every15s. Recheck after model hashes. Per-unit1200s total deadline; native GPU child launched at most once. Post-child SHA-verified lossless xz compression of only three large own raw logs. Decompress with receipt SHA verification before local analysis.",
+  "schema": "c-math-fixed-margin-development-v1",
+  "arms": [
+    {
+      "name": "math1024-fixedmargin32-b4096",
+      "max_seqs": 1024,
+      "policy": "restore-fixed-margin",
+      "batch_tokens": 4096,
+      "fixed_margin_blocks": 32
+    },
+    {
+      "name": "math1024-fixedmargin48-b4096",
+      "max_seqs": 1024,
+      "policy": "restore-fixed-margin",
+      "batch_tokens": 4096,
+      "fixed_margin_blocks": 48
+    },
+    {
+      "name": "math1024-fixedmargin64-b4096",
+      "max_seqs": 1024,
+      "policy": "restore-fixed-margin",
+      "batch_tokens": 4096,
+      "fixed_margin_blocks": 64
+    }
+  ],
+  "rationale": "Test whether constant physical margin covers the dynamic next-step resident signal at the strongest measured native configuration.",
+  "hypothesis": "Dynamic state must improve complete-request outcomes beyond the best constant margin, including its actual overhead; fewer preemptions alone does not establish value.",
+  "scope": "Development only. Fixed same candidate full-known-sequence+1 query, substituted resident-next requirement with a constant32/48/64 physical blocks. All requests, outputs, timing and quality retained.",
+  "execution_sha256": {
+    "math_inputs1024_v1.json": "513ae9ac6dff4e36693c07c1c37cd9d6d6101612beda5aad59bb33994104e13a",
+    "math_scale_source_v1.json": "eaa5da63063b4a3fa3e9cb334178c904b483e41736687f58e355a9049dc7ce20",
+    "health_native.py": "8afa5257e57e2a7e667e0209831626c65bd039c010b9e60a45933583ea6c54ab",
+    "native_pressure_observer_v1.py": "8ed2404a1b2546094927e9132eb47336b80e2d99e2a61ab4a2b2f678bd555877",
+    "qwen7b_launch_v2.py": "93e74aef3e883e7421eb95ec14c9a29e27b269ca90c20d55bff6cdd0e6f04485",
+    "health_launch.py": "578638992afb30e4cd1b0ac76bff95d554d4716c2ae940447b771e2b3ab33d5d",
+    "range_download_v2.py": "34045006d61c8b04c124adfbbfc3027870f784adc2bcabc7ac87ac09d12d01d7",
+    "math_scale_protocol_v2.json": "16371b1aa4bdf2c2cb61014a894c6aca5fab2fa3bc8984be73aeeee569d15ac9",
+    "restore_fixed_margin_policy_v1.py": "5b881b64f321d1e3ace653178eb544209abf04e7d96f3f51f3ca3cc161e16063",
+    "math_fixed_margin_cell_v1.py": "d069470254b6b88d0e8d80857829af3bf9d915703228836fba34417f1c3389d8",
+    "math_fixedmargin_launch_v1.py": "94458a69e28f229d1fcc10ca657a6ec4225023655180e2c017beb08b5cb04187"
+  },
+  "decision_rule": "Compare mean full-request completion, tail and quality vs native4096 and unchanged runway4096; report all1024 and identical-output sensitivity. Static covers dynamic => scoped no-go for dynamic signal necessity on this workload. A single winning run only warrants replication."
+}

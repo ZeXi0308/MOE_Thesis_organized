@@ -1,0 +1,58 @@
+{
+  "schema": "c-math-recovery-headroom-action-development-v1",
+  "stage": "exploration",
+  "workload": "Same1024 natural-generation math requests in source order; all at zero. No answer keys in runtime.",
+  "arms": [
+    {
+      "name": "math1024-restore-runway",
+      "max_seqs": 1024,
+      "policy": "restore-runway",
+      "batch_tokens": 2048
+    },
+    {
+      "name": "math1024-native896",
+      "max_seqs": 896,
+      "policy": "native",
+      "batch_tokens": 2048
+    },
+    {
+      "name": "math1024-native1024-b4096-retry",
+      "max_seqs": 1024,
+      "policy": "native",
+      "batch_tokens": 4096
+    }
+  ],
+  "fixed": {
+    "KV_bytes": 8589934592,
+    "context": 4096,
+    "APC": true,
+    "seed": 20260905,
+    "temperature": 0,
+    "max_output_tokens": 1024,
+    "min_output_tokens": 0,
+    "async_scheduling": false,
+    "scheduler_reserve_full_isl": true,
+    "batch_invariant": false
+  },
+  "evidence": "Recovery FIFO made the first three old victims resume sooner but increased their later preemptions; mean completion worsened and makespan gain was output-tail-confounded. Test defer-versus-restore at an explicit known physical-capacity boundary.",
+  "action": "For PREEMPTED only, read native one-group FullAttention coordinator block requirements for all resident known sequences plus one token and the candidate full known sequence plus one token. If total exceeds currently free blocks plus native reserve accounting, defer this head. Otherwise original native allocator unchanged. No future EOS/lengths, no backend change, no persistent reservation or multi-step guarantee.",
+  "prediction": "A one-step guard may reduce rapid restoration/preemption cycles but can raise recovery waits and reduce useful throughput. Full outcomes and total policy wall decide; no benefit assumed.",
+  "controls": "Native896 checks whether another intermediate concurrency cap covers any improvement. Native1024/batch4096 retries the exact pre-launch RAM-guard failure after lossless own-log compression; previous failure is not a GPU result.",
+  "metrics": "All original1024 arrivals: completion, TTFT, request max host token gap, output throughput, SLO-only and correct+SLO goodput under preexisting diagnostic20s/4s; correctness/EOS/caps/repeats, preemption cycles/recompute, per-request wins/losses. No quality filtering.",
+  "resource_profile": "Reuse identical owned executable cache math_scale_runtime_cache_v2 and CUDA data cache; raw new RAM directory. Existing GPU lock/GPU idle checks,768MiB disk/2GiB shm/26GiB memory guards. No further cache cleanup.",
+  "policy_observation": "Policy defers are recorded only in restore-runway-policy.json and never labelled as native allocation None. Native pressure observation sees only actual calls.",
+  "scope": "Known-style admission action baseline, not a novel protected progress contract. Development only; all1024 outcomes retained.",
+  "execution_sha256": {
+    "math_inputs1024_v1.json": "513ae9ac6dff4e36693c07c1c37cd9d6d6101612beda5aad59bb33994104e13a",
+    "math_scale_source_v1.json": "eaa5da63063b4a3fa3e9cb334178c904b483e41736687f58e355a9049dc7ce20",
+    "health_native.py": "8afa5257e57e2a7e667e0209831626c65bd039c010b9e60a45933583ea6c54ab",
+    "native_pressure_observer_v1.py": "8ed2404a1b2546094927e9132eb47336b80e2d99e2a61ab4a2b2f678bd555877",
+    "qwen7b_launch_v2.py": "93e74aef3e883e7421eb95ec14c9a29e27b269ca90c20d55bff6cdd0e6f04485",
+    "health_launch.py": "578638992afb30e4cd1b0ac76bff95d554d4716c2ae940447b771e2b3ab33d5d",
+    "range_download_v2.py": "34045006d61c8b04c124adfbbfc3027870f784adc2bcabc7ac87ac09d12d01d7",
+    "math_scale_protocol_v2.json": "16371b1aa4bdf2c2cb61014a894c6aca5fab2fa3bc8984be73aeeee569d15ac9",
+    "restore_runway_policy_v2.py": "60155a3fd0658f402c62b33e312745160972b2bd07884371c56f4433770b1b93",
+    "math_runway_cell_v1.py": "92f7a2f798f86e14bd8879baff689ef1884f78f5f907675e71f75959716e801b",
+    "math_runway_launch_v1.py": "fdf65d910bac70329addc58f3955666901d49ae56556032ec31397659f5b3d40"
+  }
+}

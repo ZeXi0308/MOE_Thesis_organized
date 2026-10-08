@@ -1,0 +1,57 @@
+Session E: native remaining-token-budget selector
+Status: GPU_VALIDATED_RETIRED_NO_INCREMENTAL_ACTIONS (2026-10-07)
+
+policy=budget chooses native recomputation iff the recovery is already jointly
+eligible under the existing Host-readiness/capacity checks and known_tokens is
+at most the current native schedule's remaining token budget. Otherwise an
+eligible recovery uses native Host restoration. Existing native fallbacks are
+unchanged. The budget rule has no fitted threshold, future-output input, second
+branch execution, or scheduling/transfer changes. One-event target mode remains
+restricted to host/recompute.
+
+The observer wraps the original schedule(*args, **kwargs) and allocate_slots
+calls without copying schedule. Each schedule starts from the native
+max_num_scheduled_tokens (zero for PAUSED_ALL). Only successful positive-token
+allocations consume the observed budget; failed allocations and zero-token
+async LOAD allocations do not. Every successful schedule must match native
+SchedulerOutput.num_scheduled_tokens exactly by request ID and match its total.
+FCFS preemption of an already charged request fails explicitly. Exceptions and
+normal completion both clear the active observation context.
+
+Guards require FCFS, APC off, synchronous scheduling, no speculation/lookahead,
+no encoder/multimodal compute or encoder connector, no LoRA, no Mamba, and
+scheduler_config.long_prefill_token_threshold == 0. Existing one-group full-
+attention, native CPUOffloadingManager and full-history capacity guards remain.
+Unsupported configurations fail instead of silently approximating a budget.
+
+All policies, including fixed host/recompute/length and common warmup, receive
+the same observer. Decisions record remaining_budget_tokens and budget_step.
+Per-step checks are serialized through the existing episode field
+target_selection.budget_observation, containing checked/error counts and steps.
+This record is a deep snapshot, so later clear() calls cannot mutate prior arms.
+Mismatch exceptions include observed and native per-request token maps.
+
+Validation:
+  python3 -m unittest discover -s E_restore_choice_20261004/execution/source_snapshots/oct07_budget_r01 \
+    -p 'test_budget_selector_cpu.py' -v
+  Result: 22 tests passed. Tests use small adapter callbacks, not a reproduced
+  native scheduler. Coverage includes prior compute consumption, inclusive
+  action boundary, failed/zero/falsey-success allocation, per-ID and total
+  mismatch rejection, exception cleanup, pause states, preemption guard, fixed
+  policies and shared fallback, argument forwarding, scope guards, and snapshot
+  independence. selector.py/run_cell.py/run_group.py also passed py_compile.
+
+The completed oct07_budget_r01 H/R/L/B/B/L/R/H native GPU group passed all
+33,010 formal+warmup schedule checks with zero errors. All 74 eligible commits
+had identical B and L(1792) predictions. B/L four arms have identical normalized
+2024-step schedules and all256 output sequences. The signal had no incremental
+action information in this tested domain; small timing differences are not an
+adaptive advantage. No threshold search is introduced. See budget_results.txt
+and execution/oct07_budget_r01/budget_summary.json.
+
+The active selector/run_cell/run_group have therefore been restored to the
+already-executed pre-budget H/R/L runtime. The exact executed budget code and
+CPU tests remain immutable and runnable under
+execution/source_snapshots/oct07_budget_r01/ for reproducing this negative result.
+Remaining token budget is a scheduling quantity, not a GPU-time estimate; no
+state-aware complete-service benefit is established.

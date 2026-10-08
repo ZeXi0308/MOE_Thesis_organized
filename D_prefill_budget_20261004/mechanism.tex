@@ -1,0 +1,34 @@
+
+\subsection{What the observed state explains}
+At exactly 512 actual prompt tokens, mean completed-step time rises from
+13.74 to 17.81 ms when the decoder-count bin changes from 1--7 to 16--23;
+the reverse repetition gives 14.07 to 17.93 ms. At 2,048 actual prompt tokens,
+the 8--15 versus 16--23 bins give 24.92 versus 27.38 ms, reproduced as
+24.93 versus 27.37 ms. These comparisons hold prompt work fixed, not total tokens.
+For a stricter fixed-total comparison, two fixed-1,024 runs each contain 19 steps
+with exactly 10 decoders. Splitting them by context sum gives mean costs
+18.268 versus 18.730 ms and 18.281 versus 18.741 ms. This is a small repeatable
+association at 1,034 total scheduled tokens. A five-step bin with 18 decoders
+has the opposite direction, so we do not infer a monotonic causal law or a
+validated independent prediction signal.
+
+\begin{figure}[htbp]\centering
+\begin{tikzpicture}
+\begin{axis}[width=.82\textwidth,height=5.3cm,xlabel={Active decoders},
+ ylabel={Completed step envelope (ms)},grid=major,
+ legend style={at={(.03,.97)},anchor=north west},legend cell align=left]
+\addplot[only marks,mark=*,mark size=1.4pt,blue] table[x=decode,y=ms,col sep=comma]{step_cost_512.csv};
+\addlegendentry{Exactly 512 prefill tokens}
+\addplot[only marks,mark=triangle*,mark size=1.8pt,red] table[x=decode,y=ms,col sep=comma]{step_cost_2048.csv};
+\addlegendentry{Exactly 2,048 prefill tokens}
+\end{axis}
+\end{tikzpicture}
+\caption{Actual mixed steps from the first measured fixed pair. Partial tail
+chunks are excluded only from this equal-prompt-work diagnostic, not from service metrics.}
+\end{figure}
+
+The fixed-1,024 and feedback development runs agree on the complete output
+sequence for 24 of 36 requests; each policy agrees on all 36 sequences between
+its own repetitions. Every run still generates exactly 8,448 tokens. This is
+consistent with shape-dependent numerical execution changing greedy trajectories;
+it does not establish either a precision change or a task-quality difference.

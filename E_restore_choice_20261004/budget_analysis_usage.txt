@@ -1,0 +1,55 @@
+Session E budget analysis CLI — local/CPU only
+
+After the completed oct07_budget_r01 artifacts have been copied locally:
+
+  python3 E_restore_choice_20261004/analyze_budget.py \
+    E_restore_choice_20261004/execution/oct07_budget_r01
+
+Default expected order: host,recompute,length,budget,budget,length,recompute,host
+Default length baseline: 1792. Budget has no fitted threshold.
+Output: GROUP/budget_summary.json. --out may select another destination.
+--expected-arms and --length-threshold declare a different planned comparison;
+the executed length arm must match the supplied threshold.
+
+The CLI calls analyze.py's formal analyzer instead of reproducing its service
+metrics. Only COMPLETE/all-request-complete cells enter the formal candidate
+set. Both measured and common-warmup budget observations must validate before a
+cell's service metrics are exposed in this budget report.
+
+Checks align budget rows with native scheduler trace rows, native/allocated
+compute totals, remaining-budget identities, allocation-call counts and timing.
+One schedule must belong to each recorded service step. Additional drain
+schedules are allowed after all_complete_s only with zero scheduled compute;
+therefore budget/scheduler trace lengths may exceed the service-step count.
+Per-request allocation equality was asserted in the frozen runtime; the saved
+successful observer rows contain counts/totals, so offline checks do not pretend
+to recover an unlogged allocation trace.
+
+Action replay uses only eligible decision/commit known_tokens and recorded
+remaining_budget_tokens. It checks actual B/L decisions, decision-commit joins,
+signal bounds and per-step monotonicity, and counts B-versus-L disagreement on
+each arm's own observed trajectory. Cross-arm requests follow different states;
+these counts are not counterfactual latency comparisons or an online oracle.
+
+Results include formal completion/gap/recovery metrics, scheduled work,
+STORE/LOAD, generated-output work and token consistency via analyze.py, plus
+descriptive forward/reverse repeat pairs. Different natural output counts rule
+out an equal-output-work speedup claim. Previously paid STORE stays counted;
+overlapping transfer durations are not summed into wall time. Schedule spans
+include native scheduling plus the wrapper. Complete instrumentation overhead
+has not been isolated.
+
+Exit codes:
+  0 VALIDATED_COMPLETE: declared order and all observed episodes validate.
+  1 INVALID: malformed/inconsistent observations or formal analysis errors.
+  2 UNRUN or INCOMPLETE: no budget observations, missing arms, or group unfinished.
+
+Preparation validation (not a new GPU experiment):
+The local historical oct07_summary_r01 group contained four formal episodes but
+no budget observer. CLI returned UNRUN, zero observer-validated cells, and no
+budget performance summary. Receipt:
+  cpu_validation/budget_historical_schema.json
+CPU fixture tests check schema rejection and action replay only; they do not
+provide runtime validation or budget-policy performance evidence.
+  python3 -B E_restore_choice_20261004/test_analyze_budget_cpu.py -q
+  Result: 15 CPU tests passed. analyze_budget.py also passed py_compile.

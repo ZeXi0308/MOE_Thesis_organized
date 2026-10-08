@@ -1,0 +1,118 @@
+{
+  "workload": "../mixed_arrivals/workload_high_rate.json",
+  "workload_sha256": "395fd015ceb9bef4a4a59e30e0203e83167a4967fffe2ba7160409f0ac738a15",
+  "input_totals": {
+    "request_count": 256,
+    "prompt_tokens": 538597,
+    "declared_output_tokens": 114688
+  },
+  "primary_slo": {
+    "ttft_s": 4,
+    "gap_s": 0.1,
+    "completion_s": 20
+  },
+  "timeout_s": 180,
+  "max_wait_lock_s": 7200,
+  "gpu_uuid": "GPU-51b8e4bb-27b8-4b82-5254-7317aae7298c",
+  "expected_driver_version": "580.95.05",
+  "shared_lock": "/root/autodl-tmp/moe-research-gpu.lock",
+  "shared_lock_inode": 4312099778,
+  "engine_args": {
+    "model": "/root/autodl-tmp/moe-research-20261002/model",
+    "dtype": "bfloat16",
+    "seed": 20261004,
+    "max_model_len": 4096,
+    "max_num_seqs": 192,
+    "max_num_batched_tokens": 4096,
+    "long_prefill_token_threshold": 0,
+    "enable_chunked_prefill": true,
+    "enable_prefix_caching": false,
+    "scheduling_policy": "fcfs",
+    "async_scheduling": false,
+    "scheduler_reserve_full_isl": true,
+    "stream_interval": 1,
+    "enforce_eager": false,
+    "enable_return_routed_experts": false,
+    "gpu_memory_utilization": 0.9
+  },
+  "after_lock_idle_check": {
+    "max_utilization_percent": 5,
+    "max_memory_used_mib": 16,
+    "consecutive_readings": 2,
+    "sample_separation_s": 0.5,
+    "grace_s": 5
+  },
+  "expected_software": "Parent/runtime source hashes unchanged; root separately verified Torch2.11.0, vLLM0.26, Triton3.6 and migrated model. Actual environment.json remains authoritative.",
+  "output_contract": "Same256 request IDs, arrivals, prompt tokens and declared fixed min=max output counts with ignoreEOS. Counts do not establish identical content/routing/computation/quality.",
+  "name": "D one untested smaller fixed-budget baseline on current device",
+  "status_at_freeze": "PRE_GPU_FROZEN",
+  "intended_output_name": "fixedhalf53005_01",
+  "intended_output_path": "/dev/shm/moe-d-prefill-continuation-20261007/fixedhalf53005_01",
+  "intended_log_path": "/dev/shm/moe-d-prefill-continuation-20261007/fixedhalf53005_01.log",
+  "policies": [
+    "fixed512",
+    "fixed1024",
+    "fixed1024",
+    "fixed512"
+  ],
+  "warm_policies": [
+    "fixed512",
+    "fixed1024"
+  ],
+  "legal_caps": [
+    512,
+    1024
+  ],
+  "formal_attempt_limit": 4,
+  "warm_attempt_limit": 2,
+  "question": "Does the as-yet untested fixed512 improve complete joint service over fixed1024 on the unchanged high-rate trace, or transfer completion cost into prefill waiting?",
+  "evidence": "Four current-device fixed1024 runs in refresh/cohort: no TTFT4s or gap100ms failure, TTFTp95 about2.01-2.10s andmax2.47-2.61s;73-76/256 fail completion20s. Earlier concurrent2048/1024 pair favored1024 on jointU andfive long qualification IDs. Actual1024 cap binds with remainingbacklog on462-465 steps, so smaller cap changes legal execution. Old384 results useda40sarrivaltrace/oldGPU anddo not answer current512.",
+  "primary_changed_factor": "Only pure-prefill cap512 versus1024; same external arrivals/content/fixed output counts, model/BF16/native4096budget/maxseq192/maxlen4096/normalKV. No dynamiccontroller/no outputprediction/no admission or kernel change.",
+  "hypothesis": "Fixed1024 may still over-invest in prefill relative to current completion objective; halving can instead cause nonlinear queue growth. TTFT headroom observed at1024 is not a guarantee for512.",
+  "decision": "Report both mirrored run-level U effects (absolute andrelative), qualifying numerator/full elapsed, andallthroughput/TTFT/flow/maxgap/control/drain costs. No universalpercent gain or all-metrics-improve requirement. Same-sign clearly interpretableU changes relative to concurrentreference drift may support retaining the ordinary fixed choice as development evidence; small/mixed/boundary-driven changes are uncertain,not automatic extra repeats. If512 only transfers cost with no usefulU gain, close this smaller-fixed check. An observedU gain withlatency/throughputcost isreported asatradeoff,not rejectedsolelybecausesomep95worsens,norcalledproductionacceptable withoutapplicationbasis. No automatic768/384 or revivalofwithdrawncontroller.",
+  "selection_scope": "A competitive baseline check on an already seen development trace, not independent confirmation or sustainable capacity experiment. Existing fixed1024 is competitive among tested caps, not a claim of global fixed optimality. A lower-U negative candidate remains withdrawn irrespective of this result.",
+  "warmup": "One complete original workload per cap before formal. Both warmups must contain at least one completed forward with actualprefill equalto cap512/1024; failure blocks formal without extra warm attempts. Check measured formal compile/capture/autotune separately; no exact-batch-shape identity claim.",
+  "controls": "Exact original parent episode and arrival/output/drain timing. Resource checks and warm coverage inspection occur outside episode clocks. Full waiting, client lag, control cost, all requests and output counts included.",
+  "stopping": "At most2warm+4formal,180s per episode,one shared-lock waiter<=7200s,no automatic retry/parameter adjustment. Preserve all failed or partial output. Release whole-group lock before local analysis/readback.",
+  "analysis_command": "python3 -B mixed_arrivals/analyze_fixed.py fixedhalf53005_01 --small-cap 512 --large-cap 1024 --design fixed_half_53005/design.json",
+  "source_sha256": {
+    "run_fixed.py": "95d57dfc6cdafe1d0166852d423dd17c45bb99c7185775fe5331395a5058d0a2",
+    "launch.sh": "755721c7a29a84edc6188fd4518f7031d8e567520216fa7bbc5e8b4e0e0df987",
+    "../cohort_trace_53005/run_shm.py": "f947b93b17753f38145c5c0c723c6e1bd9c4610a82ae777e30e0a413ed903776",
+    "../cohort_control/controller.py": "f9fb7374a313f782a7456d1a90ad2c2eb88a126049a180e3ddd4dee6602f5082",
+    "../cohort_control/cohort_cost.py": "05938d30d4109b329af826ccbecfdfb48812ca4ad9533f75ab60dd3e61629dcf",
+    "../niyama_component/run_component.py": "46524607172d533738e92bcf9712009c152d6059d8f8a30010172ee31afa51ef",
+    "../device_refresh_53005/run_refresh.py": "fe0dd9a843fce10f5c83ff2c83f419dc28f43bcb2c2219bcb9b004ccc1a17a7f",
+    "../run_confirmation.py": "67cb25770693252d64efcb93ea1aaf45ab99ce92926b77189dd03c324b0ee166",
+    "../prefill_policy.py": "1aedafb440597a5903539eb05e5e3e5cd0eaa12a0eda292f345df6d883cbe960",
+    "../runtime_bootstrap.py": "dafbad576b9d2e956dd981da9309c72336a3af1e2b8ccad2cb24980c67c09778"
+  },
+  "analysis_source_sha256": {
+    "../mixed_arrivals/analyze_fixed.py": "dd1feb203120e37f4db86fb5c459d60a7719944e6be00e167d3884d61ea434cc",
+    "../../analyze.py": "c434aa29ab0e5edeb25dc4c77159af6f6de8ae82edf2ffe3ef8b1332548f839c",
+    "../../confirmation_v2/paired_comparison.py": "79375f29520bbec2dcb365e0e1e4be095554620f45f2e585699b9a949b14ad10",
+    "summarize_tradeoff.py": "3241bafb22e9806a123d3a320c05756c18a2f377d697858311a1db94d3235a46"
+  },
+  "root_start_free_bytes_required": 1610612736,
+  "root_between_episode_free_bytes_required": 1610612736,
+  "shm_free_bytes_required": 536870912,
+  "own_output_log_bytes_limit": 524288000,
+  "effective_host_headroom_bytes_required": 2147483648,
+  "resource_policy": "Reuse prior explicit1.5GiB root reserve plus.5GiB tmpfs trace/log reserve (2GiB total),500MiB own trace/log ceiling,Hostheadroom>=2GiB. Root native caches/TMPDIR unchanged;no compiler cache migration. Existing sharedlock/inode/device/driver/afterlockidlechecks at boundaries. No new paid resources or cost-balance telemetry.",
+  "frozen_timestamp_utc": "2026-10-08T13:07:02.428342+00:00",
+  "pre_execution_revision": {
+    "superseded_unlaunched_design_sha256": "bb954c31bff8e487b664aae9938b092c79606ba50bbf045858106b33c4e33a86",
+    "reason": "User research-lead instruction received before upload/submission/measurement: remove universal3%gain/all-p95<=1.05 as scientific decision criteria; retain old gates only as historical diagnostics. Science/actions/resources/input/order unchanged.",
+    "old_design_had_gpu_execution": false
+  },
+  "primary_objective": "U=number of all arrived requests meeting TTFT4s/per-requestmaxgap100ms/completion20s divided by full elapsed including drain/control/client lag. Thresholds are preexisting research assumptions, not validated production SLOs. Never retune them after outcomes.",
+  "necessary_constraints": "Same complete arrivals/content/fixed generation contract/model/precision/resources; allwaiting/failures/timeouts/rejections/unfinished included; no outputreduction/refusal/reordering/newgate. Validcompleteobservations andactualcapdifference beforeperformanceinterpretation. Both caps actually saturatedduringpredeclaredwarm,formalcompilationreported.",
+  "uncertainty": "Onlytwoepisodesperfixedchoice ononealreadyseendevelopmenttrace; reportpairsseparately andpooledsumqualified/sumelapsed onlyasdescription. Concurrentfixed1024repeatdrift contextualizes effects; oldsame-policyUdrifts.153%,.685%,1.973% are not a noise distribution/CI or replacementgainthreshold. Do not use256requests as independentrepeats or declare significance/equivalence.",
+  "analysis_legacy_scope": "mixed_arrivals/analyze_fixed.py remains unchanged: its3%/5% gatefields/status are retained historicaldiagnostics ONLY. Newstage scientific interpretation follows this design/RESULTS researchcard and descriptive study_results.json,not itsautomatic sufficient-direction label.",
+  "stage_budget": "One group2warm+4formal only; expected6-10minutesGPU basedon prior49-53secondepisodes,smallerbudgetmaybeslower.180s perepisode+initialization/storageoutsideepisode;max6episodes,noretry,onewaiter<=7200s,raw/log<=500MiB,sameGPU/Hostconstraints,noadditionalpaidresources. No expensebalance telemetry.",
+  "model_prediction_to_check": "Qualitative only: smallercap canreduce subsequentdecodeinventory/generationduration whileincreasingprefillwaiting; direction/notfittingaloneisnotproof ofstate-selectorvalue. Thisfixedcomparison doesnotvalidate theclosed-cohort model oranynewdynamicmethod.",
+  "analysis_commands": [
+    "python3 -B mixed_arrivals/analyze_fixed.py fixedhalf53005_01 --small-cap 512 --large-cap 1024 --design fixed_half_53005/design.json",
+    "python3 -B fixed_half_53005/summarize_tradeoff.py fixedhalf53005_01/fixed_results.json"
+  ]
+}

@@ -1,0 +1,97 @@
+{
+  "schema": "c-math-restoration-object-order-development-v1",
+  "stage": "exploration",
+  "previous_turn_classification": "PROGRESS",
+  "question": "At the strongest tested1024/B4096 fixed48 configuration, does selecting another preempted request improve whole-request service? Is any gain explained by first-fit alone?",
+  "arms": [
+    {
+      "name": "math1024-order-fixed48-b4096",
+      "max_seqs": 1024,
+      "policy": "restore-fixed-margin",
+      "batch_tokens": 4096,
+      "fixed_margin_blocks": 48
+    },
+    {
+      "name": "math1024-order-firstfit-b4096",
+      "max_seqs": 1024,
+      "policy": "restore-first-fit",
+      "batch_tokens": 4096,
+      "fixed_margin_blocks": 48
+    },
+    {
+      "name": "math1024-order-minrecompute-b4096",
+      "max_seqs": 1024,
+      "policy": "restore-min-recompute",
+      "batch_tokens": 4096,
+      "fixed_margin_blocks": 48
+    }
+  ],
+  "fixed": {
+    "KV_bytes": 8589934592,
+    "context": 4096,
+    "APC": true,
+    "seed": 20260905,
+    "temperature": 0,
+    "max_output_tokens": 1024,
+    "min_output_tokens": 0,
+    "async_scheduling": false,
+    "scheduler_reserve_full_isl": true,
+    "batch_invariant": false
+  },
+  "workload": "Same1024 GSM8K development requests in source order, all arrivals at zero, same Q0 eight-shot prompt and literal Answer: cue; no answer keys in runtime.",
+  "action_contract": {
+    "trigger": "Actual native regular waiting-queue selector with PREEMPTED head, skipped queue empty; prefix must have at least2 restoration candidates.",
+    "candidates": "First at most16 contiguous PREEMPTED requests, including head; never cross a fresh WAITING request.",
+    "first_fit": "Read-only APC and physical fixed48 queries in queue order, stop at first eligible candidate.",
+    "minimum_known_recompute": "Among eligible candidates in the same bounded prefix, minimize num_tokens minus current APC-hit tokens; stable original-position ties.",
+    "execution": "Selected object is prepended only if not head; allocation/model/preemption backend unchanged; exact queue rollback on failed allocation. All selected admissions use fixed48 gate again.",
+    "signals": "Current known sequence tokens, read-only APC hits, current free blocks and physical full-known+1 gate. No future EOS, remaining actual output, gold answer, or offline future trajectory.",
+    "guarantee": "No persistent reservation, no minimum future progress, and no infinite-stream fairness guarantee.",
+    "join": "initial_scheduler_step recorded once; call_id=scheduler_step-(initial_scheduler_step+1); identity of each native PREEMPTED attempt and final positive schedule checked separately from final request completion."
+  },
+  "metrics": "All original1024 requests: completed/failed/unfinished, correctness/EOS/caps/repetition, TTFT, flow, per-request maximum successive host token gap, token throughput, diagnostic20s/4s SLO-only and correct+SLO goodput, preemption/recomputation and per-request benefit/harm. Policy None and native None separate.",
+  "decision_rule": {
+    "actual_action": "Require verified selected native allocation and positive final scheduled tokens; zero reorders means no action-value result.",
+    "initial_qualification": "A pilot signal for repetition requires at least3% lower all-request mean flow or3% higher diagnostic SLO goodput against BOTH fixed-order and first-fit controls, with output-token-rate loss no more3% and meanflow increase no more5%. Alternatively at least20% lower worst host gap with the same efficiency guardrails merits a scoped tradeoff repeat.",
+    "quality": "Preserve/report all accuracy and termination changes; any performance signal with correctness/EOS worsening is conditional and requires separate quality/termination analysis, not a pass by filtering.",
+    "no_increment": "If first-fit covers the minimum-recompute rule, reject independent value of the extra cost ranking in this domain.",
+    "negative": "If whole-request outcomes do not improve despite actions, stop scaling this rule; do not tune scan limit/margin on the same outcomes to rescue it.",
+    "invalid": "Preserve failed artifacts, distinguish native/runtime/contract failure from negative policy evidence; fix a new version only for a diagnosed implementation issue.",
+    "evidence_ceiling": "One same-development episode per arm; no significance, causal equal-work speedup, new-input generalization or independent novelty claim."
+  },
+  "resource_recovery": "Same26GiB RAM,768MiB root disk,2GiB shm guards and inode-verified shared GPU lock.1200s total per arm, release lock during15s waits, child at most once, verify model weights each arm. Post-child lossless xz of three large logs.",
+  "resource_budget": "3 GPU episodes, prior measured per-arm wall roughly120s; approximately6min plus20% allowance excluding bounded shared-resource waits.",
+  "code_scope": "Reuse existing model staging/native execution/math quality analyzer/pressure observer/paired comparator. New code only implements queue selection and joins repeated PREEMPTED events. A two-arm test would conflate eligible-backfill with cost ranking; three arms directly separate them. Existing fresh-only evidence join cannot handle multiple recoveries of the same request.",
+  "interpretation": "Known simple first-fit and recovery-work ordering actions; this is an action-value test and strong-simple challenge, not a new algorithm claim.",
+  "execution_sha256": {
+    "math_inputs1024_v1.json": "513ae9ac6dff4e36693c07c1c37cd9d6d6101612beda5aad59bb33994104e13a",
+    "math_scale_source_v1.json": "eaa5da63063b4a3fa3e9cb334178c904b483e41736687f58e355a9049dc7ce20",
+    "health_native.py": "8afa5257e57e2a7e667e0209831626c65bd039c010b9e60a45933583ea6c54ab",
+    "native_pressure_observer_v1.py": "8ed2404a1b2546094927e9132eb47336b80e2d99e2a61ab4a2b2f678bd555877",
+    "qwen7b_launch_v2.py": "93e74aef3e883e7421eb95ec14c9a29e27b269ca90c20d55bff6cdd0e6f04485",
+    "health_launch.py": "578638992afb30e4cd1b0ac76bff95d554d4716c2ae940447b771e2b3ab33d5d",
+    "range_download_v2.py": "34045006d61c8b04c124adfbbfc3027870f784adc2bcabc7ac87ac09d12d01d7",
+    "math_scale_protocol_v2.json": "16371b1aa4bdf2c2cb61014a894c6aca5fab2fa3bc8984be73aeeee569d15ac9",
+    "restore_fixed_margin_policy_v1.py": "5b881b64f321d1e3ace653178eb544209abf04e7d96f3f51f3ca3cc161e16063",
+    "restore_cost_order_policy_v1.py": "e84d44270b12e176ad294b61b913202e9a607c9ac862b02bcfc638a016c24050",
+    "math_restore_order_cell_v1.py": "8450826b4ca0ee0a89ca8eac9f8f77cb4f6a5852990b0c66352217cd4224d85a",
+    "math_restore_order_launch_v1.py": "9f0ab15a0fae3b1dbc7a93eb96c5f3dda3f5b1eae853efc33a542776acf2be08"
+  },
+  "created_unix_s": 1790887412.652554,
+  "cpu_validation": {
+    "status": "PASS_5_GROUPS",
+    "policy_sha256": "e84d44270b12e176ad294b61b913202e9a607c9ac862b02bcfc638a016c24050",
+    "check_file": "check_restore_cost_order_v1.py",
+    "check_sha256": "7dca09f0da0cad7157f58d17a204369d35ef857f39aa8c2cbbe63e97ef06b56c",
+    "scope": "Native allocation fixture, not GPU execution evidence."
+  },
+  "authority": {
+    "repository_head": "76d6d888de42081c63cd440a8a67623161d8181f",
+    "original_evidence_preserved": true,
+    "other_owner_dirty_files_preserved": true,
+    "shared_lock_identity": [
+      2304,
+      25841682495
+    ]
+  }
+}

@@ -1,0 +1,42 @@
+D phase-transition diagnostic — frozen 2026-10-07, not a serving controller
+
+Question: can equal-prefill two-step ordering produce a service-action preference
+difference at the two preselected states? A mere extra decoder is not a success.
+Authoritative configuration and finite budget: design.json. The earlier single-
+pulse proposal in DIAGNOSTIC_DESIGN_DRAFT.txt was cancelled before any GPU run.
+
+Reuses continuation_20261007/{run_confirmation.py,prefill_policy.py,runtime_bootstrap.py}.
+Those modules, the runner, workload and submission ledger are bound by SHA256.
+Local analysis additionally reuses D_prefill_budget_20261004/analyze.py.
+No credentials are stored in any of these files.
+
+On the existing server, from the phase_probe directory:
+D_GPU_UUID=GPU-94203fc3-1021-3a9c-a367-cff792479616 bash launch.sh --output /tmp/moe-d-prefill-continuation-20261007/probe02 --wait-lock 7200
+
+probe01 failed before engine construction, warmup or any formal attempt: the
+direct Python entry omitted the existing parent launcher's LD_LIBRARY_PATH and
+libnvrtc.so.13 could not be found. Its log/status remain unchanged. launch.sh
+restores exactly the parent library path; no package install, policy, frozen
+design or eight-formal-attempt budget changes. Use the corrected entry above.
+
+Before starting: confirm the previous D group is terminal, check for both
+run_confirmation.py and run_probe.py in actual /proc cmdline arguments, require a
+fresh output directory/log, and verify free space. Never submit a second D waiter.
+The unchanged driver acquires the common flock before initializing GPU, warms all
+four action sequences, runs eight frozen formal attempts, drains each of 160
+requests, then exits and releases the lock. Do not overwrite or retry failed runs
+to obtain qualifying prefixes. No automatic dependent job has been installed.
+
+After the process exits and the lock is released, retrieve the whole directory.
+Run locally from this directory:
+python3 -B analyze_probe.py ../probe02
+python3 -B prefix_time_audit.py ../probe02 > ../probe02/prefix_time_audit.json
+
+probe_results.json preserves failures, missing/duplicate runs, reference/pair
+prefix qualification, both-step geometry, 32-step measurements, full service
+metrics, output-token divergence and the prespecified descriptive gates.
+All results are diagnostic submission-step replay; original arrival times are
+lower bounds and explicit waiting remains in service time. They cannot be pooled
+with the normal-arrival G experiment or called held-out end-to-end confirmation.
+No bitwise KV equality, p-value, statistical equivalence or new-method claim is
+provided by this small diagnostic. The full research objective remains open.
