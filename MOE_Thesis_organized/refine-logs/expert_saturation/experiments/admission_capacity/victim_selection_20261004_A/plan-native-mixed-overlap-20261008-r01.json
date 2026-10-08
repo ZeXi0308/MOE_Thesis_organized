@@ -1,0 +1,205 @@
+{
+  "python": "/root/miniconda3/bin/python",
+  "hf_cache_dir": "/root/autodl-tmp/moe-a-20261002/hf",
+  "model_revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+  "model_files": {
+    "config.json": {
+      "bytes": null,
+      "sha256": "3643aa880d2f1c9b418156269ae791c73e5612d6b6b6fde0724d927cf89b6335"
+    },
+    "generation_config.json": {
+      "bytes": null,
+      "sha256": "d77272ffaa7e62a904e8e130bb25ab11585bd4a5026e388d6d682e4b82892ce2"
+    },
+    "model.safetensors.index.json": {
+      "bytes": null,
+      "sha256": "0e2e1e0d8d357ac7af817cff28410c3dbad398f060c517a433e4076b2aae5579"
+    },
+    "special_tokens_map.json": {
+      "bytes": null,
+      "sha256": "b77491e270c6fcc5b2ecf22370f7318a6a18d3cabea09ba7bab92e9bf12656c2"
+    },
+    "tokenizer.json": {
+      "bytes": null,
+      "sha256": "a094266ac6c4982efba277bc251349a5a6d6ad37efb39a2a90f53d8be2a40a40"
+    },
+    "tokenizer_config.json": {
+      "bytes": null,
+      "sha256": "78a839c7851f14f9fb30e664c2b46166dc0628f2900679e5ec160656f702edff"
+    },
+    "model-00001-of-00003.safetensors": {
+      "bytes": 4997744872,
+      "sha256": "5e3cff7e367794685c241169072c940d200918617d5e2813f1c387dff52d845e"
+    },
+    "model-00002-of-00003.safetensors": {
+      "bytes": 4997235176,
+      "sha256": "15ef5c730ee3cfed7199498788cd2faf337203fc74b529625e7502cdd759f4a7"
+    },
+    "model-00003-of-00003.safetensors": {
+      "bytes": 3843741912,
+      "sha256": "a9abac4ac1b55c9adabac721a02fa39971f103eea9a65c310972b1246de76e04"
+    }
+  },
+  "kind": "PRO6000_NATIVE_EQUAL_HELD_ONCE",
+  "arms": [
+    "mixed-budget-tail"
+  ],
+  "authorized_gpu_uuid": "GPU-94203fc3-1021-3a9c-a367-cff792479616",
+  "approved_host_bytes": 128849018880,
+  "lock_path": "/root/autodl-tmp/moe-research-gpu.lock",
+  "source_package": "/root/autodl-tmp/moe-a-victim-20261004/candidate_native_mixed_overlap_r01",
+  "session_dir": "/root/moe-a-victim-20261007/session-native-mixed-overlap-20261008-r01",
+  "runtime_overlay": "/root/autodl-tmp/moe-a-victim-20261004/runtime-overlay",
+  "per_cell_wall_seconds": 1200,
+  "approved_total_wall_seconds": 1800,
+  "minimum_free_disk_bytes": 2147483648,
+  "package_manifest_sha256": "bbcda5cda3a30111e678987893aed9d4ff630215d1fe50ec3effa4bd6eb1b5f8",
+  "base_commit": "5593b5ff0fb602f479b10f82ca682ba8f9adc86d",
+  "host_differences": {
+    "gpu": "RTX PRO 6000 Blackwell Server Edition, replacement physical UUID on 2026-10-07",
+    "cgroup_limit_bytes": 128849018880,
+    "torch": "2.11.0 with task-private RECORD-only overlay",
+    "transformers": "5.17.0",
+    "comparison": "Within this new-host group only; no old PRO6000 or5090 timings as baseline",
+    "endpoint": "connect.westb.seetacloud.com:25495"
+  },
+  "configuration": {
+    "model": "OLMoE base BF16 pinned",
+    "gpu_kv": "Pinned77135347712 physical bytes measured in session-pro-capacity-20261007-r01/cell-00-profile on the same authorized GPU",
+    "host_kv_gib": 16,
+    "max_model_len": 4096,
+    "max_num_seqs": 384,
+    "max_num_batched_tokens": 1024,
+    "requests_per_case": {
+      "low": 128,
+      "knee": 256,
+      "high": 320
+    },
+    "arrivals": "First256 external arrivals i/100 seconds; last64 at30+(i-256)*0.2 seconds. Same identities/order/prompts/budgets; final42.6s.",
+    "warmup": "same 32 then384 short plus2long; wide warmup sufficient output steps; clear connector cache before measurement",
+    "cache": "Identical frozen Triton union copied privately before initialization in every arm; every other runtime cache initially empty",
+    "target": "oldest observed paused output request",
+    "trigger_seconds": 1.0,
+    "lease": "q1",
+    "native_victim": "tail only; temporal opportunity characterization",
+    "funding_victim": "tail",
+    "ordinary_admission": false,
+    "max_seconds": 600,
+    "output_budgets": "40 declared caps128 selected by fixed SHA256 of A-budget-mixture-v1:request_id; remaining280 cap1024, EOS allowed",
+    "temporal_overlap_diagnostic": {
+      "kind": "SYNTHETIC_TEMPORAL_OVERLAP_DIAGNOSTIC",
+      "authoritative_trace": "workload.arrival_traces_s.steady",
+      "initial_burst_requests": 256,
+      "initial_burst_gap_s": 0.01,
+      "initial_burst_last_arrival_s": 2.55,
+      "late_stream_requests": 64,
+      "late_stream_start_s": 30.0,
+      "late_stream_gap_s": 0.2,
+      "late_stream_last_arrival_s": 42.6,
+      "rule": "Preserve source arrivals i/100 for indices 0..255; use 30+(i-256)*0.2 for indices 256..319.",
+      "split_basis": "Existing 256-request knee prefix; final 64-request length-stratum phase.",
+      "design_basis": "Development design informed by prior aggregate pressure timing; no per-request future outcomes used.",
+      "semantics": "Only external arrival times change. Same IDs/order/prompts and assigned output budgets; not an independent holdout or policy-gain comparison. Ongoing-arrival pressure is not guaranteed."
+    }
+  },
+  "primary": "Single native-tail temporal-coverage characterization plus all320 external-arrival service outcomes. No victim-policy comparison or SLO goodput claim.",
+  "slo": "No application SLO. Inherited20point frontier is diagnostic only.",
+  "hypothesis": "Previous pressure occurs after arrivals finish. A fixed initial burst plus late stream may expose heterogeneous legal victim states during arrivals, or native admission may absorb the phase difference.",
+  "claim_ceiling": "Synthetic temporal diagnostic on already-seen inputs, not independent confirmation or representative production traffic. New legal opportunities are not actual alternative actions or causal service gains.",
+  "retention": "One fixed tail cell only, no automated retry, no moving the stream start or changing its cadence after absent overlap/opportunity. Preserve all prior inputs, failures and negative results.",
+  "cells": [
+    {
+      "label": "mixed-budget-tail",
+      "input_case": "high",
+      "native_victim_rule": "tail",
+      "funding_victim_rule": "tail",
+      "profile_only": false,
+      "requests": 320
+    }
+  ],
+  "input_files_sha256": {
+    "pkg/inputs/pro_high/config.json": "25e3cfbe9cb5155739fc999ac60b42e63c3e07c03a9a8329e6b082e3d52aefd6",
+    "pkg/inputs/pro_high/stats.json": "8ce882716f7fa28378d2f7363e36fbb477a3be4dce9f7323d4931289fba0b953",
+    "pkg/inputs/pro_high/workload.json": "f94e566cef201293112187369043391b6709b9435403f12e5bcd636b5f7a5d32",
+    "pkg/inputs/pro_knee/config.json": "0bf54f62c46740824a457713b431a25ad991b0fa062644685db7e4944cf27f48",
+    "pkg/inputs/pro_knee/stats.json": "9f27db697ddaad97a1624d1fa40559220d57ae7815521b7b33f00a8a3c6e883e",
+    "pkg/inputs/pro_knee/workload.json": "8188c12a17fe2ac55732701c9ba0568584de1135d4e6814147d2a4e6bbab7280",
+    "pkg/inputs/pro_low/config.json": "70b9462c3800ba590b1d8eadb12aceaa6f793fd00f67e28ef17643d7d863634c",
+    "pkg/inputs/pro_low/stats.json": "4775501d5307a046992e76384788ad5166ca8df22efd97cd97b972b76b4e36c9",
+    "pkg/inputs/pro_low/workload.json": "14ff6d0dc4c5105870532e0905b05a695c654ee1336a67a780f4c58847095017",
+    "pkg/inputs/warmup_short.json": "8cfb22f91f5d31bdb9fb4c27fc4e25f6edc250f63481b22a94e773aa2a45fcd5"
+  },
+  "pinned_gpu_kv_bytes": 77135347712,
+  "capacity_source": "session-pro-capacity-20261007-r01/cell-00-profile/archive/normal_capacity_profile.json",
+  "simple_comparators": "Tail only for opportunity characterization; no policy improvement inferred across changed arrival workloads.",
+  "pilot_basis": {
+    "source": "mixed burst and arrival-once raw plus mixed spread",
+    "observed_pressure_s": [
+      31.58,
+      57.413
+    ],
+    "burst_arrival_end_s": 3.19,
+    "arrivals_after_pressure": 0,
+    "spread_arrival_end_s": 63.8,
+    "spread_preemptions": 0,
+    "design_basis": "Initial256 is the existing knee prefix with four full64-stratum phases. Late64 preserve the fifth phase. Start30s is a round development point near previously observed aggregate pressure, not a per-request future label."
+  },
+  "controller_files_sha256": {
+    "run_native_group_base.py": "3b642c6dc05e4f913c80b51dddd88e0dc6d544a8330a6e4ab5432cfce38e4a41",
+    "run_native_group_seeded_base.py": "931026841a8a248248bdd1d40afe46e9b0b2ac6e79df46596fb2372bb6d24253",
+    "run_native_host_group.py": "e387b0d040347f6243c47b36078c2385d156bda0254c437c7473a1ae0e83dcc1",
+    "run_native_host_group_wait.py": "f738779195d34a3506eedcd43447dfee5e93fefdd4ed817c318f888497aafa79",
+    "run_native_host_group_handoff.py": "1ba4b922efb170b97caf0c2124dea330d647a60506657f9dc8e1d5fb825d9ee0",
+    "run_native_host_group_seeded.py": "8afbc4e37468387c7ceee175a100b6d996c0b0b5fe5845055ff83fd2422f5e07",
+    "triton_seed.py": "22544d0b58bf47830270af2ec6610854796bdc9b4361aa01e3b2c358293ac4c0",
+    "run_native_equal_held_group.py": "3203e494186f5d0157bc17af80bf715edec6f6d260389e8f8bcfa7956dcd093f",
+    "run_native_equal_held_group_seeded.py": "35bce9c85b56f5fbba563f686f20472994556f1151ff3eee5b8f11bc8e3d4bba"
+  },
+  "resource_handoff": {
+    "entry": "run_native_equal_held_group_seeded.py",
+    "one_lock_wait_seconds": 3600,
+    "initial_gpu_clearance_seconds": 300,
+    "poll_seconds": 5,
+    "scope": "Only first GPU boundary before model preflight/CUDA. Whole-group1800s process ceiling includes initial clearance; later boundaries unchanged. No process signals or automatic retry."
+  },
+  "runtime_cache_initial": "TRITON_SEEDED_PRIVATE_OTHER_CACHES_EMPTY",
+  "triton_cache_seed": {
+    "path": "/root/moe-a-victim-20261007/triton-seed-native-r03",
+    "normalized_sha256": "a48b87864b57971f1468421abbd76f142df48adf236b671d9acf9c05d21093df",
+    "files": 279,
+    "key_dirs": 41,
+    "normalized_bytes": 13937676,
+    "source_session": "session-native-host-near-20261007-r03",
+    "source_precedence": [
+      "cell-00-tail-first",
+      "cell-01-host-near-first",
+      "cell-02-host-near-reverse",
+      "cell-03-tail-reverse"
+    ],
+    "key_policy": "First source wins each complete key directory:39 tail-first keys,2 additional host-near-first fused_moe keys; never mix files of a key",
+    "copy_policy": "Independent copies per arm; group child_paths relocated to that arm; extern_libs and compiled bytes unchanged; no previous-arm cache feedback",
+    "development_status": "Already observed exploration data, not independent confirmation"
+  },
+  "diagnostic_question": "Do successful native preemptions occur while external stream arrivals continue, and do initial/stream cohorts coexist in an unblocked legal suffix with tail-capacity-matched alternatives?",
+  "decision_rule": "No new arrival/preemption overlap or no new useful legal state closes this timing point without onset/cadence tuning. If present, inspect action-time states before selecting one bounded intervention; no retired-selector matrix.",
+  "repeat_design": {
+    "maximum_groups": 1,
+    "cells": 1,
+    "no_onset_or_cadence_scan": true
+  },
+  "shared_budget_note": "No expenditure telemetry or known shared remaining monetary budget. One cell, inherited1800s whole-group/1200s cell/600s capture process ceilings; this does not reserve any monetary allowance.",
+  "experiment_role": "MIXED_BUDGET_NATIVE_TAIL_CHARACTERIZATION",
+  "budget_mixture": {
+    "kind": "SYNTHETIC_BUDGET_MIXTURE_DEVELOPMENT_OPPORTUNITY_DIAGNOSTIC",
+    "selection": "First 40 request IDs sorted by (sha256(UTF-8(prefix + request_id)), request_id).",
+    "prefix": "A-budget-mixture-v1:",
+    "short_request_count": 40,
+    "short_max_tokens": 128,
+    "remaining_request_count": 280,
+    "default_max_tokens": 1024,
+    "natural_eos_allowed": true,
+    "semantics": "Assigned maximum output budgets, not future EOS labels. No execution outcomes used. Not a performance-gain comparison with the uniform-budget workload."
+  },
+  "arrival_diagnostic": "FIXED_256_BURST_THEN_64_STREAM_FROM_30S",
+  "resource_revision_reason": "One recent comparable native tail cell occupied about0.54GiB including duplicate outputs/package/runtime caches. Reuse the existing one-cell2GiB disk entrance; shared writes may still cause failure."
+}

@@ -1,0 +1,191 @@
+{
+  "python": "/root/miniconda3/bin/python",
+  "hf_cache_dir": "/root/autodl-tmp/moe-a-20261002/hf",
+  "model_revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+  "model_files": {
+    "config.json": {
+      "bytes": null,
+      "sha256": "3643aa880d2f1c9b418156269ae791c73e5612d6b6b6fde0724d927cf89b6335"
+    },
+    "generation_config.json": {
+      "bytes": null,
+      "sha256": "d77272ffaa7e62a904e8e130bb25ab11585bd4a5026e388d6d682e4b82892ce2"
+    },
+    "model.safetensors.index.json": {
+      "bytes": null,
+      "sha256": "0e2e1e0d8d357ac7af817cff28410c3dbad398f060c517a433e4076b2aae5579"
+    },
+    "special_tokens_map.json": {
+      "bytes": null,
+      "sha256": "b77491e270c6fcc5b2ecf22370f7318a6a18d3cabea09ba7bab92e9bf12656c2"
+    },
+    "tokenizer.json": {
+      "bytes": null,
+      "sha256": "a094266ac6c4982efba277bc251349a5a6d6ad37efb39a2a90f53d8be2a40a40"
+    },
+    "tokenizer_config.json": {
+      "bytes": null,
+      "sha256": "78a839c7851f14f9fb30e664c2b46166dc0628f2900679e5ec160656f702edff"
+    },
+    "model-00001-of-00003.safetensors": {
+      "bytes": 4997744872,
+      "sha256": "5e3cff7e367794685c241169072c940d200918617d5e2813f1c387dff52d845e"
+    },
+    "model-00002-of-00003.safetensors": {
+      "bytes": 4997235176,
+      "sha256": "15ef5c730ee3cfed7199498788cd2faf337203fc74b529625e7502cdd759f4a7"
+    },
+    "model-00003-of-00003.safetensors": {
+      "bytes": 3843741912,
+      "sha256": "a9abac4ac1b55c9adabac721a02fa39971f103eea9a65c310972b1246de76e04"
+    }
+  },
+  "kind": "PRO6000_NATIVE_EQUAL_HELD_ONCE",
+  "arms": [
+    "mixed-budget-tail"
+  ],
+  "authorized_gpu_uuid": "GPU-94203fc3-1021-3a9c-a367-cff792479616",
+  "approved_host_bytes": 128849018880,
+  "lock_path": "/root/autodl-tmp/moe-research-gpu.lock",
+  "source_package": "/root/autodl-tmp/moe-a-victim-20261004/candidate_native_mixed_budget_spread_r01",
+  "session_dir": "/root/moe-a-victim-20261007/session-native-mixed-budget-spread-20261008-r02",
+  "runtime_overlay": "/root/autodl-tmp/moe-a-victim-20261004/runtime-overlay",
+  "per_cell_wall_seconds": 1200,
+  "approved_total_wall_seconds": 1800,
+  "minimum_free_disk_bytes": 4294967296,
+  "package_manifest_sha256": "39bf38a250a18f526344f5b159c1fb95254352e09f8bf4176a3f3fc92d715fa0",
+  "base_commit": "5593b5ff0fb602f479b10f82ca682ba8f9adc86d",
+  "host_differences": {
+    "gpu": "RTX PRO 6000 Blackwell Server Edition, replacement physical UUID on 2026-10-07",
+    "cgroup_limit_bytes": 128849018880,
+    "torch": "2.11.0 with task-private RECORD-only overlay",
+    "transformers": "5.17.0",
+    "comparison": "Within this new-host group only; no old PRO6000 or5090 timings as baseline",
+    "endpoint": "connect.westb.seetacloud.com:25495"
+  },
+  "configuration": {
+    "model": "OLMoE base BF16 pinned",
+    "gpu_kv": "Pinned77135347712 physical bytes measured in session-pro-capacity-20261007-r01/cell-00-profile on the same authorized GPU",
+    "host_kv_gib": 16,
+    "max_model_len": 4096,
+    "max_num_seqs": 384,
+    "max_num_batched_tokens": 1024,
+    "requests_per_case": {
+      "low": 128,
+      "knee": 256,
+      "high": 320
+    },
+    "arrivals": "Same320 request IDs/prompts/budget assignments and order; external arrival i*0.2s, last63.8s; no client-source backpressure",
+    "warmup": "same 32 then384 short plus2long; wide warmup sufficient output steps; clear connector cache before measurement",
+    "cache": "Identical frozen Triton union copied privately before initialization in every arm; every other runtime cache initially empty",
+    "target": "oldest observed paused output request",
+    "trigger_seconds": 1.0,
+    "lease": "q1",
+    "native_victim": "tail only; opportunity characterization",
+    "funding_victim": "tail",
+    "ordinary_admission": false,
+    "max_seconds": 600,
+    "output_budgets": "40 declared caps128 selected by fixed SHA256 of A-budget-mixture-v1:request_id; remaining280 cap1024, EOS allowed"
+  },
+  "primary": "One exploratory spread-arrival native-tail characterization: all-request external-arrival mean flow, raw TTFT/completion/max-gap distributions, throughput, failures/unfinished, realized output and EOS. No victim-policy performance contrast and no new SLO.",
+  "slo": "No application SLO. Inherited20point frontier is diagnostic only.",
+  "hypothesis": "In the prior mixed-budget burst32 of40 short requests finished before first capacity preemption; the two legal near-budget candidates were already spared by native tail. Reusing the original0.2s cadence tests whether continued arrivals alter this completion-versus-pressure ordering under normal capacity.",
+  "claim_ceiling": "One development workload characterization, not independent confirmation, a causal alternate-victim trajectory, application quality, or policy benefit. Only external arrival timing changes; same prompt content/order,40/280 caps, GPU/host/seed/warmup and all runtime mechanisms. A lack of pressure is a valid normal-capacity boundary. Declared remaining budget does not predict natural EOS.",
+  "retention": "Preserve all burst results/failures. One new spread-arrival tail cell; no automatic restart or adaptive arrival-rate scan.",
+  "cells": [
+    {
+      "label": "mixed-budget-tail",
+      "input_case": "high",
+      "native_victim_rule": "tail",
+      "funding_victim_rule": "tail",
+      "profile_only": false,
+      "requests": 320
+    }
+  ],
+  "input_files_sha256": {
+    "pkg/inputs/pro_high/config.json": "19275e8335318f8a0fed81a92581b4f791f6d6fa3f6b982d9bd3199c851f1919",
+    "pkg/inputs/pro_high/stats.json": "f06f304e5bb9896fe3af3ca3512f90cf8ec91facca48406c9da515dc57fd4b4b",
+    "pkg/inputs/pro_high/workload.json": "7d40e7ce40169fb5d0f9e355b93103c62d3a057fcaffbd52fee38484ab9f3b78",
+    "pkg/inputs/pro_knee/config.json": "0bf54f62c46740824a457713b431a25ad991b0fa062644685db7e4944cf27f48",
+    "pkg/inputs/pro_knee/stats.json": "9f27db697ddaad97a1624d1fa40559220d57ae7815521b7b33f00a8a3c6e883e",
+    "pkg/inputs/pro_knee/workload.json": "8188c12a17fe2ac55732701c9ba0568584de1135d4e6814147d2a4e6bbab7280",
+    "pkg/inputs/pro_low/config.json": "70b9462c3800ba590b1d8eadb12aceaa6f793fd00f67e28ef17643d7d863634c",
+    "pkg/inputs/pro_low/stats.json": "4775501d5307a046992e76384788ad5166ca8df22efd97cd97b972b76b4e36c9",
+    "pkg/inputs/pro_low/workload.json": "14ff6d0dc4c5105870532e0905b05a695c654ee1336a67a780f4c58847095017",
+    "pkg/inputs/warmup_short.json": "8cfb22f91f5d31bdb9fb4c27fc4e25f6edc250f63481b22a94e773aa2a45fcd5"
+  },
+  "pinned_gpu_kv_bytes": 77135347712,
+  "capacity_source": "session-pro-capacity-20261007-r01/cell-00-profile/archive/normal_capacity_profile.json",
+  "simple_comparators": "Diagnostic ordinary max remaining declared budget, tie latest suffix index, plus same-held/computed-pages restricted version. Neither is a full CacheOPT implementation or actual alternate trajectory.",
+  "pilot_basis": {
+    "source": "session-native-mixed-budget-probe-20261008-r01",
+    "short_completed_before_first_preemption": 32,
+    "short_total": 40,
+    "near_budget_suffix_candidates": 2,
+    "near_budget_tail_count": 0,
+    "tail_minimum_remaining": 58,
+    "real_preemptions": 40,
+    "diagnostic_basis": "Timing opportunity test only; no nearby arrival-rate or budget sweep."
+  },
+  "controller_files_sha256": {
+    "run_native_group_base.py": "3b642c6dc05e4f913c80b51dddd88e0dc6d544a8330a6e4ab5432cfce38e4a41",
+    "run_native_group_seeded_base.py": "931026841a8a248248bdd1d40afe46e9b0b2ac6e79df46596fb2372bb6d24253",
+    "run_native_host_group.py": "e387b0d040347f6243c47b36078c2385d156bda0254c437c7473a1ae0e83dcc1",
+    "run_native_host_group_wait.py": "f738779195d34a3506eedcd43447dfee5e93fefdd4ed817c318f888497aafa79",
+    "run_native_host_group_handoff.py": "1ba4b922efb170b97caf0c2124dea330d647a60506657f9dc8e1d5fb825d9ee0",
+    "run_native_host_group_seeded.py": "8afbc4e37468387c7ceee175a100b6d996c0b0b5fe5845055ff83fd2422f5e07",
+    "triton_seed.py": "22544d0b58bf47830270af2ec6610854796bdc9b4361aa01e3b2c358293ac4c0",
+    "run_native_equal_held_group.py": "3203e494186f5d0157bc17af80bf715edec6f6d260389e8f8bcfa7956dcd093f",
+    "run_native_equal_held_group_seeded.py": "35bce9c85b56f5fbba563f686f20472994556f1151ff3eee5b8f11bc8e3d4bba"
+  },
+  "resource_handoff": {
+    "entry": "run_native_equal_held_group_seeded.py",
+    "one_lock_wait_seconds": 3600,
+    "initial_gpu_clearance_seconds": 300,
+    "poll_seconds": 5,
+    "scope": "Only first GPU boundary before model preflight/CUDA. Whole-group1800s process ceiling includes initial clearance; later boundaries unchanged. No process signals or automatic retry."
+  },
+  "runtime_cache_initial": "TRITON_SEEDED_PRIVATE_OTHER_CACHES_EMPTY",
+  "triton_cache_seed": {
+    "path": "/root/moe-a-victim-20261007/triton-seed-native-r03",
+    "normalized_sha256": "a48b87864b57971f1468421abbd76f142df48adf236b671d9acf9c05d21093df",
+    "files": 279,
+    "key_dirs": 41,
+    "normalized_bytes": 13937676,
+    "source_session": "session-native-host-near-20261007-r03",
+    "source_precedence": [
+      "cell-00-tail-first",
+      "cell-01-host-near-first",
+      "cell-02-host-near-reverse",
+      "cell-03-tail-reverse"
+    ],
+    "key_policy": "First source wins each complete key directory:39 tail-first keys,2 additional host-near-first fused_moe keys; never mix files of a key",
+    "copy_policy": "Independent copies per arm; group child_paths relocated to that arm; extern_libs and compiled bytes unchanged; no previous-arm cache feedback",
+    "development_status": "Already observed exploration data, not independent confirmation"
+  },
+  "diagnostic_question": "At an existing0.2s external cadence, does normal-capacity pressure coexist with near-budget tail requests and legal alternative victims?",
+  "decision_rule": "One cell only. With real pressure and previously absent near-completion legal tail alternatives, next test a bounded real intervention. If no pressure or no opportunity, close this timing-distribution branch without testing neighboring rates or cap mixtures. Do not call shadow differences service gains.",
+  "repeat_design": {
+    "maximum_spread_characterization_cells": 1,
+    "no_adaptive_arrival_scan": true,
+    "retired_previous_rules": [
+      "host_near",
+      "same-burst equal_held_once"
+    ]
+  },
+  "shared_budget_note": "No expenditure telemetry or known remaining multi-session allowance. 1800s is a process ceiling, not a monetary budget estimate.",
+  "experiment_role": "MIXED_BUDGET_NATIVE_TAIL_CHARACTERIZATION",
+  "budget_mixture": {
+    "kind": "SYNTHETIC_BUDGET_MIXTURE_DEVELOPMENT_OPPORTUNITY_DIAGNOSTIC",
+    "selection": "First 40 request IDs sorted by (sha256(UTF-8(prefix + request_id)), request_id).",
+    "prefix": "A-budget-mixture-v1:",
+    "short_request_count": 40,
+    "short_max_tokens": 128,
+    "remaining_request_count": 280,
+    "default_max_tokens": 1024,
+    "natural_eos_allowed": true,
+    "semantics": "Assigned maximum output budgets, not future EOS labels. No execution outcomes used. Not a performance-gain comparison with the uniform-budget workload."
+  },
+  "arrival_diagnostic": "SAME_MIXED_BUDGET_SPREAD_0_2_SECONDS",
+  "resource_retry_reason": "r01 terminated ABORTED before CUDA/cells because shared root free space fell below unchanged4GiB entrance. Only new session path and this resource note differ; frozen input/source/control/scientific settings unchanged. Re-entry only after verified A archive relocation recovered space and oldPID exited."
+}
