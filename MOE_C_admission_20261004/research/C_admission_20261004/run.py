@@ -145,6 +145,35 @@ def pressure_cadence_population(steady):
             'previous offered rate; fixed trace independent of runtime state. No cap selection.')
 
 
+def paragraph_population(steady, stop_string='\n\n'):
+    """Continue a fixed prefix; preserve the original blank-line profile."""
+    assert stop_string in ('\n', '\n\n')
+    source_line = stop_string == '\n'
+    prompts, sources = [], []
+    for source, full in zip(steady['source_requests'], steady['actual_prompt_token_ids']):
+        prefix = full[:3*len(full)//4]
+        assert 0 < len(prefix) and len(prefix)+1024 <= 4096
+        row = dict(source, prompt_token_count=len(prefix),
+            original_prompt_sha256=source.get('prompt_sha256'),
+            prompt_token_ids_sha256=hashlib.sha256(json.dumps(prefix, separators=(',', ':')).encode()).hexdigest())
+        row.pop('prompt_sha256', None)  # No claim that the old full-text hash covers the new prefix.
+        prompts.append(prefix)
+        sources.append(row)
+    lengths = list(map(len, prompts))
+    return dict(steady, schema=('olmoe-article-prefix-source-line-v1' if source_line
+                               else 'olmoe-article-prefix-paragraph-v1'),
+        source_requests=sources, actual_prompt_token_ids=prompts,
+        input_preparation='First floor(3*N/4) tokens of each existing full article; no outcome-based selection.',
+        output_contract=dict(stop_strings=[stop_string], ignore_eos=False, min_tokens=0, max_tokens=1024,
+            quality_scope=('First generated newline continuation; can end a heading or produce empty text. '
+                'Not guaranteed prose, faithful source completion or equivalent work to another task.' if source_line else
+                'Paragraph boundary task, not a claim of equivalent content to full-article continuation.')),
+        input_stats=dict(requests=len(lengths), minimum=min(lengths), maximum=max(lengths),
+            mean=statistics.mean(lengths), total=sum(lengths),
+            prompt_rounded_pages=sum((n+15)//16 for n in lengths),
+            output_limit_rounded_pages=sum((n+1024+15)//16 for n in lengths)))
+
+
 def validate_burst_selection(accepted, status, pro_input_sha, steady):
     assert accepted['profile'] == 'pro-pressure-dev'
     assert accepted['pro_inputs_file_sha256'] == pro_input_sha
@@ -171,7 +200,10 @@ def main():
         'pro-opportunity-simple-recheck', 'pro-opportunity-native-cap-recheck',
         'pro-opportunity-cadence-scan', 'pro-opportunity-declared-budget',
         'pro-opportunity-declared-budget-matched', 'pro-opportunity-mc-budget',
-        'pro-opportunity-mc-budget-ablation', 'pro-opportunity-mc-budget-phase'), default='controlled')
+        'pro-opportunity-mc-budget-ablation', 'pro-opportunity-mc-budget-phase',
+        'pro-opportunity-paragraph-scan', 'pro-opportunity-source-line-scan',
+        'pro-opportunity-async-scan', 'pro-opportunity-async-simple',
+        'pro-opportunity-async-mc'), default='controlled')
     parser.add_argument('--selection', type=Path)
     parser.add_argument('--liveness-history', type=Path)
     parser.add_argument('--wait-lock-seconds', type=int, default=0)
@@ -189,16 +221,24 @@ def main():
     gc_liveness = args.profile == 'pro-opportunity-gc-liveness'
     native_cap_recheck = args.profile == 'pro-opportunity-native-cap-recheck'
     cadence_scan = args.profile == 'pro-opportunity-cadence-scan'
+    source_line_scan = args.profile == 'pro-opportunity-source-line-scan'
+    async_scan = args.profile == 'pro-opportunity-async-scan'
+    async_simple = args.profile == 'pro-opportunity-async-simple'
+    async_mc = args.profile == 'pro-opportunity-async-mc'
+    async_enabled = async_scan or async_simple or async_mc
+    paragraph_scan = args.profile == 'pro-opportunity-paragraph-scan' or source_line_scan
+    task_stop_string = '\n' if source_line_scan else '\n\n'
+    task_boundary = 'newline' if source_line_scan else 'blank line'
     declared_budget_matched = args.profile == 'pro-opportunity-declared-budget-matched'
     declared_budget_comparison = args.profile == 'pro-opportunity-declared-budget' or declared_budget_matched
     mc_budget_ablation = args.profile == 'pro-opportunity-mc-budget-ablation'
     mc_budget_phase = args.profile == 'pro-opportunity-mc-budget-phase'
     mc_budget = args.profile == 'pro-opportunity-mc-budget' or mc_budget_ablation or mc_budget_phase
     budget_experiment = declared_budget_comparison or mc_budget
-    native_guard_matches_cap = native_cap_recheck or cadence_scan or budget_experiment
+    native_guard_matches_cap = native_cap_recheck or cadence_scan or paragraph_scan or budget_experiment
     simple_recheck = args.profile in ('pro-opportunity-simple-recheck',
                                      'pro-opportunity-native-cap-recheck')
-    observe_gc = gc_liveness or simple_recheck or cadence_scan or budget_experiment
+    observe_gc = gc_liveness or simple_recheck or cadence_scan or paragraph_scan or budget_experiment or async_enabled
     if gc_liveness and args.liveness_history is None:
         parser.error('pro-opportunity-gc-liveness requires --liveness-history')
     reservation = reservation_scan or reservation_probe or headroom_probe
@@ -308,6 +348,8 @@ def main():
             dev = test = pressure_population(dev, test)
             if cadence_scan:
                 dev = test = pressure_cadence_population(dev)
+            if paragraph_scan:
+                dev = test = paragraph_population(dev, task_stop_string)
             pressure_trace_sha = hashlib.sha256(json.dumps(dict(
                 request_ids=[r['request_id'] for r in dev['source_requests']],
                 actual_prompt_token_ids=dev['actual_prompt_token_ids'],
@@ -835,12 +877,109 @@ def main():
                     'interface/domain; no complete benefit retains strict baseline. Benefit '
                     'strengthens known MC, not an original progress-failure claim.',
                 repeat_budget='One adaptation comparison, not independent confirmation.')
+        if paragraph_scan:
+            protocol.update(evidence_role=('NEW_SOURCE_LINE_TASK_BASELINE_OBSERVATION_ONLY' if source_line_scan
+                                           else 'NEW_PARAGRAPH_TASK_BASELINE_OBSERVATION_ONLY'),
+                test_order=['baseline'], test_admission_caps=dict(baseline=256),
+                selection='No policy tuning; one complete cap256/native guard256, KV floor0 baseline.',
+                fixed_baseline_claim_scope='Not a strongest-baseline selection or policy comparison.',
+                output_mode=f'Natural first generated {task_boundary}, EOS, or declared1024 maximum.',
+                stop_strings=[task_stop_string], kv_floor=0, max_signal_wait_s=None,
+                concurrency_comparison='Complete cap256 and native guard256; no extra gate delay.',
+                intervention=dict(kind='new_task_definition_only', policy_intervention=False,
+                    prompt='First floor(3*N/4) tokens of each existing article.',
+                    termination=f'First generated {task_boundary}, natural EOS or1024 maximum.',
+                    arrivals='Same384 source order and external0.1*i times; no backpressure.',
+                    timing='Token TTFT and first visible text reported separately; all costs included.'),
+                prefix_comparison='Different task from v20; no cross-task causal speedup claim.',
+                test_indices='Same seen384 documents; fixed75% token prefixes, not independent confirmation.',
+                stopping_rule='One observation-only baseline; if no capacity/admission loss, close this '
+                    'task/rate domain without raising offered rate, shrinking KV or scanning termination rules. '
+                    'If meaningful loss remains, next test strong simple/MC before any new controller.',
+                repeat_budget='One arm, at most15 minutes held GPU wall time including initialization/warmup.')
+        if async_scan:
+            protocol.update(evidence_role='NATIVE_ASYNC_DEPLOYMENT_OBSERVATION_ONLY',
+                test_order=['baseline'], dev_caps=[], test_admission_caps=dict(baseline=None),
+                diagnostic_cap=None, kv_floor=None, max_signal_wait_s=None,
+                selection='No tuning. Native async FCFS/max-running256; no extra admission gate.',
+                fixed_baseline_claim_scope='Deployment observation only, not a strong-baseline or MC comparison.',
+                concurrency_comparison='Native running limit256; unfinished paused requests remain counted in '
+                    'observation but do not consume an additional complete-inflight controller cap.',
+                admission_count='Observed admitted unfinished includes paused/recovery; native running guard unchanged.',
+                intervention=dict(kind='existing_native_async_scheduling', policy_intervention=False,
+                    changed_from_prior_domain='Async native execution; no sync-only complete-inflight gate.',
+                    workload='Unchanged full384 articles,0.1*i external arrivals,naturalEOS/max1024.',
+                    timing='Host receipt; empty host steps are not token progress. Backend tail is included.'),
+                prefix_comparison='Single native deployment observation; no cross-runtime causal speedup claim.',
+                candidate_status='No execution-share controller or MC adaptation implemented.',
+                stopping_rule='One arm. Normal placeholders/terminal in-flight work are not progress failure. '
+                    'Only substantial non-running/recovery/eligibility loss motivates further strong-baseline '
+                    'and nearest-method adaptation. No new controller or rate/capacity sweep in this group.',
+                repeat_budget='One arm, at most15 minutes held GPU including initialization/warmup.')
+        if async_simple:
+            protocol.update(evidence_role='EXPLORATORY_ASYNC_STRONG_SIMPLE_BASELINES',
+                test_order=['fixed177','declaredbudget','declaredbudget','fixed177'], dev_caps=[],
+                test_admission_caps=dict(fixed177=177, declaredbudget=256), diagnostic_cap=None,
+                kv_floor=0, max_signal_wait_s=None,
+                selection='No new cap tuning. Transfer previously competitive177 and full declaration32768 '
+                    'as two strong simple endpoints; not claimed async-optimal.',
+                fixed_baseline_claim_scope='Matched async simple-rule ABBA; no MC or new-method comparison.',
+                concurrency_comparison='Compiled/native maximum stays256. Fixed complete-inflight cap177 '
+                    'versus declared-budget32768 with complete cap256. Concurrency is the explicit variable.',
+                admission_count='Unique admitted unfinished, including preempted/recovery requests.',
+                intervention=dict(kind='ordinary_complete_cap_vs_full_declared_budget', policy_intervention=True,
+                    workload='Same384 full articles,0.1*i external arrivals,naturalEOS/max1024.',
+                    fixed='No additional growth reservation; complete cap177 plus native physical fit.',
+                    declared='physical_used + sum(max(0,live_declared-live_allocated)) + candidate_declared '
+                        '<=32768. Finished/deferred physical pages remain counted until actually freed.',
+                    timing='Same async measurement, all external wait and backend tail included.',
+                    recovery='Existing admitted work bypasses gates; FIFO preserved for never-started requests.'),
+                admission_wait_rule='No age exemption. Native progress/recovery unchanged; report all arrivals '
+                    'at common240s deadline. Removing a gate is not a bounded total-wait guarantee.',
+                prefix_comparison='Separate full-strategy runs; internal trajectories need not match.',
+                candidate_status='Ordinary baseline adaptation only; no execution-share or MC controller.',
+                stopping_rule='One ABBA. If simple rules cover major tail loss with similar full-service '
+                    'tradeoffs, reject native overloading as evidence for a new principle. Important '
+                    'remaining queue cost motivates correct MC async adaptation before any new method. '
+                    'No threshold/grid search; retain output changes, reversals and failures.',
+                repeat_budget='Four arms, at most15 minutes held GPU including initialization/warmups.')
+        if async_mc:
+            protocol.update(evidence_role='EXPLORATORY_EXISTING_MC_ASYNC_ADAPTATION',
+                test_order=['declaredbudget','asyncmc','asyncmc','declaredbudget'], dev_caps=[],
+                test_admission_caps=dict(declaredbudget=256, asyncmc=256), diagnostic_cap=None,
+                kv_floor=0, max_signal_wait_s=None,
+                selection='No tuning. Full declaration budget versus conservative existing MC '
+                    'future-peak adaptation with fixed two-round retirement lag.',
+                fixed_baseline_claim_scope='Matched native async nearest-method component adaptation; '
+                    'not a novel controller or independent confirmation.',
+                concurrency_comparison='Complete/native/compiled maximum256 in both arms; only '
+                    'ordinary full-budget denials may be relaxed by guarded future capacity.',
+                admission_count='Unique admitted unfinished, including preempted/recovery requests.',
+                intervention=dict(kind='existing_MC_future_peak_async_component_adaptation',
+                    policy_intervention=True, release_lag_rounds=2,
+                    workload='Same384 full articles,0.1*i external arrivals,naturalEOS/max1024.',
+                    baseline='Physical used plus live unallocated full declarations and new full declaration.',
+                    mc='Reuse existing peak_envelope with old n=computed+scheduled, '
+                        'r=max_tokens-processed_output+2; retain nonlive physical pages as a constant. '
+                        'Virtual old growth beyond the full declaration is conservative.',
+                    guard='All old requests eligible resident decode with one scheduled token; '
+                        'pinned native FIFO batch depth2, no speculative/rollback or eligibility changes.',
+                    timing='All external wait, control cost, natural output differences and backend tail included.',
+                    recovery='Existing requests bypass new admission; no scheduling or recovery changes.'),
+                admission_wait_rule='No age exemption; common240s complete observation deadline. '
+                    'Native progress/recovery unchanged. No guarantee of bounded total waiting.',
+                prefix_comparison='Separate full strategies; no same-state causal branch claim.',
+                candidate_status='Existing MC component adaptation, not execution-share allocation or selective credit.',
+                stopping_rule='One ABBA, at most4 arms. If first MC arm has zero executed relaxations, '
+                    'stop after its full drain; retain both arms and diagnose the actual fallback once. '
+                    'No threshold search. Gains belong to prior MC; absence of gains is domain-specific.',
+                repeat_budget='At most four arms and15 minutes held GPU including initialization/warmups.')
         dump(out/'protocol.json', protocol)
         kwargs = dict(model=config['model']['id'], revision=config['model']['revision'],
             tokenizer_revision=config['model']['tokenizer_revision'], dtype='bfloat16', seed=config['seed'],
             max_model_len=4096, max_num_seqs=engine_max, max_num_batched_tokens=1024,
             gpu_memory_utilization=.90, enable_chunked_prefill=True, enable_prefix_caching=False,
-            scheduling_policy='fcfs', async_scheduling=False, kv_cache_memory_bytes=kv_bytes,
+            scheduling_policy='fcfs', async_scheduling=async_enabled, kv_cache_memory_bytes=kv_bytes,
             scheduler_reserve_full_isl=True, stream_interval=1, enforce_eager=False,
             enable_return_routed_experts=False, kv_offloading_size=16, kv_offloading_backend='native',
             kv_transfer_config={'kv_connector_extra_config': {'offload_prompt_only': False}})
@@ -854,6 +993,11 @@ def main():
         assert scheduler.kv_cache_manager.block_pool.get_num_free_blocks() == usable_pages
         assert host_snapshot(engine)['cpu_kv']['unique_storage_bytes'] == 16*1024**3
         assert memory_snapshot(engine, torch)['kv_storage_bytes'] == kv_bytes
+        if async_mc:
+            from async_mc import qualify as qualify_async_mc
+            # Fail an incompatible static deployment before spending a full
+            # baseline arm; this does not install a policy or schedule requests.
+            qualify_async_mc(scheduler, engine.engine_core.engine_core, 256, usable_pages)
 
         def cell(label, mode, cap, selected, probe_enabled=False, release_mode='timer', reservation_enabled=False,
                  retain_history=False):
@@ -873,7 +1017,8 @@ def main():
                     ww['actual_prompt_token_ids'] = [base_tokens[i%len(base_tokens)] for i in range(count)]
                 wc.update(cap=warm_cap, output_tokens=16, output_tokens_by_request={}, ignore_eos=True, min_tokens=16)
                 set_empty_admission_cap(engine, warm_cap)
-                wr = measure_episode(engine, ww, wc, 'steady', 1., label+'warm'+str(warm_cap), max_seconds=120)
+                wr = measure_episode(engine, ww, wc, 'steady', 1., label+'warm'+str(warm_cap), max_seconds=120,
+                                     **(dict(allow_async=True) if async_enabled else {}))
                 dump(path/f'warmup-{domain}-{warm_cap}.json', wr)
                 assert wr['status'] == 'COMPLETE'
                 del wr
@@ -882,9 +1027,20 @@ def main():
             native_running_cap = cap if native_guard_matches_cap else engine_max
             set_empty_admission_cap(engine, native_running_cap)
             assert scheduler.kv_cache_manager.block_pool.get_num_free_blocks() == usable_pages
-            cell_kv_floor = 0 if (gc_liveness or budget_experiment or
+            cell_kv_floor = 0 if (gc_liveness or paragraph_scan or budget_experiment or async_simple or async_mc or
                                  (simple_recheck and mode == 'fixed')) else kv_floor
-            if opportunity:
+            if async_mc and mode == 'async_mc':
+                from async_mc import install as install_async_mc
+                gate, uninstall = install_async_mc(scheduler, engine.engine_core.engine_core,
+                    cap=cap, budget_blocks=usable_pages)
+            elif async_simple or async_mc:
+                from async_simple import install as install_async_simple
+                gate, uninstall = install_async_simple(scheduler, mode=mode, cap=cap,
+                                                       budget_blocks=usable_pages)
+            elif async_scan:
+                from async_observer import install as install_async_observer
+                gate, uninstall = install_async_observer(scheduler)
+            elif opportunity:
                 if mc_budget and mode in ('mc_budget', 'mc_budget_capped', 'mc_budget_static', 'mc_budget_phase'):
                     from mc_budget import install as install_mc_budget
                     gate, uninstall = install_mc_budget(scheduler, cap=cap,
@@ -937,8 +1093,28 @@ def main():
                     'selection and comparison; not independent confirmation.' if pressure else
                     'Historically seen source corpus; normal-profile dev/test are document-disjoint within C.'),
                 source='See frozen workload.json / pro_inputs provenance' if pro else config['source'])
-            dump(path/'config.json', dict(cc, admission_mode=mode, native_running_limit=native_running_cap,
-                                        admission_cap=cap, kv_floor=cell_kv_floor,
+            if paragraph_scan:
+                cc.update(stop_strings=[task_stop_string], ignore_eos=False, min_tokens=0,
+                    input_independence='Exploratory seen documents with fixed75% prefixes; new task, not independent confirmation.',
+                    prompt_tokens_semantics='First floor(3*N/4) tokens of each original full article.',
+                    output_tokens_semantics=f'Declared1024 maximum; natural EOS or first generated {task_boundary} may stop earlier.')
+            if async_scan:
+                cc.update(async_scheduling=True, policy_intervention=False,
+                    admission_rule='Native max-running256; no added complete-inflight cap or KV gate.',
+                    admission_cap=None, cap=None, kv_floor=None)
+            if async_simple or async_mc:
+                cc.update(async_scheduling=True, policy_intervention=True,
+                    admission_rule='Complete cap177 with native fit' if mode == 'fixed' else
+                        'Existing guarded MC peak with actual async allocation position and release lag2.'
+                        if mode == 'async_mc' else
+                        'Full declared growth reservation plus all physically retained pages; cap256.',
+                    admission_cap=cap, cap=cap, kv_floor=0,
+                    admission_wait_rule=protocol['admission_wait_rule'],
+                    budget_blocks=usable_pages if mode in ('declared_budget','async_mc') else None)
+            dump(path/'config.json', dict(cc, admission_mode='native_async' if async_scan else mode,
+                                        native_running_limit=native_running_cap,
+                                        admission_cap=None if async_scan else cap,
+                                        kv_floor=None if async_scan else cell_kv_floor,
                                         native_admission_guard_matches_complete_cap=native_guard_matches_cap,
                                         **(dict(record_gc=True, history_retained=retain_history,
                                             admission_rule='complete cap192; KV floor0, no extra delay')
@@ -975,6 +1151,9 @@ def main():
                                            if mc_budget_ablation or mc_budget_phase else {}),
                                         **(dict(allow_scheduled_prefill=mode == 'mc_budget_phase')
                                            if mc_budget_phase else {}),
+                                        **(dict(record_gc=True, history_retained=False,
+                                            admission_rule='Complete cap256/native guard256; KV floor0; no extra delay.',
+                                            policy_intervention=False) if paragraph_scan else {}),
                                         **(dict(declared_budget_matched_calibration=declared_budget_matched_calibration)
                                            if declared_budget_matched else {}),
                                         **(dict(probe_enabled=probe_enabled,
@@ -984,10 +1163,12 @@ def main():
                                             reservation_signal_kind=(None if observe_gc else
                                                 'fixed_headroom' if headroom_probe else 'known_prefill'),
                                             fixed_headroom_blocks=32 if headroom_probe else None,
-                                            admission_count='complete_unique_unfinished',
+                                            admission_count=('observed_complete_unique_unfinished' if async_scan
+                                                             else 'complete_unique_unfinished'),
                                             delay_s=None if reservation or observe_gc else .1,
                                             reservation_min_hold_s=0 if reservation else None,
-                                            hard_gate_deadline_s=None if observe_gc else .25) if opportunity else {})))
+                                            hard_gate_deadline_s=None if observe_gc else .25) if opportunity else {}),
+                                        **(dict(policy_intervention=False) if async_scan else {})))
             dump(path/'workload.json', selected)
             if gc_liveness:
                 history_holder = read(args.liveness_history)
@@ -1012,7 +1193,8 @@ def main():
             started = time.perf_counter()
             try:
                 raw = measure_episode(engine, selected, cc, 'steady', 1., label, max_seconds=240,
-                                      record_preemptions=True, **(dict(record_gc=True) if observe_gc else {}))
+                                      record_preemptions=True, **(dict(record_gc=True) if observe_gc else {}),
+                                      **(dict(allow_async=True) if async_enabled else {}))
             finally:
                 report = uninstall()
                 dump(path/'admission.json', report)
@@ -1031,11 +1213,13 @@ def main():
                 raise RuntimeError('Incomplete cell '+label+': '+str(raw['error']))
             return raw
 
+        stopped_for_zero_mc_actions = False
         if opportunity:
             best = 192 if gc_liveness else 256
             for i, variant in enumerate(protocol['test_order']):
                 mode = ('fixed' if gc_liveness or variant in ('fixed128', 'fixed177', 'fixed192') else
                         'declared_budget' if variant == 'declaredbudget' else
+                        'async_mc' if variant == 'asyncmc' else
                         'mc_budget' if variant == 'mcbudget' else
                         'mc_budget_capped' if variant == 'mccapped' else
                         'mc_budget_phase' if variant == 'mcphase' else
@@ -1047,6 +1231,11 @@ def main():
                     release_mode='output_progress' if variant == 'progress' else 'timer',
                     reservation_enabled=variant in ('reservation', 'headroom32'),
                     retain_history=gc_liveness and variant == 'retained')
+                if async_mc and i == 1:
+                    mc_report = read(out/f'probe-{i:02d}-{variant}'/'admission.json')['mc_budget']
+                    if mc_report['successful_relaxations'] == 0:
+                        stopped_for_zero_mc_actions = True
+                        break
         elif accepted is None:
             if not pressure:
                 cell('dev-native'+str(engine_max), 'native', engine_max, dev)
@@ -1083,7 +1272,9 @@ def main():
                 cap = engine_max if pressure and mode in ('kv', 'recovery') else best
                 cell(f'test-{i:02d}-{mode}', mode, cap, test)
         dump(out/'status.json', dict(status='COMPLETE',
-            selected_cap=None if simple_recheck or cadence_scan else best, finished_unix=time.time()))
+            selected_cap=None if simple_recheck or cadence_scan or paragraph_scan or async_enabled else best,
+            **(dict(stopped_for_zero_mc_actions=stopped_for_zero_mc_actions) if async_mc else {}),
+            finished_unix=time.time()))
     except BaseException as exc:
         dump(out/'status.json', dict(status='FAILED', error=repr(exc), traceback=traceback.format_exc()))
         raise

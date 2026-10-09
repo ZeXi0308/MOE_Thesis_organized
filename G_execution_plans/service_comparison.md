@@ -1,5 +1,7 @@
 # G 完整服务对照状态
 
+**2026-10-09已关闭当前候选投入，以下为归档证据，不是待执行矩阵。** 容量账表、精确阈值与可入论文的适用边界见 [capacity_boundary.md](capacity_boundary.md)，可用本地 `archive_capacity.py` 从原件复算。本次归档未启动GPU、未补dense，失败启动和未运行记录保留。
+
 **G 完整服务主对照未执行，不能报告相对收益。** 重审后已执行CPU容量包络与一个compact真实启动，dense因锁忙未运行。三层假设分开评估；不再以旧A/B/C或10%线机械决定一般问题。NA 是未测，不是零。
 
 ## 本轮有区分力的结果
@@ -17,7 +19,7 @@
 | graph估计 / 正式capture / 引擎启动 | 2.291 / 3.316 / 35.932 s | NA |
 | 完整吞吐、尾延迟、输出正确性比较 | 未运行 | 未运行 |
 
-来源：`evidence/review_20261008/compact.json`、`dense.json`、`startup_summary.json`，机器可读表 `startup_results.csv`。compact进程45.472秒（含导入、建引擎和退出），dense在0.115秒内锁忙退出，未初始化CUDA。顺序为compact→dense尝试，只有一个独立启动，无性能重复或噪声估计，不能估组合间效应。
+来源：`evidence/review_20261008/compact.json`、首次`dense.json`、`startup_summary.json`，机器可读表 `startup_results.csv`。compact进程45.472秒（含导入、建引擎和退出），首次dense在0.115秒内锁忙退出。连同后续原件，dense共四次尝试均未初始化CUDA；清单见`evidence/capacity_ledger.json`。只有一个独立完成的启动，无性能重复或噪声估计，不能估组合间效应。
 
 **范围明确的结论：**当前compact运行时的单KV group、16-token blocks、零lookahead/watermark、无prefix/spec/connector、同步设置已核验。冻结high所有请求同时达到上限仍放得下，所以在该端点运行这批有限请求时，KV不可能触发分配失败或准入等待；这不是实测服务吞吐。相对旧峰值余量论据，容量包络允许执行时间与batch轨迹改变。dense尚未测，不能推广到所有组合；即使两端点都覆盖，也不能无条件借桶包含关系推出任意subset的内存单调性。
 
