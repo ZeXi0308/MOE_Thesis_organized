@@ -84,6 +84,9 @@ def request_rows(raw):
         observed_gap = max(gaps, default=0.0) if times else None
         complete_gap = observed_gap if completed else None
         stop = source.get('stop_reason', source.get('finish_reason'))
+        string_stop = (completed and stop == 'stop' and
+            isinstance(source.get('native_stop_reason'), str) and
+            source['native_stop_reason'] in raw.get('task_termination', {}).get('stop_strings', []))
         submit = source.get('admission_s')
         if submit is not None and (not finite(submit) or submit < arrival):
             raise ValueError(f'invalid engine submission timestamp: {rid}')
@@ -101,9 +104,16 @@ def request_rows(raw):
                 if times and not completed else observed_gap),
             prompt_tokens=source.get('prompt_tokens'), max_output_tokens=source.get('max_output_tokens'),
             output_tokens=len(tokens), stop_reason=stop,
-            natural_stop=completed and stop == 'stop', length_stop=completed and stop == 'length',
+            natural_stop=completed and stop == 'stop' and not string_stop,
+            length_stop=completed and stop == 'length',
             output_token_ids_sha256=hashlib.sha256(json.dumps(tokens, separators=(',', ':')).encode()).hexdigest(),
             error=source.get('error')))
+        if 'task_termination' in raw:
+            visible = source.get('first_visible_text_s')
+            rows[-1].update(string_stop=string_stop, native_stop_reason=source.get('native_stop_reason'),
+                first_visible_text_s=visible,
+                visible_text_ttft_s=visible-arrival if visible is not None else None,
+                visible_text_chars=len(source['output_text']) if source.get('output_text') is not None else None)
     return rows
 
 
@@ -195,6 +205,7 @@ def analyze_cell(cell):
         completed_requests_per_s=outcomes['completed']/duration if duration else None,
         stop_reasons=dict(collections.Counter(str(r['stop_reason']) for r in rows)),
         natural_stop_count=sum(r['natural_stop'] for r in rows),
+        string_stop_count=sum(r.get('string_stop', False) for r in rows),
         length_stop_count=sum(r['length_stop'] for r in rows),
         host_chunk_diagnostics=raw.get('host_chunk_diagnostics'),
         joint_slo_grid=grid, admission=controller_summary(admission))

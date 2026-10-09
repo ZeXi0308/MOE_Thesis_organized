@@ -1,0 +1,78 @@
+{
+  "base_commit": "5593b5f",
+  "dev_indices": "No new development sweep in this diagnostic",
+  "test_indices": "Same 384 interleaved articles and 0.1s trace as pressure exploration",
+  "native_dev_reference": null,
+  "dev_caps": [],
+  "test_order": [
+    "baseline"
+  ],
+  "selection": "No tuning. Native async FCFS/max-running256; no extra admission gate.",
+  "fixed_baseline_claim_scope": "Deployment observation only, not a strong-baseline or MC comparison.",
+  "kv_floor": null,
+  "recovery_high": null,
+  "recovery_clear": null,
+  "sample_interval_s": null,
+  "max_signal_wait_s": null,
+  "run_timeout_s": 240,
+  "prompt_arrival_gap_s": 0.1,
+  "output_mode": "natural EOS or max 1024; no future output length read",
+  "slo_grid": {
+    "ttft": [
+      2,
+      5,
+      10,
+      20,
+      40
+    ],
+    "max_gap": [
+      0.25,
+      0.5,
+      1,
+      2
+    ],
+    "completion": 120
+  },
+  "slo_role": "Exploratory full 20-point surface, not an application SLO or chosen headline.",
+  "invariants": "Native running scheduling, victim tail, recovery path, transfer and quantum unmodified.",
+  "reset": "Same engine/compiled shapes; identical warmup per cell then connector reset; fresh policy state.",
+  "lock": "/root/autodl-tmp/moe-research-gpu.lock",
+  "host_budget_bytes": 118111600640,
+  "model": {
+    "dtype": "bfloat16",
+    "id": "allenai/OLMoE-1B-7B-0924",
+    "key": "olmoe",
+    "revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5",
+    "tokenizer_revision": "6d84c48581ece794365f2b8e9cfb043c68ade9c5"
+  },
+  "input_sha256": "10493039c7f704a45d1a209c47a2b87c2de5947b9464f921b1495721a0d328e4",
+  "profile": "pro-opportunity-async-scan",
+  "usable_kv_pages": 32768,
+  "native_max_seqs": 256,
+  "pro_inputs_file_sha256": "6b6be96f8fec6e92b6e59390bab0fe414aeafdaab9539000d88050f8bbf22d25",
+  "evidence_role": "NATIVE_ASYNC_DEPLOYMENT_OBSERVATION_ONLY",
+  "host_kv_gib": 16,
+  "max_model_len": 4096,
+  "precision": "bfloat16; no rope extension",
+  "population": 384,
+  "trace_sha256": "34513450387479b4257f7a01ea9042056667466b4ade5e0c137aa1f0fadb8632",
+  "trace_hash_contents": "Ordered request IDs, actual prompt token IDs, and external arrival traces",
+  "workload_sha256": "7723a0b4e88ba647da79e658cd596e00337075ea761d8692c47c494ee018533d",
+  "concurrency_comparison": "Native running limit256; unfinished paused requests remain counted in observation but do not consume an additional complete-inflight controller cap.",
+  "test_admission_caps": {
+    "baseline": null
+  },
+  "admission_count": "Observed admitted unfinished includes paused/recovery; native running guard unchanged.",
+  "diagnostic_cap": null,
+  "intervention": {
+    "kind": "existing_native_async_scheduling",
+    "policy_intervention": false,
+    "changed_from_prior_domain": "Async native execution; no sync-only complete-inflight gate.",
+    "workload": "Unchanged full384 articles,0.1*i external arrivals,naturalEOS/max1024.",
+    "timing": "Host receipt; empty host steps are not token progress. Backend tail is included."
+  },
+  "prefix_comparison": "Single native deployment observation; no cross-runtime causal speedup claim.",
+  "candidate_status": "No execution-share controller or MC adaptation implemented.",
+  "stopping_rule": "One arm. Normal placeholders/terminal in-flight work are not progress failure. Only substantial non-running/recovery/eligibility loss motivates further strong-baseline and nearest-method adaptation. No new controller or rate/capacity sweep in this group.",
+  "repeat_budget": "One arm, at most15 minutes held GPU including initialization/warmup."
+}

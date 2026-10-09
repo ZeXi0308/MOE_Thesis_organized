@@ -12,6 +12,36 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 
 
+def capacity_regime(comparisons, workloads, required_plans):
+    """Diagnostic for the declared candidate set, never an online selector."""
+    regimes = {}
+    for label in workloads:
+        verified = {}
+        for plan in required_plans:
+            runs = [r for r in comparisons if r['plan'] == plan]
+            # A missing, ambiguous or invalid endpoint cannot certify the set.
+            if (len(runs) == 1 and runs[0].get('startup_domain_verified')
+                    and runs[0]['status'] == 'STARTUP_COMPLETE_NO_SERVICE_RUN'):
+                verified[plan] = runs[0]['coverage'][label]['capacity_nonbinding_proven']
+        unresolved = [p for p in required_plans if p not in verified]
+        if not required_plans or unresolved:
+            state = 'UNDETERMINED'
+        elif all(verified.values()):
+            state = 'EXECUTION_COST_ONLY'
+        else:
+            state = 'CAPACITY_NOT_EXCLUDED_REQUIRE_SERVICE_EVIDENCE'
+        regimes[label] = dict(state=state, unresolved_plans=unresolved,
+                             nonbinding_proven_plans=[p for p,v in verified.items() if v],
+                             capacity_not_excluded_plans=[p for p,v in verified.items() if not v])
+    return dict(required_plans=required_plans, workloads=regimes,
+                scope='Only the frozen finite workloads and declared measured plans; no memory monotonicity inference',
+                service_capacity_effect_measured=False,
+                execution_cost_only_meaning='Rank by measured execution and service costs; no execution winner is established here',
+                lower_capacity_meaning='Below the sufficient envelope is not proof of binding capacity or joint optimization value',
+                deployment_rule='Joint KV reasoning needs evidence that plan memory changes admission, preemption or supported context',
+                future_information='Offline finite-workload diagnostic; not future knowledge available to an online policy')
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--startup', action='append', type=Path, default=[])
@@ -73,6 +103,9 @@ def main():
                                            capacity_nonbinding_proven=bool(verified and usable>=v['all_requests_max_blocks']))
                                     for k,v in result['workloads'].items()})
         result['startup_comparisons'].append(record)
+    frozen = json.loads((ROOT/'evidence/review_endpoint_config.json').read_text())
+    result['capacity_first_decision'] = capacity_regime(
+        result['startup_comparisons'], result['workloads'], frozen['plans'])
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2, ensure_ascii=False)+'\n')
     print(json.dumps(result, indent=2, ensure_ascii=False))
