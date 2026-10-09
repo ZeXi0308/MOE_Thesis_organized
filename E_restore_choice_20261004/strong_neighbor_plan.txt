@@ -36,3 +36,7 @@ E接口只读核对selector.py的lookup/allocated/update；未读取当前排队
 2026-10-07 版本元数据补核：CacheOPT 当前最新 v2（2025-03-24），增加作者 Masahiro Tanaka，abs未列正式出版信息或作者代码入口（https://arxiv.org/abs/2503.13773）。Stream2LLM 最新 v3（2026-05-17），comments为 Accepted to MLSys 2026 / Minor formatting fixes；v2（2026-04-22）注明扩展评估、统一baseline命名和增加代码链接（https://arxiv.org/abs/2604.16395v2，https://arxiv.org/abs/2604.16395）。当前代码链接仍指 https://github.com/rajveerb/stream2llm/tree/mlsys_artifact 。上述方法审查明确基于v1全文及固定commit，不能称v1最新；仅元数据没有已确认推翻适配接口的依据，但也不能据此断言新版全文选择器语义不变。
 
 2026-10-08 限定全文补核：CacheOPT最新v2 §2.5/3.5仍比较双向swap与重算，固定硬件/模型离线profiling、回归交点长度阈值（https://arxiv.org/html/2503.13773v2）。Stream2LLM最新v3 §2.2/4.3仍在抢占时比较双向交换和重算，使用idle-system静态profile，动态争用更新仍为讨论；piecewise-linear文述与固定commit二次拟合差异保留（https://arxiv.org/html/2604.16395v3）。本次只核对相关段落，未做整篇diff；未发现改变当前恢复点增量适配的语义更新或新增选择器专属对照。不得套用roundtrip曲线、除以二或扣估计STORE。
+
+2026-10-09 当前执行状态补充：上面的静态成本选择器是待需要时可采用的组件适配方案，不是现在应自动启动的校准任务。async/inline强简单端点已真实执行、当前域没有主完成目标收益；新增完整服务动作价值成立前，不为保留旧候选单独补成本表。UnboxKV的官方Zipf容量翻转及其恢复开销口径不能作为E已有交叉点的证据，限定详见related_work.txt。BASELINE_GPU_UNRUN状态不变。
+
+2026-10-09 新近邻与基线配置缺口：MTDS（https://link.springer.com/article/10.1007/s40747-025-02200-4）在已有DRAM前缀上按历史成本选择全/部分加载或重算，已覆盖后付STORE的基本决策概念。若未来恢复选择出现价值，静态比较不得强制为单一单调长度阈值；应允许本机成本曲线支持的非单调区域，并明确组件适配与完整复现的区别。CONCUR（https://arxiv.org/html/2601.22705v1）的agentic准入/HiCache端点不是E恢复点基线。当前不移植二者整套控制。新增最优先动作是核实本runner硬编码enforce_eager=True造成的基线限制：保留旧域结论，使用同一栈默认优化执行做一组固定H/R；不将普通执行配置收益写成E创新。

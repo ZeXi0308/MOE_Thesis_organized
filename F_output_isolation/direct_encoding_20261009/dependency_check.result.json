@@ -1,0 +1,33 @@
+{
+  "ok": true,
+  "performance_claim": false,
+  "gpu_used": false,
+  "controlled_blocking": "threading.Event per encode; event released only after dependency assertion",
+  "same_ready_batch": true,
+  "checks": {
+    "plain_delivered_while_heavy_encoder_blocked": true,
+    "heavy1_delivered_while_heavy2_encoder_blocked": true,
+    "generation_state_eager_and_equal": true,
+    "full_native_sse_semantics_equal": true,
+    "processor_abort_returns_while_encoder_blocked": true,
+    "full_abort_response_equal_after_metadata_ready": true,
+    "late_aborted_output_ignored": true,
+    "sse_consumer_cancels_while_encoder_blocked": true,
+    "disconnected_response_completion_claimed": false,
+    "running_native_encoding_is_preempted": false
+  },
+  "semantic_sha256": "6facb874b4da3aa61d30ae848abeadd7a30773afda3fb367b7feef283669379e",
+  "abort_semantic_sha256": "c9771c7ffc3d7a44b8d9e0f84a7717b96249e9d54be8979c3b1a7e3de30edc6b",
+  "bridge_stats": {
+    "rows": 10,
+    "fallback_rows": 0,
+    "batch_calls": 2,
+    "encoded_bytes": 19210,
+    "packing_cpu_ns": 25333,
+    "encoding_cpu_ns": 2680708,
+    "fallback_cpu_ns": 0,
+    "request_jobs": 2,
+    "request_wait_ns": 9827858
+  },
+  "limitation": "A single encoding worker still serializes heavy jobs; later jobs do not bypass earlier blocked jobs."
+}

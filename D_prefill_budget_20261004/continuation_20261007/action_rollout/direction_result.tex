@@ -1,0 +1,101 @@
+% Paper-ready chapter fragment; uses booktabs. Evidence cutoff: 2026-10-09 CST.
+% Sources: demand53005_02/{demand_results,service_decomposition}.json,
+% refresh53005_01/fixed_results.json, action_rollout/{warm_validation,three_states}.json.
+% Separate GPU groups are not pooled. The bounded GPU probe is UNRUN.
+\section{Does calibrated batch evolution provide incremental decision value?}
+\label{sec:d-calibrated-decision}
+
+We study whether state-dependent prefill budgets improve complete-service
+outcomes beyond a tuned fixed budget, rather than merely advancing one request's
+first output. The deployment is BF16 OLMoE on one RTX PRO 6000 Blackwell using
+vLLM 0.26, a 90\% GPU-memory target, 192 sequence slots, and 588,032 usable KV
+tokens. The seen development trace contains 256 open-loop requests, 538,597
+prompt tokens, and 114,688 fixed output tokens. Only the prefill budget changes;
+native admission, FCFS order, decode progress, recovery, precision, and kernels
+remain common. Our research contract requires TTFT $\leq4$ s, per-request maximum
+generation gap $\leq100$ ms, and completion latency $\leq20$ s. These thresholds
+are research assumptions, not validated application SLOs. Goodput is the number
+of jointly qualifying requests divided by the full elapsed time, including drain
+and control costs.
+
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{p{0.25\linewidth}p{0.32\linewidth}p{0.34\linewidth}}
+\toprule
+Evidence and comparison & Local or waiting effect & Complete or cohort outcome \\
+\midrule
+GPU: demand vs. fixed1024; two contemporaneous pairs
+& Mean TTFT $+1.637/+1.632$ s; generation span $-0.878/-0.951$ s
+& Mean flow $+0.759/+0.681$ s; qualified $-32/-30$; goodput $-19.89/-18.72\%$ \\
+GPU: fixed2048 vs. fixed1024; separate contemporaneous pairs
+& TTFT p95 $-81.62/-83.08\%$; output throughput $+0.765/+0.837\%$
+& Qualified $178/178$ vs. $183/183$; goodput $-1.99/-1.92\%$ \\
+Model only: temporary2048 vs. 1024, high-decoder state
+& First step $+5.951$ ms; head first output $-83.238$ ms
+& Head completion $-16.702$ ms; known-cohort mean flow $+0.966$ ms; qualified $126\to126$ \\
+Frozen bounded GPU probe
+& Unrun: zero warmups and formal runs
+& No measured intervention or service effect \\
+\bottomrule
+\end{tabular}
+\caption{Evidence for the decision-value question. Slashes retain both
+run-level comparisons, not confidence intervals. GPU groups have their own
+contemporaneous controls and are not pooled. The model row drains 133 currently
+known requests and excludes future arrivals; it is not full-trace goodput.}
+\label{tab:d-decision-value}
+\end{table}
+
+Under the research SLO of 4 s TTFT, 100 ms maximum generation gap, and 20 s
+completion, the demand rule reduced measured goodput by 19.89\% and 18.72\% in
+two reversed GPU pairs. Despite 727 and 726 actual interventions, it reduced
+mean generation span by 0.878/0.951 s but increased TTFT by 1.637/1.632 s,
+raising mean flow time by 0.759/0.681 s. It gained 13 qualifying requests but
+lost 45/43; all qualification failures concerned completion. In a separate
+contemporaneous comparison, fixed2048 also reduced goodput by 1.99\%/1.92\%
+relative to fixed1024; these groups are not pooled as controls. A simulator
+calibrated from warmup reproduced the demand rule's adverse direction in a
+seen-data explanatory check. Yet, at a state with 131 decoders, temporarily
+using 2048 until the head's first output predicted only a local tradeoff: the
+first step grew by 5.951 ms, head first output advanced by 83.238 ms, and head
+completion advanced by 16.702 ms, while mean flow increased by 0.966 ms and
+qualifications remained 126. This prediction drains only currently known
+requests, excluding future arrivals. It does not establish full-service value
+beyond fixed1024. The frozen GPU probe remains unrun. Fixed output lengths do
+not establish identical content or quality. Two repeats per arm support
+exploratory comparisons, not statistical confirmation.
+
+All 256 requests completed in each measured GPU run, with no failures,
+rejections, timeouts, unfinished requests, or preemptions. The demand rule
+rescued the same 13 of the baseline's 73 completion violations but introduced
+45/43 new completion violations; no TTFT or gap violation explains its loss.
+Its total elapsed time increased by 1.479/1.412 s. Thus TTFT feasibility is
+insufficient to protect completion slack. In the separate fixed-budget group,
+2048 lost five qualifications and gained none despite draining faster.
+These are complete-policy observations, not matched-state causal effects.
+
+Calibration used 5,715 existing fixed-budget warmup steps, the original two
+affine cost regimes, and an estimated 270.29~$\mu$s busy host-loop gap. The demand
+policy retained its original predictor. Formal outcomes were not used to fit
+the model. An unaligned compilation warning in the first warmup was retained,
+so the fit is not claimed to be compilation-free. The calibrated model predicts
+a $+0.620$ s mean-flow penalty for demand, versus $+0.759/+0.681$ s measured.
+This explains a failure direction on already-seen data; it does not validate
+counterfactual action ranking. All three preselected low/middle/high decoder
+states prefer the larger action by conditional drain time, with unchanged
+qualification counts. They therefore provide no demonstrated state-dependent
+preference reversal or advantage that a simple larger budget cannot explain.
+
+\paragraph{Decision and remaining limit.}
+We retain fixed1024 and stop developing the current dynamic-budget route as
+an independent method contribution. The supported material is an adaptation
+of known scheduling principles, ordinary cost calibration, and a scoped
+negative result about waiting--generation tradeoffs. It is not a proof that
+state-aware chunking is generally ineffective, nor a sufficient independent
+measurement contribution. The remaining bounded action probe was not executed
+because the shared GPU was occupied; storage had recovered, no D process was
+submitted, and no lock wait was started. Its frozen two-warmup, F/X/X/F design
+is preserved. A positive future probe would establish only action value versus
+its contemporaneous fixed1024 control; comparison with a strong fixed-large
+policy under the same input and timing protocol would still be necessary to
+establish incremental state value. Historical fixed2048 results cannot fill
+that gap. No online rollout overhead or deployment benefit has been measured.

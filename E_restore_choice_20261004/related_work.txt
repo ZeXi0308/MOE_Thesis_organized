@@ -127,3 +127,64 @@ later request execution or time measurements. This is a constructed maintenance
 counterexample, not evidence that this eviction occurred in E246, a frequency
 estimate, or a service benefit. It refutes only cost-free/unconditionally benign
 hole repair; it does not establish a correctness bug, useful policy or novelty.
+
+2026-10-08 bounded same-history segmented recovery check (CPU/source only)
+Pensieve §4.3.4 already restores a CPU-retained middle region while rebuilding
+dropped leading history. Separate query ranges are represented as two attention
+sub-requests sharing context. Its leading-drop layout does not establish a
+general arbitrary-hole API, but rules out novelty for suffix reuse after a miss.
+https://arxiv.org/html/2312.05516v3#S4.SS3.SSS4
+
+LMCache documents --enable-segmented-prefix, default False, blend engine only.
+After a mid-prefix L2 retrieve failure it keeps successful post-gap chunks and
+rebuilds gaps. This is not evidence of a working E-native Host-LRU adaptation.
+https://docs.lmcache.ai/mp/configuration.html
+https://docs.lmcache.ai/mp/l2_storage/fault_inject.html
+Official fixed source commit b0b3567ba5e6a1c689bd8e64220c1ca6cdf27e3c:
+https://github.com/LMCache/LMCache/blob/b0b3567ba5e6a1c689bd8e64220c1ca6cdf27e3c/lmcache/v1/multiprocess/modules/blend/lookup.py#L673-L729
+lookup.py:411–440 requires successful chunks across ranks/groups;493–500
+disables segmented prefix for recurrent registrations;673–729 emits retained
+chunks at their original positions as segmented_prefix_segments, separately
+from cross-context non_prefix_segments. retrieve.py:807 onward distinguishes
+position-preserving retrieval from transformation and performs KV scatter.
+These two source files are retained in related_sources/lmcache_b0b3567/.
+
+Local native boundary: offloading/scheduler.py:465–486 stops at first MISS;
+get_num_new_matched_tokens returns one contiguous extent, and the scheduler
+queries external reuse at num_computed_tokens==0. prepare_load accepts ready
+key collections but does not supply sparse query execution or progress rules.
+HostHistoryObserver captures prefix/cursor/store acknowledgements, not complete
+cache residency; prior STORE ACKs cannot estimate later valid resident suffixes.
+No safe thin E adapter or real-service opportunity frequency established.
+Decision: do not implement a new segmented executor or relabel an existing
+principle as a contribution. GPU runs0, no timing or quality result. This
+feasibility question is closed for current investment; future continuation
+needs a concrete deployment loss and an incremental decision beyond these
+existing mechanisms, not another threshold or logging-only GPU run.
+
+2026-10-09 bounded UnboxKV domain and metric clarification
+Author text: https://jcernuda.com/publications/kv-caching
+Figure10a uses Yarn-Llama2-7B, vLLM0.4.2 on one A10040GB,128 simultaneous Zipf requests,
+6--24GB GPU KV. Its recovery overhead includes swap-out/in; the text describes
+blocking eviction and recovery. Repeated prefill disrupting batch balance is
+already its explanation, not an E novelty. This is not E's post-STORE decision
+or complete external-arrival completion objective.
+Official fixed commit3b0e2e78973cc47b9baaf62bb8163c2d3c551ed8:
+https://github.com/Jye-525/UnBoxKV-IO/blob/3b0e2e78973cc47b9baaf62bb8163c2d3c551ed8/plots_script/plot_recmp_vs_swap_overhead_ipdps.ipynb
+Cell3 plots results_zipf: at18/22/24GB recompute3.363923/3.303157/2.920503s versus
+swap3.518624/3.900957/3.372103s. The same cell's results_sharedgpt retains lower
+swap cost at6/10/14/18/24GB and near equality at22GB. These are published plotting
+arrays, not raw-run reproduction or an assertion that the paper claims universality.
+https://github.com/Jye-525/UnBoxKV-IO/blob/3b0e2e78973cc47b9baaf62bb8163c2d3c551ed8/vllm/vllm/core/scheduler.py#L778-L800
+Default scheduler distinguishes WAITING recompute and SWAPPED restoration and
+prefill/decode paths; chunked/mixed paths also exist. Figure10a's complete launch
+records were not established, so do not attribute its plotted effect to a specific
+code branch. E consequence: prior rankings do not establish a new normal-capacity
+E deployment loss. No capacity/arrival sweep or new selector follows from this check.
+
+2026-10-09 bounded new deployment/nearest-method check (primary text only)
+MTDS: Multi-tier dynamic storage of KV cache for LLM inference under resource-constrained conditions, Complex & Intelligent Systems, published 27 January 2026.
+https://link.springer.com/article/10.1007/s40747-025-02200-4
+Already-stored DRAM prefix selection includes full load, partial load plus suffix computation, and no load. Historical cost versus matched length can select recomputation at both extremes. Testbed: four A10s, 64GB DRAM; loader ablation uses Llama2-7B, batch50, 1K inputs. Other components change offload priority and eviction. Exact implementation and isolated fixed-target resumption service comparison were not verified. Consequence: post-STORE selection itself is not a new E principle; a future static baseline must not assume monotone ranking.
+CONCUR: https://arxiv.org/html/2601.22705v1
+Agent-level admission for multi-GPU SGLang/HiCache batches. Table1 reports DeepSeek-V3 batch16/TP16/16GPU completion873s for SGLang versus2559s for HiCache. This includes storage/residency and agent trajectories, not only an already-paid-STORE recovery action. Table2 uses a different TP label; do not combine its hit rates with Table1 as a matched experiment. No E intervention benefit follows. Bounded check ended; neither source justifies synthetic PCIe slowdown or a multi-GPU build here.

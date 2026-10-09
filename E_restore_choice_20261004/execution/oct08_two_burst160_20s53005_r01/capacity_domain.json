@@ -1,0 +1,65 @@
+{
+  "schema": "E.capacity_domain.v1",
+  "evidence": "CPU classification of recorded current-state fields; no new GPU intervention",
+  "scope": "APC disabled, one full-attention KV group, zero computed tokens at lookup, full-sequence admission enabled, no lookahead",
+  "predicates": {
+    "selector": "full_required_blocks + reserved_blocks + watermark_blocks <= free_blocks",
+    "native_first_gate": "full_required_blocks + watermark_blocks <= free_blocks",
+    "distinction": "The native first full-sequence gate applies to both Host and recompute even when the executed recompute chunk is smaller."
+  },
+  "sources": [
+    "selector.py:207-216",
+    "run_cell.py:286",
+    "native_sources/v1/core/sched/scheduler.py:928-946",
+    "native_sources/v1/core/kv_cache_manager.py:411-427",
+    "native_sources/v1/core/kv_cache_manager.py:449-466"
+  ],
+  "limits": [
+    "Lookups can repeat for one waiting request; these counts are not independent interventions or capacity-wait duration.",
+    "Passing the simplified full-sequence predicate is necessary, not proof of successful allocation; native per-action checks and callback still decide execution.",
+    "Host has a further actual-prefix allocation check with in-flight reservations; recompute uses native chunk allocation without that reservation argument.",
+    "No inference that disabling the full-sequence admission rule is safe, beneficial, or within an unchanged-admission experiment."
+  ],
+  "arms": [
+    {
+      "raw": "/Users/zhaozhenyu/Desktop/毕业设计/E_restore_choice_20261004/execution/oct08_two_burst160_20s53005_r01/00_same_engine/00_host/raw.json",
+      "total_preempted_lookups": 557,
+      "ready_host_lookups": 529,
+      "eligible_lookups": 2,
+      "capacity_fallback_lookups": 527,
+      "capacity_fallback_requests": 29,
+      "full_sequence_native_gate_fails": {
+        "lookups": 527,
+        "requests": 29
+      },
+      "only_selector_full_plus_reservation_fails": {
+        "lookups": 0,
+        "requests": 0,
+        "events": []
+      },
+      "reserved_blocks_nonzero_lookups": 1,
+      "reserved_blocks_max": 38,
+      "executed_capacity_fallback_commits": 0
+    },
+    {
+      "raw": "/Users/zhaozhenyu/Desktop/毕业设计/E_restore_choice_20261004/execution/oct08_two_burst160_20s53005_r01/00_same_engine/01_recompute/raw.json",
+      "total_preempted_lookups": 560,
+      "ready_host_lookups": 533,
+      "eligible_lookups": 5,
+      "capacity_fallback_lookups": 528,
+      "capacity_fallback_requests": 30,
+      "full_sequence_native_gate_fails": {
+        "lookups": 528,
+        "requests": 30
+      },
+      "only_selector_full_plus_reservation_fails": {
+        "lookups": 0,
+        "requests": 0,
+        "events": []
+      },
+      "reserved_blocks_nonzero_lookups": 0,
+      "reserved_blocks_max": 0,
+      "executed_capacity_fallback_commits": 0
+    }
+  ]
+}

@@ -1,0 +1,212 @@
+{
+  "schema": "d-prefill-demand-service-v1",
+  "status": "UNRUN",
+  "observed_formal_runs": 0,
+  "valid_complete_formal_runs": 0,
+  "observed_warm_runs": 0,
+  "valid_complete_warm_runs": 0,
+  "controller_status": {
+    "status": "RESOURCE_BLOCKED_NO_GPU_INITIALIZED",
+    "pid": 42104,
+    "reason": "AssertionError(('Root filesystem below frozen reserve', 'after_lock', 1141788672, 1610612736))"
+  },
+  "demand_cells_without_actual_intervention": [],
+  "zero_action_note": "If the frozen runner stops after the first zero-action demand arm, retain both completed cells and missing reverse cells; this remains incomplete, not a service negative or permission to retry.",
+  "missing_cells": [
+    "00_fixed1024",
+    "01_prefill_demand",
+    "02_prefill_demand",
+    "03_fixed1024",
+    "warm_fixed512",
+    "warm_fixed1024",
+    "warm_fixed2048",
+    "warm_prefill_demand"
+  ],
+  "duplicate_cells": [],
+  "unexpected_raw_paths": [],
+  "missing_fixed_warm_actual_caps": [
+    512,
+    1024,
+    2048
+  ],
+  "warm_execution_coverage": {
+    "fixed512": {
+      "warm_valid_complete": false,
+      "fixed_actual_cap_required": 512,
+      "completed_actual_P_equals_fixed_cap_steps": 0,
+      "completed_cap_distribution": {},
+      "actual_P_distribution": {},
+      "actual_total_P_plus_D_distribution": {}
+    },
+    "fixed1024": {
+      "warm_valid_complete": false,
+      "fixed_actual_cap_required": 1024,
+      "completed_actual_P_equals_fixed_cap_steps": 0,
+      "completed_cap_distribution": {},
+      "actual_P_distribution": {},
+      "actual_total_P_plus_D_distribution": {}
+    },
+    "fixed2048": {
+      "warm_valid_complete": false,
+      "fixed_actual_cap_required": 2048,
+      "completed_actual_P_equals_fixed_cap_steps": 0,
+      "completed_cap_distribution": {},
+      "actual_P_distribution": {},
+      "actual_total_P_plus_D_distribution": {}
+    },
+    "prefill_demand": {
+      "warm_valid_complete": false,
+      "fixed_actual_cap_required": null,
+      "completed_actual_P_equals_fixed_cap_steps": null,
+      "completed_cap_distribution": {},
+      "actual_P_distribution": {},
+      "actual_total_P_plus_D_distribution": {}
+    }
+  },
+  "pairs": [
+    {
+      "fixed_cell": null,
+      "component_cell": null,
+      "directions": {},
+      "status": "UNRUN_OR_UNREADABLE",
+      "interpretation": "Both directions retain every request and full elapsed. Old3%/5% gates are legacy descriptions, not this study status or a scientific acceptance rule."
+    },
+    {
+      "fixed_cell": null,
+      "component_cell": null,
+      "directions": {},
+      "status": "UNRUN_OR_UNREADABLE",
+      "interpretation": "Both directions retain every request and full elapsed. Old3%/5% gates are legacy descriptions, not this study status or a scientific acceptance rule."
+    }
+  ],
+  "descriptive_repetitions": {
+    "fixed1024": {
+      "episodes": [],
+      "second_minus_first_U_req_per_s": null,
+      "sum_qualified_over_sum_full_elapsed": null
+    },
+    "prefill_demand": {
+      "episodes": [],
+      "second_minus_first_U_req_per_s": null,
+      "sum_qualified_over_sum_full_elapsed": null
+    }
+  },
+  "runs": [],
+  "frozen_design": {
+    "workload": "../mixed_arrivals/workload_high_rate.json",
+    "workload_sha256": "395fd015ceb9bef4a4a59e30e0203e83167a4967fffe2ba7160409f0ac738a15",
+    "input_totals": {
+      "request_count": 256,
+      "prompt_tokens": 538597,
+      "declared_output_tokens": 114688
+    },
+    "primary_slo": {
+      "ttft_s": 4,
+      "gap_s": 0.1,
+      "completion_s": 20
+    },
+    "timeout_s": 180,
+    "max_wait_lock_s": 7200,
+    "gpu_uuid": "GPU-51b8e4bb-27b8-4b82-5254-7317aae7298c",
+    "expected_driver_version": "580.95.05",
+    "shared_lock": "/root/autodl-tmp/moe-research-gpu.lock",
+    "shared_lock_inode": 4312099778,
+    "engine_args": {
+      "model": "/root/autodl-tmp/moe-research-20261002/model",
+      "dtype": "bfloat16",
+      "seed": 20261004,
+      "max_model_len": 4096,
+      "max_num_seqs": 192,
+      "max_num_batched_tokens": 4096,
+      "long_prefill_token_threshold": 0,
+      "enable_chunked_prefill": true,
+      "enable_prefix_caching": false,
+      "scheduling_policy": "fcfs",
+      "async_scheduling": false,
+      "scheduler_reserve_full_isl": true,
+      "stream_interval": 1,
+      "enforce_eager": false,
+      "enable_return_routed_experts": false,
+      "gpu_memory_utilization": 0.9
+    },
+    "after_lock_idle_check": {
+      "max_utilization_percent": 5,
+      "max_memory_used_mib": 16,
+      "consecutive_readings": 2,
+      "sample_separation_s": 0.5,
+      "grace_s": 5
+    },
+    "expected_software": "Parent/runtime source hashes unchanged; root separately verified Torch2.11.0, vLLM0.26, Triton3.6 and migrated model. Actual environment.json remains authoritative.",
+    "output_contract": "Same256 request IDs, arrivals, prompt tokens and declared fixed min=max output counts with ignoreEOS. Counts do not establish identical content/routing/computation/quality.",
+    "root_start_free_bytes_required": 1610612736,
+    "root_between_episode_free_bytes_required": 1610612736,
+    "shm_free_bytes_required": 536870912,
+    "own_output_log_bytes_limit": 524288000,
+    "effective_host_headroom_bytes_required": 2147483648,
+    "resource_policy": "Reuse prior explicit1.5GiB root reserve plus.5GiB tmpfs trace/log reserve (2GiB total),500MiB own trace/log ceiling,Hostheadroom>=2GiB. Root native caches/TMPDIR unchanged;no compiler cache migration. Existing sharedlock/inode/device/driver/afterlockidlechecks at boundaries. No new paid resources or cost-balance telemetry.",
+    "primary_objective": "U=number of all arrived requests meeting TTFT4s/per-requestmaxgap100ms/completion20s divided by full elapsed including drain/control/client lag. Thresholds are preexisting research assumptions, not validated production SLOs. Never retune them after outcomes.",
+    "uncertainty": "Onlytwoepisodesperfixedchoice ononealreadyseendevelopmenttrace; reportpairsseparately andpooledsumqualified/sumelapsed onlyasdescription. Concurrentfixed1024repeatdrift contextualizes effects; oldsame-policyUdrifts.153%,.685%,1.973% are not a noise distribution/CI or replacementgainthreshold. Do not use256requests as independentrepeats or declare significance/equivalence.",
+    "name": "D OA-style known-prefill deadline-demand baseline",
+    "status_at_freeze": "PRE_GPU_FROZEN",
+    "intended_output_name": "demand53005_01",
+    "intended_output_path": "/dev/shm/moe-d-prefill-continuation-20261007/demand53005_01",
+    "intended_log_path": "/dev/shm/moe-d-prefill-continuation-20261007/demand53005_01.log",
+    "policies": [
+      "fixed1024",
+      "prefill_demand",
+      "prefill_demand",
+      "fixed1024"
+    ],
+    "warm_policies": [
+      "fixed512",
+      "fixed1024",
+      "fixed2048",
+      "prefill_demand"
+    ],
+    "legal_caps": [
+      512,
+      1024,
+      2048
+    ],
+    "prediction_margin": 1.2,
+    "formal_attempt_limit": 4,
+    "warm_attempt_limit": 4,
+    "question": "Can ordinary known-prefill demand density improve complete service over current fixed1024, or does deferred prefill/changed average work still explain the outcome?",
+    "evidence": "On this device fixed512 cuts generation span about2s but adds about2.5s TTFT; it rescues16 early long qualifications yet loses50/51 later ones. A latest-output100ms deadline screen saturates at maximum total budget. Existing F decision snapshots show cumulative-prefix demands selecting1024 vs head-only512 on46/54 steps. These CPU suggestions do not establish alternate trajectory performance.",
+    "classification": "OA/EDF-style ordinary strong-simple baseline adaptation, not a new scheduling principle or full Niyama/SLOWeave reproduction. Yao-Demers-Shenker FOCS1995 Optimal Available is direct demand-density precedent; Niyama official code has per-request prefill-throughput/TTFT feasibility relegation.",
+    "policy": "Current unfinished prefills in native running then waiting order; deadline=external_arrival+4. Required rate=max prefix remaining prompt work divided by that prefix deadline slack. Enumerate pure caps512/1024/2048; effectiveP=min(cap,backlog); choose minimum cap with effectiveP/(1.2*existing_current_state_host_step_model)>=required_rate.",
+    "exceptional_behavior": "Any overdue pending TTFT deadline, no feasible cap or invalid/nonpositive candidate model cost chooses2048 for continued progress and records the reason. No backlog chooses1024. No special D=0 rule. No skip/drop/reorder/admission change, output-length or future-arrival input.",
+    "model": "Unchanged two-regime Niyama artifact fit, branch effectiveP+D<=512 or>512; physicalD, sourceCd=sum(num_computed+1), head-prefill computed context. No refit/profile/newpredictor. Fluid service rate with current-state cost is a heuristic, not a discrete-time or future-state SLO guarantee.",
+    "calibration_file": "../niyama_component/calibration.json",
+    "calibration_sha256": "64ddc734c5af941d43171bba4cac92317fc2eb9d04e725ae05ab19ad2381a13a",
+    "controls": "Same native parent component episode and pure-cap patch, fixed external256 arrivals/prompts/generation contract, model/BF16/normalKV/native4096total/maxseq192. Fixed arm avoids candidate demand/prediction computation; required shared observation and every policy own CPU control cost remains in elapsed. No extra forward/synchronization/kernel/cache changes.",
+    "warmup": "Three full fixed workloads512/1024/2048 plus one demand workload before formal. Each fixed warm must contain actualP=itscap. No extra warm retry; inspect formal compile/capture/autotune. This covers used tiers, not identical batch/kernel states.",
+    "decision": "Use unchanged U research contract and report both effects, qualification additions/losses, full elapsed/throughput/TTFT/flow/maxgap/control/lag/drain and affected requests. No universal gain percentage/all-metric-improvement gates. Consistent interpretable U improvement is ordinary-baseline development evidence only; before innovation require matched-mean fixed and head-only controls. Tiny/mixed effects remain uncertain with no automatic repetition. A lowerU tradeoff is reported but does not establish this method objective.",
+    "stopping": "At most4warm+4formal, one waiter<=7200s,180s/cell plus init/storage, no automatic retry/refit/cap/threshold scan. After first F/D pair stop before reverse if no actual changed cap binding. Preserve partial failures. If no useful full-service signal, close this OA mapping; do not immediately add a more complex predictor.",
+    "stage_budget": "One group, expected8-12minutes GPU from49-53s known episodes; at most8episodes, raw/log<=500MiB, root1.5GiB plus tmpfs.5GiB and effectiveHost>=2GiB guards. Whole-group lock released at terminal before readback/analysis. No expense telemetry or new paid resources.",
+    "analysis_command": "python3 -B prefill_demand/analyze_demand.py demand53005_01 --design prefill_demand/design.json",
+    "source_sha256": {
+      "run_demand.py": "4388bde3fbd5239292c12ec4824897e7c71c51e047e402c8b3d0a20ae847a6a2",
+      "launch.sh": "3a95e764793c53a5f4bf82d377070704f478ba2c1e41b44fdaf35c5fc4e2ab5b",
+      "controller.py": "f2a0daac8adc19e6760998347fee3dc3c01db3292a66802584180d04c0abf1ea",
+      "../cohort_trace_53005/run_shm.py": "f947b93b17753f38145c5c0c723c6e1bd9c4610a82ae777e30e0a413ed903776",
+      "../cohort_control/controller.py": "f9fb7374a313f782a7456d1a90ad2c2eb88a126049a180e3ddd4dee6602f5082",
+      "../cohort_control/cohort_cost.py": "05938d30d4109b329af826ccbecfdfb48812ca4ad9533f75ab60dd3e61629dcf",
+      "../niyama_component/run_component.py": "46524607172d533738e92bcf9712009c152d6059d8f8a30010172ee31afa51ef",
+      "../device_refresh_53005/run_refresh.py": "fe0dd9a843fce10f5c83ff2c83f419dc28f43bcb2c2219bcb9b004ccc1a17a7f",
+      "../run_confirmation.py": "67cb25770693252d64efcb93ea1aaf45ab99ce92926b77189dd03c324b0ee166",
+      "../prefill_policy.py": "1aedafb440597a5903539eb05e5e3e5cd0eaa12a0eda292f345df6d883cbe960",
+      "../runtime_bootstrap.py": "dafbad576b9d2e956dd981da9309c72336a3af1e2b8ccad2cb24980c67c09778"
+    },
+    "analysis_source_sha256": {
+      "analyze_demand.py": "cb3e9cb4ed049f0bcd61998c2b0569326247075569b831bff588f645c9f3312c",
+      "../niyama_component/analyze_component.py": "bd9360c6b7666c8539f6d67f5abd4262a47be84e74f133da3a7fd04c81c204a7"
+    },
+    "frozen_utc": "2026-10-08T14:30:33.479727+00:00"
+  },
+  "frozen_design_sha256": "218e025b27bde212ac2761d79d5256ab9b5b42d371245bf77814e20d030f840f",
+  "calibration_sha256": "64ddc734c5af941d43171bba4cac92317fc2eb9d04e725ae05ab19ad2381a13a",
+  "analysis_source_sha256": "cb3e9cb4ed049f0bcd61998c2b0569326247075569b831bff588f645c9f3312c",
+  "reused_component_analyzer_sha256": "bd9360c6b7666c8539f6d67f5abd4262a47be84e74f133da3a7fd04c81c204a7",
+  "scope": "Ordinary deadline-demand baseline development comparison, not a novelty or significance claim. Primary4s/100ms/20s is a research contract without established production justification. COMPLETE_EXPLORATORY means complete valid4formal+4warm, driverCOMPLETE and fixedwarm actual512/1024/2048 coverage; it does not require old3%/5% performance gates or actual intervention. All requests, failed attempts, output divergence, arrival/add lag, full elapsed/drain and control/model diagnostics are retained. Full elapsed is the denominator; pooled descriptions do not override pair signs. Fixed output counts do not establish equal content/routes/computation/quality. No automatic winner, continuation or retry."
+}

@@ -1,0 +1,60 @@
+D / one bounded head-completion action probe / rollout53005_01
+Current state: STAGED, NOT SUBMITTED / UNRUN. Latest live inspection: 2026-10-08T18:25:14.391150 UTC.
+Root reserve RECOVERED (5019119616B >=1610612736B); common GPU lock BUSY.
+No D process/output/log. Other sessions have queued work; no D wait was started.
+Current investment decision: stop expanding this dynamic-budget method; preserve this
+single unrun probe as a resource-limited evidence gap, not a negative result.
+No GPU result, runner or waiter. Do not interpret UNRUN as a negative result.
+
+From continuation_20261007, reproduce CPU evidence:
+python3 -B action_rollout/validate.py
+python3 -B action_rollout/warm_validate.py
+python3 -B action_rollout/screen_states.py
+
+The original failed model remains model.py/validation.json. Warm calibration uses
+only existing fixed512/1024/2048 warms, the same two affine regressions and original
+>1s fit filter; excludes no rows in this group. First warm has an unaligned JIT
+warning; no claim of JIT-free calibration. The demand policy predictor is unchanged.
+Formal data remain seen development evaluation, not independent confirmation.
+
+Frozen input/code check (no resources/GPU queried):
+python3 -B action_rollout/run_probe.py --output /dev/shm/moe-d-prefill-continuation-20261007/rollout53005_01 --check-only
+
+Four runtime files are already staged at:
+/tmp/moe-d-prefill-continuation-20261007/action_rollout/
+probe_design SHA256: 22bd870bf8bf60c24f127224d6767c7aba6e1d5b5bb7afffa3cab9c39247e7f6
+
+Before execution, recheck /proc for any D runner/waiter and the common lock identity:
+/root/autodl-tmp/moe-research-gpu.lock (device2304, inode4312099778).
+Read the current shared GPU coordination log; never interrupt another session.
+Root >=1610612736B, shm >=536870912B, effectiveHost >=2147483648B are unchanged.
+The wrapper rechecks before queue, after lock and between episodes.
+
+Only if this preserved breakpoint is resumed with resources immediately available,
+run on the authorized host53005 from the remote Dbase (do not queue):
+D_GPU_UUID=GPU-51b8e4bb-27b8-4b82-5254-7317aae7298c bash action_rollout/launch.sh --output /dev/shm/moe-d-prefill-continuation-20261007/rollout53005_01 --wait-lock 0
+
+Capture stdout/stderr in the corresponding .log with no overwrite. If launched
+in a detached process, record its actual PID and check it before any reconnect or
+retry; no detached job has been started by the preparation above.
+Latest user limit is <=900s TOTAL actual lock holding, including initialization and
+cleanup. The frozen runner alarm starts at INITIALIZING; it alone does not enforce
+the stricter acquisition-to-release limit. A resumed launch must enforce the total
+wall-clock cap from before launch (no lock wait), terminating only its own process
+group if necessary and retaining the resulting incomplete data. No process is now
+running and this command is not a background submission.
+Exactly2 warm fixed1024/fixed2048 then F/X/X/F; frozen900s alarm after INITIALIZING,
+180s full drain per episode, at most4 consecutive changed decisions in each X.
+X uses first D>=128 and head remainder>1024 opportunity; cap2048 through that
+head's first output, then permanently1024. Whole workload arrivals continue.
+Full-known-allocation guard failure consumes opportunity and leaves1024.
+First X with no actualP>1024 stops the group; preserve outputs and do not retry.
+
+After the whole group terminates/releases GPU, retrieve its directory and .log
+into continuation_20261007/rollout53005_01 (retain every failure/raw/log), then:
+python3 -B action_rollout/analyze_probe.py rollout53005_01 --design action_rollout/probe_design.json
+
+This is a model-informed action probe, not an online rollout method. Conditional
+known-request forecasts are not whole-service results. Report prefix mismatches,
+all-request waiting/generation/completion/gaps, qualified gains/losses, full elapsed,
+control cost, output divergence, and actual action counts. No automatic repeats.

@@ -1,0 +1,20 @@
+WAITING_SHARED_LOCK_NO_GPU_INITIALIZED
+Traceback (most recent call last):
+  File "/tmp/moe-d-prefill-continuation-20261007/prefill_demand/run_demand.py", line 161, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/tmp/moe-d-prefill-continuation-20261007/prefill_demand/run_demand.py", line 146, in main
+    result = base.main()
+             ^^^^^^^^^^^
+  File "/tmp/moe-d-prefill-continuation-20261007/run_confirmation.py", line 167, in main
+    dump(out/'status.json',dict(status='INITIALIZING',pid=os.getpid()))
+  File "/tmp/moe-d-prefill-continuation-20261007/prefill_demand/run_demand.py", line 122, in dump
+    after_lock = resource_check(design,'after_lock')
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/moe-d-prefill-continuation-20261007/cohort_trace_53005/run_shm.py", line 86, in resource_check
+    result = original_resource_check(design,phase)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/moe-d-prefill-continuation-20261007/device_refresh_53005/run_refresh.py", line 61, in resource_check
+    assert free >= required, ('Root filesystem below frozen reserve', phase, free, required)
+           ^^^^^^^^^^^^^^^^
+AssertionError: ('Root filesystem below frozen reserve', 'after_lock', 1141788672, 1610612736)

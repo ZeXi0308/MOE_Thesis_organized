@@ -1,0 +1,984 @@
+{
+  "status": "CPU_RECOVERY_PROGRESS_DIAGNOSIS",
+  "definitions": {
+    "successful_commit": "Observed native allocation callback with actual_action; not a claim transfer or full recovery has already completed.",
+    "no_output_chain": "Consecutive same-request committed recoveries whose first strictly later output is the same token index; interval runs once from first decision to that output.",
+    "repreemption": "Native preemption timestamp strictly after allocation and strictly before the matched next output.",
+    "adjacent_pair": "The next same-request committed recovery occurs before the earlier commit's next output; preemption presence counted separately.",
+    "longest_gap": "Largest observed consecutive-token timestamp gap for a recovered request; earliest gap selected in a tie.",
+    "waiting": "Time from first preemption in that gap to first committed choice is observed recovery waiting, not a pure capacity-wait duration.",
+    "sums": "Sums across requests may overlap in wall time; reported only to describe coverage, never as throughput benefit or a strict benefit upper bound.",
+    "causal_scope": "Within-run progress diagnosis; different runs are not matched-state interventions."
+  },
+  "cells": [
+    {
+      "cell": "E_restore_choice_20261004/execution/oct08_two_burst160_20s53005_r01/00_same_engine/00_host",
+      "committed_recoveries": 29,
+      "recovery_requests": 29,
+      "commits_repreempted_before_next_output": 0,
+      "commits_repreempted_before_next_output_by_request": {},
+      "adjacent_commit_pairs_before_next_output": 0,
+      "adjacent_commit_pairs_with_repreemption_before_next_output": 0,
+      "longest_choice_to_output_chains": [
+        {
+          "external_id": "measured/E225",
+          "output_index": 448,
+          "committed_recoveries": 1,
+          "sequence": [
+            {
+              "event": 534,
+              "decision_s": 78.03161244466901,
+              "allocation_s": 78.03187263384461,
+              "known_tokens": 2990,
+              "generated_tokens": 448,
+              "host_hit_tokens": 0,
+              "eligible": false,
+              "action": "native",
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute"
+            }
+          ],
+          "chain_start_s": 78.03161244466901,
+          "next_output_s": 78.32030702754855,
+          "choice_to_first_new_output_elapsed_s": 0.2886945828795433,
+          "preemptions_during_chain": 0,
+          "preceding_preemption_s": 65.04137130826712,
+          "preceding_preemption_to_first_choice_s": 12.990241136401892,
+          "is_request_longest_gap_endpoint": true,
+          "request_longest_gap": {
+            "output_index": 448,
+            "start_s": 65.03428653627634,
+            "end_s": 78.32030702754855,
+            "gap_s": 13.286020491272211
+          },
+          "chain_fraction_of_request_longest_gap": 0.021729198977917516
+        },
+        {
+          "external_id": "measured/E221",
+          "output_index": 510,
+          "committed_recoveries": 1,
+          "sequence": [
+            {
+              "event": 531,
+              "decision_s": 77.5416099652648,
+              "allocation_s": 77.54172262176871,
+              "known_tokens": 3115,
+              "generated_tokens": 510,
+              "host_hit_tokens": 0,
+              "eligible": false,
+              "action": "native",
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute"
+            }
+          ],
+          "chain_start_s": 77.5416099652648,
+          "next_output_s": 77.82924212887883,
+          "choice_to_first_new_output_elapsed_s": 0.28763216361403465,
+          "preemptions_during_chain": 0,
+          "preceding_preemption_s": 69.97387055680156,
+          "preceding_preemption_to_first_choice_s": 7.56773940846324,
+          "is_request_longest_gap_endpoint": true,
+          "request_longest_gap": {
+            "output_index": 510,
+            "start_s": 69.96865016967058,
+            "end_s": 77.82924212887883,
+            "gap_s": 7.86059195920825
+          },
+          "chain_fraction_of_request_longest_gap": 0.03659166702796339
+        },
+        {
+          "external_id": "measured/E222",
+          "output_index": 487,
+          "committed_recoveries": 1,
+          "sequence": [
+            {
+              "event": 532,
+              "decision_s": 77.73840596526861,
+              "allocation_s": 77.73871570453048,
+              "known_tokens": 3406,
+              "generated_tokens": 487,
+              "host_hit_tokens": 0,
+              "eligible": false,
+              "action": "native",
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute"
+            }
+          ],
+          "chain_start_s": 77.73840596526861,
+          "next_output_s": 78.02387699857354,
+          "choice_to_first_new_output_elapsed_s": 0.28547103330492973,
+          "preemptions_during_chain": 0,
+          "preceding_preemption_s": 68.1602806635201,
+          "preceding_preemption_to_first_choice_s": 9.578125301748514,
+          "is_request_longest_gap_endpoint": true,
+          "request_longest_gap": {
+            "output_index": 487,
+            "start_s": 68.15336029231548,
+            "end_s": 78.02387699857354,
+            "gap_s": 9.870516706258059
+          },
+          "chain_fraction_of_request_longest_gap": 0.02892158959864145
+        }
+      ],
+      "multiple_commit_no_output_chains": [],
+      "recovery_requests_longest_gap_final_commit_fallback": {
+        "host_miss_native_recompute": 26,
+        "none": 2,
+        "no_commit_inside_gap": 1
+      },
+      "longest_recovery_request_gaps": [
+        {
+          "external_id": "measured/E249",
+          "output_index": 14,
+          "start_s": 30.48750253394246,
+          "end_s": 81.08354623988271,
+          "gap_s": 50.59604370594025,
+          "committed_recoveries": [
+            {
+              "event": 555,
+              "decision_s": 80.80871761590242,
+              "allocation_s": 80.80890723317862,
+              "known_tokens": 2610,
+              "generated_tokens": 14,
+              "host_hit_tokens": 0,
+              "eligible": false,
+              "action": "native",
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute"
+            }
+          ],
+          "recovery_lookup_fallbacks": {
+            "full_capacity_not_jointly_available_native": 11,
+            "host_miss_native_recompute": 1
+          },
+          "preemptions_in_gap": 1,
+          "first_preemption_s": 30.491666741669178,
+          "gap_start_to_first_preemption_s": 0.004164207726716995,
+          "first_preemption_to_first_committed_choice_s": 50.317050874233246,
+          "first_committed_choice_to_gap_end_s": 0.27482862398028374
+        },
+        {
+          "external_id": "measured/E248",
+          "output_index": 27,
+          "start_s": 31.50218404084444,
+          "end_s": 80.8939614854753,
+          "gap_s": 49.39177744463086,
+          "committed_recoveries": [
+            {
+              "event": 554,
+              "decision_s": 80.80847361683846,
+              "allocation_s": 80.80867494270205,
+              "known_tokens": 689,
+              "generated_tokens": 27,
+              "host_hit_tokens": 0,
+              "eligible": false,
+              "action": "native",
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute"
+            }
+          ],
+          "recovery_lookup_fallbacks": {
+            "full_capacity_not_jointly_available_native": 3,
+            "host_miss_native_recompute": 1
+          },
+          "preemptions_in_gap": 1,
+          "first_preemption_s": 31.50629187375307,
+          "gap_start_to_first_preemption_s": 0.004107832908630371,
+          "first_preemption_to_first_committed_choice_s": 49.302181743085384,
+          "first_committed_choice_to_gap_end_s": 0.08548786863684654
+        },
+        {
+          "external_id": "measured/E247",
+          "output_index": 31,
+          "start_s": 31.841317661106586,
+          "end_s": 80.8939614854753,
+          "gap_s": 49.052643824368715,
+          "committed_recoveries": [
+            {
+              "event": 553,
+              "decision_s": 80.61676345393062,
+              "allocation_s": 80.61702158674598,
+              "known_tokens": 2929,
+              "generated_tokens": 31,
+              "host_hit_tokens": 0,
+              "eligible": false,
+              "action": "native",
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute"
+            }
+          ],
+          "recovery_lookup_fallbacks": {
+            "full_capacity_not_jointly_available_native": 13,
+            "host_miss_native_recompute": 1
+          },
+          "preemptions_in_gap": 1,
+          "first_preemption_s": 31.844877004623413,
+          "gap_start_to_first_preemption_s": 0.0035593435168266296,
+          "first_preemption_to_first_committed_choice_s": 48.7718864493072,
+          "first_committed_choice_to_gap_end_s": 0.27719803154468536
+        }
+      ],
+      "recovery_requests_longest_gap_sum_s": 788.8895950913429,
+      "same_gaps_committed_choice_tail_sum_s": 6.2630977891385555
+    },
+    {
+      "cell": "E_restore_choice_20261004/execution/oct08_two_burst160_20s53005_r01/00_same_engine/01_recompute",
+      "committed_recoveries": 32,
+      "recovery_requests": 30,
+      "commits_repreempted_before_next_output": 0,
+      "commits_repreempted_before_next_output_by_request": {},
+      "adjacent_commit_pairs_before_next_output": 0,
+      "adjacent_commit_pairs_with_repreemption_before_next_output": 0,
+      "longest_choice_to_output_chains": [
+        {
+          "external_id": "measured/E238",
+          "output_index": 259,
+          "committed_recoveries": 1,
+          "sequence": [
+            {
+              "event": 547,
+              "decision_s": 83.11829027161002,
+              "allocation_s": 83.11856775730848,
+              "known_tokens": 3122,
+              "generated_tokens": 259,
+              "host_hit_tokens": 0,
+              "eligible": false,
+              "action": "native",
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute"
+            }
+          ],
+          "chain_start_s": 83.11829027161002,
+          "next_output_s": 83.58024072274566,
+          "choice_to_first_new_output_elapsed_s": 0.4619504511356354,
+          "preemptions_during_chain": 0,
+          "preceding_preemption_s": 51.69529376551509,
+          "preceding_preemption_to_first_choice_s": 31.422996506094933,
+          "is_request_longest_gap_endpoint": true,
+          "request_longest_gap": {
+            "output_index": 259,
+            "start_s": 51.69101833552122,
+            "end_s": 83.58024072274566,
+            "gap_s": 31.889222387224436
+          },
+          "chain_fraction_of_request_longest_gap": 0.014486099583309485
+        },
+        {
+          "external_id": "measured/E218",
+          "output_index": 564,
+          "committed_recoveries": 1,
+          "sequence": [
+            {
+              "event": 532,
+              "decision_s": 80.62005618214607,
+              "allocation_s": 80.62184707075357,
+              "known_tokens": 3507,
+              "generated_tokens": 564,
+              "host_hit_tokens": 1616,
+              "eligible": true,
+              "action": "recompute",
+              "actual_action": "recompute",
+              "fallback": "none"
+            }
+          ],
+          "chain_start_s": 80.62005618214607,
+          "next_output_s": 80.92069234699011,
+          "choice_to_first_new_output_elapsed_s": 0.3006361648440361,
+          "preemptions_during_chain": 0,
+          "preceding_preemption_s": 76.27222598716617,
+          "preceding_preemption_to_first_choice_s": 4.347830194979906,
+          "is_request_longest_gap_endpoint": true,
+          "request_longest_gap": {
+            "output_index": 564,
+            "start_s": 76.26405539736152,
+            "end_s": 80.92069234699011,
+            "gap_s": 4.6566369496285915
+          },
+          "chain_fraction_of_request_longest_gap": 0.06456079099488624
+        },
+        {
+          "external_id": "measured/E217",
+          "output_index": 589,
+          "committed_recoveries": 1,
+          "sequence": [
+            {
+              "event": 531,
+              "decision_s": 80.41533673554659,
+              "allocation_s": 80.41721727326512,
+              "known_tokens": 3460,
+              "generated_tokens": 589,
+              "host_hit_tokens": 2848,
+              "eligible": true,
+              "action": "recompute",
+              "actual_action": "recompute",
+              "fallback": "none"
+            }
+          ],
+          "chain_start_s": 80.41533673554659,
+          "next_output_s": 80.71508695185184,
+          "choice_to_first_new_output_elapsed_s": 0.2997502163052559,
+          "preemptions_during_chain": 0,
+          "preceding_preemption_s": 78.33934438973665,
+          "preceding_preemption_to_first_choice_s": 2.0759923458099365,
+          "is_request_longest_gap_endpoint": true,
+          "request_longest_gap": {
+            "output_index": 589,
+            "start_s": 78.333007350564,
+            "end_s": 80.71508695185184,
+            "gap_s": 2.382079601287842
+          },
+          "chain_fraction_of_request_longest_gap": 0.12583551622002878
+        }
+      ],
+      "multiple_commit_no_output_chains": [],
+      "recovery_requests_longest_gap_final_commit_fallback": {
+        "host_miss_native_recompute": 27,
+        "none": 3
+      },
+      "longest_recovery_request_gaps": [
+        {
+          "external_id": "measured/E250",
+          "output_index": 8,
+          "start_s": 30.388139128684998,
+          "end_s": 85.02692103758454,
+          "gap_s": 54.638781908899546,
+          "committed_recoveries": [
+            {
+              "event": 559,
+              "decision_s": 84.74719538539648,
+              "allocation_s": 84.7474447786808,
+              "known_tokens": 2784,
+              "generated_tokens": 8,
+              "host_hit_tokens": 0,
+              "eligible": false,
+              "action": "native",
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute"
+            }
+          ],
+          "recovery_lookup_fallbacks": {
+            "full_capacity_not_jointly_available_native": 12,
+            "host_miss_native_recompute": 1
+          },
+          "preemptions_in_gap": 1,
+          "first_preemption_s": 30.392749708145857,
+          "gap_start_to_first_preemption_s": 0.004610579460859299,
+          "first_preemption_to_first_committed_choice_s": 54.354445677250624,
+          "first_committed_choice_to_gap_end_s": 0.27972565218806267
+        },
+        {
+          "external_id": "measured/E249",
+          "output_index": 22,
+          "start_s": 31.537788808345795,
+          "end_s": 84.8381857573986,
+          "gap_s": 53.30039694905281,
+          "committed_recoveries": [
+            {
+              "event": 558,
+              "decision_s": 84.64633145183325,
+              "allocation_s": 84.6465268060565,
+              "known_tokens": 2618,
+              "generated_tokens": 22,
+              "host_hit_tokens": 0,
+              "eligible": false,
+              "action": "native",
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute"
+            }
+          ],
+          "recovery_lookup_fallbacks": {
+            "full_capacity_not_jointly_available_native": 12,
+            "host_miss_native_recompute": 1
+          },
+          "preemptions_in_gap": 1,
+          "first_preemption_s": 31.54226938262582,
+          "gap_start_to_first_preemption_s": 0.004480574280023575,
+          "first_preemption_to_first_committed_choice_s": 53.10406206920743,
+          "first_committed_choice_to_gap_end_s": 0.1918543055653572
+        },
+        {
+          "external_id": "measured/E248",
+          "output_index": 37,
+          "start_s": 32.680813416838646,
+          "end_s": 84.73835545778275,
+          "gap_s": 52.0575420409441,
+          "committed_recoveries": [
+            {
+              "event": 557,
+              "decision_s": 84.64609269797802,
+              "allocation_s": 84.646294221282,
+              "known_tokens": 699,
+              "generated_tokens": 37,
+              "host_hit_tokens": 0,
+              "eligible": false,
+              "action": "native",
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute"
+            }
+          ],
+          "recovery_lookup_fallbacks": {
+            "full_capacity_not_jointly_available_native": 2,
+            "host_miss_native_recompute": 1
+          },
+          "preemptions_in_gap": 1,
+          "first_preemption_s": 32.68477036431432,
+          "gap_start_to_first_preemption_s": 0.003956947475671768,
+          "first_preemption_to_first_committed_choice_s": 51.9613223336637,
+          "first_committed_choice_to_gap_end_s": 0.09226275980472565
+        }
+      ],
+      "recovery_requests_longest_gap_sum_s": 880.2171912267804,
+      "same_gaps_committed_choice_tail_sum_s": 7.363096863031387
+    },
+    {
+      "cell": "E_restore_choice_20261004/execution/oct08_two_burst160_20s53005_reverse_r01/00_same_engine/00_recompute",
+      "committed_recoveries": 38,
+      "recovery_requests": 29,
+      "commits_repreempted_before_next_output": 4,
+      "commits_repreempted_before_next_output_by_request": {
+        "measured/E238": 4
+      },
+      "adjacent_commit_pairs_before_next_output": 4,
+      "adjacent_commit_pairs_with_repreemption_before_next_output": 4,
+      "longest_choice_to_output_chains": [
+        {
+          "external_id": "measured/E238",
+          "output_index": 155,
+          "committed_recoveries": 5,
+          "sequence": [
+            {
+              "event": 184,
+              "decision_s": 46.96535813808441,
+              "allocation_s": 46.96712150797248,
+              "known_tokens": 3018,
+              "generated_tokens": 155,
+              "host_hit_tokens": 1760,
+              "eligible": true,
+              "action": "recompute",
+              "actual_action": "recompute",
+              "fallback": "none"
+            },
+            {
+              "event": 188,
+              "decision_s": 47.40742493793368,
+              "allocation_s": 47.40890255942941,
+              "known_tokens": 3018,
+              "generated_tokens": 155,
+              "host_hit_tokens": 1760,
+              "eligible": true,
+              "action": "recompute",
+              "actual_action": "recompute",
+              "fallback": "none"
+            },
+            {
+              "event": 192,
+              "decision_s": 47.848292984068394,
+              "allocation_s": 47.84970898926258,
+              "known_tokens": 3018,
+              "generated_tokens": 155,
+              "host_hit_tokens": 1760,
+              "eligible": true,
+              "action": "recompute",
+              "actual_action": "recompute",
+              "fallback": "none"
+            },
+            {
+              "event": 196,
+              "decision_s": 48.277949921786785,
+              "allocation_s": 48.2794506624341,
+              "known_tokens": 3018,
+              "generated_tokens": 155,
+              "host_hit_tokens": 1760,
+              "eligible": true,
+              "action": "recompute",
+              "actual_action": "recompute",
+              "fallback": "none"
+            },
+            {
+              "event": 200,
+              "decision_s": 48.718573439866304,
+              "allocation_s": 48.72001649439335,
+              "known_tokens": 3018,
+              "generated_tokens": 155,
+              "host_hit_tokens": 1760,
+              "eligible": true,
+              "action": "recompute",
+              "actual_action": "recompute",
+              "fallback": "none"
+            }
+          ],
+          "chain_start_s": 46.96535813808441,
+          "next_output_s": 48.90205258131027,
+          "choice_to_first_new_output_elapsed_s": 1.9366944432258606,
+          "preemptions_during_chain": 4,
+          "preceding_preemption_s": 41.89292177557945,
+          "preceding_preemption_to_first_choice_s": 5.072436362504959,
+          "is_request_longest_gap_endpoint": false,
+          "request_longest_gap": {
+            "output_index": 165,
+            "start_s": 50.89812287315726,
+            "end_s": 77.3116665109992,
+            "gap_s": 26.41354363784194
+          },
+          "chain_fraction_of_request_longest_gap": null
+        },
+        {
+          "external_id": "measured/E221",
+          "output_index": 514,
+          "committed_recoveries": 1,
+          "sequence": [
+            {
+              "event": 524,
+              "decision_s": 75.34461879357696,
+              "allocation_s": 75.34471955150366,
+              "known_tokens": 3119,
+              "generated_tokens": 514,
+              "host_hit_tokens": 0,
+              "eligible": false,
+              "action": "native",
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute"
+            }
+          ],
+          "chain_start_s": 75.34461879357696,
+          "next_output_s": 75.59289970248938,
+          "choice_to_first_new_output_elapsed_s": 0.24828090891242027,
+          "preemptions_during_chain": 0,
+          "preceding_preemption_s": 69.00799905508757,
+          "preceding_preemption_to_first_choice_s": 6.336619738489389,
+          "is_request_longest_gap_endpoint": true,
+          "request_longest_gap": {
+            "output_index": 514,
+            "start_s": 69.00537100434303,
+            "end_s": 75.59289970248938,
+            "gap_s": 6.587528698146343
+          },
+          "chain_fraction_of_request_longest_gap": 0.0376895373499145
+        },
+        {
+          "external_id": "measured/E219",
+          "output_index": 534,
+          "committed_recoveries": 1,
+          "sequence": [
+            {
+              "event": 523,
+              "decision_s": 75.17913188040257,
+              "allocation_s": 75.17922810837626,
+              "known_tokens": 3476,
+              "generated_tokens": 534,
+              "host_hit_tokens": 0,
+              "eligible": false,
+              "action": "native",
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute"
+            }
+          ],
+          "chain_start_s": 75.17913188040257,
+          "next_output_s": 75.42538311704993,
+          "choice_to_first_new_output_elapsed_s": 0.24625123664736748,
+          "preemptions_during_chain": 0,
+          "preceding_preemption_s": 70.37092907354236,
+          "preceding_preemption_to_first_choice_s": 4.8082028068602085,
+          "is_request_longest_gap_endpoint": true,
+          "request_longest_gap": {
+            "output_index": 534,
+            "start_s": 70.36839821189642,
+            "end_s": 75.42538311704993,
+            "gap_s": 5.056984905153513
+          },
+          "chain_fraction_of_request_longest_gap": 0.04869526828059458
+        }
+      ],
+      "multiple_commit_no_output_chains": [
+        {
+          "external_id": "measured/E238",
+          "output_index": 155,
+          "committed_recoveries": 5,
+          "sequence": [
+            {
+              "event": 184,
+              "decision_s": 46.96535813808441,
+              "allocation_s": 46.96712150797248,
+              "known_tokens": 3018,
+              "generated_tokens": 155,
+              "host_hit_tokens": 1760,
+              "eligible": true,
+              "action": "recompute",
+              "actual_action": "recompute",
+              "fallback": "none"
+            },
+            {
+              "event": 188,
+              "decision_s": 47.40742493793368,
+              "allocation_s": 47.40890255942941,
+              "known_tokens": 3018,
+              "generated_tokens": 155,
+              "host_hit_tokens": 1760,
+              "eligible": true,
+              "action": "recompute",
+              "actual_action": "recompute",
+              "fallback": "none"
+            },
+            {
+              "event": 192,
+              "decision_s": 47.848292984068394,
+              "allocation_s": 47.84970898926258,
+              "known_tokens": 3018,
+              "generated_tokens": 155,
+              "host_hit_tokens": 1760,
+              "eligible": true,
+              "action": "recompute",
+              "actual_action": "recompute",
+              "fallback": "none"
+            },
+            {
+              "event": 196,
+              "decision_s": 48.277949921786785,
+              "allocation_s": 48.2794506624341,
+              "known_tokens": 3018,
+              "generated_tokens": 155,
+              "host_hit_tokens": 1760,
+              "eligible": true,
+              "action": "recompute",
+              "actual_action": "recompute",
+              "fallback": "none"
+            },
+            {
+              "event": 200,
+              "decision_s": 48.718573439866304,
+              "allocation_s": 48.72001649439335,
+              "known_tokens": 3018,
+              "generated_tokens": 155,
+              "host_hit_tokens": 1760,
+              "eligible": true,
+              "action": "recompute",
+              "actual_action": "recompute",
+              "fallback": "none"
+            }
+          ],
+          "chain_start_s": 46.96535813808441,
+          "next_output_s": 48.90205258131027,
+          "choice_to_first_new_output_elapsed_s": 1.9366944432258606,
+          "preemptions_during_chain": 4,
+          "preceding_preemption_s": 41.89292177557945,
+          "preceding_preemption_to_first_choice_s": 5.072436362504959,
+          "is_request_longest_gap_endpoint": false,
+          "request_longest_gap": {
+            "output_index": 165,
+            "start_s": 50.89812287315726,
+            "end_s": 77.3116665109992,
+            "gap_s": 26.41354363784194
+          },
+          "chain_fraction_of_request_longest_gap": null
+        }
+      ],
+      "recovery_requests_longest_gap_final_commit_fallback": {
+        "host_miss_native_recompute": 27,
+        "none": 2
+      },
+      "longest_recovery_request_gaps": [
+        {
+          "external_id": "measured/E250",
+          "output_index": 2,
+          "start_s": 29.94520254433155,
+          "end_s": 78.52756470441818,
+          "gap_s": 48.58236216008663,
+          "committed_recoveries": [
+            {
+              "event": 549,
+              "decision_s": 78.368389159441,
+              "allocation_s": 78.36850149929523,
+              "known_tokens": 2778,
+              "generated_tokens": 2,
+              "host_hit_tokens": 0,
+              "eligible": false,
+              "action": "native",
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute"
+            }
+          ],
+          "recovery_lookup_fallbacks": {
+            "full_capacity_not_jointly_available_native": 13,
+            "host_miss_native_recompute": 1
+          },
+          "preemptions_in_gap": 1,
+          "first_preemption_s": 29.94909105822444,
+          "gap_start_to_first_preemption_s": 0.003888513892889023,
+          "first_preemption_to_first_committed_choice_s": 48.419298101216555,
+          "first_committed_choice_to_gap_end_s": 0.1591755449771881
+        },
+        {
+          "external_id": "measured/E249",
+          "output_index": 18,
+          "start_s": 31.133180528879166,
+          "end_s": 78.44698195531964,
+          "gap_s": 47.31380142644048,
+          "committed_recoveries": [
+            {
+              "event": 548,
+              "decision_s": 78.20617478713393,
+              "allocation_s": 78.20624278485775,
+              "known_tokens": 2614,
+              "generated_tokens": 18,
+              "host_hit_tokens": 0,
+              "eligible": false,
+              "action": "native",
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute"
+            }
+          ],
+          "recovery_lookup_fallbacks": {
+            "full_capacity_not_jointly_available_native": 11,
+            "host_miss_native_recompute": 1
+          },
+          "preemptions_in_gap": 1,
+          "first_preemption_s": 31.13643155992031,
+          "gap_start_to_first_preemption_s": 0.0032510310411453247,
+          "first_preemption_to_first_committed_choice_s": 47.06974322721362,
+          "first_committed_choice_to_gap_end_s": 0.2408071681857109
+        },
+        {
+          "external_id": "measured/E248",
+          "output_index": 31,
+          "start_s": 32.15830550715327,
+          "end_s": 78.28397769480944,
+          "gap_s": 46.125672187656164,
+          "committed_recoveries": [
+            {
+              "event": 547,
+              "decision_s": 78.20608418807387,
+              "allocation_s": 78.20615873485804,
+              "known_tokens": 693,
+              "generated_tokens": 31,
+              "host_hit_tokens": 0,
+              "eligible": false,
+              "action": "native",
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute"
+            }
+          ],
+          "recovery_lookup_fallbacks": {
+            "full_capacity_not_jointly_available_native": 3,
+            "host_miss_native_recompute": 1
+          },
+          "preemptions_in_gap": 1,
+          "first_preemption_s": 32.1623726002872,
+          "gap_start_to_first_preemption_s": 0.004067093133926392,
+          "first_preemption_to_first_committed_choice_s": 46.043711587786674,
+          "first_committed_choice_to_gap_end_s": 0.07789350673556328
+        }
+      ],
+      "recovery_requests_longest_gap_sum_s": 750.523035723716,
+      "same_gaps_committed_choice_tail_sum_s": 5.720711812376976
+    },
+    {
+      "cell": "E_restore_choice_20261004/execution/oct08_two_burst160_20s53005_reverse_r01/00_same_engine/01_host",
+      "committed_recoveries": 44,
+      "recovery_requests": 29,
+      "commits_repreempted_before_next_output": 0,
+      "commits_repreempted_before_next_output_by_request": {},
+      "adjacent_commit_pairs_before_next_output": 0,
+      "adjacent_commit_pairs_with_repreemption_before_next_output": 0,
+      "longest_choice_to_output_chains": [
+        {
+          "external_id": "measured/E238",
+          "output_index": 158,
+          "committed_recoveries": 1,
+          "sequence": [
+            {
+              "event": 130,
+              "decision_s": 40.26811623945832,
+              "allocation_s": 40.268911104649305,
+              "known_tokens": 3021,
+              "generated_tokens": 158,
+              "host_hit_tokens": 1680,
+              "eligible": true,
+              "action": "host",
+              "actual_action": "host",
+              "fallback": "none"
+            }
+          ],
+          "chain_start_s": 40.26811623945832,
+          "next_output_s": 40.99333940818906,
+          "choice_to_first_new_output_elapsed_s": 0.7252231687307358,
+          "preemptions_during_chain": 0,
+          "preceding_preemption_s": 39.98055323958397,
+          "preceding_preemption_to_first_choice_s": 0.2875629998743534,
+          "is_request_longest_gap_endpoint": false,
+          "request_longest_gap": {
+            "output_index": 248,
+            "start_s": 48.53103519231081,
+            "end_s": 75.22660129517317,
+            "gap_s": 26.695566102862358
+          },
+          "chain_fraction_of_request_longest_gap": null
+        },
+        {
+          "external_id": "measured/E225",
+          "output_index": 455,
+          "committed_recoveries": 1,
+          "sequence": [
+            {
+              "event": 531,
+              "decision_s": 73.26217419281602,
+              "allocation_s": 73.26243309676647,
+              "known_tokens": 2997,
+              "generated_tokens": 455,
+              "host_hit_tokens": 0,
+              "eligible": false,
+              "action": "native",
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute"
+            }
+          ],
+          "chain_start_s": 73.26217419281602,
+          "next_output_s": 73.72561931982636,
+          "choice_to_first_new_output_elapsed_s": 0.46344512701034546,
+          "preemptions_during_chain": 0,
+          "preceding_preemption_s": 60.27869921177626,
+          "preceding_preemption_to_first_choice_s": 12.983474981039762,
+          "is_request_longest_gap_endpoint": true,
+          "request_longest_gap": {
+            "output_index": 455,
+            "start_s": 60.27568327635527,
+            "end_s": 73.72561931982636,
+            "gap_s": 13.449936043471098
+          },
+          "chain_fraction_of_request_longest_gap": 0.03445705061440141
+        },
+        {
+          "external_id": "measured/E229",
+          "output_index": 394,
+          "committed_recoveries": 1,
+          "sequence": [
+            {
+              "event": 534,
+              "decision_s": 73.93344547972083,
+              "allocation_s": 73.93369469419122,
+              "known_tokens": 3137,
+              "generated_tokens": 394,
+              "host_hit_tokens": 0,
+              "eligible": false,
+              "action": "native",
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute"
+            }
+          ],
+          "chain_start_s": 73.93344547972083,
+          "next_output_s": 74.23135206848383,
+          "choice_to_first_new_output_elapsed_s": 0.2979065887629986,
+          "preemptions_during_chain": 0,
+          "preceding_preemption_s": 56.2610089071095,
+          "preceding_preemption_to_first_choice_s": 17.672436572611332,
+          "is_request_longest_gap_endpoint": true,
+          "request_longest_gap": {
+            "output_index": 394,
+            "start_s": 56.25861256942153,
+            "end_s": 74.23135206848383,
+            "gap_s": 17.9727394990623
+          },
+          "chain_fraction_of_request_longest_gap": 0.01657546913082123
+        }
+      ],
+      "multiple_commit_no_output_chains": [],
+      "recovery_requests_longest_gap_final_commit_fallback": {
+        "host_miss_native_recompute": 27,
+        "none": 2
+      },
+      "longest_recovery_request_gaps": [
+        {
+          "external_id": "measured/E250",
+          "output_index": 4,
+          "start_s": 29.882617186754942,
+          "end_s": 76.78143199160695,
+          "gap_s": 46.89881480485201,
+          "committed_recoveries": [
+            {
+              "event": 553,
+              "decision_s": 76.59452833607793,
+              "allocation_s": 76.59479100629687,
+              "known_tokens": 2780,
+              "generated_tokens": 4,
+              "host_hit_tokens": 0,
+              "eligible": false,
+              "action": "native",
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute"
+            }
+          ],
+          "recovery_lookup_fallbacks": {
+            "full_capacity_not_jointly_available_native": 12,
+            "host_miss_native_recompute": 1
+          },
+          "preemptions_in_gap": 1,
+          "first_preemption_s": 29.8845790065825,
+          "gap_start_to_first_preemption_s": 0.00196181982755661,
+          "first_preemption_to_first_committed_choice_s": 46.70994932949543,
+          "first_committed_choice_to_gap_end_s": 0.18690365552902222
+        },
+        {
+          "external_id": "measured/E249",
+          "output_index": 19,
+          "start_s": 30.812414027750492,
+          "end_s": 76.68454497680068,
+          "gap_s": 45.87213094905019,
+          "committed_recoveries": [
+            {
+              "event": 552,
+              "decision_s": 76.40165839716792,
+              "allocation_s": 76.4017984867096,
+              "known_tokens": 2615,
+              "generated_tokens": 19,
+              "host_hit_tokens": 0,
+              "eligible": false,
+              "action": "native",
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute"
+            }
+          ],
+          "recovery_lookup_fallbacks": {
+            "full_capacity_not_jointly_available_native": 12,
+            "host_miss_native_recompute": 1
+          },
+          "preemptions_in_gap": 1,
+          "first_preemption_s": 30.81442242860794,
+          "gap_start_to_first_preemption_s": 0.002008400857448578,
+          "first_preemption_to_first_committed_choice_s": 45.58723596855998,
+          "first_committed_choice_to_gap_end_s": 0.2828865796327591
+        },
+        {
+          "external_id": "measured/E248",
+          "output_index": 33,
+          "start_s": 31.74813661724329,
+          "end_s": 76.49069883674383,
+          "gap_s": 44.74256221950054,
+          "committed_recoveries": [
+            {
+              "event": 551,
+              "decision_s": 76.4014084301889,
+              "allocation_s": 76.4016167782247,
+              "known_tokens": 695,
+              "generated_tokens": 33,
+              "host_hit_tokens": 0,
+              "eligible": false,
+              "action": "native",
+              "actual_action": "recompute",
+              "fallback": "host_miss_native_recompute"
+            }
+          ],
+          "recovery_lookup_fallbacks": {
+            "full_capacity_not_jointly_available_native": 2,
+            "host_miss_native_recompute": 1
+          },
+          "preemptions_in_gap": 1,
+          "first_preemption_s": 31.749934621155262,
+          "gap_start_to_first_preemption_s": 0.001798003911972046,
+          "first_preemption_to_first_committed_choice_s": 44.65147380903363,
+          "first_committed_choice_to_gap_end_s": 0.08929040655493736
+        }
+      ],
+      "recovery_requests_longest_gap_sum_s": 770.961181435734,
+      "same_gaps_committed_choice_tail_sum_s": 6.94988614693284
+    }
+  ]
+}

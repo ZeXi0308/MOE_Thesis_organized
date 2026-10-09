@@ -10,7 +10,7 @@
 \newcommand{\Recomp}{\mathrm{Recompute}}
 \title{Beyond the Next Token: Native KV Recovery,\newline Re-preemption, and Peer Cost}
 \author{Anonymous Author(s)}
-\date{Research draft --- October 8, 2026}
+\date{Research draft --- October 9, 2026}
 
 \begin{document}
 \maketitle
@@ -394,6 +394,208 @@ in the measured E246 episode. Both the trace extraction and the CPU case are
 reproducible through \path{cpu_preparation/analyze_baseline_host_miss.py} and
 \path{cpu_preparation/check_store_replay_eviction.py}.
 
+\paragraph{A bounded, reusable diagnostic artifact.}
+The CPU-only entry \path{diagnose_store_coverage.py} now reconstructs this
+case without selecting a request by name or reading the old target
+specification. It joins actually repeated token intervals, native STORE
+cursors, returned jobs, completion acknowledgements, and subsequent
+contiguous Host lookups. Its window-local ``not created'' finding requires
+complete builder observations and full recomputation of the first non-ready
+block; it does not imply that the block was never previously stored. A
+positive native pending observation is distinct from an absent ACK, and an
+ACK followed by a miss remains inconclusive without an explicit eviction of
+the same write lifecycle. The original GPU traces contain no such eviction
+records. Completion acknowledgement is not persistent residency.
+
+The tool automatically recovers the off/on case: five newly created chunks
+(10 MiB) in the repair window, unchanged full-run STORE bytes, increased
+LOAD bytes, and 1974 fewer repeated positions, with no established service
+benefit. A preselected existing two-burst trace, not used to design these
+diagnostic rules, has 38 committed recoveries but no enabled STORE observer.
+All 38 therefore remain unlinked and inconclusive. This trace was previously
+used for performance analysis; it is not a study-wide blind test or an
+independent positive replication. The artifact is reusable on new traces
+with the same fields, but currently supports a reproducible systems case
+and conservative evidence handling, not a general upstream repair or a new
+recovery policy. We stop this scope without extending the logging protocol
+or searching for another favorable request.
+
+\subsection{A fixed two-burst domain changes opportunities, but not the evidence status}
+We next changed only the external arrival trace of the existing 320-request,
+fixed-output workload: 160 requests arrive at zero seconds and the remaining
+160 at 20 seconds. Each cohort's block-rounded input-plus-output cap fits the
+normal 590,576-token GPU KV pool (495,664 and 541,280 tokens), whereas their
+combined caps do not. This arithmetic does not guarantee concurrent residence
+or preemption. Both warmup and measurement use the same new trace; neither the
+arrival source nor the interval depends on service progress. Model, precision,
+Host budget, native policies, and per-request contents and output caps remain
+unchanged. There is no one-event target or writeback repair in this experiment.
+
+The two prespecified endpoint comparisons finish in H/R and R/H order. All
+1,280 request executions finish, with 278,528 output tokens in every arm and
+no failures, rejections, timeouts, or unfinished requests. These are four run
+observations, not 1,280 independent experimental repetitions.
+\begin{center}
+\begin{tabular}{lrrrr}
+\toprule
+Metric & H0 & R1 & R2 & H3\\
+\midrule
+Mean arrival-to-completion (s) & 81.852 & 86.048 & 79.537 & 79.470\\
+Last completion from origin (s) & 139.116 & 147.496 & 138.212 & 139.639\\
+Jointly eligible committed recoveries & 2 & 5 & 11 & 17\\
+Native repeated positions & 76,497 & 91,866 & 104,797 & 79,170\\
+First-cohort requests remaining at 20 s & 136 & 139 & 137 & 138\\
+\bottomrule
+\end{tabular}
+\end{center}
+Recompute adds 15,369 and 25,627 repeated native positions, respectively.
+Its mean-completion differences are $+4.196$ and $+0.067$ seconds; the
+last-completion differences change sign, from $+8.380$ to $-1.427$ seconds.
+The external trace and budgets match, but progress already differs before any
+recovery choice: the first cohort has emitted 42,024, 39,957, 41,203, and
+40,789 tokens at the second arrival. Consequently, neither pair establishes
+a matched single-event causal effect. Full-policy comparisons allow different
+internal trajectories, but these two pairs do not separate a stable service
+effect from the observed variation. We neither correct the timings nor add a
+third repeat or interval sweep. Outputs differ for 273 and 250 requests within
+the two pairs, so equal output counts do not establish quality equivalence.
+
+The additional repeated computation remains concentrated in recovery targets.
+In the reverse comparison, E238 repeats 25,580 positions under R and 4,468
+under H. Its nine jointly eligible R recoveries retain 1,760 Host tokens;
+H's observed coverage increases from 1,680 to 3,008 and 3,024. These are
+descriptive trajectories with different initial states, not evidence that the
+choice alone causes the coverage difference. H itself also performs repeated
+recoveries, so repeated recovery is not exclusive to recomputation.
+
+A bounded source-and-field check rejects an alternative interface explanation.
+The adapter's full-capacity condition includes reservations and is potentially
+more conservative than the native first allocation check. However, all 527 H
+and 528 R capacity-failed lookups in the first pair already fail the native
+full-sequence check. None fails only because of the additional reservation.
+Across the four fixed-count simultaneous-arrival runs and four two-burst runs,
+all 4337 recorded lookups for preempted requests returned a determined native
+result: none was logged as \texttt{pending\_native}. Thus these traces do not
+provide an earlier opportunity hidden by the connector's deferred-lookup gate.
+Repeated lookups are not independent recovery events, and this observation
+does not establish absence of such delays in other deployments.
+Both native actions use \texttt{full\_sequence\_must\_fit=True}; executing a
+smaller recomputation chunk cannot bypass that check in this runtime. These
+lookups involve 29 and 30 requests, not 1,055 independent action opportunities.
+This diagnostic does not authorize weakening admission or establish a service
+benefit. The two-burst observations leave an adaptive-method contribution
+unsupported and are retained as exploratory operating-domain evidence.
+
+A final within-run check distinguishes repeated recovery with progress from
+repeated recovery before any new output. Across the two H arms, all 73
+successful allocation callbacks are followed by a new output before another
+same-request preemption or recovery. Thus, the observed repeated H recoveries
+do not establish unproductive restoration loops. The largest H generation
+gaps are 50.596 and 46.899 seconds: from the first preemption in each gap to
+the first successful recovery allocation, the observed waits are 50.317 and
+46.710 seconds, respectively. The final Host-miss decision-to-output tails
+are only 0.275 and 0.187 seconds. These waits include resource and queue effects;
+they are not a measurement of pure capacity waiting. R2 contains one chain
+of five recoveries and four re-preemptions before a new output, lasting 1.937
+seconds without double-counting overlapping intervals. Even this chain is
+not that request's 26.414-second longest gap. Earlier actions can change later
+states, so these durations are not an upper bound on policy benefit. They
+nevertheless fail to establish an important remaining nonprogress problem
+under fixed H. We close further selector and recovery-completion tuning in
+this measured operating domain rather than inventing a new rule from R's
+avoidable local pathology.
+
+\subsection{An inline Host endpoint advances one request without reducing service steps}
+The fixed-budget H traces report all 58 LOADs complete in their issue step.
+This motivates a bounded execution endpoint, rather than a shorter-prefix or
+more complex action selector. For a jointly feasible recovery with all complete
+Host chunks present and an incomplete final chunk, we submit the unchanged
+native LOAD and wait on its native completion event before the same-step
+forward. The adapter preserves normal job acknowledgements and manager
+accounting; it removes only the redundant asynchronous scheduler-ready
+notification. Other recoveries retain the native path. This is a synchronous
+execution adaptation, not a new loading principle.
+
+One frozen async/inline pair, with identical native-Host warmup, completes
+320/320 requests and 278528 output tokens per arm. Inline executes 25 times,
+all for E246; each arm retains four other asynchronous Host recoveries and
+23 Host-miss recomputations. At the first intervention, the preceding 421
+normalized scheduling steps and recorded decision state match. Decision-to-next
+output falls from 141.960 to 76.563 ms, and the output occurs in step 421
+instead of 422. This matching does not establish identical microscopic GPU
+state. E246 finishes 25 steps and 0.816 seconds earlier, but its longest gap
+increases from 37.602 to 37.748 seconds. Every output and completion step of
+the other 319 requests is unchanged; both runs retain 2197 service steps.
+
+Mean external completion is 77.534 versus 77.825 seconds; makespan is 119.706
+versus 119.846 seconds. The 25 native waits total 185.452 ms, already charged
+in measured service time. STORE bytes are unchanged; LOAD increases by
+39845888 bytes and repeated positions by 32, all additional generated-history
+work for E246. Output content differs for 142 requests, so equal counts do not
+establish quality equivalence. This single pair neither proves persistent
+harm nor attributes all same-step timing differences to synchronization.
+Under the predeclared local-advance-without-primary-improvement branch, we
+stop this endpoint in the measured domain without another order repeat or
+threshold search. It supplies execution and boundary evidence, not an online
+method benefit or an independent paper contribution.
+
+\paragraph{Completion-step progress has limited value in this observed pair.}
+Let $f_i$ be request $i$'s completion step, $t_j$ the end of service step $j$,
+and $W_j=|\{i:f_i\geq j\}|$. With $t_{-1}=0$, the sum of completion timestamps
+is exactly $\sum_j W_j(t_j-t_{j-1})$. Equal external-arrival terms cancel
+between arms; the intervals include inter-step processing. Crossing completion
+steps and time vectors in the two possible orders gives completion-step terms
+of $-2.903$ and $-2.936$ ms in mean completion. Their symmetric average is
+$-2.919$ ms, while the symmetric timing term is $+293.899$ ms, summing to the
+observed $+290.980$ ms. Only E246 changes completion step. Of the timing term,
+$63.543$ ms is accumulated before the first executed inline step. This is not
+an untreated control: adapter observation overhead can already be present,
+and hardware drift is unresolved. No component is subtracted to claim an
+adjusted performance benefit. The cross-trajectory terms are exact accounting,
+not runnable policies, causal effects, a new scheduling theorem, or an upper
+bound on a future policy that could change other requests' trajectories.
+They provide no present basis for extending the readiness mechanism in this
+domain.
+
+\paragraph{Earlier release occurs after the observed waiting phase.}
+A CPU-only check of the existing fixed-H/R/R/H and async/inline traces finds
+that, after step 1170, the number of submitted unfinished requests equals the
+native running count at every step boundary. This conservation check includes
+requests omitted by the recorded ordinary waiting count, which excludes the
+native skipped queue. The three requests with jointly eligible recoveries
+finish in steps 1296, 1320, and 1886--1911, after that waiting phase in all six
+arms of this same workload. Inline releases E246's 254 blocks at step 1886,
+available to the next schedule, versus step 1911 for async. By then it has been
+29.484 seconds since the last nonrunning request in the inline trace; its
+post-output free count is already 21174. No peer changes its output or
+completion steps. Thus the observed earlier release does not unblock peer
+progress. This is retrospective boundary accounting, not an online feature,
+a continuous queue trace, a causal bound for a different policy, or evidence
+that capacity release is the only possible route to service improvement.
+
+\paragraph{Data availability, readiness acknowledgement, and execution are distinct.}
+Let $D$ denote LOAD completion, $A$ the scheduler's acknowledgement of the
+receive notification, $S$ the return of the schedule call that includes the
+target, and $X$ its actual GPU-compute start. The existing CPU timestamp $R$
+for transfer statistics precedes $A$; it is not the CUDA completion timestamp.
+For uniquely associated asynchronous LOADs, source ordering yields
+$D\in[S_{\mathrm{issue}},R]$ and $A\in[R,E_{\mathrm{issue}}]$, where $E$ is
+engine-step return. All 29 asynchronous baseline LOADs are reported complete
+in their issue step and the target is dispatched in the immediately following
+step. The largest upper bound on $A$-to-$S$ is 7.841 ms. This is not an
+$A$-to-$X$ bound: at the first matched event, the respective intervals are
+$[4.124,5.361]$ and $[4.124,73.080]$ ms. Absolute $D$ and $X$ were not measured;
+CUDA elapsed duration must not be added to allocation time to invent $D$.
+Inline instead uses conditional same-batch dispatch and a worker wait before
+forward. Its later completion-notification filter is not an execution-ready
+acknowledgement. The baseline's 37.602-second largest gap contains 37.313
+seconds before the first successful recovery decision, 17 capacity-failed
+lookups, and a final Host-miss recomputation. This interval combines resource
+and queue effects, not pure capacity waiting. The traces reject an additional
+missed scheduling round after acknowledgement in this domain, while leaving
+the precise physical-completion and GPU-start decomposition unmeasured. No
+new GPU run or state selector follows from these interval diagnostics.
+
 \section{Online candidates: equivalence and a failed service improvement}
 Fixed H and R select their respective action only in the jointly eligible
 domain. The length rule L selects R when $K_r\leq1792$ and H otherwise. This
@@ -601,6 +803,17 @@ this diagnostic: the old spike remains unexplained, and does not justify an
 online state predictor or a claim that all outside-call time is computation.
 
 \subsection{Related work and missing strong comparisons}
+All reported service measurements above force eager execution. This disables
+native compilation and CUDA-graph optimization, so fixed Host is only a
+reference within that configuration, not an established tuned-runtime baseline.
+A newly prepared comparison uses native default optimized execution at the
+same total GPU-memory fraction and Host budget, allowing actual KV capacity
+to reflect graph occupancy. Its first startup failed because the private
+compilation cache was on a non-executable filesystem; no warmup or formal
+request ran. A cache-path correction has passed a CPU shared-library load
+check, but optimized-mode service evidence is still pending. No performance
+conclusion follows from that startup failure.
+
 CacheOPT profiles reconstruction and swap costs as functions of sequence
 length, and combines that selection with other memory and scheduling
 mechanisms~\cite{cacheopt}. Stream2LLM studies streaming prefill and uses
@@ -622,6 +835,11 @@ STORE time does not produce such a measurement. No complete CacheOPT or
 Stream2LLM reproduction or sufficiently covered calibrated strong baseline has
 been executed here. L1792 must not be presented as that missing comparator.
 
+MTDS already selects loading or recomputation for stored DRAM prefixes,
+including partial reuse~\cite{mtds}. CONCUR reports cache-centric service
+losses in agentic batches but changes admission~\cite{concur}. Neither supplies
+our missing fixed-target comparison; post-STORE selection alone is not novel.
+
 Prior characterization already reports that concurrency and KV capacity can
 change cache/recomputation behavior~\cite{unboxkv}. Cake coordinates concurrent
 loading and computation with scheduling changes~\cite{cake}; CacheGen adapts
@@ -631,6 +849,21 @@ for recomputation elsewhere~\cite{lumen}. These establish related concerns
 with resources, state reuse, and interference. Our fixed-target native choice
 does not justify claiming the first resource-aware recovery method, and these
 systems are not equivalent binary baselines under our fixed mechanisms.
+
+Reusing valid state beyond a missing leading region is also not new.
+Pensieve rebuilds dropped leading history while restoring CPU-retained
+context, with separate attention sub-requests for disconnected query
+ranges~\cite{pensieve}. LMCache documents segmented-prefix recovery after a
+mid-prefix L2 retrieve failure~\cite{lmcache-segmented}. At inspected commit
+\texttt{b0b3567ba5e6a1c689bd8e64220c1ca6cdf27e3c}, its blend lookup returns
+retained chunks at their original positions, separately from cross-context
+matches. Neither establishes a verified drop-in implementation for our native
+Host-LRU connector. Our saved connector stops at the first miss and returns a
+scalar contiguous extent; summing arbitrary resident chunks would not preserve
+that interface's computation-progress semantics. Existing traces contain STORE
+acknowledgements but not complete later residency, so they cannot quantify this
+alternative's service opportunity. We did not implement a segmented executor
+or run another GPU experiment to pursue it.
 
 \subsection{What the present evidence supports}
 The matched interventions support a concrete account of token-budget
@@ -642,7 +875,8 @@ counterfactuals for each later event. Request repetitions, shared next outputs,
 and two runs per policy are not independent statistical replications.
 
 Numerical correctness beyond continuity, full instrumentation cost, a strong
-neighbor comparison, an independent workload with actual legal choices, and
+neighbor comparison, independent confirmation of a service benefit on a
+natural-output workload, and
 the same-work timing root cause remain unresolved. The adapter span in the G
 group is 17.4--31.2 ms per arm, but it excludes other hooks, logging, and
 observers; it is not total overhead. No externally justified SLO contract was
@@ -658,13 +892,18 @@ All claims above refer to completed local records. The initial event groups are
 \path{oct07_budget_r01} and \path{oct07_headroom_r01}; the timing controls are
 \path{oct07_telemetry_r01} and \path{oct07_cpu_tail_r01}. The fixed-count E246
 pairs are \path{oct08_e246_once53005_probe_r01} and
-\path{oct08_e246_once53005_reverse_r01}. Inputs, source hashes,
+\path{oct08_e246_once53005_reverse_r01}. The two-burst groups are
+\path{oct08_two_burst160_20s53005_r01} and
+\path{oct08_two_burst160_20s53005_reverse_r01}; their four-arm and
+recovery-progress summaries are reproduced by
+\path{analyze_multinews_pairs.py} and
+\path{cpu_preparation/analyze_recovery_progress.py}. Inputs, source hashes,
 raw outputs, native schedules, failures, and analysis receipts are retained
-under the experiment directory. The canonical \path{RESULTS.md} links the
+under the experiment directory. The completed inline endpoint is \path{oct09_inline_host53005_r01}, reproduced by \path{analyze_inline_host.py}. The canonical \path{RESULTS.md} links the
 current summaries. Artifact identities and quality rules are frozen before
 their corresponding comparisons; no unrun successor contributes a result.
 
-\begin{thebibliography}{9}
+\begin{thebibliography}{99}
 \bibitem{cacheopt}
 H. Shen et al.
 \newblock Mitigating KV Cache Competition to Enhance User Experience in LLM Inference.
@@ -677,6 +916,17 @@ R. Bachkaniwala et al.
 at MLSys 2026. Relevant choice and coverage sections checked against v3.
 \url{https://arxiv.org/abs/2604.16395v3}.
 Official artifact: \url{https://github.com/rajveerb/stream2llm/tree/mlsys_artifact}.
+
+\bibitem{mtds}
+J. Wang et al.
+\newblock Multi-tier dynamic storage of KV cache for LLM inference under resource-constrained conditions.
+\newblock Complex \& Intelligent Systems, 12:104, 2026.
+\url{https://doi.org/10.1007/s40747-025-02200-4}.
+
+\bibitem{concur}
+\newblock Concur: Proactive Agent-Level Admission Control for Efficient Agentic Batch Inference.
+\newblock arXiv:2601.22705v1, 2026.
+\url{https://arxiv.org/html/2601.22705v1}.
 
 \bibitem{unboxkv}
 \newblock Characterizing the Behavior and Impact of KV Caching on Transformer
@@ -701,6 +951,19 @@ Z. Cao et al.
 \newblock LUMEN: Coordinated Failure Recovery for Distributed LLM Serving.
 \newblock arXiv:2606.17787v1, 2026.
 \url{https://arxiv.org/html/2606.17787v1}.
+
+\bibitem{pensieve}
+L. Yu, J. Lin, and J. Li.
+\newblock Stateful Large Language Model Serving with Pensieve.
+\newblock EuroSys, 2025; inspected arXiv:2312.05516v3, Section 4.3.4.
+\url{https://arxiv.org/html/2312.05516v3}.
+
+\bibitem{lmcache-segmented}
+LMCache contributors.
+\newblock Segmented-prefix configuration and official implementation.
+\newblock Documentation and source inspected October 8, 2026.
+\url{https://docs.lmcache.ai/mp/configuration.html}.
+\url{https://github.com/LMCache/LMCache/blob/b0b3567ba5e6a1c689bd8e64220c1ca6cdf27e3c/lmcache/v1/multiprocess/modules/blend/lookup.py}.
 
 \bibitem{gsm8k}
 OpenAI.

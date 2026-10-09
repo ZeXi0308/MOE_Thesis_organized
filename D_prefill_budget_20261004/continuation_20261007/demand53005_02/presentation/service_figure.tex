@@ -1,0 +1,53 @@
+% Generated from service_decomposition.json; requires tikz and pgfplots.
+% No figure float. Pair1=F00/D01; Pair2=F03/D02. Changes are Demand minus Fixed.
+% TTFT is the first-output interval, not isolated queue time. Full elapsed defines U.
+% Mean finish-remainder changes (s): 0.000000000, 0.000000000
+\begin{minipage}[t]{0.49\linewidth}
+\centering
+\begin{tikzpicture}
+\begin{axis}[width=\linewidth,height=58mm,
+font=\small,ybar=1.5pt,bar width=7pt,
+symbolic x coords={Pair 1,Pair 2},xtick=data,
+enlarge x limits=0.35,enlarge y limits=0.25,
+ymajorgrids=true,grid style={gray!20},axis line style={gray!60},
+tick style={gray!60},scaled y ticks=false,
+title={(a) Mean service-time change},ylabel={Demand minus Fixed (s)},
+nodes near coords,point meta=y,
+every node near coord/.append style={font=\tiny,/pgf/number format/fixed,
+/pgf/number format/precision=2},
+legend style={at={(0.5,-0.2)},anchor=north,draw=none,font=\scriptsize},
+legend columns=3]
+\addplot+[fill=blue!65,draw=blue!65] coordinates {(Pair 1,1.636617490) (Pair 2,1.632100402)};
+\addlegendentry{TTFT}
+\addplot+[fill=orange!80!black,draw=orange!80!black] coordinates {(Pair 1,-0.877897588) (Pair 2,-0.951251844)};
+\addlegendentry{Generation}
+\addplot+[fill=black!65,draw=black!65] coordinates {(Pair 1,0.758719902) (Pair 2,0.680848557)};
+\addlegendentry{Flow}
+\end{axis}
+\end{tikzpicture}
+\end{minipage}
+\hfill%
+\begin{minipage}[t]{0.49\linewidth}
+\centering
+\begin{tikzpicture}
+\begin{axis}[width=\linewidth,height=58mm,
+font=\small,ybar=1.5pt,bar width=7pt,
+symbolic x coords={Pair 1,Pair 2},xtick=data,
+enlarge x limits=0.35,enlarge y limits=0.25,
+ymajorgrids=true,grid style={gray!20},axis line style={gray!60},
+tick style={gray!60},scaled y ticks=false,
+title={(b) Joint-SLO qualifications},ylabel={Requests},
+nodes near coords,point meta=y,
+every node near coord/.append style={font=\tiny,/pgf/number format/fixed,
+/pgf/number format/precision=0},
+legend style={at={(0.5,-0.2)},anchor=north,draw=none,font=\scriptsize},
+legend columns=3]
+\addplot+[fill=blue!65,draw=blue!65] coordinates {(Pair 1,13.000000000) (Pair 2,13.000000000)};
+\addlegendentry{Added}
+\addplot+[fill=orange!80!black,draw=orange!80!black] coordinates {(Pair 1,-45.000000000) (Pair 2,-43.000000000)};
+\addlegendentry{Lost}
+\addplot+[fill=black!65,draw=black!65] coordinates {(Pair 1,-32.000000000) (Pair 2,-30.000000000)};
+\addlegendentry{Net}
+\end{axis}
+\end{tikzpicture}
+\end{minipage}
