@@ -59,7 +59,7 @@ class RunnerLivenessTest(unittest.TestCase):
                         dict(label="low", count=64, gap=.5),
                         dict(label="near", count=192, gap=.1),
                         dict(label="high", count=192, gap=0.)]),
-                    engine_max=256, dev={}, test={}, scores=[], probes=[],
+                    engine_max=256, async_enabled=False, dev={}, test={}, scores=[], probes=[],
                     statistics=statistics, cell=result, measure_episode=result,
                     read=read, subset=lambda workload, *args: workload,
                     set_empty_admission_cap=lambda *args: None,

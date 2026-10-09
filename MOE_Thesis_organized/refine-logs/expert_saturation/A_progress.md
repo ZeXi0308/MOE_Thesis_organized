@@ -1,4 +1,35 @@
-# A latest — 2026-10-08 严格预算ABBA零干预；研究卡按新基准更新
+# A latest — 2026-10-09 续写候选全达cap；自然摘要域唯一候锁
+已复用现成raw排除两个解释：预算41决策的running成员/顺序重建与suffix全匹配，扩全running仍41/41同选；256个不同合法suffix候选最终全达声明cap，换成参考轨迹最终长度仍41/41同选。这是已有轨迹诊断，不是全局反事实或在线预测器。当前续写域不支持继续扩大候选集或增加长度预测，原窗口评分方向保持收束。
+新投入只检验有完整服务语义的自然摘要域H_problem。复用现成Instruct rev7f1c…4498与同320文章/外部到达，官方chat模板，无文章截断；prompt493–3115、统一cap981由上下文几何决定，预选8篇质量样本。CPU输入/独立包/分析与唯一计划已冻结；profile必须来自本次Instruct正常.90，随后1格remaining预算参考。runtime只补native_stop_reason，选择器/恢复/准入不变。预计5–8min整卡，1200s组/600s格，若无抢占或摘要不合格就停止此域，不扫压力救场。
+02:25:07 CST实查唯一controller74306/SSH12296存活、locks_lock_inode_wait，同2304:4312099778公共锁73467持有、73874在前；A session未创建，无CUDA/第二候卡，后续只接续原任务。先前根盘不足通过仅回收A已归档cap-bucket重复副本恢复至3.49GB，全部local raw/source和两端全tar保留。准确版本/命令/限制见[RESULTS文末](experiments/admission_capacity/victim_selection_20261004_A/RESULTS.md)。没有新GPU结果或质量结论，goal ACTIVE，中心贡献仍未成立。
+
+# A latest — 2026-10-09 重入门槛诊断完成，收束纯decode窗口评分
+已重读新版AGENTS并更新[研究卡与三层假设](experiments/admission_capacity/victim_selection_20261004_A/RESULTS.md)。核对原生full-ISL-fit与实际allocation：prefix-OFF完整私有decode的必要重入页Q与引用计数可释放页J只差0–1页；预算正序41个决策的remaining/max/cap三份建议全符合，合法候选中partial事件0。旧max轨迹只有679的0064312例外D11，普通remaining已建议另一完整请求；不能把较差策略造成的病理当新方法优于强基线的空间。
+203→48→192页链路的首次external allocation为0、无LOAD，48是冷补算持有量，不是host复用。full-fit门槛通过不等于持续为运行中的补算预留整段容量。cap victim先前ready49也会从offer784变为最终external0，原因未完全观测，不用旧prefix-ON的GPU重叠解释当前prefix-OFF。Q−J只作必要门槛偏移，不能预测重占时刻或服务收益。
+新增可运行CPU入口native_reentry_fit.py，代码/域与复现命令见RESULTS文末；本轮GPU0、新执行干预0，不生成另一套科学结果。当前强基线后的可控剩余损失及新增信号价值仍未成立，停止纯decode首次重入评分的同域投入；已失败的prefix-finish deferral也不改名重启。一般victim问题未被否定，重新投入需具体的新损失/动作预测。没有新runner/候卡，资源不是本次未跑GPU的原因；goal ACTIVE，中心贡献和可投稿证据尚未成立。
+
+# A latest — 2026-10-09 固定CacheOPT式组件完成，转向释放窗口的最小诊断
+[研究卡、完整数据与复现入口](experiments/admission_capacity/victim_selection_20261004_A/RESULTS.md)已更新。cap-bucket r01四格各320/320完成、0失败/未完成，112raw核验、唯一分析FOUR_CELLS_COMPLETE_COMPARABLE，11份分析来源随组保留。两bucket各43抢占/36非tail实际改选/40 unique victims，预算41/10/37；释放中位109页对135，实际preempt/free及规则重算全MATCH，未发生零干预。
+按预声明全外部到达mean flow，bucket−budget+.160918/−.043072s换号，输出率−.402%/−.110%，gap P95+2.561/+2.791s。更小KV不是更低受害代价：0066842晚完成6.53/6.26s、gap增加21.45/21.69s。输出少525 tokens；0066337从1024/length到453/stop，0046501从45到91，25序列/2长度/1终止不同，不能称等工作量或质量等价。首次分歧前已有+.497/−.066s漂移，不相减校正；仅两个运行对，未独立确认。停止此固定代理桶宽/tie/阈值搜索，不能据此否定完整CacheOPT；当前中心贡献仍未成立。
+用户最新要求以释放窗口评价动作。已用raw核实首次662两选择释放50/83页，但都约.211s后首次allocation；已记录36个保留suffix请求各推进3token、0完成，均669 readmit，分桶victim又两次被抢。allocated/readmission held是快照、实际增量UNKNOWN，不把host request当ACK。可复现CPU脚本diagnose_capacity_window.py已完成并运行：加上旧max首662释放192页，三个实际端点首窗口仍相同。首次global完成664来自prefix自然stop（remaining866，cap不可预测），另prefix请求remaining4在665达cap；完整运行集合与合法suffix不能混用。后续679长窗口伴14次追加抢占，非单动作收益。下一步仅据原生重新分配门控检查快速部分恢复状态能否对三个现有候选给不同的动作前事件顺序预测；不开发复杂优化器、不新增GPU组。
+00:50:56 CST整组1008.864223s结束，57669/SSH4613终态0、公共锁释放，无A runner/候卡。完整tar96,108,188B SHA4a55cda5…c9f3a保留local+remote，所有原始与失败完整保留。goal ACTIVE，尚不可投稿。
+
+# A latest — 2026-10-09 新科研基准已重读，固定近邻组件已冻结部署
+[一页研究卡与当前判决](experiments/admission_capacity/victim_selection_20261004_A/RESULTS.md)继续区分H_problem/H_model/H_method：强简单方法后的重要可控损失尚未成立，局部容量取舍已测，新增方法未获支持。复用max-release四格与CPU分桶证据，不重做已答问题。下一项只检验未覆盖的CacheOPT式固定cap分桶组件对普通预算：同mixed320/正常KV，remaining/bucket/bucket/remaining，128-token桶及tie预先冻结，不称完整复现或新贡献。
+新包manifest3006a941…e922、plan9b768caf…ed87已部署；38 payload中仅staged/runner改变，单项CPU回归通过。00:34:07 CST唯一controller57669/SSH4613实际提交并即时取得同一2304:4312099778公共锁，handoff0.188s后启动；尚无完整GPU结果。核验289份完整本地/remote tar文件后，只回收上一max-release终态重复副本，根盘达3.956GB，原3GiB线不变。无第二A任务，后续只接续原进程。确切命令、版本、资源上限及结果分支见RESULTS文末。目标ACTIVE，尚无中心贡献或可投稿结论。
+
+# A latest — 2026-10-09 最大释放减少抢占，却使全请求平均完成更差
+[最新研究卡、原始与复现入口](experiments/admission_capacity/victim_selection_20261004_A/RESULTS.md)已更新。max-release r01四格各320/320完成、0失败未完成、282868 tokens；逐请求长度/终止原因相同，26序列改变，质量未验证。唯一分析FOUR_CELLS_COMPLETE_COMPARABLE，112原始文件全部本地核验，10份分析来源随组保存。
+两个预算臂各41抢占/10非tail实际改选/37 unique victims；两个max臂各27/24/24，全部native preempt/free唯一关联、实际释放匹配。max中位释放214页对135，抢占间隔中位14步对9.5；但mean flow增加+.785830/+.576574s，最坏请求晚完成约21.8s。吞吐+.144%/+.588%，gap P95−8.711/−8.512s，最长gap反而+.489/+.758s，是明确取舍。按主目标先保留已知预算原则，不将少抢占当全局收益，不称新增方法贡献。两个运行对、非独立负载确认；预算相对tail的旧换号结论不被跨组时钟覆盖。
+整组1009.624s，于10月8日23:46:06 CST结束，48782/SSH26921终态0、公共锁释放，无A runner/候卡/新提交。完整归档95,701,887B、SHA92271615…7e35保留本地及远端；模型/输入/资源/冻结代码均未改，失败记录保留。
+查新明确CacheOPT在同剩余长度桶内优先小KV，当前两端点未覆盖。固定128-token cap分桶CPU代理在两条budget轨迹各37/41不同于已测预算、两条max轨迹各25/27同时不同于两端点；UNKNOWN0，异选同释放0，伴随少释放81/99页的中位差。只是未测近邻组件机会，不是服务收益或作者默认实现。下一项有判别力的在线工作应先覆盖该固定组件对普通预算，不发展复杂评分器/桶宽搜索。当前仍无中心贡献、独立确认或可投稿结论，goal ACTIVE。
+
+# 上一完成结果 — 普通预算保护有个体价值，主目标净收益不确定
+已重新读取工作区AGENTS，并据此更新[一页研究卡与完整结果](experiments/admission_capacity/victim_selection_20261004_A/RESULTS.md)。remaining-budget r02四格均320/320完成、0失败未完成、282868 tokens；两个候选各真实改选10/41，两短请求提前约30s完成，但七个长请求稳定推迟、max-gap增加约1s。主mean flow差−.364487/+.061444s、吞吐+.209%/−.388%，不能宣称稳定全请求净收益。逐请求长度/终止原因相同，19个序列改变，质量等价未验证。普通预算规则归强简单基线适配，不归新贡献；停止它的同域调参/自动重复。
+112原始文件全部本地回收核验，唯一分析FOUR_CELLS_COMPLETE_COMPARABLE；整组1039.720s，于22:38:16 CST退出0并释放公共锁，39549/SSH94131终态0。r01磁盘0cell失败保留。该完成组无遗留runner/候卡；下述新组独立提交。目标ACTIVE，中心贡献及可投稿证据尚未成立。
+现成轨迹的新判别：预算臂各37个请求的max-gap跨越真实抢占，其他请求最大不足.19s；剩余长停顿不是TTFT混入。完整native最大实际释放影子41/41异选、额外14–176页，同时等价maxheld/maxcomputed；它未被旧5090/受限pure-decode size实验覆盖，也没有新物理信号。已冻结普通预算与完整max-release一次直接端点ABBA（manifestbd72e541…d8f1a、plan938c0579…b362）；23:29:16唯一48782/SSH26921提交并取得同一公共锁，23:31:22实查首remaining-budget臂RUNNING。新组没有完整结果，不把影子当服务收益；只接续原进程，不扩展预测器或重复候卡。
+
+# 上一完成结果 — 严格预算ABBA零干预
 已重新读取工作区AGENTS，RESULTS开头维护服务目标/部署域/容量模型/近邻及三层假设。当前最薄弱仍是强简单方案后是否存在重要可控损失，不把候选失败等同问题不存在；主目标继续全部外部到达mean flow，允许并报告取舍。
 session-native-equal-release-budget-westd53005-20261008-r01四格1280/1280完成、0失败未完成，各41抢占且0 proposal/0实际改选。四臂输出量282868、逐请求token/结束原因及无时钟输出事件完全相同；mean flow差+.035629/−.196071s不可归因策略。旧706/712机会在当前704/710分别因替代者不在suffix、少1释放页并pending而不合格；停止严格匹配规则的本域投入，不扫页数阈值。一般剩余量简单基线和完成归还假设未被零动作否定，下一步只用已有数据核对它们是否有未测试的合法动作及旧size失败覆盖范围。
 21:24:03 CST整组1041.878s结束，29913/SSH99005退出0、公共锁释放。112raw本地SHA核验；原分析错用prefix-on coordinator检查，原件保留，定向纠错r02为FOUR_CELLS_COMPLETE_COMPARABLE，raw/GPU代码/指标不变。

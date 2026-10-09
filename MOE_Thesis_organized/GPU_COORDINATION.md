@@ -1903,7 +1903,7 @@ D / 2026-10-08 13:25:11 UTC: original unique fixedhalf53005_01 PID30899 now owns
 
 D / 2026-10-08 13:29:51 UTC: fixedhalf53005_01 COMPLETE, originalPID30899 absent/commonlock4312099778 empty;2warm4formal complete. NoD runner/waiter. Lowpriority/bwlimitedrawreadback now, outsideGPUlock; no newexperiment submitted.
 
-A / 2026-10-08 22:42 CST：remaining-budget r02于22:38:16 CST四格exit0/archive VERIFIED整组完成，39549消失、SSH94131终态0，公共锁2304:4312099778已交41250（42104在后）；无A runner/候卡/新提交。锁外nice19/ionice-c3核对112原始文件并归档96,046,518B，SHA0989cb2c…9f867，正在限速取回再本地分析。r01仍保留22:09:24模型初始化前磁盘0cell失败；r02只改session/resource说明，未改科学配置/代码。此前仅回收已核验A终态重复展开副本，所有本地raw/远端完整tgz/原冻结包保留，未动他线。
+A / 2026-10-08 22:42 CST：remaining-budget r02于22:38:16 CST四格exit0/archive VERIFIED整组完成，39549消失、SSH94131终态0，公共锁2304:4312099778已交41250（42104在后）；无A runner/候卡/新提交。锁外nice19/ionice-c3核对112原始文件并归档96,046,518B，SHA0989cb2c…9f867；已完整取回本地核验并分析。r01仍保留22:09:24模型初始化前磁盘0cell失败；r02只改session/resource说明，未改科学配置/代码。此前仅回收已核验A终态重复展开副本，所有本地raw/远端完整tgz/原冻结包保留，未动他线。
 
 - B / 2026-10-08 21:39 CST：simple_cap r01 PID32582已在21:29:42取得公共锁后因根盘1,686,122,496B<原2.5GiB于首格前ABORTED；0cells，无模型/预热，PID/子进程已退出且锁释放。失败已保存本地，无B runner/waiter。只核对并备份B数据盘3个历史终态session的重复副本，待实际回收足够空间才考虑新session；不降低检查，不触碰他人。
 
@@ -1926,3 +1926,75 @@ D / 2026-10-08 fixedhalf53005_01 readback complete: rsync53337 exit0, sixraw+log
 - E / 2026-10-08 22:41:26 CST：原唯一双突发反序已实际RUNNING，controller41250/worker43037/SSH83987存活，41250持同一公共锁2304:4312099778（42104在后等待）。无第二E任务，冻结R/H整组终态即释放；只读查询曾自动审批超时，单次重试成功，未重启实验。
 
 - B / 2026-10-08 22:43:58 CST：唯一repeat8/unique8普通动作价值探针controller43731实际WAIT_GPU，cells=[]/acquired=null，未加载模型。冻结plan4264f43c…990ef8e，同256×1024、cap256、compact/GC、原GPUKV71.9375GiB/HostKV16GiB。整组repeat8/unique8/unique8/repeat8含预热，450s每格/1800s候锁，无第二B任务/自动重试。原公共锁2304:4312099778与2.5GiB线；simple_cap r02仅4份SHA一致的远端重复raw437,997,620B已回收，本地完整raw及远端归档保留，未动他线。终态立即释放再回收分析。
+
+- B / 2026-10-08 22:48:57 CST：原唯一unique8探针controller43731实查RUNNING，22:48:50 acquired1791470930.913096，独占公共锁2304:4312099778，原2.5GiB资源线通过，cells=[]/无error。无第二B任务；冻结4格/450s每格不变，终态立即释放再导出分析。
+
+- E / 2026-10-08 22:48:50 CST：双突发反序 oct08_two_burst160_20s53005_reverse_r01 R/H整组COMPLETE，SSH83987exit0，41250/43037均消失，公共锁2304:4312099778已交43731。反序实际634.492秒，两组共1265.765秒约21.1GPU分钟，无E runner/waiter。仅锁外低优先级归档与限速回收，无第三组提交。
+
+- 2026-10-08 14:49:02 UTC / D / demand53005_01：原PID42104已退出，取得锁后在模型初始化前RESOURCE_BLOCKED_NO_GPU_INITIALIZED，after_lock root free1,141,788,672B<冻结1,610,612,736B。0warm/0formal/0GPU干预，非性能负结果；公共锁已交43731。失败status/log已本地保留，分析UNRUN；当前无D runner/waiter、新提交或自动重试。只读检查D远端workspace总37MiB，不足缺口；未删他线/共享缓存，未降低资源门槛。资源恢复后才能考虑新的独立输出，01不覆盖。
+
+- B / 2026-10-08 23:05:44 CST：unique8探针整组COMPLETE，四格exit0，原43731及末子进程46653已退出；end1791471944.7836573，含预热约1013.871s，公共锁已释放。实际bypass8/4/4/8、unique4/4/4/4，无第二B任务或新提交；现仅锁外nice19/ionice-c3归档，随后限速回传和本地分析。
+
+- E / 2026-10-08T23:14:41.714746+08:00：双突发H/R/R/H两组全部raw回收SHA一致、CPU分析完成；无E runner/waiter或第三组。预声明本阶段共21.1 GPU分钟后收束当前域选择器优化，剩余材料为本地RESULTS/英文证据草稿，非可投稿结论；不会持锁写文档或扫描相邻参数。
+
+- 2026-10-08 15:18:02 UTC / D / demand53005_02：资源恢复后真实提交唯一PID48205，1秒后alive，初始WAITING_SHARED_LOCK_NO_GPU_INITIALIZED。15:17:02实查root3,384,102,912B、公共锁空闲、无D进程。冻结design c882699e33ee302c585a11c15ab6a300b29dbfcaa2f2e6a39d2bd64cd3c51d35，科学配置/资源门槛未变；4暖+F/D/D/F，预计8–12min，180s/格，7200s候锁，500MiB raw/log。host53005/同GPU-51b8e4bb-27b8-4b82-5254-7317aae7298c/同公共锁inode4312099778；终态立即释放后回收分析。输出/dev/shm/moe-d-prefill-continuation-20261007/demand53005_02及相邻.log，01资源失败保留；无其他D候锁任务。
+
+- 2026-10-08 15:25:48 UTC / D / demand53005_02 COMPLETE：原PID48205已退出，公共锁4312099778空闲；4warm+F/D/D/F全部完成。各正式256请求/114688输出，尚待完整分析。无D runner/waiter或下一提交；锁外nice19/16MiB/s回收全部raw/log，rsync本地session51713。原01资源失败保留。
+
+A / 2026-10-09 更新：max-release r01于10月8日23:46:06 CST四臂exit0/archive VERIFIED、CELLS_COMPLETE，48782消失、SSH26921终态0，公共锁2304:4312099778已释放；无A runner/候卡/新提交。整组1009.624s，112原始文件全部本地核验，95,701,887B完整归档SHA92271615…7e35本地及远端保留，唯一分析已完成。remaining_budget/max_release/max_release/remaining_budget各320，冻结plan938c0579…b362、manifestbd72e541…d8f1a未变。只在退出释放后归档/取回/分析，未持锁写文档；其他线文件未动。
+
+- D / demand53005_02回收及分析完成：8raw/log全LOCAL；未压缩传输51713停止exit20后，压缩传输99050完成exit0，仅传输改变，无GPU重启。4formal全部有效，候选U相对同期fixed1024为-19.8879%/-18.7192%；按预定分支收束当前映射，不追加任何GPU组。原PID48205已于15:25:48实查退出/锁释放，当前无D runner/waiter。
+
+- B / 2026-10-09 00:08 CST：唯一service-age r01 controller53300实际RUNNING，acquired1791475665.5053968，持公共锁2304:4312099778。冻结age8/stall8/stall8/age8、256×1024、cap256、同compact/GC及真实client-receipt观测；仅排序不同，episode/总8次上限不变。预期17分钟、450s每格/1800s候锁、无自动重试/第二B作业。原2.5GiB启动线通过；只回收本线已SHA核验且两端完整归档保留的旧组重复JSON573,488,759B，未动他线。整组终态立即释放后归档回传。
+
+- B / 2026-10-09 00:24:10 CST：service-age r01四格age8/stall8/stall8/age8全部exit0，原唯一controller53300消失，end1791476650.233063；整组含预热984.728s，公共锁已交55943。实际bypass8/8/8/8，stall两格各5次不同目标选择、无fallback。无B runner/waiter/新提交；现只锁外nice19/ionice-c3归档及限速回传，再本地全请求分析。
+
+A / 2026-10-09 00:34 CST：固定cap-bucket组件r01唯一controller57669/SSH4613于1791477247.3728504实际提交，即时取得公共锁2304:4312099778，handoff0.188s清卡；remaining/bucket/bucket/remaining整组串行，原3GiB线、1200s/格4800s/组600s捕获不变。仅核验回收A已备份max-release终态重复展开副本，根盘3.956GB，完整local raw及remote tar保留。无第二A候卡；本组尚无完整结果，终态即释放，不持锁分析。
+
+- E / 2026-10-09T00:42:15.395670+08:00：唯一oct09_inline_host53005_r01 controller59404/SSH15978实查WAITING_FOR_LOCK，公共锁2304:4312099778由57669持有，无E子进程/GPU初始化。冻结host async/inline两臂及相同async预热，320输入/278528固定输出、正常GPU0.9/Host32GiB；预计8–12GPU分钟，每episode600秒/整组2640秒/候锁1800秒。仅一次提交，无自动重试或第二候卡；终态立即释放后读回分析。此前只清理两组已核验E终态重复展开目录，两端归档及本地raw保留，不触碰他线或降低资源线。
+
+A / 2026-10-09 00:51 CST：cap-bucket r01四格exit0/archive VERIFIED，57669消失、SSH4613终态0，公共锁2304:4312099778已交59404（61280在后）；无A runner/候卡/新提交。receipt确认1008.864223s整组结束；锁外112raw已本地核验、唯一分析完成，完整tar96,108,188B SHA4a55cda5…c9f3a保留local+remote。当前无A新GPU提交，仅CPU释放窗口诊断。
+
+- E / 2026-10-09T00:52:43.271109+08:00：原唯一oct09_inline_host53005_r01已实查RUNNING，controller59404/worker61366/SSH15978，59404持公共锁2304:4312099778（61280在后等待）。冻结async/inline两臂及相同预热，无第二E任务；整组终态即释放，之后读回raw/分析，不持锁写论文。
+
+- B / 2026-10-09 00:50 CST：唯一native-service-age r01 controller61280实际WAIT_GPU且进程存活，0cells/acquired=null、未初始化GPU；公共锁2304:4312099778由57669持有，59404在前。冻结native/stall8/stall8/native，新到达排列仅各长度类别内逆序，同256×1024、cap256、原预热/模型/预算/receipt观测；stall8原规则冻结，native0动作。预计17分钟、450s每格/1800s候锁，原2.5GiB线，无第二B候卡或自动重试。只核验回收本线36个旧组重复JSON706,725,536B，完整localraw和两端tar保留，未动他线。终态即释放再归档分析。
+
+- E / 2026-10-09T01:01:19.542354+08:00：oct09_inline_host53005_r01 async/inline整组COMPLETE，SSH15978 exit0，59404/61366均消失；公共锁2304:4312099778已交61280。无E runner/waiter，尚无下一组提交。现仅锁外nice19/ionice-c3归档后限速回收、本地全请求分析。
+
+B 2026-10-09 01:02 CST：既有唯一controller61280已于01:00:01取得公共锁2304:4312099778，native/stall8/stall8/native组首格测量中，预计整组约17min；无第二候卡，终态立即释放。
+
+- E / 2026-10-09T01:10:12.504970+08:00：oct09_inline_host53005_r01完整归档已本地回收，SHA afab9b77…fe8f3一致，CPU分析完成；实际25次inline动作，全局2197步不变、主完成均值+0.291秒。按预声明收束本候选，无反序/第二E提交；原组524.639秒已释放公共锁，无E runner/waiter，后续仅本地研究材料。
+B 2026-10-09 01:16 CST：native/stall8/stall8/native四格均exit0，controller61280于01:16:08终态COMPLETE；01:16:41实查PID消失、公共锁空闲，无B GPU候卡。整组987.055s。现做释放后的CPU导出/分析，容量交换新探针尚未提交。
+
+
+- D / 2026-10-08 17:33:20 UTC：rollout53005_01仅四执行文件已暂存，design22bd870b…e7f6、本地/远端check-only通过。root1,186,299,904B低于原1,610,612,736B门槛，preflight失败，输出目录不存在，未提交/无runner/waiter/无GPU窗口保留。17:25:49实查同公共锁2304:4312099778空闲、GPU0且无D进程。准备的是2warm+F/X/X/F有界head动作探针（单X最多4步、整组900s），资源恢复后需重新核实再单独提交；不降低资源门槛、不清理他线、不占锁等待。
+
+B 2026-10-09 01:35 CST：一次容量交换对照已实际启动，唯一controller68613于01:35:09取得公共锁2304:4312099778，stall8/exchange_once/exchange_once/stall8，预计整组17min，最多4×450s；首candidate实际preempt为0则停止反序。无第二候卡，整组结束立即释放。
+
+B 2026-10-09 01:43 CST：容量交换r01首candidate exit1（原native-only forced guard，随后offload drain错误），组ABORTED；68613已退出，公共锁空闲，反序两格未启动。无新候卡。正在CPU归档/定位，不自动重试。
+
+B / 2026-10-09 01:58 CST：容量交换r01原始已完整本地回收/分析，guard接线错误保留，68613已退出、共享锁无持有者。独立guarded r02仅6新文件已部署，源pin/CPU检查通过；session不存在、未提交runner/waiter。data free2,028,916,736B低于原2,684,354,560B启动线，RESOURCE_BLOCKED_GPU_UNRUN；未降低门槛或清理他线。仅回收已逐文件SHA核验的本线r01重复JSON347,107,223B和可再生cache163,871,864B，完整localraw与两端原始tar保留。
+
+B / 2026-10-09 02:05:36 CST：guarded容量交换r02唯一controller71424已RUNNING，acquired1791482736.109613，持公共锁2304:4312099778。仅修复旧native-only返回guard，原stall8/exchange/exchange/stall8、450s每臂/1800s候锁/整组串行不变，预计17min。此前回收本线已核验远端副本576,436,132B及终态r03可再生cache164,582,756B，所有本地冻结包与完整raw保留，free2,771,611,648B满足原2.5GiB线；未动他线。没有第二B runner，结束即释放。
+
+B / 2026-10-09 02:08:07 CST：guarded容量交换r02首baseline安装阶段ABORTED，71424已退出、公共锁空闲；151.339s整组，0正式请求/0动作，后三格未启动。动态staged source定位失败，原始日志已本地保留。无新候卡/自动重试；先CPU修正真实动态构造路径。
+
+- E / 2026-10-09T02:12:57.387039+08:00：唯一默认执行基线组oct09_default_exec53005_r01已实际RUNNING，controller72477/SSH5862存活并持公共锁2304:4312099778；非重复候卡。固定H/R、原320输入/278528输出、GPU0.9/Host32GiB，只共同使用native默认编译/图模式并记录实际KV预算；预计含启动10–18min、整组1200s、各episode600s。编译缓存为E独有tmpfs、计入原110GiB内存，资源检查通过；整组终态释放后读raw，无第二E作业。
+
+- E / 2026-10-09T02:19:55.662442+08:00：default_exec r01在native编译初始化失败，Triton动态库位于noexec的/dev/shm，0warm/0formal/0恢复动作；72477/SSH5862已退出、公共锁已释放，实际占锁25.081s。完整失败已回收；只准备可执行缓存位置修正，尚无第二提交。仅核验回收E旧终态重复副本以维持原4GiB空间线，两端完整归档及local raw保留。
+
+B / 2026-10-09 02:22 CST：r03唯一controller73467于02:21:55 acquired1791483715.181374，73472首baseline初始化中，持公共锁2304:4312099778，73874在后。真实动态installer与原生scheduler CPU检查已通过；4格/450s每格/整组锁不变，预计17min。首次提交响应缺输出后仅核实原进程，未重复提交。无第二B候卡，终态立即释放。
+
+- E / 2026-10-09T02:24:24.493308+08:00：仅缓存执行位置修正后的default_exec r02唯一controller73874/SSH45972实查WAITING_FOR_LOCK，73467持公共锁2304:4312099778，未加载GPU；候锁截止1791485532.0263183。原H/R/320/278528、GPU0.9/Host32GiB、1200s整组不变。已核验回收E三组终态展开副本1,537,990,891B，localraw及两端tar保留；rootfree5,019,123,712B，原4GiB编译线不降低，CPU动态库加载检查通过。无第二E任务/自动重试；终态释放后回收全部raw及失败。
+
+- A / 2026-10-09 02:25:07 CST：自然摘要可行性唯一controller74306/SSH12296已提交，实查locks_lock_inode_wait；公共锁2304:4312099778由73467持有、73874在前，A为WRITE*等待者、session未创建。固定现成Instruct正常.90 profile→一格320请求remaining-budget参考，预计5–8min整卡、1200s整组/600s每格；一次最多3600s候锁，无第二任务/自动重试。仅新增自然任务输入和具体停止原因记录，不是策略收益对照。A已核验回收自身终态cap-bucket重复副本，完整local raw/source与两端归档保留，未动他线；终态及时释放。
+
+B / 2026-10-09 02:38:25 CST：容量交换r03四格全部exit0，73467消失，公共锁已交后续73874（74306在后）。整组990.076s，实际exchange0/1/1/0，两候选均FIRST_CLIENT_RECEIPT解除。无B runner/waiter或新提交；仅锁外nice19/ionice-c3归档后回传本地分析。r01/r02接线失败仍保留。
+
+B / 2026-10-09 03:03:57 CST：唯一受控长请求交换探针controller78609已实查RUNNING、持公共锁2304:4312099778，首stall8加载中。冻结plan99396ca0…a2099，正常KV/原256×1024/stall8-probe-probe-stall8，4×450s、1800s候锁，预计17min；首候选无实际交换/失败即停，无自动重试/第二B候卡。只改开发目标70571首真实容量失败后的触发，Q1不变。新session/cache统一/tmp/moe-b-recovery-after-failure-20261009-r01，free4,594,245,632B，原2.5GiB session盘门槛保留；数据盘不足未降低线/删他线。终态立即释放后回收分析。
+
+B / 2026-10-09 03:20:33 CST：受控长目标交换四格全部exit0，78609已消失、公共锁2304:4312099778空闲；实际交换0/1/0/0。无B runner/waiter或新提交。仅在释放后nice19/ionice-c3归档/tmp/moe-b-recovery-after-failure-20261009-r01并限速回收，再本地完整分析；不把零动作格波动归因于交换。
+
+B / 2026-10-09 03:45 CST：最大单donor余量端点唯一controller83207实际RUNNING，03:44:56实查持公共锁2304:4312099778、首baseline83214存活。仅改同合法集donor排序为最大释放，原首失败后next_begin/Q1/16轮/固定256×1024/正常KV/stall8-probe-probe-stall8，4×450s、1800s候锁，预计17min；首候选零动作/失败停止，无自动重试/第二B候卡。新/tmp/moe-b-recovery-max-release-20261009-r01，原2.5GiB磁盘线保留；终态立即释放。
+
+B / 2026-10-09 04:03 CST：83207最大单donor端点观察中断，53005连续Connection refused、原控制socket消失。最后03:59:48实查83207/85923存活、仍持公共锁2304:4312099778，前三格exit0/动作0-1-0，末基线正式测量中。当前终态和锁未知，不视作已释放，不重启/不提交第二任务；先等待同端点恢复或新授权连接，核查原/tmp/moe-b-recovery-max-release-20261009-r01及原PID后回收。

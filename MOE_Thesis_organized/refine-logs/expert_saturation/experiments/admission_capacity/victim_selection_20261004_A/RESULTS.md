@@ -1,27 +1,99 @@
 # A victim selection — 2026-10-04
 
-## 一页研究卡与当前贡献判断（2026-10-08，开发证据）
+## 收束研究卡与贡献判断（2026-10-09，本地 CPU 复算）
+
+**贡献说明。** 中心问题是：有限 KV 下，victim 释放的容量能维持多久、让哪些请求取得进展，以及这如何影响全部请求的等待。CacheOPT 已考虑完成前容量可达性、剩余输出及 KV 分桶，FastSwitch 已复用有效 host 片段；本线尚未证明“原生恢复重占”提供了它们及强简单规则之外的新决策原则。已有贡献资产是原生真实干预、完整服务取舍和有条件的容量解释；**当前没有获支持的新优化方法或独立论文中心主张**。本轮停止排序公式、host 代理和首次重入门槛评分的继续搜索，不把负结果自动包装成测量论文。
+
+**服务与主目标。** 当前主要证据面向单卡文章续写批处理，用户等待完整结果。预先固定主指标为全部外部到达请求的平均 completion flow；TTFT、每请求最大生成间隔、输出吞吐、排空和个体损害作为必要副作用。没有可靠应用 SLO，未事后挑 goodput 阈值。允许取舍：max-release 的输出吞吐和 gap P95 改善有工程意义，但未改善本组声明的平均完成目标。输出数一致也不代表重算量或任务质量等价。
+
+**部署与动作。** 三个主要完整规则在 OLMoE-1B-7B-0924 base BF16、vLLM 0.26.0、单 RTX PRO 6000 上比较；GPU KV 77,076,627,456B（36,752 可用16-token页）、host KV16GiB、context4096、maxseq384、batch1024、同步 FCFS。320 篇文章开环每0.01s到达，40个cap128、280个cap1024，允许 EOS；固定32/384/2预热并观察排空/600s截止。只改变 allocation failure 时原生未处理 suffix 内的 victim；恢复目标、触发、Q1、传输及准入不变。表中 prefix-ON 单次探针和较早 host-near 均单列；host-near 是此前 PRO 主机、GPU KV77,135,347,712B 的另一组运行域，不能跨行用绝对时延构造对照。
+
+**三个假设分别判决。** H_problem：抢占确实带来长停顿和显著个体损害，合法动作能改变它们；但强简单预算之后仍有可稳定改善的总体损失，**尚未确定**，竞争解释是既有原则已覆盖当前可控空间。H_model：即时释放、重占及输出进展不同量，源码与轨迹支持这一点；但必要重入页数减可释放页数在强预算轨迹的三种建议中仅0–1页，尚不能预测有价值的窗口差异。H_method：新增 host/阶段/分桶或重入信号没有建立超过强简单方法的稳定主目标收益；**当前候选停止**，这不否定其他运行域的 victim 问题。
+
+**本轮新增证据与资源。** 仅本地 CPU 复算下面8组已完成对照，没有启动、访问或轮询远端任务。清单中19个含 raw 的组均已有分析，未发现本地已完成但漏分析的组。自然摘要 session、原始结果包和分析均未在本地出现：只确认准备材料存在，远端终态保持未核实；文末旧排队状态是当时记录，不能当作现在仍在等待或已完成。历史6组启动前终止保留，不计作方法负结果。
+
+### 精简证据表
+
+A为该行基线，B为候选；每个数对按正序、反序给出 B−A，host-near 保留4个运行对，**不以请求或事件充当独立重复**。合法suffix列为每运行候选数的中位（多次运行不同则显示范围）及所有该臂观测的最小–最大值；包括原生合法的当前/partial/pending请求，旧 `qualified` 字段不作为合法性过滤。改选数是与成功原生 preempt/free 精确关联的非tail执行数；A→B不是两条分化轨迹间逐事件配对的改选数。
+
+释放中位取所有实际动作；“B改选Δtail”比较该动作的真实free增量与同一前态原tail的引用计数推导可释放量，后者没有实际执行，不能当两种释放的因果差。抢占→下次输出以原生preempt返回至host收到后续token计时，包含排队、重算/加载和后续再次抢占，是重叠的观察停顿，**不能求和成独立恢复成本**。本表所有抢占均观测到后续输出。拒绝/超时没有独立计数字段，保留未知；各格全部到达请求均完成。完整每格吞吐、flow/TTFT均值及P95、最大gap、发送滞后、选择开销和load ACK数可由同一入口 `--details` 读取。
+
+<!-- A_BOUNDARY_TABLE_BEGIN -->
+| 完整策略对照 B / A | 合法suffix数；实际非tail改选 A→B | 容量（页） | 再次抢占与停顿 | 全请求 Δ秒：flow均值；TTFT P95；gap P95 | 输出率/排空与工作量 | 当前证据状态 |
+|---|---|---|---|---|---|---|
+| remaining-budget / tail [1](session-native-remaining-budget-westd53005-20261008-r02/) | A 139[17–241]；B 136[17–236]<br>改选 0→10（各对） | 释放中位 135→135（各对）<br>B改选Δtail中位 21/21 | 抢占 41→41（各对）<br>重复victim 1→4（各对）<br>抢占→下次输出P50 17.04→15.50s/17.08→15.54s | flow -0.364/+0.061<br>TTFT -0.500/-0.100<br>gap -1.671/-1.603 | token/s +0.209/-0.388%<br>排空 -0.206/+0.385s<br>Δtokens 0/0<br>序列/长度/终止差 19/0/0；19/0/0 | 主指标反序翻转；简单预算有个体收益，无稳定总体优势<br>各格 到达/完成/失败/未完 320/320/0/0 |
+| max-release / remaining-budget [1](session-native-max-release-westd53005-20261008-r01/) | A 136[17–236]；B 134[8–234]<br>改选 10→24（各对） | 释放中位 135→214（各对）<br>B改选Δtail中位 30.5/30.5 | 抢占 41→27（各对）<br>重复victim 4→3（各对）<br>抢占→下次输出P50 15.46→15.65s/15.31→15.61s | flow +0.786/+0.577<br>TTFT +0.189/+0.232<br>gap -8.711/-8.512 | token/s +0.144/+0.588%<br>排空 -0.141/-0.572s<br>Δtokens 0/0<br>序列/长度/终止差 26/0/0；26/0/0 | 两对平均flow更差、gap P95更好；更少抢占不等于更快完成<br>各格 到达/完成/失败/未完 320/320/0/0 |
+| cap-bucket / remaining-budget [1](session-native-cacheopt-cap-bucket-westd53005-20261009-r01/) | A 136[17–236]；B 111[16–238]<br>改选 10→36（各对） | 释放中位 135→109（各对）<br>B改选Δtail中位 -63/-63 | 抢占 41→43（各对）<br>重复victim 4→2（各对）<br>抢占→下次输出P50 15.29→18.41s/15.31→18.59s | flow +0.161/-0.043<br>TTFT -0.200/-0.373<br>gap +2.561/+2.791 | token/s -0.402/-0.110%<br>排空 +0.212/-0.074s<br>Δtokens -525/-525<br>序列/长度/终止差 25/2/1；25/2/1 | 主指标翻转、gap P95更差、工作量改变；仅CacheOPT式组件<br>各格 到达/完成/失败/未完 320/320/0/0 |
+| 等释放 host once / tail（prefix ON） [1](session-native-equal-release-host-once-westd53005-20261008-r02/) | A 128[1–269]；B 121.5[11–269]<br>改选 0→1（各对） | 释放中位 138→139（各对）<br>B改选Δtail中位 0/0 | 抢占 27→26（各对）<br>重复victim 3→3（各对）<br>抢占→下次输出P50 8.15→9.43s/8.11→9.61s | flow -0.050/+0.205<br>TTFT -0.012/-0.089<br>gap -0.493/-0.403 | token/s +0.085/-0.222%<br>排空 -0.074/+0.195s<br>Δtokens 0/0<br>序列/长度/终止差 2/0/0；2/0/0 | 真实等释放干预；主指标翻转，替代victim受损<br>各格 到达/完成/失败/未完 320/320/0/0 |
+| partial-restore once / tail（prefix ON） [1](session-native-partial-restore-once-westd53005-20261008-r01/) | A 128[1–269]；B 134.5[11–269]<br>改选 0→1（各对） | 释放中位 138→138.5（各对）<br>B改选Δtail中位 1/1 | 抢占 27→26（各对）<br>重复victim 3→3（各对）<br>抢占→下次输出P50 8.13→9.50s/8.30→9.50s | flow +0.411/+0.003<br>TTFT +0.251/+0.046<br>gap +0.020/-0.059 | token/s -0.573/-0.259%<br>排空 +0.503/+0.227s<br>Δtokens 0/0<br>序列/长度/终止差 2/0/0；2/0/0 | 两对平均flow无改善；替代victim再次抢占<br>各格 到达/完成/失败/未完 320/320/0/0 |
+| 严格等释放 budget / tail [1](session-native-equal-release-budget-westd53005-20261008-r01/) | A 139[17–241]；B 139[17–241]<br>改选 0→0（各对） | 释放中位 135→135（各对）<br>B改选Δtail中位 不适用（零改选） | 抢占 41→41（各对）<br>重复victim 1→1（各对）<br>抢占→下次输出P50 17.19→17.15s/17.16→17.09s | flow +0.036/-0.196<br>TTFT +0.131/-0.299<br>gap -0.049/-0.057 | token/s -0.029/+0.112%<br>排空 +0.029/-0.111s<br>Δtokens 0/0<br>序列/长度/终止差 0/0/0；0/0/0 | 实际零改选；时延波动不是机制效果<br>各格 到达/完成/失败/未完 320/320/0/0 |
+| host-near seeded / tail（4对） [1](session-native-host-near-seeded-20261008-r01/),[2](session-native-host-near-seeded-20261008-r02/) | A 101.5[1–252]；B 94–119[1–252]<br>改选 0→34/0→32/0→32/0→33 | 释放中位 135→137/135→146/135→146/135→144<br>B改选Δtail中位 未知/未知/未知/未知（未记引用计数） | 抢占 50→49/50→47/50→47/50→48<br>重复victim 2→2（各对）<br>抢占→下次输出P50 20.91→22.76s/20.94→23.18s/20.77→23.29s/20.82→23.25s | flow +0.318/-0.293/+0.177/+0.300<br>TTFT -0.037/-0.511/-0.060/+0.033<br>gap +0.066/-0.173/+0.081/+0.286 | token/s -0.298/+0.307/-0.212/-0.322%<br>排空 +0.324/-0.332/+0.231/+0.352s<br>Δtokens 0/0/0/0<br>序列/长度/终止差 24/0/0；29/0/0；29/0/0；26/0/0 | 3对平均flow变差、1对变好；非等释放、输出序列不同<br>各格 到达/完成/失败/未完 320/320/0/0 |
+| 启动失败（历史保留） | 初始化前GPU忙 2 组；磁盘不足 4 组 | 未进入测量 | 无请求轨迹 | 不计入性能对照 | 不能记成请求失败或方法负结果 | receipt均ABORTED、cells为空 |
+| 未测/未确认 | 自然摘要：本地未见原始结果；终态和服务效果未核实 | 新窗口评分器未执行 | 精确重算/复制成本未隔离 | 应用SLO goodput与独立确认未测 | 输出质量等价未验证 | 完整CacheOPT、第二模型泛化均未证明 |
+<!-- A_BOUNDARY_TABLE_END -->
+
+**稳定取舍和谁受损。** max-release 将抢占41→27、释放中位135→214页，却使平均flow增加0.786/0.577s；gap P95降低8.711/8.512s、输出率提高0.144%/0.588%，最大单请求gap反而增加0.489/0.758s。请求0042067的完成损失为21.773/21.652s。cap-bucket 实际非tail改选36次，但mean flow +0.161/−0.043s换号、gap P95增加2.561/2.791s，0066842稳定晚完成6.527/6.256s；每臂少525输出，不能宣称等工作量提速。剩余预算相对tail、等释放host的主指标均反序翻转；host-near的4对有3负1正。这些开发重复不提供显著性或独立负载确认。
+
+**恢复边界。** max首格0064312在673释放203页，首次lookup及实际allocation external均0、无LOAD；675持48页是冷补算快照，679持192页且未新增输出又被抢，直到1126才输出下一token，完整生成间隔33.079s。它证明了容量快速重占与无新输出的重复抢占可以共存；不能把48页写成host复用或精确新增分配量。同事件普通remaining已建议另一完整decode候选，强预算参考的41次决策没有partial候选，故此坏例子尚不支持新保护器优于预算。
+
+cap首格0021202在673/679动作前都host-ready49页、首次offer784 tokens，但前者实际请求784并有ACK，后者实际external0、无LOAD。Host保存量只有到真实allocation及ACK才证明兑现，且不等于服务节省；未兑现的具体原因仍未知。首662在三个已执行参考轨迹分别释放50/83/192页，首次allocation都约0.211s，保留suffix均36请求各新增3 token、无完成；这只是有限跨轨迹描述，不是同状态干预或一般窗口等价证明。继续解释这些事实可复用[容量窗口诊断](diagnose_capacity_window.py)，不再为它新增实验。
+
+**开销与解释限制。** 主要三组每格选择器外层累计0.258–0.373s，含共同候选观测，已在端到端时延中；内部helper、观测与外层不能重复相加，也未测无观测版本的完整增量开销。部分旧组及cap候选仍出现JIT警告，具体记录保留在原分析，不能据小幅时钟差作机制归因。表中零改选组的时延差仅是运行波动；缺失字段（如旧host-near引用计数、精确重算量）不补成0。
+
+### 可直接用于论文的边界结论
+
+In the evaluated single-GPU article-continuation domain, victim selection substantially changed execution without establishing a new policy with repeatable improvement in mean completion time from external arrival. Remaining-budget, maximum-release, and cap-bucket rules replaced the native tail 10, 24, and 36 times per run in their respective comparisons. Maximum-release reduced preemptions from 41 to 27 and improved generation-gap P95 by 8.5–8.7 s, yet increased mean flow by 0.786 and 0.577 s, with individual completion losses approaching 22 s. A fixed CacheOPT-inspired cap-bucket component also changed execution, but its mean-flow effect reversed sign (+0.161/−0.043 s); it generated 525 fewer tokens and changed 25 request sequences. Equal-release host interventions likewise did not establish repeatable mean-flow gains. These observations weaken immediate release and host-ready capacity as sufficient proxies for victim value, rather than demonstrating scarce opportunities to act. Scope remains narrow: all 256 distinct legal candidates in the reference trajectory reached their declared output caps. Under private decode without prefix caching and native full-sequence reentry checks, required reentry capacity minus releasable capacity was zero or one page for the three recorded rule proposals at all 41 reference decisions. This is a necessary capacity relation, not a recovery-time prediction. We therefore stop developing this reentry-offset score in the tested domain. The evidence neither evaluates full CacheOPT nor establishes that victim selection lacks value generally; independent workloads and task-quality equivalence remain unverified.
+
+### 最小复算与复用资产
+
+在本目录执行，Python标准库即可，仅读已有 `plan.json`、`raw.json`、`selective-store.json`、`metrics.json`、`offload-events.json` 和失败receipt，不导入GPU运行时、不写结果、不联网：
+
+```sh
+python3 -B summarize_victim_boundary.py          # 从原始记录生成本表
+python3 -B summarize_victim_boundary.py --check  # 与RESULTS表逐字比较
+python3 -B summarize_victim_boundary.py --details # 每格绝对值及完整运行对差异
+```
+
+每行链接指向冻结组，组内plan/receipt及保留的候选包记录代码与输入版本；基线、配置和原始失败均未覆盖。等释放budget旧分析修正前后两版仍在，原始数据相同；本表直接读原始记录，避免沿用旧分析的prefix coordinator判定错误。复算脚本首次兼容旧offload schema时发现`allocated`字段缺失，现明确输出未知而非0；这是本地分析修复，不是GPU实验失败。
+
+主论文可复用三类资产：原生合法suffix干预入口及冻结的强简单/近邻组件；覆盖外部等待、全部完成及输出差异的原始请求与事件数据；[必要重入模型](native_reentry_fit.py)、[容量窗口观察](diagnose_capacity_window.py)和[范围/事后终点诊断](shadow_remaining_scope.py)。它们支持相关系统的基线、取舍和边界论述，不支持“击败完整CacheOPT”或新选择器收益主张。
+
+**收束决定。** 当前候选停止，不再用机制检查、近邻阈值或新增评分器延长本线。潜在重新投入条件是：另有真实服务证据表明强简单规则下仍存在重要可控损失，而且在合法选择时出现当前cap主导、完整私有decode集合没有的事件次序差异（例如自然完成或共享/部分驻留真正改变容量归还），能事前产生不同动作并预期区别于remaining-budget及最近方法。它与已失败候选的实质区别必须先明确；本轮只列条件，不启动该域实验，也不声称新机会已成立。
+
+---
+以下全部为历史记录。旧“当前”“下一步”、排队状态及GPU命令仅保留追溯，当前判决以上述收束卡为准；本轮没有访问远端，未声称历史任务已终止。
+
+## 收束前研究卡（历史版本，以下计划不再自动执行）
 **服务对象和目标。** 声明的部署假设是共享单卡上的有生成预算的文章续写作业，用户等待完整结果；现有文章回放不是生产流量或质量基准。主目标固定为全部外部到达请求的平均完成flow，研究短长作业竞争下的整体等待；TTFT、每请求最大生成间隔、吞吐、排空及个体损害是必要副作用，不要求所有指标同时改善。没有应用SLO，不用事后阈值宣称goodput成功。不得增加拒绝、截短、降精度或隐藏排队；失败和截止未完成必须保留，不能只比较完成者均值。输出差异允许诊断为浮点/调度差异，但未经任务质量评估不声称质量等价。
 
 **部署域。** OLMoE-1B-7B-0924 base BF16、revision6d84c485…，vLLM0.26.0/torch2.11.0/Triton3.6，单PRO6000 97,887MiB、110GiB host cgroup；GPU KV77,076,627,456B（36,752可用16token页）、host KV16GiB，context4096、maxseq384、batch1024、同步FCFS。320请求开环i/100秒到达，40个声明cap128、280个cap1024，允许自然EOS；为既有合成长短预算压力诊断，不能外推真实对话。共享前缀版本另有64文章对，明确区分。固定32/384/2请求预热、私有编译种子、测量至排空/600s截止，源不等待引擎。正常容量来自本机profile，历史限容与旧GPU时间不作本机收益对照。
 
-**损失、动作与最薄弱环节。** native tail下有约25–30s个体停顿和重复抢占；真实改选可转移秒级个体损失，但全请求净收益未稳定。尚未证明“合理调优的最强简单策略之后仍有重要可控损失”：首输出保护已测无净收益，max实际释放尚为影子；严格等容量剩余预算ABBA已完成，但两候选均0改选，不能代表一般剩余预算排序已检验。这是H_problem的关键缺口，不能先宣布新方法问题已成立。合法动作仅是allocation failure时未处理suffix中的victim选择，沿原生free/preempt/waiting恢复；目标、1秒触发、Q1、传输和准入固定，必要恢复不能被禁用。
+**损失、动作与最薄弱环节。** 普通预算保护可稳定让两个短请求提前约30s完成，但相对tail的全请求mean flow差−.364487/+.061444s仍不确定。最新完整强简单端点ABBA中，max-release将抢占41→27、受害请求37→24，gap P95改善8.5–8.7s，却使mean flow增加.785830/.576574s，并造成约22s的稳定个体完成损失。按主目标先保留预算原则；不把更少抢占当服务收益。尚未证明强近邻之后仍有重要可控剩余空间。合法动作仅是allocation failure时未处理suffix中的victim选择，原生free/preempt/waiting、目标、1秒触发、Q1、传输和准入固定。
 
-**最小模型与边界。** 动作前可见当前free、逐块引用计数、computed/held、已输出/声明cap、host有效前缀、pending和原生队列位置；未知的是EOS、未来GPU/host淘汰、实际调度份额和恢复等待。以真实free队列计，选择v后的容量为初始free+即时释放+后续归还−running新增占用−准入/恢复新增占用；这是容量记账关系，不是预测器。等释放pure decode候选在共同推进k token、无完成/准入/再次抢占的条件下新增页需求最多差1页；不能转换为真实scheduler步数保证。较早完成可能归还整份KV，但cap−output仅是剩余输出上界，不是墙钟完成期限；恢复重占、长victim补算及batch改变可能吸收收益。host前缀与GPU前缀重叠且会淘汰，不能直接当实际增量恢复量，重叠阶段时间不可相加。
+**最小模型与边界。** 检查释放能否在原生恢复重新进入前支持保留集合的近期完成或跨过压力阶段，只比较现有三个规则提出的候选。新源码/轨迹诊断表明：当前prefix-OFF、完整私有decode、full-ISL-fit条件下，重新进入必须容纳已有序列，必要页数Q=ceil((prompt+output)/16)；动作前引用计数推导的可释放页J与Q只差0–1页。预算基线41个决策的三份建议均如此，所有合法候选中无部分恢复；因此这项门槛状态在强基线轨迹上尚无足够增量信息，不能据此开发窗口评分器。Q−J只是固定其他队列/预留条件的容量偏移，不预测首次重入时刻或服务窗口；实际轨迹还受保留集合增长、完成归还、其他恢复、host兑现和控制阶段影响。容量记账关系仍为初始free+即时释放+后续归还−running新增占用−准入/恢复新增占用。等释放pure decode在共同推进k token、无完成/准入/再次抢占下新增页需求最多差1页，不是调度步数保证。cap−output是输出上界，未知自然stop不能成为在线预计完成时间。本组prefix-OFF没有GPU本地前缀重叠；先前prefix-ON重叠现象不能沿用解释当前复用减少。当前host-ready仍会在等待中失效，只有实际allocation接受的external KV及ACK可证明兑现，且不等于服务节省。
 
-**近邻与贡献边界。** [CacheOPT §3.3–3.4](https://arxiv.org/html/2503.13773v2#S3.SS3)已检查请求共同推进到预计完成前的容量可达性及及时释放供给，victim按SLO、预测剩余输出和KV占用分桶；不能声称它只看静态占用。预算排序只是简单组件适配，“终点有释放但途中不能超容量”也不是新原则。[FastSwitch §3.3](https://arxiv.org/html/2411.18424v1#S3.S3)已复用有效host片段，[TOPAS](https://arxiv.org/html/2608.25523v1#S4)联合前缀驻留、工作流进度、decode reservation与重建/移动成本；“成本感知”和“共享引用计数”均不是新原则。[UniBoost](https://arxiv.org/html/2606.18431v1#S3.S3)已有输出进度保护，当前stage与首输出规则106/106同选，撤销stage增量。尚待证的具体差别是：为每个victim考虑保留集合跨完成事件的容量轨迹和原生恢复重占，是否有已有排序之外的增量决策价值；近邻段落未显式展示此计算，不能仅凭未见写法宣称创新。目前仅有局部经验事实，无中心方法贡献、独立确认或可投稿结论。
+**近邻与贡献边界。** [CacheOPT §3.3–3.4](https://arxiv.org/html/2503.13773v2#S3.SS3)已检查请求共同推进到预计完成前的容量可达性及及时释放供给，victim按SLO桶降序、预测剩余输出桶降序、同剩余桶内KV占用桶升序；不能声称它只看静态占用。预算排序只是简单组件适配，“终点有释放但途中不能超容量”也不是新原则。[FastSwitch §3.3](https://arxiv.org/html/2411.18424v1#S3.S3)已复用有效host片段，[TOPAS](https://arxiv.org/html/2608.25523v1#S4)联合前缀驻留、工作流进度、decode reservation与重建/移动成本；“成本感知”和“共享引用计数”均不是新原则。[UniBoost](https://arxiv.org/html/2606.18431v1#S3.S3)已有输出进度保护，当前stage与首输出规则106/106同选，撤销stage增量。尚待证的具体差别是：为每个victim考虑保留集合跨完成事件的容量轨迹和原生恢复重占，是否有已有排序之外的增量决策价值；近邻段落未显式展示此计算，不能仅凭未见写法宣称创新。目前仅有局部经验事实，无中心方法贡献、独立确认或可投稿结论。
 
 | 假设及状态 | 当前支持证据 | 最强竞争解释 | 判别与削弱条件 |
 |---|---|---|---|
-| H_problem：强简单方案后仍有重要可控等待。**尚未成立** | 正常容量真实压力；短tail约30s停顿；完整remaining影子4/41异选，其中2次预算机会未执行 | 普通剩余量排序已足够；或少释放容量只增加/转移损失 | 完整native合法suffix普通预算ABBA的r01因磁盘0cell失败，修复后r02四臂已完成，原始数据回收中、科学分析待完成。若有效先归简单原则并补max实际释放；无支持则收束本域预算信号，不扫页数阈值 |
-| H_model：可见状态能预测有意义的全局差异。**局部支持，完成归还假设未检验到** | 严格205/205页改选改变停顿分布；条件页增长≤1；host166页最终仅40页实际加载 | GPU重叠/淘汰使host信号失效；完成归还被恢复吸收 | 当前预算组0动作，不检验该因果解释。若有独立于旧失败的新合法动作，才测试完整后继结果；否则不发展容量寿命预测器 |
-| H_method：新增方法超过强简单与近邻。**方法未获支持** | 两次host动作均执行，局部加载兑现；没有稳定主指标优势 | 额外信号冗余或代价转移；现有简单方法即可实现收益 | 当前先建立简单基线。正信号须与同结构消融及近邻组件区分；简单方法解释全部收益就删除新增贡献，不能改名 |
+| H_problem：强简单方案后仍有重要可控等待。**尚未成立** | 预算有个体价值；max少14次抢占仍使mean flow+.786/+.577s；cap分桶主效应换号且gap P95更差 | 已有简单原则已覆盖可控空间；当前合法候选全达cap，未覆盖自然完成异质性 | 当前预算轨迹无partial，扩全running/替换真实最终长度均41/41同选。下一步只在固定摘要服务域核实自然质量、正常容量压力及合法动作；无机会即收束，不恢复退休评分器 |
+| H_model：可见状态能预测有意义的全局差异。**必要容量门槛获支持，服务预测未成立** | Q−J在预算41决策三规则建议中仅0/1；旧max唯一partial为11页，普通remaining已选另一完整候选 | 门槛变化只是已有排序的重述；实际窗口更多由队列/其他完成与恢复共同决定 | 不把静态抵消当相同实际时间；只有在强基线状态出现不同且可解释的事件次序预测，才值得新增模型 |
+| H_method：新增方法超过强简单与近邻。**方法未获支持** | 两完整简单原则及固定分桶组件均真实执行；分桶36次实际改选，但mean flow+.161/−.043s | 静态排序没有稳定增量；输出减少、时钟漂移和损失转移可解释部分表象 | 新窗口原则必须先产生不同且有价值的动作，再开发online选择；固定组件结果不是完整CacheOPT复现/击败，也不是新贡献 |
 
-**当前判决。** 严格host已按预声明收束，净收益符号翻转且转移个体停顿。新严格等容量预算组两候选0实际改选，四臂无时钟输出轨迹完全相同；mean flow差+.035629/−.196071s不能归因于策略。收束“严格等释放/整页匹配＋当前运行域”，不扫描±1页阈值或恢复旧容量制造机会；一般剩余量简单基线及完成归还模型仍未被此组否定。已有数据确认完整native suffix仍有未测预算动作，但少释放33/69页；因此仅补一次普通完整预算基线ABBA，收益先归已有原则，绝非恢复同容量候选的创新主张。
+**当前判决。** 普通预算在上一组mean-flow优于最大释放；固定CacheOPT式cap分桶主效应换号且gap P95更差，停止此代理的调参，不能据此否定完整CacheOPT。新增释放窗口诊断没有建立预算之外的动作价值：纯decode必要fit偏移退化到0–1页，唯一明显partial例外在较差max轨迹中且普通预算已避开。收束当前“纯decode＋首次重入门槛”评分方向，不为它增加GPU组、预测器或相邻阈值；这不是所有victim选择无价值的结论。未来继续投入须出现强简单方案未覆盖的具体损失和不同动作预测；先前已失败的完成等待机制也不改名复活。当前保留可复现原型、正负结果与有条件的容量解释，不包装成新方法论文。
 
-**最新状态：** equal-release-budget r01于21:24:03 CST整组完成并释放锁，四臂1280/1280完成、失败/未完成0，112raw本地SHA核验。原分析误要求prefix-on coordinator而报不可比，原件保留；仅修正prefix-off coordinator检查的r02分析为FOUR_CELLS_COMPLETE_COMPARABLE，GPU代码/原始/指标未变。新完整remaining-budget r01于22:09:24因磁盘低于3GiB、0cell退出1；失败本地保留。安全回收A重复副本后，仅session/resource说明变化的r02以唯一39549/SSH94131于22:20:56提交；22:38:16 CST四臂exit0/archive VERIFIED整组完成，39549/SSH94131终态0、公共锁已释放，无A runner/候卡。112raw远端核验后限速回收，科学分析待完成。已重新读取工作区新版AGENTS，研究卡按问题/模型/方法分判；目标ACTIVE，中心贡献及可投稿证据尚未成立。
+**最新状态：** 上一cap-bucket r01四格均320/320完成、失败/未完成0；分桶少525输出，25序列/2长度/1终止变化，质量等价未验证；112原始文件和唯一分析完整保留，57669/SSH4613已终态。新CPU诊断确认256个合法suffix候选均最终到cap，扩候选范围或给定真实终点也不改变41次预算建议，故不继续该域的预测器/范围调参。现成Instruct的固定自然摘要输入与单组可行性原型已冻结，唯一74306/SSH12296于02:25:07 CST实查等待公共锁（73467持有、73874在前），尚无A CUDA/session或新GPU结果。源、原始、版本、命令与预算见文末；新版AGENTS已重读，目标ACTIVE，独立中心贡献和可投稿证据尚未成立。
 
 以下为按发生顺序保留的历史假设、实施与结果；当前研究判断以上述贡献说明及文末最新证据为准。
+
+## 本轮收束复算（2026-10-09，仅本地 CPU）
+当前未知：已完成实验中，实际改选、容量差异和完整服务效果是否支持同一结论；尚未分析的本地结果是否改变判决。
+主要竞争解释：没有合法机会／规则未执行，或真实改选只转移损失、改变工作量而没有稳定主目标收益。
+最小行动：仅复算已有 raw/store/metrics，按运行对保留正反序、失败和未测项；预计本地 CPU 数分钟，GPU 0，不访问远端。
+不同结果将如何改变决定：有稳定取舍则保留为边界证据，零干预不归因；新的机会只列重新投入条件。本轮停止当前候选，不启动新实验。
+
+
+
 
 ## 假设、修改与版本
 
@@ -1020,4 +1092,313 @@ python3 -B analyze_native_remaining_budget_group.py --session session-native-rem
 
 704的首个归还来自0052099于k66释放140页，随后0049936于k68释放104页；若先分配再处理该轮完成，途中峰值202页。710的完成前需求350页，完成后才归还140页。**终点净增长为负也不证明途中可达**：在这些条件下，单次67页连已记录子集合都不足以持续到短tail完成。但未记录running前缀的完成归还、非均匀调度、自然EOS会改变实际路径，不能把差额换算为真实必须牺牲多少长请求或预测全服务收益；原生恢复重占还需真实轨迹。此结果只指导本组解释：若短请求被保留，必须同时报告为其完成前发生的全部追加抢占及全请求代价，不能以其最终释放量宣称容量已持续获益。
 
-当前执行断点：资源修复后r02于22:38:16 CST四格exit0/archive VERIFIED整组完成，39549/SSH94131终态0、公共锁释放，无A runner/候卡。112原始文件远端核验，96,046,518B完整归档SHA0989cb2cb81964212c6733d8931923fdbfb9057fde3710e15847b3ce8509f867限速回收中，尚无科学分析结论。原r01零单元资源失败保留。复现入口仍为run_native_remaining_budget_group_seeded.py，参数改用plan-native-remaining-budget-westd53005-20261008-r02.json；分析目录/output相应使用r02，不能覆盖已有文件。
+### 完成：普通预算保护有稳定个体收益，完整服务净收益不确定
+
+原始数据：[remaining-budget r02](session-native-remaining-budget-westd53005-20261008-r02/)；唯一分析：[analysis-native-remaining-budget-westd53005-20261008-r02.json](analysis-native-remaining-budget-westd53005-20261008-r02.json)，状态FOUR_CELLS_COMPLETE_COMPARABLE。四格均320/320完成、失败/未完成0、282868 tokens、309 length/11 stop；逐请求长度与终止原因完全一致，但两对均有同一批19个请求token序列改变，同策略两次序列相同。三个重点请求0049936/0052099/0061042序列未变。只能排除总输出量变化解释，不能声称计算工作量或任务质量等价。
+
+| 全请求描述量 | tail正序 | remaining正序 | remaining反序 | tail反序 |
+|---|---:|---:|---:|---:|
+| mean flow (s，预声明主目标) | 68.994035 | 68.629547 | 68.833842 | 68.772398 |
+| flow P95 (s) | 94.643890 | 94.669307 | 94.970743 | 94.336394 |
+| TTFT mean / P95 (s) | 13.370485 / 63.602153 | 13.283827 / 63.101654 | 13.316923 / 63.269748 | 13.314590 / 63.369962 |
+| per-request max-gap mean (s) | 2.259460 | 2.099272 | 2.104201 | 2.256571 |
+| per-request max-gap P95 / max (s) | 20.620352 / 32.954829 | 18.949304 / 32.597544 | 19.017543 / 32.704420 | 20.620675 / 32.847928 |
+| 输出吞吐 (token/s) | 2852.936654 | 2858.888342 | 2850.440688 | 2861.550093 |
+| 持续 / 最后到达后排空 (s) | 99.149765 / 95.959642 | 98.943354 / 95.753238 | 99.236585 / 96.046483 | 98.851319 / 95.661184 |
+
+两对mean flow差**−.364487 / +.061444s**，吞吐**+.209% / −.388%**。同策略mean flow自身变化为tail−.221637s、remaining+.204294s；没有独立确认或统计显著性结论。gap均值−.160189/−.152369s、P95−1.671048/−1.603132s，但中位数+.016236/+.011019s，234/292个请求max-gap增加。允许报告这种取舍，不将gap替换为事后主目标，也不从继承goodput网格选成功阈值。
+
+**动作确已改变，而且是持续保护。** 两候选各41次原生抢占、10次真实改选，41/41规则重算匹配、改选均唯一关联native preempt/free，实际释放与预测一致；两tail各0实际改选。首改选673：0065237→0053843，释放84→149页。704：短tail0049936→0061042，100→67页。704–767共九次改选持续绕开同一短tail，选择九个不同长请求，累计周转释放1037页；不是净增容量，也不能称相对tail“额外九次抢占”，因为四臂总抢占均41。两短请求随后在769/771步到128 cap完成、未被抢占，最大gap约.130–.133s。0052099没有直接充当改选决策的tail，是后继轨迹的间接受益者。
+
+| 稳定个体效应，candidate−tail | 正序对 | 反序对 |
+|---|---:|---:|
+| 0049936完成差 (s) | −30.5783 | −30.3886 |
+| 0052099完成差 (s) | −30.1268 | −29.9220 |
+| 0061042完成差 / max-gap差 (s) | +.0381 / +1.0332 | +.6471 / +1.2411 |
+
+两对均晚完成的七个请求是0041130、0049468、0051693、0055053、0061042、0062890、0066337，它们max-gap均增加约1.03–1.33s；前五完成损失排序相同。只有18个请求稳定提前、7个稳定推迟，295个完成差换号。两短请求对全体mean flow的算术贡献为−.1897/−.1885s，其余318个请求平均差−.1759/+.2515s；这是损益分解，不是因果校正。
+
+恢复代价仍存在：0061042在704被抢、1111重新准入、1113输出，约30.139/30.245s无输出，实际恢复local/external均0；0021202在767被抢、772输出、777再次被抢，其后gap23.532/23.621s，恢复external720 tokens有ACK；0039450在757被抢、783输出、790再次被抢，后gap22.211/22.291s，首次external1200 tokens有ACK。候选有4个请求各被抢两次，tail只有0065237被抢三次。恢复后的held不是新增占用；短请求完成当刻独立free增量未记录。真实轨迹符合“保留短请求需要持续供给”的方向，但旧704/710条件模型不是本次精确预测，更不能由两个短请求完成证明全局容量获得净收益。
+
+前态与开销限定：首动作前各对1次抢占与97159条无时钟输出事件相同；首动作墙钟候选已经快.143582s / 慢.037649s。不是严格同状态快照，也不从最终指标扣除该偏移。两tail测量期各1条JIT警告、两候选0；警告不是编译耗时，既有种子不保证零编译，不据此事后修正服务时间或再开同规则诊断矩阵。外层共同selector墙时依次.331215/.319261/.372227/.327368s，其中观察.218408/.209458/.260405/.214861s，预算helper .001512/.001626/.001566/.001510s均内含，不相加；两臂共同观测不等于生产增量开销。发送滞后均值约12ms、最大30.388ms，全部到达进入引擎并完成，未触600s截止；独立拒绝/单请求timeout未单独记录，不能将missing字段伪造为计数0。
+
+**判决与贡献归类。** 普通已知预算保护实现了可重复的个体取舍，属于强简单基线适配；本组主目标净收益在预设上限内不确定，停止本域预算信号调参/复杂组合及自动重复。两个短请求不作为两个独立系统重复，不能用局部改善证明H_method或同容量全局原则。当前仅支持局部H_model，强简单方案后的H_problem仍未建立；不把它扩大为一般victim选择问题无价值。
+
+资源与复现：整组1039.720s，22:38:16 CST四格exit0/archive VERIFIED，39549/SSH94131终态0、公共锁已释放；无A runner/候卡/新提交。112原始文件远端及本地核验，完整归档96,046,518B，SHA `0989cb2cb81964212c6733d8931923fdbfb9057fde3710e15847b3ce8509f867`，远端tgz和完整本地raw保留；r01零单元磁盘失败不覆盖。实际使用计划r02 SHA `52b1b6ad622aab8c2a930424fb3bdd97f7669ecfeff1d24285e570d46b49e360`、原冻结包manifest `45c5fd771017851428202f6b435e3ef6b5cde38cc854514aee5b78e754f37cd4`，分析器SHA `55107f88be6d3efe4df0736887c89d834644ba7c51bf292841e6d60acda4380a`。
+
+```sh
+# 实际已完成的命令；既有session/output禁止重启或覆盖。
+LD_LIBRARY_PATH=/root/miniconda3/lib/python3.12/site-packages/nvidia/cu13/lib:/root/miniconda3/lib/python3.12/site-packages/torch/lib /root/miniconda3/bin/python -B -u run_native_remaining_budget_group_seeded.py --plan plan-native-remaining-budget-westd53005-20261008-r02.json
+python3 -B analyze_native_remaining_budget_group.py --session session-native-remaining-budget-westd53005-20261008-r02 --output analysis-native-remaining-budget-westd53005-20261008-r02.json
+```
+
+当前未知：普通保护之后的严重等待是否仍有不同强简单victim动作可控制，值得继续本域系统方法研究？
+主要竞争解释：大部分可控收益已由短作业保护覆盖；或即刻释放更多容量能减少牺牲/恢复队列压力，比完成预算更重要。
+最小行动：仅用本组原始轨迹关联剩余max-gap与实际抢占，并核对现成完整native max-release影子及旧size覆盖；本轮CPU读取，不新增观测平台或重复GPU组。
+不同结果将如何改变决定：若剩余大停顿与合法victim无关，或替代动作已被同条件测试，则收束此域；若有明确不同容量端点且未被旧实验覆盖，再为一个有上限的强简单端点对照冻结方案，收益先归简单基线，不承诺新贡献。
+
+**CPU判别完成。** 两个remaining臂各37个请求的最大生成间隔均跨越真实抢占，其余请求最大仅.180/.177s；最长0053843为32.598/32.704s、0065237为31.675/31.826s。不是TTFT混入。完整max-release影子在两臂均41/41不同于实际budget选择、每次多释放14–176页；704可选200页替67页，767可选232页替56页，但41/41也等价maxheld/maxcomputed，没有新的物理异质信号。2次影子选择current、4次pending>0；既有原生suffix允许这些动作，旧size资格恰排除了它们。当前数据只能确认未测容量端点，不能预测其会减少总抢占或全请求损失。
+
+### 两个完整强简单端点直接对照（已完成，以下保留冻结设计）
+当前未知：已有预算保护之后的主目标损失，是否由每次释放较少容量导致；最大即时释放是否足以得到更好的完整服务结果？
+主要竞争解释：较大释放减少后续牺牲/恢复竞争；或保护更接近完成的请求更有价值，大victim的恢复与队列损失反而更高。
+最小实验：同正常KV、原mixed320、模型/精度/输入/预热及所有其他机制，remaining_budget/max_release/max_release/remaining_budget一次ABBA；两臂均为完整native合法suffix在线规则，latest tie，没有新阈值。max-release直接使用已存在的refcount物理释放shadow，不加观测或改变生命周期。
+不同结果将如何改变决定：max-release若一致更好，先接受普通容量基线并撤销“预算保护优先”的投入；预算若一致更好，只支持此域下该简单原则及取舍，仍不视为新方法；若换号或收益不清，在此组上限内暂存并停止本域相邻排序搜索。任何结果都先定位简单基线后的剩余空间，没有明确新预测就不开发组合评分器。
+
+阶段上限仅1组4×320，预计整卡17–22分钟，硬上限1200s/格、4800s/组、600s捕获、一次最多3600s公共锁等待；主目标仍全外部到达mean flow，全部副作用/输出/失败保留，无SLO或费用遥测，不改指标追求正值。本组新增的是一个历史未覆盖的完整容量端点，不是预算规则的追加重复、旧size改名或近邻完整复现。实现、冻结与磁盘准备完成后已按下述唯一入口提交；尚无新完整策略结果。
+
+已冻结并部署[candidate_native_max_release_r01](candidate_native_max_release_r01/)：manifest `bd72e54183f552c7f2997030adbd03b9817b827acd7b91d23b8fe826802d8f1a`、staged `19934a03468d311d9994de1feeefa1026e0a08ae88d684eac39b9cc29becd457`；仅规则/runner两份payload改变，38文件manifest内其余36份原字节。单项CPU回归通过共享引用计数、current/partial/pending资格、保护/未知回退及原生pop/free/preempt；初次仅fixture异常类型预期修正为ValueError，无运行时代码修复，不称GPU结果。新[计划](plan-native-max-release-westd53005-20261008-r01.json) SHA `938c05792aac7c13acd0cb6e0d756d11d35d7b151a4debe0554085ae80f9b362`，entry SHA `b140074c87231bfe252256e1746a9e51cdc068fb366ccaa351f68429a4942a7e`；controller沿用原锁/交接/种子，配置检查通过。原生未知ownership的view异常行为两臂不变，不悄悄改为另一回退。
+
+存储准备仅回收刚完成remaining r02的17份重复展开目录与缓存；删除前核对本地全部原件和远端完整tar中的268文件，完整本地raw/source、远端tgz、原冻结包及plan/receipt/hash/log保留。root余量1,067,716,608→3,386,888,192B；原3GiB门槛不降低，他线未动。SSH控制连接过期导致首次上传未完成，凭原授权重连后上传成功，无实验重启。部署后root3,373,019,136B，公共锁2304:4312099778不变，session尚不存在。
+
+```sh
+# 远端A目录；新session仅提交一次，已有同名目录必须先查实际进程。
+LD_LIBRARY_PATH=/root/miniconda3/lib/python3.12/site-packages/nvidia/cu13/lib:/root/miniconda3/lib/python3.12/site-packages/torch/lib /root/miniconda3/bin/python -B -u run_native_max_release_group_seeded.py --plan plan-native-max-release-westd53005-20261008-r01.json
+# 整组终态后本地分析；禁止覆盖已有output。
+python3 -B analyze_native_max_release_group.py --session session-native-max-release-westd53005-20261008-r01 --output analysis-native-max-release-westd53005-20261008-r01.json
+```
+
+执行断点：23:29:16.978 CST唯一48782/SSH26921提交并立即取得公共锁2304:4312099778，交接.181s；23:46:06 CST四臂exit0/archive VERIFIED整组完成，耗时1009.624s，48782消失、SSH26921终态0，公共锁释放。无A runner/候卡/新提交。112原始文件远端核验，完整归档95,701,887B、SHA9227161570c934c4353cc6a77be6b8e59bce809640eac141e9375f3ce04f7e35正在限速取回，尚无完整科学分析。新[分析器](analyze_native_max_release_group.py) SHA `74e6ea0df3ec51961408b3bfd6f12694d7127e2009ae24b4b5e7806207b7be40`复用全请求统计，单独核验两种主动策略及其实际preempt/free；reference自身改选不记为0。两项针对双主动字段/物理ACTIVE与缺失状态的CPU检查通过，没有生成新科学结果。整组完成释放后才回收分析。
+
+**等待期的近邻核对，限制当前对照的覆盖声明。** [CacheOPT §3.4](https://arxiv.org/html/2503.13773v2#S3.SS4)先按TBT SLO桶降序、同SLO内按预测剩余输出桶降序、同剩余桶内按已占用KV桶升序抢占；因此精确remaining与max-release两个端点并未覆盖其“相近剩余量中优先小KV”的组件。论文给出128-token跨度的剩余/占用桶作为示例，未明确边界归属、最终同桶tie-break，也未定位到官方代码，不能写作已验证默认值。[§3.2](https://arxiv.org/html/2503.13773v2#S3.SS2)使用微调OPT-13B预测长度/偏差方向，不等于声明cap。无SLO可将第一维设同级，但用cap并限制native suffix只能称组件代理适配；§3.3预分配/借用/预留及§3.5交换或重算不属于本组。当前GPU两端点对照不因此扩大、不改变已冻结判断规则，也不能声称已超过CacheOPT完整系统或其victim组件。
+
+### 完成：更多即时释放减少抢占，却使平均完成更差（2026-10-09分析）
+
+数据来自[本组原始目录](session-native-max-release-westd53005-20261008-r01/)及[唯一分析](analysis-native-max-release-westd53005-20261008-r01.json)，状态FOUR_CELLS_COMPLETE_COMPARABLE；112文件已完整本地核验。四格均320/320完成、失败/未完成0，均282868 tokens、309 length/11 stop；逐请求长度与终止原因相同，但两对同26个请求token序列改变，不能声称质量等价。同策略两次的无时钟输出事件、逐请求token序列和实际抢占step/request/output/release轨迹完全相同；时钟仍有波动。
+
+| 全请求指标 | budget正序 | max-release正序 | max-release反序 | budget反序 |
+|---|---:|---:|---:|---:|
+| mean flow (s，主目标) | 68.000075 | 68.785905 | 68.399064 | 67.822490 |
+| flow median / P95 (s) | 74.602221 / 93.615622 | 75.964105 / 90.164306 | 75.552406 / 89.679386 | 74.408719 / 93.552133 |
+| TTFT mean / P95 (s) | 13.177796 / 62.755269 | 13.268478 / 62.944436 | 13.129548 / 62.595118 | 13.137726 / 62.363477 |
+| per-request max-gap mean (s) | 2.089481 | 1.377764 | 1.367432 | 2.066615 |
+| max-gap P95 / max (s) | 18.929905 / 32.589804 | 10.218649 / 33.078771 | 10.206513 / 32.967723 | 18.718938 / 32.209356 |
+| 实际输出 token/s | 2889.977438 | 2894.140824 | 2908.755772 | 2891.744415 |
+| 持续 / 最后到达后排空 (s) | 97.878965 / 94.688834 | 97.738160 / 94.548063 | 97.247078 / 94.056963 | 97.819157 / 94.629026 |
+
+max-release−budget的主mean flow差**+.785830/+.576574s**，两对均更差；吞吐+.144%/+.588%、flow P95−3.451/−3.873s、max-gap P95−8.711/−8.512s，属于明确取舍，不能用更少抢占或尾部改善替代预声明目标。候选219/167请求晚完成、101/153早完成，稳定受损167、受益101、换号52。两个运行对是重复单位，没有置信区间或独立确认结论。
+
+**执行与容量。** budget各41次原生抢占、10次非tail实际改选，37个unique victims、4个各抢两次；max-release各27次、24次实际改选，24个unique victims，0054622/0064312/0054011各抢两次。每个实际决定规则重算MATCH，全部成功preempt/free唯一关联，实际释放等于预测物理释放。max实际释放192–238页、中位214；budget56–205、中位135。相邻抢占engine-call间隔中位14对9.5，压力段仍662→1020对662→1018；这是实际调度间隔，不保证所有保留请求每轮都输出。两策略压力段都只完成相同5个请求，包括769/771到cap的两个短请求；没有“更多即时释放促成额外完成归还”的证据。
+
+**谁获益、谁受损。** max中0053843未被抢占，step1692完成；budget被抢两次、2138完成。其完成提前5.975/6.399s，max-gap从32.590/32.209降至.169/.162s；0061042完成提前5.566/5.985s。0049936和0052099两短请求只额外提前约.05/.15s；全部40短cap的mean flow仍增加.1425/.0098s，280长cap增加.8777/.6575s。
+
+| 主要稳定受损请求 | 完成差：正序 / 反序 (s) | max-gap差：正序 / 反序 (s) |
+|---|---:|---:|
+| 0042067 | +21.773 / +21.652 | +31.195 / +31.091 |
+| 0051355 | +21.668 / +21.668 | +26.007 / +25.919 |
+| 0066860 | +18.204 / +17.984 | +28.523 / +28.433 |
+| 0045217 | +17.209 / +17.033 | +23.506 / +23.422 |
+
+这些受损者的输出序列未变。0042067到达.63s、prompt3062；max在692抢占释放227页，1117重新准入、1122才输出，gap31.360/31.252s，完成89.110/88.626s；budget未抢，完成67.337/66.974s。较大KV的早到请求承担了新增等待，而非少数输出长度变化造成指标差异。抢占数和受害请求数确实减少，不能只称“相同数量等待换人”，但净平均完成仍更差。
+
+原生恢复重占的实际反例仍在：0064312于673释放203页，675以held48重新准入，679尚无新输出时再次释放192页，当时computed3064落后既有3236-token序列；到1126才从out206→207，形成一段33.079/32.968s连续停顿。不得将两次重叠等待相加；恢复后held也不全是新增分配。max于692释放后保留的0054622确实输出66→80，706才再次抢占，但局部可推进更久没有转为全请求mean-flow收益。
+
+**波动和成本。** 首分歧662前94306条输出事件完全相同、均无先前抢占，动作前max已慢.120784s / 快.102555s；不扣除前态时间、不称严格同隐藏状态。budget两次mean flow自身变化−.177585s、max−.386841s。本组四格测量期JIT警告均0，这不证明所有编译耗时为0。外层共同selector总墙时依次.373241/.264988/.257650/.362011s，内含观察.265599/.196811/.189674/.258766s；budget helper .001551/.001140/.001162/.001448s、release helper .001303/.000878/.000823/.001234s也内含，不能相加。恢复观察体约6ms/臂，不等于恢复链路耗时；native allocated callback47/30/30/47、load ACK6/3/3/6，不等于省下同等数量的传输或服务时间。客户端发送滞后均值约12ms、最大<30ms，全部进入引擎并完成、未触截止；独立reject/timeout未另记，保留UNKNOWN字段。
+
+**判决。** 按冻结主目标，普通remaining-budget在本组两个运行对优于完整max-release；最大释放仅在吞吐和部分尾部分布上更好，不将其作为本域mean-flow优先原则，不调size阈值补救。收益首先属于已有简单调度原则；预算相对原tail的前一组净收益仍不确定，本组不能用跨组时钟替它补证。H_model只支持“释放更多可拉长两次抢占间隔，但服务损失取决于牺牲谁及后续恢复”，这不是独立新颖性证明；H_problem在强近邻之后是否还有可控剩余空间仍未建立，H_method未成立。当前不扩大GPU矩阵、不发展组合预测器或开始论文包装。
+
+资源已终态：23:46:06 CST结束，1009.624s，48782/SSH26921退出0、公共锁释放，无A任务/候卡。完整95,701,887B归档SHA `9227161570c934c4353cc6a77be6b8e59bce809640eac141e9375f3ce04f7e35`保留远端与本地，原始112文件及10份分析来源本地可追溯。冻结代码、计划与上述复现命令不变，未追加运行或覆盖失败。
+
+当前未知：CacheOPT式分桶在这两个端点之外是否真的提供不同合法动作，还是当前状态下仍与已测普通预算等价？
+主要竞争解释：精确remaining已覆盖近邻组件；或同剩余桶中优先小KV会以不同即时释放/恢复代价产生独立选择，需要先作为强基线覆盖。
+最小行动：本组四条既有轨迹CPU影子；同SLO，remaining取声明cap−output，剩余桶ceil(remaining/128)、占用桶ceil(held×block_size/128)，依次剩余降序/占用升序/latest index。128来自论文示例，边界与tie是显式适配选择，不称作者默认，不扫描其他值。
+不同结果将如何改变决定：无差异则不占GPU测相同动作；存在差异只说明近邻组件未覆盖，先核对完整在线适配价值，不据影子宣称收益或新颖性。当前只做CPU机会判断，没有提交下一GPU组。
+
+**CPU近邻机会判断已完成，未运行在线组件。** [固定脚本](shadow_cacheopt_cap_bucket.py)在四格现成决策上相对实际online选择异选37/41、27/27、27/27、37/41；相对remaining影子37/41、25/27、25/27、37/41，相对max-release影子41/41、27/27、27/27、41/41。UNKNOWN及保护回退均0，所有异选的同实际释放量数均0。首662代理选0021202：50页/remaining982/桶(8,7)，remaining为0065237：83页/1011/(8,11)，max-release为0054622：192页/981/(8,24)。代理相对remaining影子在两条budget轨迹的释放差中位−81页、remaining差−27 token，在两条max轨迹则−99页/−49 token；只是各自当前状态的差值分布，不能拼接成新策略累计容量或服务轨迹。
+
+由此确认尚缺一个有不同动作的强近邻组件，不能写作“两个简单端点已覆盖CacheOPT”。若继续这个运行域，下一项有判别力的服务实验应是固定cap分桶代理的完整在线适配对普通预算基线；其价值首先归已有原则，仍不支持同容量新模型。不开桶宽/边界/tie扫描，不把论文示例当作者默认，不因CPU异选多就预称有效。当前没有新GPU提交，先保留完整本组取舍及此明确缺口。
+
+```sh
+# CPU机会诊断，只stdout；没有新科学JSON或服务收益结论。
+python3 -B shadow_cacheopt_cap_bucket.py --session session-native-max-release-westd53005-20261008-r01
+```
+
+### 固定近邻组件对照：在线cap分桶适配（准备中，未运行）
+当前未知：相近剩余量中优先小KV的固定近邻组件，能否比精确剩余预算排序降低完整平均完成等待，还是少释放导致更多恢复与抢占？
+主要竞争解释：分桶允许较便宜的victim而收益归已有CacheOPT式原则；或粗化剩余量/更少释放损害近期完成并使整体更差。
+最小实验：同原mixed320、正常KV、模型/精度/输入/预热与其他机制，remaining_budget/cacheopt_cap_bucket/cacheopt_cap_bucket/remaining_budget一次ABBA。固定128跨度、正桶((k−1)128,k128]、零桶0、latest tie，沿已运行CPU代理；声明cap代替预测器、SLO同级、仅native suffix，不称原系统或作者默认配置。
+不同结果将如何改变决定：代理一致更好则先接受已知组件为强基线，再检查剩余损失，不记新贡献；预算更好则保留预算并收束这个代理；换号或无清楚主效应就在本组上限内暂存。均不扫桶宽/边界/tie、不追加测到显著、不发展组合预测器。只有具体的新剩余问题和判别预测才支持继续方法投入。
+
+预算仅本组4×320，预计整卡17–22分钟，1200s/格、4800s/组、600s捕获、最多一次3600s公共锁等待，无自动重试/第二候卡。主目标仍全部外部到达mean flow，TTFT、gap、吞吐、排空、个体损害、全部失败与输出差异完整报告；无应用SLO、费用遥测或已知共享余额。两臂均执行全部相同影子观测；只改变在线victim排序，原生命周期、Q1、恢复目标/触发、传输与准入不改。当前仍在CPU实现/分析准备，不存在新GPU结果。
+
+
+**实现与配置已冻结，GPU尚未运行。** 已重新完整读取工作区新版AGENTS；研究卡沿用全部外部到达mean-flow服务目标和三层假设，不重写历史判决。新包[candidate_native_cacheopt_cap_bucket_r01](candidate_native_cacheopt_cap_bucket_r01/)仅改staged/runner两份payload，其余36份与已完成max-release包相同；原remaining/max helper保持原字节。新增规则无EOS预测、无额外合法性缩窄；全部三份影子两臂共有。单项选择/生命周期CPU回归和38份部署hash通过，只说明实现可运行，不是GPU或科学证据。
+
+冻结[plan](plan-native-cacheopt-cap-bucket-westd53005-20261009-r01.json) SHA `9b768caf4689685762cc2d3bd27eba2011a2cd42ebcbc901b52048c5babaed87`；manifest `3006a941bc3a5292b16442edbcb18035c6c5a250aa06f4a2ec10807a85f5e922`；staged `18f0e3f17e56b8a6b1e8516a9b47f33c2f0ca025e9ab90caa67522b5a56f6784`；runner `1ba10f4678c70e3ee4be81c24bd81db9ad3ef5f4b4284947faaf34f5aedb4a2c`。controller `bb964b8e11f84b32a395c1d0e116cc1f3a5a7e201325881241efba9d8e329f4e`、seeded `c5584f1a59ded3e7212a30398aa27f126a4bc5d08dcd779b43ae0b112c53a403`；部署tar6,448,948B SHA `2440626d6e88d2ae23be14f016717915e581b34d4cad96acbc97eb373da28b6a`。唯一新分析入口[analyze_native_cacheopt_cap_bucket_group.py](analyze_native_cacheopt_cap_bucket_group.py) SHA `a8c7d8a08ee90769107a64f70757abc2929ef738ca660af5bca5bc8475ad85cd`，逐动作重算两实际规则和max影子；前缀对齐截止两实际规则首次建议分歧，不以较晚cap非tail提案冒充共同前缀。
+
+```sh
+cd /root/autodl-tmp/moe-a-victim-20261004
+export LD_LIBRARY_PATH=/root/miniconda3/lib/python3.12/site-packages/nvidia/cu13/lib:/root/miniconda3/lib/python3.12/site-packages/torch/lib
+/root/miniconda3/bin/python -B -u run_native_cacheopt_cap_bucket_group_seeded.py --plan plan-native-cacheopt-cap-bucket-westd53005-20261009-r01.json
+# 只能提交一次；若已有进程，先接续它，不重启。取回终态完整session后：
+python3 -B analyze_native_cacheopt_cap_bucket_group.py --session session-native-cacheopt-cap-bucket-westd53005-20261009-r01 --timeout-s 1200 --output analysis-native-cacheopt-cap-bucket-westd53005-20261009-r01.json
+```
+
+
+**已真实启动，尚无完整结果。** 00:34:07 CST（epoch1791477247.3728504）唯一controller57669/SSH exec4613提交，公共锁即时取得，handoff0.188s确认GPU清空；无第二A任务。此前仅回收已完成max-release r01的17个重复展开/私有缓存目录，289份本地与远端完整tar文件、112份output逐字节核验；根盘1,644,830,720→3,956,420,608B，释放2,311,589,888B。完整本地raw/source、local+remote全tar、计划/receipt/hash/log与原冻结包均保留，未动其他线。回收脚本SHA dd7655f6…0842，原3GiB门槛未降低。当前只接续57669/4613，不重启；最终性能及失败以receipt/raw为准。
+
+
+### 固定cap分桶ABBA完成：主目标换号，停顿尾部更差（2026-10-09）
+
+[完整原始session](session-native-cacheopt-cap-bucket-westd53005-20261009-r01/)与[唯一分析](analysis-native-cacheopt-cap-bucket-westd53005-20261009-r01.json)均已保存，状态FOUR_CELLS_COMPLETE_COMPARABLE。四格各320外部到达/320完成，失败0、未完成0、无缺失请求；无捕获超时，所有到达均进入引擎并排空。独立拒绝/超时计数未单列，保持NOT_SEPARATELY_RECORDED/null，不虚填0。主目标与模型/精度/输入/预算/预热未改；两运行对是重复单位，不将1280请求当独立重复。
+
+| 指标 | budget正 | bucket正 | bucket反 | budget反 |
+|---|---:|---:|---:|---:|
+| 平均完成flow s | 67.748570 | 67.909489 | 67.859320 | 67.902392 |
+| 完成flow P95 s | 93.461345 | 93.725896 | 93.646058 | 93.660032 |
+| 平均TTFT s | 13.121332 | 13.220304 | 13.123266 | 13.194396 |
+| TTFT P95 s | 62.273806 | 62.074230 | 62.055263 | 62.428640 |
+| 每请求max-gap均值 s | 2.071157 | 2.416740 | 2.439352 | 2.068498 |
+| max-gap P95 s | 18.729332 | 21.290628 | 21.509136 | 18.717814 |
+| 最长max-gap s | 32.187543 | 31.503002 | 31.883910 | 32.189390 |
+| 输出tokens/s | 2894.727575 | 2883.095146 | 2885.416073 | 2888.592918 |
+| 完整测量至结束 s | 97.718349 | 97.930518 | 97.851746 | 97.925879 |
+| 最后外部到达后排空 s | 94.528225 | 94.740402 | 94.661628 | 94.735772 |
+| 输出tokens | 282868 | 282343 | 282343 | 282868 |
+| native抢占 / 非tail实际改选 | 41 / 10 | 43 / 36 | 43 / 36 | 41 / 10 |
+
+**完整收益与代价。** bucket−budget mean flow为+.160918/−.043072s；实际输出率−.40185%/−.10998%，gap P95+2.561296/+2.791322s、平均max-gap+.345583/+.370854s，最长gap−.684541/−.305480s。前向96请求提前/224推迟，反向292提前/28推迟；96稳定提前、28稳定推迟、196换号。0066842完成+6.527/+6.256s、gap+21.453/+21.691s；0058251完成+6.271/+6.001s、gap+20.669/+20.890s，两者token序列未变。0054622完成−5.011/−5.269s、gap−20.001/−19.950s，0064254完成−4.198/−4.447s，均序列未变。分组损益不替代全体主指标。
+
+**输出差异与波动。** 两对都同样25个序列改变，2个长度改变，1个结束原因改变：0066337由1024/length变453/stop，0046501由45/stop变91/stop；总少525 token，短cap40组输出同为5003。0066337提前11.189/11.422s伴随少571输出，不能记作等工作量收益；两长度变化请求对全体mean差的算术贡献−.026438/−.027754s，不是可扣除的因果校正，其他请求也可能受其提前结束影响。同策略两次逐请求长度/结束原因/token序列及完整无时钟输出schedule一致；budget自身mean漂移+.153821s，bucket−.050169s。首次实际规则分歧都在662，此前94306无时钟输出、0次抢占一致，但bucket已分别慢.497203s/快.066290s；不是严格同隐藏状态，不能相减后宣称纯策略效应。测量JIT warning为0/1/1/0，不将warning当编译时长或追加重复的理由。
+
+**真实执行与机制。** 两bucket各43实际抢占、36非tail改选、40 unique victims（0021202三次、0053843两次）；budget各41/10/37，4请求各两次。两实际规则在各自状态的建议异选37/41、38/43、38/43、37/41，只是诊断计数；所有执行规则及preempt/free连接均MATCH，实际释放等于记录物理页，UNKNOWN0。bucket释放中位109页（50–213），budget135（56–205）；相邻抢占调用间隔中位8对9.5，不能译为所有请求连续前进的保证。更小KV未形成更低全体停顿代价。
+
+**控制与外部计时。** 外层selector总墙时.351457/.280139/.299817/.358202s；其中观测.247313/.182538/.193099/.254945s，cap helper仅.001379/.001347/.001370/.001402s，全部嵌套，不相加。两臂共有三份影子，额外工作计入实测。恢复观察body约6ms/臂，不是恢复耗时；native lookup347/355/355/347，allocated回调47/49/49/47，load ACK均6，次数不直接等于传输/服务节省。发送滞后均值约12ms、最大不足30ms，外部到达计时完整保留。无应用SLO，不选择有利goodput阈值。
+
+**判决与资源。** 固定cap代理未获稳定主目标净收益支持，且停顿P95更差、存在输出工作量变化；收束该固定组件本域调参，不称完整CacheOPT失败或被击败。普通预算也尚未被证明相对tail有稳定全体净收益，不能跨组时钟补证。下一投入按新用户指令转向最小释放窗口模型，首先复用既有轨迹判断是否有增量信息，不加全局优化器或新GPU矩阵。
+
+整组1008.864223s，00:50:56 CST结束，57669不存在、SSH4613退出0，锁已释放，无A runner/候卡。112raw全部本地SHA核验，11份分析源随组保存；完整local+remote tar96,108,188B，SHA `4a55cda5bb19195e613d8b2e147bf79afbc03d5026ff52334f9ec7d61c5c9f3a`。export60772、download72376、extract95836、analysis59249均终态0。冻结代码/配置/命令见上段，历史失败保留，未改旧包或推送。当前没有中心贡献、独立确认或可投稿结论。
+
+### 用户提出的下一判别：释放窗口服务于谁（CPU既有证据，不新增GPU组）
+当前未知：在remaining、max-release和固定cap分桶已提出的合法候选中，“首次重新分配之前的保留进展/下一完成”是否提供即时释放量与remaining之外的可预测差异？
+主要竞争解释：native等待/恢复次序迅速吸收释放，候选之间窗口几乎相同；或较长窗口由后续多次抢占共同造成，并非当前动作独立价值。
+最小行动：复用已完成轨迹，对首个规则分歧和同victim快速重复抢占，输出实际首次allocation、readmission、next-output、next-preempt/next-completion及保留suffix进展；列出当时三个规则建议的候选状态，未执行候选的后果保持UNKNOWN。只做一个可运行CPU诊断，不新建追踪平台或占卡。
+不同结果将如何改变决定：若可见状态能区分有意义且不被立即恢复吃掉的窗口，再做一次有界真实动作对照；若窗口同质、关键状态缺失或只由后续动作决定，先收束该局部模型或明确最小必要状态，不写复杂评分器。真实持有量不当增量分配，host request必须区分实际ACK；离线未来事件不得进入online规则。
+
+
+**有界窗口诊断已完成（事后观测，非候选反事实）。** [diagnose_capacity_window.py](diagnose_capacity_window.py)，SHA `503796b692832092c053f87848268be46134fcac797e041a416a4e48964b243e`，只stdout，实际运行本组budget首662、bucket的0021202三次抢占，以及上一max-release正序首662。列出remaining/max-release/cap组件当时建议和可见状态，未执行候选后果保留UNKNOWN；旧max包没有cap影子字段，明确NOT_RECORDED，不回填未来建议。窗口截止首次allocated callback或下一全局完成的较早者，同时标注完成是否在已记录保留suffix、期间后续抢占及host请求/ACK。没有新增GPU实验、结果JSON或追踪字段。
+
+首662三个实际端点释放分别50（bucket）、83（budget）、192（旧max）页，但首次allocated callback距释放都约.211s；原victim均669 readmission并next-output、下一抢占均673。首次全局完成都是0050842在664，先于callback约3ms；已记录保留suffix均36请求各多3 token、0 suffix完成、0介入抢占。三条实际轨迹在这个短窗口未显示基于释放量可获得的额外进展，不支持在首事件就增加容量窗口评分。旧max与新组仅作有边界的事件描述，不构成新的三臂同组性能比较或严格同状态因果。
+
+首次恢复callback：budget held83/requested external1328、随后ACK；bucket held45/external720、随后ACK；max held187/external2992、随后ACK。这些都是持有快照与原生请求/ACK，精确新增占用量UNKNOWN，不能把held×页尺寸写成新占用或把host可见前缀写成兑现服务节省。callback未记录engine_call，保留UNKNOWN，不从wallclock猜精确call。
+
+bucket的0021202在673再抢后，suffix中的0036565于674先完成，105个保留请求各多2 token、无额外抢占介入；679第三次抢后，下一完成是0052099的769，早于该victim1116 readmission/1117 next-output，但到下一完成已有14次其他抢占。长间隔因而不能归功于单次释放；第三次后的连续gap31.503/31.884s也不能把多段重叠等待相加。另0025181在682仅释放56页却直到1115/1116才readmit/output，gap31.214/31.590s，budget为8.820s；长窗口伴39次其他抢占，不支持“小victim天然代价低”。
+
+**对下一事件模型的具体限制。** 首662前最后返回call661，prefix请求0050842已出158/cap1024（remaining866），随后161时stop，不能从声明cap预测这一完成，也未仅凭stop认定EOS token；0024322已出124/cap128（remaining4），665的length完成才是cap可见的近期归还。两者均不在该事件已记录可选suffix。模型必须区分完整运行集合与合法victim后缀，且区分已声明cap完成与未知自然终止；不能把事后首次完成时间塞进online打分。
+
+当前新原则仍是**未获支持的模型假设**：评价候选的释放能否在原生恢复重新进入前帮助保留集合跨过近期完成或压力阶段。首事件窗口无区分度不否定后续状态；下一项值得做的是针对已见快速部分恢复（旧max的673/679）核对原生重新分配门控，能否只用动作前状态给三个简单规则候选不同的事件顺序判断。若不能区分、或推荐始终被remaining/固定组件覆盖，就不占GPU跑同选策略；只有新排序及有依据的动作价值预测，才做一次有界真实干预。此处没有开发完成的预测器、同状态rollout或新方法收益。
+
+```sh
+# 仅CPU事后事件诊断；保持原始文件，stdout无新汇总文件。
+python3 -B diagnose_capacity_window.py --session session-native-cacheopt-cap-bucket-westd53005-20261009-r01 --cell cell-00-remaining-budget-first --steps 662
+python3 -B diagnose_capacity_window.py --session session-native-cacheopt-cap-bucket-westd53005-20261009-r01 --cell cell-01-cap-bucket-first --request 0021202
+python3 -B diagnose_capacity_window.py --session session-native-max-release-westd53005-20261008-r01 --cell cell-01-max-release-first --steps 662
+```
+
+
+### 重新分配门控的可判别性（源码＋四个现成事件，本轮CPU）
+当前未知：native full-ISL fit是否使完整KV候选的“释放页数”和“重入所需页数”近似抵消，从而解释三个首事件窗口相同；部分恢复为什么会在新输出前被再抢？
+主要竞争解释：重入门槛/恢复实现本身主导窗口，新增horizon仅重述既有size/remaining；或动作前可见的部分恢复、有效复用及保留集增长提供真正不同的动作判断。
+最小行动：读实际运行hash匹配的native scheduler/allocator/connector，仅结合旧max与新cap的673/679四个事件，推导门槛与首次实际分配之间的区别，不调用有副作用lookup、不新增GPU组。
+不同结果将如何改变决定：若释放与fit门槛抵消，停止纯decode窗口评分投入，明确例外条件；若有稳健不同门槛，先看是否被remaining/分桶建议覆盖，再考虑一次有界真实动作探针。Host当前ready只作可失效的上界，不能偷用未来ACK或未来完成。
+
+**新增证据：必要fit门槛与真实重占必须分开。** 已读取本机native源码，scheduler及connector SHA与冻结实验记录一致；最少四份源码保存于[native_reentry_source](native_reentry_source/)。allocator两份是当前主机读取版本，未冒称有历史hash记录。等待/被抢占请求的[full-sequence检查](native_reentry_source/kv_cache_manager.py#L411)采用已有prompt+output序列，不是声明max-output，也不是当前computed；随后的[真实分配](native_reentry_source/kv_cache_manager.py#L429)只给本次computed external+new tokens所需页。当前单FullAttention、prefix-OFF、lookahead0、抢占后owned0时，必要门槛为Q(v)=ceil(min(P+O,4096)/16)，与host命中多少无关，因为host KV也需要GPU目的页。watermark和后续reserved-block检查可以进一步限制准入，此处没有省略它们后宣称充分条件。
+
+令J(v)为动作前引用计数推导的可释放页，D(v)=Q(v)−J(v)。仅已执行victim的J通过raw free join验证为真实释放，未执行建议不能写成已发生的free。若computed=P+O−1、held=ceil(computed/16)、无共享且全部可释放，则D只能为0或1；这项抵消只说明必要容量门槛几乎不因victim大小而变。在固定其他预留/队列条件时它是静态容量偏移，**不是等待、首次重占、持续推进或收益的预测**，也不证明不同候选窗口相等。实际free还受保留请求增长、完成归还和其他准入/恢复改变。
+
+[native_reentry_fit.py](native_reentry_fit.py)已实现可运行纯函数及stdout诊断，SHA `18980e3fb87cb1fd91a80ab0095d7ed126e12c092dc2800e61768d50b0f3ea90`。域条件由现成config/engine/store/profile检查，未观测的源代码前提单列，不补旧日志缺失的cap建议。一次针对0/1、partial11、host不降低Q、未知/不匹配拒绝的CPU检查通过；没有新GPU运行或结果文件。
+
+| 真实轨迹中的已记录建议 | D=0 / D=1 / D>1 | 未知 | 合法候选中出现partial的决策 |
+|---|---:|---:|---:|
+| budget正序41次：remaining | 37 / 4 / 0 | 0 | 0 / 41 |
+| 同一轨迹：max-release | 37 / 4 / 0 | 0 | 同上 |
+| 同一轨迹：cap-bucket | 36 / 5 / 0 | 0 | 同上 |
+| 旧max正序27次：remaining | 25 / 2 / 0 | 0 | 1 / 27 |
+| 同一轨迹：max-release | 24 / 2 / 1 | 0 | 同上 |
+
+旧max包未记录cap建议，27次全部UNKNOWN，不事后回填。以上是各自策略到达的状态上的建议诊断，不是这些建议都已执行，更不是独立运行数。已执行的GPU动作计数及完整服务结果仍以上一组原分析为准；本轮只增加CPU解释，实际新干预数0。
+
+**203→48→192页的机制含义已缩小。** 旧max在673选0064312，P3031/O206/computed3236，Q203/J203/D0；其首次lookup和实际allocation external均0、无LOAD job，675 readmit时held48。因此48是冷补算过程的持有量，不是兑现了48页host复用；日志没有单次scheduled-token标量，不把48页进一步写成实测768-token工作量。native full-fit通过后不一次持有整段Q，running续算也不持续执行这一full-fit检查；in-flight reservation只在async waiting allocation中扣减，不能保护全部冷补算增长。679同victim尚未新输出，computed3064/held192，而完整已有序列仍3237：Q203/J192/D11；随后又被抢，直到1126才输出207。说明反复补算确实存在，但该事件的remaining建议已是0053843（Q150/J150/D0），预算强基线全部41决策也没有partial候选。它不足以建立一个超过普通预算的新保护器。
+
+**Host只按实际兑现计。** 新cap的0021202在673动作前ready49页，allocation接受784 external tokens并有LOAD ACK，677新输出；679再抢前同样ready49、首次lookup也offer784，但最终实际allocation external0/无LOAD job，1116 readmit时held30。可见早期offer不等于将来兑现；现有字段不证明offer丢失的确切原因。当前prefix-OFF无GPU本地命中，不能搬用此前prefix-ON重叠解释。pending STORE/LOAD、队列时序、host变化及保护阶段仍是边界；不额外调用会touch缓存的lookup来伪造动作前预知。
+
+**研究决定。** 强预算轨迹没有大于1页的必要门槛差，也没有部分恢复候选；已测三端点首窗口同质，较差max轨迹的11页例外又被普通预算建议覆盖。当前“纯decode＋首次重入门槛”不支持继续开发评分器或占卡重复，不把微小门槛差译成时间优势。此前[10月2日prefix-finish deferral真实失败](../RESULT_LEDGER.md#L1092)已测试过“让持有容量足够的请求先完成”：276实际deferral，mean flow37.362对tail36.441s、max-gap9.026对8.729s，输出不同；故不把等待完成作为未经测试的新配套机制，也不原样复跑。那是不同历史运行域的失败，不冒充本机当前负结果。
+
+本轮最薄弱环节因此仍是**强简单策略后的可控剩余损失与新增状态的决策价值**。所获是有明确源码域的必要容量解释，不是全局horizon模型、新online方法或论文中心贡献。收束本候选；重新投入需要具体的新证据，能说明普通预算/引用计数/首输出保护/近邻组件遗漏了哪种合法动作后果。资源不是当前阻塞理由：本轮GPU占用0、没有提交新任务/候卡，没有新增性能或独立确认数据。
+
+```sh
+# 本线目录；只读既有结果，stdout，不产生GPU工作。
+python3 -B native_reentry_fit.py --session session-native-cacheopt-cap-bucket-westd53005-20261009-r01 --cell cell-00-remaining-budget-first --steps 673,679
+python3 -B native_reentry_fit.py --session session-native-max-release-westd53005-20261008-r01 --cell cell-01-max-release-first --steps 673,679
+```
+
+### 动作范围是否仍留下未覆盖空间（已有代码与raw，CPU）
+当前未知：当前remaining预算规则只看未处理suffix，是否因此遗漏可合法撤销本次计划的prefix候选，影响对强简单基线和释放窗口的判断？
+主要竞争解释：旧full-running BidKV已覆盖相关机会；或当前规模/排序下有不同候选，但现成日志只保存suffix，不能把“没记录”判为“不存在”。
+最小行动：只核对现成full-running rollback代码及最新预算臂41次决策的动作前可还原状态，最多一次CPU诊断；不改GPU代码、不重新运行旧full-running或新增追踪平台，预计CPU准备不超过一轮、GPU0。
+不同结果将如何改变决定：若完整状态支持新合法异选，再判断它是否仅补强简单基线以及是否影响当前主损失；若无差异则关闭范围解释；若状态不足则明确缺口，不据缺失状态宣布机会为0，也不为补字段自动占GPU。
+
+当前未知：预算代理未建收益，是否因为把未知自然stop都当作声明cap，误选本来很快结束的victim？
+主要竞争解释：缺长度预测是关键；或已有轨迹中所选victim本来就达到cap，纠正终点也不改变该建议。
+最小行动：同一预算参考轨迹，在原合法suffix以最终实际输出量代替cap做一次事后建议诊断，所有已到达/失败先保留；仅作固定参考轨迹的已知终点敏感性，不称反事实、可实现online、理论上界或CacheOPT完整结果，GPU0。
+不同结果将如何改变决定：若建议未变，不投资预测器救现有排序；若建议变化，则先查看是否由很少提前stop驱动，承认近邻预测组件尚未覆盖，不把变化本身算新贡献或服务收益。
+
+**两个替代解释已用既有数据排除到本参考轨迹。** [shadow_remaining_scope.py](shadow_remaining_scope.py) SHA `5881d57d9bd14c7a8e8c5ddc0c809392413a53ca9b4cfb6e41a2535bbe41677b`，按真实running.append hook记录的residency_admissions、先前已发生的preempt/finish，以及严格早于决策的已返回输出还原成员/顺序。41/41重建suffix顺序吻合，output差异0、生命周期/时间歧义0；计算出的suffix赢家与已记录proposal 41/41一致。扩到全running仍41/41同选：662时suffix remaining1011对prefix最大922；673为1020对726；704为959对836；1018为566对105。这里把所有running作为可撤销prefix的超集；既然超集也不改变赢家，不需要假装已知每个prefix的本步scheduled状态。即时held/freeable/refcount/host/pending仍UNKNOWN，不生成full-running max-release反事实。
+
+现有full-running rollback本来就能撤销scheduled prefix的本步token/block/spec/encoder计划并返预算，然后native preempt；当前remaining只用suffix是实验动作范围，不是生命周期绝对限制。旧BidKV组件还受pure-decode/residency资格限制，旧失败不能等同当前完整预算；不过本次41/41同选已直接排除本轨迹的预算动作范围解释。扩大动作集合本身也不算新机制。
+
+同一脚本独立打印HINDSIGHT_ENDPOINT_DIAGNOSTIC：原轨迹320/320完成，41次合法建议全部仍同选，41个winner最终都到声明cap；**256个不同suffix候选全部最终达到cap，提前结束0**。最终长度仅用于独立的事后敏感性诊断，没有进入前述在线状态还原。这不是真实预测器、策略反事实或性能上界；若改变动作，终点也可能改变。它说明当前参考轨迹中，给现有remaining排序配上已知最终长度也不会提供新动作，不值得为此开发EOS预测器。
+
+**运行域限制。** 本组全体仍有11个stop，但它们没有进入上述256个合法候选集。全局“允许EOS”不等于受抢占候选包含自然终止异质性。当前吞吐/完成时间取舍、实际损失及失败结论全部保留；不能把此以cap结束为主的续写压力域当作自然摘要服务证据。本轮新增在线干预0、GPU0，没有新的服务性能结果；新增的是范围与终点信息都不足以改变当前预算动作的证据。
+
+```sh
+python3 -B shadow_remaining_scope.py --session session-native-cacheopt-cap-bucket-westd53005-20261009-r01 --cell cell-00-remaining-budget-first
+```
+
+### 新部署假设的可行性准备：文章摘要与自然停止（未运行GPU）
+当前未知：对一个有实际完成语义的摘要批处理服务，在本机正常KV容量下，是否仍有抢占损失及可区分的候选，而不是当前全部候选达cap的人工预算竞争？
+主要竞争解释：自然完成及时归还容量，正常域根本无需victim优化；或真实终止长度与重占存在不同关系，当前续写域的同选结论不足以外推。
+最小行动：复用同一320篇完整WikiText文章、同到达序列及已缓存OLMoE-Instruct/BF16，统一摘要指令，真实chat template，不截文章、不强制输出长度；先CPU构建与固定质量抽样，后续只允许一格原生强简单参考的可行性测量（预计5–8分钟整卡、上限1200秒），不扫并发/容量/指令寻找抢占。
+不同结果将如何改变决定：若摘要不合格、仍主要截断或无实际选择空间，停止本域投入并报告边界；若有合格自然输出及强简单方案后的具体可控损失，再设计有界动作干预。原已退休评分器不自动恢复，换权重/任务/预算的跨域差异不叫策略收益，也不叫第二模型确认。
+
+已只读确认现有Instruct snapshot `7f1c97f440f06ce36705e4f2b843edb5925f4498`，3个权重shard齐全、13,838,721,960B（不是重新校验的完整权重哈希），BF16/OlmoeForCausalLM/4096；config和generation_config均EOS50279。官方[模型卡](https://huggingface.co/allenai/OLMoE-1B-7B-0924-Instruct#use)要求自己的apply_chat_template，摘要指令是本线适配，不是官方摘要质量保证。已有runner能接收config模型身份和token IDs；新controller只需适配base硬编码身份校验，KV/传输/准入无需改写。现有raw保存token IDs/finish_reason，可离线解码；行级stop_reason实际是finish_reason，具体停止token尚未单列，不能仅凭字符串stop认定EOS。当前只有CPU准备，无新GPU包/任务/候卡，也未下载权重。
+
+**CPU输入已实际完成。** [build_natural_summary_inputs.py](build_natural_summary_inputs.py) SHA `80e9f64b5d2ce7adba6902929636a56de001a9b4e432eace59096563a1fdf14f`，仅用固定Instruct tokenizer，关闭torch/TF/Flax和网络；320篇原文章/顺序/外部到达保留。官方chat模板后prompt493–3115，统一安全cap由min(1024,4096−最大prompt)得到981，不按输出结果调参；不截原文、min_tokens0、ignore_eosFalse。token化与模板文本往返一致，原始文章hash保留。输入[inputs_natural_summary_r01](inputs_natural_summary_r01/)已本地取回，workload SHA `0254f76708b4c3cf5873d4fb3454b6ca09ab59df87646ab065afb4f645680b85`；预选8个长度分层质量样本写在task.quality_check_ids。没有输出/质量/性能结果。
+
+后续已实读现成模型全部9文件SHA供冻结计划使用，不是下载或载入权重。共享锁仍是2304:4312099778；本次读资源时GPU0MiB/0%、无进程/持锁者，但这不替代启动时重新检查。根盘不足原3GiB门槛；02:13:38 CST仅回收已完成cap-bucket r01的17个重复展开/私有缓存目录，289份本地与完整tar、112份output校验，1260私有cache文件再查无变；1,172,860,928→3,489,927,168B。完整local raw/source、local+remote全tar、冻结包/receipt/hash/log保留，未动其他线。复用回收脚本SHA `1dcd703cfbf07392380a3564e676cf816a2ed96c13d563df2fc05383a5a999fd`，未降低磁盘门槛。当前没有GPU实验进程。
+
+```sh
+# 已执行过的CPU准备；输出目录存在时脚本拒绝覆盖。
+USE_TORCH=0 USE_TF=0 USE_FLAX=0 HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 \
+/root/miniconda3/bin/python -B build_natural_summary_inputs.py \
+  --source candidate_native_cacheopt_cap_bucket_r01/pkg/inputs/pro_high \
+  --snapshot /root/autodl-tmp/moe-a-20261002/hf/hub/models--allenai--OLMoE-1B-7B-0924-Instruct/snapshots/7f1c97f440f06ce36705e4f2b843edb5925f4498 \
+  --output inputs_natural_summary_r01
+```
+
+**单组探针已冻结并部署，尚未执行GPU。** 新包[candidate_native_natural_summary_probe_r01](candidate_native_natural_summary_probe_r01/) manifest `7142430b4bc582ebfc79184e79ce92107f3be46fbec13e7ffd3fd3c1951cfdfd`，28 payload；选择器、runner、传输保持原字节，仅测量记录增加native_stop_reason，输入与预热模型身份更新。新[controller](run_native_natural_summary_probe.py) SHA `81aa90860da1f4edb73f44908bf68424dfc41eced5360c3e4a03d27a33eaa0f3`，复用同锁/私有种子/handoff/归档；固定profile→remaining-budget两格，只有后一格320测量请求，绝不把profile当重复。profile必须来自本次Instruct正常.90，随后按实际字节pin，拒绝沿用旧base容量。原32/384/2预热程序保留并同步模型身份，不冒称新旧域性能可比。
+
+CPU准备发现workload_sha256接口不符：旧builder用了文件字节SHA，现成runner要求json.dumps(workload,sort_keys=True)的语义SHA。旧CPU r01文件保留，新包config修为 `60f2db86e8f9807e2932e2be5680589544fe3a8d88b47e4b31d29c95c21d7553`，另存file SHA0254…；workload字节不变。builder已修复，当前SHA `2ef17d591c95d426f719b07358470051688fc742cd444748784bc8bee9e9eb18`。这是输入接口修复，非机制或GPU负结果。定向输入/停止字段/profile→pin检查通过。
+
+[唯一计划](plan-native-natural-summary-westd53005-20261009-r01.json) SHA `3549d427271ef7b715827371e302d3a1e1e07bccc956abfb3d28fcf57d397c0c`；38文件部署包3,199,659B，SHA `7025a68b4fad5eca9bea29d5f94d144d992028e54edbfd4fb8fe389b853e0382`。总1200秒、每格600秒，沿用一次最多3600秒公共锁等待/300秒GPU交接，不自动重试或创建第二候卡。预期5–8分钟整卡，无费用遥测或已知共享余额。研究决策规则保持上段：无抢占/自然质量不合格也是有效收束结果，不提高并发或缩KV救场。
+
+```sh
+cd /root/autodl-tmp/moe-a-victim-20261004
+export LD_LIBRARY_PATH=/root/miniconda3/lib/python3.12/site-packages/nvidia/cu13/lib:/root/miniconda3/lib/python3.12/site-packages/torch/lib
+/root/miniconda3/bin/python -B -u run_native_natural_summary_probe.py --plan plan-native-natural-summary-westd53005-20261009-r01.json
+# 仅首次提交；若进程/结果已存在，接续原任务而非重启。
+```
+
+**已唯一提交，GPU尚未轮到本线。** controller74306/SSH exec12296真实存在；02:25:07 CST（epoch1791483907.363）实查wchan=locks_lock_inode_wait，同一公共锁2304:4312099778由73467持有，73874在前，74306是WRITE*等待者，实际GPU进程73472。本线session尚未创建、未CUDA，无第二候卡；只接续原handle，不将等待写成实验结果。分析入口[analyze_natural_summary_probe.py](analyze_natural_summary_probe.py)已准备，SHA `7d8bb2eb8c0ea354f5b44ea54f9af634ac985fa46da34275d0b7d57fd6e433ab`；EOS区分实际token/配置契约与未分类stop，8篇质量仍未评估，不产生自动quality pass。
+
+CPU分析依赖闭包15文件已部署到本线analysis_natural_summary_r01（69KB压缩），没有修改运行包或执行分析。任务终态、GPU锁释放后才运行下面命令；输出使用独占创建，避免覆盖失败。解码只加载已核对tokenizer，torch/网络关闭，质量仍须对照预选文章逐例审读。
+
+```sh
+USE_TORCH=0 USE_TF=0 USE_FLAX=0 HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 \
+/root/miniconda3/bin/python -B analysis_natural_summary_r01/analyze_natural_summary_probe.py \
+  --session /root/moe-a-victim-20261007/session-native-natural-summary-westd53005-20261009-r01 \
+  --policy-source candidate_native_natural_summary_probe_r01/pkg/staged_store_rotation.py \
+  --input-config candidate_native_natural_summary_probe_r01/pkg/inputs/config.json \
+  --tokenizer /root/autodl-tmp/moe-a-20261002/hf/hub/models--allenai--OLMoE-1B-7B-0924-Instruct/snapshots/7f1c97f440f06ce36705e4f2b843edb5925f4498 \
+  --output /root/moe-a-victim-20261007/session-native-natural-summary-westd53005-20261009-r01/analysis-natural-summary-r01.json
+```
