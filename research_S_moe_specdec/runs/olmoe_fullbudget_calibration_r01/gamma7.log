@@ -1,0 +1,153 @@
+WARNING 10-16 07:19:29 [arg_utils.py:1631] The global random seed is set to 20261016. Since VLLM_ENABLE_V1_MULTIPROCESSING is set to False, this may affect the random state of the Python process that launched vLLM.
+INFO 10-16 07:19:29 [model.py:623] Resolved architecture: OlmoeForCausalLM
+INFO 10-16 07:19:29 [model.py:1788] Using max model len 1024
+INFO 10-16 07:19:29 [scheduler.py:252] Chunked prefill is enabled with max_num_batched_tokens=16384.
+INFO 10-16 07:19:29 [vllm.py:1109] Asynchronous scheduling is disabled.
+WARNING 10-16 07:19:29 [vllm.py:1163] Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none
+WARNING 10-16 07:19:29 [vllm.py:1213] Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored.
+INFO 10-16 07:19:29 [kernel.py:295] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['vllm_c', 'native'], fused_add_rms_norm=['vllm_c', 'native'])
+INFO 10-16 07:19:29 [vllm.py:1392] Cudagraph is disabled under eager mode
+INFO 10-16 07:19:29 [compilation.py:329] Enabled custom fusions: norm_quant, act_quant
+INFO 10-16 07:19:30 [core.py:116] Initializing a V1 LLM engine (v0.26.0) with config: model='/root/autodl-tmp/moe-research-20261002/model', speculative_config=SpeculativeConfig(method='ngram', model=None, num_spec_tokens=7), tokenizer='/root/autodl-tmp/moe-research-20261002/model', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, tokenizer_revision=None, trust_remote_code=False, dtype=torch.bfloat16, max_seq_len=1024, download_dir=None, load_format=auto, tensor_parallel_size=1, pipeline_parallel_size=1, data_parallel_size=1, decode_context_parallel_size=1, dcp_comm_backend=ag_rs, disable_custom_all_reduce=False, quantization=None, quantization_config=None, enforce_eager=True, enable_return_routed_experts=False, kv_cache_dtype=auto, device_config=cuda, structured_outputs_config=StructuredOutputsConfig(backend='auto', disable_any_whitespace=False, disable_additional_properties=False, reasoning_parser='', reasoning_parser_plugin='', enable_in_reasoning=False), observability_config=ObservabilityConfig(show_hidden_metrics_for_version=None, otlp_traces_endpoint=None, collect_detailed_traces=None, kv_cache_metrics=False, kv_cache_metrics_sample=0.01, cudagraph_metrics=False, enable_layerwise_nvtx_tracing=False, enable_mfu_metrics=False, enable_mm_processor_stats=False, enable_logging_iteration_details=False, jit_monitor_mode='warn', jit_monitor_verbose=False), seed=20261016, served_model_name=/root/autodl-tmp/moe-research-20261002/model, enable_prefix_caching=False, enable_chunked_prefill=True, pooler_config=None, compilation_config={'mode': <CompilationMode.NONE: 0>, 'debug_dump_path': None, 'cache_dir': '', 'compile_cache_save_format': 'binary', 'backend': 'inductor', 'custom_ops': ['all'], 'ir_enable_torch_wrap': False, 'splitting_ops': [], 'compile_mm_encoder': False, 'cudagraph_mm_encoder': False, 'encoder_cudagraph_token_budgets': [], 'encoder_cudagraph_max_vision_items_per_batch': 0, 'encoder_cudagraph_max_frames_per_batch': None, 'compile_sizes': [], 'compile_ranges_endpoints': [16384], 'inductor_compile_config': {'enable_auto_functionalized_v2': False, 'size_asserts': False, 'alignment_asserts': False, 'scalar_asserts': False, 'combo_kernels': True, 'benchmark_combo_kernel': True}, 'inductor_passes': {}, 'cudagraph_mode': <CUDAGraphMode.NONE: 0>, 'cudagraph_num_of_warmups': 0, 'cudagraph_capture_sizes': [], 'cudagraph_copy_inputs': False, 'cudagraph_specialize_lora': True, 'use_inductor_graph_partition': False, 'pass_config': {'fuse_norm_quant': True, 'fuse_act_quant': True, 'fuse_attn_quant': False, 'enable_sp': False, 'fuse_gemm_comms': False, 'fuse_allreduce_rms': False, 'enable_qk_norm_rope_fusion': False, 'fuse_rope_kvcache_cat_mla': False, 'fuse_act_padding': False, 'fuse_qk_norm_rope_kvcache': False}, 'max_cudagraph_capture_size': 0, 'dynamic_shapes_config': {'type': <DynamicShapesType.BACKED: 'backed'>, 'evaluate_guards': False, 'assume_32_bit_indexing': False}, 'local_cache_dir': None, 'fast_moe_cold_start': False, 'static_all_moe_layers': []}, kernel_config=KernelConfig(ir_op_priority=IrOpPriorityConfig(rms_norm=['vllm_c', 'native'], fused_add_rms_norm=['vllm_c', 'native']), enable_flashinfer_autotune=True, enable_cutedsl_warmup=True, enable_bf16x3_router_gemm=False, moe_backend='triton', linear_backend='auto')
+INFO 10-16 07:19:30 [parallel_state.py:1615] world_size=1 rank=0 local_rank=0 distributed_init_method=tcp://172.17.0.6:41383 backend=nccl
+INFO 10-16 07:19:31 [parallel_state.py:1946] rank 0 in world size 1 is assigned as DP rank 0, PP rank 0, PCP rank 0, TP rank 0, EP rank 0, EPLB rank N/A
+INFO 10-16 07:19:31 [topk_topp_sampler.py:39] FlashInfer top-p/top-k sampling disabled via VLLM_USE_FLASHINFER_SAMPLER=0.
+WARNING 10-16 07:19:31 [__init__.py:204] min_p and logit_bias parameters won't work with speculative decoding.
+INFO 10-16 07:19:31 [gpu_model_runner.py:5250] Starting to load model /root/autodl-tmp/moe-research-20261002/model...
+Failed to get device capability: SM 12.x requires CUDA >= 12.9.
+Failed to get device capability: SM 12.x requires CUDA >= 12.9.
+INFO 10-16 07:19:32 [cuda.py:482] Using FLASH_ATTN attention backend out of potential backends: ['FLASH_ATTN', 'FLASHINFER', 'TRITON_ATTN', 'FLEX_ATTENTION'].
+INFO 10-16 07:19:32 [flash_attn.py:776] Using FlashAttention version 2
+INFO 10-16 07:19:32 [unquantized.py:270] Using TRITON Unquantized MoE backend out of potential backends: ['FlashInfer TRTLLM', 'FlashInfer CUTLASS', 'TRITON', 'BATCHED_TRITON'].
+INFO 10-16 07:19:32 [weight_utils.py:869] Filesystem type for checkpoints: XFS. Checkpoint size: 12.89 GiB. Available RAM: 672.88 GiB.
+INFO 10-16 07:19:32 [weight_utils.py:892] Auto-prefetch is disabled because the filesystem (XFS) is not a recognized network FS (NFS/Lustre). If you want to force prefetching, start vLLM with --safetensors-load-strategy=prefetch.
+Loading safetensors checkpoint shards:   0% Completed | 0/3 [00:00<?, ?it/s]
+Loading safetensors checkpoint shards:  33% Completed | 1/3 [00:01<00:02,  1.42s/it]
+Loading safetensors checkpoint shards:  67% Completed | 2/3 [00:02<00:01,  1.50s/it]
+Loading safetensors checkpoint shards: 100% Completed | 3/3 [00:04<00:00,  1.36s/it]
+Loading safetensors checkpoint shards: 100% Completed | 3/3 [00:04<00:00,  1.39s/it]
+
+INFO 10-16 07:19:36 [default_loader.py:430] Loading weights took 4.25 seconds
+INFO 10-16 07:19:36 [unquantized.py:374] Using MoEPrepareAndFinalizeNoDPEPModular
+INFO 10-16 07:19:36 [unquantized.py:375] Using TritonExperts MoE backend
+INFO 10-16 07:19:36 [gpu_model_runner.py:5274] Loading drafter model...
+INFO 10-16 07:19:37 [gpu_model_runner.py:5347] Model loading took 12.89 GiB memory and 4.809683 seconds
+WARNING 10-16 07:19:37 [fused_moe.py:1107] Using default MoE config. Performance might be sub-optimal! Config file not found at /root/miniconda3/lib/python3.12/site-packages/vllm/model_executor/layers/fused_moe/configs/E=64,N=1024,device_name=NVIDIA_RTX_PRO_6000_Blackwell_Server_Edition.json
+INFO 10-16 07:19:38 [gpu_worker.py:479] Initial free memory 94.43 GiB, reserved 6.0 GiB memory for KV Cache as specified by kv_cache_memory_bytes config and skipped memory profiling. This does not respect the gpu_memory_utilization config. Only use kv_cache_memory_bytes config when you want manual control of KV cache memory size. If OOM'ed, check the difference of initial free memory between the current run and the previous run where kv_cache_memory_bytes is suggested and update it correspondingly.
+INFO 10-16 07:19:38 [kv_cache_utils.py:2177] GPU KV cache size: 49,152 tokens
+INFO 10-16 07:19:38 [kv_cache_utils.py:2178] Maximum concurrency for 1,024 tokens per request: 48.00x
+INFO 10-16 07:19:38 [kernel_warmup.py:65] Warming up ll_bf16 router GEMM kernels.
+INFO 10-16 07:19:45 [cutedsl_warmup.py:101] Skipping CuTeDSL warmup because no compile units were requested.
+INFO 10-16 07:19:46 [jit_monitor.py:79] Kernel JIT monitor activated; monitored JIT compilations during inference will use mode=warn.
+INFO 10-16 07:19:46 [core.py:347] init engine (profile, create kv cache, warmup model) took 9.15 s
+WARNING 10-16 07:19:46 [input_processor.py:282] Passing raw prompts to InputProcessor is deprecated and will be removed in v0.18. You should instead pass the outputs of Renderer.render_cmpl() or Renderer.render_chat().
+WARNING 10-16 07:19:46 [jit_monitor.py:135] Triton kernel JIT compilation during inference: fused_moe_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
+/root/miniconda3/lib/python3.12/site-packages/numba/np/ufunc/parallel.py:373: NumbaWarning: The TBB threading layer requires TBB version 2021 update 6 or later i.e., TBB_INTERFACE_VERSION >= 12060. Found TBB_INTERFACE_VERSION = 12050. The TBB threading layer is disabled.
+  warnings.warn(problem)
+WARNING 10-16 07:19:47 [jit_monitor.py:135] Triton kernel JIT compilation during inference: rejection_greedy_sample_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
+{"label": "warmup", "batch": 64, "gamma": 7, "wall_s": 1.602191439, "tokens_per_second": 1278.2492467181382, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w0", "batch": 1, "gamma": 7, "wall_s": 0.47236084, "tokens_per_second": 67.74481982884102, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w1", "batch": 1, "gamma": 7, "wall_s": 0.34504993, "tokens_per_second": 92.74020139636023, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w2", "batch": 1, "gamma": 7, "wall_s": 0.302153937, "tokens_per_second": 105.90628180363575, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w3", "batch": 1, "gamma": 7, "wall_s": 0.248742875, "tokens_per_second": 128.64690094138373, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w4", "batch": 1, "gamma": 7, "wall_s": 0.267346369, "tokens_per_second": 119.69491158490356, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w5", "batch": 1, "gamma": 7, "wall_s": 0.341794512, "tokens_per_second": 93.6235044054774, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w6", "batch": 1, "gamma": 7, "wall_s": 0.31623573, "tokens_per_second": 101.19033671495627, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w7", "batch": 1, "gamma": 7, "wall_s": 0.421753308, "tokens_per_second": 75.87373801938264, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w8", "batch": 1, "gamma": 7, "wall_s": 0.263043662, "tokens_per_second": 121.65280758598928, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w9", "batch": 1, "gamma": 7, "wall_s": 0.372754907, "tokens_per_second": 85.84729375541124, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w10", "batch": 1, "gamma": 7, "wall_s": 0.27304227, "tokens_per_second": 117.19797084898248, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w11", "batch": 1, "gamma": 7, "wall_s": 0.341141233, "tokens_per_second": 93.8027916431902, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w12", "batch": 1, "gamma": 7, "wall_s": 0.330167617, "tokens_per_second": 96.9204681269514, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w13", "batch": 1, "gamma": 7, "wall_s": 0.286293215, "tokens_per_second": 111.77351862844532, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w14", "batch": 1, "gamma": 7, "wall_s": 0.278746022, "tokens_per_second": 114.79984456962045, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w15", "batch": 1, "gamma": 7, "wall_s": 0.35027283, "tokens_per_second": 91.35735706363523, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w16", "batch": 1, "gamma": 7, "wall_s": 0.229922736, "tokens_per_second": 139.17718863609906, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w17", "batch": 1, "gamma": 7, "wall_s": 0.50292976, "tokens_per_second": 63.62717529382234, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w18", "batch": 1, "gamma": 7, "wall_s": 0.345947357, "tokens_per_second": 92.49962270993734, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w19", "batch": 1, "gamma": 7, "wall_s": 0.366941875, "tokens_per_second": 87.20727226893906, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w20", "batch": 1, "gamma": 7, "wall_s": 0.261977106, "tokens_per_second": 122.14807808434985, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w21", "batch": 1, "gamma": 7, "wall_s": 0.286305744, "tokens_per_second": 111.76862731751551, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w22", "batch": 1, "gamma": 7, "wall_s": 0.322178071, "tokens_per_second": 99.3239542985531, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w23", "batch": 1, "gamma": 7, "wall_s": 0.34447874, "tokens_per_second": 92.89397656296583, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w24", "batch": 1, "gamma": 7, "wall_s": 0.280902366, "tokens_per_second": 113.91858479397784, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w25", "batch": 1, "gamma": 7, "wall_s": 0.348124428, "tokens_per_second": 91.92115642054283, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w26", "batch": 1, "gamma": 7, "wall_s": 0.28345792, "tokens_per_second": 112.8915360699747, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w27", "batch": 1, "gamma": 7, "wall_s": 0.294533835, "tokens_per_second": 108.64626130305199, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w28", "batch": 1, "gamma": 7, "wall_s": 0.36718037, "tokens_per_second": 87.1506284499904, "joules_per_token": null, "all_finished": true}
+INFO 10-16 07:19:57 [loggers.py:310] Engine 000: Avg prompt throughput: 651.9 tokens/s, Avg generation throughput: 267.8 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.1%, Prefix cache hit rate: 0.0%
+INFO 10-16 07:19:57 [metrics.py:120] SpecDecoding metrics: Mean acceptance length: 2.62, Accepted throughput: 36.61 tokens/s, Drafted throughput: 158.50 tokens/s, Accepted: 407 tokens, Drafted: 1762 tokens, Per-position acceptance rate: 0.552, 0.349, 0.270, 0.171, 0.119, 0.087, 0.067, Avg Draft acceptance rate: 23.1%
+{"label": "shape-warmup-b1-w29", "batch": 1, "gamma": 7, "wall_s": 0.35014216, "tokens_per_second": 91.39145083242761, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w30", "batch": 1, "gamma": 7, "wall_s": 0.349096668, "tokens_per_second": 91.66515447807139, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w31", "batch": 1, "gamma": 7, "wall_s": 0.328279067, "tokens_per_second": 97.47803992631673, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w32", "batch": 1, "gamma": 7, "wall_s": 0.343884932, "tokens_per_second": 93.05438250490138, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w33", "batch": 1, "gamma": 7, "wall_s": 0.297901844, "tokens_per_second": 107.41793192794066, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w34", "batch": 1, "gamma": 7, "wall_s": 0.35254608, "tokens_per_second": 90.76827630589455, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w35", "batch": 1, "gamma": 7, "wall_s": 0.343152118, "tokens_per_second": 93.25310356965362, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w36", "batch": 1, "gamma": 7, "wall_s": 0.3029122, "tokens_per_second": 105.64117259060545, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w37", "batch": 1, "gamma": 7, "wall_s": 0.369298766, "tokens_per_second": 86.65070925257302, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w38", "batch": 1, "gamma": 7, "wall_s": 0.325470639, "tokens_per_second": 98.31916051880796, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w39", "batch": 1, "gamma": 7, "wall_s": 0.35529426, "tokens_per_second": 90.0661890794408, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w40", "batch": 1, "gamma": 7, "wall_s": 0.226178718, "tokens_per_second": 141.4810389012816, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w41", "batch": 1, "gamma": 7, "wall_s": 0.244991115, "tokens_per_second": 130.6169817627876, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w42", "batch": 1, "gamma": 7, "wall_s": 0.328329383, "tokens_per_second": 97.46310155859551, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w43", "batch": 1, "gamma": 7, "wall_s": 0.344069932, "tokens_per_second": 93.00434889497987, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w44", "batch": 1, "gamma": 7, "wall_s": 0.188882997, "tokens_per_second": 169.41704922227595, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w45", "batch": 1, "gamma": 7, "wall_s": 0.356272277, "tokens_per_second": 89.81894485155239, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w46", "batch": 1, "gamma": 7, "wall_s": 0.212061843, "tokens_per_second": 150.89937702748344, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w47", "batch": 1, "gamma": 7, "wall_s": 0.292792015, "tokens_per_second": 109.29259802389078, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w48", "batch": 1, "gamma": 7, "wall_s": 0.324001193, "tokens_per_second": 98.76506843602887, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w49", "batch": 1, "gamma": 7, "wall_s": 0.360485754, "tokens_per_second": 88.76911124759732, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w50", "batch": 1, "gamma": 7, "wall_s": 0.339204403, "tokens_per_second": 94.33839807792826, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w51", "batch": 1, "gamma": 7, "wall_s": 0.286400446, "tokens_per_second": 111.7316695798721, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w52", "batch": 1, "gamma": 7, "wall_s": 0.235954152, "tokens_per_second": 135.61956731322957, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w53", "batch": 1, "gamma": 7, "wall_s": 0.302614483, "tokens_per_second": 105.7451040768594, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w54", "batch": 1, "gamma": 7, "wall_s": 0.237434287, "tokens_per_second": 134.77413226338285, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w55", "batch": 1, "gamma": 7, "wall_s": 0.350340528, "tokens_per_second": 91.33970363828418, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w56", "batch": 1, "gamma": 7, "wall_s": 0.26262756, "tokens_per_second": 121.84555192912732, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w57", "batch": 1, "gamma": 7, "wall_s": 0.311275432, "tokens_per_second": 102.80284503789557, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w58", "batch": 1, "gamma": 7, "wall_s": 0.28476452, "tokens_per_second": 112.37354990713028, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w59", "batch": 1, "gamma": 7, "wall_s": 0.302522867, "tokens_per_second": 105.77712791542466, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w60", "batch": 1, "gamma": 7, "wall_s": 0.19603895, "tokens_per_second": 163.23286775408664, "joules_per_token": null, "all_finished": true}
+INFO 10-16 07:20:07 [loggers.py:310] Engine 000: Avg prompt throughput: 269.4 tokens/s, Avg generation throughput: 105.1 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.3%, Prefix cache hit rate: 0.0%
+INFO 10-16 07:20:07 [metrics.py:120] SpecDecoding metrics: Mean acceptance length: 2.82, Accepted throughput: 15.49 tokens/s, Drafted throughput: 59.16 tokens/s, Accepted: 155 tokens, Drafted: 592 tokens, Per-position acceptance rate: 0.565, 0.400, 0.294, 0.235, 0.153, 0.094, 0.082, Avg Draft acceptance rate: 26.2%
+{"label": "shape-warmup-b1-w61", "batch": 1, "gamma": 7, "wall_s": 0.301435258, "tokens_per_second": 106.15878252702609, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w62", "batch": 1, "gamma": 7, "wall_s": 0.306552725, "tokens_per_second": 104.38661081874251, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b1-w63", "batch": 1, "gamma": 7, "wall_s": 0.341905669, "tokens_per_second": 93.59306645482967, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b4-w0", "batch": 4, "gamma": 7, "wall_s": 0.376502673, "tokens_per_second": 339.9710259161958, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b4-w1", "batch": 4, "gamma": 7, "wall_s": 0.364202304, "tokens_per_second": 351.4530210110917, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b4-w2", "batch": 4, "gamma": 7, "wall_s": 0.36727785, "tokens_per_second": 348.5099904609004, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b4-w3", "batch": 4, "gamma": 7, "wall_s": 0.36304407, "tokens_per_second": 352.57427562444417, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b4-w4", "batch": 4, "gamma": 7, "wall_s": 0.361999737, "tokens_per_second": 353.5914171119964, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b4-w5", "batch": 4, "gamma": 7, "wall_s": 0.367525497, "tokens_per_second": 348.27515653968356, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b4-w6", "batch": 4, "gamma": 7, "wall_s": 0.376386767, "tokens_per_second": 340.0757179117299, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b4-w7", "batch": 4, "gamma": 7, "wall_s": 0.405704808, "tokens_per_second": 315.5003280118879, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b4-w8", "batch": 4, "gamma": 7, "wall_s": 0.378494461, "tokens_per_second": 338.1819635135955, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b4-w9", "batch": 4, "gamma": 7, "wall_s": 0.393524953, "tokens_per_second": 325.2652697731216, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b4-w10", "batch": 4, "gamma": 7, "wall_s": 0.37440147, "tokens_per_second": 341.87899956696214, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b4-w11", "batch": 4, "gamma": 7, "wall_s": 0.355807359, "tokens_per_second": 359.7452294402938, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b4-w12", "batch": 4, "gamma": 7, "wall_s": 0.349089862, "tokens_per_second": 366.6677664789933, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b4-w13", "batch": 4, "gamma": 7, "wall_s": 0.359851507, "tokens_per_second": 355.7022758279014, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b4-w14", "batch": 4, "gamma": 7, "wall_s": 0.3469927, "tokens_per_second": 368.8838410721609, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b4-w15", "batch": 4, "gamma": 7, "wall_s": 0.374527737, "tokens_per_second": 341.76373965060964, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b16-w0", "batch": 16, "gamma": 7, "wall_s": 0.402348681, "tokens_per_second": 1272.5280936114216, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b16-w1", "batch": 16, "gamma": 7, "wall_s": 0.402078393, "tokens_per_second": 1273.3835215064641, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b16-w2", "batch": 16, "gamma": 7, "wall_s": 0.42053378, "tokens_per_second": 1217.500292128732, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b16-w3", "batch": 16, "gamma": 7, "wall_s": 0.402347734, "tokens_per_second": 1272.531088742257, "joules_per_token": null, "all_finished": true}
+{"label": "shape-warmup-b64-w0", "batch": 64, "gamma": 7, "wall_s": 0.490758286, "tokens_per_second": 4173.133818468019, "joules_per_token": null, "all_finished": true}
+INFO 10-16 07:20:17 [loggers.py:310] Engine 000: Avg prompt throughput: 1533.3 tokens/s, Avg generation throughput: 632.8 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.3%, Prefix cache hit rate: 0.0%
+INFO 10-16 07:20:17 [metrics.py:120] SpecDecoding metrics: Mean acceptance length: 2.62, Accepted throughput: 82.20 tokens/s, Drafted throughput: 353.28 tokens/s, Accepted: 822 tokens, Drafted: 3533 tokens, Per-position acceptance rate: 0.538, 0.354, 0.267, 0.178, 0.125, 0.091, 0.073, Avg Draft acceptance rate: 23.3%
+INFO 10-16 07:20:27 [loggers.py:310] Engine 000: Avg prompt throughput: 139.4 tokens/s, Avg generation throughput: 101.2 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.2%, Prefix cache hit rate: 0.0%
+INFO 10-16 07:20:27 [metrics.py:120] SpecDecoding metrics: Mean acceptance length: 2.21, Accepted throughput: 11.70 tokens/s, Drafted throughput: 65.47 tokens/s, Accepted: 117 tokens, Drafted: 655 tokens, Per-position acceptance rate: 0.485, 0.268, 0.144, 0.103, 0.082, 0.072, 0.052, Avg Draft acceptance rate: 17.9%
+INFO 10-16 07:20:37 [loggers.py:310] Engine 000: Avg prompt throughput: 89.0 tokens/s, Avg generation throughput: 98.2 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.3%, Prefix cache hit rate: 0.0%
+INFO 10-16 07:20:37 [metrics.py:120] SpecDecoding metrics: Mean acceptance length: 2.19, Accepted throughput: 10.80 tokens/s, Drafted throughput: 63.07 tokens/s, Accepted: 108 tokens, Drafted: 631 tokens, Per-position acceptance rate: 0.495, 0.264, 0.187, 0.099, 0.066, 0.044, 0.033, Avg Draft acceptance rate: 17.1%
+INFO 10-16 07:20:47 [loggers.py:310] Engine 000: Avg prompt throughput: 142.1 tokens/s, Avg generation throughput: 103.7 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.2%, Prefix cache hit rate: 0.0%
+INFO 10-16 07:20:47 [metrics.py:120] SpecDecoding metrics: Mean acceptance length: 2.69, Accepted throughput: 15.20 tokens/s, Drafted throughput: 62.48 tokens/s, Accepted: 152 tokens, Drafted: 625 tokens, Per-position acceptance rate: 0.511, 0.311, 0.256, 0.200, 0.156, 0.133, 0.122, Avg Draft acceptance rate: 24.3%
+{"label": "perf-r0-b1", "batch": 1, "gamma": 7, "wall_s": 40.397197566, "tokens_per_second": 101.39317197209164, "joules_per_token": 1.36374853515625, "all_finished": true}
+INFO 10-16 07:20:57 [loggers.py:310] Engine 000: Avg prompt throughput: 150.0 tokens/s, Avg generation throughput: 114.1 tokens/s, Running: 4 reqs, Waiting: 0 reqs, GPU KV cache usage: 1.0%, Prefix cache hit rate: 0.0%
+INFO 10-16 07:20:57 [metrics.py:120] SpecDecoding metrics: Mean acceptance length: 2.39, Accepted throughput: 14.99 tokens/s, Drafted throughput: 75.47 tokens/s, Accepted: 150 tokens, Drafted: 755 tokens, Per-position acceptance rate: 0.528, 0.306, 0.213, 0.157, 0.102, 0.046, 0.037, Avg Draft acceptance rate: 19.9%
+INFO 10-16 07:21:07 [loggers.py:310] Engine 000: Avg prompt throughput: 387.8 tokens/s, Avg generation throughput: 332.9 tokens/s, Running: 4 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.9%, Prefix cache hit rate: 0.0%
+INFO 10-16 07:21:07 [metrics.py:120] SpecDecoding metrics: Mean acceptance length: 2.36, Accepted throughput: 38.87 tokens/s, Drafted throughput: 195.75 tokens/s, Accepted: 389 tokens, Drafted: 1959 tokens, Per-position acceptance rate: 0.495, 0.270, 0.200, 0.130, 0.098, 0.091, 0.081, Avg Draft acceptance rate: 19.9%
+{"label": "perf-r0-b4", "batch": 4, "gamma": 7, "wall_s": 12.104239775, "tokens_per_second": 338.39382531564235, "joules_per_token": 0.553400146484375, "all_finished": true}
+{"label": "perf-r0-b16", "batch": 16, "gamma": 7, "wall_s": 3.234552421, "tokens_per_second": 1266.326671166972, "joules_per_token": 0.2047060546875, "all_finished": true}
+{"label": "perf-r0-b64", "batch": 64, "gamma": 7, "wall_s": 0.990473019, "tokens_per_second": 4135.3978568092625, "joules_per_token": 0.072509521484375, "all_finished": true}

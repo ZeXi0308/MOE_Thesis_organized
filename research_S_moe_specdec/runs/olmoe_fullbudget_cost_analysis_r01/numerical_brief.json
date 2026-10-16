@@ -1,0 +1,181 @@
+{
+  "status": "local_analysis_complete",
+  "cost_cells": 32,
+  "calibration_runs_per_cell": 1,
+  "native_runs_per_cell": 2,
+  "raw_native_reader_max_abs_difference_ms": 0.0,
+  "calibration_eligible_steps": 36669,
+  "calibration_eligible_waves": 680,
+  "cost_ranges_by_batch": [
+    {
+      "batch": 1,
+      "complete_step_ms_range": [
+        10.82972207111079,
+        11.44292367351036
+      ],
+      "G7_minus_native_median_ms_range": [
+        -0.656554674534858,
+        0.12213950784728311
+      ]
+    },
+    {
+      "batch": 4,
+      "complete_step_ms_range": [
+        11.344914739919355,
+        11.947839494245919
+      ],
+      "G7_minus_native_median_ms_range": [
+        -0.7386372150784535,
+        0.010673230284936608
+      ]
+    },
+    {
+      "batch": 16,
+      "complete_step_ms_range": [
+        12.139028999003191,
+        13.348719122455849
+      ],
+      "G7_minus_native_median_ms_range": [
+        -0.8191068118199336,
+        0.8570952481162823
+      ]
+    },
+    {
+      "batch": 64,
+      "complete_step_ms_range": [
+        14.274815903225807,
+        14.91693958974359
+      ],
+      "G7_minus_native_median_ms_range": [
+        -0.45518990836839635,
+        0.5603071287046291
+      ]
+    }
+  ],
+  "cost_difference_all_cells_ms": [
+    -0.8191068118199336,
+    0.8570952481162823
+  ],
+  "cost_ratio_all_cells": [
+    0.9387937149071238,
+    1.0686135971382342
+  ],
+  "diagnostic_score_gap_by_batch": [
+    {
+      "batch": 1,
+      "replayed_choice_gap_raw": [
+        0.08609220261312985,
+        0.08609220261312985
+      ],
+      "recorded_cap7_gap_raw": [
+        0.2725644324645168,
+        0.2725644324645168
+      ]
+    },
+    {
+      "batch": 2,
+      "replayed_choice_gap_raw": [
+        0.10986429123939437,
+        0.10986429123939437
+      ],
+      "recorded_cap7_gap_raw": [
+        0.32739541860144034,
+        0.32739541860144034
+      ]
+    },
+    {
+      "batch": 4,
+      "replayed_choice_gap_raw": [
+        0.06842550512101908,
+        0.06842550512101908
+      ],
+      "recorded_cap7_gap_raw": [
+        0.4994763348826557,
+        0.4994763348826557
+      ]
+    },
+    {
+      "batch": 8,
+      "replayed_choice_gap_raw": [
+        0.13607278266819814,
+        0.13607278266819814
+      ],
+      "recorded_cap7_gap_raw": [
+        0.4041308191419099,
+        0.4041308191419099
+      ]
+    },
+    {
+      "batch": 16,
+      "replayed_choice_gap_raw": [
+        0.055867304486900866,
+        0.055867304486900866
+      ],
+      "recorded_cap7_gap_raw": [
+        0.34728403030533417,
+        0.34728403030533417
+      ]
+    },
+    {
+      "batch": 32,
+      "replayed_choice_gap_raw": [
+        0.04284464826070199,
+        0.04284464826070199
+      ],
+      "recorded_cap7_gap_raw": [
+        0.29498758573912964,
+        0.29498758573912964
+      ]
+    },
+    {
+      "batch": 64,
+      "replayed_choice_gap_raw": [
+        0.08156035637181414,
+        0.08156035637181414
+      ],
+      "recorded_cap7_gap_raw": [
+        0.276364700818698,
+        0.276364700818698
+      ]
+    }
+  ],
+  "diagnostic_counts": {
+    "host_steps": 29288,
+    "decode_steps": 29034,
+    "decode_request_steps": 98574,
+    "terminal_request_steps": 896,
+    "terminal_recovered_from_runner": 568,
+    "unknown_terminal_request_steps": 0,
+    "eligible_pure_decode_steps": 28306,
+    "eligible_pure_decode_request_steps": 92944,
+    "full_action_comparison_steps": 28306,
+    "paired_replayed_reference_steps": 28306,
+    "history_acceptance_request_steps": 97678,
+    "history_availability_request_steps": 97678
+  },
+  "diagnostic_cost_lookup": {
+    "measured_cell_median": 18598,
+    "batch_linear_interpolation": 9708
+  },
+  "limitations": [
+    "Development diagnostic on the executed fixed-gamma-7 trajectory, not independent held-out policy evaluation.",
+    "The perfect-prefix reference uses future accepted prefixes from this same step. It is not implementable online.",
+    "Cap changes can change subsequent tokens, proposals, KV state, batching and execution costs. Those changed trajectories are not simulated or verified.",
+    "Cost comes from separate budget-7 complete synchronous host-step calibration cells or the existing within-range batch interpolation; it is not this counterfactual step's measured cost.",
+    "A score is calibrated step cost divided by mean per-request progress, not measured effective TPOT, end-to-end policy performance or a theoretical bound.",
+    "Do not convert mean scores or their gaps into an end-to-end speedup; never plot these as measured policy curves in F3.",
+    "No extra draft is invented beyond the observed full offer. Accepted-prefix truncation is used only on identifiable, nonterminal request outputs.",
+    "Replayed pre-step choices use the existing estimator and cost policy with a cold prior once per run; they are not actually executed adaptive choices. Unlogged warmup state is not reconstructed.",
+    "Steps, requests and ranks share an execution trajectory and are not independent system repetitions. Raw run-level summaries are retained.",
+    "The single-run calibrated cap-cost differences are nonmonotone; small action-ranking gaps include unresolved calibration variation.",
+    "Per-run replay score summaries coincide across the two measured trajectory repeats. This is not evidence of independent uncertainty vanishing.",
+    "Small score gaps do not establish that online information has no value or that complete-policy improvement has no remaining opportunity.",
+    "Complete synchronous host step includes current verification, next draft generation and host/controller work. No async component arithmetic, HBM inference or causal budget-tax estimate.",
+    "Native versus fixed-G7 cost differences are descriptive: outputs 128 versus 64 tokens/request, two runs versus one, different warmup and runtime observation code, and different measurement windows."
+  ],
+  "figures": [
+    "figures/fullbudget_cost_eager_r01/complete_step_costs.pdf",
+    "figures/stepwise_prefix_eager_r01/stepwise_prefix_diagnostic.pdf"
+  ],
+  "qa": "Both rendered PNGs visually checked: all labels and raw points visible, no overlap or clipping."
+}
