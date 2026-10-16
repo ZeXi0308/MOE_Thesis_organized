@@ -1,0 +1,131 @@
+{
+  "status": "running_stage",
+  "pid": 45296,
+  "started_unix_s": 1792104585.7190957,
+  "args": {
+    "run": "olmoe_evaluation_sequence_r02",
+    "include_compiled_evaluation": true
+  },
+  "stages": [
+    {
+      "label": "olmoe_compiled_fullbudget_calibration_r01",
+      "argv": [
+        "/root/miniconda3/bin/python",
+        "-u",
+        "code/run_campaign.py",
+        "--config",
+        "configs/olmoe_ngram_compiled_fullbudget_calibration.json",
+        "--run",
+        "olmoe_compiled_fullbudget_calibration_r01",
+        "--wait-lock-seconds",
+        "21600",
+        "--mode",
+        "static",
+        "--proposal-budget",
+        "7",
+        "--skip-trace"
+      ],
+      "started_unix_s": 1792106485.7779536,
+      "pid": 52855,
+      "returncode": 0,
+      "end_unix_s": 1792109064.752184,
+      "result_status": "complete"
+    },
+    {
+      "label": "prepare_compiled_controller_evaluation",
+      "argv": [
+        "/root/miniconda3/bin/python",
+        "-u",
+        "code/prepare_compiled_controller_evaluation.py",
+        "--calibration-run",
+        "runs/olmoe_compiled_fullbudget_calibration_r01",
+        "--direct-run",
+        "runs/olmoe_ngram_compiled_r01",
+        "--output",
+        "runs/controller_preparation_compiled_r01"
+      ],
+      "started_unix_s": 1792109064.752708,
+      "pid": 60383,
+      "returncode": 0,
+      "end_unix_s": 1792109078.7838948
+    },
+    {
+      "label": "olmoe_compiled_controller_eval_ar_r01",
+      "argv": [
+        "/root/miniconda3/bin/python",
+        "-u",
+        "code/run_campaign.py",
+        "--config",
+        "/root/autodl-tmp/research_S_moe_specdec/configs/olmoe_ngram_compiled_controller_evaluation.json",
+        "--run",
+        "olmoe_compiled_controller_eval_ar_r01",
+        "--gammas",
+        "0",
+        "--mode",
+        "native",
+        "--proposal-budget",
+        "0",
+        "--wait-lock-seconds",
+        "21600",
+        "--skip-trace"
+      ],
+      "started_unix_s": 1792109078.7870884,
+      "pid": 60478,
+      "returncode": 0,
+      "end_unix_s": 1792109654.9693267,
+      "result_status": "complete"
+    },
+    {
+      "label": "olmoe_compiled_controller_eval_static_r01",
+      "argv": [
+        "/root/miniconda3/bin/python",
+        "-u",
+        "code/run_campaign.py",
+        "--config",
+        "/root/autodl-tmp/research_S_moe_specdec/configs/olmoe_ngram_compiled_controller_evaluation.json",
+        "--run",
+        "olmoe_compiled_controller_eval_static_r01",
+        "--gammas",
+        "0",
+        "--mode",
+        "native",
+        "--proposal-budget",
+        "0",
+        "--wait-lock-seconds",
+        "21600",
+        "--skip-trace"
+      ],
+      "started_unix_s": 1792109654.9707258,
+      "pid": 62462,
+      "returncode": 0,
+      "end_unix_s": 1792109785.3922045,
+      "result_status": "complete"
+    },
+    {
+      "label": "olmoe_compiled_controller_eval_native_unrestricted_r01",
+      "argv": [
+        "/root/miniconda3/bin/python",
+        "-u",
+        "code/run_campaign.py",
+        "--config",
+        "/root/autodl-tmp/research_S_moe_specdec/configs/olmoe_ngram_compiled_controller_evaluation.json",
+        "--run",
+        "olmoe_compiled_controller_eval_native_unrestricted_r01",
+        "--gammas",
+        "7",
+        "--mode",
+        "native",
+        "--proposal-budget",
+        "7",
+        "--wait-lock-seconds",
+        "21600",
+        "--skip-trace",
+        "--native-table",
+        "/root/autodl-tmp/research_S_moe_specdec/runs/controller_preparation_compiled_r01/selection/regime_e7cb8fe905/native_unrestricted_table.json"
+      ],
+      "started_unix_s": 1792109785.3928123,
+      "pid": 63121
+    }
+  ],
+  "active_stage": "olmoe_compiled_controller_eval_native_unrestricted_r01"
+}
