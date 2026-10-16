@@ -1,0 +1,53 @@
+你是本课题唯一负责人。六周内交付：
+1. PRO 6000（SM120）上四种专家格式（BF16 / FP8 W8A8 / NVFP4 / W4A16）在 fused-MoE kernel 上的 roofline 与每 token 能耗刻画（两模型），含实际 kernel 路径表；
+2. 四格式的质量表（lm-eval）；
+3. vLLM 0.26 中的双格式 FusedMoE 方法：按每步专家负载（或 prefill/decode 相）在两套驻留权重间选择 kernel；
+4. serving 真机对照：匹配 SLO 下的 J/token 与 TPOT，相对最佳单一格式的增益；
+5. 一篇可投 CCF-C 主会的论文初稿（LaTeX）；即使机制部分收益小，刻画部分也单独成文。
+工作方式：直接测、直接建；不做审计包、不预注册、不开 reviewer 轮、不生成新 idea。
+- 单卡 RTX PRO 6000 Blackwell Server Edition（97,887 MiB，SM120，GDDR7 约 1.8 TB/s，无 NVLink）。GPU 预算约 20 小时。
+- 功耗：pynvml 50 ms 采样积分；若驱动支持 nvmlDeviceGetTotalEnergyConsumption（mJ 计数器）优先用它。报告总能耗与扣除空闲功耗两种口径。
+- 环境：vLLM 0.26.0、torch 2.11+cu130、Triton 3.6。第一周必须核实 SM120 上 NVFP4 fused-MoE 的实际路径（cutlass FP4 grouped GEMM 还是 marlin FP4 回退）、FP8 的路径（cutlass/triton，per-tensor 还是 block scale）、W4A16 的路径（AWQ/GPTQ marlin MoE）。把"实际跑的是哪个 kernel"写进 RESULTS.md 和论文表 T1——这本身是工作站 Blackwell 上少有的信息。
+7 月资产在 GitHub 仓库 ZeXi0308/MOE_Thesis_organized 的 main 分支；本地没有就 clone 到 research_C_format_sched/ref_july/：
+1. docs/ideas/energy_slo/设计说明.md、experiments/run_energy_slo_power_probe.py（PowerSampler 类直接复用）、run_energy_slo_fp8_compute_quality_gate.py（真实 torch._scaled_mm patch 与三处 bug 教训：fp8 权重转置不要 .contiguous()；空 expert batch 的 amax 归约；Mixtral 命名 w1/w2/w3）。
+2. docs/ideas/A_rank_tail_fp8/原文/IdeaA_主实验报告_论文版.md：专家循环占 MoE block 时间 75–86% 的刻画。
+3. experiments/shared/capture_routes_v2.py：真实路由 trace → 每步每专家 token 数直方图（本课题的负载分布来源）。
+4. MoE_Scheduling_20261002/{RESEARCH_STATE.md, NGRAM_RESULTS.md}：只借它的成本记账方式（每步阶段守恒、搬运/计算分列），不继承任何结论。
+5. 已安装 vLLM 0.26 源码：vllm/model_executor/layers/fused_moe/{layer.py, fused_moe.py}（FusedMoEMethodBase、UnquantizedFusedMoEMethod、select_experts）；vllm/model_executor/layers/quantization/{fp8.py, awq_marlin.py, gptq_marlin.py, modelopt.py, compressed_tensors/} 下的 MoE 方法。双格式方法就从这些类派生。
+第 1–2 天查新（只查这几篇，半页写完差异）：PagedWeight（arXiv 2607.16184）、MxMoE（ICML 2025）、Dynamic expert quantization for scalable MoE inference、MC-MoE、QServe/QoQ W4A8、vLLM/ModelOpt 的 NVFP4 MoE 路径。我们预期的差异：运行时按每步专家负载/相位选择格式，目标是延迟与能耗而非质量，建立在 SM120 实测 roofline 之上。若其中某篇已经做了"运行时按负载切换专家格式以提速"，就按 §11 第一条转向。
+- 单卡真实功耗：batch 1→64，J/token 约 17.4× 改善（235.9 → 13.6 mJ/token，OLMoE）；FP8 tensor core 相对 BF16 单 matmul 吞吐 2.03×、能耗 −34.3%。
+- FP8 专家 FFN 计算的端到端 KL 0.0068（OLMoE）/ 0.0091（LLM-jp），质量近似免费；因此 FP8 本身不构成取舍，取舍只出现在 4-bit 格式上。
+- INT4 RTN W4A16 专家在 decode 上的 harm 非平凡（约 25% 的步 KL > 0.067）；AWQ/GPTQ 校准应显著降低，本课题用 AWQ，不用 RTN。
+- 专家循环占 MoE block 75–86%。
+- 每专家有效 batch = B·k/E：OLMoE（k=8/64）B=256 时每专家 32 token；Qwen3-30B-A3B（k=8/128）16 token。decode 下所有现实 batch 都是带宽受限区；chunked prefill 一步里每专家可达几百 token，进入计算受限区。格式最优解随相位和每步负载变化，这就是优化空间。
+- 7 月 "Energy-SLO" 之所以薄：只有 batch 与 FP8 两根杠杆，且 FP8 无质量代价，所以没有真正的决策问题。本课题引入 4-bit 格式与相位依赖的交叉点后才有决策。
+专家 roofline：专家 e 在一步收到 $M_e$ 个 token，格式 f 的时间 
+  $$T_f(M_e)=\max\!\Big(\frac{2\,d\,f_{\text{int}}\,M_e\cdot 3}{\text{FLOPS}_f},\ \frac{3\,d\,f_{\text{int}}\,\text{bytes}_f}{\text{BW}}\Big)+c_f$$ 
+（三个投影 gate/up/down；$c_f$ 为格式相关的固定开销，如 dequant、scale 处理）。交叉点 $M^*_{f,g}$ 由实测曲线读出，不用理论峰值。 能耗：$E_f(M_e)=P_f\cdot T_f(M_e)$，$P_f$ 实测。 决策：每步（或每专家）选 $f^*=\arg\min_f E_f(M_e)$ s.t. TPOT ≤ SLO、质量损失 ≤ ε。只有一个阈值 θ 的情形就是门限策略：$M_e\ge\theta$ 走 FP8，否则走 W4（NVFP4 或 W4A16）。 双格式驻留：FP8 + 4-bit 两套专家权重 ≈ 1.5 B/参数，仍小于 BF16；OLMoE 约 10 GB，Qwen3-30B-A3B 约 42 GB，单卡可放。 负载分布：用真实路由 trace 的每步每专家 token 直方图（均匀 vs Zipf 偏斜）驱动微基准，不只用均匀分布。 增益来源：相对最佳单一格式——若最佳单一格式是 FP8，decode 步的专家时间预期 −30% 到 −40%（带宽字节减半，marlin/FP4 实测通常 1.6–1.8×）；若最佳单一格式是 W4，则 prefill 步 −30% 以上。混合负载下的端到端增益取决于 prefill 份额，这就是 F6 的横轴。
+目录 research_C_format_sched/code/：
+1. 微基准 bench_expert_formats.py：给定专家形状（d、f_int、E）、格式、每专家 token 直方图，构造 routing（topk_ids/weights）直接调用 vLLM 的各 fused-MoE 路径（BF16 triton；FP8 方法；NVFP4 方法；AWQ-marlin 方法），记录时间（CUDA event，预热后 5 次中位数）与功耗；输出 T_f(M) 曲线与实际 kernel 名。
+2. 量化产物：FP8 用 vLLM 动态 --quantization fp8（或 llm-compressor 静态 FP8）；AWQ W4A16 用 llm-compressor/AutoAWQ 校准；NVFP4 优先找现成 checkpoint（HF 搜索 Qwen3-30B-A3B + NVFP4/FP4），没有就用 llm-compressor NVFP4 recipe。
+3. 双格式方法 DualFormatMoEMethod：派生自 FusedMoEMethodBase：同时持有 FP8 与 W4 两套权重与各自 apply 路径；apply() 内先 select_experts 得 topk，bincount 得每专家 token 数： 
+   - v1 步级门限：max_e M_e ≥ θ → FP8 路径，否则 W4 路径；
+   - v2 专家级拆分：热专家集（$M_e\ge\theta$）走 FP8 grouped GEMM、冷专家集走 W4 grouped GEMM，用 expert mask 两次调用后相加；
+   - 相位规则基线：纯 prefill 步 → FP8，纯 decode 步 → W4，混合步按 θ。 θ 来自微基准交叉点。记录每步选择、每步时间、切换计数。
+4. serving 计时与能耗：vllm bench serve（ShareGPT；另加 LongBench 采样的长 prompt 集）在 λ 扫描下跑；并行用 PowerSampler 积分；指标 TTFT/TPOT P50/P95、吞吐、J/token。
+5. 匹配 SLO 的比较：对每个臂找满足 TPOT P95 ≤ 50 ms（另报 100 ms）的最大吞吐点，比较该点的 J/token。
+GPU 总量约 20 小时。
+- F1 每格式专家 kernel 时间 vs 每专家 token 数（log-log），标出交叉点；两模型两面板。
+- F2 每步能耗与 J/token vs M；同样标交叉点。
+- F3 质量表（四格式 + 双格式混合生成）。
+- F4 serving：TPOT P95 vs 负载（λ 或并发），七臂。
+- F5 匹配 SLO 的 J/token 与吞吐，七臂柱状。
+- F6 双格式相对最佳单一格式的增益 vs prefill 份额（负载混合从纯 decode 到长 prompt）。
+- F7 开销：每步选择的 CPU 时间；专家级拆分的额外 launch；切换频率。
+- T1 SM120 上实际 kernel 路径与是否使用 tensor core；T2 与 PagedWeight / MxMoE / 动态专家量化 / QServe 的动作级对照。
+从第 1 周起维护 paper/main.tex。 题目候选："Format Scheduling for MoE Experts on Blackwell Workstation GPUs: A Roofline- and Energy-Driven Study"（刻画为主）；若机制增益明显，改为 "Load-Aware Dual-Format Experts for Latency- and Energy-Efficient MoE Serving"。 章节：1 引言（三条贡献：SM120 上四格式的 roofline 与能耗刻画；相位/负载依赖的交叉点与简单门限策略；双格式 FusedMoE 的真机增益与质量代价）；2 背景（fused-MoE、格式与 kernel 路径）；3 刻画（F1、F2、T1）；4 模型与决策；5 实现；6 评估（F3–F7、T2）；7 相关工作；8 结论。 相关工作：MxMoE、MC-MoE、PagedWeight、动态专家量化、QServe/QoQ、Marlin、ModelOpt NVFP4、vLLM FusedMoE。 投稿：CCF-C（ICPADS、HPCC、ICA3PP、IISWC）；能耗角度可投 e-Energy / IGSC 的 workshop；机制增益 >20% 且两模型一致时试 ICPP / CLUSTER。等级以 CCF 最新目录为准。
+- kernel 数字预热后 5 次取中位数；serving 每配置 2 次，报告极差；A/A 一次即可。
+- 不做在线预测器、不做 bandit；只有门限与相位规则。
+- 不用 RTN；4-bit 一律校准量化。
+- 质量表与性能表用同一份量化权重。
+- 目录：RESULTS.md、code/、configs/、runs/、figures/、paper/、reproduce.md；RESULTS.md 顶部五行：当前主张 / 关键证据 / 最强替代解释 / 下一动作 / 资源状态。
+见 §6；W1 结束必须有 F1 与 T1，W2 结束 paper 骨架含 F1–F3。
+- 查新发现运行时按负载切换专家格式已有直接先例，或 W1 显示 NVFP4 在全部 M 区间都领先 ≥20% 且 W2 质量可接受：论文定为刻画型（"Blackwell 工作站 GPU 上 MoE 专家格式的 roofline 与能耗研究"），机制缩成一节的简单规则；仍投 CCF-C。
+- SM120 上 NVFP4 无 tensor-core grouped GEMM、只能 marlin 回退：如实写明，把 NVFP4 当作 W4A16 的一种，交叉点按实测重算；不等待新 kernel。

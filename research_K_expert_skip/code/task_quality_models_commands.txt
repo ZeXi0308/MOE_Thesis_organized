@@ -1,0 +1,82 @@
+三模型任务质量接续：LOCAL_ONLY，尚未部署或提交 GPU
+
+截至编写时 r07 已结束，既有 r08 处于 WAITING。本轮 run_task_quality.py 的
+olmoe / qwen3_moe / deepseek_v2 支持和本清单必须等 r08 终态后再部署，
+不覆盖其 livecode，不重复提交 r08。这是原有任务流程的模型范围扩展。
+
+输入身份来自已保存的官方固定版 config.json：OLMoE 为 olmoe，Qwen3-30B-A3B
+为 qwen3_moe，DeepSeek-V2-Lite 为 deepseek_v2；三者均无 quantization_config。
+只接受未量化 checkpoint；--formats fp8 是同份 BF16 权重的在线 FP8 转换，
+不接受预量化 FP8/AWQ/NVFP4 checkpoint。tokenizer 小文件目录不是完整模型。
+Qwen 使用 K 自有 runtime view，不写 C；DeepSeek 使用 RAM checkpoint，须确认
+目录仍在且完整。模型路径通过现有 free_generate.model_kwargs 原样传给 vLLM，
+eval_tasks 复用该函数；dtype=bfloat16、KV auto、任务定义、策略及锁行为不变。
+
+下面每段是独立可选的 pilot，不组成自动三模型循环。先确认前一持锁作业终态，
+再按剩余总预算选一个；输出目录必须不存在。默认完整五臂不变，明确写出
+quality_eval_arms.json；需要既有十臂时由调用者显式传 quality_pareto.json，
+不自动筛臂。每段同时列 BF16/FP8 两格式，可显式只选其中一格式。
+
+从远端 K 根目录执行，沿用 r08 已选的 vLLM 0.26 / lm-eval 0.4.13 环境：
+K_TASK_PY=/root/autodl-tmp/research_C_format_sched/tools_venv/bin/python
+export HF_HUB_OFFLINE=1 HF_DATASETS_OFFLINE=1 TRANSFORMERS_OFFLINE=1
+export VLLM_ENABLE_V1_MULTIPROCESSING=0 TOKENIZERS_PARALLELISM=false
+export VLLM_USE_FLASHINFER_SAMPLER=0
+unset VLLM_TUNED_CONFIG_FOLDER
+
+这些通用质量pilot使用各模型/格式的默认kernel配置，不采性能。若使用已完成的
+原生调优目录，必须只选该目录对应的模型/格式并显式设置，同组所有臂共用。
+
+OLMoE（同模型两格式总显存比例 .35）：
+
+"$K_TASK_PY" code/run_locked.py --root "$PWD" --name task_quality_olmoe_formats_pilot_r01 --wait-seconds 3600 --timeout 3630 -- \
+  "$K_TASK_PY" code/run_task_quality.py --root "$PWD" \
+  --model /root/autodl-tmp/moe-research-20261002/model \
+  --data-dir datasets/task_eval_r02 --prompts datasets/free_generation_validation_r01/prompts.jsonl \
+  --arms-file configs/quality_eval_arms.json --formats bf16 fp8 \
+  --tasks gsm8k mmlu hellaswag arc_challenge --limit 16 --free-limit 200 \
+  --batch 8 --prompt-tokens 128 --max-tokens 256 --max-model-len 4096 --gpu-memory-utilization .35 \
+  --budget-seconds 3600 --job-timeout 1500 \
+  --outer-run-dir runs/task_quality_olmoe_formats_pilot_r01 \
+  --output runs/task_quality_olmoe_formats_pilot_r01/quality
+
+DeepSeek-V2-Lite（同模型两格式初始总显存比例 .55；RAM完整性须在运行前确认）：
+
+"$K_TASK_PY" code/run_locked.py --root "$PWD" --name task_quality_deepseek_formats_pilot_r01 --wait-seconds 3600 --timeout 3630 -- \
+  "$K_TASK_PY" code/run_task_quality.py --root "$PWD" \
+  --model /dev/shm/research_K_expert_skip/deepseek_v2_lite_604d5664 \
+  --data-dir datasets/task_eval_r02 --prompts datasets/free_generation_validation_r01/prompts.jsonl \
+  --arms-file configs/quality_eval_arms.json --formats bf16 fp8 \
+  --tasks gsm8k mmlu hellaswag arc_challenge --limit 16 --free-limit 200 \
+  --batch 8 --prompt-tokens 128 --max-tokens 256 --max-model-len 4096 --gpu-memory-utilization .55 \
+  --budget-seconds 3600 --job-timeout 1500 \
+  --outer-run-dir runs/task_quality_deepseek_formats_pilot_r01 \
+  --output runs/task_quality_deepseek_formats_pilot_r01/quality
+
+Qwen3-30B-A3B（同模型两格式初始总显存比例 .85；K view须连接已完整的固定版分片）：
+
+"$K_TASK_PY" code/run_locked.py --root "$PWD" --name task_quality_qwen3_formats_pilot_r01 --wait-seconds 3600 --timeout 3630 -- \
+  "$K_TASK_PY" code/run_task_quality.py --root "$PWD" \
+  --model /root/autodl-tmp/research_K_expert_skip/models/qwen3_bf16_ad44e777_runtime \
+  --data-dir datasets/task_eval_r02 --prompts datasets/free_generation_validation_r01/prompts.jsonl \
+  --arms-file configs/quality_eval_arms.json --formats bf16 fp8 \
+  --tasks gsm8k mmlu hellaswag arc_challenge --limit 16 --free-limit 200 \
+  --batch 8 --prompt-tokens 128 --max-tokens 256 --max-model-len 4096 --gpu-memory-utilization .85 \
+  --budget-seconds 3600 --job-timeout 1500 \
+  --outer-run-dir runs/task_quality_qwen3_formats_pilot_r01 \
+  --output runs/task_quality_qwen3_formats_pilot_r01/quality
+
+.35/.55/.85 沿用当前各模型计划预算，DeepSeek/Qwen实际加载仍待验证，不能当成
+已测可行性或吞吐承诺。若显存预算必须调整，同模型两格式和所有比较臂一起调整。
+每个任务family仍共用一次 native；失败保留并继续后续独立family，预算耗尽的
+任务明确未运行。每段 3600 秒是上限，不承诺十个 family/format job 全部完成。
+
+--limit 16 对每个 MMLU subject 分别生效；任务分数属于探索性 pilot，free200
+为完整指定人口。GSM8K 5-shot及自由生成有真实 decode；MMLU 5-shot、HellaSwag
+0-shot、ARC-c 0-shot仍是 prefill loglikelihood 身份对照，不能当作跳过的decode
+质量证据。正式完整任务须新输出目录、去掉 --limit，按实测速率重新给定预算；
+不改变任务定义或自然 EOS，不跨模型/格式复用 native 分数。
+
+CPU计划检查可将任一段的内层命令单独运行，加 --plan-only、改为新的 /tmp 输出，
+且可省去 --outer-run-dir；它只验证输入配置并生成计划，不加载模型或申请GPU。
+实际 checkpoint config 缺失时会明确记 planning_warnings，不能把此计划当加载通过。

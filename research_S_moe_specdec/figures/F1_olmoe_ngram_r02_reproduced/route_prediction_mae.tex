@@ -1,0 +1,46 @@
+\documentclass[border=5pt]{standalone}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{pgfplots}
+\usepgfplotslibrary{groupplots}
+\pgfplotsset{compat=1.18}
+\begin{document}
+\sffamily
+\begin{tikzpicture}
+\definecolor{series0}{HTML}{222222}
+\definecolor{series1}{HTML}{1f77b4}
+\definecolor{series2}{HTML}{ff7f0e}
+\definecolor{series3}{HTML}{2ca02c}
+\definecolor{series4}{HTML}{d62728}
+\definecolor{series5}{HTML}{9467bd}
+\definecolor{series6}{HTML}{8c564b}
+\definecolor{series7}{HTML}{e377c2}
+\begin{groupplot}[group style={group size=1 by 1,horizontal sep=1.8cm},width=13.5cm,height=6.2cm,scale only axis,grid=major,grid style={gray!20},axis lines*=left,tick label style={font=\small},label style={font=\small},title style={font=\small},unbounded coords=jump]
+\nextgroupplot[title={Actual-S prediction error by held-out gamma},xlabel={Actual decode batch B},ylabel={MAE in distinct experts (equal mean over layers)},xtick={1,2,4,8,16,32,64},xticklabels={1,2,4,8,16,32,64},xmode=log,log basis x=2,minor x tick num=0,scaled y ticks=false,yticklabel style={/pgf/number format/fixed,/pgf/number format/precision=2},legend columns=7,legend to name=sharedlegend,legend style={draw=none,font=\small,/tikz/every even column/.append style={column sep=8pt}}]
+\addplot+[color=series0,mark=*,mark size=1.7pt,mark options={fill=series0,draw=series0},line width=0.8pt] coordinates {(1,0.306142749497) (2,1.48477571108) (3,3.39335958662) (4,2.80387793023) (5,0.939587042242) (6,2.86550320068) (7,2.0134755676) (8,3.02663057595) (10,3.92282465268) (11,2.41076141591) (12,4.17169690648) (14,4.00104377291) (15,1.86097720372) (16,3.22681120575) (18,2.09487505382) (21,1.72232205221) (25,1.49951202227) (28,1.52556187892) (29,1.63453532773) (30,1.03917299302) (31,1.63079926682) (32,1.92141827184) (40,1.32281830133) (46,1.12903396972) (49,0.592517264623) (55,0.640069122398) (58,0.838415450397) (61,0.62508048441) (62,0.617547950958) (63,0.477281755251) (64,1.12349636338)};
+\addlegendentry{$\gamma=1$}
+\addplot+[only marks,forget plot,color=series0,mark=o,mark size=2.1pt,mark options={fill=white,line width=0.45pt}] coordinates {};
+\addplot+[color=series1,mark=square*,mark size=1.7pt,mark options={fill=series1,draw=series1},line width=0.8pt] coordinates {(1,0.384124573864) (2,1.5747564059) (3,3.17821866188) (4,2.87898442694) (5,3.11055682561) (6,2.68333209685) (7,3.88590073861) (8,3.08363620626) (10,3.59609840697) (11,2.16335761935) (12,3.38764790626) (13,4.86657642633) (14,1.236989691) (15,2.42869005713) (16,3.07025399845) (17,1.79887936025) (19,1.99618103679) (21,1.51488985995) (25,1.65666170173) (28,2.20930586309) (30,1.33141933885) (31,1.26455902413) (32,1.89583090863) (33,1.52807256003) (40,2.07017968238) (45,0.732019684721) (49,0.690545445618) (53,0.474726771853) (56,0.732682713134) (59,0.564632066873) (60,0.641526868735) (61,0.580642521192) (64,1.07383511128)};
+\addlegendentry{$\gamma=2$}
+\addplot+[only marks,forget plot,color=series1,mark=o,mark size=2.1pt,mark options={fill=white,line width=0.45pt}] coordinates {};
+\addplot+[color=series2,mark=triangle*,mark size=1.7pt,mark options={fill=series2,draw=series2},line width=0.8pt] coordinates {(1,0.373680085669) (2,1.41244025914) (3,3.45308507211) (4,2.78558448371) (5,2.70130348655) (6,1.57801123099) (7,2.6248236873) (8,3.31225955895) (10,2.77183085252) (11,2.70277847644) (12,3.3459405663) (13,5.65241542677) (14,1.95579093564) (15,1.76149031522) (16,3.29069986795) (18,1.85007292568) (20,2.19098912566) (22,1.51226143741) (26,1.82382720113) (29,1.13351937054) (30,1.75585190226) (31,1.35468896016) (32,1.81578252049) (40,1.04540485855) (42,0.896154020976) (47,0.792609069549) (50,0.543612783777) (54,0.657022046167) (56,0.541617520744) (58,0.876785363834) (60,0.419583549777) (61,0.465550523497) (62,0.611601280533) (63,0.4431988021) (64,1.13393330145)};
+\addlegendentry{$\gamma=3$}
+\addplot+[only marks,forget plot,color=series2,mark=o,mark size=2.1pt,mark options={fill=white,line width=0.45pt}] coordinates {};
+\addplot+[color=series3,mark=diamond*,mark size=1.7pt,mark options={fill=series3,draw=series3},line width=0.8pt] coordinates {(1,0.347891398934) (2,1.4034678824) (3,4.10776893026) (4,2.72024132847) (5,2.63880348655) (6,1.7317375568) (7,3.01466005386) (8,3.43938582141) (9,1.94280823485) (10,3.59609840697) (11,3.1932059412) (12,2.11132677018) (13,5.68451356863) (14,1.94543781394) (15,2.10831978819) (16,3.31615685715) (18,2.47750354259) (20,1.46567127016) (21,1.76446163966) (26,1.54934843424) (28,1.21025806582) (29,1.31531200589) (30,1.44494398946) (31,1.27642201402) (32,1.55795305397) (36,1.27034361992) (42,0.846365489875) (46,0.72287120955) (50,0.877725032836) (52,0.788125172585) (55,0.495109286062) (56,0.758286025166) (60,0.448542995359) (61,0.589312248381) (63,0.439983443977) (64,0.973915316859)};
+\addlegendentry{$\gamma=4$}
+\addplot+[only marks,forget plot,color=series3,mark=o,mark size=2.1pt,mark options={fill=white,line width=0.45pt}] coordinates {};
+\addplot+[color=series4,mark=triangle,mark size=1.7pt,mark options={fill=series4,draw=series4},line width=0.8pt] coordinates {(1,0.492085458607) (2,1.52047746095) (3,3.65520096799) (4,2.91576977298) (5,2.45604931441) (6,2.62188081562) (7,2.49024708207) (8,3.58216795108) (9,3.50528263974) (10,2.2834048863) (11,2.28007229306) (12,3.26562914078) (13,2.59345884543) (14,2.56667490651) (15,1.84107620272) (16,3.36787366716) (18,1.63948693026) (19,2.35473330971) (20,1.72614021919) (25,2.72070290266) (27,1.30613088143) (28,1.22359013792) (30,0.839098015074) (31,1.03826653217) (32,1.50609092088) (36,1.21120967826) (41,1.19626374955) (45,0.774077175474) (49,0.654356533368) (52,0.77916495755) (54,0.47390602874) (56,0.566977836072) (60,0.420543676046) (61,0.485480765743) (63,0.46303537985) (64,0.878666195234)};
+\addlegendentry{$\gamma=5$}
+\addplot+[only marks,forget plot,color=series4,mark=o,mark size=2.1pt,mark options={fill=white,line width=0.45pt}] coordinates {};
+\addplot+[color=series5,mark=pentagon*,mark size=1.7pt,mark options={fill=series5,draw=series5},line width=0.8pt] coordinates {(1,0.465247827466) (2,1.49426545572) (3,2.55737533079) (4,3.16517654673) (5,2.45604931441) (6,3.3191019152) (7,2.54888138837) (8,3.63236340895) (9,5.24701356863) (10,3.11017231415) (11,2.23004927187) (13,3.647145917) (14,1.96510064538) (15,1.72733080915) (16,3.42583566667) (17,1.48889199323) (20,1.57055116673) (21,2.78007286104) (22,1.54067102311) (23,3.85996909594) (26,2.14668047096) (28,1.1639798859) (30,0.861636837003) (31,0.996298311317) (32,1.47221079624) (33,0.54017796573) (38,0.638024648972) (43,0.842515518776) (48,0.880402262286) (52,0.528310146073) (55,0.320539024301) (56,0.576740852555) (59,0.59993139059) (60,0.425225096859) (61,0.461983860848) (63,0.290003050974) (64,0.864767738559)};
+\addlegendentry{$\gamma=6$}
+\addplot+[only marks,forget plot,color=series5,mark=o,mark size=2.1pt,mark options={fill=white,line width=0.45pt}] coordinates {};
+\addplot+[color=series6,mark=x,mark size=1.7pt,mark options={fill=series6,draw=series6},line width=0.8pt] coordinates {(1,0.563028671885) (2,1.57915408959) (3,2.60835737141) (4,3.30100251162) (5,2.59469524763) (7,2.72136445748) (8,3.71814609205) (9,5.23988461397) (10,2.14851473776) (11,2.16746805778) (12,2.8300406092) (13,4.85640406188) (14,2.0760918944) (15,2.00892043) (16,3.30202212027) (18,1.38033706432) (19,1.66658000059) (20,1.16872987219) (21,2.17680100901) (23,1.76056089836) (25,1.25329264977) (28,1.44253858939) (30,1.23112370188) (31,1.06841503824) (32,1.47260513653) (33,1.14261284334) (40,1.02590878556) (43,0.706246651183) (48,0.613015113581) (54,0.48870601374) (56,0.531932044638) (58,0.417076522748) (60,0.435029348588) (61,0.393391530864) (62,0.270500462527) (63,0.209013144722) (64,0.799384778235)};
+\addlegendentry{$\gamma=7$}
+\addplot+[only marks,forget plot,color=series6,mark=o,mark size=2.1pt,mark options={fill=white,line width=0.45pt}] coordinates {};
+\end{groupplot}
+\path (group c1r1.north west) -- node[above=1.2cm,font=\large] {OLMoE / n-gram / bfloat16 / none / eager} (group c1r1.north east);
+\path (group c1r1.north west) -- node[above=0.7cm] {\ref{sharedlegend}} (group c1r1.north east);
+\path (group c1r1.south west) -- node[below=1.2cm,align=center,font=\small] {$\gamma=0$ marginals; held-out executed $\gamma$ conditions, with the same prompt subset permitted.\\Scheduled target verification rows only; physical padding D is not included.\\Layer-step counts are correlated; no independent-repeat confidence intervals.} (group c1r1.south east);
+\end{tikzpicture}
+\end{document}

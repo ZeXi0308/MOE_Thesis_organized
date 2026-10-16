@@ -1,0 +1,37 @@
+\documentclass[10pt,twocolumn]{article}
+\usepackage[margin=0.8in]{geometry}
+\usepackage{amsmath,booktabs,graphicx,hyperref}
+\title{Importance-Tiered Low-Precision Combine for Expert-Parallel MoE Inference}
+\author{Working draft: empirical results pending}
+\date{October 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+Expert-parallel inference motivates reducing combine traffic below a uniform FP8 baseline. We investigate two precision lanes, FP8 for selected important vectors and block-scaled NVFP4 for the remainder. The design covers per-expert outputs and owner-local partial sums, which are different communication units. A half-FP8, half-NVFP4 assignment has a nominal payload of 0.78125 bytes per element before row-scale and layout overheads. Prior single-device quality experiments motivate this design; the present four-model quality evaluation, PCIe system measurements, and calibrated extrapolation remain pending. No end-to-end speedup is claimed in this draft.
+\end{abstract}
+\section{Introduction}
+The primary comparison is tiered combine against uniform FP8 combine, with identical FP8 dispatch. Reducing bytes is useful only if codec, selection, and communication costs improve the complete serving objective.
+\section{Background}
+Sparse exchange transmits selected expert outputs. The installed vLLM 0.26 AgRs backend instead gathers activations and reduces/scatters owner-local partial sums. With two owners, each token has two logical partials, but only the remote partial crosses the link to its origin. Logical vector volume must not be mistaken for measured link traffic.
+\section{Characterization}
+F1 (four-model contribution shares) and F3 (layer sensitivity) are pending. Historical head/tail KL-damage ratios must not be plotted as contribution-share ratios.
+\section{Design}
+For $R_h$ FP8 rows and $R_t$ NVFP4 rows of width $d$, the codec buffers occupy
+\[
+ B=R_h(d+4)+R_t(d/2+d/16)+4,
+\]
+when the tail tensor is nonempty and $d$ is divisible by 16. This excludes lane identifiers, counts, alignment, padding, and transport headers, which must be added for actual wire accounting. FP8 uses one FP32 row scale. NVFP4 uses an E4M3 scale per 16 elements and one FP32 scale for the tail tensor. A dynamically calculated tensor scale incurs a reduction cost.
+
+Mode I ranks expert outputs by routing weight. Mode II ranks owner partials by the sum of their routing weights; partial norm is an alternative whose selection cost must be measured. Both use static per-layer precision budgets.
+\input{communication_model}
+\section{Implementation}
+GPU-resident Triton FP8 and NVFP4 quantization and dequantization have passed direct GPU comparisons against their numerical references for zero, random, and outlier inputs at five vector widths. This validates the tested codec semantics, not model quality or serving benefit. The source snapshot places the Triton quality intervention before \texttt{moe\_sum}; router weights are already included in the intermediate expert outputs. Runtime FP8/NVFP4 model kernel selection is not yet verified.
+\section{Evaluation}
+Required artifacts are F2 quality Pareto, F4 step breakdown, F5 TPOT/throughput, F6 task accuracy, F7 extrapolation, T1 complete byte accounting, and T2 codec costs. Initial codec measurements contain CUDA-event spans around eager Python API calls; they are retained as API-level measurements, not interpreted as pure kernel latency. A graph-amortized companion measurement is pending. Model quality and system measurements are pending. For codec microbenchmarks we retain five post-warmup values; for system configurations we retain two runs and their range. Mode II quality is compared with the same grouped-BF16 accumulation order.
+
+The communication model $T=\alpha+B/\mathrm{BW}_{eff}$ will be fit to actual two-GPU measurements. Extrapolation to 8--32 devices and 200/400 Gbps links is a conditional model prediction, not a measurement. Codec and non-overlapped control costs enter separately.
+\section{Related Work}
+T3 will compare state, action, communication unit, precision format, and inference/training scope of DeepEP, Comet, UCCL-EP, and related low-precision communication systems. Primary-source verification remains pending; this draft makes no priority claim.
+\section{Conclusion}
+The design and byte accounting are specified. Quality, runtime cost, and deployment benefit remain to be measured.
+\end{document}

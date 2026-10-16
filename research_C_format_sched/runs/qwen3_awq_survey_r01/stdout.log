@@ -1,0 +1,26 @@
+/root/miniconda3/lib/python3.12/site-packages/torch/profiler/profiler.py:224: UserWarning: Warning: Profiler clears events at the end of each cycle.Only events from the current cycle will be reported.To keep events across cycles, set acc_events=True.
+  _warn_once(
+{"status": "ok", "format": "awq", "tokens": 1, "latency_ms_median": 0.02663724456921379}
+{"status": "ok", "format": "awq", "tokens": 8, "latency_ms_median": 0.1024740657659516}
+{"status": "ok", "format": "awq", "tokens": 32, "latency_ms_median": 0.23231451062188632}
+{"status": "ok", "format": "awq", "tokens": 128, "latency_ms_median": 0.24331574820001206}
+{"status": "ok", "format": "awq", "tokens": 512, "latency_ms_median": 0.28448629519107405}
+{"status": "error", "format": "awq", "tokens": 2048}
+Traceback (most recent call last):
+  File "/root/autodl-tmp/research_C_format_sched/code/bench_expert_formats.py", line 351, in <module>
+    main()
+  File "/root/autodl-tmp/research_C_format_sched/code/bench_expert_formats.py", line 304, in main
+    torch.testing.assert_close(graph_output, result, rtol=0, atol=0)
+  File "/root/miniconda3/lib/python3.12/site-packages/torch/testing/_comparison.py", line 1600, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: Tensor-likes are not equal!
+
+Mismatched elements: 509 / 4194304 (0.0%)
+Greatest absolute difference: 0.0009765625 at index (853, 1852)
+Greatest relative difference: inf at index (422, 90)
+Traceback (most recent call last):
+  File "/root/autodl-tmp/research_C_format_sched/code/run_format_characterization.py", line 24, in <module>
+    subprocess.run(cmd, check=True)
+  File "/root/miniconda3/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/root/miniconda3/bin/python', '/root/autodl-tmp/research_C_format_sched/code/bench_expert_formats.py', '--model', 'qwen3', '--format', 'awq', '--tokens', '1,8,32,128,512,2048,8192', '--routing', 'uniform', '--cuda-graph', '--energy-seconds', '3', '--out', 'runs/qwen3_awq_survey_r01/qwen3_uniform_awq.jsonl', '--weights', 'runs/qwen3_awq_export_r02/layer0_marlin.pt']' returned non-zero exit status 1.

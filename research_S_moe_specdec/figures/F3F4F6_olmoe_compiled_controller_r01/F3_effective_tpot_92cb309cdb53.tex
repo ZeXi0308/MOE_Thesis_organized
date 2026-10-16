@@ -1,0 +1,31 @@
+\documentclass[border=5pt]{standalone}
+\usepackage[T1]{fontenc}\usepackage{lmodern}\usepackage{pgfplots}
+\usepgfplotslibrary{groupplots}\pgfplotsset{compat=1.18}
+\begin{document}\sffamily\begin{tikzpicture}
+\definecolor{policy0}{HTML}{222222}
+\definecolor{policy1}{HTML}{0072B2}
+\definecolor{policy2}{HTML}{E69F00}
+\definecolor{policy3}{HTML}{009E73}
+\definecolor{policy4}{HTML}{CC79A7}
+\begin{groupplot}[group style={group size=1 by 1,horizontal sep=2.0cm},width=11.5cm,height=5.8cm,scale only axis,grid=major,grid style={gray!20},axis lines*=left,unbounded coords=jump,xmode=log,log basis x=2,minor x tick num=0,scaled y ticks=false,tick label style={font=\small},label style={font=\small},title style={font=\small},xtick={1,4,16,64},xticklabels={1,4,16,64},xlabel={Synchronous wave batch B}]
+\nextgroupplot[title={Effective TPOT},ylabel={Effective TPOT (ms / output token)},xmin=0.8,xmax=76.8,legend to name=policyLegend,legend columns=3,legend style={draw=none,font=\small,/tikz/every even column/.append style={column sep=8pt}}]
+\addlegendimage{color=policy0,mark=*,line width=0.9pt}\addlegendentry{AR}
+\addlegendimage{color=policy1,mark=square*,line width=0.9pt}\addlegendentry{Fixed gamma}
+\addlegendimage{color=policy2,mark=triangle*,line width=0.9pt}\addlegendentry{Native table}
+\addlegendimage{color=policy3,mark=diamond*,line width=0.9pt}\addlegendentry{Native threshold}
+\addlegendimage{color=policy4,mark=pentagon*,line width=0.9pt}\addlegendentry{Adaptive}
+\addplot[forget plot,color=policy0,mark=*,mark size=2pt,line width=0.9pt] coordinates {(1,2.95073364838) (4,5.72888278691) (16,9.65872973524) (64,12.521295752)};
+\addplot[only marks,forget plot,color=policy0,mark=o,mark size=2.2pt,mark options={fill=white,line width=0.6pt}] coordinates {(0.982652235665,2.96468089653) (1.01765402215,2.93678640022) (3.93060894266,5.73176946457) (4.0706160886,5.72599610925) (15.7224357706,9.66977625394) (16.2824643544,9.64768321654) (62.8897430826,12.4667185276) (65.1298574176,12.5758729764)};
+\addplot[forget plot,color=policy1,mark=square*,mark size=2pt,line width=0.9pt] coordinates {(1,2.94517987297) (4,5.72374215625) (16,9.61200967126) (64,12.6812313819)};
+\addplot[only marks,forget plot,color=policy1,mark=o,mark size=2.2pt,mark options={fill=white,line width=0.6pt}] coordinates {(0.982652235665,2.97103164161) (1.01765402215,2.91932810433) (3.93060894266,5.74498089469) (4.0706160886,5.70250341781) (15.7224357706,9.63211160236) (16.2824643544,9.59190774016) (62.8897430826,12.8783387323) (65.1298574176,12.4841240315)};
+\addplot[forget plot,color=policy2,mark=triangle*,mark size=2pt,line width=0.9pt] coordinates {(1,3.39641526704) (4,6.14634492372) (16,9.90081724188) (64,12.2279303896)};
+\addplot[only marks,forget plot,color=policy2,mark=o,mark size=2.2pt,mark options={fill=white,line width=0.6pt}] coordinates {(0.982652235665,3.40541551624) (1.01765402215,3.38741501784) (3.93060894266,6.16244568848) (4.0706160886,6.13024415896) (15.7224357706,9.89927434683) (16.2824643544,9.90236013693) (62.8897430826,12.3377381593) (65.1298574176,12.11812262)};
+\addplot[forget plot,color=policy3,mark=diamond*,mark size=2pt,line width=0.9pt] coordinates {(1,3.38587390102) (4,6.15009797466) (16,10.0150964646) (64,13.0129499646)};
+\addplot[only marks,forget plot,color=policy3,mark=o,mark size=2.2pt,mark options={fill=white,line width=0.6pt}] coordinates {(0.982652235665,3.40121409092) (1.01765402215,3.37053371112) (3.93060894266,6.17440992175) (4.0706160886,6.12578602756) (15.7224357706,10.0102101398) (16.2824643544,10.0199827894) (62.8897430826,13.0735868898) (65.1298574176,12.9523130394)};
+\addplot[forget plot,color=policy4,mark=pentagon*,mark size=2pt,line width=0.9pt] coordinates {(1,6.56080576938) (4,7.29060410316) (16,9.93619897816) (64,12.1686741328)};
+\addplot[only marks,forget plot,color=policy4,mark=o,mark size=2.2pt,mark options={fill=white,line width=0.6pt}] coordinates {(0.982652235665,6.55185046038) (1.01765402215,6.56976107837) (3.93060894266,7.2923231346) (4.0706160886,7.28888507173) (15.7224357706,9.96856478494) (16.2824643544,9.90383317138) (62.8897430826,12.231878594) (65.1298574176,12.1054696715)};
+\end{groupplot}
+\path (group c1r1.north west) -- node[above=1.6cm,font=\large] {OLMoE | ngram | compiled} (group c1r1.north east);
+\path (group c1r1.north west) -- node[above=0.75cm] {\ref{policyLegend}} (group c1r1.north east);
+\path (group c1r1.south west) -- node[below=1.4cm,align=center,font=\scriptsize] {Open dots: every run value (small $x$ offsets). Lines: complete run medians; missing repeats break lines.\\No confidence intervals; shared engines and online state are not independent engine repeats.\\TPOT: per-run mean across complete requests, from first to last output receipt divided by output tokens minus one.\\Whole policies: native tables and fixed-budget engines can use different graph modes.} (group c1r1.south east);
+\end{tikzpicture}\end{document}

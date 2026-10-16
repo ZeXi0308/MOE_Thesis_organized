@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "status": "rendered_measured_values",
+  "inputs": [
+    {
+      "source": "/Users/zhaozhenyu/Desktop/毕业设计/research_S_moe_specdec/runs/olmoe_compiled_controller_comparison_r01/comparison.json",
+      "sha256": "8735fbe6b9abae931979d8e0d82ba58b98c09cb79994b54f8d4226ad2e26248b",
+      "comparison_status": "measured_comparison_complete",
+      "run_records": 40,
+      "fixture": false
+    }
+  ],
+  "pending_inputs": [],
+  "groups": [
+    {
+      "group": "92cb309cdb53",
+      "comparison": "/Users/zhaozhenyu/Desktop/毕业设计/research_S_moe_specdec/runs/olmoe_compiled_controller_comparison_r01/comparison.json",
+      "comparison_sha256": "8735fbe6b9abae931979d8e0d82ba58b98c09cb79994b54f8d4226ad2e26248b",
+      "domain": null,
+      "execution_domain": {},
+      "regime": {
+        "model": "/root/autodl-tmp/moe-research-20261002/model",
+        "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+        "workload_sha256": "7a4c11f18e7e118d34ae2b60542ef8aeb6044f521ac81be6d1fdb2804977998b",
+        "draft_source": "ngram",
+        "measurement_kind": "fixed_length_generation",
+        "execution_mode": "compiled",
+        "dtype": "bfloat16",
+        "quantization": "none",
+        "kv_cache_memory_bytes": "6442450944",
+        "max_model_len": "1024",
+        "attention_backend": "{\"selection\":\"auto_unspecified\"}",
+        "kernel_backend": "{\"kernel_config\":{\"moe_backend\":\"triton\"}}",
+        "admission_mode": "wave",
+        "engine_max_num_seqs": "64"
+      },
+      "sample_indices_sha256": "8df4d2944feeded904a4d549b3fe3729e8326a6b56c99aa0d5c8882f4a492667",
+      "batches": [
+        1,
+        4,
+        16,
+        64
+      ],
+      "fixture": false,
+      "comparison_boundaries": [
+        "No offline oracle, selection score or spliced trajectory is a policy measurement.",
+        "Policies use their actual engine configurations. In vLLM 0.26 V1, a native per-batch speculative table forces PIECEWISE capture, whereas fixed-budget compiled engines may use FULL_AND_PIECEWISE with a different capture grid. This is a whole-policy comparison, not an isolated decision-rule or matched-graph experiment; timed dispatch is not observed here.",
+        "Raw repeat records retained; shared resident engines and continuous estimator state do not constitute independent engine repeats.",
+        "TPOT uses all complete requests; complete-population wall includes inter-wave handling when recorded.",
+        "Wave-window energy and validated whole-device cumulative-counter span energy are reported separately; counter span includes gaps but does not have exactly the runner wall-time endpoints. No sparse-power extrapolation across gaps.",
+        "CPU metrics are nested scopes and must not be added or subtracted from wall time to estimate an uninstrumented counterfactual.",
+        "Truncated draft counts are post-proposer work counts, not measured wasted GPU kernel time or energy.",
+        "Only measured cells are plotted. Missing roles, fields, cost provenance or sample identities remain pending/excluded."
+      ],
+      "display_label": "OLMoE"
+    }
+  ],
+  "figure_artifacts": [
+    "F3_effective_tpot_92cb309cdb53.pdf",
+    "F3_effective_tpot_92cb309cdb53.tex",
+    "F3_effective_tpot_92cb309cdb53.png",
+    "F3_effective_tpot_92cb309cdb53.svg",
+    "F4_counter_span_energy_92cb309cdb53.pdf",
+    "F4_counter_span_energy_92cb309cdb53.tex",
+    "F4_counter_span_energy_92cb309cdb53.png",
+    "F4_counter_span_energy_92cb309cdb53.svg",
+    "F6_control_92cb309cdb53.pdf",
+    "F6_control_92cb309cdb53.tex",
+    "F6_control_92cb309cdb53.png",
+    "F6_control_92cb309cdb53.svg"
+  ],
+  "omitted_figures": [],
+  "data_artifacts": [
+    "plot_raw.csv",
+    "plot_cells.csv"
+  ],
+  "include_wave_energy": false,
+  "fixture_only": false,
+  "source_sha256": {
+    "plot_policy_comparisons.py": "42be8e8c96f4b05d896fb31ade8fd04c8cb84625ad77e5babc29a2d0246ad4f5",
+    "plot_energy_progress.py": "1eed0df53325f4cc1ae3deafac3dfb1d78f483a827d906a10632a6f4a6ba8f75"
+  },
+  "boundaries": [
+    "Each input comparison, execution regime and actual sample hash is plotted separately; no pooling across inputs or draft domains.",
+    "Explicit roles retain native unrestricted-table and threshold identities. No post-hoc envelope, inferred policy identity or best-repeat selection.",
+    "Only complete declared repeat sets (at least two) get medians; missing/invalid coverage breaks lines. All finite accepted raw points remain visible.",
+    "F4 uses only validated cumulative-counter spans. Optional wave-window energy has a separate figure and timing boundary.",
+    "F6 uses per-run means of actually timed decision calls and discarded/available token counts over scheduled decode steps. Timing coverage is exported; missing native/fallback call timing is not zero.",
+    "No confidence intervals, kernel/HBM inference, subtraction of nested CPU scopes, GPU execution or remote upload."
+  ]
+}

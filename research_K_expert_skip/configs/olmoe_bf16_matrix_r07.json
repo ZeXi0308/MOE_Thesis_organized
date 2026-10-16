@@ -1,0 +1,26 @@
+{
+  "purpose": "first complete OLMoE BF16 exploration matrix; no independent-run uncertainty claim",
+  "parent_evidence": "characterize_r06 PASS; 9 counter-off graph pilot cells; shortest 128-token TPOT 2.417ms",
+  "model": "/root/autodl-tmp/moe-research-20261002/model",
+  "batches": [
+    1,
+    2,
+    4,
+    8,
+    16,
+    32,
+    64
+  ],
+  "arms_file": "configs/default_arms.json",
+  "repeats": 1,
+  "prompt_tokens": 128,
+  "newtokens": 2048,
+  "max_model_len": 2304,
+  "gpu_memory_utilization": 0.35,
+  "warmup_seconds": 3,
+  "tuned_config_folder": "runs/characterize_r06/native_tuning/tuned_configs",
+  "energy_length_rationale": "2047 decode steps at pilot fastest 2.417ms gives about4.95s; actual >=3s check required for each arm. Long-context latency may differ from 128-token pilot.",
+  "comparison": "All arms have identical exogenous prompts, fixed generation length, model format, native kernel tuning and total memory budget. Each arm fresh perf/count processes; randomized arm order.",
+  "statistics": "one fresh run per policy; full run values reported. Independent repeats/heldout confirmation remain separate future runs.",
+  "budget_timeout_s": 7200
+}

@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "run_name": "olmoe_nvfp4_common_r01",
+  "timeout_s": 1800,
+  "state": "prepared_not_run",
+  "source_master_manifest": "checkpoints/olmoe_awq_common_bf16_r03/checkpoint_manifest.json",
+  "source_awq_manifest": "checkpoints/olmoe_awq_common_r03/checkpoint_manifest.json",
+  "base_checkpoint": "allenai/OLMoE-1B-7B-0924-Instruct",
+  "base_revision": "7f1c97f440f06ce36705e4f2b843edb5925f4498",
+  "calibration_jsonl": "datasets/olmoe_ultrachat_calibration_512/calibration.jsonl",
+  "calibration_jsonl_sha256": "878fb27f655b87d5da7d6e5eda403c47b4ad5e48d4643a0be5e1c179d8923c5b",
+  "samples": 512,
+  "max_seq_length": 512,
+  "seed": 42,
+  "moe_calibrate_all_experts": false,
+  "output": "checkpoints/olmoe_nvfp4_common_r01",
+  "reserve_gib": 20,
+  "calibration_python": "calibration_venv/bin/python",
+  "quantization": {
+    "modifier": "QuantizationModifier",
+    "scheme": "NVFP4",
+    "targets": "OLMoE experts only: gate_proj, up_proj, down_proj",
+    "weights": "FP4 tensor_group16, FP8 local scales, static calibrated global scale",
+    "activations": "FP4 tensor_group16, dynamic local scales with static_minmax calibrated global scale",
+    "awq_modifier_in_this_stage": false,
+    "awq_provenance": "Inherited actual W4A16 AWQ smoothing from the verified common BF16 master; not retuned for NVFP4",
+    "nonexpert_weights": "All original norm/router/attention/embedding/head parameters must retain exact shape, dtype and raw bytes"
+  },
+  "storage_plan": {
+    "new_bf16_master_bytes": 0,
+    "expected_output_decimal_gb_approx": 4.65,
+    "note": "Runtime computes the complete expert-only NVFP4 checkpoint estimate from actual master headers, adds 64 MiB header allowance and reserves 20 GiB; no additional BF16 master is saved"
+  },
+  "compatibility": {
+    "calibration_environment": "llmcompressor 0.14.0 / compressed-tensors 0.19.0",
+    "serving_environment": "vLLM 0.26.0 / compressed-tensors 0.17.0",
+    "scale_layout": "Require saved weight_packed U8, weight_scale F8_E4M3, weight_global_scale F32 and input_global_scale F32; require gate/up global scales to match",
+    "exporter": "code/export_ct_nvfp4_artifact.py",
+    "worker_host": "The unchanged checkpoints/olmoe_awq_common_bf16_r03; install calibrated NVFP4 sidecars with policy=single and recheck actual layer basis",
+    "runtime_and_quality_status": "Not run; source-level interface support does not establish numerical quality or GPU execution"
+  },
+  "source_evidence": [
+    "runs/source_snapshot/compressed_tensors/quantization/quant_scheme.py: NVFP4 preset includes calibrated local-dynamic activations",
+    "runs/source_snapshot/llmcompressor/modifiers/quantization/quantization/mixin.py: regex targets and official fuse_weight_observers",
+    "runs/source_snapshot/llmcompressor/observers/helpers.py: gate_proj/up_proj shared global scales",
+    "runs/source_snapshot/compressed_tensors/compressors/base.py: compress_module uses complete direct state dict",
+    "runs/source_snapshot/compressed_tensors/compressors/nvfp4/base.py: compression retains input_global_scale from state dict",
+    "runs/source_snapshot/vllm/model_executor/layers/quantization/compressed_tensors/compressed_tensors_moe/compressed_tensors_moe.py: expert projection names used to match schemes"
+  ]
+}

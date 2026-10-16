@@ -1,0 +1,56 @@
+你是本课题唯一负责人。六周内交付：
+1. 一个可验证的成本模型与它的核心预言：推测解码的 batch 规则在 MoE 上翻转——dense 模型在 batch=1 收益最大、batch 大了失效；MoE 在小 batch 上反而变慢（验证步把专家工作集撑爆），要到中等 batch 专家集饱和后才有收益；
+2. 两到三个 MoE 模型 × 两种草稿源上的 (batch × 草稿长度) 加速热图与每 token 能耗，验证翻转；
+3. vLLM 0.26 中的步级自适应草稿长度 γ*(B)：按当前 batch 与在线接受率选 γ，对照最佳静态 γ 与 vLLM 自带的"按 batch 关闭"启发式；
+4. 一篇可投 CCF-C 主会的论文初稿（LaTeX）；刻画部分（翻转热图）即使机制增益小也单独成文。
+工作方式：直接测、直接建；不做审计包、不预注册、不开 reviewer 轮、不生成新 idea。
+- 本课题的产出是机制、图表和论文，不是判决。"证明这条路不行"不是可交付结果。
+- 这个工作区的历史教训：一周判死 12 条 idea，之后又积累了几十个"窄负结果"，根因是每个探针只做到"够判死"的最小尺寸就停了，从来没有把一个机制完整建出来。本课题反过来：先把机制完整建出来（可安装、可开关、对每个事件生效、有计数器），再测；只有完整的机制才有资格被评价。
+- 任何负结果都必须附带同一路线内的建设性下一步（改参数区间、换负载、换模型、修实现），而不是结束。写法固定为"当前效果 X，下一步 Y"。
+- 不写 KILL / NO-GO / FROZEN / 判死 这类判决词；不为负结果写审计包。
+- 预期未达时先怀疑实现与测量（计数器、A/A 噪声带、预热、实际 kernel 路径、配置是否真的生效），再怀疑模型；两者都排除后才调整主张。
+- 只有 §转向 的两个转向点可以改变路线走向，且转向后仍必须交付刻画型论文：转向是换产出形态，不是停止建设。
+- 每周必须有新增的"建出来的东西"（代码、图、论文节）。一周只有分析没有构建，视为偏航，下周先补构建。
+- 单卡。PRO 6000（97 GB）可跑 Qwen3-30B-A3B BF16；5090（32 GB）跑 OLMoE BF16、DeepSeek-V2-Lite FP8、Qwen3-30B-A3B AWQ/NVFP4。两种卡都是 SM120，kernel 路径一致，结论可互相搬。
+- GPU 预算约 20 小时。能耗用 pynvml 50 ms 采样积分（有 nvmlDeviceGetTotalEnergyConsumption 优先用）。
+- 环境：vLLM 0.26.0（v1 引擎的 speculative decoding：ngram、eagle/eagle3、mtp，以及可用时的 draft model）。
+1. MoE_Scheduling_20261002/{RESEARCH_STATE.md, NGRAM_RESULTS.md, C_PRIOR_ART.md} 与 ngram_src/：已有的 n-gram 推测 runner、每步阶段记账、"推测让步数下降但专家搬运上升"的原始观察。只继承观察与工具，不继承 paging 结论。
+2. GitHub 仓库 ZeXi0308/MOE_Thesis_organized main 分支（本地没有就 clone 到 ref_july/）：experiments/shared/capture_routes_v2.py（路由 trace → 每步每专家 token 数，用来估每个模型的专家选择概率 p_e）；docs/ideas/energy_slo/experiments/run_energy_slo_power_probe.py（PowerSampler）。
+3. 已安装 vLLM 0.26 源码：vllm/v1/spec_decode/（ngram、eagle proposer）、vllm/v1/core/sched/scheduler.py 中 spec token 的调度与 num_speculative_tokens 的使用、vllm/config/speculative.py（含 disable_by_batch_size 一类参数）、vllm/model_executor/layers/fused_moe/fused_moe.py（在 moe_align_block_size/sort 处加"本步 distinct 专家数"计数器）。
+第 1–2 天查新（半页写完差异）：MoESD（2025，MoE 上推测解码的理论模型）、Utility-driven speculative decoding for MoE（2025）、AdaEAGLE / SpecDec++ / DISCO（dense 上的自适应草稿长度）、EAGLE-3、vLLM 自带的 disable_by_batch_size。预期差异：以"验证步 distinct 专家数"为显式成本项的 batch-γ 联合模型；翻转现象的真机验证；步级 γ*(B) 在生产引擎中的实现与能耗。若 MoESD 已经把 γ 随 batch 的最优解做成了系统实现，按 §11 转向。
+- M 线在 OLMoE + cap24 专家分页下：n-gram γ=4 使 step 数 −24%，但 distinct 专家搬运 +21%，输出速率 −2.8%。本课题在"模型整体驻留 GPU"的正常 regime 下重测，搬运变成 HBM 权重读取。
+- decode 下每专家只有 B·k/E 个 token，专家 GEMM 带宽受限；一步的专家时间 ≈ 本步 distinct 专家权重字节 / HBM 带宽（加固定开销）。
+- 同策略 kernel 微基准 5 次取中位数；端到端每配置 2 次。
+distinct 专家数：一步有 B 个请求、每个请求 γ+1 个待验证位置，共 S=B(γ+1) 个 token 槽；专家 e 被选概率 p_e（来自路由 trace，不要用均匀假设做最终图）， 
+  $$D(B,\gamma)=\sum_e\Big[1-(1-p_e)^{S\cdot k}\Big]\quad(\text{独立近似；用 trace 回放校正})$$ 
+验证步时间：$T(B,\gamma)=\max\big(D(B,\gamma)\,w/\text{BW},\ c_{\text{compute}}(S)\big)+T_{\text{attn}}+c_0$，其中 w 为单专家权重字节；KV 读取在一步内对 γ+1 个位置共享，不随 γ 放大。 收益：接受率 α（n-gram 在 ShareGPT 上低、在代码/摘要上高），每步期望接受 $A(\gamma)=\frac{1-\alpha^{\gamma+1}}{1-\alpha}$， 
+  $$\text{Speedup}(B,\gamma)=\frac{A(\gamma)}{T(B,\gamma)/T(B,0)}$$ 
+预言（写成数字放进引言）：OLMoE（E=64, k=8）B=1、γ=4、α=0.7：D 从 8 升到 ≈31，字节 3.9×，接受 2.77 → 净 0.71×（变慢）；B=8：D 从 ≈42 升到 ≈64，字节 1.5× → 净 1.8×；B≥32：专家集饱和，净 ≈ A(γ)。Qwen3-30B-A3B（E=128）翻转点后移到 B≈16。这就是"batch 规则翻转"。 决策：$\gamma^*(B)=\arg\max_\gamma A(\gamma;\hat\alpha)/\hat T(B,\gamma)$，$\hat\alpha$ 取全局 EWMA（按请求分桶为变体），$\hat T$ 用一次离线校准的 D→时间曲线。查表，零运行时成本。
+目录 research_S_moe_specdec/code/：
+1. 计数器：在 fused-MoE 路径加"本步 distinct 专家数 / 专家权重字节"的统计，写入每步日志；与 §4 的 D(B,γ) 对照是 F1。
+2. 校准脚本：固定 batch、固定 γ 的 vllm bench latency 扫描，得 T(B,γ) 与 D(B,γ)。
+3. 自适应 γ：在 proposer 返回草稿后、调度前按 γ*(B_t) 截断本步草稿长度（n-gram/eagle 都支持返回少于 k 个草稿）；B_t 为本步 decode 请求数；α 的 EWMA 从验证结果更新。单文件 patch，可开关。
+4. 基线：静态 γ ∈ {0,1,2,3,5,7}；vLLM disable_by_batch_size（dense 启发式，方向相反）；oracle γ（事后按每步最优）。
+5. 可选扩展（第 5 周，若主线提前完成）：只对草稿位置跳过低 rank（低 gate）专家，缩小 D；量化对接受率与质量的影响。不做则不提。
+规模：3 模型 × 2 草稿源 × 3 负载 × 7 batch × 8 γ 太大，先跑 OLMoE × ngram × ShareGPT 全矩阵（56 格，每格 2–3 分钟）出 F2；其余按 B ∈ {1,4,16,64}、γ ∈ {0,3,7}+自适应 缩减。总计约 20 GPU 小时。
+- F1 每步 distinct 专家数 vs (B, γ)：模型预测 vs 实测，两模型。
+- F2（主图） 加速热图 B × γ（相对 γ=0），每模型每草稿源一面板，标出 <1 的区域——翻转现象。
+- F3 自适应 γ vs 最佳静态 γ vs dense 启发式 vs oracle：按 B 的有效 TPOT。
+- F4 J/token vs B，各策略。
+- F5 接受率分布（负载差异）与 α 的 EWMA 跟踪误差。
+- F6 开销：γ 选择的 CPU 时间；草稿截断的浪费。
+- T1 模型预言 vs 实测的翻转点；T2 与 MoESD / Utility-driven SD / AdaEAGLE 的动作级对照。
+从第 1 周起维护 paper/main.tex。 题目候选："The Batch-Size Rule Flips for MoE: Expert-Working-Set-Aware Speculative Decoding"。 章节：1 引言；2 背景（推测解码、fused-MoE 的字节模型）；3 模型与预言；4 刻画（F1、F2）；5 自适应 γ 的设计与实现；6 评估（F3–F6、T1–T2）；7 相关工作；8 结论。 投稿：CCF-C（ICPADS、HPCC、ICA3PP）；两模型翻转点与预言一致、自适应稳定优于最佳静态时试 ICPP / CLUSTER。等级以 CCF 最新目录为准。
+- W1：查新；计数器与校准脚本；OLMoE × ngram × ShareGPT 全矩阵；F1、F2 初版。
+- W2：Qwen3-30B-A3B；代码/摘要负载；paper 骨架含 F1–F2。
+- W3：自适应 γ 实现；F3。
+- W4：能耗 F4；EAGLE-3（若有）；F5、F6。
+- W5：可选扩展或补重复；评估节与相关工作。
+- W6：定稿与复现包。
+- 不以证伪为产出：负结果必须附建设性下一步，不写判决词，不写审计包；机制先建完整再评价。
+- 不做学习型预测器；只有查表与 EWMA。
+- distinct 专家数必须实测（计数器），不只用模型。
+- 质量只需确认自适应不改变输出分布（推测解码无损），一次 PPL/任务抽检即可；可选扩展才需要质量表。
+- 目录：RESULTS.md、code/、configs/、runs/、figures/、paper/、reproduce.md；RESULTS.md 顶部五行：当前主张 / 关键证据 / 最强替代解释 / 下一动作 / 资源状态。
+- 查新发现 γ 随 batch 的 MoE 最优解已有系统实现：论文改为刻画型（翻转热图 + 能耗 + 模型校准），自适应缩为一节；仍投 CCF-C。
+- 实测没有翻转（小 batch 也加速）：说明该模型/卡的固定开销 c₀ 主导，把 F2 改为"收益随 E/k 与 B 的关系"，论文转为"MoE 上推测解码收益的决定因素"，同样成文。

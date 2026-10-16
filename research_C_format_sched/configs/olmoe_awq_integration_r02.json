@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "run_name": "olmoe_awq_integration_r02",
+  "timeout_s": 1200,
+  "wait_seconds": 21600,
+  "state": "prepared_conditional_queue_retry_not_submitted",
+  "source_manifest": "runs/olmoe_checkpoint/checkpoint_manifest.json",
+  "expected_source_checkpoint_fingerprint": "7e14173c25a186a79418ede328f2fadfd3308ae8514a9adefde49dc6be8d1355",
+  "base_checkpoint": "allenai/OLMoE-1B-7B-0924-Instruct",
+  "base_revision": "7f1c97f440f06ce36705e4f2b843edb5925f4498",
+  "calibration_jsonl": "datasets/olmoe_ultrachat_calibration_512/calibration.jsonl",
+  "calibration_jsonl_sha256": "878fb27f655b87d5da7d6e5eda403c47b4ad5e48d4643a0be5e1c179d8923c5b",
+  "samples": 64,
+  "max_seq_length": 128,
+  "seed": 42,
+  "moe_calibrate_all_experts": false,
+  "format": "awq",
+  "output": "checkpoints/olmoe_awq_integration_r01",
+  "common_basis_bf16_output": "checkpoints/olmoe_awq_integration_bf16_r01",
+  "reserve_gib": 20,
+  "calibration_python": "calibration_venv/bin/python",
+  "quantization_scope": {
+    "targets": "Linear",
+    "scheme": "W4A16 symmetric int4 group128",
+    "includes_attention": true,
+    "ignore": [
+      "lm_head",
+      "re:.*mlp.gate$",
+      "re:.*mlp.shared_expert_gate$"
+    ],
+    "awq_grid_points": 20,
+    "use_loss_mask": false,
+    "routing": "natural top-k routing; exposure counts include replay and are not a route trace",
+    "common_master": "Entire AWQ-smoothed unquantized model, including attention, experts, norms and routers"
+  },
+  "storage_plan": {
+    "source_weight_bytes_already_present": 13838721960,
+    "master_estimated_bytes_including_header_allowance": 13905830824,
+    "awq_estimated_bytes_from_catalog": 4500000000,
+    "reserve_bytes": 21474836480,
+    "required_extra_bytes_before_calibration": 39880667304,
+    "note": "prepare_quantization.py rechecks available bytes per filesystem before calibration and both saves; sidecars need additional space"
+  },
+  "identity_contract": {
+    "awq_quality_and_performance": "Use output/checkpoint_manifest.json for the same calibrated AWQ sidecars in quality and serving; verify actual output shard hashes",
+    "fp8_quality_and_performance": "Use common_basis_bf16_output/checkpoint_manifest.json for native per-expert FP8 sidecars shared by quality and serving; never substitute original unsmoothed BF16",
+    "matched_nonexpert_host": "FP8-only, AWQ-only and dual-format worker arms load the identical complete common-BF16 master with the same BF16 stock loader options; do not globally quantize only one host model",
+    "basis": "Both manifests and every layer artifact must agree on actual post-attention norm bytes/epsilon; worker rechecks its loaded norm",
+    "nonexpert_limit": "The full compressed AWQ checkpoint also quantizes attention and is a distinct evaluation scope; it cannot replace the common-BF16 host in an expert-only format comparison",
+    "quality_status": "Not run; coverage and router compensation are mechanism checks only"
+  },
+  "stop_conditions": [
+    "run_locked timeout at1200 seconds; retain logs/partial outputs; no RTN fallback",
+    "any source hash, missing expert exposure, finite-value, router compensation, saved-basis or saved-layout failure",
+    "insufficient space including reserve"
+  ],
+  "sidecars": {
+    "layers": "all 16",
+    "out_dir": "artifacts/olmoe_awq_integration_r01",
+    "execution_environment": "base vLLM 0.26 / compressed-tensors 0.17, not calibration_venv",
+    "command_after_calibration": [
+      "python",
+      "code/export_common_basis_sidecars.py",
+      "--bf16-manifest",
+      "checkpoints/olmoe_awq_integration_bf16_r01/checkpoint_manifest.json",
+      "--awq-manifest",
+      "checkpoints/olmoe_awq_integration_r01/checkpoint_manifest.json",
+      "--out-dir",
+      "artifacts/olmoe_awq_integration_r01"
+    ],
+    "default_command_is_cpu_plan": true,
+    "gpu_execution": "Add --execute --lock-status runs/<unique-export-job>/status.json inside run_locked. Native FP8 quantization, Marlin repacking and optional numeric checks use GPU."
+  },
+  "local_preservation": "After each bounded job, copy runs/logs/manifests and new checkpoint/artifact outputs to local storage and verify hashes before releasing rented storage. This launcher never deletes remote results.",
+  "previous_attempt": "runs/olmoe_awq_integration_r01",
+  "resource_change_reason": "Only if r01 reaches FAILED solely for lock-wait timeout without worker_pid or any GPU work, retry its unchanged calibration into the still-absent checkpoint paths using deadline-bounded kernel lock waiting. Samples, token length, seed, 20-minute GPU cap and all calibration semantics stay unchanged.",
+  "retry_preconditions": [
+    "r01 terminal and locally SHA verified",
+    "r01 failed only because the shared GPU lock remained held; no worker_pid, started_utc_s or lock_held_s",
+    "both derived checkpoint directories still absent"
+  ]
+}

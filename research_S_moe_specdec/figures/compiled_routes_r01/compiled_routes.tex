@@ -1,0 +1,15 @@
+\documentclass[border=5pt]{standalone}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{pgfplots}
+\usepgfplotslibrary{groupplots}
+\pgfplotsset{compat=1.18}
+\begin{document}\sffamily\begin{tikzpicture}
+\definecolor{cal}{HTML}{3478A5}\definecolor{test}{HTML}{D76832}\definecolor{profile}{HTML}{3B8A5A}
+\begin{groupplot}[group style={group size=2 by 1,horizontal sep=1.9cm},width=8.0cm,height=6.0cm,scale only axis,axis lines*=left,grid=major,grid style={gray!20},tick label style={font=\small},label style={font=\small},title style={font=\small},legend style={font=\scriptsize,draw=none},unbounded coords=jump]
+\nextgroupplot[title={(a) Selected distinct experts},ylabel={Mean distinct experts},ymin=0,ymax=68,xmin=0.4,xmax=6.6,xtick={1,2,3,4,5,6},xticklabels={{0/1},{0/8},{0/32},{4/1},{4/8},{4/32}},xlabel={Nominal $\gamma$ / wave batch $B$},ybar,bar width=10pt,legend pos=north west]\addplot[fill=cal!75,draw=cal] coordinates {(1,8) (2,38.0559475806) (3,59.4697580645) (4,9.6210289067) (5,38.9087701613) (6,59.2711693548)};\addlegendentry{Valid rows}\addplot[fill=test!75,draw=test] coordinates {(1,8) (2,38.0559475806) (3,59.4697580645) (4,26.7298583286) (5,46.3629032258) (6,60.9022177419)};\addlegendentry{Physical rows}
+\nextgroupplot[title={(b) Model-forward rows},ylabel={Mean token rows},ymin=0,ymax=52,xmin=0.4,xmax=6.6,xtick={1,2,3,4,5,6},xticklabels={{0/1},{0/8},{0/32},{4/1},{4/8},{4/32}},xlabel={Nominal $\gamma$ / wave batch $B$},ybar,bar width=10pt,legend pos=north west]\addplot[fill=cal!75,draw=cal] coordinates {(1,1) (2,8) (3,32) (4,1.40755580996) (5,9.98387096774) (6,40.1935483871)};\addlegendentry{Valid rows}\addplot[fill=test!75,draw=test] coordinates {(1,1) (2,8) (3,32) (4,5) (5,13.8911290323) (6,44.3548387097)};\addlegendentry{Physical rows}
+\end{groupplot}
+\path (group c1r1.north west) -- node[above=0.8cm,font=\large] {OLMoE compiled route diagnostic: valid versus physical work} (group c2r1.north east);
+\path (group c1r1.south west) -- node[below=1.25cm,align=center,font=\small] {Decode layer-step means; 64 requests $\times$ 32 output tokens per case, 16 layers. Active batch can shrink below $B$.\\\\Instrumented route diagnostic, not performance data; correlated steps, no independent confidence intervals.} (group c2r1.south east);
+\end{tikzpicture}\end{document}

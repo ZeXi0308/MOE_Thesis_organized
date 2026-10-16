@@ -1,0 +1,85 @@
+{
+  "status": "DERIVED",
+  "source_status": "COMPLETE",
+  "model": "OLMoE-1B-7B-Instruct",
+  "weight_format": "BF16",
+  "run": "/Users/zhaozhenyu/Desktop/毕业设计/research_K_expert_skip/runs/olmoe_bf16_matrix_r07/bench/measurements.jsonl",
+  "args": {
+    "run": "research_K_expert_skip/runs/olmoe_bf16_matrix_r07",
+    "model": "OLMoE-1B-7B-Instruct",
+    "experts": 64,
+    "top_k": 8,
+    "output_dir": "research_K_expert_skip/figures/f1_long_decode_r07",
+    "weight_format": null,
+    "batches": [
+      1,
+      2,
+      4,
+      8,
+      16,
+      32,
+      64
+    ]
+  },
+  "source_executions_per_batch": 1,
+  "aggregate_rows": 7,
+  "layer_rows": 112,
+  "sources": [
+    {
+      "path": "/Users/zhaozhenyu/Desktop/毕业设计/research_K_expert_skip/runs/olmoe_bf16_matrix_r07/bench/measurements.jsonl",
+      "sha256": "929ec078f76e64c772a1cc357feae560f0b2323ad3f4b07363b4cabd88f9269f"
+    },
+    {
+      "path": "/Users/zhaozhenyu/Desktop/毕业设计/research_K_expert_skip/runs/olmoe_bf16_matrix_r07/bench/config.json",
+      "sha256": "f0937400e4cd2d6e46e94eea2f37381eb025ce6a81ba274d57b5e837832e56a9"
+    },
+    {
+      "path": "/Users/zhaozhenyu/Desktop/毕业设计/research_K_expert_skip/runs/olmoe_bf16_matrix_r07/bench/status.json",
+      "sha256": "bafb45c8f1674bb397ff3871e5305f4871e5e8d0f0f43de20b783088a8c4c895"
+    },
+    {
+      "path": "/Users/zhaozhenyu/Desktop/毕业设计/research_K_expert_skip/code/plot_results.py",
+      "sha256": "76eaf7f8633f9ee78705a1d27909a47a163f162203e071614f8553a99a78db9a"
+    },
+    {
+      "path": "/Users/zhaozhenyu/Desktop/毕业设计/research_K_expert_skip/runs/olmoe_bf16_matrix_r07/bench/repeat000/native_counters/r00_b01_native/counters.json",
+      "sha256": "f9c80e0538e31a0ba57da127e576621502a723bdccbb0a70aeb86796930b00fd"
+    },
+    {
+      "path": "/Users/zhaozhenyu/Desktop/毕业设计/research_K_expert_skip/runs/olmoe_bf16_matrix_r07/bench/repeat000/native_counters/r00_b02_native/counters.json",
+      "sha256": "4e1ec126c85f1d8650b00774691ff1e7008670a3ba65f8d6a33aef4735aaa28c"
+    },
+    {
+      "path": "/Users/zhaozhenyu/Desktop/毕业设计/research_K_expert_skip/runs/olmoe_bf16_matrix_r07/bench/repeat000/native_counters/r00_b04_native/counters.json",
+      "sha256": "5ebfc70ad9381a4668bfa974ef7e1b0a20177e28ed15f7bf25f9d71ed496a23c"
+    },
+    {
+      "path": "/Users/zhaozhenyu/Desktop/毕业设计/research_K_expert_skip/runs/olmoe_bf16_matrix_r07/bench/repeat000/native_counters/r00_b08_native/counters.json",
+      "sha256": "0d371ffcba153dd51e5dd36bf4312e7cc2371f53a7873b416c91b81198558364"
+    },
+    {
+      "path": "/Users/zhaozhenyu/Desktop/毕业设计/research_K_expert_skip/runs/olmoe_bf16_matrix_r07/bench/repeat000/native_counters/r00_b16_native/counters.json",
+      "sha256": "9978bf5df5a55910b601f428eb809442da675289b0d8fb41a4db9ca88a1eeea8"
+    },
+    {
+      "path": "/Users/zhaozhenyu/Desktop/毕业设计/research_K_expert_skip/runs/olmoe_bf16_matrix_r07/bench/repeat000/native_counters/r00_b32_native/counters.json",
+      "sha256": "2e980a618f8cec2b7f1de0db0f775f7c544b6221ee49b8fa389ad8285e32096d"
+    },
+    {
+      "path": "/Users/zhaozhenyu/Desktop/毕业设计/research_K_expert_skip/runs/olmoe_bf16_matrix_r07/bench/repeat000/native_counters/r00_b64_native/counters.json",
+      "sha256": "c4b5d8abeeb46ece5c7e80152767be5b0644868b31d95a345e760b9f51de8753"
+    }
+  ],
+  "builder_sha256": "c7ffcef74af23b77f5e11bc7150c644f27baeaa02fc9089549ea5aee2e7d854f",
+  "parser_reuse": "plot_results.read_rows/bench_counters/unwrap_snapshot/Sources",
+  "counter_identity_scope": "Joined measurement identity flag plus raw counted snapshot equality; no raw generation replay performed by this CPU builder",
+  "limitations": [
+    "The CSV numerator counts singleton token-expert assignments; its denominator counts all native routed slots.",
+    "Each per-layer ratio pools the complete generated decode trajectory; layers and tokens are not independent system repetitions.",
+    "Uniform iid routing is an analytical reference only. These summaries do not contain complete per-expert inclusion marginals, so there is no fitted skew curve and no separation of routing skew from within-batch correlation.",
+    "Compared with a short route trace, this measurement covers later states of long native-generated fixed-length continuations. Different prefix lengths, observation lengths, and content trajectories prevent a causal comparison based on trace duration alone.",
+    "A future FP8 run with the same external prefix/output protocol is comparable as a format-specific generated-trajectory observation; it does not hold content/routing fixed or isolate the direct causal effect of quantization.",
+    "The benchmark ignores EOS. It is not natural completion, and singleton opportunity alone is not observed policy savings, DRAM traffic, or latency."
+  ],
+  "warnings": []
+}

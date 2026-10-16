@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "status": "planned",
+  "model_key": "olmoe",
+  "format": "bf16",
+  "checkpoint_fingerprint": "7e14173c25a186a79418ede328f2fadfd3308ae8514a9adefde49dc6be8d1355",
+  "checkpoint_manifest": "/root/autodl-tmp/research_C_format_sched/runs/olmoe_checkpoint/checkpoint_manifest.json",
+  "identity": {
+    "base_model": "allenai/OLMoE-1B-7B-0924-Instruct",
+    "repo_id": "allenai/OLMoE-1B-7B-0924-Instruct",
+    "revision": "7f1c97f440f06ce36705e4f2b843edb5925f4498",
+    "config_sha256": "42ea6f5fe31e9243290ba3c348a4ad615b88a6fbc6e10544e21a87b6dff5da6c",
+    "weight_files": [
+      {
+        "path": "model-00001-of-00003.safetensors",
+        "bytes": 4997744872,
+        "sha256": "6c79ac0487c3f23e8ee3d38752197d1e4a1a39d6c1438ec5fd7862874bb19321"
+      },
+      {
+        "path": "model-00002-of-00003.safetensors",
+        "bytes": 4997235176,
+        "sha256": "b58ca7a9f28f35d76b56b0ec40fc46c356fd84ccf078083b251a3ad6a2da9a35"
+      },
+      {
+        "path": "model-00003-of-00003.safetensors",
+        "bytes": 3843741912,
+        "sha256": "e93653ed509223e63eabae6f72ac8ea5a41115c5c7785574b9b2068ca0961c45"
+      }
+    ]
+  },
+  "calibration": null,
+  "weights_hashes_verified": false,
+  "smoke_only": false,
+  "call": {
+    "model": "vllm",
+    "model_args": {
+      "pretrained": "/root/autodl-tmp/moe-research-20261002/model",
+      "tokenizer": "/root/autodl-tmp/moe-research-20261002/model",
+      "dtype": "bfloat16",
+      "tensor_parallel_size": 1,
+      "gpu_memory_utilization": 0.85,
+      "max_model_len": 4096,
+      "kv_cache_dtype": "auto",
+      "trust_remote_code": false,
+      "seed": 42,
+      "enforce_eager": true,
+      "compilation_config": {
+        "mode": 0,
+        "cudagraph_mode": "NONE"
+      }
+    },
+    "tasks": [
+      "hellaswag",
+      "arc_easy",
+      "arc_challenge",
+      "winogrande",
+      "piqa"
+    ],
+    "num_fewshot": 0,
+    "batch_size": "auto",
+    "limit": null,
+    "log_samples": true,
+    "apply_chat_template": false,
+    "random_seed": 42,
+    "numpy_random_seed": 42,
+    "torch_random_seed": 42,
+    "fewshot_random_seed": 42,
+    "bootstrap_iters": 1000
+  },
+  "scope": "single-format model quality; dual-format generation requires its actual runtime adapter",
+  "comparison_note": "Use identical tasks, prompt/template, fewshot, KV dtype and seeds for all arms; never substitute a different base release."
+}

@@ -1,0 +1,63 @@
+你是本课题唯一负责人。六周内交付：
+1. 四个 MoE 模型上 combine 输出的"重要性长尾"刻画与质量 Pareto（含 FP8 / NVFP4 / 两 lane）；
+2. 在 vLLM 0.26 的 fused-MoE 通信路径里实现两 lane 低精度 combine，并在 2×PRO 6000 PCIe 上给出真机 step 分解与 TPOT 结果；
+3. 用真机校准的字节—时延模型外推到 8–32 卡与 200/400 Gbps；
+4. 一篇可投 CCF-C 主会长文的论文初稿（LaTeX）及毕设章节材料。
+工作方式：直接建造与测量；不做审计包，不预注册，不组织 reviewer 轮，不生成新 idea。7 月那条线的质量结论已经成立，本课题不重新证明它，只扩模型、做系统、写论文。
+- 阶段 0（单卡，约 15 GPU 小时）：codec 内核、质量评测、逐层敏感度、PCIe 之外的一切。
+- 阶段 1（2 卡，约 5 天 / 40 GPU 小时）：真机 EP。PRO 6000 之间只有 PCIe 5.0 x16，没有 NVLink；这是"工作站多卡 MoE 部署"的真实条件，论文里直接声明，不道歉。若能租到 4×PRO 6000，优先 4 卡（见 §5 两种通信模式）。
+- 环境：vLLM 0.26.0、torch 2.11+cu130、Triton 3.6。先确认 vLLM 在 SM120（PRO 6000）上 FP8 与 NVFP4 的实际 kernel 路径，记录在 RESULTS.md。
+7 月资产在 GitHub 仓库 ZeXi0308/MOE_Thesis_organized 的 main 分支；若本地工作区没有，先把 main 分支 clone 到 research_B_tiered_combine/ref_july/：
+1. docs/ideas/A_rank_tail_fp8/设计说明.md、原文/IdeaA_主实验报告_论文版.md、原文/给导师看的_IdeaA实验汇总.md：全部已有数字与撤回说明。
+2. docs/ideas/A_rank_tail_fp8/experiments/{run_idea_a_rank_lut_gpu_rigorous_verify.py, run_fp8_tail_int4_general.py, run_layer_sensitivity.py, run_fp4_format_comparison.py, run_mmlu_eval.py} 与 experiments/shared/{capture_moe.py, fake_quant.py, policies.py, metrics.py}：质量评测底座（hook 的是 HF 模型；本课题改为 vLLM 内 hook，见 §5）。
+3. docs/99_archive/killed_ideas/quotaep/scripts/grouped_owner_combine.py 与 run_conclusions/QuotaEP_H_查重与Grouped生死实验结论_2026-07-14.md：分组 partial（按源 rank 预聚合）单元上的分层结果，正是 2 卡稠密交换要用的单元。
+4. docs/ideas/receiver_aware/experiments/run_homogeneous_lane_codec_gate_gpu.py、receiver_lane_policy.py、docs/01_current_status/Receiver_Codec硬门槛测量结论_2026-07-21.md：Triton pack/unpack 与其 host-staging 的教训。
+5. experiments/shared/run_ep_congestion_sim.py、run_tbt_queueing_extension.py：外推仿真底座。
+6. 已安装的 vLLM 0.26 源码：vllm/model_executor/layers/fused_moe/{layer.py, fused_moe.py, modular_kernel.py}、vllm/distributed/device_communicators/all2all.py、vllm/model_executor/layers/fused_moe/ 下各 prepare/finalize 实现。确认 DP+EP 在非 DeepEP 后端下的实际通信模式（见 §4）。
+读完写一页事实快照，然后开始写 codec。
+- 同 token top-k 内 contribution 长尾：GPU 复核头/尾比 OLMoE 48×、LLM-jp 117×（文档级 bootstrap CI）。
+- FP8-first + tail-INT4：combine 字节 −62.5%，PPL +0.30（+1.4%），MMLU 200 题不掉分；62.5% 点安全边际 10.3×/22.1×；超过 68.75% 边际迅速收窄。
+- INT4 代理换成 MXFP4 / NVFP4 block-scaled 后，头尾排序不变，倍数收窄。
+- 在线自适应不必要（Existence Test NO-GO）：静态逐层策略即可；2 卡没有 receiver-group 维度，不做 LUT/MILP。
+- 分组 partial 单元（QuotaEP-H）：output-aware late binding 在 top-8/top-16 上显著优于 rank/gate/random，固定 quota 有 4–22% KL 税。因此 2 卡稠密交换的分层信号用 gate 质量（免费、路由后即得）为主，partial 范数（late binding）为变体。
+- 旧 codec 58 µs（128×512）是 pack→pinned H2D→unpack 的 host staging，对 GPU-GPU 通信无效；本课题 codec 必须 GPU 驻留。
+- DeepEP 生产默认 FP8 dispatch、BF16 combine；最近邻是把 all-to-all 压成 MXFP4 的训练工作（arXiv 2603.02731，训练、非重要性分层）。
+- 同策略 kernel 微基准 5 次取中位数即可；系统端到端每配置 2 次。
+每元素字节（hidden 维 d）：BF16 = 2；FP8 e4m3 + 每行 FP32 scale ≈ 1 + 4/d；NVFP4（4 bit + 每 16 元素一个 E4M3 scale + 每张量 FP32 scale）≈ 0.5625。 两 lane 平均：k 个单元中 h 个 head 走 FP8、其余走 NVFP4：$\bar{B}=(h\cdot 1+(k-h)\cdot 0.5625)/k$。OLMoE k=8，h=4 → 0.78 B/元素（−61%）；h=2 → 0.67 B/元素（−66%）。
+通信时间：每层每方向 $T=\alpha+\text{bytes}/\text{BW}_{\text{eff}}$，α 与 BW_eff 由 2 卡 nccl-tests 拟合。每步节省 $\Delta T = L\cdot\Delta\text{bytes}/\text{BW}_{\text{eff}}$（L 为 MoE 层数）。先用这个式子算每个模型/batch 的预期收益，再与实测对照，论文里放预测 vs 实测。
+逐层策略：每层 tail 深度 $r_l$（走 NVFP4 的最低 rank 数），目标 $\min\sum_l \text{bytes}(r_l)$ s.t. 端到端 KL ≤ ε；用 7 月逐层敏感度贪心初始化，端到端复验一次即可。
+两种通信模式（论文第 3 节要讲清）：
+- 模式 I，稀疏 all-to-all（DeepEP/pplx，大 EP）：单元是 (token, expert) 输出行，rank = 该 expert 在 token top-k 中按 gate 排序的位次；字节 = tokens × k × d。
+- 模式 II，稠密 partial 交换（vLLM 非 DeepEP 后端的 DP+EP：all-gather 分发、reduce-scatter/all-reduce 合并，先在 all2all.py 核实）：单元是 (token, 源 rank) 的本地 partial 和；分层信号 = 该 rank 本地 expert 对该 token 的 gate 质量之和；字节 = tokens × EP × d。EP=2 时每 token 恰有 2 个 partial，gate 质量大的走 FP8，小的走 NVFP4。
+- 两种模式的字节模型都写出来；2 卡真机测模式 II，模式 I 用仿真与（若有）4 卡。
+目录 research_B_tiered_combine/code/：
+1. codec（Triton，GPU 驻留）：fp8_rowwise_quant/dequant（per-row absmax，E4M3）；nvfp4_quant/dequant（block-16 E4M3 scale + 全局 FP32 scale，2×4 bit 打包为 uint8）；一次 launch 处理 (rows, d)。微基准：rows ∈ {256, 1k, 4k, 16k} × d ∈ {2048, 4096}，报告 µs 与 GB/s。
+2. 质量 hook（单卡，vLLM 内）：patch triton fused_experts 在 moe_sum 之前的 intermediate_cache3（形状 tokens×topk×d）——模式 I 按 topk 位次做 fake-quant；模式 II 先按 expert 到 rank 的连续划分（与 vLLM EP expert_map 一致）求每 rank partial，再按 gate 质量分层 fake-quant（逻辑复用 grouped_owner_combine.py）。用 vLLM 跑 PPL 与 lm-eval，避免 HF 慢路径。
+3. 真机 combine（2 卡）：在 DP+EP 的 prepare/finalize 路径替换 combine：各 rank 算出全部 2B 个 token 的本地 partial；对属于对端的 B 个 token按分层量化（head→FP8，tail→NVFP4），一次 all_to_all（2 卡即互发）；接收后反量化加到本地 partial。dispatch 两臂统一改成 FP8（per-token scale，all-gather 前量化、后反量化），把变量只留在 combine。实现为一个 FusedMoEPrepareAndFinalize 子类或对现有后端的最小替换，以 0.26 的 modular kernel 接口为准。
+4. 基线臂：(a) BF16 dispatch + BF16 combine（vLLM 默认）；(b) FP8 dispatch + BF16 combine；(c) FP8 dispatch + 均匀 FP8 combine；(d) FP8 dispatch + 两 lane（本课题）；(e) TP=2 参考点（vLLM 两卡默认）。(c) 是真正的对手，论文主对照是 (d) vs (c)。
+5. 计时：MoE 层内用 CUDA event 分出 dispatch / expert 计算 / combine；整体用 vllm bench latency（固定 batch）与 vllm bench serve（固定并发）。
+阶段 0（单卡）
+阶段 1（2 卡）
+阶段 2（本地）：用 α、BW_eff 与 codec 开销校准 run_ep_congestion_sim.py，外推 EP ∈ {8, 16, 32} × 链路 ∈ {PCIe 5.0, 200 Gbps, 400 Gbps} × 两种模式；每个假设写明。
+- F1 四模型 rank 份额长尾（主动机图）。
+- F2 质量 Pareto：x = 每元素字节，y = KL / PPL 增量；点：BF16、FP8、NVFP4、两 lane 各 h、逐层 r_l；两种模式各一面板。
+- F3 逐层敏感度与选定的 r_l。
+- F4 2 卡 step 时间分解（dispatch / compute / combine）× 五臂 × batch。
+- F5 TPOT 与吞吐相对 (a)、(c) 的改善 vs batch；叠加 §4 公式的预测值。
+- F6 下游任务精度表。
+- F7 外推：TBT 相对改善 vs EP 规模 × 链路带宽。
+- T1 字节账目（含 scale 元数据）；T2 codec 开销 vs 载荷；T3 与 DeepEP / Comet / UCCL-EP / 2603.02731 / MC-MoE / MxMoE 的动作级对照。
+从第 1 周起维护 paper/main.tex。 题目候选："Importance-Tiered Low-Precision Combine for Expert-Parallel MoE Inference"。 摘要第一句就写：生产 EP 库以 BF16 传 combine；我们证明按重要性分层后 combine 可缩到 0.67–0.78 B/元素而质量几乎无损，并在 PCIe 多卡上给出真机收益与外推。 章节：1 引言；2 背景（EP 的 dispatch/combine、两种通信模式）；3 刻画（F1、F3）；4 设计（分层信号、两 lane 布局、逐层策略、字节/时延模型）；5 实现（codec、vLLM 集成）；6 评估（F2、F4–F7、T1–T3）；7 相关工作；8 结论。 相关工作：DeepEP、Lina（ATC'23）、Comet、UCCL-EP、pplx-kernels、2603.02731（MXFP4 all-to-all，训练）、MC-MoE / MxMoE / EAQuant（权重侧）。差异：通信侧、推理、按重要性分层而非均匀、两种模式统一处理。 投稿：CCF-C（ICPADS、HPCC、ICA3PP、Hot Interconnects）；真机 + 质量 + 外推齐全时试 ICPP / IWQoS。等级以 CCF 最新目录为准。
+- W1：codec 两套 kernel + 微基准；vLLM 内质量 hook 跑通 OLMoE。
+- W2：四模型质量 Pareto、敏感度、F1–F3；paper 骨架。
+- W3：2 卡周：nccl-tests 拟合；五臂 × 两模型 × batch；F4、F5。
+- W4：外推仿真 F7；精度表 F6；评估节初稿。
+- W5：全文；T1–T3；复现包。
+- W6：润色与投稿准备。
+- 系统数字只来自 vLLM 内实现；HF hook 只用于质量。
+- 两臂共享 FP8 dispatch，变量只在 combine；r_l 在校准集上选，测试集只跑一次。
+- kernel 微基准预热后取 5 次中位数；端到端每配置 2 次，报告极差。
+- 不做 receiver-group LUT、MILP、在线控制器；不做 progressive/residual 路线（7 月已判死）。
+- 目录：RESULTS.md、code/、configs/、runs/、figures/、paper/、reproduce.md；RESULTS.md 顶部五行：当前主张 / 关键证据 / 最强替代解释 / 下一动作 / 资源状态。
+- 2 卡上 batch ≤ 256 时通信占 step < 10%：论文重心转到刻画 + 质量 Pareto + 外推，真机只作校准点；仍投 CCF-C 或 workshop。
+- 若拿到 4×PRO 6000：直接测模式 I（稀疏 all_to_all），F4/F5 增加 EP=4 面板；外推从 4 卡起步，可信度更高。

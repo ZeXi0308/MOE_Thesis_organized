@@ -1,0 +1,36 @@
+{'kernel': '_fp8q', 'd': 48, 'ptx_bytes': 12610, 'cubin_bytes': 15160}
+{'kernel': '_fp8dq', 'd': 48, 'ptx_bytes': 4850, 'cubin_bytes': 9272}
+Traceback (most recent call last):
+  File "/root/miniconda3/lib/python3.12/site-packages/triton/language/core.py", line 43, in wrapper
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/triton/language/math.py", line 25, in check
+    raise ValueError(f"Expected dtype {dtypes} but got {arg.type.scalar.name}")
+ValueError: Expected dtype ['fp32'] but got fp64
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/root/autodl-tmp/research_B_tiered_combine/code/compile_codec.py", line 14, in <module>
+    c=triton.compile(ASTSource(fn,signature=sig,constexprs={'D':d,'B':triton.next_power_of_2(d)}),target=GPUTarget('cuda',120,32))
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/triton/compiler/compiler.py", line 304, in compile
+    module = src.make_ir(target, options, codegen_fns, module_map, context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/triton/compiler/compiler.py", line 80, in make_ir
+    return ast_to_ttir(self.fn, self, context=context, options=options, codegen_fns=codegen_fns,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+triton.compiler.errors.CompilationError: at 11:31:
+def _nvq(X,Q,S,G,D:tl.constexpr,B:tl.constexpr):
+    r=tl.program_id(0); i=tl.arange(0,B)
+    x=tl.load(X+r*D+i,i<D,other=0).to(tl.float32)
+    g=tl.load(G)
+    blocks=tl.reshape(x,(B//16,16))
+    raw=tl.div_rn(tl.max(tl.abs(blocks),1),6.*g)
+    sf=tl.minimum(raw,448.).to(tl.float8e4nv)
+    bi=tl.arange(0,B//16)
+    tl.store(S+r*(D//16)+bi,sf,bi<D//16)
+    scale=sf.to(tl.float32)*g
+    z=tl.where(scale[:,None]>0,tl.div_rn(blocks,tl.maximum(scale[:,None],1e-38)),0.)
+                               ^
+Expected dtype ['fp32'] but got fp64

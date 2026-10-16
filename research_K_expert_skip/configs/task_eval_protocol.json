@@ -1,0 +1,38 @@
+{
+  "schema": 1,
+  "runtime": {"vllm": "0.26.0", "lm_eval": "0.4.13", "model_downloads": false},
+  "standard": {
+    "mmlu": {"shots": 5, "mode": "prompt_loglikelihood_identity_control", "target": "all 57 subjects, official test documents"},
+    "gsm8k": {"shots": 5, "mode": "official_generation", "target": "full test set", "max_tokens": 256},
+    "hellaswag": {"shots": 0, "mode": "prompt_loglikelihood_identity_control", "target": "full validation set"},
+    "arc_challenge": {"shots": 0, "mode": "prompt_loglikelihood_identity_control", "target": "full test set"}
+  },
+  "adapted": {
+    "tasks": ["mmlu", "hellaswag", "arc_challenge"],
+    "mode": "generation_adaptation_not_official_MC_score",
+    "prompt": "Brief reasoning followed by Final answer: LETTER",
+    "shots": {"mmlu": 5, "hellaswag": 0, "arc_challenge": 0},
+    "metric": "micro exact letter accuracy, invalid answers incorrect",
+    "first_token_caveat": "First prediction is prefill. Report first-prediction-only completions and actual policy events. No minimum generation length is forced."
+  },
+  "free_generation": {
+    "target_prompts": 200,
+    "max_tokens": 256,
+    "temperature": 0,
+    "ignore_eos": false,
+    "min_tokens": 0,
+    "termination_classes": ["eos", "stop", "limit", "fail"],
+    "repetition": "token repeated 4/8-gram fraction, longest same-token run, repeated suffix; descriptive human-review aids",
+    "review_flag": "at least 32 output tokens and repeated 4-gram ratio > 0.5"
+  },
+  "comparison": "same local model, prompts, samples, task definitions and seeds; per-arm natural trajectories and cohort sizes may differ",
+  "limit": "Explicit --limit is exploratory. Task limits are per leaf, including each MMLU subject. Free generation default is 200 distinct prompts.",
+  "resources": "Main session owns GPU scheduling. prepare is CPU-only, pins four official dataset repository commit hashes and stops further downloading if dataset directory exceeds 2 GiB.",
+  "example_commands_from_project_root": {
+    "cpu_prepare": "HF_ENDPOINT=https://hf-mirror.com HF_HUB_DISABLE_XET=1 python code/eval_tasks.py prepare --data-dir datasets/task_eval_unique",
+    "standard_exploratory": "python code/eval_tasks.py standard --model LOCAL_MODEL --data-dir datasets/task_eval_r02 --output runs/task_standard_unique --tasks gsm8k arc_challenge --limit 2 --batch 1",
+    "adapted_exploratory": "python code/eval_tasks.py adapted --model LOCAL_MODEL --data-dir datasets/task_eval_r02 --output runs/task_adapted_unique --tasks arc_challenge --limit 8 --batch 1",
+    "free_200_article_continuations": "python code/free_generate.py --model LOCAL_MODEL --prompts validation.jsonl --prompt-tokens 128 --output runs/free200_unique --batch 8",
+    "cpu_checks": "python code/free_generate.py --self-test && python code/eval_tasks.py --self-test"
+  }
+}

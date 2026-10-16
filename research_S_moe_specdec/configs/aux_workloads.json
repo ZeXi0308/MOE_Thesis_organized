@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "scope": "Study-specific serving prompts derived from LongBench; not an official LongBench benchmark evaluation or score.",
+  "source": {
+    "repo_id": "zai-org/LongBench",
+    "revision": "5e628be450b7e67fb7ae6e201bd6d8f7056f7672",
+    "filename": "data.zip",
+    "bytes": 113932529,
+    "sha256": "cb45b11a4133c6bc1d6a44b0f8e701335ff1e543195db1103472e575857f7f64",
+    "dataset_card": "https://huggingface.co/datasets/zai-org/LongBench/blob/5e628be450b7e67fb7ae6e201bd6d8f7056f7672/README.md",
+    "shared_source": "research_C_format_sched/datasets/serving_sources/longbench/data.zip",
+    "inspected_local_zip": "2026-10-16: exact byte count/hash and both task schemas verified read-only"
+  },
+  "defaults": {
+    "count": 160,
+    "min_prompt_tokens": 1,
+    "max_prompt_tokens": 2048
+  },
+  "selection": "First eligible records in original JSONL order, using full rendered prompt token length; no truncation, duplication, shuffle, reference-based filtering, or outcome-based filtering. Insufficient eligible records is an error.",
+  "rendering": {
+    "format": "one user message using the explicitly supplied local tokenizer's chat template",
+    "add_generation_prompt": true,
+    "encode_add_special_tokens": false,
+    "truncate": false,
+    "reference_in_prompt": false
+  },
+  "tasks": {
+    "lcc": {
+      "member": "data/lcc.jsonl",
+      "expected_source_rows": 500,
+      "task_type": "next-line code continuation",
+      "prompt_template": "Continue the following code by writing only the next line. Do not repeat the existing code.\n\n{context}",
+      "reference_semantics": "Original LongBench answers list; the reference is the next line, not an arbitrary fixed-length continuation."
+    },
+    "multi_news": {
+      "member": "data/multi_news.jsonl",
+      "expected_source_rows": 200,
+      "task_type": "multi-document news summarization",
+      "prompt_template": "Write a concise summary of the following news articles.\n\nArticles:\n{context}\n\nSummary:",
+      "reference_semantics": "Original LongBench answers list containing the reference summary."
+    }
+  },
+  "interpretation": {
+    "generation": "Preparation does not generate outputs. Fixed-length generation and natural termination require separate labels in the runner.",
+    "proposal_opportunity": "Code and summarization provide additional workloads in which prompt reuse may occur; no n-gram proposal availability or performance benefit is assumed.",
+    "length": "LongBench's length field is its source word/character statistic, not the local tokenizer count; eligibility uses prompt_token_ids only.",
+    "known_population_limit": "C's existing OLMoE population has 91/200 multi_news prompts at most 2048 tokens with this content template. This advisory count does not substitute for the specified tokenizer's new scan; default 160 must fail if insufficient."
+  }
+}

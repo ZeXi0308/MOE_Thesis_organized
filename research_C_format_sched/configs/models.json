@@ -1,0 +1,214 @@
+{
+  "schema_version": 1,
+  "checked_on": "2026-10-16",
+  "notes": [
+    "Catalog facts are not SM120 runtime validation or quality measurements.",
+    "Quality and performance must read the same prepared checkpoint manifest, including base model, revision and file hashes.",
+    "Qwen3-30B-A3B is the original Qwen3 release, not Instruct-2507, Thinking-2507 or Qwen3-Coder.",
+    "FP8 can be converted from the same BF16 source at vLLM load time, saving a second on-disk checkpoint; this must be used consistently in evaluation and serving.",
+    "Do not infer the OLMoE release/base/instruct identity from its shape alone."
+  ],
+  "models": {
+    "olmoe": {
+      "base_model": "allenai/OLMoE-1B-7B-0924-Instruct",
+      "base_identity_status": "All nine model/config/tokenizer files are same-inode hardlinks to fixed HF snapshot; all three weight shards SHA256 registered in runs/olmoe_checkpoint/checkpoint_manifest.json",
+      "model_type": "olmoe",
+      "shape": {
+        "d": 2048,
+        "intermediate": 1024,
+        "experts": 64,
+        "top_k": 8,
+        "layers": 16
+      },
+      "shape_source": "Verified local config and fixed HF snapshot, revision 7f1c97f440f06ce36705e4f2b843edb5925f4498",
+      "possible_base_models": [
+        "allenai/OLMoE-1B-7B-0924",
+        "allenai/OLMoE-1B-7B-0924-Instruct",
+        "allenai/OLMoE-1B-7B-0125",
+        "allenai/OLMoE-1B-7B-0125-Instruct"
+      ],
+      "storage_estimates_decimal_gb": {
+        "bf16": 14,
+        "fp8_separate": 7.5,
+        "awq": 4.5,
+        "nvfp4": 5,
+        "note": "Planning estimates, not downloaded sizes; BF16 already resident on disk need not be copied."
+      },
+      "formats": {
+        "bf16": {
+          "source": "verified local BF16 checkpoint",
+          "runtime_quantization": null
+        },
+        "fp8": {
+          "source": "same verified local BF16 checkpoint",
+          "runtime_quantization": "fp8",
+          "activation_scheme": "dynamic"
+        },
+        "awq": {
+          "status": "needs_calibration",
+          "calibration_method": "AWQ W4A16 symmetric group128; never RTN",
+          "ready_checkpoint": null
+        },
+        "nvfp4": {
+          "status": "needs_calibration_or_verified_checkpoint",
+          "calibration_method": "AWQ plus NVFP4, using calibrated scales; never data-free RTN",
+          "ready_checkpoint": null
+        }
+      },
+      "unverified_candidates": [
+        {
+          "repo_id": "huxiang088/OLMoE-1B-7B-0924-Instruct-NVFP4",
+          "reason": "HF model search listed this model, but model card/config/calibration could not be retrieved; not enabled for download as a verified candidate",
+          "source": "https://huggingface.co/models?other=modelopt&p=7&sort=trending"
+        }
+      ],
+      "base_revision": "7f1c97f440f06ce36705e4f2b843edb5925f4498"
+    },
+    "qwen3": {
+      "base_model": "Qwen/Qwen3-30B-A3B",
+      "model_type": "qwen3_moe",
+      "shape": {
+        "d": 2048,
+        "intermediate": 768,
+        "experts": 128,
+        "top_k": 8,
+        "layers": 48
+      },
+      "shape_source": "https://huggingface.co/Qwen/Qwen3-30B-A3B/blob/main/config.json",
+      "shape_note": "moe_intermediate_size=768 is the expert width; intermediate_size=6144 is a separate config field.",
+      "storage_estimates_decimal_gb": {
+        "bf16": 61,
+        "fp8_separate": 31,
+        "awq": 16.7,
+        "nvfp4": 18.1,
+        "all_with_runtime_fp8": 95.8,
+        "note": "AWQ/NVFP4 values are rounded HF file-tree totals; BF16/FP8 are planning estimates. Add dataset/compiler/output space."
+      },
+      "formats": {
+        "bf16": {
+          "source": "Qwen/Qwen3-30B-A3B",
+          "runtime_quantization": null,
+          "repo_id": "Qwen/Qwen3-30B-A3B",
+          "base_model": "Qwen/Qwen3-30B-A3B",
+          "revision": "ad44e777bcd18fa416d9da3bd8f70d33ebb85d39"
+        },
+        "fp8": {
+          "source": "same BF16 checkpoint",
+          "runtime_quantization": "fp8",
+          "activation_scheme": "dynamic"
+        },
+        "awq": {
+          "status": "publisher_calibration_documented_runtime_unverified",
+          "repo_id": "dtometzki/Qwen3-30B-A3B-awq-sym",
+          "revision": "c3b14f75be5ee20d4f6b2f461b5ad4e0fd3731c5",
+          "base_model": "Qwen/Qwen3-30B-A3B",
+          "runtime_quantization": "compressed-tensors",
+          "calibration_method": "AWQ",
+          "calibration": {
+            "dataset": "HuggingFaceH4/ultrachat_200k",
+            "split": "SFT (card wording)",
+            "samples": 256,
+            "max_seq_length": 512,
+            "tool_version_status": "card says llm-compressor v6.2.0; treat as publisher text, not a verified installed version"
+          },
+          "quantization": {
+            "quant_method": "compressed-tensors",
+            "format": "pack-quantized",
+            "weights": {
+              "num_bits": 4,
+              "type": "int",
+              "symmetric": true,
+              "group_size": 128,
+              "strategy": "group"
+            },
+            "input_activations": null,
+            "ignore": [
+              "all mlp.gate routers",
+              "lm_head"
+            ]
+          },
+          "file_tree_decimal_gb": 16.7,
+          "sources": [
+            "https://huggingface.co/dtometzki/Qwen3-30B-A3B-awq-sym/blob/main/README.md",
+            "https://huggingface.co/dtometzki/Qwen3-30B-A3B-awq-sym/blob/main/config.json",
+            "https://huggingface.co/dtometzki/Qwen3-30B-A3B-awq-sym/commit/90e50f200fd30de46cdb4e0cd392baed06ff6ce2",
+            "https://huggingface.co/dtometzki/Qwen3-30B-A3B-awq-sym/tree/main"
+          ]
+        },
+        "nvfp4": {
+          "status": "publisher_calibration_documented_runtime_unverified",
+          "repo_id": "nvidia/Qwen3-30B-A3B-NVFP4",
+          "revision": "2538ded2a4edb247b4d2b4a8ba24e44bd4c017c3",
+          "base_model": "Qwen/Qwen3-30B-A3B",
+          "runtime_quantization": "modelopt",
+          "calibration_method": "NVIDIA ModelOpt NVFP4 PTQ; card documents cnn_dailymail calibration",
+          "calibration": {
+            "dataset": "cnn_dailymail",
+            "samples": null,
+            "max_seq_length": null,
+            "tool_version_status": "card says ModelOpt 0.31.0; config producer says 0.34.1.dev85+g7a72957d"
+          },
+          "quantization": {
+            "quant_method": "modelopt",
+            "quant_algo": "NVFP4",
+            "weights": {
+              "num_bits": 4,
+              "type": "float",
+              "group_size": 16
+            },
+            "input_activations": {
+              "num_bits": 4,
+              "type": "float",
+              "group_size": 16
+            },
+            "ignore": [
+              "all mlp.gate routers",
+              "lm_head"
+            ],
+            "kv_cache_scheme": {
+              "num_bits": 8,
+              "type": "float"
+            }
+          },
+          "file_tree_decimal_gb": 18.1,
+          "notes": [
+            "Explicitly use kv_cache_dtype=auto for the BF16-KV comparison across arms; the config also carries FP8 KV calibration scales.",
+            "The original publisher card validates TensorRT-LLM on B200, not vLLM on SM120."
+          ],
+          "sources": [
+            "https://huggingface.co/nvidia/Qwen3-30B-A3B-NVFP4",
+            "https://huggingface.co/nvidia/Qwen3-30B-A3B-NVFP4/blob/main/config.json",
+            "https://huggingface.co/nvidia/Qwen3-30B-A3B-NVFP4/tree/main"
+          ]
+        }
+      },
+      "base_revision_selected_for_bf16": "ad44e777bcd18fa416d9da3bd8f70d33ebb85d39",
+      "notes": [
+        "The selected BF16 revision is pinned for this study; do not assert it is the publishers' unreported quantization source revision."
+      ]
+    }
+  },
+  "quality_defaults": {
+    "backend": "vllm",
+    "tasks": [
+      "hellaswag",
+      "arc_easy",
+      "arc_challenge",
+      "winogrande",
+      "piqa"
+    ],
+    "num_fewshot": 0,
+    "seed": 42,
+    "batch_size": "auto",
+    "max_model_len": 4096,
+    "kv_cache_dtype": "auto",
+    "apply_chat_template": false,
+    "note": "Initial common raw-prompt multiple-choice suite, not the full mixed-generation quality table; --limit is smoke-only."
+  },
+  "official_interfaces": [
+    "https://github.com/EleutherAI/lm-evaluation-harness/blob/main/docs/python-api.md",
+    "https://github.com/EleutherAI/lm-evaluation-harness/blob/main/lm_eval/models/vllm_causallms.py",
+    "https://docs.vllm.ai/projects/llm-compressor/en/latest/examples/awq/",
+    "https://docs.vllm.ai/projects/llm-compressor/en/latest/examples/quantizing_moe/"
+  ]
+}

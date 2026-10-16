@@ -1,0 +1,59 @@
+{
+  "model": "/root/autodl-tmp/moe-research-20261002/model",
+  "model_revision": "7f1c97f440f06ce36705e4f2b843edb5925f4498",
+  "workload": "configs/multi_news_olmoe_common128.json",
+  "draft_source": "draft_model",
+  "batches": [
+    1,
+    4,
+    16,
+    64
+  ],
+  "gammas": [
+    0,
+    3,
+    7
+  ],
+  "repeats": 2,
+  "measured_requests": 64,
+  "output_tokens": 128,
+  "warmup_tokens": 32,
+  "trace_tokens": 32,
+  "measurement": "Common-source held-out prompts64-127; five separately executed policies chosen from development prompts0-63. Candidate caps0/3/7, independent full-budget7 cost table, continuous development-warmed EWMA; two repeats.",
+  "group_gpu_budget_seconds": 10800,
+  "total_gpu_budget_seconds": 72000,
+  "draft_model": "/root/autodl-tmp/research_S_moe_specdec/models/olmo_1b_0724_draft/d7cbab742d80589e714b1a2d7f838dcd21cbe143/draft",
+  "draft_revision": "d7cbab742d80589e714b1a2d7f838dcd21cbe143",
+  "speculative_overrides": {
+    "draft_tensor_parallel_size": 1,
+    "use_heterogeneous_vocab": false
+  },
+  "warmup_each_batch": true,
+  "enforce_eager": false,
+  "semantic_token_boundary": 50280,
+  "trace_requests": 64,
+  "route_population": "Separate instrumented episode covers the same first64 workload records at every B; trace does not enter performance windows.",
+  "warmup_offset": 0,
+  "shape_warmup_offset": 0,
+  "input_offset": 64,
+  "warmup_population": "All general and shape warmup use development entries0-63; evaluation entries64-127 are separate. Prefix caching is disabled; EWMA is continuous within each engine.",
+  "execution_domain_note": "Compiled V1, complete LongBench-derived prompts. Each task shares original source IDs across targets, with native chat wrappers for OLMoE/Qwen and explicit raw continuation for Granite. Use an independent calibration and held-out evaluation for this workload/domain.",
+  "skip_trace": true,
+  "native_route_return": false,
+  "workload_sha256": "c400859597e7469ef59586b8947c7360c76201d5b77c5364aa0c78c71da3d750",
+  "max_model_len": 4096,
+  "max_num_seqs": 64,
+  "max_num_batched_tokens": 16384,
+  "kv_cache_memory_bytes": 51539607552,
+  "admission_mode": "wave",
+  "candidate_gammas": [
+    0,
+    3,
+    7
+  ],
+  "preparation_domain": "olmoe_dense_draft_multi_news_common",
+  "preparation_role": "heldout_policy_evaluation",
+  "kv_budget_scope": "Same fixed worker KV budget for both draft sources of this target family; target/draft attention layers share it. This is an input-based capacity estimate, not verified allocation, peak memory, or fixed total resident VRAM.",
+  "resource_plan": "runs/auxiliary_resource_plan_r01/resource_plan.json",
+  "resource_plan_sha256": "7dc1c55133ff73dda07867d6918800be6cef6822597ec9c1f252bc68c989627b"
+}

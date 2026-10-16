@@ -1,0 +1,59 @@
+{
+  "status": "DERIVED_COMPLETE_RUNS",
+  "source_status": {
+    "r07": "COMPLETE",
+    "r09b": "COMPLETE"
+  },
+  "sources": [
+    {
+      "path": "figures/f1_long_decode_r07/occupancy_by_batch.csv",
+      "sha256": "25cfae589b631786f0ead5e31dff9e8cc392100283a73623bf1f3d9b66244d6c"
+    },
+    {
+      "path": "figures/f1_long_decode_fp8_r09b/occupancy_by_batch.csv",
+      "sha256": "4561b6eeafecb3ff39377e2dd2d04c48a9f033e005c72ac73817f9c0554adcf0"
+    },
+    {
+      "path": "figures/f1_long_decode_r07/source.json",
+      "sha256": "a47383083e13cd34a61e626675e7d276212c82663813b39ac3b9df2f8ee0393d"
+    },
+    {
+      "path": "figures/f1_long_decode_fp8_r09b/source.json",
+      "sha256": "f2fccf912e4e97d92f9d01f2bac2d507a1e2c05c3905cfe321141d90e151e51c"
+    },
+    {
+      "path": "runs/olmoe_fp8_matrix_r09b/SHA256.json",
+      "sha256": "17bfb6e35b57346447c993882c699efa0a37924d511f7eef581c1eace9dbf4f4"
+    }
+  ],
+  "fp8_used_raw_sources_matching_run_sha256": [
+    "bench/measurements.jsonl",
+    "bench/config.json",
+    "bench/status.json",
+    "bench/repeat000/native_counters/r00_b01_native/counters.json",
+    "bench/repeat000/native_counters/r00_b02_native/counters.json",
+    "bench/repeat000/native_counters/r00_b04_native/counters.json",
+    "bench/repeat000/native_counters/r00_b08_native/counters.json",
+    "bench/repeat000/native_counters/r00_b16_native/counters.json",
+    "bench/repeat000/native_counters/r00_b32_native/counters.json",
+    "bench/repeat000/native_counters/r00_b64_native/counters.json"
+  ],
+  "comparison_rows": 7,
+  "delta_definition": "FP8 singleton percent minus BF16 singleton percent",
+  "protocol": {
+    "model": "OLMoE-1B-7B-Instruct",
+    "experts": 64,
+    "top_k": 8,
+    "prefix_tokens": 128,
+    "output_tokens_per_request": 2048,
+    "decode_steps": 2047,
+    "graph": "FULL, actual B == padded B"
+  },
+  "boundaries": [
+    "One source execution per format/batch; layers and tokens are not independent repetitions.",
+    "Same external prefix/output protocol does not hold generated continuation or routes fixed.",
+    "FP8 uses online W8A8; nonquantized model dtype and auto KV remain BF16.",
+    "Uniform iid is analytical reference only; per-expert marginals are absent, so skew and correlation are not separated.",
+    "No confidence intervals, physical DRAM, policy saving, latency, or natural task-quality inference."
+  ]
+}

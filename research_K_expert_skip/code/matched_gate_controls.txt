@@ -1,0 +1,22 @@
+目的与待判断的未知
+
+现有 gate 基线不限制 tail，而 marginal 同时要求尾部 rank 和 singleton；因此两者的质量差异不能全归因于 singleton。本补充在既定 mid (.10, .20) 与 high (.15, .30) 两档中加入简单 tail+gate 对照，检验它是否已经覆盖主要质量—逻辑权重字节收益；native/dense 提供共同参照。八臂全部保留，不根据结果选择有利子集。
+
+configs/matched_gate_controls.json 使用现有 quality/bench 可读的顶层 arms 列表。所有策略 backend=triton；rank 按实际路由权重降序、零基计数，tail_rank=4，rank_end=null 表示一直到当前 top-k 末尾。OLMoE/Qwen 的 k=8，DeepSeek-V2-Lite routed k=6，所以 rank>=4 在 DeepSeek 仅覆盖末两槽。gate 与 mass_budget 都是所选专家总 gate 质量的比例，模型自身 renormalize 语义保持。
+
+边界差异必须保留：现有 rank_gate 接口使用 gate_min <= g < gate_threshold（上界不含），gate/marginal 使用 g <= gate_threshold；tail_gate 不要求 singleton。故这是强简单对照，不能声称是严格只改 count 条件的逐事件消融。比较应同时报告实际跳过槽、removed mass、相对共同 dense 的逻辑权重字节及质量，不能将逻辑字节直接等同 HBM 流量或服务加速。若 tail+gate 覆盖主要取舍，应据此降低对 singleton 独立贡献的归因；若仍有差异，再按实际事件和边界解释。
+
+以下为 r08 之后按剩余预算决定是否执行的 GPU 命令，仅记录，尚未提交。32 篇 validation 文章、B8、每篇 32 个计分 decode token；沿用现有文章流程的 128-token prompt 和不计分的首个 prefill 输出。输出目录必须不存在，重跑须使用新名字。先切到远端 K 根目录并使用既有 vLLM 环境；共享锁覆盖整个命令。
+
+VLLM_TUNED_CONFIG_FOLDER=/root/autodl-tmp/research_K_expert_skip/runs/characterize_r06/native_tuning/tuned_configs \
+  /root/miniconda3/bin/python code/run_locked.py \
+  --name matched_gate_b8_r01 --wait-seconds 3600 --timeout 900 -- \
+  /root/miniconda3/bin/python code/quality_decode.py \
+  --model /root/autodl-tmp/moe-research-20261002/model \
+  --articles datasets/wikitext2_serving_r01/validation_quality32.jsonl \
+  --arms-file configs/matched_gate_controls.json \
+  --batch 8 --prefix-tokens 128 --tokens 32 --limit-docs 32 \
+  --dtype bfloat16 --gpu-memory-utilization .35 --reference-max-mib 2048 \
+  --output runs/matched_gate_b8_r01/quality.json
+
+状态：仅本地新增配置与说明；通过现有配置解析检查，未部署、未运行 GPU。该 validation 小规模补充是同路线公平比较，不是留出确认。

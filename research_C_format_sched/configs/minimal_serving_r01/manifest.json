@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "scope": "minimal actual serving integration smoke, not an SLO sweep or final performance conclusion",
+  "state": "INPUTS_FROZEN_NOT_RUN",
+  "cpu_only_preparation": true,
+  "source_trace": "datasets/serving_olmoe_r01/serving_natural.jsonl",
+  "source_trace_sha256": "d6cf0ff382c73eedc27157e0bd0fe1a6136fcaf979e741842494069d1e5e829d",
+  "source_manifest_sha256": "b7834ecf3c57efc9a9020815eda4d0ce9824fed957a310d1ac442a6510ea32d0",
+  "prepare_script_sha256": "2b3747dc285946559f06fb8f48ce56963c2856446b6acbe4d81fbd964b64b0a6",
+  "selection": {
+    "seed": 42,
+    "algorithm": "sort each class by request_id; Random(42).sample 8 ShareGPT then 8 LongBench without replacement; shuffle the combined 16 using the same RNG",
+    "source_classes": {
+      "sharegpt": 8,
+      "longbench": 8
+    },
+    "prompt_text_changed": false,
+    "source_cap": 128,
+    "new_cap": 32,
+    "truncation": false,
+    "source_ordered_request_ids": [
+      "longbench:multi_news:158",
+      "longbench:multi_news:110",
+      "longbench:multi_news:116",
+      "longbench:qasper:188",
+      "longbench:multi_news:29",
+      "sharegpt:first_human_turn:11439",
+      "longbench:multi_news:40",
+      "sharegpt:first_human_turn:30155",
+      "sharegpt:first_human_turn:24195",
+      "sharegpt:first_human_turn:54765",
+      "sharegpt:first_human_turn:26120",
+      "sharegpt:first_human_turn:47930",
+      "longbench:multi_news:118",
+      "sharegpt:first_human_turn:230",
+      "sharegpt:first_human_turn:49278",
+      "longbench:multi_news:60"
+    ]
+  },
+  "source_tokenizer": {
+    "tokenizer_path_at_preparation": "/root/autodl-tmp/moe-research-20261002/model",
+    "class": "GPTNeoXTokenizer",
+    "add_special_tokens": true,
+    "files": {
+      "tokenizer/chat_template.jinja": {
+        "bytes": 401,
+        "sha256": "1ca918f1bbf9c4d4de517e7fc5d1fa80ce0be74fb8df8a66b74d931a6b8bdf0a"
+      },
+      "tokenizer/config.json": {
+        "bytes": 759,
+        "sha256": "42ea6f5fe31e9243290ba3c348a4ad615b88a6fbc6e10544e21a87b6dff5da6c"
+      },
+      "tokenizer/tokenizer.json": {
+        "bytes": 3565854,
+        "sha256": "36149038d10639f34504ff4c6e2fbf9e0a6469bacfcfbd858a7791ce209a6e18"
+      },
+      "tokenizer/tokenizer_config.json": {
+        "bytes": 399,
+        "sha256": "67cc5133f456f9cf623108eb85cec4be50c006fc4ce3326fa80b13e504af14d1"
+      }
+    }
+  },
+  "prompt_tokens": {
+    "total": 20631,
+    "min": 25,
+    "max": 3952,
+    "by_source": {
+      "sharegpt": 2069,
+      "longbench": 18562
+    },
+    "scope": "frozen source-tokenizer counts; retain actual server prompt usage as well"
+  },
+  "natural_generation": {
+    "temperature": 0.0,
+    "ignore_eos": false,
+    "min_tokens": 0,
+    "seed": 42
+  },
+  "max_tokens": 32,
+  "measurement_trace": {
+    "path": "requests_natural_16.jsonl",
+    "sha256": "8c065612b079c8a430dc993f0e0fe5c178ebd0491d53ddf802835818f2b1ceff",
+    "rows": 16,
+    "schedule_sha256": "78ff09466cd5cdcdfbeb8a49241b0b110de484ad66d2b0bbdca6daa8c3b5eca8",
+    "last_arrival_s": 5.007470725283015
+  },
+  "warmup": {
+    "trace": "warmup_natural_2.jsonl",
+    "sha256": "995ada664564e9ec36395399c2a3d9447bd1d4f2a08a1b002c9678b1384f2cf7",
+    "rows": 2,
+    "request_ids": [
+      "longbench:multi_news:158",
+      "sharegpt:first_human_turn:11439"
+    ],
+    "rule": "first occurrence of each source class in the fixed measurement order",
+    "excluded_from_main_measurements": true,
+    "retained_run_id": "warmup_excluded",
+    "scope": "two real requests exercise prefill/decode before measured clients; does not establish complete shape warmup or continuous-power steady state"
+  },
+  "measured_run_ids": [
+    "measure_r01",
+    "measure_r02"
+  ],
+  "measured_repetitions_per_arm": 2,
+  "all_arms_identical_prompt_order_and_arrivals": true,
+  "group_configs": {
+    "single_fp8.json": {
+      "sha256": "90d3ecebf6090c96e044afc9dd4add7f9bef004d2dac6e965e5075353f04f28c",
+      "arm": "fp8",
+      "worker_config": "../olmoe_integration_r01/single_fp8.json"
+    },
+    "single_awq.json": {
+      "sha256": "fbaf16d56b3443d1e5301cf47c20e9df2ab24be0913c3e44c7817409bd27fa07",
+      "arm": "awq",
+      "worker_config": "../olmoe_integration_r01/single_awq.json"
+    },
+    "dual_phase.json": {
+      "sha256": "00fa9718c301761daa6e44bf3d3be2b0af589024ee73ce2e53e819e5c92184cb",
+      "arm": "dual_fp8_awq",
+      "worker_config": "../olmoe_integration_r01/dual_phase.json"
+    }
+  },
+  "commands": {
+    "path": "commands.json",
+    "sha256": "6db696f26a4cf48e3c9a38569e4e74117ad89508e0049b28c4030854d9756a1e"
+  },
+  "precision_scope": "expert-only FP8 or calibrated AWQ sidecars; common BF16 host attention/router and verified common activation basis",
+  "phase_rule": "real scheduler pure-prefill FP8, pure-decode AWQ; mixed threshold32 is an untuned mechanism setting; actual branch coverage must be checked from F7",
+  "budget": {
+    "outer_timeout_s_per_arm": 360,
+    "three_arm_timeout_sum_s": 1080,
+    "per_arm_precleanup_bound_s": 281,
+    "per_arm_cleanup_reserve_s": 26,
+    "formula": "120 startup + (35 + 45 + 45) clients + 2 boundaries * 3 RPC methods * 2 seconds * 3 clients = 281; cleanup reserve 8 + 10 + 8 = 26",
+    "outer_TERM_to_KILL_max_extra_s_per_arm": 30,
+    "three_arm_timeout_plus_KILL_sum_s": 1170,
+    "scope": "execution ceilings exclude lock waiting, CPU preflight/archive/hash/transfer; no automatic retry"
+  },
+  "measurement_accounting": {
+    "startup_and_residency": "group.json and gpu residency samples; startup and warmup excluded from per-client steady serving summaries",
+    "client_summaries": "TTFT/TPOT P50/P95, successful throughput, finish reasons, all failures and unknown tokens; primary/counter/sampled gross/net J per generated token",
+    "energy_boundary": "whole-device client arrival plus drain, after a separate 3 s idle baseline; includes Poisson gaps/load onset, not a continuous-load energy microbenchmark",
+    "F7": "collective_rpc summary/take_records/reset before and after fully drained client; RPC time is outside the client latency/energy window",
+    "failure_rule": "any incomplete, failed, timeout, or unknown-token population stops the server group; later runs are not_run; keep failure results",
+    "analysis_population": "only measure_r01 and measure_r02; never glob warmup_excluded into measured repeats",
+    "limits": "natural EOS can change output length/content across formats; report actual work and stop/cap/failure counts; two runs give a range, not a significance claim"
+  },
+  "validation": {
+    "bench_serving_load_trace": "passed both traces without importing torch or vLLM",
+    "run_serving_group_full_plan": "requires actual generated checkpoint/worker sidecars; no placeholders or mock artifacts used",
+    "dependencies_present_locally": {
+      "checkpoints/olmoe_awq_integration_bf16_r01/config.json": false,
+      "checkpoints/olmoe_awq_integration_bf16_r01/checkpoint_manifest.json": false,
+      "configs/olmoe_integration_r01/single_fp8.json": false,
+      "configs/olmoe_integration_r01/single_awq.json": false,
+      "configs/olmoe_integration_r01/dual_phase.json": false
+    }
+  }
+}

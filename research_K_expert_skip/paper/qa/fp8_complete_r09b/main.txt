@@ -1,0 +1,987 @@
+                    Skip Only What You Would Load:
+    Marginal-Cost-Aware Expert Skipping for Fine-Grained MoE Decode
+                                                   Research draft
+                                                  October 16, 2026
+
+
+Abstract                                                          ment to an expert can eliminate its entire logical weight
+                                                                  footprint from that step. Whether the latter reduces
+In batched mixture-of-experts (MoE) decoding, remov-              physical memory traffic or time depends on the kernel,
+ing an assignment eliminates an expert’s logical weight           caches, quantization, and control overhead.
+footprint only if no other token still uses it. We study a           Our question is narrow: does conditioning a simple
+budgeted tail-skipping rule that uses this singleton condi-       tail-skipping policy on current-batch singleton occupancy
+tion. Under independent uniform routing, the singleton-           improve the measured quality–cost frontier of decode? We
+assignment fraction is (1 − k/E)B−1 . Native OLMoE                keep the pretrained router, add no learned gate, and
+long-decode counters in BF16 and FP8 cover batches                do not replace experts with alternatives. The proposed
+1–64, and BF16 rank-by-gate interventions characterize            controller counts the returned assignments and spends its
+whole-model loss. On 32 exploratory WikiText-2 valida-            gate-mass budget only on tail assignments whose removal
+tion documents with 32 teacher-forced decode predictions          makes an expert inactive in that execution batch.
+each, the middle-budget policy at B = 8 reduces logi-                Prior work already provides dynamic expert counts,
+cal footprint by 21.65%, with mean full-vocabulary KL             inference-time skipping, and batch-aware expert reduc-
+.04595; native top-6 reduces footprint by 17.73%, with            tion. In particular, SERE targets batched decoding
+KL .07384. A separate FP8 comparison on the same                  through similarity-based re-routing [4]. Therefore batch
+articles retains this B = 8 tradeoff: 21.60% reduction and        awareness alone is not a contribution claim. Our candi-
+KL .05506 versus top-6’s 17.71% and .07772, each relative         date distinction is the direct use of singleton marginal
+to native FP8. Separate 63-cell CUDA-graph matrices               footprint, combined with an explicit gate-mass budget,
+in each format use native-oriented tuning and 2048 fixed          without expert-substitution calibration. Its practical
+outputs per request. At B = 8, the middle-budget policy           value requires measurement.
+lowers measured TPOT/J per token by 11.26/14.87% in
+                                                                     The current evidence combines an occupancy model, an
+BF16 and 3.87/8.24% in FP8. At B = 64, its energy
+                                                                  executable policy, seven-batch OLMoE occupancy mea-
+changes by less than .16% in either format. These are
+                                                                  surements and exploratory quality–footprint comparisons
+single-run observations on different trajectories from the
+                                                                  at B = 1, 8, 32 in BF16 and FP8, and complete single-run
+quality windows. A natural-completion screen on 200
+                                                                  graph performance/energy matrices in both formats. The
+windows from 28 other validation articles reaches the
+                                                                  measured tradeoff changes with batching: a singleton-
+256-token cap in 94.5–97.5% of outputs. In a 16-problem
+                                                                  conditioned rule can avoid some quality cost of shared
+GSM8K pilot, the middle- and high-budget policies each
+                                                                  assignments, but it has no reuse-based advantage when
+answer four correctly versus native’s six. Thus the mea-
+                                                                  B = 1, and its observed performance effect becomes small
+sured execution gains are not established as equal-quality
+                                                                  at large batches. The quality and performance experi-
+task acceleration. Logical bytes are not DRAM transac-
+                                                                  ments use different workloads and cannot be joined into
+tions. Independent repeats, full-task and held-out quality
+                                                                  an equal-quality performance frontier. The remaining
+evaluation, and the other two target models remain pend-
+                                                                  question is whether useful execution gains persist under
+ing.
+                                                                  independent repetition and an explicit application-quality
+                                                                  constraint; wider model coverage is also ongoing.
+1    Introduction
+Batched decode shares an expert’s weights among tokens
+                                                                  2    Background and Scope
+assigned to that expert. This sharing creates a mismatch
+                                                                  Consider one routed MoE layer in one decode execution
+between token-level sparsity and the amount of distinct
+                                                                  batch. There are B real tokens, E routed experts, and k
+expert data an execution step needs. A low-contribution
+                                                                  distinct expert assignments per token before intervention.
+assignment can be removed while leaving every expert in
+                                                                  Rank r = 1 denotes the highest routing weight. Shared
+the batch active. Conversely, removing the only assign-
+                                                                  experts, attention, the router, and other model compo-
+
+
+                                                              1
+nents remain in the measured full-step cost, but they are           These are occupancy predictions, not savings forecasts:
+not candidates for removal. Padding is excluded from                the gate and rank constraints permit dropping only a
+occupancy. If execution partitions a scheduling batch               subset of singleton assignments.
+into microbatches, occupancy must describe the actual
+group sharing an expert kernel; counting across unrelated
+                                                                    3.2    Correlated and heterogeneous tokens
+executions exaggerates reuse.
+   We distinguish three quantities. Assignments count               Real decode batches can share prompts, domains, and
+dispatched token–expert pairs. Logical distinct weight              generation histories. In the general case,
+bytes sum the physical tensor sizes associated with experts                           X
+that have at least one remaining assignment, counting                  Pr(Ne = 1) =       Pr(It,e = 1, Is,e = 0 ∀s ̸= t). (5)
+each expert once. DRAM bytes are hardware-observed                                        t
+memory transactions in a defined kernel or step region.
+                                                                    Marginal frequencies alone do not determine this joint
+The first two can be measured from routing and tensor
+                                                                    probability.
+                                                                            P Even  Q independent but nonidentical tokens
+metadata. Neither is a DRAM counter. Alignment,
+                                                                    require t qt,e s̸=t (1 − qs,e ). Where per-expert traces
+repeated tiled loads, dequantization, cache hits, and non-
+                                                                    are available, measured natural-batch singleton fractions
+weight traffic can cause their changes to differ.
+                                                                    can be compared with both the uniform model and an
+   The initial target is single-GPU decode with vLLM                in-sample fitted qe model. The long-trajectory counters
+0.26.0. Checkpoint, tokenizer, quantization artifact, and           below lack those marginals and use only the uniform
+normalization settings are identical within each policy             reference. Randomly regrouped trace positions are a cor-
+comparison. BF16 and FP8 comparisons on the available               relation diagnostic and are labeled replay; they do not
+RTX PRO 6000 form separate within-format experiments.               establish natural multi-request decode behavior. Lay-
+Other devices and AWQ/NVFP4 are conditional exten-                  ers and workload classes are retained separately before
+sions, not completed results.                                       aggregation.
+
+
+3     Singleton  Occupancy                            and           3.3    Exact logical footprint change
+      Marginal Cost                                                 Let we be the resident bytes of the expert tensors needed
+                                                                    by its selected execution format,P including attributable
+3.1    Inclusion probabilities                                      scales and metadata. With D = e 1{Ne > 0},
+Let It,e ∈ {0, 1} indicate that token t selects expert                               W =
+                                                                                              X
+                                                                                                  we 1{Ne > 0}.            (6)
+                   PB
+e, and let Ne = t=1 It,e . Define   P the token inclusion                                     e
+probability qe = Pr(It,e = 1), so e qe = k when exactly
+k distinct experts are selected. If a normalized slot-              For a single removed assignment (t, e), holding the others
+frequency   statistic pe is used instead, pe = qe /k and            fixed,
+                                                                                      ct,e = we 1{Ne = 1}.                 (7)
+P
+   e pe =  1.  A raw router softmax probability is not
+generally either of these statistics; top-k selection changes       For an arbitrary simultaneous removal set S, the exact
+inclusion probabilities.                                            footprint decrease is
+   Under identical independent routing across tokens,                               X
+           Pr(Ne = 1) = Bqe (1 − qe )B−1 ,               (1)             ∆W (S) =       we 1{Ne > 0}1{Ne − |Se | = 0}, (8)
+                          P                                                           e
+                        E[ e 1{Ne = 1}]
+                u(B) =                                              where Se contains removed assignments to e. Initial
+                                Bk
+                        1X                                          marginal costs are additive for our singleton-only policy,
+                      =       qe (1 − qe )B−1 .          (2)        but not for arbitrary global-k or threshold policies: sev-
+                        k e
+                                                                    eral removed assignments can jointly empty a previously
+A singleton expert contributes exactly one singleton as-            shared expert. All policies are therefore evaluated with
+signment. The definition of u therefore refers to the               before/after counts using Eq. (8), avoiding a bias against
+fraction of assignments, not the fraction of active experts.        the baselines.
+Independence between experts within a token is unnec-                  For bandwidth-dominated expert execution, W/β is a
+essary; top-k selection already couples those events. For           useful explanatory scale with effective bandwidth β. It
+uniform inclusion qe = k/E,                                         is not a measured duration, a universal lower bound, or
+                  u(B) = (1 − k/E)B−1 .                  (3)        an end-to-end speedup estimate. Smaller W may coexist
+                                                                    with worse latency if control, launches, or tile efficiency
+Likewise, the expected distinct-expert count is                     dominate.
+                      X
+               E[D] =     [1 − (1 − qe )B ].             (4)
+                         e
+
+
+                                                                2
+                                                                     a safe skipping budget. The recovered historical drop
+Table 1: Analytical singleton assignment fraction under
+                                                                     row mixes BF16 head experts, FP8 middle experts, and
+independent uniform routing. These values are not mea-
+                                                                     dropped tail experts. Its legacy KL reduction sums token
+surements.
+                                                                     errors within each sequence. This mixed-format inter-
+         E/k    B=1         8     16     32       64
+                                                                     vention and metric convention are not a substitute for a
+            8    1.000   .393   .135   .016    .0002                 pure-drop T1 on the current checkpoint. T1 measures
+           16    1.000   .637   .380   .135     .017                 complete next-token distributions and ground-truth loss
+           32    1.000   .801   .621   .374     .135                 after dropping specified ranks, with the model’s normal-
+                                                                     ization convention held fixed. Gate bins are defined
+                                                                     on pre-intervention selected weight mass; the table re-
+4     Characterization                                               tains layer, rank range, sample count, dropped mass,
+                                                                     and policy configuration. Initially we use full-vocabulary
+4.1    The batch opportunity region (F1)                             DKL (Pbase ∥Ppolicy ) and PPL on common teacher-forced
+                                                                     contexts. Conditional layer-output error is diagnostic and
+Table 1 gives exact values from Eq. (3). Increasing E/k              is not labeled full-model token KL.
+extends the range where singleton assignments are com-
+                                                                        Each T1 cell is a separately executed intervention. The
+mon under the stated assumptions. The E/k = 32 row
+                                                                     initial diagnostic removes only assignments in one rank
+is an analytical geometry, not a measurement of a third
+                                                                     and one half-open gate interval: r ∈ {5, 6, 7, 8} in the
+model. Models with the same ratio can differ due to
+                                                                     paper’s one-based convention, and g ∈ [0, .025), [.025, .05),
+skew, rank-specific routing, correlation, shared experts,
+                                                                     [.05, .1), or [.1, .2). The executable configuration uses
+and kernel granularity.
+                                                                     zero-based ranks 4–7, sets a unit mass budget, and does
+   Figure 1 measures both formats’ native-generated per-             not impose the singleton constraint. All other ranks and
+formance trajectories under the same external protocol,              gate intervals are retained. We record skipped-slot and
+with EOS ignored and no decode padding. The first                    dropped-mass counts; an empty cell is reported as having
+output follows prefill and is excluded. For increasing               no selected events, not as showing that removal is safe.
+B, BF16 singleton fractions are 100%, 86.04%, 62.64%,                The first small validation sample is exploratory.
+33.41%, 13.12%, 3.45%, and .649%; FP8 fractions are
+                                                                        This experiment estimates the whole-model conse-
+100%, 83.15%, 55.01%, 29.74%, 12.06%, 3.32%, and
+                                                                     quence of repeatedly applying one bin-specific rule across
+.605%. At B = 8, both are below the uniform prediction
+                                                                     routed decode layers and positions. It is not an isolated
+of 39.27%; at B = 32, 64, both exceed 1.59% and .0222%.
+                                                                     single-layer or single-event causal cost, because earlier
+The uniform curve is an explanatory reference, not a
+                                                                     interventions can change later hidden states and gates.
+calibrated occupancy forecast.
+                                                                     We do not assign the KL of a multi-rank intervention
+   The source cohorts overlap across batch sizes; at                 to its individual ranks after the run, sum cell effects, or
+B = 64, 64 distinct WikiText windows come from 60                    divide total KL by event count to claim additive per-event
+articles. Tokens and layers are not independent system               loss. The executable arms and resolved parameters are
+repetitions. These counters retain per-layer singleton               saved with every run.
+totals but lack complete per-expert inclusion marginals.
+We therefore fit no skew curve and cannot separate skew
+from within-batch correlation. FP8 can change generated              Measured validation interventions. Table 2 reports
+content and later routes; the matched external protocol              the 16 separately executed rules on the current OLMoE
+does not isolate a direct quantization effect. Singleton             BF16 checkpoint at B = 8. Every rule uses the same
+opportunity alone is not measured DRAM savings or a                  32 validation articles, a 128-token prefix, and 32 gen-
+quality guarantee. DeepSeek-V2-Lite has 64 routed ex-                uine decode predictions per article: 1,024 output-token
+perts and k = 6, distinct from the illustrative E/k = 32             observations and 16,384 token-layer opportunities. The
+geometry.                                                            native control has pooled-window PPL 9.79070. Raw
+                                                                     token targets and baseline NLL are paired by document
+   Earlier short captures used 32-token prefixes/eight de-
+                                                                     and position; worker counters agree with the recorded
+code steps in BF16 and 128-token prefixes/16 steps in
+                                                                     summaries. All cells have selected events, although some
+FP8. Those artifacts describe early decode states; the
+                                                                     are rare.
+present full trajectories cover later policy-generated states.
+Differences in prefixes and trajectories prevent attributing           For gates below .025, ranks 5–8 incur only 9, 21, 48, and
+short-versus-long differences to observation length alone.           118 skips, with mean KL 2.46×10−5 to 3.61×10−4 . These
+                                                                     small aggregate losses coincide with few interventions
+                                                                     and do not establish a generally safe rank. In the [.05, .1)
+4.2    Tail dropping and quality (T1)                                bin, the four ranks incur 6,781–14,529 skips and mean
+                                                                     KL .02677–.05318. Rank 5 in [.1, .2) has 9,451 skips,
+Quantizing a tail expert and dropping it are different
+                                                                     6.55% mean removed mass per token-layer, KL .10149,
+perturbations. Historical rank-tail quantization evidence
+                                                                     and PPL increase .50749. Rank 8 in that same gate
+motivates examining tail ranks, but does not establish
+
+
+                                                                 3
+                                                                           F1: OLMoE long native decode | BF16 and FP8 W8A8 | E=64, k=8
+
+                                                                                 Same external protocol: prefix 128, fixed outputs 2048; FULL graph, no padding
+
+
+
+
+                Singleton assignments / all routed slots (%)
+                                                               100                                                                                    BF16: r07 native trajectory
+                                                                                                                                                      FP8 W8A8: r09b native trajectory
+                                                                                                                                                      Uniform iid reference
+                                                               80
+
+
+
+                                                               60
+
+
+
+                                                               40
+
+
+
+                                                               20
+
+
+
+                                                                0
+                                                                          1                 2                 4              8                  16                32             64
+                                                                                                                   Actual decode batch, B
+                                                                      One execution per format and batch; 16 layers x 2047 decode steps per point.
+                                                                      Quantization may change generated content and routes: this is a descriptive trajectory comparison.
+Figure 1: F1: native OLMoE long-decode occupancy in BF16 (r07) and FP8 W8A8 (r09b). Each B = 1, 2, 4, 8, 16, 32, 64
+                                                                      No independent-run CI, fitted skew model, physical DRAM, or task-quality claim.
+
+uses 128 prefix tokens and 2048 fixed outputs: 2047 decode steps across 16 routed layers, or 32,752 layer events and
+262,016B slots. Counted replays match their performance transcripts. Each format supplies one execution per batch,
+without independent-run uncertainty. The dashed curve is the uniform iid reference.
+
+
+interval has only 193 skips and KL .00248. Comparing                                                                         Otherwise their original surviving values and any model-
+these totals without their action counts would confound                                                                      specific scaling are preserved. The normalization used to
+action frequency with conditional sensitivity. Negative                                                                      define the decision budget does not by itself authorize
+observed NLL or PPL changes in some cells are validation                                                                     changing the model’s output normalization. A disabled
+outcomes, not evidence of quality improvement on held-                                                                       controller returns the native route and weights.
+out tasks.                                                                                                                      The inspected OLMoE installation has 16
+  Teacher-forced quality must use the intended decode                                                                        FusedTopKRouter layers with renormalize=False;
+grouping when the policy depends on batch composition.                                                                       its BF16 routed tensors occupy 12,582,912 bytes per
+Applying the controller to an entire prefill sequence pro-                                                                   expert. Accordingly, its main quality experiments leave
+duces different singleton counts and answers a different                                                                     surviving routing weights unchanged after dropping.
+question. Free generation additionally records natural                                                                       They are not described as “drop and renormalize.” The
+EOS, capped sequences, failures, and output lengths.                                                                         normalized fractions used for g and m remain decision
+These checks complement, rather than replace, task eval-                                                                     quantities. Any additional survivor-renormalization
+uation.                                                                                                                      diagnostic would be a separately labeled intervention
+                                                                                                                             and is not part of the main comparison.
+
+5     Design and Implementation                                                                                              5.2        Execution integration
+5.1    Decision rule                                                                                                         The      vLLM       0.26     router      abstraction      re-
+                                                                                                                             turns expert identifiers and weights through
+For each token, let at,r be the selected pre-intervention
+                                          P                                                                                  FusedMoERouter.select_experts; the runner owns the
+routing weight and define gt,r = at,r / j at,j for the
+                                                                                                                             router and routed-expert implementation. The controller
+budgeting decision. A candidate assignment must satisfy
+                                                                                                                             attaches after native expert selection. The installed
+            r ≥ r0 ,                                                 gt,r ≤ τ,      Ne(t,r) = 1.                   (9)       source and actual backend are recorded for each run; the
+                                                                                                                             historical layer.py entry point is not assumed to cover
+Candidates are considered in a deterministic tail-first                                                                      every backend.
+order, accepting one only if cumulative dropped mass                                                                            The logical removed slot uses identifier −1 and weight
+remains at most m. At least one assignmentPis retained.                                                                      zero. This representation alone does not demonstrate
+Tie-breaking must be fixed. The constraint r∈St gt,r ≤                                                                       that the native dispatch path accepts negative IDs. An
+m is a gate-mass bound; it is not a bound on token KL,                                                                       expert-map result of −1 at the block level is not a contract
+perplexity, or task loss. We do not assume that errors                                                                       allowing −1 as input to a histogram. Our path filters
+add independently across layers or steps.                                                                                    removed slots before native alignment and leaves their
+  For models that renormalize selected routing weights,                                                                      output contributions zero. Backend tests compare against
+the surviving weights are renormalized after dropping.                                                                       explicit reference evaluation, verify all-kept/removed-tail
+
+
+                                                                                                                         4
+Table 2: T1: separate rank/gate interventions in OLMoE BF16 at B = 8. Each row uses the same 32 valida-
+tion documents, 1,024 decode predictions and 16,384 token-layer opportunities in one run. KL is full-vocabulary
+KL(native∥policy); PPL uses pooled NLL. m̄ is mean removed selected mass per token-layer. These whole-model
+effects are not additive event costs.
+                   Rank    Gate interval          KL        ∆NLL            ∆PPL      Skipped slots     m̄ (%)
+                       5   [0, 0.025)      2.4555e-05      0.000128       0.0012533              9    0.001012
+                       5   [0.025, 0.05)   0.00079752     0.0028337        0.027783             71     0.01832
+                       5   [0.05, 0.1)       0.034685      0.024352         0.24135          6,781       3.594
+                       5   [0.1, 0.2)         0.10149      0.050536         0.50749          9,451       6.551
+                       6   [0, 0.025)      6.7955e-05   -0.00023016      -0.0022531             21    0.002357
+                       6   [0.025, 0.05)    0.0015809    0.00069925       0.0068485            273     0.07137
+                       6   [0.05, 0.1)       0.053181      0.010888         0.10719         12,056        6.09
+                       6   [0.1, 0.2)        0.038353      0.010323          0.1016          4,044       2.669
+                       7   [0, 0.025)      0.00018611   -0.00020704      -0.0020268             48    0.005361
+                       7   [0.025, 0.05)    0.0032335    -0.0027579       -0.026965            785      0.2026
+                       7   [0.05, 0.1)       0.044293      0.029786         0.29601         14,529       6.858
+                       7   [0.1, 0.2)         0.01017    -0.0084947       -0.082817          1,057      0.6786
+                       8   [0, 0.025)      0.00036069    0.00087005       0.0085221            118     0.01302
+                       8   [0.025, 0.05)    0.0052182     0.0064445          0.0633          1,744      0.4476
+                       8   [0.05, 0.1)       0.026772      0.017372         0.17157         14,343       6.305
+                       8   [0.1, 0.2)       0.0024825    -0.0011002       -0.010766            193      0.1223
+
+
+
+cases and mixed occupancy, and inspect launched work.              BF16 bytes. Global-tail and marginal actions execute
+No unsupported path is labeled accelerated.                        through the inspected Triton path. A subsequent na-
+  The implemented alignment maps removed identifiers               tive control, with no skip policy and route counting dis-
+to one extra sentinel expert before the native histogram,          abled, still produces different eager and graph outputs at
+then maps its blocks to −1. Both native Triton GEMMs               B = 3, 5 padded into buckets 4 and 8; the strict parity
+explicitly zero those output blocks and return before              check remains failed. The observation therefore does not
+expert-weight loads. All 15 synthetic BF16 checks across           require skipping, but it neither identifies quantization
+B = 1, 2, 8, 32, 64 and three policies passed: relative out-       scales as its cause nor establishes a padding fix. At the
+put L2 against an independent FP32 expert reference was            seven exact capture buckets B = 1, 2, 4, 8, 16, 32, 64, dense
+.00364–.00418. Replacing every unused expert’s weights             and marginal arms each pass eager/graph output and
+with NaNs left outputs finite and exactly unchanged.               counter parity, and native/dense outputs agree within
+These checks establish the tested execution behavior;              each execution mode. The completed FP8 performance
+they do not measure hardware DRAM traffic. The pack-               matrix below uses only these seven unpadded buckets.
+age has also been built and imported from an isolated              These execution checks do not establish cross-format qual-
+installation.                                                      ity equivalence.
+                                                                      Counters record pre/post assignment counts, distinct
+Graph replay and FP8 execution. For BF16, the                      experts, singleton candidates, removed mass, and W for
+fixed-policy CUDA-graph worker passes eager-versus-                each real decode batch. The same counter logic applies to
+graph output and counter parity at real batches B = 3, 5           every policy. Route-statistics collection is disabled in the
+captured into buckets 4 and 8. Every checked decode                timed graph pass and collected in a separate replay. The
+step executes in FULL graph mode; the dense graph also             occupancy computation needed by the decision, budget
+matches the native graph outputs. A GPU actual-token               selection, alignment, and normalization remain part of
+scalar excludes padding from policy decisions and log-             policy cost; their times are not subtracted from full-step
+ical counters. Padding routes otherwise pass through               latency.
+unchanged, so a real-token logical singleton is not neces-
+sarily a physical singleton in a padded kernel. The main           5.3      Concrete behavior
+powers-of-two performance matrix therefore requires ver-
+ified unpadded execution. These checks establish graph             Suppose two tokens select {A, B} and {A, C}, with A
+execution behavior, not graph speedup.                             highest-ranked for both. Removing tail B removes wB
+   Online FP8 W8A8 conversion of the same check-                   of logical footprint. If both instead select {A, B}, remov-
+point now has completed eager quality comparisons at               ing B for only one token leaves the footprint unchanged.
+B = 1, 8, 32, each on 32 articles and 1,024 scored decode          A global policy removing both B assignments can save
+predictions per arm. Native-versus-dense identity is ex-           wB jointly; singleton-only skipping deliberately does not
+act in the recorded KL and NLL metrics. The installed              exploit that action. This restriction simplifies the deci-
+routed-expert tensors use 6,291,456 weight bytes plus              sion and constrains quality interventions, but can leave
+eight scale bytes per expert, compared with 12,582,912             useful opportunities to a strong baseline. Its net value is
+
+
+                                                               5
+empirical.                                                       6.2    Exploratory quality–footprint fron-
+                                                                        tier (F3)
+6     Evaluation                                                 We use 32 distinct WikiText-2 validation articles for all
+                                                                 three batch sizes, with 128 prefix tokens and 32 scored
+6.1    Comparisons and measurement                               decode predictions per article. A logits processor records
+                                                                 full-vocabulary DKL (Pnative ∥Ppolicy ) and target NLL be-
+The initial matrix uses B ∈ {1, 2, 4, 8, 16, 32, 64} and         fore forcing the next corpus token. The first prediction
+native top-k, global top-(k − j) for valid j ∈ {1, 2, 4},        follows prefill and is excluded; the next 32 predictions
+batch-independent gate thresholding, and marginal-cost           exercise real decode. Identical emitted transcripts are
+skipping. Within each format, the completed performance          imposed by this protocol and are       Pnot a free-generation
+matrix shares one native-oriented kernel configuration           equivalence result. PPL is exp( NLL/1024) over the
+across all arms; FP8 uses its own tuning, not the BF16           selected windows, not whole-corpus WikiText perplexity.
+file. A pending ablation will remove only the singleton             The comparison contains native top-8, native top-
+condition while keeping rank, gate, mass budget, and             (8 − j) for j = 1, 2, 4, two gate-only policies, and
+normalization identical, to isolate the value of occupancy       three marginal policies. A separate dense identity arm
+information. Full AdapMoE is not equated with the pure           supplies native-footprint counters and matches native
+gate-threshold baseline: sensitivity gating, prefetching,        NLL/KL. The gate-only settings are (τ, m) = (.05, .10)
+and cache allocation are separate components. Adapted            and (.15, .30). Marginal low/mid/high use ranks 5–8 and
+nearest-neighbor components are explicitly labeled as            (τ, m) = (.05, .10), (.10, .20), (.15, .30). Gate-only routing
+such.                                                            has no rank or singleton condition; it is a simple threshold
+   Requested model coverage is OLMoE, Qwen3-30B-A3B,             baseline, not a controlled singleton-only ablation or a full
+and DeepSeek-V2-Lite. Actual routed/shared expert                AdapMoE reproduction. All policies preserve OLMoE’s
+counts and tensor sizes come from the loaded config-             unnormalized surviving weights.
+urations. Each model/format comparison uses the same                Figure 2 uses x = 1 − Wpolicy /Wnative , where each
+weight artifact for quality and performance. Measure-            W is the sum of counted distinct expert weight bytes
+ments currently use one RTX PRO 6000 Blackwell Server            across corresponding layers and steps. Both policies’ later
+Edition and vLLM 0.26.0. OLMoE BF16 and online                   routes may differ even with fixed input tokens; a candi-
+FP8 W8A8 have complete three-batch eager quality com-            date’s own pre-intervention footprint is not substituted
+parisons and seven-batch graph performance matrices              for the native denominator. Hardware DRAM traffic
+below. Qwen3-30B-A3B, DeepSeek-V2-Lite, and broader              has not been measured. All three comparisons retain
+task-quality comparisons remain pending.                         1,024 paired predictions per arm; raw artifact checks vali-
+   TPOT is measured across defined decode windows,               date document/position pairing and counted populations.
+separately from prefill, compilation, and warm-up. Full          Documents are the independent corpus sampling units,
+generation measurements retain all scheduled requests            while the four B = 8 cohorts share one system execution
+and record termination causes. Fixed-token replay is             and are not independent run repetitions.
+reported as controlled work and does not establish appli-           At B = 8, marginal-mid reduces logical bytes by
+cation utility. Runs, not tokens sharing a run, are the          21.65%, with KL .04595 and ∆PPL .28242. Native top-6
+repetition units. Report individual repeated-run values          (j = 2) reduces bytes by 17.73%, with KL .07384 and
+or uncertainty, and use local A/A variation to interpret         ∆PPL .47457. This measured point favors the count-
+the effect. Interleave policy order to reduce time drift.        conditioned rule on both axes, although 22 of 32 docu-
+The controller can change later routes and output lengths,       ments have higher NLL than native; the aggregate com-
+so complete policies execute their own trajectories.             parison is not pointwise quality preservation. At B = 32,
+   Joules per token uses time-aligned NVML power sam-            marginal-high reduces bytes by 8.00%, with KL .01213
+ples integrated over the measurement window, with                and ∆PPL .11264, versus top-6’s 7.14%, .07348, and
+generated-token counts from that window. Where avail-            .45157. Marginal-mid at B = 32 uses a smaller interven-
+able, the device cumulative-energy counter is an addi-           tion: 6.77% byte reduction, KL .01001, and ∆PPL .02823.
+tional check. Report sampling cadence, warm-up, dura-            These quality observations do not certify the different,
+tion, and whether energy is gross device energy. Short           longer performance workload below.
+windows can be distorted by power averaging; aggregate              The B = 1 comparison supplies a boundary: marginal-
+sufficiently long steady decode regions. Neither wattage         mid reduces bytes by 26.73% versus top-6’s 25%, but
+nor latency alone is converted into measured energy.             has larger KL (.07740 versus .07259) and ∆PPL (.56846
+                                                                 versus .46888). When all assignments are singletons,
+                                                                 occupancy does not screen out shared work. The sparse
+                                                                 marginal-low policy at B = 8 has ∆PPL −.00090, which
+                                                                 is too small and too exploratory to label a quality gain.
+
+
+
+                                                             6
+Table 3: T2: action-level comparison based on primary papers and author releases checked on October 16, 2026. “No”
+means the described decision does not explicitly use current decode-batch singleton marginal footprint. It does not
+mean the system cannot benefit from reuse.
+                              Method                                                                       Decision signal                                                                                                                          Action                                                                                                                         Training /                                    Singleton marginal
+                                                                                                                                                                                                                                                                                                                                                                                   calibration                                   bytes
+                              AdapMoE [6]                                                                  Token gate weight and layer                                                                                                              Top-2 to top-1 gating; separate                                                                                                Sensitivity                                   No; offload loading
+                                                                                                           Fisher sensitivity                                                                                                                       cache/prefetch management                                                                                                      calibration                                   objective
+                              NAEE [3]                                                                     g2 /g1 versus layer-calibrated                                                                                                           Drop second expert; renormalize                                                                                                Ratio calibration;                            No
+                                                                                                           ratio                                                                                                                                                                                                                                                                   no gate retraining
+                              Ada-K [5]                                                                    Token representation through                                                                                                             Choose token-specific k                                                                                                        PPO allocator                                 No
+                                                                                                           learned allocator                                                                                                                                                                                                                                                       training
+                              MoE++ [2]                                                                    Learned router with                                                                                                                      Select FFN, zero, copy, or                                                                                                     Architecture                                  No
+                                                                                                           preceding-layer gating residual                                                                                                          constant experts                                                                                                               training
+                              DynMoE [1]                                                                   Token–expert similarity and                                                                                                              Top-any routing; add/remove                                                                                                    Gate/model                                    No
+                                                                                                           learned thresholds                                                                                                                       experts during training                                                                                                        training
+                              Expert                                                                       Expert affinity ranking across                                                                                                           Each expert takes a                                                                                                            Routing/model                                 Batch-coupled; no
+                              Choice [7]                                                                   token group                                                                                                                              capacity-limited token set                                                                                                     training                                      singleton cost rule
+                              SERE [4]                                                                     Batch primary union and                                                                                                                  Re-route secondary assignments                                                                                                 Similarity                                    Batch-aware union
+                                                                                                           calibrated expert similarity                                                                                                             to primary experts; retain                                                                                                     calibration; no                               reduction, different
+                                                                                                                                                                                                                                                    critical ones                                                                                                                  retraining                                    action
+                              This design                                                                  Tail rank, gate mass, current                                                                                                            Drop singleton assignment                                                                                                      Threshold                                     Yes for logical
+                                                                                                           Ne = 1                                                                                                                                   within per-token mass budget                                                                                                   calibration only                              footprint; DRAM
+                                                                                                                                                                                                                                                                                                                                                                                                                                 effect unmeasured
+
+
+                                                                                                                                                                                                                                              F3 model | bfloat16 | quant=none | triton
+                                                                                                                                                                                                                                          gate_high                 global_j2 (native k)   marginal_low
+                                                                                                                                                                                                                                          gate_low                  global_j4 (native k)   marginal_mid
+                                                                                                                                                                                                                                          global_j1 (native k)      marginal_high          native
+Selected-window pooled PPL change Full-vocabulary KL(native || policy), nats/token
+
+
+
+
+                                                                                                                                               Selected-window pooled PPL change Full-vocabulary KL(native || policy), nats/token
+
+
+
+
+                                                                                                                                                                                                                                                                                                               Selected-window pooled PPL change Full-vocabulary KL(native || policy), nats/token
+                                                                                                                B=1                                                                                                                                                       B=8                                                                                                                                                 B=32
+                                                                     0.30                                                                                                                                           0.30
+                                                                     0.25                                                                                                                                           0.25                                                                                                                                                            0.25
+                                                                     0.20                                                                                                                                           0.20                                                                                                                                                            0.20
+                                                                     0.15                                                                                                                                           0.15                                                                                                                                                            0.15
+                                                                     0.10                                                                                                                                           0.10                                                                                                                                                            0.10
+                                                                     0.05                                                                                                                                           0.05                                                                                                                                                            0.05
+                                                                     0.00                                                                                                                                           0.00                                                                                                                                                            0.00
+                                                                                           0    10         20          30          40     50                                                                                                0        5       10 15 20 25 30 35                            40                                                                                              0.0   2.5 5.0 7.5 10.0 12.5 15.0 17.5 20.0
+                                                                                               Observed logical-footprint reduction (%)                                                                                                                  Observed logical-footprint reduction (%)                                                                                                                 Observed logical-footprint reduction (%)
+                                                                                                                B=1                                                                                                                                                       B=8                                                                                                                                                 B=32
+                                                                                     2.0                                                                                                                                            2.0                                                                                                                                                             2.0
+
+                                                                                     1.5                                                                                                                                            1.5                                                                                                                                                             1.5
+
+                                                                                     1.0                                                                                                                                            1.0                                                                                                                                                             1.0
+
+                                                                                     0.5                                                                                                                                            0.5                                                                                                                                                             0.5
+
+                                                                                     0.0                                                                                                                                            0.0                                                                                                                                                             0.0
+                                                                                           0    10         20          30          40     50                                                                                                0        5       10 15 20 25 30 35                            40                                                                                              0.0   2.5 5.0 7.5 10.0 12.5 15.0 17.5 20.0
+                                                                                               Observed logical-footprint reduction (%)                                                                                                                  Observed logical-footprint reduction (%)                                                                                                                 Observed logical-footprint reduction (%)
+                                                           Bytes and quality share teacher-forced groups; all shown arms use their common groups. Dots: run aggregates; diamonds: run means.
+                                                           KL/PPL are token-weighted metrics, not token-level repetitions. Dashed: nondominated measured means; not task accuracy.
+
+
+
+Figure 2: F3: OLMoE BF16 validation exploration on the same 32 articles, with 32 genuine decode predictions each.
+Each batch size has one source execution; its points aggregate 32, four, or one cohort at B = 1, 8, 32, respectively.
+Logical bytes and quality come from each policy’s teacher-forced trajectory, with native dense counters as the common
+denominator. Lower right is preferable. Dashed frontiers are descriptive measured means, without task-accuracy or
+statistical-superiority claims.
+
+
+Native window PPL itself is 9.80727, 9.79070, and 9.82602                                                                                                                                                                                                                    Within-format FP8 comparison. Figure 3 uses the
+across the three batch sizes because numerical execution                                                                                                                                                                                                                     same 32 articles, prefix lengths, scored positions, and
+can differ; every reported delta uses the native run at its                                                                                                                                                                                                                  policy settings in online FP8 W8A8. Each batch size
+own B.                                                                                                                                                                                                                                                                       again retains 1,024 predictions per arm in 32, four, or
+                                                                                                                                                                                                                                                                             one cohort. For all three batch sizes, the dense identity
+                                                                                                                                                                                                                                                                             arm has recorded mean/minimum/maximum KL and
+
+
+
+                                                                                                                                                                                                                                                                      7
+                                                                                                                                                                                      F3 OLMoE | FP8 W8A8 | nonquantized dtype=bfloat16 | Triton
+                                                                                                                                                                                                                                          gate_high                 global_j2 (native k)   marginal_low
+                                                                                                                                                                                                                                          gate_low                  global_j4 (native k)   marginal_mid
+                                                                                                                                                                                                                                          global_j1 (native k)      marginal_high          native
+Selected-window pooled PPL change Full-vocabulary KL(native || policy), nats/token
+
+
+
+
+                                                                                                                                               Selected-window pooled PPL change Full-vocabulary KL(native || policy), nats/token
+
+
+
+
+                                                                                                                                                                                                                                                                                                               Selected-window pooled PPL change Full-vocabulary KL(native || policy), nats/token
+                                                                                                                B=1                                                                                                                                                       B=8                                                                                                                                                  B=32
+                                                                     0.30                                                                                                                                           0.30                                                                                                                                                            0.30
+                                                                     0.25                                                                                                                                           0.25                                                                                                                                                            0.25
+                                                                     0.20                                                                                                                                           0.20                                                                                                                                                            0.20
+                                                                     0.15                                                                                                                                           0.15                                                                                                                                                            0.15
+                                                                     0.10                                                                                                                                           0.10                                                                                                                                                            0.10
+                                                                     0.05                                                                                                                                           0.05                                                                                                                                                            0.05
+                                                                     0.00                                                                                                                                           0.00                                                                                                                                                            0.00
+                                                                                           0    10         20          30          40     50                                                                                                0        5       10 15 20 25 30 35                            40                                                                                              0.0   2.5 5.0 7.5 10.0 12.5 15.0 17.5 20.0
+                                                                                               Observed logical-footprint reduction (%)                                                                                                                  Observed logical-footprint reduction (%)                                                                                                                 Observed logical-footprint reduction (%)
+                                                                                                                B=1                                                                                                                                                       B=8                                                                                                                                                  B=32
+                                                                                                                                                                                                                                    2.5
+                                                                                     2.0                                                                                                                                                                                                                                                                                                            2.0
+                                                                                                                                                                                                                                    2.0
+                                                                                     1.5                                                                                                                                                                                                                                                                                                            1.5
+                                                                                                                                                                                                                                    1.5
+                                                                                     1.0                                                                                                                                            1.0                                                                                                                                                             1.0
+                                                                                     0.5                                                                                                                                            0.5                                                                                                                                                             0.5
+
+                                                                                     0.0                                                                                                                                            0.0                                                                                                                                                             0.0
+                                                                                           0    10         20          30          40     50                                                                                                0        5       10 15 20 25 30 35                            40                                                                                              0.0   2.5 5.0 7.5 10.0 12.5 15.0 17.5 20.0
+                                                                                               Observed logical-footprint reduction (%)                                                                                                                  Observed logical-footprint reduction (%)                                                                                                                 Observed logical-footprint reduction (%)
+                                                           Bytes and quality share teacher-forced groups; all shown arms use their common groups. Dots: run aggregates; diamonds: run means.
+                                                           KL/PPL are token-weighted metrics, not token-level repetitions. Dashed: nondominated measured means; not task accuracy.
+
+
+
+Figure 3: F3 in OLMoE FP8 W8A8: the same 32 validation articles and teacher-forced window protocol as BF16,
+evaluated against native FP8 separately at each batch size. The nonquantized model dtype remains BF16; routed
+weights/activations use FP8. Each point aggregates 1,024 scored decode predictions from one source execution. The
+independent sampling unit is the article, not a token or cohort. Lower right is preferable; the frontiers describe
+observed means, not task accuracy or an independent confirmation.
+
+
+∆NLL exactly zero, with NLL and PPL identical to                                                                                                                                                                                                                             6.3           Natural completion and task-quality
+native. Native FP8 PPL is 9.59947, 9.63869, and 9.70590                                                                                                                                                                                                                                    screening
+at B = 1, 8, 32. Every delta and logical-footprint ratio
+uses native FP8 at its own batch size; these are not cross-                                                                                                                                                                                                                  The completed BF16 natural-generation family in r08b
+format KL measurements or evidence that FP8 improves                                                                                                                                                                                                                         evaluates all ten arms on the same 200 distinct 128-token
+task quality.                                                                                                                                                                                                                                                                prefixes. They are selected from nonoverlapping 256-word
+   At B = 8, marginal-mid saves 21.60% of logical bytes                                                                                                                                                                                                                      windows of 28 WikiText validation articles, excluding the
+with KL .05506 and ∆PPL .43122, versus top-6’s 17.71%,                                                                                                                                                                                                                       32 articles used by T1/F3 and all WikiText test articles.
+.07772, and .58810. Thus the observed two-axis advantage                                                                                                                                                                                                                     Thus 200 windows are not 200 independent articles, and
+persists, with different quality costs. At B = 32, marginal-                                                                                                                                                                                                                 neither windows nor their tokens are independent sys-
+high gives 8.11%, .02265, and .13000 versus top-6’s 7.13%,                                                                                                                                                                                                                   tem repetitions. Generation uses raw text completion
+.07999, and .62938; marginal-mid gives 6.77%, .01960,                                                                                                                                                                                                                        without a chat template, greedy sampling, EOS enabled,
+and .15689. At B = 1, marginal-mid saves 26.67% versus                                                                                                                                                                                                                       no minimum output length or repetition penalty, and a
+25%, but its KL is slightly larger (.07884 versus .07725),                                                                                                                                                                                                                   256-token maximum. Cohorts admit at most eight re-
+while ∆PPL is smaller (.63747 versus .68383). There is                                                                                                                                                                                                                       quests and drain naturally; the actual decode batch can
+no uniform quality-metric advantage at that batch size.                                                                                                                                                                                                                      shrink as requests finish. This eager evaluation is not the
+Low-budget perturbations also change: marginal-low at                                                                                                                                                                                                                        fixed-length graph benchmark in F2/F4.
+B = 32 has KL .01089 in FP8 versus .00096 in BF16,                                                                                                                                                                                                                              For output token sequence y of length L ≥ 4, the
+each relative to its own native distribution. The BF16                                                                                                                                                                                                                       repeated-4gram ratio is R4 (y) = 1 − U4 /(L − 3), where
+thresholds therefore do not supply a cross-format quality                                                                                                                                                                                                                    U4 is the number of unique overlapping token 4-grams.
+guarantee. These exploratory windows do not establish                                                                                                                                                                                                                        We average this ratio across eligible outputs rather than
+FP8 task gains or quality-matched performance.                                                                                                                                                                                                                               pooling their token counts. One two-token gate-high
+   The validation articles support exploration only. Sepa-                                                                                                                                                                                                                   completion has no 4-gram and is excluded from that
+rate WikiText test articles remain held out for confirma-                                                                                                                                                                                                                    mean. A descriptive flag requires L ≥ 32 and R4 > .5; it
+tion. The natural-completion experiment below uses a                                                                                                                                                                                                                         does not classify semantic correctness. Table 4 retains
+disjoint set of validation articles; its repeated-text screen                                                                                                                                                                                                                every planned output. Dense identity matches native
+is separate from task accuracy.                                                                                                                                                                                                                                              token sequences in all 200 pairs.
+                                                                                                                                                                                                                                                                                Every arm returns 200 outputs without an execution
+
+
+                                                                                                                                                                                                                                                                      8
+Table 4: Natural-completion screen: 200 prompts from 28 validation articles per arm, one execution family. EOS and
+cap counts sum to 200; every arm has zero failures and zero other-stop cases. Mean output length includes capped
+completions. R4 is the mean repeated token-4gram ratio over the n4 eligible outputs. Flag counts use all 200 outputs
+and are descriptive, not correctness judgments.
+                     Policy           EOS     256-token cap        Mean tokens   Mean R4      n4       Flags
+                     Native top-8         8             192             251.63      .26306   200           39
+                     Dense identity       8             192             251.63      .26306   200           39
+                     Native top-7         6             194             253.40      .29040   200           48
+                     Native top-6         7             193             253.15      .25483   200           30
+                     Native top-4         9             191             249.68      .27242   200           37
+                     Gate-low            11             189             251.24      .26777   200           40
+                     Gate-high           11             189             248.50      .26735   199           38
+                     Marginal-low         6             194             252.06      .26581   200           37
+                     Marginal-mid         6             194             252.70      .30088   200           45
+                     Marginal-high        5             195             253.51      .24757   200           27
+
+
+failure, but 94.5–97.5% reach the cap. Native has eight
+                                                                   Table 5: GSM8K pilot: correct answers out of the same 16
+EOS terminations and 39 flagged outputs; marginal-mid
+                                                                   problems, with 5-shot prompts. S/F denote strict/flexible
+has six EOS terminations and 45 flags, with mean R4
+                                                                   extraction. E/O/C are EOS, task-stop, and cap counts;
+rising from .26306 to .30088. Marginal-high has fewer
+                                                                   failures are zero for every arm. This subset does not
+flags (27) and lower mean R4 (.24757), yet also fewer EOS
+                                                                   establish a lossless policy or statistical superiority.
+terminations (five). These differences describe bounded
+continuation behavior; a lower repetition ratio does not                          Policy           S F E        O C
+establish better answers, factuality, or task quality. The                        Native top-8     6   6   4    12   0
+high cap rate limits conclusions about unrestricted natu-                         Dense identity   6   6   4    12   0
+                                                                                  Native top-7     5   5   1    15   0
+ral termination. No equal-content, equal-work, or quality-                        Native top-6     1   2   3    13   0
+preservation claim follows from the absence of execution                          Native top-4     1   2   3    12   1
+failures.                                                                         Gate-low         6   6   6    10   0
+                                                                                  Gate-high        5   5   5    11   0
+                                                                                  Marginal-low     6   6   4    12   0
+GSM8K generation pilot. A completed 16-problem                                    Marginal-mid     4   4   1    15   0
+pilot uses the standard GSM8K 5-shot task in lm-eval                              Marginal-high    4   4   5    11   0
+0.4.13, with the same samples, few-shot prompts, and seed
+across ten arms. It uses greedy generation without a chat
+template, the task’s stop strings, EOS enabled, and a 256-         Multiple-choice controls. Standard MMLU 5-shot,
+token cap. The two reported answer-extraction filters are          HellaSwag 0-shot, and ARC-c 0-shot score candidate
+the harness’s strict-match and flexible-extract. Ta-               answers by prompt loglikelihood. In this decode-only
+ble 5 reports counts rather than treating the 16-problem           intervention, those scores are computed in unchanged
+subset as a precise benchmark estimate. All 160 genera-            prefill. The adapter’s discarded first output token is also
+tions finish without an execution failure; only top-4 has          a prefill prediction, not evidence that the policy exercised
+a capped output. Dense identity preserves the native               decode. Consequently these tasks test the adapter and
+responses.                                                         the unchanged-prefill contract; score identity cannot es-
+                                                                   tablish preserved generation quality. A generation-based
+   Native and dense answer six problems correctly under
+                                                                   multiple-choice adaptation would be a separate, explicitly
+both filters. Marginal-mid and marginal-high each answer
+                                                                   nonstandard experiment.
+four: paired problem-level checks find two native-only
+successes and no candidate-only success under either filter.          Table 6 pools 16 MMLU problems from each of 57 sub-
+Top-6 and top-4 answer one under strict extraction and             jects, for 912 problems and accuracy .55044; HellaSwag
+two under flexible extraction. Matching native’s count             and ARC-c use 16 problems each. All ten arms complete
+for the low-budget policies does not certify unchanged             the same populations, with zero score drift. The runner
+correctness on individual problems or on the full task. In         checks paired samples and prompt hashes, compares re-
+particular, marginal-high’s lower repeated-text score in           sponses/loglikelihoods, and enforces zero decode/mixed
+the separate continuation screen does not predict higher           steps for these controls. This confirms the tested prefill
+GSM8K accuracy. No noninferiority or significance claim            boundary; it supplies no independent evidence that drop-
+follows; full-task evaluation and matched tail/gate abla-          ping experts preserves reasoning or generated answers.
+tion remain pending.
+
+
+
+
+                                                               9
+                                                                      The marginal-mid TPOT reductions across increasing
+Table 6: Completed multiple-choice identity controls
+                                                                   B are 7.09%, 9.51%, 11.92%, 11.26%, 7.18%, 1.69%, and
+in r08b.     Acc./Norm.      are correct counts under
+                                                                   −.15%. Its logical-footprint reductions at B = 32, 64 are
+ordinary/length-normalized scoring. All ten arms have
+                                                                   5.72% and 1.56%. Marginal-high retains 3.97% and .68%
+the same scores (maximum drift zero); the policy does
+                                                                   TPOT reductions at these two batches. Gate-high is
+not execute decode on these requests. These are limited
+                                                                   close to marginal-high at B = 8 (15.96% reduction) and
+subsets, not full-benchmark accuracy results or evidence
+                                                                   has a larger reduction at B = 32 (4.95%); these small
+of generation-quality preservation.
+                                                                   gaps have no independent-run support. Native top-4
+           Task        Shots      Acc.   Norm.                     has the largest measured TPOT reduction of the tested
+           MMLU            5   502/912      —                      policies at every batch, including 22.98%, 10.85%, and
+           HellaSwag       0      8/16   10/16                     4.76% at B = 8, 32, 64; its stronger quality intervention
+           ARC-c           0      8/16    7/16
+                                                                   cannot be ignored. Sparse gate-low and marginal-low
+                                                                   settings have small, sometimes negative timing effects. A
+6.4    Graph decode performance and en-                            negative cross-policy footprint reduction can also occur
+                                                                   because changed outputs induce different later routing,
+       ergy (F2/F4)                                                even though each local policy only removes assignments.
+The completed BF16 r07 and FP8 r09b matrices each                     Energy replays reproduce each arm’s performance tran-
+contain 63 cells: native and eight policies at seven batch         script and start sampling after all first tokens are visi-
+sizes, with one performance execution per arm and no               ble, ending after the last decode output. The requested
+independent repeats. Each arm loads a fresh engine, then           sampling interval is 50 ms; integration uses sample times-
+visits all seven batches; arm order is randomized once.            tamps and includes the host loop and NVML boundary
+Every request has a 128-token prefix and 2048 greedy out-          overhead. All 126 windows exceed three seconds (BF16
+puts with EOS ignored, yielding 2047B decode outputs               5.61–37.14 s; FP8 5.39–28.36 s). Figure 5 uses the power-
+in each measured cell. At B = 64, the 64 distinct prompt           sample trapezoidal integral as the primary whole-board
+windows come from 60 validation articles. This controls            energy measure, without attributing it to one process or
+work length but allows policies to generate different text;        converting a latency estimate into energy.
+it is neither natural termination nor the teacher-forced              In BF16 at B = 8, native uses .29654 J/token
+F3 workload.                                                       and marginal-mid .25245 J/token, a 14.87% decrease;
+   All arms within a format use the same native-oriented           marginal-high uses .23602 J/token, a 20.41% decrease.
+Triton tuning file; FP8 uses its separately measured FP8           At B = 32, marginal-mid and marginal-high decrease
+configuration. Tuning examines the first routed layer              J/token by 2.62% and 5.33%; at B = 64 the decreases are
+using three captured native routes per batch, synthetic            .028% and 1.02%, respectively. Top-4 decreases J/token
+activations, a small tile grid plus stock configuration,           by 26.43%, 11.72%, and 5.61% at B = 8, 32, 64. Small
+and five measurement rounds. It selects configurations             changes, especially marginal-mid at B = 64, cannot be
+for native top-8, rather than separately favoring each             distinguished from run-level variation with this experi-
+candidate; it is not a claim of globally optimal tuning            ment.
+across all layers and routes. The timed pass uses FULL
+decode CUDA graphs without route counters, includes                Completed FP8 performance. At B = 8, native
+the actual-token update and runtime metadata work,                 FP8 TPOT is 5.609 ms and energy is .18182 J/token.
+and warms up before measurement. All seven powers-of-              Marginal-mid reduces TPOT by 3.87%, J/token by 8.24%,
+two batches execute without padding. Separate counted              and realized logical footprint by 15.99%; marginal-high
+graph runs reproduce the exact generated tokens of their           gives 8.25%, 13.73%, and 25.88%, respectively. Native
+respective performance runs in all 63 cells of each format,        top-4 is faster, with 15.57% lower TPOT and 20.80%
+enabling footprint accounting without subtracting counter          lower J/token, at its stronger measured quality pertur-
+time from latency.                                                 bation. At B = 32, marginal-mid/high reduce TPOT by
+   Figure 4 reports reductions relative to native within           .72/2.40% and J/token by 2.23/4.25%. At B = 64, their
+each format and batch. In BF16 at B = 8, na-                       TPOT reductions are .66/.63%, while energy increases
+tive TPOT is 8.240 ms; marginal-mid reaches 7.312 ms               by .155/.006%: effectively little observed energy change,
+(11.26% lower) while reducing realized logical footprint by        without repeated runs to resolve small effects.
+21.52%. Marginal-high reaches 6.910 ms (16.14% lower)                 Both formats therefore show diminishing observed
+and reduces footprint by 29.50%. Native top-6 is faster            marginal-policy gains at larger batches, but their effect
+than marginal-mid in this run, at 7.227 ms (12.30% lower),         sizes differ. The same external prefix/output protocol
+despite a slightly smaller footprint reduction of 20.34%.          does not fix generated content or routing across formats.
+Thus the selected-window F3 advantage over top-6 does              Online W8A8 also changes activations and other con-
+not establish latency dominance, and logical footprint             verted linear layers, while each format has its own ker-
+alone does not rank execution cost.                                nel tuning and native baseline. These measurements
+
+
+                                                              10
+                                                               Native top-7       Native top-4                                       Gate-high             Marginal-mid
+                                                               Native top-6       Gate-low                                           Marginal-low          Marginal-high
+
+
+                                                BF16                                                                                      BF16
+
+
+
+
+                                                                                                   Logical-footprint reduction (%)
+            TPOT reduction (%)
+
+
+
+
+                                                                                                                                     40
+                                          20
+
+
+                                          10                                                                                         20
+
+
+                                           0                                                                                          0
+
+
+                                                 1     2   4     8      16        32    64                                                    1        2    4     8      16     32   64
+                                                           Decode batch, B                                                                                  Decode batch, B
+
+                                                FP8 W8A8                                                                                  FP8 W8A8
+
+
+
+
+                                                                                                   Logical-footprint reduction (%)
+            TPOT reduction (%)
+
+
+
+
+                                                                                                                                     40
+                                          20
+
+
+                                          10                                                                                         20
+
+
+                                           0                                                                                          0
+
+
+                                                 1     2   4       8      16      32    64                                                    1        2    4      8       16   32   64
+                                                           Decode batch, B                                                                                  Decode batch, B
+
+
+Figure 4: F2: complete OLMoE graph matrices, 63 cells per format. Reductions use native at the same format and B.
+Every request has 128 prefix tokens and 2048 fixed outputs; TPOT excludes the first token. Logical-footprint ratios
+compare policies’ realized trajectories via separate output-identical counted replays. They are neither DRAM savings
+nor same-route deletion fractions. One execution per arm supplies no independent-run uncertainty.
+
+
+                                                                        Native top-8         Native top-4                                         Marginal-low
+                                                                        Native top-7         Gate-low                                             Marginal-mid
+                                                                        Native top-6         Gate-high                                            Marginal-high
+  Whole-board energy / decode token (J)
+
+
+
+
+                                                BF16                                                                                   FP8 W8A8
+
+
+                                          0.6
+
+
+                                          0.4
+
+
+                                          0.2
+
+
+
+                                                 1     2   4     8      16         32        64                                           1        2       4     8      16      32   64
+                                                           Decode batch, B                                                                                 Decode batch, B
+
+
+
+Figure 5: F4: gross whole-board J/decode-token from separate energy replays, integrated from NVML power samples.
+All 63 windows per format exceed three seconds: BF16 5.61–37.14 s and FP8 5.39–28.36 s. Prefill and the first token
+are excluded; the denominator is 2047B decode outputs. These single-run measurements are not process-only energy,
+task efficiency, or quality-matched comparisons.
+
+
+                                                                                              11
+cannot attribute the difference solely to halving expert          6.5    Interpretation and continuing con-
+weight bytes, or combine short-window quality with long-                 struction
+trajectory performance into an equal-quality speedup.
+  The GPU lock did not make the host exclusive: back-             The BF16 and FP8 quality experiments support a limited
+ground download activity changed across arms, so host             observation: at some batched settings, allocating inter-
+activity and time drift remain potential confounders; no          ventions to singleton tails improves the measured quality–
+numerical correction is applied. The earlier eight-output         logical-footprint tradeoff relative to a fixed-k reduction.
+eager diagnostic is retained as a boundary case: with             Separately, the completed graph matrices observe lower
+untuned kernels and counters in the timed path, lower             TPOT and J/token for middle/high-budget policies at
+logical footprint accompanied higher TPOT. Its subsec-            several small and intermediate batches, with diminish-
+ond energy windows are not pooled with r07. Changes in            ing effects at larger batches. Stronger fixed-k reduction
+tuning, graph execution, instrumentation, and workload            is also faster and changes the quality tradeoff. Neither
+length prevent attributing the difference between those           experiment shows equal-quality task acceleration: F3 has
+runs to one component. Independent repeats under stable           short imposed corpus continuations, whereas F2/F4 have
+host conditions, downstream quality, and the other two            long policy-generated fixed-length trajectories. Indepen-
+models remain necessary.                                          dent repeats under stable host conditions must test the
+                                                                  timing and energy effects; the continuation screen and
+                                                                  16-problem GSM8K pilot already show changed output
+Measured policy microbenchmark (F6). Figure 6                     behavior and an observed accuracy cost, while larger held-
+reports one execution on an NVIDIA RTX PRO 6000                   out/task evaluations must test any quality constraint.
+Blackwell Server Edition with PyTorch 2.11.0+cu130. It            The FP8 observations retain some batched tradeoffs but
+uses fixed synthetic routing matrices with E = 64, k = 8,         change perturbation magnitudes; they are not an inde-
+FP32 normalized selected weights, and survivor renor-             pendent held-out confirmation. The remaining models
+malization enabled. This controller-only workload has no          will test transfer.
+expert weight tensors and is not a model-format compar-
+ison. The marginal policy uses tail ranks 5–8, τ = .15,
+and m = .20; counters are included. At B = 1, 8, 32, 64,          7     Related Work and Action-Level
+the fused Triton implementation consumes 30.785, 22.265,
+26.768, and 23.432 µs of main-thread CPU time per ea-                   Comparison
+ger call. Captured-device times are 2.457, 2.871, 4.714,
+and 6.552 µs. The unfused PyTorch implementation con-             Table 3 identifies the signal and action, rather than com-
+sumes 663.9–806.4 µs of main-thread CPU time and 134.7–           paring method names alone. NAEE uses a calibrated
+160.9 µs of captured-device time; multi-kernel Triton con-        ratio of the second to the first routing weight for on-
+sumes 59.54–62.79 and 6.15–7.78 µs, respectively.                 line skipping [3]. AdapMoE combines a layer sensitivity
+   Each eager point averages 100 warmed calls.                    estimate with the routing weight and separately man-
+The time.thread_time_ns interval covers the calling               ages offloaded experts [6]. Both inform inference-time
+thread’s Python and driver submission work and ends be-           baselines; static expert pruning is a different intervention.
+fore the final explicit CUDA synchronization. It excludes            Ada-K trains an allocator to choose each token’s ex-
+off-CPU waiting and other threads, so it is neither to-           pert count [5]. MoE++ trains routing over ordinary and
+tal process CPU consumption nor full-service CPU time.            zero-computation experts [2]. DynMoE learns top-any
+Eager wall time includes that final synchronization; the          thresholds and changes expert inventory during train-
+fused implementation’s corresponding values are 30.923,           ing [1]. These methods alter learning or architecture and
+22.387, 26.943, and 23.623 µs. Each device point uses             cannot be represented faithfully by a threshold-only post-
+CUDA events around 100 graph replays with ten policy              processor. Expert Choice already makes a batch-coupled
+calls per graph, excluding per-call Python dispatch and           assignment by letting experts choose capacity-limited
+allocation. These clocks are reported independently, with         token sets [7]; it must not be called batch-independent.
+no wall-minus-device estimate of CPU cost. The exper-                SERE is the closest identified serving comparison: its
+iment excludes MoE GEMMs, safe dispatch alignment,                primary-expert union and similarity-conditioned substi-
+attention, and full-model scheduling. The older r04 run           tutions reduce batch-level expert redundancy [4]. Our
+has no thread-CPU measurement and is not backfilled.              rule directly drops singleton tails and retains the other
+F2/F4 measure full-model behavior separately; these in-           native assignments. It requires no functional-similarity
+ner repetitions supply no independent-run confidence              matrix, but cannot consolidate shared secondary experts
+interval.                                                         as SERE can. Whether that lower decision complexity
+                                                                  compensates for the narrower action space remains un-
+                                                                  measured. The present review establishes these scoped
+                                                                  differences, not a claim of priority or superiority.
+
+
+
+
+                                                             12
+                                                  F6: synthetic post-routing policy + counters (E=64, k=8)
+
+                                                           Unfused PyTorch             Multi-kernel Triton                                  Fused Triton
+
+
+                                                 Eager main-thread CPU                                                                      Captured GPU elapsed time
+    Time per call (microseconds)
+
+
+
+
+                                                                                                   Time per call (microseconds)
+                                   6 × 102                                                                                        102
+                                   4 × 102
+                                   3 × 102
+                                   2 × 102
+
+                                      102
+                                                                                                                                  101
+                                   6 × 101
+                                   4 × 101
+                                   3 × 101
+                                   2 × 101
+                                             1                8              32     64                                                  1                  8         32   64
+                                                      Routing rows, B                                                                              Routing rows, B
+                                                   One source execution; separate CPU/device clock boundaries, not a subtraction.
+                                                 CPU excludes final explicit CUDA synchronization, off-CPU waiting, and other threads.
+
+
+
+Figure 6: F6: measured post-routing policy and counters from r09b. Main-thread CPU consumption and captured-
+device elapsed time have separate clock boundaries; neither is computed by subtracting times. Both panels compare
+the same three implementations on synthetic routing inputs. One source execution supplies each point; inner calls are
+timing repetitions, not independent runs. Eager wall measurements are retained in the accompanying CSV. These are
+component timings, not full-model TPOT or service speedups.
+
+
+8                                  Conclusion                                                  References
+Singleton occupancy separates assignment sparsity from                                         [1] Yongxin Guo, Zhenglin Cheng, Xiaoying Tang,
+the elimination of a batch’s expert weight footprint. We                                           Zhaopeng Tu, and Tao Lin. Dynamic mixture of
+implement that distinction as a budgeted tail-skipping                                             experts: An auto-tuning approach for efficient trans-
+rule and measure its behavior in OLMoE. Seven-batch                                                former models. In International Conference on Learn-
+occupancy measurements and teacher-forced windows in                                               ing Representations, 2025. URL: https://arxiv.
+BF16 and FP8, together with BF16 rank/gate interven-                                               org/abs/2405.14297.
+tions, show how available actions and quality–footprint
+tradeoffs change with batch size. Some B = 8 and B = 32                                        [2] Peng Jin, Bo Zhu, Li Yuan, and Shuicheng Yan.
+validation points improve on native fixed-k reduction                                              MoE++: Accelerating mixture-of-experts methods
+within each format; B = 1 does not show a uniform                                                  with zero-computation experts. In International Con-
+advantage. Perturbation magnitudes differ across for-                                              ference on Learning Representations, 2025. URL:
+mats, whose native baselines remain separate. Complete                                             https://arxiv.org/abs/2410.07348.
+63-cell graph matrices in each format observe marginal-                                        [3] Xudong Lu, Qi Liu, Yuhui Xu, Aojun Zhou, Siyuan
+mid TPOT/J-per-token reductions of 11.26/14.87% in                                                 Huang, Bo Zhang, Junchi Yan, and Hongsheng Li.
+BF16 and 3.87/8.24% in FP8 at B = 8, with little energy                                            Not all experts are equal: Efficient expert pruning
+effect at B = 64. Stronger fixed-k reduction remains                                               and skipping for mixture-of-experts large language
+faster. Different generated trajectories and multiple FP8                                          models. In Proceedings of ACL, pages 6159–6172,
+operator changes prevent attributing the format differ-                                            2024. URL: https://aclanthology.org/2024.acl-
+ence solely to expert weight bytes. The 200-window                                                 long.334/, doi:10.18653/v1/2024.acl-long.334.
+natural-completion screen is mostly length-capped, and
+the 16-problem GSM8K pilot has four correct answers for                                        [4] Juntong Wu, Jialiang Cheng, Fuyu Lv, Dan
+marginal-mid/high versus six for native. These single-run                                          Ou, and Li Yuan. SERE: Similarity-based ex-
+performance results and distinct quality populations do                                            pert re-routing for efficient batch decoding in
+not establish equal-quality task gains. Independent per-                                           MoE models.     In International Conference on
+formance repeats, larger held-out/task evaluations, and                                            Learning Representations, 2026.    URL: https:
+the remaining two target models are the next required                                              //proceedings.iclr.cc/paper_files/paper/
+evidence.                                                                                          2026/hash/5d07eb2335d88b1dfcefcc3d2da2a230-
+                                                                                                   Abstract-Conference.html.
+
+
+                                                                                          13
+[5] Zijia Zhao, Longteng Guo, Jie Cheng, Xuange
+    Gao, Hua Huang, and Jing Liu. Ada-K routing:
+    Boosting the efficiency of MoE-based LLMs. In
+    International Conference on Learning Representa-
+    tions, 2025. Final proceedings metadata; the earlier
+    arXiv:2410.10456v2 is withdrawn. URL: https:
+    //proceedings.iclr.cc/paper_files/paper/
+    2025/hash/df22a19686a558e74f038e6277a51f68-
+    Abstract-Conference.html.
+
+[6] Shuzhang Zhong, Ling Liang, Yuan Wang, Run-
+    sheng Wang, Ru Huang, and Meng Li. AdapMoE:
+    Adaptive sensitivity-based expert gating and man-
+    agement for efficient MoE inference. In Proceedings
+    of the 43rd IEEE/ACM International Conference on
+    Computer-Aided Design (ICCAD ’24), 2024. Article
+    51; author implementation: https://github.com/
+    PKU-SEC-Lab/AdapMoE. URL: https://arxiv.org/
+    abs/2408.10284, doi:10.1145/3676536.3676741.
+[7] Yanqi Zhou, Tao Lei, Hanxiao Liu, Nan Du, Yan-
+    ping Huang, Vincent Zhao, Andrew Dai, Zhifeng
+    Chen, Quoc Le, and James Laudon. Mixture-of-
+    experts with expert choice routing. In Advances
+    in Neural Information Processing Systems, vol-
+    ume 35, pages 7103–7114, 2022. URL: https:
+    //papers.neurips.cc/paper_files/paper/
+    2022/hash/2f00ecd787b432c1d36f3de9800728eb-
+    Abstract-Conference.html.
+
+
+
+
+                                                           14
+

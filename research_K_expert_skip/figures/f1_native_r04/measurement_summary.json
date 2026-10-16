@@ -1,0 +1,86 @@
+{
+  "model": "OLMoE",
+  "dtype": "bfloat16",
+  "E": 64,
+  "k": 8,
+  "prefix_tokens": 32,
+  "rows": [
+    {
+      "batch": 1,
+      "captures": 1,
+      "decode_steps": 4,
+      "routed_layers": 16,
+      "layer_step_observations": 64,
+      "output_decode_tokens": 4,
+      "tokens_across_layers": 64,
+      "slots": 512,
+      "singleton_slots": 512,
+      "singleton_fraction": 1.0,
+      "fitted_iid_q_fraction": 1.0,
+      "uniform_iid_fraction": 1.0,
+      "mean_distinct_experts_per_layer_step": 8.0
+    },
+    {
+      "batch": 8,
+      "captures": 1,
+      "decode_steps": 4,
+      "routed_layers": 16,
+      "layer_step_observations": 64,
+      "output_decode_tokens": 32,
+      "tokens_across_layers": 512,
+      "slots": 4096,
+      "singleton_slots": 1271,
+      "singleton_fraction": 0.310302734375,
+      "fitted_iid_q_fraction": 0.254533987067461,
+      "uniform_iid_fraction": 0.39269590377807617,
+      "mean_distinct_experts_per_layer_step": 36.625
+    }
+  ],
+  "cohort_validation": "Each captured router matrix has exactly B rows; every visible generation step returns B tokens; all forward_completed; 1 prefill + 4 decode; 8 distinct natural-text prefix token hashes, no prompt padding.",
+  "boundaries": [
+    "One fixed cohort per B, not independent arrival process or system-run repetitions.",
+    "B1 uses first prompt of B8, and B1 singleton=1 follows unique within-token top-k.",
+    "Fitted q is estimated in sample from only 4 (B1) / 32 (B8) tokens per layer; difference from observed occupancy is not validation or rejection of iid assumption.",
+    "Trace logging synchronizes to host; these traces do not measure TPOT, bandwidth or energy.",
+    "Only B1 and B8 measured; all other topologies and B values in left panel are theoretical.",
+    "Native-global B8 smoke is excluded because it includes mixed prefill/decode and actual B7/B8."
+  ],
+  "sources": [
+    {
+      "path": "/Users/zhaozhenyu/Desktop/\u6bd5\u4e1a\u8bbe\u8ba1/research_K_expert_skip/runs/fused_quality_graph_r04/bench_smoke/config.json",
+      "sha256": "b6340ea265f5862b538d8b81641d39a9746561c4c71be1a98a9dbaedf5c7659f"
+    },
+    {
+      "path": "/Users/zhaozhenyu/Desktop/\u6bd5\u4e1a\u8bbe\u8ba1/research_K_expert_skip/runs/fused_quality_graph_r04/bench_smoke/prompts.json",
+      "sha256": "dce1f9693ae6a35202f1cf2fc3ff0aad4c85481ad6e8571eaff3c4a9aa3ab562"
+    },
+    {
+      "path": "/Users/zhaozhenyu/Desktop/\u6bd5\u4e1a\u8bbe\u8ba1/research_K_expert_skip/runs/fused_quality_graph_r04/bench_smoke/installation.json",
+      "sha256": "0f89771a27fc00425c9c1c65fa420f7236606054cc060abf1c38f52c76e0bbec"
+    },
+    {
+      "path": "/Users/zhaozhenyu/Desktop/\u6bd5\u4e1a\u8bbe\u8ba1/research_K_expert_skip/runs/fused_quality_graph_r04/bench_smoke/trace_native_b1/snapshot.json",
+      "sha256": "5a2caa421e507b9683d60e0d2517bd28914e46f14f4722747fea2404bae4da30"
+    },
+    {
+      "path": "/Users/zhaozhenyu/Desktop/\u6bd5\u4e1a\u8bbe\u8ba1/research_K_expert_skip/runs/fused_quality_graph_r04/bench_smoke/trace_native_b1/outputs.json",
+      "sha256": "337caa0de60f4547f0f3fdb751ee7dde7c1a495c09e6fdbee24996655db1c639"
+    },
+    {
+      "path": "/Users/zhaozhenyu/Desktop/\u6bd5\u4e1a\u8bbe\u8ba1/research_K_expert_skip/runs/fused_quality_graph_r04/bench_smoke/trace_native_b8/snapshot.json",
+      "sha256": "082f7fa55a95afd9224cddb340a8401536de7f8aa0c7efd666d6fafde73ffad5"
+    },
+    {
+      "path": "/Users/zhaozhenyu/Desktop/\u6bd5\u4e1a\u8bbe\u8ba1/research_K_expert_skip/runs/fused_quality_graph_r04/bench_smoke/trace_native_b8/outputs.json",
+      "sha256": "7a829c4cca3014ae82e9fa95a809db91b4f72db1b31f1f1bdf42dd25ce03cd72"
+    },
+    {
+      "path": "/Users/zhaozhenyu/Desktop/\u6bd5\u4e1a\u8bbe\u8ba1/research_K_expert_skip/code/analyze_routes.py",
+      "sha256": "35bc90985e0a7586120fb30e16d72519d79177fd31a8ea1ae5de42c7a89a6811"
+    },
+    {
+      "path": "/Users/zhaozhenyu/Desktop/\u6bd5\u4e1a\u8bbe\u8ba1/research_K_expert_skip/code/plot_occupancy.py",
+      "sha256": "94b8f7abe5c06fffb2281573e54bb50cd7189d806102c711aae84bec053a0873"
+    }
+  ]
+}

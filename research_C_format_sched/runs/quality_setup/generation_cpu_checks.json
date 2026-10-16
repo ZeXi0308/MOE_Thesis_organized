@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "scope": "CPU fixture for the actual installed lm_eval 0.4.13 VLLM.generate_until adapter; not a model or quality run",
+  "environment": "/root/autodl-tmp/research_C_format_sched/tools_venv",
+  "working_directory": "/root/autodl-tmp/research_C_format_sched",
+  "argv": [
+    "env",
+    "CUDA_VISIBLE_DEVICES=",
+    "HF_HUB_OFFLINE=1",
+    "TRANSFORMERS_OFFLINE=1",
+    "PYTHONDONTWRITEBYTECODE=1",
+    "LD_LIBRARY_PATH=/root/miniconda3/lib/python3.12/site-packages/nvidia/cu13/lib:/root/miniconda3/lib/python3.12/site-packages/torch/lib",
+    "tools_venv/bin/python",
+    "configs/check_generation_quality_cpu.py"
+  ],
+  "source": "Root executed both remote commands and reported their actual tool outputs; the first raw stderr was not saved as a remote file.",
+  "attempts": [
+    {
+      "fixture_sha256": "bb3804232f7337a7fbfbdbf79248c33cd2e201bee403e2d2e20515b60c3a1165",
+      "status": "failed",
+      "error": "AttributeError: 'RecordedVLLM' object has no attribute 'truncation_side'",
+      "source_location": "lm_eval/models/vllm_causallms.py:611",
+      "cause": "Fixture intentionally bypassed the engine constructor with object.__new__, but omitted a constructor field read by generate_until.",
+      "production_engine_failure": false
+    },
+    {
+      "fixture_sha256": "e24b4cb7ea98078fb611ec9b25d119ba4b8c3f38b2eac547bf72981cb7cc54a1",
+      "status": "passed",
+      "exit_code": 0,
+      "change": "Set truncation_side and verify all 14 state attributes read by the inspected single-device generation path before exercising the real adapter.",
+      "actual_output": {
+        "actual_installed_generate_until_accounting": "passed",
+        "engine_constructed": false,
+        "cuda_initialized": false,
+        "task_data_downloaded": false,
+        "quality_measured": false
+      }
+    }
+  ],
+  "coverage": [
+    "real installed adapter batching and request reordering with a fake engine",
+    "EOS, task-stop-string and capped completions with raw token accounting",
+    "timeout and unfinished retention with full selected population and invalid aggregate"
+  ],
+  "limitations": [
+    "No model checkpoint, GPU generation or worker policy was exercised.",
+    "Fake engine outputs are interface fixtures, not scientific quality observations.",
+    "Successful data preparation is recorded separately in runs/quality_generation_data_r01."
+  ]
+}

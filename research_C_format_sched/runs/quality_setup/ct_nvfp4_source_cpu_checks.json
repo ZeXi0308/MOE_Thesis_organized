@@ -1,0 +1,40 @@
+{
+  "status": "passed",
+  "device": "cpu",
+  "gpu_execution": false,
+  "weights": "tiny artificial test tensors; no artifact emitted",
+  "tests": [
+    "equal_gate_up_activation_globals",
+    "unequal_gate_up_activation_globals_native_max_of_reciprocal",
+    "packed_weight_identity",
+    "blockscale_coordinate_mapping",
+    "swizzle_padding"
+  ],
+  "adaptations": [
+    "swizzle final .cuda() removed for CPU-only permutation check",
+    "imports supplied from extracted source bodies; config/kernel construction captured"
+  ],
+  "source_files": {
+    "ct_loader": {
+      "path": "/root/miniconda3/lib/python3.12/site-packages/vllm/model_executor/layers/quantization/compressed_tensors/compressed_tensors_moe/compressed_tensors_moe_w4a4_nvfp4.py",
+      "sha256": "fadc5129f64e98e5f3acb8752493691f2947c42901230883995fa8fb13cdb9d9"
+    },
+    "oracle": {
+      "path": "/root/miniconda3/lib/python3.12/site-packages/vllm/model_executor/layers/fused_moe/oracle/nvfp4.py",
+      "sha256": "b027c30918fc51bdc68cfcb6852b11105265474a6a59bb2707b0ef4604c65677"
+    },
+    "prepare": {
+      "path": "/root/miniconda3/lib/python3.12/site-packages/vllm/model_executor/layers/quantization/utils/flashinfer_fp4_moe.py",
+      "sha256": "08760d568fbd6d7cd362eeda7a9dbe8bfc0b48c2a0eb1a109f027286e1448970"
+    },
+    "swizzle": {
+      "path": "/root/miniconda3/lib/python3.12/site-packages/vllm/model_executor/layers/quantization/utils/nvfp4_utils.py",
+      "sha256": "ed665537e42580e82ae71bb4f2ce8a699c0ffe8a042947c4eb600107c0b924ba"
+    },
+    "cutlass": {
+      "path": "/root/miniconda3/lib/python3.12/site-packages/vllm/model_executor/layers/fused_moe/experts/cutlass_moe.py",
+      "sha256": "3af1ead14666bd88179bb5c202d4da527193be7e7fe7b0c985f6d364fdf6dcb5"
+    }
+  },
+  "limitation": "CPU source-body arithmetic/layout checks; installed imports, CUDA transfer and MoE numerical execution not validated"
+}

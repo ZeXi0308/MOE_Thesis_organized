@@ -1,0 +1,34 @@
+% External working table: intentionally not included in the eight-page main draft.
+% Requires booktabs and tabularx; may be input inside an IEEEtran two-column document.
+% This table records conditional implications and available observations, not a
+% fitted crossover batch or a comparison to a reproduced MoESD online controller.
+% Evidence: runs/route_prediction_r02/route_prediction.json;
+% figures/F2_olmoe_ngram_r02/{summary.csv,raw_runs.csv};
+% runs/derived/draft_progress_r02_complete/;
+% runs/kernel_cost_fit_r03/kernel_diagnostics.json;
+% runs/kernel_cost_fit_graph_r01/{kernel_cost_fit.json,paired_case_comparison.json};
+% runs/compiled_route_summary_r01/summary.json;
+% runs/olmoe_ngram_compiled_matrix_analysis_r01/summary.csv.
+% The original hypothetical arithmetic is preserved in
+% versions/characterization_pre_ieee.tex. Pending cells must not be interpolated.
+\begin{table*}[t]
+\centering\small
+\caption{T1 (working evidence table): model assumptions and observed directions. A conditional arithmetic example is not a calibrated crossover prediction. Missing target/source GPU results remain pending.}
+\label{tab:t1directions}
+\begin{tabularx}{\textwidth}{@{}p{0.17\textwidth}p{0.27\textwidth}p{0.23\textwidth}X@{}}
+\toprule
+Case & Assumptions / measurement domain & Conditional implication & Observed direction and evidence status \\\midrule
+Original uniform OLMoE illustration & $E=64$, $k=8$, $\gamma=4$, independent uniform token routes; full draft availability, constant $\alpha=0.7$; expert-weight-read-only time & $A=2.773$; idealized speedup approximately $0.71\times$ at $B=1$ and $1.83\times$ at $B=8$ & Arithmetic only. Drafting, attention, compute growth, scheduling, and finite-wave completion costs are omitted. No precise crossing batch was calibrated. \\
+OLMoE BF16 / n-gram / eager r02 & Actual availability is below one and depends on cap; constant $\alpha=0.7$ is not validated. Complete 64-request synchronous waves include prefill/drain; 128 forced tokens & The original illustration's premises do not hold, so its putative crossing cannot be compared as a quantitative prediction & $B=1$: all positive caps give $1.129$--$1.179\times$ AR throughput. $B=16,32$: all at or below AR; $B=64$: $0.995$--$1.028\times$. Two runs/cell, only $B=64$ warmed; no precise crossover or significance claim. \\
+OLMoE BF16 / n-gram / compiled r01 & Same 64-request development population and 128 forced tokens; V1, scheduler cap 64; 32-token per-batch/prompt-shape warmup; two runs/cell & Execution-specific cost calibration is necessary; eager-to-compiled contrast alone does not isolate graph or padding effects & All 49 speculative wave-throughput ratios below AR: $B=1$ gives $0.479$--$0.727\times$, $B=64$ gives $0.958$--$0.979\times$. Fifteen effective-TPOT ratios exceed one. Inter-wave-gap inclusion preserves the throughput direction. No significance or universal crossover claim. \\
+OLMoE occupancy approximation & AR-fitted token inclusion $q_e$; cross-row independence/stationarity approximation; actual valid $S$ & Predicts distinct experts, not complete latency or a batch crossover & Held-out-cap MAE $1.9145$ experts versus $15.2994$ for nominal $B(\gamma+1)$. Shared prompts; structured first-step residuals retained. \\
+OLMoE matched layer replays & Same 154 measured-histogram/synthetic-input cases, weights, tiles, seeds, and turnover policy; eager/graph fitted separately on 88/66 split & Tests local costs and execution-mode contrast, excluding graph capture/first replay; not full-model $c_0$ or service speedup & $D+c$ held-out MAPE: eager $2.345\%$, graph $1.924\%$ (max $1.920\%$; only one fit point uses $S$). Graph/eager event ratio median $0.7924$; separate windows, no independent-run CI or isolated CPU attribution. \\
+OLMoE compiled route diagnostic & Instrumented V1 graph execution; valid $S$ and physical $P$ distinguished; scheduler cap 32 & Padding can invalidate a valid-row-only physical-working-set estimate & At $\gamma=4$, mean physical $D$ exceeds valid $D$ for $B=1,8,32$. This is not compiled service timing or a predicted throughput crossing. \\
+Qwen3-30B-A3B, second target & W4A16 compressed-tensors target and BF16 are separate domains; n-gram/EAGLE-3 assets do not establish GPU behavior & Requires target-specific occupancy, production-cost, and complete-service calibration; no borrowed OLMoE crossing & \textbf{GPU results pending.} No measured direction, acceptance rate, crossover, or controller comparison may be filled from assets or simulation. \\
+\bottomrule
+\end{tabularx}
+\par\smallskip
+\begin{minipage}{\textwidth}\footnotesize
+Measured service directions refer to the separately labeled eager/compiled n-gram finite-wave campaigns, not steady-state capacity, natural-generation quality, or TPOT/energy equivalence. Different warmup and runtime windows prevent a graph-only causal contrast. Additional OLMoE neural-source and Qwen measurements remain pending. The already planned third target, Granite3B with n-gram/Granite1B drafting, likewise has no target GPU result here; it does not replace or supply evidence for Qwen. Update this table only from the corresponding raw target/source runs, preserving execution regime, population, cost boundary, and uncertainty.
+\end{minipage}
+\end{table*}

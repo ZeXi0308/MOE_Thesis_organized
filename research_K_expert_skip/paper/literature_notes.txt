@@ -1,0 +1,45 @@
+Focused literature check -- 2026-10-16 (Asia/Shanghai)
+
+AdapMoE (ICCAD '24) is not just a gate threshold: Eq. (8) combines squared dropped gate mass with layer Fisher-diagonal sensitivity; its full system also includes prefetching and cache allocation. NAEE (ACL 2024) skips the second Mixtral expert when its gate weight is below a calibrated multiple of the first and renormalizes; the official implementation also removes its dispatch mask. Thus a generic batch-independent gate baseline is a component adaptation, not a full reproduction of either system. Ada-K (ICLR 2025) learns a per-token expert-count allocator with PPO. MoE++ (ICLR 2025) trains routing among FFN and zero/copy/constant experts. DynMoE (ICLR 2025) learns top-any thresholds and adapts expert inventory during training. Expert Choice (NeurIPS 2022) selects tokens per expert with fixed capacities; it is already batch-coupled, although its action is not singleton removal.
+
+A material direct neighbor found during this check is SERE (ICLR 2026). It retains the union of top-S primary experts and redirects secondary assignments to similar primary experts, preserving dissimilar critical experts. It explicitly addresses batched decode and has a vLLM implementation. Therefore batch-aware skipping or reducing the expert union cannot be claimed as new. The proposed scoped difference is direct dropping only when the current execution-batch count is one, under rank/gate/mass limits, without a similarity matrix or expert substitution. This is an action-level distinction, not proof of novelty or superiority. Continue the existing mechanism and compare the narrower action space and decision cost; no new research route is introduced.
+
+Primary source anchors and release status:
+
+AdapMoE: https://arxiv.org/html/2408.10284v1 (Eq. 8, Sections 4-5)
+Official: https://github.com/PKU-SEC-Lab/AdapMoE
+DOI: https://doi.org/10.1145/3676536.3676741
+Venue is ICCAD '24. Official README BibTeX has year 2025 while series says ICCAD '24; manuscript uses conference year 2024.
+
+NAEE: https://aclanthology.org/2024.acl-long.334/
+Full text: https://arxiv.org/html/2402.14800v2 (Section 3.3, Appendix A.2)
+Official code: https://github.com/Lucky-Lance/Expert_Sparsity/blob/main/model/modeling_mixtral.py
+DynamicSkippingMixtralSparseMoeBlock.forward: ratio test at lines 47-51; mask removal lines 59-62; empty-expert continue lines 65-70 (main viewed 2026-10-16).
+
+Ada-K final proceedings: https://proceedings.iclr.cc/paper_files/paper/2025/hash/df22a19686a558e74f038e6277a51f68-Abstract-Conference.html
+Final PDF: https://proceedings.iclr.cc/paper_files/paper/2025/file/df22a19686a558e74f038e6277a51f68-Paper-Conference.pdf
+Official repository: https://github.com/ivattyue/Ada-K
+Repository currently exposes only README, not an executable implementation/checkpoints. arXiv:2410.10456v2 is withdrawn; use final conference paper. Final proceedings lists Zijia Zhao as first author; repository README and earlier arXiv list Tongtian Yue. refs.bib follows final proceedings metadata rather than silently merging versions.
+
+MoE++: https://arxiv.org/html/2410.07348v1 (Sections 3.1-3.3)
+Final PDF: https://proceedings.iclr.cc/paper_files/paper/2025/file/7efe88bb4138d602e56637cfcf713654-Paper-Conference.pdf
+Official: https://github.com/SkyworkAI/MoE-plus-plus
+
+DynMoE: https://arxiv.org/html/2405.14297v2 (Sections 3.1-3.2)
+Official: https://github.com/LINs-lab/DynMoE (Tutel/DeepSpeed implementations; ICLR 2025 acceptance noted)
+
+Expert Choice: https://papers.neurips.cc/paper_files/paper/2022/hash/2f00ecd787b432c1d36f3de9800728eb-Abstract-Conference.html
+Author explanation: https://research.google/blog/mixture-of-experts-with-expert-choice-routing/
+No paper-specific author reproduction was established by this bounded check. A Google Flaxformer routing source exists, but is not labeled a verified reproduction of this paper here.
+
+SERE: https://proceedings.iclr.cc/paper_files/paper/2026/hash/5d07eb2335d88b1dfcefcc3d2da2a230-Abstract-Conference.html
+Preprint: https://arxiv.org/abs/2602.07616
+Official: https://github.com/JL-Cheng/SERE (README method; vllm/ and calibration/ directories)
+
+Writing constraints carried into main.tex:
+- q_e is token inclusion probability, with sum q_e = k. If p_e is normalized slot frequency, q_e = k p_e; router softmax is not inclusion probability.
+- Counts from correlated natural decode batches need not follow independent Bernoulli occupancy. Replay is labeled separately.
+- Sum of initial marginal costs is exact for singleton-only drops; shared-expert baseline drops can jointly remove an expert, so compare exact before/after unions.
+- Logical distinct weight bytes use real tensor sizes but are not hardware DRAM transactions.
+- F3 with savings on x and quality loss on y improves toward lower right; raw accuracy improves toward upper right.
+- Pending empirical cells are not zeros and carry no asserted gains.

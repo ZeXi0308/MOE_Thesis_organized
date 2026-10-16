@@ -1,0 +1,40 @@
+{
+  "model": "/root/autodl-tmp/moe-research-20261002/model",
+  "model_revision": "7f1c97f440f06ce36705e4f2b843edb5925f4498",
+  "workload": "configs/sharegpt_olmoe.json",
+  "draft_source": "ngram",
+  "batches": [
+    1,
+    8
+  ],
+  "gammas": [
+    7
+  ],
+  "repeats": 2,
+  "measured_requests": 16,
+  "input_offset": 64,
+  "output_tokens": 256,
+  "max_model_len": 1024,
+  "kv_cache_memory_bytes": 6442450944,
+  "warmup_tokens": 32,
+  "warmup_offset": 0,
+  "warmup_each_batch": true,
+  "trace_tokens": 32,
+  "enforce_eager": true,
+  "native_route_return": false,
+  "measurement": "Natural termination and task inspection on the same held-out workload positions 64-79 for AR, native static gamma6, and adaptive gamma with proposal budget7; at most 256 output tokens. This is separate from the gamma4 development-population smoke and is not a quality score or a distributional-equivalence proof.; shape warmup uses development prompts at offset0; continuous online EWMA across batches/repeats",
+  "required_cli_flags": [
+    "--natural-stop",
+    "--skip-trace"
+  ],
+  "run_commands": {
+    "ar": "python code/run_campaign.py --config configs/olmoe_controller_natural_check.json --run UNIQUE_CONTROLLER_NATURAL_AR --gammas 0 --mode native --natural-stop --skip-trace",
+    "static_gamma6_native": "python code/run_campaign.py --config configs/olmoe_controller_natural_check.json --run UNIQUE_CONTROLLER_NATURAL_STATIC6 --gammas 6 --mode native --natural-stop --skip-trace",
+    "adaptive_budget7": "python code/run_campaign.py --config configs/olmoe_controller_natural_check.json --run UNIQUE_CONTROLLER_NATURAL_ADAPTIVE --mode adaptive --proposal-budget 7 --calibration PATH_TO_MEASURED_FULL_BUDGET_CALIBRATION_JSON --natural-stop --skip-trace"
+  },
+  "inspection_command": "python code/compare_generations.py --workload configs/sharegpt_olmoe.json --run ar=runs/UNIQUE_CONTROLLER_NATURAL_AR --run static6=runs/UNIQUE_CONTROLLER_NATURAL_STATIC6 --run adaptive=runs/UNIQUE_CONTROLLER_NATURAL_ADAPTIVE --output runs/UNIQUE_CONTROLLER_NATURAL_INSPECTION --sample-workload-offset 64 --tokenizer /root/autodl-tmp/moe-research-20261002/model",
+  "group_gpu_budget_seconds": 900,
+  "total_gpu_budget_seconds": 72000,
+  "notes": "Each strategy is a separate campaign with a 900-second limit including engine load and warmup. Required CLI flags are documented, not activated by this JSON; natural stopping requires --natural-stop. AR has no speculative proposal budget. The static baseline uses its native budget6; adaptive pays proposal budget7 and requires the measured matching full-budget calibration. Fixed readable samples are workload positions 64-71 at minimum selected batch and repeat0; all cells, all 16 requests, and both repetitions enter summaries. No output-based selection, GPU execution, or upload is performed by preparing this config.",
+  "shape_warmup_offset": 0
+}

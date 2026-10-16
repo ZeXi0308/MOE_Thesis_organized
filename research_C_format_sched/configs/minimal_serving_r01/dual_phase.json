@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "model": "../../checkpoints/olmoe_awq_integration_bf16_r01",
+  "checkpoint_manifest": "../../checkpoints/olmoe_awq_integration_bf16_r01/checkpoint_manifest.json",
+  "arm": "dual_fp8_awq",
+  "config_id": "minimal_serving_r01_dual_phase",
+  "served_model_name": "olmoe-integration",
+  "dtype": "bfloat16",
+  "quantization": null,
+  "kv_cache_dtype": "auto",
+  "seed": 42,
+  "max_model_len": 4096,
+  "gpu_memory_utilization": 0.8,
+  "max_num_seqs": 16,
+  "max_num_batched_tokens": 4096,
+  "enforce_eager": true,
+  "compilation_config": {
+    "mode": 0,
+    "cudagraph_mode": "NONE"
+  },
+  "enable_prefix_caching": false,
+  "enable_chunked_prefill": true,
+  "attention_backend": null,
+  "moe_backend": "auto",
+  "worker_cls": "dual_format_worker.DualFormatWorker",
+  "worker_config": "../olmoe_integration_r01/dual_phase.json",
+  "extra_vllm_args": [],
+  "port": 8000,
+  "startup_timeout_s": 120,
+  "shutdown_grace_s": 8,
+  "release_timeout_s": 10,
+  "residency_interval_s": 0.5,
+  "collect_dual_statistics": true,
+  "worker_rpc_timeout_s": 2,
+  "client": {
+    "request_timeout_s": 25,
+    "drain_s": 25,
+    "idle_seconds": 3
+  },
+  "runs": [
+    {
+      "id": "warmup_excluded",
+      "trace": "warmup_natural_2.jsonl",
+      "repeat_id": "warmup_excluded",
+      "request_rate": 2.0,
+      "seed": 42,
+      "timeout_s": 35
+    },
+    {
+      "id": "measure_r01",
+      "trace": "requests_natural_16.jsonl",
+      "repeat_id": 1,
+      "request_rate": 2.0,
+      "seed": 42,
+      "timeout_s": 45
+    },
+    {
+      "id": "measure_r02",
+      "trace": "requests_natural_16.jsonl",
+      "repeat_id": 2,
+      "request_rate": 2.0,
+      "seed": 42,
+      "timeout_s": 45
+    }
+  ]
+}

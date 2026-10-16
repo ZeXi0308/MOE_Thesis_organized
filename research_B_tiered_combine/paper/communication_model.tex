@@ -1,0 +1,27 @@
+\subsection{Logical vectors and transferred bytes}
+Let $N$ denote the number of tokens across the expert-parallel group, $P$ the number of owners, and $d$ the hidden width. Mode I forms $Nk$ logical expert-output vectors, whereas Mode II forms $NP$ logical owner partials. These counts include contributions that stay on the token's origin device. In Mode II, without inter-device forwarding, only $N(P-1)$ partials need to cross a device boundary. A collective implementation can have different hop counts; its actual traffic must be measured.
+
+For a directed message from owner $r$ to token origin $s$, let $H_{rs}$ and $L_{rs}$ be the counts of head and tail rows. The serialized codec payload is
+\begin{align}
+ B_{rs} ={}& H_{rs}(d+4) + L_{rs}(d/2+d/16) \\
+ &+4\,\mathbf{1}[L_{rs}>0]+M_{rs},
+\end{align}
+where $M_{rs}$ contains row identifiers or permutation information, counts, alignment, and transport headers. The tensor scale is scoped to this message's tail tensor. Its cost cannot be omitted when a precomputed global scale is unavailable. With $P=2$, assigning one head and one tail per token fixes the logical head share at one half. It does not by itself fix the head share of a particular directed remote message: this also depends on token origins and routing.
+
+\subsection{Communication and codec costs}
+For a measured transfer of $B$ bytes, the diagnostic model is
+\[
+ T_{\mathrm{comm}}(B)=\alpha+B/\mathrm{BW}_{\mathrm{eff}}.
+\]
+Parameters must be fitted separately where collective type or topology changes. Link line rate is not an estimate of effective application bandwidth. As a serialized diagnostic approximation, the benefit relative to uniform FP8 is
+\begin{align}
+\Delta T \approx{}& (B_{\mathrm{FP8}}-B_{\mathrm{tiered}})/\mathrm{BW}_{\mathrm{eff}} \\
+&-\Delta C_{\mathrm{select}}-\Delta C_{\mathrm{scale}} \\
+&-\Delta C_{\mathrm{pack}}-\Delta C_{\mathrm{unpack}}.
+\end{align}
+This expression assumes identical message count, no overlap, and the same critical communication direction. It is not a bound on complete serving speedup. The native evaluation must measure both ranks' completion and account for overlap with dispatch, expert computation, and other layers. Extrapolation will retain these assumptions explicitly and distinguish measured parameters from assumed bandwidths.
+
+\subsection{Quality baselines and calibration}
+Mode I compares against the original expert-output reduction. Mode II compares each precision policy against the same owner-partial grouping in BF16, so changes in floating-point association are separated from quantization loss. The quality hook consumes already gate-weighted expert outputs. Gate scores only determine lane assignment and are not multiplied into these vectors a second time.
+
+Per-layer tail counts are selected on calibration articles. End-to-end validation is necessary because layerwise KL changes need not add. Test articles are reserved for the selected configuration and the predefined comparison arms. An article is the resampling unit; tokens from one article are not independent experimental replications.

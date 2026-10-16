@@ -1,0 +1,97 @@
+Latest build: 2026-10-16, Asia/Shanghai
+
+Command (from this directory):
+  latexmk -pdf -interaction=nonstopmode -halt-on-error main.tex
+
+Result: success, exit 0. main.pdf contains 14 pages, 588841 bytes.
+SHA-256: f4710351712584f4b09ae73ebf84ee8d2233dd0ad0d9aa2f90c6da6c012f81b3
+Final main.log: no undefined references/citations, LaTeX warnings, or overfull
+boxes. Nineteen underfull justification notices remain in narrow-column text/URLs.
+
+Visual verification: rendered all fourteen pages with Poppler at 1600 pixels
+on the long side; individually inspected every page and the contact sheet.
+No clipping, overlaps, or data-obscuring legends. QA files are in
+qa/fp8_complete_r09b; they are intermediate review files, not research evidence.
+
+Current content: eight sections. F1 is on page 4; T1 on page 5; T2 and BF16
+F3 on page 7; FP8 F3 on page 8. Free200 and GSM8K tables are on page 9,
+MC identity controls on page 10. The combined BF16/FP8 F2 and F4 are both on
+page 11. F6 is on page 13. Conclusion is on page 13; references end on page 14.
+
+Latest addition: complete FP8 r09b 63/63 performance and energy cells, together
+with native long-decode occupancy. BF16 r07 and FP8 r09b both use prefix 128,
+2048 fixed outputs, 2047 decode steps and seven exact unpadded graph buckets.
+Each format uses its own native-oriented tuning shared by all arms in that
+format. Each of the 63 separate counted replays reproduces its performance
+transcript. There are no independent performance repeats. FP8 energy windows
+are 5.39--28.36 s; BF16 windows are 5.61--37.14 s, all above three seconds.
+
+F1 now compares both complete native trajectories. Each point has 32752
+layer events and 262016*B routed slots. FP8 singleton percentages for
+B=1/2/4/8/16/32/64 are 100/83.146067/55.011717/29.740025/12.056897/
+3.318786/.605277; BF16 values are 100/86.041310/62.639400/33.409362/
+13.121694/3.447595/.649298. The uniform iid curve is only a reference;
+complete per-expert marginals are unavailable, so no skew curve is fitted.
+Repeated tokens/layers are not independent runs. Shared external protocols
+do not fix generated content/routes across formats. Earlier short traces
+are retained only as scope context, not as the principal FP8 F1 evidence.
+
+F2/F4 publication layout is reproducible with:
+  MPLCONFIGDIR=/private/tmp/expert_skip_mpl XDG_CACHE_HOME=/private/tmp/expert_skip_cache \
+    /private/tmp/format_sched_plot_venv/bin/python plot_format_results.py
+The script reads the existing results_r07 and results_fp8_r09b bench_points.csv,
+asserts 63 complete unique cells per format, and keeps all seven batches and
+all eight candidate curves (plus native for absolute energy). It writes
+F2_formats.pdf/png/svg and F4_formats.pdf/png/svg only in paper/. Legends sit
+outside data axes. Original source figures and all source CSVs are unchanged.
+
+FP8 B8 marginal-mid: TPOT reduction 3.86793%, J/token reduction 8.23885%,
+realized logical-footprint reduction 15.99414%; marginal-high gives
+8.25240%, 13.72517%, 25.88291%. At B64, mid/high TPOT reductions are
+.65843/.62595%, while energy increases by .15466/.00632%. These tiny changes
+have no independent-run significance interpretation. Logical-footprint ratios
+compare policy after/native after on each policy's realized trajectory; they
+are not within-route deletion fractions or DRAM traffic. The BF16 results
+remain intact. W8A8 activations, other converted linear layers, tuning and
+changed generated content prevent pure weight-byte causal attribution.
+
+Quality remains the separate r06/r09 teacher-forced protocol: 32 validation
+articles, 128 prefix tokens and 32 genuine decode predictions per article,
+B1/B8/B32, native baselines separate by format. FP8 dense/native KL and NLL
+deltas are recorded exactly zero at all three batches. F3 is unchanged.
+T1 remains 16 separate rank/gate interventions at BF16 B8, not additive
+single-event KL. Natural-generation screening remains ten arms x200 prompts
+from 28 disjoint validation articles; 94.5--97.5% hit the 256-token cap.
+GSM8K has 16 problems: native six correct, marginal-mid/high four. Newly
+included paired checks find two native-only successes and no candidate-only
+success for each of those policies under either extraction filter. This is
+not a noninferiority or significance result. MC metrics remain prefill-only
+identity controls, not evidence of preserved decode-generation quality.
+
+F6 retains measured main-thread CPU and captured-device clocks independently,
+three post-routing implementations, and the original synthetic workload.
+No wall-minus-device CPU estimate and no old-result backfill are made.
+Native FP8 padded B3->4/B5->8 strict parity remains FAILED; exact-bucket dense
+and marginal parity and same-mode native/dense identity remain passed.
+The observation does not require skipping, but does not identify its numeric
+cause or establish a padding fix.
+
+Limitations: one run per arm and format; possible host activity/time drift;
+no hardware DRAM measurements; quality and performance workloads differ;
+no equal-quality or task-lossless acceleration claim. Independent performance
+repeats, larger held-out/task quality, controlled singleton ablation and the
+two remaining target models are pending. No F5 or unrun model curve is added.
+No completed FP8 performance result is still labeled pending.
+
+Principal figure/data dependencies:
+  ../figures/f1_long_decode_fp8_r09b/F1_format_comparison.pdf
+  ../figures/f1_long_decode_fp8_r09b/comparison_bf16_fp8.csv
+  ../figures/results_r07/bench_points.csv and bench_by_batch.csv
+  ../figures/results_fp8_r09b/bench_points.csv and bench_by_batch.csv
+  ../figures/quality_r06/F3_model_bfloat16_quant_none_triton_0e13ece6.pdf
+  ../figures/quality_fp8_r09/F3_OLMoE_FP8_W8A8_nonquantized_dtype_bfloat16_Triton_9cedcac3.pdf
+  ../figures/f6_r09b/F6_E_64_k_8_NVIDIA_RTX_PRO_6000_Blackwell_Server_Edition_60a476f2.pdf
+  ../figures/t1_r06/T1_bins_by_run.csv
+  ../figures/task_quality_r08b/free_generation.csv and task_metrics.csv
+  ../figures/task_quality_r08b_paired/gsm8k_paired.csv
+References: refs.bib and literature_notes.txt; unchanged this iteration.

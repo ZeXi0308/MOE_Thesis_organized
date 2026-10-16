@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "purpose": "Complete Qwen3-30B-A3B seven-batch/nine-arm performance and three-batch/ten-arm quality sequence; one explicit weight format per locked job",
+  "deployment_status_at_preparation": "LOCAL_ONLY; no deployment, GPU submission or chain modifications",
+  "model": "/root/autodl-tmp/research_K_expert_skip/models/qwen3_bf16_ad44e777",
+  "model_revision": "ad44e777bcd18fa416d9da3bd8f70d33ebb85d39",
+  "model_config_reference": "ref_july/tokenizers/qwen3_bf16_ad44e777/config.json",
+  "expected_geometry": {
+    "model_type": "qwen3_moe",
+    "experts": 128,
+    "top_k": 8,
+    "hidden": 2048,
+    "intermediate": 768,
+    "layers": 48,
+    "first_moe_layer": 0,
+    "shared_experts_excluded": 0
+  },
+  "dtype": "bfloat16",
+  "gpu_memory_utilization": 0.85,
+  "outer_timeout_seconds": 7200,
+  "maximum_internal_budget_seconds": 7170,
+  "batches": [
+    1,
+    2,
+    4,
+    8,
+    16,
+    32,
+    64
+  ],
+  "performance_arms": "configs/default_arms.json",
+  "quality_arms": "configs/quality_pareto.json",
+  "prompts": "datasets/wikitext2_serving_r01/validation_bench64.jsonl",
+  "articles": "datasets/wikitext2_serving_r01/validation_quality32.jsonl",
+  "trace": {
+    "steps": 16,
+    "max_model_len": 512
+  },
+  "tuning": {
+    "layer": 0,
+    "events_per_batch": 3,
+    "rounds": 5,
+    "replays_per_sample": 10,
+    "evict_mib": 256
+  },
+  "quality": {
+    "batches": [
+      1,
+      8,
+      32
+    ],
+    "documents": 32,
+    "decode_tokens": 32,
+    "prefix_tokens": 128,
+    "reference_max_mib": 2048
+  },
+  "performance": {
+    "repeats": 1,
+    "prompt_tokens": 128,
+    "newtokens": 2048,
+    "max_model_len": 2304,
+    "warmup_seconds": 3,
+    "expected_cells": 63
+  },
+  "stage_timeout_seconds": {
+    "native_traces": 600,
+    "native_tuning": 900,
+    "graph_dense": 1200,
+    "graph_marginal": 900,
+    "quality_b1": 900,
+    "quality_b8": 600,
+    "quality_b32": 600,
+    "bench_graph": 6600
+  },
+  "format_semantics": "BF16 means no vLLM quantization flag; FP8 means online conversion of the same checkpoint to MoE W8A8. Outer model dtype and auto KV remain BF16. Each format has its own native traces and tuning directory; never reuse BF16 tuning for FP8.",
+  "expert_scope": "All48 layers are routed MoE, E128/k8/I768 (moe_intermediate_size, not dense intermediate_size6144), first layer0, no shared experts. k/E=1/16. Keep model norm_topk_prob=True; skip renormalization follows the installed router.",
+  "graph_scope": "Use the deployed smoke_graph CLI for actual B1/2/4/8/16/32/64 with identical capture sizes: no padding, matching the full performance matrix domain. Dense checks native/dense identity separately in eager and graph modes; both dense and marginal retain strict eager/graph output and counter equality. These checks do not establish padded-batch equivalence. Full matrix requires both graph checks and format-specific tuning to pass; the two graph caps allow the larger explicit batch coverage and remain bounded by total remaining time.",
+  "dependency_policy": "Trace -> corresponding-format native tuning -> graph identity -> full 63 cells. Each eager quality batch needs tuning only and continues independently of other quality or graph failures. Any failed or unrun stage makes the overall run INCOMPLETE.",
+  "budget_policy": "One format per outer shared-lock job, outer7200/internal7170 seconds; stage caps are clipped to total remaining time, reserve10 seconds for cleanup. No claim that all stages fit before actual Qwen timing exists. Failed/unrun stages remain explicit; full matrix requires both strict exact-bucket graph checks. run_locked enforces the shared total GPU ledger.",
+  "energy": "Existing bench_graph pairs counter-free performance with independent identical-output counters and records separate NVML decode energy. Actual windows below3s remain diagnostic; fixed N2048 alone does not prove a long enough energy window.",
+  "memory": "Both weight formats/all arms use .85 of actual GPU total. Known BF16 checkpoint tensor payload56.87051GiB plus B64*(128+2048) BF16 GQA KV12.75GiB =69.62051GiB; approx80.7245GiB budget leaves11.10399GiB before workspace/graph/activation/layout overhead. GPU fit, actual KV capacity, graph capture and FP8 conversion peak remain unprofiled. Never claim FP8 halves KV.",
+  "statistics": "One performance run per arm and validation32 paired-article quality are exploratory, not independent confirmation; this does not replace task accuracy, natural generation or complete rolling-split PPL.",
+  "launch_bf16": "/root/miniconda3/bin/python code/run_locked.py --name qwen_bf16_matrix_r01 --wait-seconds 21600 --timeout 7200 -- /root/miniconda3/bin/python deployments/qwen_matrix_20261016/code/run_qwen_matrix.py --format bf16 --output runs/qwen_bf16_matrix_r01 --budget-seconds 7170",
+  "launch_fp8": "/root/miniconda3/bin/python code/run_locked.py --name qwen_fp8_matrix_r01 --wait-seconds 21600 --timeout 7200 -- /root/miniconda3/bin/python deployments/qwen_matrix_20261016/code/run_qwen_matrix.py --format fp8 --output runs/qwen_fp8_matrix_r01 --budget-seconds 7170",
+  "model_config_sha256": "2850ddb3bf7aecad20b611e2d44f3077fc8193f4827c93beddd4c02ad63c2297",
+  "model_readiness": "K-owned target must contain all16 official-revision verified shards plus config/index/tokenizer. No downloading is performed by this runner. Plan-only may use verified local config without weights; runtime config must have identical SHA. No reads/writes to the C checkpoint are required.",
+  "reused_driver_structure": {
+    "path": "deployments/deepseek_matrix_20261016/code/run_deepseek_matrix.py",
+    "sha256": "277a7ea4e181dca2f7c58c7e8b207793af8a1f0901ca3b0e2f4472b6a8073e1a",
+    "adaptation": "Same stage/execution structure and shared collection CLIs; Qwen geometry/layer0/config SHA/memory/stage caps and independent deployment entry only. DeepSeek staged/live files untouched."
+  },
+  "input_compatibility": "datasets/model_input_compatibility_r01.json",
+  "geometry_resolution": "Existing tune_moe.model_geometry plus exact official config SHA. code/model_registry.py was absent at preparation; no parallel registry was invented."
+}

@@ -1,0 +1,171 @@
+{
+  "schema_version": 1,
+  "status": "ONE_MODEL_PARTIAL",
+  "measured_models": [
+    "olmoe"
+  ],
+  "unmeasured_registry_models": [
+    "deepseek_v2_lite",
+    "qwen3"
+  ],
+  "selected_arms": [
+    "global_j4",
+    "gate_high",
+    "marginal_high"
+  ],
+  "measured_model_formats": [
+    [
+      "olmoe",
+      "BF16"
+    ]
+  ],
+  "unmeasured_model_formats": [
+    [
+      "deepseek_v2_lite",
+      "BF16"
+    ],
+    [
+      "deepseek_v2_lite",
+      "FP8"
+    ],
+    [
+      "olmoe",
+      "FP8"
+    ],
+    [
+      "qwen3",
+      "BF16"
+    ],
+    [
+      "qwen3",
+      "FP8"
+    ]
+  ],
+  "points": 21,
+  "threshold_pct": 0,
+  "units": [
+    {
+      "id": "61eb6997f8",
+      "model_key": "olmoe",
+      "model": {
+        "repo": "allenai/OLMoE-1B-7B-0924-Instruct",
+        "revision": "7f1c97f440f06ce36705e4f2b843edb5925f4498",
+        "path": "/root/autodl-tmp/moe-research-20261002/model",
+        "experts": 64,
+        "top_k": 8,
+        "layers": 16,
+        "hidden_size": 2048,
+        "expert_intermediate_size": 1024,
+        "runtime_renormalize": false,
+        "bf16_routed_weight_bytes_per_expert": 12582912,
+        "source": "runs/olmoe_model_smoke_r02/model_smoke.json installation; existing checkpoint identity from research_C_format_sched/runs/olmoe_checkpoint",
+        "status": "complete_checkpoint_and_native_model_smoke_passed",
+        "memory_plan": {
+          "status": "planned_unprofiled_for_target_workload",
+          "gpu_memory_utilization": {
+            "bf16": 0.35,
+            "fp8": 0.35
+          },
+          "estimated_budget_gib": 33.2395,
+          "bf16_checkpoint_tensor_payload_bytes": 13838323712,
+          "bf16_checkpoint_tensor_payload_gib": 12.887943,
+          "checkpoint_payload_semantics": "Safetensors index total_size, all model tensors, not shard/header bytes and not measured runtime residency.",
+          "fp8_runtime_weight_bytes": null,
+          "fp8_weight_status": "Online quantization of the same BF16 checkpoint; retained BF16 tensors, scales, padding, backend conversion and peak allocations must be profiled, not assumed to equal half the checkpoint.",
+          "kv_estimate": {
+            "status": "analytic_payload_only_unprofiled",
+            "kind": "MHA, separate K and V",
+            "geometry": {
+              "attention_layers": 16,
+              "kv_heads": 16,
+              "head_dim": 128,
+              "separate_k_and_v": true
+            },
+            "cache_dtype": "bfloat16",
+            "dtype_bytes": 2,
+            "bytes_per_token_all_attention_layers": 131072,
+            "target_cached_tokens": 139264,
+            "payload_bytes": 18253611008,
+            "payload_gib": 17.0,
+            "formula": "2(K,V) * 16 layers * 16 KV heads * 128 head_dim * 2 bytes * 139264 tokens"
+          },
+          "bf16_payload_plus_target_kv_gib": 29.887943,
+          "remaining_budget_before_runtime_overheads_gib": 3.351557,
+          "rationale": "0.35 fits the BF16 index payload plus estimated target KV with about 3.35 GiB left for runtime allocations. r05 eager at a shorter context exposed about 20.05 GiB KV capacity under 0.35; the longer target and graphs remain unprofiled, so this is not a capacity guarantee. This 0.35 value is provisional for 2176-token contexts and must be revisited if the energy pilot requires longer outputs.",
+          "sources": [
+            {
+              "path": "../research_C_format_sched/runs/checkpoint_probe/olmoe_bf16/model.safetensors.index.json",
+              "sha256": "0e2e1e0d8d357ac7af817cff28410c3dbad398f060c517a433e4076b2aae5579",
+              "field": "metadata.total_size"
+            },
+            {
+              "path": "../research_C_format_sched/runs/checkpoint_probe/olmoe_bf16/config.json",
+              "sha256": "42ea6f5fe31e9243290ba3c348a4ad615b88a6fbc6e10544e21a87b6dff5da6c"
+            }
+          ]
+        }
+      },
+      "run_id": "/Users/zhaozhenyu/Desktop/毕业设计/research_K_expert_skip/runs/olmoe_bf16_matrix_r07/bench",
+      "repeat": 0,
+      "details": {
+        "dtype": "bfloat16",
+        "execution": "graph",
+        "graph_counter_pass": false,
+        "hardware": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+        "model": "/root/autodl-tmp/moe-research-20261002/model",
+        "newtokens": 2048,
+        "policy_backend": "triton",
+        "prompt_tokens": 128,
+        "quantization": "none"
+      },
+      "metadata": {
+        "config_source": "/Users/zhaozhenyu/Desktop/毕业设计/research_K_expert_skip/runs/olmoe_bf16_matrix_r07/bench/config.json",
+        "gpu_memory_utilization": 0.35,
+        "tensor_parallel_size": 1,
+        "max_model_len": 2304,
+        "vllm_version": "0.26.0",
+        "native_tuning_folder": "/root/autodl-tmp/research_K_expert_skip/runs/characterize_r06/native_tuning/tuned_configs",
+        "generation_semantics": "greedy, ignore_eos=true, fixed output length; no natural quality claim",
+        "source_code_hashes": {
+          "bench_decode.py": "b7362c2c5bc28bd1c74596024741f57460bef59b85463e543b612c2bb1d4852d",
+          "skip_worker.py": "f7ed261ecfe41bc148a8ffc0e43bad928b9c4674ee495a029dbd8eb431555349",
+          "skip_graph_worker.py": "cb2939393bfc9cf84a5374b9de260d5398ea7f08c9e2560025dc953de7ce4cd4",
+          "expert_skip.py": "aafe7e04e86548a31162aae0f831f7ec74a701def2e0de104fd94c68fe1c3d10",
+          "power.py": "0966aa6d14b91cb718baeec2ccbdcab61d19eca7a3a686b6bd7b114eddfe6071"
+        }
+      }
+    }
+  ],
+  "sources": [
+    {
+      "path": "/Users/zhaozhenyu/Desktop/毕业设计/research_K_expert_skip/configs/models.json",
+      "sha256": "c0c93fec936e0018650a7d63f13d9f44ace3df79d330d290faf538c72722a8ac"
+    },
+    {
+      "path": "/Users/zhaozhenyu/Desktop/毕业设计/research_K_expert_skip/code/plot_cross_model.py",
+      "sha256": "42ac8f2f5332d146f926bd8038d348e65b1cc0a5d1e768c94a1243a08493b060"
+    },
+    {
+      "path": "/Users/zhaozhenyu/Desktop/毕业设计/research_K_expert_skip/figures/results_r07/bench_points.csv",
+      "sha256": "68f1712d8d145ce501879b979d1ca23e1729ba29885ea59820c40325951b9ca6"
+    },
+    {
+      "path": "/Users/zhaozhenyu/Desktop/毕业设计/research_K_expert_skip/runs/olmoe_bf16_matrix_r07/bench/config.json",
+      "sha256": "f0937400e4cd2d6e46e94eea2f37381eb025ce6a81ba274d57b5e837832e56a9"
+    },
+    {
+      "path": "/Users/zhaozhenyu/Desktop/毕业设计/research_K_expert_skip/runs/olmoe_bf16_matrix_r07/status.json",
+      "sha256": "f993fe6d53741981945e5def0c135fa6883383a292074dd81b6a6a9ca1b0d32a"
+    }
+  ],
+  "generated_files": [
+    "F5_cross_model.pdf",
+    "F5_cross_model.png",
+    "F5_cross_model.svg",
+    "F5_points.csv",
+    "F5_observed_ranges.csv",
+    "F5_manifest.json"
+  ],
+  "identity_contract": "Explicit CLI model key selects registry repo/revision/E/k; recorded checkpoint path is preserved separately. Registry identity is not a new checkpoint-hash verification.",
+  "scope": "Separate run/repeat/condition rows; no pooling or causal attribution to E/k; no confidence interval from tokens; descriptive benefit regions only."
+}

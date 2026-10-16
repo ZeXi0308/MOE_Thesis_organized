@@ -1,0 +1,62 @@
+{
+  "batches": [
+    1,
+    8
+  ],
+  "gammas": [
+    0,
+    3
+  ],
+  "repeats": 1,
+  "measured_requests": 16,
+  "output_tokens": 32,
+  "warmup_tokens": 16,
+  "warmup_each_batch": true,
+  "trace_tokens": 16,
+  "dtype": "bfloat16",
+  "max_model_len": 1024,
+  "kv_cache_memory_bytes": 6442450944,
+  "enforce_eager": false,
+  "native_route_return": false,
+  "kernel_config": {
+    "moe_backend": "triton"
+  },
+  "total_gpu_budget_seconds": 72000,
+  "model": "/root/autodl-tmp/research_S_moe_specdec/models/granite3b/d4dd87aa3a6c201bc374851d7d7ff4cf39a0b82a/target",
+  "model_repo": "ibm-granite/granite-3.1-3b-a800m-base",
+  "model_revision": "d4dd87aa3a6c201bc374851d7d7ff4cf39a0b82a",
+  "model_metadata": "configs/granite3b_target_source.json",
+  "architecture": {
+    "name": "GraniteMoeForCausalLM",
+    "experts": 40,
+    "top_k": 8,
+    "hidden_size": 1536,
+    "intermediate_size": 512,
+    "layers": 32,
+    "vocab_size": 49152
+  },
+  "workload": "configs/sharegpt_granite1b.json",
+  "workload_sha256": "7855854734b9a154a7c25b7a850aa71567020842d16d98afd8a2d9b015158f6d",
+  "prompt_format": "raw_continuation_no_chat_template",
+  "draft_source": "draft_model",
+  "group_gpu_budget_seconds": 900,
+  "measurement": "Native loading and generation smoke on fixed first16 raw-continuation records, forced32 outputs; not confirmation performance or quality. No route diagnostics in smoke.",
+  "scope": "Use existing compatible assets to form ngram plus independent neural-draft sources for the third target; Granite3B replaces the unmeasured Granite1B auxiliary target. Qwen remains in scope. No performance-based model selection.",
+  "runtime_status": "Native load, shared KV allocation, draft acceptance, selected kernels and target/draft route separation remain unmeasured.",
+  "draft_model": "/root/autodl-tmp/research_B_tiered_combine/models/granite1b",
+  "draft_repo_id": "ibm-granite/granite-3.1-1b-a400m-base",
+  "draft_revision": "408b6e90baab8cf24f4aa9f8e19703ffa0a53b29",
+  "draft_source_manifest": "/root/autodl-tmp/research_B_tiered_combine/runs/model_source_granite1b/source.json",
+  "draft_source_manifest_sha256": "172cbcb3b5735199154f31f3a389aa6f99378e1e3707b49e11e631a22421fcb6",
+  "speculative_overrides": {
+    "draft_tensor_parallel_size": 1,
+    "use_heterogeneous_vocab": false
+  },
+  "draft_semantics": "Independent Granite1B E32/k8 MoE drafter with its own embedding/head/KV; 6 GiB engine KV budget is shared according to native allocation, not 6 GiB per model.",
+  "skip_trace": true,
+  "warmup_offset": 0,
+  "shape_warmup_offset": 0,
+  "input_offset": 0,
+  "warmup_population": "General and per-shape warmup use development prompts beginning at offset0; held-out prompts64-127 are reserved for later policy evaluation; prefix cache remains disabled.",
+  "execution_domain_note": "Compiled V1 is the primary native execution domain; chosen before these campaigns ran after the OLMoE execution comparison exposed a stronger AR baseline. Calibration and held-out evaluation stay in this same domain; compatibility failures are inspected, not filtered by performance."
+}

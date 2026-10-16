@@ -1,0 +1,30 @@
+Traceback (most recent call last):
+  File "/root/miniconda3/lib/python3.12/site-packages/triton/runtime/interpreter.py", line 1357, in __call__
+    self.fn(**args)
+  File "/root/autodl-tmp/research_B_tiered_combine/code/codec.py", line 47, in _nvq
+    z=tl.where(scale[:,None]>0,tl.div_rn(blocks,tl.maximum(scale[:,None],1e-38)),0.)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/triton/runtime/interpreter.py", line 859, in <lambda>
+    new_member = lambda *args, member=member, **kwargs: (member(*args, **
+                                                         ^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/triton/language/core.py", line 43, in wrapper
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/triton/language/math.py", line 25, in check
+    raise ValueError(f"Expected dtype {dtypes} but got {arg.type.scalar.name}")
+ValueError: Expected dtype ['fp32'] but got fp64
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/root/autodl-tmp/research_B_tiered_combine/code/check_codec_interpreter.py", line 13, in <module>
+    codec._nvq[(7,)](x,cq,cs,g,d,triton.next_power_of_2(d))
+  File "/root/miniconda3/lib/python3.12/site-packages/triton/runtime/jit.py", line 370, in <lambda>
+    return lambda *args, **kwargs: self.run(grid=grid, warmup=False, *args, **kwargs)
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/triton/runtime/interpreter.py", line 1470, in run
+    return GridExecutor(fn, self.arg_names, grid, self.pre_run_hooks)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/triton/runtime/interpreter.py", line 1361, in __call__
+    raise InterpreterError(repr(e)) from e
+triton.runtime.errors.InterpreterError: ValueError("Expected dtype ['fp32'] but got fp64")

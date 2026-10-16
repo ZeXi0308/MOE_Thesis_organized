@@ -1,0 +1,104 @@
+{
+  "cwd_remote": "/root/autodl-tmp/research_C_format_sched",
+  "environment": "use the existing main vLLM 0.26.0 environment and CUDA13 LD_LIBRARY_PATH unchanged",
+  "execution": "one arm at a time; no automatic retry; backup each complete or failed runs directory locally and verify its SHA256.json before the next group",
+  "precondition": "real integration checkpoint and all32 sidecars plus three worker configs must exist; plan commands are CPU-only and require these actual assets",
+  "arms": {
+    "single_fp8": {
+      "plan_argv": [
+        "/root/miniconda3/bin/python",
+        "code/run_serving_group.py",
+        "--config",
+        "configs/minimal_serving_r01/single_fp8.json",
+        "--output",
+        "runs/minimal_serving_r01_single_fp8/group",
+        "--lock-status",
+        "runs/minimal_serving_r01_single_fp8/status.json"
+      ],
+      "run_argv": [
+        "/root/miniconda3/bin/python",
+        "code/run_locked.py",
+        "--name",
+        "minimal_serving_r01_single_fp8",
+        "--timeout",
+        "360",
+        "--",
+        "/root/miniconda3/bin/python",
+        "code/run_serving_group.py",
+        "--config",
+        "configs/minimal_serving_r01/single_fp8.json",
+        "--output",
+        "runs/minimal_serving_r01_single_fp8/group",
+        "--lock-status",
+        "runs/minimal_serving_r01_single_fp8/status.json",
+        "--run"
+      ],
+      "plan_shell": "/root/miniconda3/bin/python code/run_serving_group.py --config configs/minimal_serving_r01/single_fp8.json --output runs/minimal_serving_r01_single_fp8/group --lock-status runs/minimal_serving_r01_single_fp8/status.json",
+      "run_shell": "/root/miniconda3/bin/python code/run_locked.py --name minimal_serving_r01_single_fp8 --timeout 360 -- /root/miniconda3/bin/python code/run_serving_group.py --config configs/minimal_serving_r01/single_fp8.json --output runs/minimal_serving_r01_single_fp8/group --lock-status runs/minimal_serving_r01_single_fp8/status.json --run"
+    },
+    "single_awq": {
+      "plan_argv": [
+        "/root/miniconda3/bin/python",
+        "code/run_serving_group.py",
+        "--config",
+        "configs/minimal_serving_r01/single_awq.json",
+        "--output",
+        "runs/minimal_serving_r01_single_awq/group",
+        "--lock-status",
+        "runs/minimal_serving_r01_single_awq/status.json"
+      ],
+      "run_argv": [
+        "/root/miniconda3/bin/python",
+        "code/run_locked.py",
+        "--name",
+        "minimal_serving_r01_single_awq",
+        "--timeout",
+        "360",
+        "--",
+        "/root/miniconda3/bin/python",
+        "code/run_serving_group.py",
+        "--config",
+        "configs/minimal_serving_r01/single_awq.json",
+        "--output",
+        "runs/minimal_serving_r01_single_awq/group",
+        "--lock-status",
+        "runs/minimal_serving_r01_single_awq/status.json",
+        "--run"
+      ],
+      "plan_shell": "/root/miniconda3/bin/python code/run_serving_group.py --config configs/minimal_serving_r01/single_awq.json --output runs/minimal_serving_r01_single_awq/group --lock-status runs/minimal_serving_r01_single_awq/status.json",
+      "run_shell": "/root/miniconda3/bin/python code/run_locked.py --name minimal_serving_r01_single_awq --timeout 360 -- /root/miniconda3/bin/python code/run_serving_group.py --config configs/minimal_serving_r01/single_awq.json --output runs/minimal_serving_r01_single_awq/group --lock-status runs/minimal_serving_r01_single_awq/status.json --run"
+    },
+    "dual_phase": {
+      "plan_argv": [
+        "/root/miniconda3/bin/python",
+        "code/run_serving_group.py",
+        "--config",
+        "configs/minimal_serving_r01/dual_phase.json",
+        "--output",
+        "runs/minimal_serving_r01_dual_phase/group",
+        "--lock-status",
+        "runs/minimal_serving_r01_dual_phase/status.json"
+      ],
+      "run_argv": [
+        "/root/miniconda3/bin/python",
+        "code/run_locked.py",
+        "--name",
+        "minimal_serving_r01_dual_phase",
+        "--timeout",
+        "360",
+        "--",
+        "/root/miniconda3/bin/python",
+        "code/run_serving_group.py",
+        "--config",
+        "configs/minimal_serving_r01/dual_phase.json",
+        "--output",
+        "runs/minimal_serving_r01_dual_phase/group",
+        "--lock-status",
+        "runs/minimal_serving_r01_dual_phase/status.json",
+        "--run"
+      ],
+      "plan_shell": "/root/miniconda3/bin/python code/run_serving_group.py --config configs/minimal_serving_r01/dual_phase.json --output runs/minimal_serving_r01_dual_phase/group --lock-status runs/minimal_serving_r01_dual_phase/status.json",
+      "run_shell": "/root/miniconda3/bin/python code/run_locked.py --name minimal_serving_r01_dual_phase --timeout 360 -- /root/miniconda3/bin/python code/run_serving_group.py --config configs/minimal_serving_r01/dual_phase.json --output runs/minimal_serving_r01_dual_phase/group --lock-status runs/minimal_serving_r01_dual_phase/status.json --run"
+    }
+  }
+}

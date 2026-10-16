@@ -1,0 +1,84 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\citation{sere}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2}Background and Scope}{1}{section.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}Singleton Occupancy and Marginal Cost}{2}{section.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Inclusion probabilities}{2}{subsection.3.1}\protected@file@percent }
+\newlabel{eq:singleton}{{2}{2}{Inclusion probabilities}{equation.2}{}}
+\newlabel{eq:uniform}{{3}{2}{Inclusion probabilities}{equation.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Correlated and heterogeneous tokens}{2}{subsection.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Exact logical footprint change}{2}{subsection.3.3}\protected@file@percent }
+\newlabel{eq:setcost}{{8}{2}{Exact logical footprint change}{equation.8}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Analytical singleton assignment fraction under independent uniform routing. These values are not measurements.}}{3}{table.1}\protected@file@percent }
+\newlabel{tab:model}{{1}{3}{Analytical singleton assignment fraction under independent uniform routing. These values are not measurements}{table.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Characterization}{3}{section.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}The batch opportunity region (F1)}{3}{subsection.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Tail dropping and quality (T1)}{3}{subsection.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Measured validation interventions.}{3}{section*.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces F1: native OLMoE long-decode occupancy in BF16 (r07) and FP8 W8A8 (r09b). Each $B=1,2,4,8,16,32,64$ uses 128 prefix tokens and 2048 fixed outputs: 2047 decode steps across 16 routed layers, or 32,752 layer events and $262{,}016B$ slots. Counted replays match their performance transcripts. Each format supplies one execution per batch, without independent-run uncertainty. The dashed curve is the uniform iid reference.}}{4}{figure.1}\protected@file@percent }
+\newlabel{fig:occupancy}{{1}{4}{F1: native OLMoE long-decode occupancy in BF16 (r07) and FP8 W8A8 (r09b). Each $B=1,2,4,8,16,32,64$ uses 128 prefix tokens and 2048 fixed outputs: 2047 decode steps across 16 routed layers, or 32,752 layer events and $262{,}016B$ slots. Counted replays match their performance transcripts. Each format supplies one execution per batch, without independent-run uncertainty. The dashed curve is the uniform iid reference}{figure.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Design and Implementation}{4}{section.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Decision rule}{4}{subsection.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Execution integration}{4}{subsection.5.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces T1: separate rank/gate interventions in OLMoE BF16 at $B=8$. Each row uses the same 32 validation documents, 1,024 decode predictions and 16,384 token-layer opportunities in one run. KL is full-vocabulary KL(native$\Vert $policy); PPL uses pooled NLL. $\bar  m$ is mean removed selected mass per token-layer. These whole-model effects are not additive event costs.}}{5}{table.2}\protected@file@percent }
+\newlabel{tab:drop}{{2}{5}{T1: separate rank/gate interventions in OLMoE BF16 at $B=8$. Each row uses the same 32 validation documents, 1,024 decode predictions and 16,384 token-layer opportunities in one run. KL is full-vocabulary KL(native$\Vert $policy); PPL uses pooled NLL. $\bar m$ is mean removed selected mass per token-layer. These whole-model effects are not additive event costs}{table.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{Graph replay and FP8 execution.}{5}{section*.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Concrete behavior}{5}{subsection.5.3}\protected@file@percent }
+\citation{adapmoe}
+\citation{naee}
+\citation{adak}
+\citation{moepp}
+\citation{dynmoe}
+\citation{expertchoice}
+\citation{sere}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Evaluation}{6}{section.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Comparisons and measurement}{6}{subsection.6.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Exploratory quality--footprint frontier (F3)}{6}{subsection.6.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces T2: action-level comparison based on primary papers and author releases checked on October 16, 2026. ``No'' means the described decision does not explicitly use current decode-batch singleton marginal footprint. It does not mean the system cannot benefit from reuse.}}{7}{table.3}\protected@file@percent }
+\newlabel{tab:related}{{3}{7}{T2: action-level comparison based on primary papers and author releases checked on October 16, 2026. ``No'' means the described decision does not explicitly use current decode-batch singleton marginal footprint. It does not mean the system cannot benefit from reuse}{table.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces F3: OLMoE BF16 validation exploration on the same 32 articles, with 32 genuine decode predictions each. Each batch size has one source execution; its points aggregate 32, four, or one cohort at $B=1,8,32$, respectively. Logical bytes and quality come from each policy's teacher-forced trajectory, with native dense counters as the common denominator. Lower right is preferable. Dashed frontiers are descriptive measured means, without task-accuracy or statistical-superiority claims.}}{7}{figure.2}\protected@file@percent }
+\newlabel{fig:quality-r06}{{2}{7}{F3: OLMoE BF16 validation exploration on the same 32 articles, with 32 genuine decode predictions each. Each batch size has one source execution; its points aggregate 32, four, or one cohort at $B=1,8,32$, respectively. Logical bytes and quality come from each policy's teacher-forced trajectory, with native dense counters as the common denominator. Lower right is preferable. Dashed frontiers are descriptive measured means, without task-accuracy or statistical-superiority claims}{figure.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{Within-format FP8 comparison.}{7}{section*.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces F3 in OLMoE FP8 W8A8: the same 32 validation articles and teacher-forced window protocol as BF16, evaluated against native FP8 separately at each batch size. The nonquantized model dtype remains BF16; routed weights/activations use FP8. Each point aggregates 1,024 scored decode predictions from one source execution. The independent sampling unit is the article, not a token or cohort. Lower right is preferable; the frontiers describe observed means, not task accuracy or an independent confirmation.}}{8}{figure.3}\protected@file@percent }
+\newlabel{fig:quality-fp8-r09}{{3}{8}{F3 in OLMoE FP8 W8A8: the same 32 validation articles and teacher-forced window protocol as BF16, evaluated against native FP8 separately at each batch size. The nonquantized model dtype remains BF16; routed weights/activations use FP8. Each point aggregates 1,024 scored decode predictions from one source execution. The independent sampling unit is the article, not a token or cohort. Lower right is preferable; the frontiers describe observed means, not task accuracy or an independent confirmation}{figure.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}Natural completion and task-quality screening}{8}{subsection.6.3}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Natural-completion screen: 200 prompts from 28 validation articles per arm, one execution family. EOS and cap counts sum to 200; every arm has zero failures and zero other-stop cases. Mean output length includes capped completions. $R_4$ is the mean repeated token-4gram ratio over the $n_4$ eligible outputs. Flag counts use all 200 outputs and are descriptive, not correctness judgments.}}{9}{table.4}\protected@file@percent }
+\newlabel{tab:free200}{{4}{9}{Natural-completion screen: 200 prompts from 28 validation articles per arm, one execution family. EOS and cap counts sum to 200; every arm has zero failures and zero other-stop cases. Mean output length includes capped completions. $R_4$ is the mean repeated token-4gram ratio over the $n_4$ eligible outputs. Flag counts use all 200 outputs and are descriptive, not correctness judgments}{table.4}{}}
+\@writefile{toc}{\contentsline {paragraph}{GSM8K generation pilot.}{9}{section*.5}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces GSM8K pilot: correct answers out of the same 16 problems, with 5-shot prompts. S/F denote strict/flexible extraction. E/O/C are EOS, task-stop, and cap counts; failures are zero for every arm. This subset does not establish a lossless policy or statistical superiority.}}{9}{table.5}\protected@file@percent }
+\newlabel{tab:gsm-pilot}{{5}{9}{GSM8K pilot: correct answers out of the same 16 problems, with 5-shot prompts. S/F denote strict/flexible extraction. E/O/C are EOS, task-stop, and cap counts; failures are zero for every arm. This subset does not establish a lossless policy or statistical superiority}{table.5}{}}
+\@writefile{toc}{\contentsline {paragraph}{Multiple-choice controls.}{9}{section*.6}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Completed multiple-choice identity controls in r08b. Acc./Norm. are correct counts under ordinary/length-normalized scoring. All ten arms have the same scores (maximum drift zero); the policy does not execute decode on these requests. These are limited subsets, not full-benchmark accuracy results or evidence of generation-quality preservation.}}{10}{table.6}\protected@file@percent }
+\newlabel{tab:mc-controls}{{6}{10}{Completed multiple-choice identity controls in r08b. Acc./Norm. are correct counts under ordinary/length-normalized scoring. All ten arms have the same scores (maximum drift zero); the policy does not execute decode on these requests. These are limited subsets, not full-benchmark accuracy results or evidence of generation-quality preservation}{table.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.4}Graph decode performance and energy (F2/F4)}{10}{subsection.6.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Completed FP8 performance.}{10}{section*.7}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces F2: complete OLMoE graph matrices, 63 cells per format. Reductions use native at the same format and $B$. Every request has 128 prefix tokens and 2048 fixed outputs; TPOT excludes the first token. Logical-footprint ratios compare policies' realized trajectories via separate output-identical counted replays. They are neither DRAM savings nor same-route deletion fractions. One execution per arm supplies no independent-run uncertainty.}}{11}{figure.4}\protected@file@percent }
+\newlabel{fig:performance-r07}{{4}{11}{F2: complete OLMoE graph matrices, 63 cells per format. Reductions use native at the same format and $B$. Every request has 128 prefix tokens and 2048 fixed outputs; TPOT excludes the first token. Logical-footprint ratios compare policies' realized trajectories via separate output-identical counted replays. They are neither DRAM savings nor same-route deletion fractions. One execution per arm supplies no independent-run uncertainty}{figure.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces F4: gross whole-board J/decode-token from separate energy replays, integrated from NVML power samples. All 63 windows per format exceed three seconds: BF16 5.61--37.14\,s and FP8 5.39--28.36\,s. Prefill and the first token are excluded; the denominator is $2047B$ decode outputs. These single-run measurements are not process-only energy, task efficiency, or quality-matched comparisons.}}{11}{figure.5}\protected@file@percent }
+\newlabel{fig:energy-r07}{{5}{11}{F4: gross whole-board J/decode-token from separate energy replays, integrated from NVML power samples. All 63 windows per format exceed three seconds: BF16 5.61--37.14\,s and FP8 5.39--28.36\,s. Prefill and the first token are excluded; the denominator is $2047B$ decode outputs. These single-run measurements are not process-only energy, task efficiency, or quality-matched comparisons}{figure.5}{}}
+\citation{naee}
+\citation{adapmoe}
+\citation{adak}
+\citation{moepp}
+\citation{dynmoe}
+\citation{expertchoice}
+\citation{sere}
+\@writefile{toc}{\contentsline {paragraph}{Measured policy microbenchmark (F6).}{12}{section*.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.5}Interpretation and continuing construction}{12}{subsection.6.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7}Related Work and Action-Level Comparison}{12}{section.7}\protected@file@percent }
+\bibstyle{plainurl}
+\bibdata{refs}
+\bibcite{dynmoe}{1}
+\bibcite{moepp}{2}
+\bibcite{naee}{3}
+\bibcite{sere}{4}
+\bibcite{adak}{5}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces F6: measured post-routing policy and counters from r09b. Main-thread CPU consumption and captured-device elapsed time have separate clock boundaries; neither is computed by subtracting times. Both panels compare the same three implementations on synthetic routing inputs. One source execution supplies each point; inner calls are timing repetitions, not independent runs. Eager wall measurements are retained in the accompanying CSV. These are component timings, not full-model TPOT or service speedups.}}{13}{figure.6}\protected@file@percent }
+\newlabel{fig:policy-overhead-r09b}{{6}{13}{F6: measured post-routing policy and counters from r09b. Main-thread CPU consumption and captured-device elapsed time have separate clock boundaries; neither is computed by subtracting times. Both panels compare the same three implementations on synthetic routing inputs. One source execution supplies each point; inner calls are timing repetitions, not independent runs. Eager wall measurements are retained in the accompanying CSV. These are component timings, not full-model TPOT or service speedups}{figure.6}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {8}Conclusion}{13}{section.8}\protected@file@percent }
+\bibcite{adapmoe}{6}
+\bibcite{expertchoice}{7}
+\gdef \@abspage@last{14}

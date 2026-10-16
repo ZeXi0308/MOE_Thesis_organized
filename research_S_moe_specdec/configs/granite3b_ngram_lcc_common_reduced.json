@@ -1,0 +1,70 @@
+{
+  "batches": [
+    1,
+    4,
+    16,
+    64
+  ],
+  "gammas": [
+    0,
+    3,
+    7
+  ],
+  "repeats": 2,
+  "measured_requests": 64,
+  "output_tokens": 128,
+  "warmup_tokens": 32,
+  "warmup_each_batch": true,
+  "trace_tokens": 32,
+  "dtype": "bfloat16",
+  "max_model_len": 4096,
+  "kv_cache_memory_bytes": 25769803776,
+  "enforce_eager": false,
+  "native_route_return": false,
+  "kernel_config": {
+    "moe_backend": "triton"
+  },
+  "total_gpu_budget_seconds": 72000,
+  "model": "/root/autodl-tmp/research_S_moe_specdec/models/granite3b/d4dd87aa3a6c201bc374851d7d7ff4cf39a0b82a/target",
+  "model_repo": "ibm-granite/granite-3.1-3b-a800m-base",
+  "model_revision": "d4dd87aa3a6c201bc374851d7d7ff4cf39a0b82a",
+  "model_metadata": "configs/granite3b_target_source.json",
+  "architecture": {
+    "name": "GraniteMoeForCausalLM",
+    "experts": 40,
+    "top_k": 8,
+    "hidden_size": 1536,
+    "intermediate_size": 512,
+    "layers": 32,
+    "vocab_size": 49152
+  },
+  "workload": "configs/lcc_granite3b_common128.json",
+  "workload_sha256": "6837630aa36e878003ead37273ec083b464f0443ead76c5c5ab7425ace2e72f4",
+  "prompt_format": "raw_continuation_no_chat_template",
+  "draft_source": "ngram",
+  "group_gpu_budget_seconds": 10800,
+  "measurement": "Common-source full prompts0-63; native gamma0/3/7 development matrix; two complete finite-wave repeats, 128 forced output tokens. Not a natural-task quality score.",
+  "scope": "Use existing compatible assets to form ngram plus independent neural-draft sources for the third target; Granite3B replaces the unmeasured Granite1B auxiliary target. Qwen remains in scope. No performance-based model selection.",
+  "runtime_status": "Native load, shared KV allocation, draft acceptance, selected kernels and target/draft route separation remain unmeasured.",
+  "trace_requests": 64,
+  "route_population": "Separate instrumented episode covers the same first64 workload records at every B; trace does not enter performance windows.",
+  "warmup_offset": 0,
+  "shape_warmup_offset": 0,
+  "input_offset": 0,
+  "warmup_population": "All general and shape warmup use development entries0-63; evaluation entries64-127 are separate. Prefix caching is disabled; EWMA is continuous within each engine.",
+  "execution_domain_note": "Compiled V1, complete LongBench-derived prompts. Each task shares original source IDs across targets, with native chat wrappers for OLMoE/Qwen and explicit raw continuation for Granite. Use an independent calibration and held-out evaluation for this workload/domain.",
+  "skip_trace": true,
+  "max_num_seqs": 64,
+  "max_num_batched_tokens": 16384,
+  "admission_mode": "wave",
+  "candidate_gammas": [
+    0,
+    3,
+    7
+  ],
+  "preparation_domain": "granite3b_ngram_lcc_common",
+  "preparation_role": "native_development",
+  "kv_budget_scope": "Same fixed worker KV budget for both draft sources of this target family; target/draft attention layers share it. This is an input-based capacity estimate, not verified allocation, peak memory, or fixed total resident VRAM.",
+  "resource_plan": "runs/auxiliary_resource_plan_r01/resource_plan.json",
+  "resource_plan_sha256": "7dc1c55133ff73dda07867d6918800be6cef6822597ec9c1f252bc68c989627b"
+}

@@ -1,0 +1,71 @@
+Local Qwen3 profiler component analysis, r01
+28 existing traces: 14 NVFP4/CUTLASS and 14 matched FP8/Triton. CPU analysis only.
+Each trace is one CUDA graph replay, not a repeated profiler experiment.
+Chrome ts/dur units are us; displayTimeUnit='ms' is a viewer preference.
+
+KEY OBSERVATIONS (all durations below are profiler CUDA kernel sums unless explicitly called median)
+B=1: NVFP4 has both longer projection kernels and more non-projection work than FP8.
+B=8 and 2048: NVFP4's shorter projection-kernel durations outweigh its higher auxiliary sum.
+B=8192: NVFP4 projection kernels remain shorter, but its larger auxiliary sum reverses the full-kernel-sum ranking.
+This local decomposition is consistent with the unprofiled ranking; it does not prove a causal performance model.
+
+Focus table: route B format | median_us | GPU kernels | projection_us | other_us | sum_us | graph_calls
+uniform    1 fp8   |    24.642 |  9 |    11.520 |    10.465 |    21.985 | 1
+uniform    1 nvfp4 |    63.430 | 16 |    33.439 |    28.288 |    61.727 | 1
+uniform    8 fp8   |   226.545 | 10 |   204.706 |    16.095 |   220.801 | 1
+uniform    8 nvfp4 |   162.966 | 15 |   130.366 |    28.224 |   158.590 | 1
+uniform 2048 fp8   |   652.515 | 10 |   526.848 |   116.128 |   642.976 | 1
+uniform 2048 nvfp4 |   596.190 | 15 |   337.597 |   259.520 |   597.117 | 1
+uniform 8192 fp8   |  1807.168 | 10 |  1163.184 |   646.375 |  1809.559 | 1
+uniform 8192 nvfp4 |  2415.237 | 15 |   705.981 |  1681.947 |  2387.928 | 1
+zipf       1 fp8   |    24.649 |  9 |    11.455 |    10.464 |    21.919 | 1
+zipf       1 nvfp4 |    59.423 | 16 |    31.871 |    28.319 |    60.190 | 1
+zipf       8 fp8   |   118.775 | 10 |    98.112 |    15.617 |   113.729 | 1
+zipf       8 nvfp4 |    97.249 | 15 |    68.319 |    26.335 |    94.654 | 1
+zipf    2048 fp8   |   791.033 | 10 |   644.557 |   137.858 |   782.415 | 1
+zipf    2048 nvfp4 |   687.807 | 15 |   404.443 |   271.450 |   675.893 | 1
+zipf    8192 fp8   |  1993.995 | 10 |  1348.783 |   635.912 |  1984.695 | 1
+zipf    8192 nvfp4 |  2498.079 | 15 |   803.929 |  1670.065 |  2473.994 | 1
+
+Focus component sums (us; kernel-event counts in parentheses):
+uniform B=1 fp8: projection_kernels=11.520(2); routing_metadata=0.768(1); activation_and_quantization=8.129(5); output_operations=1.568(1)
+uniform B=1 nvfp4: projection_kernels=33.439(2); routing_metadata=8.608(4); grouped_gemm_setup=2.240(2); activation_and_quantization=7.872(2); row_shuffles=2.464(2); output_operations=6.112(3); unattributed_copy_kernel=0.992(1)
+uniform B=8 fp8: projection_kernels=204.706(2); routing_metadata=4.224(2); activation_and_quantization=10.304(5); output_operations=1.567(1)
+uniform B=8 nvfp4: projection_kernels=130.366(2); routing_metadata=8.960(4); grouped_gemm_setup=2.240(2); activation_and_quantization=7.712(2); row_shuffles=2.816(2); output_operations=6.496(3)
+uniform B=2048 fp8: projection_kernels=526.848(2); routing_metadata=12.160(2); activation_and_quantization=74.496(5); output_operations=29.472(1)
+uniform B=2048 nvfp4: projection_kernels=337.597(2); routing_metadata=21.825(4); grouped_gemm_setup=2.368(2); activation_and_quantization=66.624(2); row_shuffles=76.896(2); output_operations=91.807(3)
+uniform B=8192 fp8: projection_kernels=1163.184(2); routing_metadata=37.920(2); activation_and_quantization=394.597(5); output_operations=213.858(1)
+uniform B=8192 nvfp4: projection_kernels=705.981(2); routing_metadata=60.704(4); grouped_gemm_setup=2.656(2); activation_and_quantization=446.142(2); row_shuffles=520.254(2); output_operations=652.191(3)
+zipf B=1 fp8: projection_kernels=11.455(2); routing_metadata=0.768(1); activation_and_quantization=8.096(5); output_operations=1.600(1)
+zipf B=1 nvfp4: projection_kernels=31.871(2); routing_metadata=8.736(4); grouped_gemm_setup=2.240(2); activation_and_quantization=7.775(2); row_shuffles=2.432(2); output_operations=6.144(3); unattributed_copy_kernel=0.992(1)
+zipf B=8 fp8: projection_kernels=98.112(2); routing_metadata=4.225(2); activation_and_quantization=9.824(5); output_operations=1.568(1)
+zipf B=8 nvfp4: projection_kernels=68.319(2); routing_metadata=8.255(4); grouped_gemm_setup=2.207(2); activation_and_quantization=7.425(2); row_shuffles=2.368(2); output_operations=6.080(3)
+zipf B=2048 fp8: projection_kernels=644.557(2); routing_metadata=13.696(2); activation_and_quantization=79.777(5); output_operations=44.385(1)
+zipf B=2048 nvfp4: projection_kernels=404.443(2); routing_metadata=21.791(4); grouped_gemm_setup=2.463(2); activation_and_quantization=71.040(2); row_shuffles=81.886(2); output_operations=94.270(3)
+zipf B=8192 fp8: projection_kernels=1348.783(2); routing_metadata=42.817(2); activation_and_quantization=384.612(5); output_operations=208.483(1)
+zipf B=8192 nvfp4: projection_kernels=803.929(2); routing_metadata=59.904(4); grouped_gemm_setup=2.720(2); activation_and_quantization=426.108(2); row_shuffles=532.027(2); output_operations=649.306(3)
+
+B=8192 COMPONENT EVIDENCE:
+uniform FP8: projection=1163.184 us; row_shuffles=0.000; activation_and_quantization=394.597; output_operations=213.858.
+uniform NVFP4: projection=705.981 us; row_shuffles=520.254; activation_and_quantization=446.142; output_operations=652.191.
+uniform: NVFP4 other-kernel share=70.44%; FP8=35.72%.
+zipf FP8: projection=1348.783 us; row_shuffles=0.000; activation_and_quantization=384.612; output_operations=208.483.
+zipf NVFP4: projection=803.929 us; row_shuffles=532.027; activation_and_quantization=426.108; output_operations=649.306.
+zipf: NVFP4 other-kernel share=67.50%; FP8=32.04%.
+
+INTERPRETATION AND LIMITS:
+- Across B=8..8192 the kernel count stays 15 for NVFP4 versus 10 for FP8. Thus increasing launch count is not the observed cause of the high-B reversal; existing auxiliary kernels become longer.
+- At B=1 counts are 16 versus 9, including an unattributed NVFP4 memcpy32_post kernel (0.992 us). Its cause is unresolved and it is not silently excluded.
+- All traces contain one host cudaGraphLaunch. GPU kernel-event counts are graph-node executions, not that many CPU API launches. Host runtime durations and synchronization durations are retained separately; they are never added to CUDA sums or interpreted as normal serving overhead.
+- Projection labels are whole kernel durations, not isolated tensor-core time. FP8 fused_moe_kernel includes addressing/scales and routed-weight work; the NVFP4 path exposes explicit shuffle/weighting/reduction kernels. Component boundaries differ.
+- NVFP4's second FP4 conversion is labeled SiLU+mul+quantization from the local source call order, not from guessing C++ template boolean semantics. The dtype-copy label is deliberately coarse; memcpy32_post stays unattributed.
+- Kernel duration sums, interval unions and spans come from an instrumented single replay. They are not substituted for the separately collected five-repeat CUDA-event medians and have no independent repeat uncertainty.
+- No hardware DRAM counters, memory bandwidth, arithmetic utilization, cache-miss rates, or CPU launch-cost intervention are present. Explicit memory-related kernels suggest a candidate explanation, not measured traffic or a proven bandwidth bottleneck.
+- FP8 weights are synthetic; NVFP4 is calibrated Qwen3 layer 0. These are untuned paths from different runs, with synthetic matching route histograms, not same-weight quality/serving experiments.
+- The existing traces support separating small-B projection/setup cost from large-B auxiliary growth. They do not identify a unique cause, establish a fitted crossover, or predict the benefit of fusion/retuning without running it.
+
+Profile/unprofiled winner disagreements across 14 pairs: 0.
+Profiler kernel sums differ from separate unprofiled medians by -11.074% to +1.291%; this is not an estimate of profiler overhead.
+All 28 trace event counts and duration sums matched their original JSONL profile receipts.
+Unclassified kernel events: 0.
+Reproduce: python3 code/analyze_profile_components.py (run from project root).

@@ -1,0 +1,449 @@
+{
+  "task": "hellaswag",
+  "status": "complete",
+  "start_unix_s": 1792089490.1628587,
+  "versions": {
+    "lm_eval": "0.4.13",
+    "datasets": "5.1.0",
+    "huggingface-hub": "1.33.0",
+    "pyarrow": "26.0.0",
+    "torch": "2.11.0",
+    "transformers": "5.17.0"
+  },
+  "cpu_only": true,
+  "model_loaded": false,
+  "cuda_visible_devices": "",
+  "dataset_cache_root": "/root/.cache/research_C_format_sched/hf/datasets",
+  "task_sources": {
+    "entry_yaml_path": "/root/autodl-tmp/research_C_format_sched/tools_venv/lib/python3.12/site-packages/lm_eval/tasks/hellaswag/hellaswag.yaml",
+    "sources": {
+      "hellaswag.yaml": {
+        "installed_path": "/root/autodl-tmp/research_C_format_sched/tools_venv/lib/python3.12/site-packages/lm_eval/tasks/hellaswag/hellaswag.yaml",
+        "bytes": 480,
+        "sha256": "e9ef8ac3fed02bf283777d946ae76cbf906152e9c92533c9794e5a9dad78d1cf"
+      },
+      "utils.py": {
+        "installed_path": "/root/autodl-tmp/research_C_format_sched/tools_venv/lib/python3.12/site-packages/lm_eval/tasks/hellaswag/utils.py",
+        "bytes": 717,
+        "sha256": "07d23b60b28f2a4f658dcf8440623a63fe6644854ce9b846a114dde980dc1214"
+      }
+    },
+    "resolved_yaml_config": {
+      "tag": [
+        "multiple_choice"
+      ],
+      "task": "hellaswag",
+      "dataset_path": "Rowan/hellaswag",
+      "dataset_name": null,
+      "output_type": "multiple_choice",
+      "training_split": "train",
+      "validation_split": "validation",
+      "test_split": null,
+      "process_docs": "/root/autodl-tmp/research_C_format_sched/tools_venv/lib/python3.12/site-packages/lm_eval/tasks/hellaswag/utils.process_docs",
+      "doc_to_text": "{{query}}",
+      "doc_to_target": "{{label}}",
+      "doc_to_choice": "choices",
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        },
+        {
+          "metric": "acc_norm",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "metadata": {
+        "version": 1.0
+      }
+    },
+    "yaml_num_fewshot": null,
+    "yaml_num_fewshot_explicit": false
+  },
+  "harness_default_config": {
+    "task": "hellaswag",
+    "dataset_path": "Rowan/hellaswag",
+    "training_split": "train",
+    "validation_split": "validation",
+    "process_docs": "def process_docs(dataset: datasets.Dataset) -> datasets.Dataset:\n    def _process_doc(doc):\n        ctx = doc[\"ctx_a\"] + \" \" + doc[\"ctx_b\"].capitalize()\n        out_doc = {\n            \"query\": preprocess(doc[\"activity_label\"] + \": \" + ctx),\n            \"choices\": [preprocess(ending) for ending in doc[\"endings\"]],\n            \"gold\": int(doc[\"label\"]),\n        }\n        return out_doc\n\n    return dataset.map(_process_doc)\n",
+    "doc_to_text": "{{query}}",
+    "doc_to_target": "{{label}}",
+    "unsafe_code": false,
+    "doc_to_choice": "choices",
+    "description": "",
+    "target_delimiter": " ",
+    "fewshot_delimiter": "\n\n",
+    "fewshot_config": {
+      "sampler": "default",
+      "split": null,
+      "process_docs": {
+        "callable": "lm_eval.tasks.hellaswag.utils.process_docs"
+      },
+      "fewshot_indices": null,
+      "samples": null,
+      "doc_to_text": "{{query}}",
+      "doc_to_choice": "choices",
+      "doc_to_target": "{{label}}",
+      "gen_prefix": null,
+      "fewshot_delimiter": "\n\n",
+      "target_delimiter": " "
+    },
+    "metric_list": [
+      {
+        "metric": "acc",
+        "aggregation": "mean",
+        "higher_is_better": true
+      },
+      {
+        "metric": "acc_norm",
+        "aggregation": "mean",
+        "higher_is_better": true
+      }
+    ],
+    "output_type": "multiple_choice",
+    "repeats": 1,
+    "should_decontaminate": false,
+    "metadata": {
+      "version": 1.0,
+      "config_source": "/root/autodl-tmp/research_C_format_sched/tools_venv/lib/python3.12/site-packages/lm_eval/tasks/hellaswag/hellaswag.yaml"
+    }
+  },
+  "effective_task_config": {
+    "task": "hellaswag",
+    "dataset_path": "Rowan/hellaswag",
+    "training_split": "train",
+    "validation_split": "validation",
+    "process_docs": "def process_docs(dataset: datasets.Dataset) -> datasets.Dataset:\n    def _process_doc(doc):\n        ctx = doc[\"ctx_a\"] + \" \" + doc[\"ctx_b\"].capitalize()\n        out_doc = {\n            \"query\": preprocess(doc[\"activity_label\"] + \": \" + ctx),\n            \"choices\": [preprocess(ending) for ending in doc[\"endings\"]],\n            \"gold\": int(doc[\"label\"]),\n        }\n        return out_doc\n\n    return dataset.map(_process_doc)\n",
+    "doc_to_text": "{{query}}",
+    "doc_to_target": "{{label}}",
+    "unsafe_code": false,
+    "doc_to_choice": "choices",
+    "description": "",
+    "target_delimiter": " ",
+    "fewshot_delimiter": "\n\n",
+    "fewshot_config": {
+      "sampler": "default",
+      "split": null,
+      "process_docs": {
+        "callable": "lm_eval.tasks.hellaswag.utils.process_docs"
+      },
+      "fewshot_indices": null,
+      "samples": null,
+      "doc_to_text": "{{query}}",
+      "doc_to_choice": "choices",
+      "doc_to_target": "{{label}}",
+      "gen_prefix": null,
+      "fewshot_delimiter": "\n\n",
+      "target_delimiter": " "
+    },
+    "num_fewshot": 0,
+    "metric_list": [
+      {
+        "metric": "acc",
+        "aggregation": "mean",
+        "higher_is_better": true
+      },
+      {
+        "metric": "acc_norm",
+        "aggregation": "mean",
+        "higher_is_better": true
+      }
+    ],
+    "output_type": "multiple_choice",
+    "repeats": 1,
+    "should_decontaminate": false,
+    "metadata": {
+      "version": 1.0,
+      "config_source": "/root/autodl-tmp/research_C_format_sched/tools_venv/lib/python3.12/site-packages/lm_eval/tasks/hellaswag/hellaswag.yaml"
+    }
+  },
+  "effective_config_sha256": "b53899bc0e1d754539a84030d9fe6e859ddd1717492be058f250c276685701c1",
+  "splits": {
+    "train": {
+      "rows": 39905,
+      "datasets_fingerprint": "5c5bea5996a5827b",
+      "ordered_rows_sha256": "1e83437fbcdf7478ff5c27dd8a9c0c47dc4683a4b1c30fdb1bc5f22190ab6fc6",
+      "hash_encoding": "ordered UTF-8 canonical JSON rows, LF terminated",
+      "features": {
+        "ind": {
+          "dtype": "int32",
+          "_type": "Value"
+        },
+        "activity_label": {
+          "dtype": "string",
+          "_type": "Value"
+        },
+        "ctx_a": {
+          "dtype": "string",
+          "_type": "Value"
+        },
+        "ctx_b": {
+          "dtype": "string",
+          "_type": "Value"
+        },
+        "ctx": {
+          "dtype": "string",
+          "_type": "Value"
+        },
+        "endings": {
+          "feature": {
+            "dtype": "string",
+            "_type": "Value"
+          },
+          "_type": "List"
+        },
+        "source_id": {
+          "dtype": "string",
+          "_type": "Value"
+        },
+        "split": {
+          "dtype": "string",
+          "_type": "Value"
+        },
+        "split_type": {
+          "dtype": "string",
+          "_type": "Value"
+        },
+        "label": {
+          "dtype": "string",
+          "_type": "Value"
+        }
+      },
+      "cache_files": [
+        {
+          "path": "/root/.cache/research_C_format_sched/hf/datasets/Rowan___hellaswag/default/0.0.0/218ec52e09a7e7462a5400043bb9a69a41d06b76/hellaswag-train.arrow",
+          "bytes": 43268336,
+          "sha256": "92a7294a7a191f19a9eb02e5947a20a21d91f4d1aab62bdeff57b1f2d599a17e"
+        }
+      ],
+      "builder_name": "parquet",
+      "config_name": "default",
+      "dataset_version": "0.0.0",
+      "download_checksums": null,
+      "download_size": 36793872,
+      "dataset_size": 65207690
+    },
+    "test": {
+      "rows": 10003,
+      "datasets_fingerprint": "ade68387409a89dc",
+      "ordered_rows_sha256": "83ef25cc767a187393a18a1a196147bde1c4388e573268ad794d3e383fa554e8",
+      "hash_encoding": "ordered UTF-8 canonical JSON rows, LF terminated",
+      "features": {
+        "ind": {
+          "dtype": "int32",
+          "_type": "Value"
+        },
+        "activity_label": {
+          "dtype": "string",
+          "_type": "Value"
+        },
+        "ctx_a": {
+          "dtype": "string",
+          "_type": "Value"
+        },
+        "ctx_b": {
+          "dtype": "string",
+          "_type": "Value"
+        },
+        "ctx": {
+          "dtype": "string",
+          "_type": "Value"
+        },
+        "endings": {
+          "feature": {
+            "dtype": "string",
+            "_type": "Value"
+          },
+          "_type": "List"
+        },
+        "source_id": {
+          "dtype": "string",
+          "_type": "Value"
+        },
+        "split": {
+          "dtype": "string",
+          "_type": "Value"
+        },
+        "split_type": {
+          "dtype": "string",
+          "_type": "Value"
+        },
+        "label": {
+          "dtype": "string",
+          "_type": "Value"
+        }
+      },
+      "cache_files": [
+        {
+          "path": "/root/.cache/research_C_format_sched/hf/datasets/Rowan___hellaswag/default/0.0.0/218ec52e09a7e7462a5400043bb9a69a41d06b76/hellaswag-test.arrow",
+          "bytes": 10802528,
+          "sha256": "ccfab73ded659df04451e5576ae8fece2750bbcc926b58698d8c29664c835b9c"
+        }
+      ],
+      "builder_name": "parquet",
+      "config_name": "default",
+      "dataset_version": "0.0.0",
+      "download_checksums": null,
+      "download_size": 36793872,
+      "dataset_size": 65207690
+    },
+    "validation": {
+      "rows": 10042,
+      "datasets_fingerprint": "71a62ba9d49be089",
+      "ordered_rows_sha256": "2bc407195a57477b62ad939e34237e467aef1bd0116a5459c58900517845ebd7",
+      "hash_encoding": "ordered UTF-8 canonical JSON rows, LF terminated",
+      "features": {
+        "ind": {
+          "dtype": "int32",
+          "_type": "Value"
+        },
+        "activity_label": {
+          "dtype": "string",
+          "_type": "Value"
+        },
+        "ctx_a": {
+          "dtype": "string",
+          "_type": "Value"
+        },
+        "ctx_b": {
+          "dtype": "string",
+          "_type": "Value"
+        },
+        "ctx": {
+          "dtype": "string",
+          "_type": "Value"
+        },
+        "endings": {
+          "feature": {
+            "dtype": "string",
+            "_type": "Value"
+          },
+          "_type": "List"
+        },
+        "source_id": {
+          "dtype": "string",
+          "_type": "Value"
+        },
+        "split": {
+          "dtype": "string",
+          "_type": "Value"
+        },
+        "split_type": {
+          "dtype": "string",
+          "_type": "Value"
+        },
+        "label": {
+          "dtype": "string",
+          "_type": "Value"
+        }
+      },
+      "cache_files": [
+        {
+          "path": "/root/.cache/research_C_format_sched/hf/datasets/Rowan___hellaswag/default/0.0.0/218ec52e09a7e7462a5400043bb9a69a41d06b76/hellaswag-validation.arrow",
+          "bytes": 11186424,
+          "sha256": "fdd100245fae28e387869527dd0b8af1a0a931f7cf364abaf6f3138de7f0d27b"
+        }
+      ],
+      "builder_name": "parquet",
+      "config_name": "default",
+      "dataset_version": "0.0.0",
+      "download_checksums": null,
+      "download_size": 36793872,
+      "dataset_size": 65207690
+    }
+  },
+  "evaluation_split": "validation",
+  "evaluation_docs": {
+    "rows": 10042,
+    "datasets_fingerprint": "05097e4c16cf3c79",
+    "ordered_rows_sha256": "22070ffab521d1df49ee295ab0e6e4234f2aaa1d6378492b34e630adab078a6f",
+    "hash_encoding": "ordered UTF-8 canonical JSON rows, LF terminated",
+    "features": {
+      "ind": {
+        "dtype": "int32",
+        "_type": "Value"
+      },
+      "activity_label": {
+        "dtype": "string",
+        "_type": "Value"
+      },
+      "ctx_a": {
+        "dtype": "string",
+        "_type": "Value"
+      },
+      "ctx_b": {
+        "dtype": "string",
+        "_type": "Value"
+      },
+      "ctx": {
+        "dtype": "string",
+        "_type": "Value"
+      },
+      "endings": {
+        "feature": {
+          "dtype": "string",
+          "_type": "Value"
+        },
+        "_type": "List"
+      },
+      "source_id": {
+        "dtype": "string",
+        "_type": "Value"
+      },
+      "split": {
+        "dtype": "string",
+        "_type": "Value"
+      },
+      "split_type": {
+        "dtype": "string",
+        "_type": "Value"
+      },
+      "label": {
+        "dtype": "string",
+        "_type": "Value"
+      },
+      "query": {
+        "dtype": "string",
+        "_type": "Value"
+      },
+      "choices": {
+        "feature": {
+          "dtype": "string",
+          "_type": "Value"
+        },
+        "_type": "List"
+      },
+      "gold": {
+        "dtype": "int64",
+        "_type": "Value"
+      }
+    },
+    "cache_files": [
+      {
+        "path": "/root/.cache/research_C_format_sched/hf/datasets/Rowan___hellaswag/default/0.0.0/218ec52e09a7e7462a5400043bb9a69a41d06b76/cache-05097e4c16cf3c79.arrow",
+        "bytes": 19221912,
+        "sha256": "78cec8983bf3587e27c7b4623518baedd98a1b91dba97298f40f21f32a38668d"
+      }
+    ],
+    "builder_name": "parquet",
+    "config_name": "default",
+    "dataset_version": "0.0.0",
+    "download_checksums": null,
+    "download_size": 36793872,
+    "dataset_size": 65207690
+  },
+  "formatted_evaluation": {
+    "rows": 10042,
+    "ordered_sha256": "266441c6b86dfdd1c4196d06b6e319171b9f94b238fe1d43947345f455708e6d",
+    "choices_count_histogram": {
+      "4": 10042
+    },
+    "all_targets_valid": true,
+    "num_fewshot": 0,
+    "apply_chat_template": false
+  },
+  "torch_cuda_initialized": false,
+  "end_unix_s": 1792089521.6654043
+}

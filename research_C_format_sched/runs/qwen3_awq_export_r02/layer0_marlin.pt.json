@@ -1,0 +1,297 @@
+{
+  "checkpoint": "dtometzki/Qwen3-30B-A3B-awq-sym",
+  "checkpoint_revision": "c3b14f75be5ee20d4f6b2f461b5ad4e0fd3731c5",
+  "revision": "c3b14f75be5ee20d4f6b2f461b5ad4e0fd3731c5",
+  "base_checkpoint": "Qwen/Qwen3-30B-A3B",
+  "base_checkpoint_revision": "unreported_by_publisher",
+  "exact_base_revision_known": false,
+  "base_revision_evidence": "publisher provenance required; current base HEAD is not source provenance",
+  "shape": {
+    "d": 2048,
+    "intermediate": 768,
+    "experts": 128,
+    "top_k": 8
+  },
+  "layer": 0,
+  "required_tensor_count": 1152,
+  "required_shards": [
+    "model-00001-of-00004.safetensors"
+  ],
+  "missing_shards": [],
+  "config_sha256": "773d59a032d09ac9b89ea19b980dd7f18b154eb24d1e2d5acfb59c305004cda8",
+  "quantization_config_group": "group_0",
+  "source_weight_quantization": {
+    "actorder": null,
+    "block_structure": null,
+    "dynamic": false,
+    "group_size": 128,
+    "num_bits": 4,
+    "observer": "minmax",
+    "observer_kwargs": {},
+    "scale_dtype": null,
+    "strategy": "group",
+    "symmetric": true,
+    "type": "int",
+    "zp_dtype": null
+  },
+  "calibration_method": "AWQ (publisher-documented calibrated checkpoint; no new quantization)",
+  "publisher_calibration": {
+    "dataset": "HuggingFaceH4/ultrachat_200k",
+    "split": "SFT (card wording)",
+    "samples": 256,
+    "max_seq_length": 512,
+    "tool_version_status": "card says llm-compressor v6.2.0; treat as publisher text, not a verified installed version"
+  },
+  "publisher_evidence": [
+    "https://huggingface.co/dtometzki/Qwen3-30B-A3B-awq-sym/blob/main/README.md",
+    "https://huggingface.co/dtometzki/Qwen3-30B-A3B-awq-sym/blob/main/config.json",
+    "https://huggingface.co/dtometzki/Qwen3-30B-A3B-awq-sym/commit/90e50f200fd30de46cdb4e0cd392baed06ff6ce2",
+    "https://huggingface.co/dtometzki/Qwen3-30B-A3B-awq-sym/tree/main"
+  ],
+  "source_identity": {
+    "evidence": "caller-provided directory and catalog identity; no local provenance manifest",
+    "checkpoint_and_revision_match": "not_independently_verified"
+  },
+  "schema": 1,
+  "format": "awq",
+  "layout": "vllm_marlin_processed",
+  "quant_type": "uint4b8",
+  "symmetric": true,
+  "group_size": 128,
+  "created_utc": "2026-10-15T18:39:46.591144+00:00",
+  "torch_version": "2.11.0+cu130",
+  "vllm_version": "0.26.0",
+  "compressed_tensors_version": "0.17.0",
+  "weight_source": "calibrated_checkpoint",
+  "quality_claim": false,
+  "source_layout_checks": {
+    "all_source_shapes_match": true,
+    "all_transpose_and_gate_up_copies_exact": true,
+    "group128_scales_finite_nonnegative": true,
+    "source_scale_dtype_counts": {
+      "torch.bfloat16": 384
+    },
+    "scale_cast_max_absolute_error": 0.0,
+    "source_signed_unpack_checks": [
+      {
+        "expert": 0,
+        "projection": "gate_proj",
+        "matches_installed_compressed_tensors_unpack": true,
+        "integer_min": -8,
+        "integer_max": 7
+      },
+      {
+        "expert": 0,
+        "projection": "up_proj",
+        "matches_installed_compressed_tensors_unpack": true,
+        "integer_min": -8,
+        "integer_max": 7
+      },
+      {
+        "expert": 0,
+        "projection": "down_proj",
+        "matches_installed_compressed_tensors_unpack": true,
+        "integer_min": -8,
+        "integer_max": 7
+      },
+      {
+        "expert": 127,
+        "projection": "gate_proj",
+        "matches_installed_compressed_tensors_unpack": true,
+        "integer_min": -8,
+        "integer_max": 7
+      },
+      {
+        "expert": 127,
+        "projection": "up_proj",
+        "matches_installed_compressed_tensors_unpack": true,
+        "integer_min": -8,
+        "integer_max": 7
+      },
+      {
+        "expert": 127,
+        "projection": "down_proj",
+        "matches_installed_compressed_tensors_unpack": true,
+        "integer_min": -8,
+        "integer_max": 7
+      }
+    ],
+    "g_idx_tensors_seen": 0,
+    "weight_shape_tensors_checked": 384,
+    "selected_tensor_payload_sha256": "0a3bf0d48775ab640ad1f733bcb3960c4cd7056a4d30ab732be58fce532dd6e9",
+    "hash_order": "expert, gate/up/down, packed/scale/shape/optional-g_idx",
+    "official_unpack_source_sha256": "8619308666eba5e8a442d1647c34b6b5f9716b13ed2051ed17fb1ea683b0db72"
+  },
+  "conversion": {
+    "entrypoint": "vllm.model_executor.layers.fused_moe.oracle.int_wna16.convert_to_wna16_moe_kernel_format",
+    "source_file": "/root/miniconda3/lib/python3.12/site-packages/vllm/model_executor/layers/fused_moe/oracle/int_wna16.py",
+    "source_file_sha256": "639de383e5346a9803a208600fe6b6f82a2187ec4a4240561b46958a54f92c36",
+    "input_dtype": null,
+    "quant_type": "uint4b8",
+    "zero_points": false
+  },
+  "tensor_manifest": {
+    "w1": {
+      "shape": [
+        128,
+        128,
+        3072
+      ],
+      "dtype": "torch.int32",
+      "bytes": 201326592
+    },
+    "w2": {
+      "shape": [
+        128,
+        48,
+        4096
+      ],
+      "dtype": "torch.int32",
+      "bytes": 100663296
+    },
+    "w1_scale": {
+      "shape": [
+        128,
+        16,
+        1536
+      ],
+      "dtype": "torch.bfloat16",
+      "bytes": 6291456
+    },
+    "w2_scale": {
+      "shape": [
+        128,
+        6,
+        2048
+      ],
+      "dtype": "torch.bfloat16",
+      "bytes": 3145728
+    },
+    "g_idx1": {
+      "shape": [
+        128,
+        0
+      ],
+      "dtype": "torch.int32",
+      "bytes": 0
+    },
+    "g_idx2": {
+      "shape": [
+        128,
+        0
+      ],
+      "dtype": "torch.int32",
+      "bytes": 0
+    },
+    "sort_indices1": {
+      "shape": [
+        128,
+        0
+      ],
+      "dtype": "torch.int32",
+      "bytes": 0
+    },
+    "sort_indices2": {
+      "shape": [
+        128,
+        0
+      ],
+      "dtype": "torch.int32",
+      "bytes": 0
+    }
+  },
+  "artifact_sha256": "f26547433a8e4799f78c60f101db6f637eda6a0186431ed9a6aa994607f3656b",
+  "numeric_validation": {
+    "status": "numerical_diagnostic_complete",
+    "tokens": 2,
+    "seed": 20261016,
+    "topk_ids": [
+      [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      [
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+      ]
+    ],
+    "topk_weights": [
+      [
+        0.02777777798473835,
+        0.0555555559694767,
+        0.0833333358168602,
+        0.1111111119389534,
+        0.1388888955116272,
+        0.1666666716337204,
+        0.1944444477558136,
+        0.2222222238779068
+      ],
+      [
+        0.02777777798473835,
+        0.0555555559694767,
+        0.0833333358168602,
+        0.1111111119389534,
+        0.1388888955116272,
+        0.1666666716337204,
+        0.1944444477558136,
+        0.2222222238779068
+      ]
+    ],
+    "reference_source": "independent signed-int4 decode of original checkpoint tensors before Marlin repack",
+    "torch_fp32_reference_error": {
+      "relative_l2": 0.00436145905405283,
+      "max_abs_error": 0.004473447799682617,
+      "mean_abs_error": 0.00025330885546281934,
+      "reference_rms": 0.07625924050807953,
+      "actual_rms": 0.07632835954427719,
+      "cosine_similarity": 0.9999909400939941,
+      "actual_finite": true,
+      "reference_finite": true
+    },
+    "torch_bf16_stage_reference_error": {
+      "relative_l2": 0.005350119434297085,
+      "max_abs_error": 0.0078125,
+      "mean_abs_error": 0.00027731223963201046,
+      "reference_rms": 0.07622992992401123,
+      "actual_rms": 0.07632835954427719,
+      "cosine_similarity": 0.9999865889549255,
+      "actual_finite": true,
+      "reference_finite": true
+    },
+    "negative_swapped_gate_up_error": {
+      "relative_l2": 0.5655761957168579,
+      "max_abs_error": 0.1962890625,
+      "mean_abs_error": 0.03612576425075531,
+      "reference_rms": 0.08085038512945175,
+      "actual_rms": 0.07632835954427719,
+      "cosine_similarity": 0.8322432041168213,
+      "actual_finite": true,
+      "reference_finite": true
+    },
+    "same_input_repeat_error": {
+      "relative_l2": 0.0,
+      "max_abs_error": 0.0,
+      "mean_abs_error": 0.0,
+      "reference_rms": 0.07632835954427719,
+      "actual_rms": 0.07632835954427719,
+      "cosine_similarity": 1.0,
+      "actual_finite": true,
+      "reference_finite": true
+    },
+    "finite_output": true,
+    "quality_claim": false,
+    "note": "No bitwise equivalence or task-quality claim; BF16 stage and GEMM reduction rounding may differ."
+  }
+}

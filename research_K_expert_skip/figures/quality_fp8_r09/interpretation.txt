@@ -1,0 +1,8 @@
+OLMoE online FP8 W8A8, evaluated relative to native FP8 at the same B.
+Existing plot_results.py generated 27 run points and 333 paired-group rows, with no warnings.
+The local invocation only adapted the condition title to make FP8 W8A8 explicit; condition metadata retains dtype=bfloat16 and quantization=fp8. Source code was not changed.
+Each B has the same 32 validation articles, 128 prefix tokens and 32 scored decode predictions/article (1024/arm); the first prefill prediction is excluded.
+B1/B8/B32 use 32/4/1 cohorts within one source execution each, not independent run repetitions.
+format_context_comparison.csv retains each format's own native PPL and footprint denominator. Document keys match BF16 r06, but native distributions differ; KL values are not cross-format KL.
+Negative selected-window NLL/PPL deltas are descriptive and do not establish task improvement. Logical distinct weight bytes are not measured DRAM traffic.
+These eager quality PASS results do not establish graph execution or performance. The separate padded B3/B5 eager-versus-graph check failure is not a quality-result failure.

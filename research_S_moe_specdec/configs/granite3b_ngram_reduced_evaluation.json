@@ -1,0 +1,65 @@
+{
+  "batches": [
+    1,
+    4,
+    16,
+    64
+  ],
+  "gammas": [
+    0,
+    3,
+    7
+  ],
+  "repeats": 2,
+  "measured_requests": 64,
+  "output_tokens": 128,
+  "warmup_tokens": 32,
+  "warmup_each_batch": true,
+  "trace_tokens": 32,
+  "dtype": "bfloat16",
+  "max_model_len": 1024,
+  "kv_cache_memory_bytes": 6442450944,
+  "enforce_eager": false,
+  "native_route_return": false,
+  "kernel_config": {
+    "moe_backend": "triton"
+  },
+  "total_gpu_budget_seconds": 72000,
+  "model": "/root/autodl-tmp/research_S_moe_specdec/models/granite3b/d4dd87aa3a6c201bc374851d7d7ff4cf39a0b82a/target",
+  "model_repo": "ibm-granite/granite-3.1-3b-a800m-base",
+  "model_revision": "d4dd87aa3a6c201bc374851d7d7ff4cf39a0b82a",
+  "model_metadata": "configs/granite3b_target_source.json",
+  "architecture": {
+    "name": "GraniteMoeForCausalLM",
+    "experts": 40,
+    "top_k": 8,
+    "hidden_size": 1536,
+    "intermediate_size": 512,
+    "layers": 32,
+    "vocab_size": 49152
+  },
+  "workload": "configs/sharegpt_granite1b.json",
+  "workload_sha256": "7855854734b9a154a7c25b7a850aa71567020842d16d98afd8a2d9b015158f6d",
+  "prompt_format": "raw_continuation_no_chat_template",
+  "draft_source": "ngram",
+  "group_gpu_budget_seconds": 3600,
+  "measurement": "Held-out prompts64-127; five separately executed policies selected on development prompts0-63. Adaptive action set is restricted to {0,3,7}, with budget7 full-cost calibration. Warm state is initialized only on development prompts0-63; continuous EWMA across waves/batches/repeats.",
+  "scope": "Use existing compatible assets to form ngram plus independent neural-draft sources for the third target; Granite3B replaces the unmeasured Granite1B auxiliary target. Qwen remains in scope. No performance-based model selection.",
+  "runtime_status": "Native load, shared KV allocation, draft acceptance, selected kernels and target/draft route separation remain unmeasured.",
+  "trace_requests": 64,
+  "route_population": "Separate instrumented episode covers the same first64 workload records at every B; trace does not enter performance windows.",
+  "input_offset": 64,
+  "warmup_offset": 0,
+  "shape_warmup_offset": 0,
+  "skip_trace": true,
+  "admission_mode": "wave",
+  "max_num_seqs": 64,
+  "candidate_gammas": [
+    0,
+    3,
+    7
+  ],
+  "preparation_domain": "granite3b_ngram",
+  "preparation_role": "heldout_policy_evaluation",
+  "execution_domain_note": "Compiled V1 is the primary native execution domain; chosen before these campaigns ran after the OLMoE execution comparison exposed a stronger AR baseline. Calibration and held-out evaluation stay in this same domain; compatibility failures are inspected, not filtered by performance."
+}
