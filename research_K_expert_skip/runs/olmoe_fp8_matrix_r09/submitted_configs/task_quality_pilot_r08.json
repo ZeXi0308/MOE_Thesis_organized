@@ -1,0 +1,32 @@
+{
+  "status": "prepared_not_submitted",
+  "purpose": "Measure natural generation for all10 existing quality arms and actual task-runner throughput before full task allocation",
+  "outer_timeout_s": 3630,
+  "inner_budget_s": 3600,
+  "job_timeout_s": 1500,
+  "model": "/root/autodl-tmp/moe-research-20261002/model",
+  "python": "/root/autodl-tmp/research_C_format_sched/tools_venv/bin/python",
+  "arms_file": "configs/quality_pareto.json",
+  "formats": [
+    "bf16"
+  ],
+  "tasks": [
+    "gsm8k",
+    "mmlu",
+    "hellaswag",
+    "arc_challenge"
+  ],
+  "limit_per_task_leaf": 16,
+  "free_generation_limit": 200,
+  "batch": 8,
+  "max_tokens": 256,
+  "max_model_len": 4096,
+  "gpu_memory_utilization": 0.35,
+  "scope": "All task scores limited/exploratory; 200 free-generation prompts are full requested screening population, with EOS/cap/failure/repetition preserved. MMLU/HellaSwag/ARC are prefill identity controls. All10 arms are the pre-existing quality Pareto arms including native/dense, not selected after seeing task accuracy.",
+  "dependencies": [
+    "r07 terminal status and no remaining own GPU processes",
+    "sync newly completed local code only after current r07 exits",
+    "invoke run_task_quality directly under run_locked with --outer-run-dir matching this run",
+    "do not queue while current own r07 RUNNING"
+  ]
+}

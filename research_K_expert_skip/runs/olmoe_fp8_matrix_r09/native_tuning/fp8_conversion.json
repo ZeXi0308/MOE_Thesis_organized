@@ -1,0 +1,98 @@
+{
+  "quantization": "fp8",
+  "config_dtype": "fp8_w8a8",
+  "backend": "TRITON",
+  "native_online_method_invoked": true,
+  "full_engine_loaded": false,
+  "gate_up_quantization": "concatenate BF16 gate/up first; native per-expert quantization of the merged w13 tensor",
+  "activation_quantization": "dynamic per-tensor FP8 inside measured fused_experts; BF16 input/output",
+  "block_shape": null,
+  "per_act_token_quant": false,
+  "per_out_ch_quant": false,
+  "tensors": {
+    "w1": {
+      "shape": [
+        64,
+        2048,
+        2048
+      ],
+      "dtype": "torch.float8_e4m3fn",
+      "stride": [
+        4194304,
+        2048,
+        1
+      ],
+      "sha256": "20c72af58181e9bc82590610be8b7768087e6aad78816f32dd8c10d54ec6bc61",
+      "bytes": 268435456
+    },
+    "w2": {
+      "shape": [
+        64,
+        2048,
+        1024
+      ],
+      "dtype": "torch.float8_e4m3fn",
+      "stride": [
+        2097152,
+        1024,
+        1
+      ],
+      "sha256": "b4c18957bceca3b5ab3fff9235d029fbb115e35154355edc653b89fae34839db",
+      "bytes": 134217728
+    },
+    "w1_scale": {
+      "shape": [
+        64
+      ],
+      "dtype": "torch.float32",
+      "stride": [
+        1
+      ],
+      "sha256": "64d3df15cd516870329f61b31bd5cc30850ad38a83678d268dfa5059a22e39e2",
+      "bytes": 256,
+      "min": 0.0002408708824077621,
+      "max": 0.0008108956390060484
+    },
+    "w2_scale": {
+      "shape": [
+        64
+      ],
+      "dtype": "torch.float32",
+      "stride": [
+        1
+      ],
+      "sha256": "196d7f2d185c0897528791f43f39dc45dd5acdf5a833ceb49774b91cb1107b52",
+      "bytes": 256,
+      "min": 0.0002506801101844758,
+      "max": 0.0014212472597137094
+    }
+  },
+  "sources": [
+    {
+      "function": "vllm.model_executor.layers.quantization.online.fp8.Fp8PerTensorOnlineMoEMethod.process_weights_after_loading",
+      "path": "/root/miniconda3/lib/python3.12/site-packages/vllm/model_executor/layers/quantization/online/fp8.py",
+      "file_sha256": "e7bbca668d3ce6134d24110ff3b5070f51d3fee21852a3fd90c1c83d4a04f2fc",
+      "function_sha256": "06adf169f0fafcd28b7e2e514382f1a4cf7742b297c36c9fb4bea1c8ae9a7544"
+    },
+    {
+      "function": "vllm.model_executor.layers.fused_moe.oracle.fp8.convert_to_fp8_moe_kernel_format",
+      "path": "/root/miniconda3/lib/python3.12/site-packages/vllm/model_executor/layers/fused_moe/oracle/fp8.py",
+      "file_sha256": "5321f37783658c5f20280776c5360058805e71e8c3f40dcca5b4e5c1bedf7d59",
+      "function_sha256": "1ef7a84e760ec5561e331a6a3c511749fb4eb0e6d7d1f7bc3687fe17adb2bd4d"
+    },
+    {
+      "function": "vllm.model_executor.layers.fused_moe.oracle.fp8.make_fp8_moe_quant_config",
+      "path": "/root/miniconda3/lib/python3.12/site-packages/vllm/model_executor/layers/fused_moe/oracle/fp8.py",
+      "file_sha256": "5321f37783658c5f20280776c5360058805e71e8c3f40dcca5b4e5c1bedf7d59",
+      "function_sha256": "d2bd78750079b7723f4b501a7c8026f3957d7001adb13acbc1ac7a5e7e408055"
+    },
+    {
+      "function": "vllm._custom_ops.scaled_fp8_quant",
+      "path": "/root/miniconda3/lib/python3.12/site-packages/vllm/_custom_ops.py",
+      "file_sha256": "16c78d17be2779361043e7a3a121bbc2d6d72cb631f5c267961bbd5971ca5336",
+      "function_sha256": "530b9bdac543dc51b11622f6c673b7bacab0694406fc7f297cd0dad2004db643"
+    }
+  ],
+  "preparation_and_verification_seconds": 0.41952209174633026,
+  "preparation_in_timing_objective": false
+}

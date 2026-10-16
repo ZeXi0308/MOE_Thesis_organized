@@ -1,0 +1,10 @@
+{
+  "purpose": "Same artifact task quality and natural generation; preserve each model router's normalization",
+  "arms": [
+    {"name": "native", "spec": null},
+    {"name": "dense", "spec": {"mode": "dense", "backend": "triton"}},
+    {"name": "global_j1", "spec": {"mode": "global_native", "drop_j": 1, "count_routes": true, "backend": "triton"}},
+    {"name": "gate_low", "spec": {"mode": "gate", "gate_threshold": 0.05, "mass_budget": 0.10, "backend": "triton"}},
+    {"name": "marginal_low", "spec": {"mode": "marginal", "tail_rank": 4, "gate_threshold": 0.05, "mass_budget": 0.10, "backend": "triton"}}
+  ]
+}
