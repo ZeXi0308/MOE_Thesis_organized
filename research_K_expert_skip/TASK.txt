@@ -1,0 +1,56 @@
+你是本课题唯一负责人。六周内交付：
+1. 刻画：decode 一步里"只被单个 token 选中的专家槽"占比随 batch、E/k 的变化（模型 + 实测），以及尾部 rank 专家被跳过时的质量代价表；
+2. 机制：在 vLLM 0.26 的 select_experts 后做边际成本感知的跳过——只跳过那些 gate 权重小、位于尾部 rank、且本步没有其他 token 选中它（跳过才真正省权重字节）的 (token, expert) 对；
+3. 真机：三模型、batch 1–64 的 TPOT、字节、J/token 与质量 Pareto，对照全局减 k 与 batch 无关的 gate 阈值跳过；
+4. 一篇可投 CCF-C 主会的论文初稿（LaTeX）；刻画部分单独可成文。
+工作方式：直接测、直接建；不做审计包、不预注册、不开 reviewer 轮、不生成新 idea。
+- 本课题的产出是机制、图表和论文，不是判决。"证明这条路不行"不是可交付结果。
+- 这个工作区的历史教训：一周判死 12 条 idea，之后又积累了几十个"窄负结果"，根因是每个探针只做到"够判死"的最小尺寸就停了，从来没有把一个机制完整建出来。本课题反过来：先把机制完整建出来（可安装、可开关、对每个事件生效、有计数器），再测；只有完整的机制才有资格被评价。
+- 任何负结果都必须附带同一路线内的建设性下一步（改参数区间、换负载、换模型、修实现），而不是结束。写法固定为"当前效果 X，下一步 Y"。
+- 不写 KILL / NO-GO / FROZEN / 判死 这类判决词；不为负结果写审计包。
+- 预期未达时先怀疑实现与测量（计数器、A/A 噪声带、预热、实际 kernel 路径、配置是否真的生效），再怀疑模型；两者都排除后才调整主张。
+- 只有 §转向 的两个转向点可以改变路线走向，且转向后仍必须交付刻画型论文：转向是换产出形态，不是停止建设。
+- 每周必须有新增的"建出来的东西"（代码、图、论文节）。一周只有分析没有构建，视为偏航，下周先补构建。
+- 单卡。PRO 6000 跑 BF16/FP8 两种权重格式以证明结论与格式无关；5090 跑 OLMoE BF16 与 30B 级 AWQ/NVFP4。SM120 两卡一致。
+- GPU 预算约 15 小时。能耗 pynvml 积分。
+- 环境：vLLM 0.26.0。
+GitHub 仓库 ZeXi0308/MOE_Thesis_organized main 分支（本地没有就 clone 到 ref_july/）：
+1. docs/ideas/A_rank_tail_fp8/设计说明.md、原文/IdeaA_主实验报告_论文版.md：rank 长尾的全部数字；outputs/ 下 rank_mix 系列里含 drop 策略的结果——先找出"丢弃尾部 rank 并重归一化"的 KL/PPL 数据，有就直接用，没有就在 W1 用 experiments/shared/{capture_moe.py, policies.py, metrics.py} 补测。
+2. experiments/shared/capture_routes_v2.py：路由 trace（每步每专家 token 数），用于估专家选择概率与真实偏斜。
+3. docs/ideas/energy_slo/experiments/run_energy_slo_power_probe.py：PowerSampler。
+4. docs/07_literature/ 下 AdapMoE 的 PDF（已有）：它的 gate 阈值跳过是本课题的直接基线。
+5. 已安装 vLLM 0.26 源码：vllm/model_executor/layers/fused_moe/layer.py（select_experts、FusedMoE.forward）、fused_moe.py（moe_align_block_size，确认 topk_ids == -1 的槽会被跳过——EP 的 expert_map 就靠它）。
+第 1–2 天查新（半页）：AdapMoE（ICCAD'24）、NAEE / Not-All-Experts-Are-Equal、Ada-K routing、MoE++、DynMoE、Expert-Choice 类动态 k。预期差异：跳过决策以本步边际字节为准（batch 感知），面向 serving batch 而非单 token；细粒度 MoE（E/k ≥ 16）上收益延伸到 B≈32；真机能耗。
+- 同 token top-k 内 contribution 长尾：头/尾比 OLMoE 48×、LLM-jp 117×；尾部 rank 的 INT4 量化几乎无损（62.5% 点安全边际 10–22×）。跳过比量化激进，必须用 W1 的 drop 表重新定边界。
+- decode 每专家只有 B·k/E 个 token，专家时间 ≈ 本步 distinct 专家权重字节 / HBM 带宽。跳过一个 (token, expert) 对只有在该专家本步无其他 token 时才省字节；否则只省 FLOPs，而带宽受限下 FLOPs 不是瓶颈。
+- 专家循环占 MoE block 时间 75–86%。
+单 token 槽占比：一步 B 个 token、每 token k 个专家、专家 e 选中概率 p_e。专家 e 在本步只被一个 token 选中的概率近似 $B k p_e(1-k p_e)^{B-1}$；均匀近似下，一个槽"独占"的概率 $u(B)=(1-k/E)^{B-1}$。 OLMoE（k/E=1/8）：B=1 → 1.0；B=4 → 0.67；B=8 → 0.39；B=16 → 0.13；B=32 → 0.02。 Qwen3-30B-A3B（k/E=1/16）：B=8 → 0.64；B=16 → 0.38；B=32 → 0.13。 E=256、k=8（DeepSeek-V3 形态）：B=32 → 0.38；B=64 → 0.14。 结论：E/k 越大，跳过能省字节的 batch 范围越宽；这就是现代细粒度 MoE 给本课题的空间。
+边际字节：对 (token t, 专家 e)，$c_{t,e}=w_e\cdot[\text{count}_e=1]$；本步总节省 $=\sum_{\text{skipped}} c_{t,e}$。 质量代价：$\delta(r,g)$，r 为 rank、g 为 gate 权重（重归一化后），由 W1 的 drop 表给出；每 token 预算 $m$（被丢弃的 gate 质量占比上限）。 决策：跳过 iff $r\ge r_0$ ∧ $g\le\tau$ ∧ $\text{count}_e=1$，且该 token 累计丢弃质量 ≤ m。等价于"只在跳过有收益的地方花质量预算"。对照的两条基线把质量花在无收益的地方：全局减 k（对所有 token 砍尾部）、AdapMoE 式 gate 阈值（不看 count）。 预期：OLMoE B=1 跳过尾部 4/8 → 字节 −50%、专家时间 ≈ −45%；B=8 约 −20%；B=32 ≈ 0。Qwen3-30B-A3B 同幅度后移一倍 batch。
+目录 research_K_expert_skip/code/：
+1. select_experts 后处理（单文件 patch，可开关）：counts = bincount(topk_ids.flatten(), E)；mask = (rank ≥ r0) & (gate ≤ τ) & (counts[topk_ids] == 1)；按 m 截断每 token 的 mask；topk_ids[mask] = -1、topk_weights[mask] = 0，剩余权重重归一化（与 renormalize 设置一致）。确认 fused_moe 对 -1 槽不读权重、不算 GEMM（EP 路径的现成行为），不满足就在 moe_align_block_size 前过滤。
+2. 计数器：每步 distinct 专家数、权重字节、跳过数；写日志。
+3. 基线：dense top-k；全局 top-(k−j)，j ∈ {1,2,4}；gate 阈值跳过（不看 count）；本课题（r0, τ, m 各扫一档）。
+4. 质量：vLLM 内跑 WikiText PPL、token KL（相对 dense top-k）、lm-eval（MMLU 5-shot、GSM8K、HellaSwag、ARC-c）；自由生成抽检 200 条看重复率。
+5. 能耗：PowerSampler 积分，J/token。
+规模：先跑 OLMoE BF16 全矩阵（7 batch × 9 策略 ≈ 63 格 × 2 分钟），出 F2、F3；再扩两模型与格式。总计约 15 GPU 小时。
+- F1 独占槽占比 u(B)：模型 vs 实测（路由 trace 回放），三模型。
+- F2（主图） 字节与 TPOT 相对 dense 的降幅 vs B，各策略；标出本课题与基线分离的区间。
+- F3 质量—字节 Pareto（x = 字节节省，y = KL / PPL 增量 / 任务精度），B ∈ {1, 8, 32} 三面板：本课题应在基线左下方。
+- F4 J/token vs B。
+- F5 不同 E/k（三模型）的收益区间对比。
+- F6 开销：后处理的 CPU/GPU 时间。
+- T1 drop 表（rank × gate 分桶的 KL）；T2 与 AdapMoE / NAEE / Ada-K 的动作级对照。
+从第 1 周起维护 paper/main.tex。 题目候选："Skip Only What You Would Load: Marginal-Cost-Aware Expert Skipping for Fine-Grained MoE Decode"。 章节：1 引言（三条贡献：独占槽模型与 E/k 规律；边际成本感知的跳过；三模型真机 Pareto 与能耗）；2 背景；3 模型；4 刻画（F1、T1）；5 设计与实现；6 评估（F2–F6、T2）；7 相关工作；8 结论。 投稿：CCF-C（ICPADS、HPCC、ICA3PP、IISWC）；Qwen3-30B-A3B 上 B≤16 有 ≥20% TPOT 改善且任务精度不掉时试 ICPP / CLUSTER。等级以 CCF 最新目录为准。
+- W1：查新；drop 表（T1）；路由 trace 的 u(B)（F1）；patch 跑通并确认 -1 槽真正省字节。
+- W2：OLMoE BF16 全矩阵；F2、F3 初版；paper 骨架。
+- W3：Qwen3-30B-A3B、DeepSeek-V2-Lite；F5。
+- W4：FP8/AWQ 格式复测；能耗 F4；lm-eval 全表。
+- W5：补重复；评估节、相关工作；T2。
+- W6：定稿与复现包。
+- 不以证伪为产出：负结果必须附建设性下一步，不写判决词，不写审计包；机制先建完整再评价。
+- 不做学习型门控、不微调；只有阈值与计数。
+- 字节节省必须用计数器实测，不只用 u(B) 推算。
+- 质量表与性能表用同一份权重；重归一化设置与模型默认一致。
+- 目录：RESULTS.md、code/、configs/、runs/、figures/、paper/、reproduce.md；RESULTS.md 顶部五行：当前主张 / 关键证据 / 最强替代解释 / 下一动作 / 资源状态。
+- W1 的 drop 表显示任何可观的跳过都显著伤质量（如 m=5% 已使 GSM8K 掉 >1 分）：改为"跳过 → 降格"，把独占尾部专家改走 4-bit 权重副本而非跳过（省一半字节而非全部），其余实验不变。
+- B ≥ 8 时三模型都无收益且 B=1–4 的场景被认为不够 serving：论文转为刻画型（独占槽规律 + 细粒度 MoE 的字节模型 + drop 质量表），仍投 CCF-C。

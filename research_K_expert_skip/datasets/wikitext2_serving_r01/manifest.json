@@ -1,0 +1,96 @@
+{
+  "status": "READY",
+  "created_unix": 1792095984.103535,
+  "source_root": "/root/autodl-tmp/research_B_tiered_combine/runs/inputs_wikitext2_r01",
+  "sources": {
+    "validation": {
+      "path": "/root/autodl-tmp/research_B_tiered_combine/runs/inputs_wikitext2_r01/validation.parquet",
+      "sha256": "204929b7ff9d6184953f867dedb860e40aa69c078fc1e54b3baaa8fb28511c4c",
+      "parquet_rows": 3760,
+      "eligible_articles": 60
+    },
+    "test": {
+      "path": "/root/autodl-tmp/research_B_tiered_combine/runs/inputs_wikitext2_r01/test.parquet",
+      "sha256": "5f1bea067869d04849c0f975a2b29c4ff47d867f484f5010ea5e861eab246d91",
+      "parquet_rows": 4358,
+      "eligible_articles": 61
+    }
+  },
+  "files": {
+    "validation_articles": {
+      "path": "/root/autodl-tmp/research_K_expert_skip/datasets/wikitext2_serving_r01/validation_articles.jsonl",
+      "rows": 60,
+      "sha256": "f4a73a97354fa28a00200e08ab2b855dcd0396c749ce9e902e34767dac3099ca"
+    },
+    "validation_quality32": {
+      "path": "/root/autodl-tmp/research_K_expert_skip/datasets/wikitext2_serving_r01/validation_quality32.jsonl",
+      "rows": 32,
+      "sha256": "cb0d20cb5972bb2d3bde43c6e039eb5f20f12064dd99a879f5cd65819b756064"
+    },
+    "validation_bench64": {
+      "path": "/root/autodl-tmp/research_K_expert_skip/datasets/wikitext2_serving_r01/validation_bench64.jsonl",
+      "rows": 64,
+      "sha256": "9aa606ddc0cc502ca41a002ad41bc25149d93bda16d15567709d2de0c020e1bc",
+      "source_articles": 60
+    },
+    "test_articles": {
+      "path": "/root/autodl-tmp/research_K_expert_skip/datasets/wikitext2_serving_r01/test_articles.jsonl",
+      "rows": 61,
+      "sha256": "7d0bcfc82df920db3c92e12ba2d9901ae702bf659e4274397a8e28815b69c67c"
+    },
+    "test_quality32": {
+      "path": "/root/autodl-tmp/research_K_expert_skip/datasets/wikitext2_serving_r01/test_quality32.jsonl",
+      "rows": 32,
+      "sha256": "415641584f35c261169632ad996b006f8741154152b1070b562c1b36747b6ccc"
+    },
+    "test_bench64": {
+      "path": "/root/autodl-tmp/research_K_expert_skip/datasets/wikitext2_serving_r01/test_bench64.jsonl",
+      "rows": 64,
+      "sha256": "eccb9a496570b6204fd515bee65201bc287fb00d30cb48a4bff25e2d75c393b4",
+      "source_articles": 60
+    }
+  },
+  "algorithm": "Top-level WikiText heading regex groups; articles retain >=80 whitespace words. Benchmark rows are distinct nonoverlapping 256 whitespace-word windows, round-robin by window index then article order; no repetition or padding.",
+  "limitations": "Window records are not independent articles; source_article_id identifies shared origin. Service repetitions are runs, not rows. Validation is exploratory; test is held out.",
+  "window_words": 256,
+  "tokenizer_check": {
+    "model": "/root/autodl-tmp/moe-research-20261002/model",
+    "local_files_only": true,
+    "add_special_tokens": true,
+    "results": {
+      "validation_bench64": {
+        "rows": 64,
+        "min_tokens": 273,
+        "max_tokens": 376,
+        "unique_128_token_prefixes": 64,
+        "source_articles": 60,
+        "sufficient_for_prefix128_decode32": 64
+      },
+      "test_bench64": {
+        "rows": 64,
+        "min_tokens": 267,
+        "max_tokens": 351,
+        "unique_128_token_prefixes": 64,
+        "source_articles": 60,
+        "sufficient_for_prefix128_decode32": 64
+      },
+      "validation_quality32": {
+        "rows": 32,
+        "min_tokens": 1055,
+        "max_tokens": 12864,
+        "unique_128_token_prefixes": 32,
+        "source_articles": 32,
+        "sufficient_for_prefix128_decode32": 32
+      },
+      "test_quality32": {
+        "rows": 32,
+        "min_tokens": 288,
+        "max_tokens": 12943,
+        "unique_128_token_prefixes": 32,
+        "source_articles": 32,
+        "sufficient_for_prefix128_decode32": 32
+      }
+    },
+    "validation_test_exact_text_overlap": 0
+  }
+}

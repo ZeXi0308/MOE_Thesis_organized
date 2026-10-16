@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "status": "LOCAL_ONLY_NOT_DEPLOYED_CUDA_UNTESTED",
+  "purpose": "Strict singleton ablation: each matched marginal pair differs only in require_singleton; gate and mass upper boundaries remain inclusive. rank_gate is unchanged. Full-task table adds unchanged global_native j1/j2/j4 and matched gate controls; run all listed arms on the same official population.",
+  "parameters": "m05 uses tau=.05,m=.05; mid=.10,.20; high=.15,.30. tail_rank=4, model-native renormalization, decode-only scope in existing runners.",
+  "global_counting": "global_native specs retain count_routes=false as existing performance configs; existing quality resolver forces counted native reduced-k without changing routing.",
+  "arms": [
+    {
+      "name": "native",
+      "spec": null
+    },
+    {
+      "name": "dense",
+      "spec": {
+        "mode": "dense",
+        "backend": "triton"
+      }
+    },
+    {
+      "name": "global_j1",
+      "spec": {
+        "mode": "global_native",
+        "drop_j": 1,
+        "count_routes": false,
+        "backend": "triton"
+      }
+    },
+    {
+      "name": "global_j2",
+      "spec": {
+        "mode": "global_native",
+        "drop_j": 2,
+        "count_routes": false,
+        "backend": "triton"
+      }
+    },
+    {
+      "name": "global_j4",
+      "spec": {
+        "mode": "global_native",
+        "drop_j": 4,
+        "count_routes": false,
+        "backend": "triton"
+      }
+    },
+    {
+      "name": "gate_m05",
+      "spec": {
+        "mode": "gate",
+        "gate_threshold": 0.05,
+        "mass_budget": 0.05,
+        "backend": "triton"
+      }
+    },
+    {
+      "name": "marginal_m05",
+      "spec": {
+        "mode": "marginal",
+        "tail_rank": 4,
+        "gate_threshold": 0.05,
+        "mass_budget": 0.05,
+        "backend": "triton",
+        "require_singleton": true
+      }
+    },
+    {
+      "name": "marginal_m05_count_off",
+      "spec": {
+        "mode": "marginal",
+        "tail_rank": 4,
+        "gate_threshold": 0.05,
+        "mass_budget": 0.05,
+        "backend": "triton",
+        "require_singleton": false
+      }
+    },
+    {
+      "name": "gate_mid",
+      "spec": {
+        "mode": "gate",
+        "gate_threshold": 0.1,
+        "mass_budget": 0.2,
+        "backend": "triton"
+      }
+    },
+    {
+      "name": "marginal_mid",
+      "spec": {
+        "mode": "marginal",
+        "tail_rank": 4,
+        "gate_threshold": 0.1,
+        "mass_budget": 0.2,
+        "backend": "triton",
+        "require_singleton": true
+      }
+    },
+    {
+      "name": "marginal_mid_count_off",
+      "spec": {
+        "mode": "marginal",
+        "tail_rank": 4,
+        "gate_threshold": 0.1,
+        "mass_budget": 0.2,
+        "backend": "triton",
+        "require_singleton": false
+      }
+    },
+    {
+      "name": "gate_high",
+      "spec": {
+        "mode": "gate",
+        "gate_threshold": 0.15,
+        "mass_budget": 0.3,
+        "backend": "triton"
+      }
+    },
+    {
+      "name": "marginal_high",
+      "spec": {
+        "mode": "marginal",
+        "tail_rank": 4,
+        "gate_threshold": 0.15,
+        "mass_budget": 0.3,
+        "backend": "triton",
+        "require_singleton": true
+      }
+    },
+    {
+      "name": "marginal_high_count_off",
+      "spec": {
+        "mode": "marginal",
+        "tail_rank": 4,
+        "gate_threshold": 0.15,
+        "mass_budget": 0.3,
+        "backend": "triton",
+        "require_singleton": false
+      }
+    }
+  ]
+}

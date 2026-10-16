@@ -1,0 +1,462 @@
+{
+  "status": "PASS",
+  "started_unix": 1792095247.00924,
+  "args": {
+    "model": "/root/autodl-tmp/moe-research-20261002/model",
+    "articles": "/root/autodl-tmp/research_B_tiered_combine/runs/quality_articles_r02/validation.jsonl",
+    "output": "runs/fused_quality_graph_r04/quality_b1.json",
+    "batch": 1,
+    "tokens": 4,
+    "prefix_tokens": 32,
+    "limit_docs": 1,
+    "arms": [
+      "dense",
+      "global1",
+      "gate05",
+      "marginal05"
+    ],
+    "arms_file": null,
+    "gate_threshold": 0.15,
+    "tail_rank": 4,
+    "policy_backend": "triton",
+    "dtype": "bfloat16",
+    "quantization": null,
+    "gpu_memory_utilization": 0.5,
+    "reference_max_mib": 2048,
+    "seed": 1701,
+    "trust_remote_code": false,
+    "identity_tolerance": 1e-06
+  },
+  "arms": [
+    {
+      "name": "native",
+      "spec": null
+    },
+    {
+      "name": "dense",
+      "spec": {
+        "mode": "dense",
+        "drop_j": 1,
+        "tail_rank": 4,
+        "gate_threshold": 0.05,
+        "mass_budget": 1.0,
+        "backend": "triton",
+        "rank_end": null,
+        "gate_min": 0.0
+      }
+    },
+    {
+      "name": "global1",
+      "spec": {
+        "mode": "global",
+        "drop_j": 1,
+        "tail_rank": 4,
+        "gate_threshold": 0.05,
+        "mass_budget": 1.0,
+        "backend": "triton",
+        "rank_end": null,
+        "gate_min": 0.0
+      }
+    },
+    {
+      "name": "gate05",
+      "spec": {
+        "mode": "gate",
+        "drop_j": 1,
+        "tail_rank": 4,
+        "gate_threshold": 0.15,
+        "mass_budget": 0.05,
+        "backend": "triton",
+        "rank_end": null,
+        "gate_min": 0.0
+      }
+    },
+    {
+      "name": "marginal05",
+      "spec": {
+        "mode": "marginal",
+        "drop_j": 1,
+        "tail_rank": 4,
+        "gate_threshold": 0.15,
+        "mass_budget": 0.05,
+        "backend": "triton",
+        "rank_end": null,
+        "gate_min": 0.0
+      }
+    }
+  ],
+  "batches": [
+    {
+      "group": "batch0000",
+      "arm": "native",
+      "spec": null,
+      "valid": true,
+      "quality": {
+        "tokens": 4,
+        "documents": 1,
+        "mean_nll": 3.4916050795000046,
+        "ppl": 32.83861401428215,
+        "mean_kl": 0.0,
+        "max_kl": 0.0,
+        "min_kl": 0.0,
+        "mean_nll_delta": 0.0
+      },
+      "per_document": {
+        "line1:573e1d244efc95bd7bb4ee3df0735bfdd688d3abf7f70a849ac2061c6de8a4d9": {
+          "tokens": 4,
+          "documents": 1,
+          "mean_nll": 3.4916050795000046,
+          "ppl": 32.83861401428215,
+          "mean_kl": 0.0,
+          "max_kl": 0.0,
+          "min_kl": 0.0,
+          "mean_nll_delta": 0.0
+        }
+      },
+      "prefill_prediction": {
+        "tokens": 1,
+        "documents": 1,
+        "mean_nll": 0.0009332115878351033,
+        "ppl": 1.0009336471652537,
+        "mean_kl": 0.0,
+        "max_kl": 0.0,
+        "min_kl": 0.0,
+        "mean_nll_delta": 0.0
+      },
+      "policy_counter_file": "/root/autodl-tmp/research_K_expert_skip/runs/fused_quality_graph_r04/quality_b1_artifacts/batch0000.native.worker.json",
+      "token_file": "/root/autodl-tmp/research_K_expert_skip/runs/fused_quality_graph_r04/quality_b1_artifacts/batch0000.native.tokens.jsonl",
+      "policy_counters": null
+    },
+    {
+      "group": "batch0000",
+      "arm": "dense",
+      "spec": {
+        "mode": "dense",
+        "drop_j": 1,
+        "tail_rank": 4,
+        "gate_threshold": 0.05,
+        "mass_budget": 1.0,
+        "backend": "triton",
+        "rank_end": null,
+        "gate_min": 0.0
+      },
+      "valid": true,
+      "quality": {
+        "tokens": 4,
+        "documents": 1,
+        "mean_nll": 3.4916050795000046,
+        "ppl": 32.83861401428215,
+        "mean_kl": 0.0,
+        "max_kl": 0.0,
+        "min_kl": 0.0,
+        "mean_nll_delta": 0.0
+      },
+      "per_document": {
+        "line1:573e1d244efc95bd7bb4ee3df0735bfdd688d3abf7f70a849ac2061c6de8a4d9": {
+          "tokens": 4,
+          "documents": 1,
+          "mean_nll": 3.4916050795000046,
+          "ppl": 32.83861401428215,
+          "mean_kl": 0.0,
+          "max_kl": 0.0,
+          "min_kl": 0.0,
+          "mean_nll_delta": 0.0
+        }
+      },
+      "prefill_prediction": {
+        "tokens": 1,
+        "documents": 1,
+        "mean_nll": 0.0009332115878351033,
+        "ppl": 1.0009336471652537,
+        "mean_kl": 0.0,
+        "max_kl": 0.0,
+        "min_kl": 0.0,
+        "mean_nll_delta": 0.0
+      },
+      "policy_counter_file": "/root/autodl-tmp/research_K_expert_skip/runs/fused_quality_graph_r04/quality_b1_artifacts/batch0000.dense.worker.json",
+      "token_file": "/root/autodl-tmp/research_K_expert_skip/runs/fused_quality_graph_r04/quality_b1_artifacts/batch0000.dense.tokens.jsonl",
+      "policy_counters": {
+        "events": 64.0,
+        "tokens": 64.0,
+        "slots_before": 512.0,
+        "slots_after": 512.0,
+        "skipped_slots": 0.0,
+        "singleton_slots_before": 512.0,
+        "distinct_before": 512.0,
+        "distinct_after": 512.0,
+        "removed_gate_mass_sum": 0.0,
+        "logical_weight_bytes_before": 6442450944.0,
+        "logical_weight_bytes_after": 6442450944.0,
+        "tokens_with_skips": 0.0,
+        "removed_gate_mass_max": 0.0
+      }
+    },
+    {
+      "group": "batch0000",
+      "arm": "global1",
+      "spec": {
+        "mode": "global",
+        "drop_j": 1,
+        "tail_rank": 4,
+        "gate_threshold": 0.05,
+        "mass_budget": 1.0,
+        "backend": "triton",
+        "rank_end": null,
+        "gate_min": 0.0
+      },
+      "valid": true,
+      "quality": {
+        "tokens": 4,
+        "documents": 1,
+        "mean_nll": 3.3360638095764443,
+        "ppl": 28.108269170425245,
+        "mean_kl": 0.1704329158528708,
+        "max_kl": 0.5098980069160461,
+        "min_kl": 0.0027706471737474203,
+        "mean_nll_delta": -0.15554126992356032
+      },
+      "per_document": {
+        "line1:573e1d244efc95bd7bb4ee3df0735bfdd688d3abf7f70a849ac2061c6de8a4d9": {
+          "tokens": 4,
+          "documents": 1,
+          "mean_nll": 3.3360638095764443,
+          "ppl": 28.108269170425245,
+          "mean_kl": 0.1704329158528708,
+          "max_kl": 0.5098980069160461,
+          "min_kl": 0.0027706471737474203,
+          "mean_nll_delta": -0.15554126992356032
+        }
+      },
+      "prefill_prediction": {
+        "tokens": 1,
+        "documents": 1,
+        "mean_nll": 0.0009332115878351033,
+        "ppl": 1.0009336471652537,
+        "mean_kl": 0.0,
+        "max_kl": 0.0,
+        "min_kl": 0.0,
+        "mean_nll_delta": 0.0
+      },
+      "policy_counter_file": "/root/autodl-tmp/research_K_expert_skip/runs/fused_quality_graph_r04/quality_b1_artifacts/batch0000.global1.worker.json",
+      "token_file": "/root/autodl-tmp/research_K_expert_skip/runs/fused_quality_graph_r04/quality_b1_artifacts/batch0000.global1.tokens.jsonl",
+      "policy_counters": {
+        "events": 64.0,
+        "tokens": 64.0,
+        "slots_before": 512.0,
+        "slots_after": 448.0,
+        "skipped_slots": 64.0,
+        "singleton_slots_before": 512.0,
+        "distinct_before": 512.0,
+        "distinct_after": 448.0,
+        "removed_gate_mass_sum": 4.025055751204491,
+        "logical_weight_bytes_before": 6442450944.0,
+        "logical_weight_bytes_after": 5637144576.0,
+        "tokens_with_skips": 64.0,
+        "removed_gate_mass_max": 0.1010114848613739
+      }
+    },
+    {
+      "group": "batch0000",
+      "arm": "gate05",
+      "spec": {
+        "mode": "gate",
+        "drop_j": 1,
+        "tail_rank": 4,
+        "gate_threshold": 0.15,
+        "mass_budget": 0.05,
+        "backend": "triton",
+        "rank_end": null,
+        "gate_min": 0.0
+      },
+      "valid": true,
+      "quality": {
+        "tokens": 4,
+        "documents": 1,
+        "mean_nll": 3.2115467279218137,
+        "ppl": 24.817442384753413,
+        "mean_kl": 0.02419889760494698,
+        "max_kl": 0.07524137943983078,
+        "min_kl": 0.0002740061026997864,
+        "mean_nll_delta": -0.2800583515781909
+      },
+      "per_document": {
+        "line1:573e1d244efc95bd7bb4ee3df0735bfdd688d3abf7f70a849ac2061c6de8a4d9": {
+          "tokens": 4,
+          "documents": 1,
+          "mean_nll": 3.2115467279218137,
+          "ppl": 24.817442384753413,
+          "mean_kl": 0.02419889760494698,
+          "max_kl": 0.07524137943983078,
+          "min_kl": 0.0002740061026997864,
+          "mean_nll_delta": -0.2800583515781909
+        }
+      },
+      "prefill_prediction": {
+        "tokens": 1,
+        "documents": 1,
+        "mean_nll": 0.0009332115878351033,
+        "ppl": 1.0009336471652537,
+        "mean_kl": 0.0,
+        "max_kl": 0.0,
+        "min_kl": 0.0,
+        "mean_nll_delta": 0.0
+      },
+      "policy_counter_file": "/root/autodl-tmp/research_K_expert_skip/runs/fused_quality_graph_r04/quality_b1_artifacts/batch0000.gate05.worker.json",
+      "token_file": "/root/autodl-tmp/research_K_expert_skip/runs/fused_quality_graph_r04/quality_b1_artifacts/batch0000.gate05.tokens.jsonl",
+      "policy_counters": {
+        "events": 64.0,
+        "tokens": 64.0,
+        "slots_before": 512.0,
+        "slots_after": 502.0,
+        "skipped_slots": 10.0,
+        "singleton_slots_before": 512.0,
+        "distinct_before": 512.0,
+        "distinct_after": 502.0,
+        "removed_gate_mass_sum": 0.4443170502781868,
+        "logical_weight_bytes_before": 6442450944.0,
+        "logical_weight_bytes_after": 6316621824.0,
+        "tokens_with_skips": 10.0,
+        "removed_gate_mass_max": 0.04976014792919159
+      }
+    },
+    {
+      "group": "batch0000",
+      "arm": "marginal05",
+      "spec": {
+        "mode": "marginal",
+        "drop_j": 1,
+        "tail_rank": 4,
+        "gate_threshold": 0.15,
+        "mass_budget": 0.05,
+        "backend": "triton",
+        "rank_end": null,
+        "gate_min": 0.0
+      },
+      "valid": true,
+      "quality": {
+        "tokens": 4,
+        "documents": 1,
+        "mean_nll": 3.2115467279218137,
+        "ppl": 24.817442384753413,
+        "mean_kl": 0.02419889760494698,
+        "max_kl": 0.07524137943983078,
+        "min_kl": 0.0002740061026997864,
+        "mean_nll_delta": -0.2800583515781909
+      },
+      "per_document": {
+        "line1:573e1d244efc95bd7bb4ee3df0735bfdd688d3abf7f70a849ac2061c6de8a4d9": {
+          "tokens": 4,
+          "documents": 1,
+          "mean_nll": 3.2115467279218137,
+          "ppl": 24.817442384753413,
+          "mean_kl": 0.02419889760494698,
+          "max_kl": 0.07524137943983078,
+          "min_kl": 0.0002740061026997864,
+          "mean_nll_delta": -0.2800583515781909
+        }
+      },
+      "prefill_prediction": {
+        "tokens": 1,
+        "documents": 1,
+        "mean_nll": 0.0009332115878351033,
+        "ppl": 1.0009336471652537,
+        "mean_kl": 0.0,
+        "max_kl": 0.0,
+        "min_kl": 0.0,
+        "mean_nll_delta": 0.0
+      },
+      "policy_counter_file": "/root/autodl-tmp/research_K_expert_skip/runs/fused_quality_graph_r04/quality_b1_artifacts/batch0000.marginal05.worker.json",
+      "token_file": "/root/autodl-tmp/research_K_expert_skip/runs/fused_quality_graph_r04/quality_b1_artifacts/batch0000.marginal05.tokens.jsonl",
+      "policy_counters": {
+        "events": 64.0,
+        "tokens": 64.0,
+        "slots_before": 512.0,
+        "slots_after": 502.0,
+        "skipped_slots": 10.0,
+        "singleton_slots_before": 512.0,
+        "distinct_before": 512.0,
+        "distinct_after": 502.0,
+        "removed_gate_mass_sum": 0.4443170502781868,
+        "logical_weight_bytes_before": 6442450944.0,
+        "logical_weight_bytes_after": 6316621824.0,
+        "tokens_with_skips": 10.0,
+        "removed_gate_mass_max": 0.04976014792919159
+      }
+    }
+  ],
+  "arm_source": {
+    "kind": "named CLI arms"
+  },
+  "scope": "teacher-forced selected decode windows; no timing or task-accuracy claim",
+  "aggregation": "exp(sum token NLL / scored decode tokens); position zero excluded",
+  "kl_direction": "KL(native || policy), full vocabulary, before forcing mask",
+  "normalization": "preserve each installed router's renormalize flag and routing scale; decision gate fractions are normalized separately",
+  "runtime_contract": {
+    "vllm": "0.26.0",
+    "VLLM_ENABLE_V1_MULTIPROCESSING": "0",
+    "async_scheduling": false
+  },
+  "selection": {
+    "lines_seen": 1,
+    "short_documents": 0,
+    "duplicate_documents": 0,
+    "eligible_documents_not_in_full_batch": 0
+  },
+  "selected_documents": 1,
+  "selected_splits": [
+    "validation"
+  ],
+  "quality_by_arm": {
+    "native": {
+      "tokens": 4,
+      "documents": 1,
+      "mean_nll": 3.4916050795000046,
+      "ppl": 32.83861401428215,
+      "mean_kl": 0.0,
+      "max_kl": 0.0,
+      "min_kl": 0.0,
+      "mean_nll_delta": 0.0
+    },
+    "dense": {
+      "tokens": 4,
+      "documents": 1,
+      "mean_nll": 3.4916050795000046,
+      "ppl": 32.83861401428215,
+      "mean_kl": 0.0,
+      "max_kl": 0.0,
+      "min_kl": 0.0,
+      "mean_nll_delta": 0.0
+    },
+    "global1": {
+      "tokens": 4,
+      "documents": 1,
+      "mean_nll": 3.3360638095764443,
+      "ppl": 28.108269170425245,
+      "mean_kl": 0.1704329158528708,
+      "max_kl": 0.5098980069160461,
+      "min_kl": 0.0027706471737474203,
+      "mean_nll_delta": -0.15554126992356032
+    },
+    "gate05": {
+      "tokens": 4,
+      "documents": 1,
+      "mean_nll": 3.2115467279218137,
+      "ppl": 24.817442384753413,
+      "mean_kl": 0.02419889760494698,
+      "max_kl": 0.07524137943983078,
+      "min_kl": 0.0002740061026997864,
+      "mean_nll_delta": -0.2800583515781909
+    },
+    "marginal05": {
+      "tokens": 4,
+      "documents": 1,
+      "mean_nll": 3.2115467279218137,
+      "ppl": 24.817442384753413,
+      "mean_kl": 0.02419889760494698,
+      "max_kl": 0.07524137943983078,
+      "min_kl": 0.0002740061026997864,
+      "mean_nll_delta": -0.2800583515781909
+    }
+  },
+  "completed_unix": 1792095273.5037808
+}

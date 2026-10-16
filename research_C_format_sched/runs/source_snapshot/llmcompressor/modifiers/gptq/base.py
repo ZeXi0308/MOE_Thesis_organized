@@ -1,0 +1,433 @@
+import contextlib
+from typing import Literal
+
+import torch
+from compressed_tensors.distributed import greedy_bin_packing, wait_for_comms
+from compressed_tensors.offload import disable_offloading
+from compressed_tensors.offload.dist_utils import is_distributed
+from compressed_tensors.offload.dist_utils import is_source_process as is_src
+from compressed_tensors.quantization import (
+    QuantizationConfig,
+    QuantizationScheme,
+    QuantizationStrategy,
+)
+from compressed_tensors.quantization.quant_args import ActivationOrdering
+from compressed_tensors.quantization.utils import is_module_quantized
+from compressed_tensors.utils import (
+    get_execution_device,
+    getattr_chain,
+    match_named_modules,
+)
+from loguru import logger
+from pydantic import PrivateAttr, StrictInt, field_validator
+from torch import distributed as dist
+
+from llmcompressor.core import Event, State
+from llmcompressor.modifiers import Modifier
+from llmcompressor.modifiers.gptq.gptq_quantize import quantize_weight
+from llmcompressor.modifiers.gptq.helpers import (
+    accumulate_hessian,
+    assign_batches,
+    make_empty_hessian,
+    prepare_batch,
+    update_batch_qparams,
+)
+from llmcompressor.modifiers.quantization.calibration import (
+    observe,
+    update_qparams,
+)
+from llmcompressor.modifiers.quantization.quantization import QuantizationMixin
+from llmcompressor.observers import ACTIVATION_OBS
+from llmcompressor.sentinel import Sentinel
+from llmcompressor.utils.dist import broadcast_qparams_and_cleanup
+from llmcompressor.utils.metric_logging import CompressionLogger
+
+__all__ = ["GPTQModifier"]
+
+_GPTQ_Q_PARAMS = ["weight", "weight_scale", "weight_zero_point"]
+
+
+class GPTQModifier(Modifier, QuantizationMixin):
+    """
+    Implements the GPTQ algorithm from https://arxiv.org/abs/2210.17323. This modifier
+    uses activations to calibrate a hessian matrix, which is then used to determine
+    optimal quantization values and orderings for the model weights.
+
+    Sample yaml:
+
+    ```yaml
+    test_stage:
+      obcq_modifiers:
+        GPTQModifier:
+          block_size: 128
+          dampening_frac: 0.001
+          actorder: static
+          config_groups:
+            group_0:
+              targets:
+                - "Linear"
+              input_activations: null
+              output_activations: null
+              weights:
+                num_bits: 8
+                type: "int"
+                symmetric: true
+                strategy: group
+                group_size: 128
+    ```
+
+    Lifecycle:
+
+    - on_initialize
+        - apply config to model
+    - on_calibration_start
+        - add activation calibration hooks
+        - add gptq weight calibration hooks
+    - on_sequential_epoch_end
+        - quantize_weight
+    - on_calibration_end
+        - remove_hooks()
+        - model.apply(freeze_module_quantization)
+
+    :param block_size: Used to determine number of columns to compress in one pass
+    :param dampening_frac: Amount of dampening to apply to H, as a fraction of the
+        diagonal norm
+    :param actorder: order in which weight columns are quantized. Defaults to "static"
+        activation ordering, which achieves best accuracy recovery with no runtime cost.
+        For more information, see https://github.com/vllm-project/vllm/pull/8135.
+    :param batched_quantization: Controls batching of same-shape modules (e.g.
+        linearized MoE experts). ``"auto"`` (the default) limits batches to 75% of
+        available CUDA memory. A positive integer sets a maximum batch size without
+        consulting available memory. ``None`` disables batching.
+
+    :param config_groups: dictionary specifying quantization schemes to apply to target
+        modules. Modules not matching a scheme target will NOT be quantized.
+    :param targets: list of layer names to quantize if a scheme is provided. Defaults
+        to Linear layers
+    :param ignore: optional list of module class names or submodule names to not
+        quantize even if they match a target in config_groups. Defaults to empty list.
+    :param scheme: a single quantization scheme to apply to the model. This is a
+        dictionary that supports all keys from QuantizationScheme except targets, which
+        will be set to the targets parameter set at the modifier level. Can also be set
+        to a dictionary of the format `preset_scheme_name: targets` for example:
+        `W8A8: ['Linear']` for weight and activation 8-bit.
+    :param kv_cache_scheme: optional QuantizationArgs, that specify the
+        quantization of the kv cache. If None, kv cache is not quantized.
+        When applying kv cache quantization to transformer AutoModelForCausalLM,
+        the kv_cache_scheme gets converted into a QuantizationScheme that:
+            - targets the `q_proj` and `k_proj` modules of the model. The outputs
+              of those modules are the keys and values that might be cached
+            - quantizes the outputs of the aforementioned layers, so that
+              keys and values are compressed before storing them in the cache
+        There is an explicit assumption that the model contains modules with
+        `k_proj` and `v_proj` in their names. If this is not the case
+        and kv_cache_scheme != None, the quantization of kv cache will fail
+    """
+
+    requires_calibration_data: bool = True
+
+    # gptq modifier arguments
+    block_size: int = 128
+    dampening_frac: float | None = 0.01
+    actorder: ActivationOrdering | Sentinel | None = Sentinel("static")
+    batched_quantization: Literal["auto"] | StrictInt | None = "auto"
+
+    # private variables
+    _module_names: dict[torch.nn.Module, str] = PrivateAttr(default_factory=dict)
+    _hessians: dict[torch.nn.Module, torch.Tensor] = PrivateAttr(default_factory=dict)
+    _num_samples: dict[torch.nn.Module, torch.Tensor] = PrivateAttr(
+        default_factory=dict
+    )
+    _num_compressed_modules: int = PrivateAttr(default=0)
+    _rtn_fallback_module_names: list[str] = PrivateAttr(default_factory=list)
+
+    @field_validator("batched_quantization")
+    @classmethod
+    def _validate_batched_quantization(cls, value):
+        if isinstance(value, int) and value <= 0:
+            raise ValueError("batched_quantization must be a positive integer")
+        return value
+
+    def resolve_quantization_config(self) -> QuantizationConfig:
+        config = super().resolve_quantization_config()
+
+        def resolve_actorder(existing):
+            # sentinel default only overrides if existing is None
+            if self.actorder == Sentinel("static"):
+                return ActivationOrdering.STATIC if existing is None else existing
+
+            # user-provided value always attempts to override
+            if existing is None or self.actorder == existing:
+                return self.actorder
+
+            # if existing provided and conflicts
+            raise ValueError(
+                "Cannot resolve activation ordering when both "
+                "`GPTQModifier.actorder` and `QuantizationScheme.actorder` "
+                f"are provided and differ ({self.actorder}, {existing}). "
+                "Either unset `GPTQModifier.actorder` or "
+                "remove `actorder` from config groups."
+            )
+
+        for scheme in config.config_groups.values():
+            assert isinstance(scheme, QuantizationScheme)
+            strategy = getattr_chain(scheme, "weights.strategy", None)
+            if strategy in (
+                QuantizationStrategy.GROUP,
+                QuantizationStrategy.TENSOR_GROUP,
+                QuantizationStrategy.CHANNEL,
+                QuantizationStrategy.TENSOR,
+                QuantizationStrategy.BLOCK,
+            ):
+                # Apply modifier-level actorder to already-constructed QuantizationArgs.
+                scheme.weights.actorder = resolve_actorder(scheme.weights.actorder)
+
+        return config
+
+    def on_initialize(self, state: State, **kwargs) -> bool:
+        """
+        Initialize and run the GPTQ algorithm on the current state
+
+        :param state: session state storing input model and calibration data
+        """
+        # apply config to model and prepare calibration hooks
+        if QuantizationMixin.has_config(self):
+            QuantizationMixin.initialize_quantization(self, state.model)
+
+        # prepare module names
+        self._module_names = {
+            m: name
+            for name, m in match_named_modules(
+                state.model, self.resolved_targets, self.ignore
+            )
+        }
+
+        return True
+
+    def on_calibration_start(self, state: State, event: Event, **kwargs):
+        # register quantization calibration hooks
+        # assume quantization has been initialized by this modifier or one before it
+        QuantizationMixin.start_calibration(self, state.model)
+
+        # register gptq hooks
+        added_hook = False
+        for _, module in match_named_modules(
+            state.model, self.resolved_targets, self.ignore
+        ):
+            if getattr_chain(module, "quantization_scheme.weights", None) is not None:
+                # HACK: previously, embeddings were not quantized because they were not
+                # accessible by the layer compressor. For now, we manually ignore it,
+                # but in the FUTURE this should be ignored by the user
+                if not isinstance(module, torch.nn.Embedding):
+                    self.register_hook(module, self.calibrate_module, "forward")
+                    added_hook = True
+
+        if not added_hook:
+            raise ValueError(
+                "GPTQModifier was unable to find any modules to quantize. Please "
+                "check quantization `config_groups` and `targets` in recipe"
+            )
+
+    def on_sequential_epoch_end(
+        self, state: State, event: Event, modules: list[torch.nn.Module], **kwargs
+    ):
+        modules = [module for module in modules if is_module_quantized(module)]
+        observe(modules, base_name="weight")
+        self.sync_obs_act_stats(modules)
+        update_qparams(modules, ACTIVATION_OBS, only_update_onload=not is_src())
+        self.compress_modules()
+
+    def on_calibration_end(self, state: State, event: Event, **kwargs):
+        """
+        Finish calibrating by removing observers and calibration hooks
+        """
+        QuantizationMixin.end_calibration(self, state.model)
+        self.remove_hooks()  # remove gptq hooks
+
+    def calibrate_module(
+        self,
+        module: torch.nn.Module,
+        args: tuple[torch.Tensor, ...],
+        _output: torch.Tensor,
+    ):
+        """
+        Calibration hook used to accumulate the hessian of the input to the module
+
+        :param module: module being calibrated
+        :param args: inputs to the module, the first element of which is the
+            canonical input
+        :param _output: uncompressed module output, unused
+        """
+        # Assume that first argument is the input
+        inp = args[0]
+
+        # Initialize hessian if not present
+        if module not in self._num_samples:
+            self._hessians[module] = make_empty_hessian(
+                module, device=get_execution_device(module)
+            )
+            self._num_samples[module] = torch.zeros(
+                tuple(), device=get_execution_device(module)
+            )
+
+        self._hessians[module], self._num_samples[module] = accumulate_hessian(
+            inp,
+            module,
+            self._hessians[module],
+            self._num_samples[module],
+        )
+
+    def compress_modules(self):
+        """
+        Quantize modules which have been calibrated
+        """
+        ### Not Distributed
+        if not is_distributed():
+            self.compress_module_list(list(self._num_samples.keys()))
+            return
+
+        ### Distributed
+        rank = dist.get_rank()
+        world_size = dist.get_world_size()
+
+        # Assign modules to ranks
+        module_list, rank_to_modules, module_to_rank = greedy_bin_packing(
+            list(self._hessians.keys()),
+            world_size,
+            item_weight_fn=lambda mod: self._hessians[mod].shape[0],
+        )
+
+        # send hessians to assigned ranks
+        self._reduce_hessian_to_target_rank(module_list, module_to_rank)
+
+        self.compress_module_list(rank_to_modules[rank])
+
+        # broadcast compressed modules to each rank
+        broadcast_qparams_and_cleanup(module_list, module_to_rank, _GPTQ_Q_PARAMS)
+
+    def compress_module_list(self, module_list):
+        for batch in assign_batches(
+            module_list, self.batched_quantization, self.block_size
+        ):
+            quant_args = getattr_chain(batch[0], "quantization_scheme.weights")
+            batch_qparams = [module.weight_observer.get_qparams() for module in batch]
+            names = [self._module_names[module] for module in batch]
+            logger.info(f"Quantizing {len(batch)} module(s): {names}")
+
+            with (
+                torch.no_grad(),
+                disable_offloading(),
+                contextlib.ExitStack() as ctx_stack,
+            ):
+                (
+                    weights,
+                    hessians,
+                    scales,
+                    zero_points,
+                    global_scales,
+                ) = prepare_batch(
+                    batch,
+                    batch_qparams,
+                    self._hessians,
+                    self._num_samples,
+                )
+
+                comp_loggers = [
+                    ctx_stack.enter_context(CompressionLogger(module))
+                    for module in batch
+                ]
+                quantized, losses, used_rtn_fallback = quantize_weight(
+                    weights=weights,
+                    hessians=hessians,
+                    scale=scales,
+                    zero_point=zero_points,
+                    global_scale=global_scales,
+                    quant_args=quant_args,
+                    blocksize=self.block_size,
+                    percdamp=self.dampening_frac,
+                )
+                for index, comp_logger in enumerate(comp_loggers):
+                    comp_logger.set_results(name="GPTQ", loss=losses[index].item())
+                    if used_rtn_fallback[index].item():
+                        self._rtn_fallback_module_names.append(names[index])
+
+                ctx_stack.close()
+                update_batch_qparams(
+                    batch,
+                    quantized,
+                    scales,
+                    zero_points,
+                    global_scales,
+                    quant_args,
+                )
+                self._num_compressed_modules += len(batch)
+
+    def _reduce_hessian_to_target_rank(self, module_list, module_to_rank):
+        rank = dist.get_rank()
+        pending_comms = []
+        for module in module_list:
+            target_rank = module_to_rank[module]
+            pending_comms.append(
+                dist.reduce(
+                    self._hessians[module],
+                    op=dist.ReduceOp.SUM,
+                    dst=target_rank,
+                    async_op=True,
+                )
+            )
+            pending_comms.append(
+                dist.reduce(
+                    self._num_samples[module],
+                    op=dist.ReduceOp.SUM,
+                    dst=target_rank,
+                    async_op=True,
+                )
+            )
+            if rank != target_rank:
+                self._hessians.pop(module, None)
+                self._num_samples.pop(module, None)
+        wait_for_comms(pending_comms)
+
+    def _log_rtn_fallback_summary(self):
+        """Log a summary when modules used RTN because GPTQ failed."""
+        num_fallback = len(self._rtn_fallback_module_names)
+        if num_fallback == 0:
+            return
+
+        total = self._num_compressed_modules
+        shown = ", ".join(self._rtn_fallback_module_names[:10])
+        if num_fallback > 10:
+            shown += f", and {num_fallback - 10} more (full list at DEBUG level)"
+            logger.debug(
+                "Modules quantized with round-to-nearest due to hessian "
+                "inversion failure: " + ", ".join(self._rtn_fallback_module_names)
+            )
+        logger.warning(
+            f"Hessian inversion failed for {num_fallback}/{total} modules "
+            f"({num_fallback / total:.1%}). These modules were quantized with "
+            "round-to-nearest instead of GPTQ (the quantization scheme is "
+            "unchanged). Consider increasing GPTQModifier.dampening_frac, "
+            "increasing the number of calibration samples, or shuffling the "
+            f"calibration dataset. Affected modules: {shown}"
+        )
+
+    def on_finalize(self, state: State, **kwargs) -> bool:
+        """
+        disable the quantization observers used by the OBCQ algorithm
+
+        :param state: session state storing input model and calibration data
+        """
+        if not self.ended_:
+            self.on_end(state, None)
+
+        self._log_rtn_fallback_summary()
+
+        if len(self._num_samples) > 0:
+            raise ValueError(f"Failed to compress {len(self._num_samples)} modules")
+
+        self._hessians = dict()
+        self._num_samples = dict()
+        self._num_compressed_modules = 0
+        self._rtn_fallback_module_names = []
+
+        return True

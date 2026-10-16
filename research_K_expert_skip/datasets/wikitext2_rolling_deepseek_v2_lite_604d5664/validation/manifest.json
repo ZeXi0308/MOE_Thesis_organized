@@ -1,0 +1,80 @@
+{
+  "status": "READY",
+  "schema": "wikitext_decode_rolling_v1",
+  "created_unix": 1792099833.896188,
+  "split": "validation",
+  "source_manifest": {
+    "path": "/Users/zhaozhenyu/Desktop/毕业设计/research_K_expert_skip/datasets/wikitext2_serving_r01/manifest.json",
+    "sha256": "ad17677fbf4eef0e83d7f3f63a2b14c188685f05c3d8a5d71fbce815afb46905"
+  },
+  "source_parquet": {
+    "path": "/Users/zhaozhenyu/Desktop/毕业设计/research_B_tiered_combine/runs/inputs_wikitext2_r01/validation.parquet",
+    "sha256": "204929b7ff9d6184953f867dedb860e40aa69c078fc1e54b3baaa8fb28511c4c",
+    "rows": 3760
+  },
+  "text_construction": {
+    "order": "original parquet order, including empty rows",
+    "separator": "\n\n",
+    "characters": 1149668,
+    "sha256": "b44fb967f92b525731216a507d1fbc44b97446b7ef0a2b4d1a893f81f1bbc29e"
+  },
+  "tokenizer": {
+    "backend_sha256": "f8b3e9273b30e64e3b9aec6bee2a7a35686e8459e071ca14dfe97fda2c53d440",
+    "vocabulary_sha256": "91bc2dedc877a31053eb9bc37a35ffdeb77b52c9b45288d2e8f27054d09f26f8",
+    "special_token_ids": {
+      "bos_token_id": 100000,
+      "eos_token_id": 100001,
+      "pad_token_id": 100001,
+      "unk_token_id": null
+    },
+    "all_special_ids": [
+      100000,
+      100001
+    ],
+    "sha256": "3a4ec43fcc128e2bfe386a6e5a23f59692392491cd047d98b8bd61fbf8cf5b2d",
+    "class": "TokenizersBackend",
+    "name_or_path": "research_K_expert_skip/ref_july/tokenizers/deepseek_v2_lite_604d5664"
+  },
+  "tokenization": {
+    "add_special_tokens": false,
+    "truncation": false,
+    "calls": 1,
+    "packages": {
+      "transformers": "5.20.0",
+      "tokenizers": "0.23.3",
+      "pyarrow": "26.0.0"
+    }
+  },
+  "token_stream": {
+    "tokens": 273071,
+    "sha256": "ddceca6363323653baee41cc2f5c0b16e084c2dac25558be0c557e25f7d24740",
+    "hash_encoding": "canonical JSON integer array"
+  },
+  "context_prefix_tokens": 128,
+  "engine_prompt_tokens": 127,
+  "max_scored_tokens": 128,
+  "windows_file": {
+    "path": "windows.jsonl",
+    "rows": 2133,
+    "sha256": "290374b2f6155bc544a3661681f12484f645032cb8e09b9637c3110ad5c610ad"
+  },
+  "coverage": {
+    "excluded_initial_span": [
+      0,
+      128
+    ],
+    "scored_span": [
+      128,
+      273071
+    ],
+    "scored_tokens": 272943,
+    "scored_spans_overlap": false,
+    "scored_spans_have_gaps": false,
+    "last_window_scored_tokens": 47,
+    "tail_policy": "score the final short window without padding; never drop incomplete batches"
+  },
+  "scope": "rolling teacher-forced decode PPL/KL with reset context P..P+S-1; all scored positions are decode",
+  "statistical_unit": "windows of one ordered split token stream; not independent articles or system repetitions",
+  "prefill_bridge": "token at score_start-1 is emitted by prefill and excluded; every score_start:score_stop prediction uses decode",
+  "standard_protocol_equivalence_claimed": false
+}

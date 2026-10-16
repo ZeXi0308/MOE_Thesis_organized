@@ -1,0 +1,94 @@
+LOCAL PREPARATION ONLY — no GPU job submitted by this deployment preparation.
+
+Complete WikiText-2 TEST rolling quality, OLMoE BF16 + online FP8, B8.
+Exactly seven predefined arms: native, dense, global_j2, gate_mid, gate_high,
+marginal_mid, marginal_high. This is a seven-arm subset, not the ten-arm matrix.
+gate/marginal mid share tau=.10,m=.20; high share tau=.15,m=.30.
+Marginal has tail_rank=4; gate has no tail/singleton restriction. Global uses
+native top6 routing, with separate quality counters enabled by quality_decode.
+
+Population: all2255 windows, score original token interval[128,288730) once,
+288602 decode predictions/arm/format. First128 corpus tokens are context only.
+Original283 cohorts split96/96/91: windows768/768/719, scored98304/98304/91994.
+The last chunk retains oneB6/S128 cohort and oneB1/S90 tail. No limit or padding.
+Each window resets to P128 context; engine prompt127 + excluded prefill bridge.
+Scored contexts are128..255, so do not equate this with another context protocol.
+Runtime local chunk keys are rebased as required by the existing loader;
+source_doc_key and source_* global offsets preserve exact original identities.
+Chunks are restart boundaries, not independent articles or run repetitions.
+The fulltest B8 anchor does not replace F3's B1/8/32 paired32-article protocol.
+
+All collection calls use the existing code/quality_decode.py unchanged, eager,
+same BF16 checkpoint /root/autodl-tmp/moe-research-20261002/model, dtype BF16,
+auto KV BF16, total GPU utilization.35 for both formats. Native-only tuning:
+BF16 runs/characterize_r06/native_tuning/tuned_configs
+FP8  runs/olmoe_fp8_matrix_r09/native_tuning/tuned_configs
+Tuning/file/source hashes are saved in suite.json and per-attempt checkpoints.
+
+Estimate from actual r09 B1/B8/B32 quality stage times and r06 B8 (26arms):
+BF16 approximately105.1min, FP8 approximately88.7min, combined3.23 GPUh,
+including3x25s startups/format. This extrapolates32-token article windows to
+128-token rolling windows and may miss I/O and context-length effects. Allocate
+4h outer /14370s internal; per-chunk cap2700s. See budget.json for exact inputs.
+Raw data roughly1.1–1.3GB/format, reserve4GiB plus space for any retained retries.
+CPU full-logit native reference at B8/S128 is198.04MiB (cap2048MiB).
+No fullsplit GPU result is claimed; r09b first9-window/short-tail GPU path checks
+should be reviewed before spending this full budget. No deployment is performed
+by these commands until the main session explicitly runs them under the lock.
+
+1. CPU plan from project root (stdlib only; choose a fresh plan directory):
+
+PYTHONDONTWRITEBYTECODE=1 python3 deployments/full_rolling_20261016/run_full_rolling.py \
+  --output /tmp/k_full_rolling_plan --plan-only
+
+This verifies the original test input and all three exact-ID chunks, checks
+native tuning status/config format, and prints6 unmodified quality CLI jobs.
+Plan-only need not have local model weights; execution requires exact model
+config SHA and runtime tokenizer identity (checked by quality_decode).
+
+2. Main session deployment: sync this entire deployment folder (including chunks),
+   the unchanged original datasets/wikitext2_rolling_olmoe_r01/test directory,
+   and the required current code only when no live K run depends on old code.
+   Do not overwrite an active runner. No GPU work/deployment has been done here.
+
+3. Initial complete two-format execution, main session only:
+
+cd /root/autodl-tmp/research_K_expert_skip
+env HF_HUB_OFFLINE=1 HF_DATASETS_OFFLINE=1 TRANSFORMERS_OFFLINE=1 \
+  VLLM_ENABLE_V1_MULTIPROCESSING=0 TOKENIZERS_PARALLELISM=false \
+  /root/miniconda3/bin/python code/run_locked.py \
+  --name olmoe_full_test_rolling_r01 --wait-seconds 21600 --timeout 14400 -- \
+  /root/miniconda3/bin/python deployments/full_rolling_20261016/run_full_rolling.py \
+  --root /root/autodl-tmp/research_K_expert_skip \
+  --outer-run-dir runs/olmoe_full_test_rolling_r01 \
+  --output runs/olmoe_full_test_rolling_r01/quality
+
+4. If interrupted/timeout, keep ALL files. A new lock allocation may resume:
+
+cd /root/autodl-tmp/research_K_expert_skip
+env HF_HUB_OFFLINE=1 HF_DATASETS_OFFLINE=1 TRANSFORMERS_OFFLINE=1 \
+  VLLM_ENABLE_V1_MULTIPROCESSING=0 TOKENIZERS_PARALLELISM=false \
+  /root/miniconda3/bin/python code/run_locked.py \
+  --name olmoe_full_test_rolling_resume_r02 --wait-seconds 21600 --timeout 7200 -- \
+  /root/miniconda3/bin/python deployments/full_rolling_20261016/run_full_rolling.py \
+  --root /root/autodl-tmp/research_K_expert_skip \
+  --outer-run-dir runs/olmoe_full_test_rolling_resume_r02 \
+  --output runs/olmoe_full_test_rolling_r01/quality --resume --budget-seconds 7170
+
+The resume example is conditional, not preallocated extra GPU time. Main session
+must choose a new outer budget within the remaining overall ledger. Both formats
+and source/code/config SHA must remain identical. Complete chunks are rechecked
+against exact input population and recorded file SHA, then reused. An incomplete
+chunk restarts ALL arms in attempt002/etc; attempt001 remains untouched. There
+is no per-group skip/resume or automatic retry. Any failed chunk stops this
+invocation; later jobs stayNOT_STARTED. Insufficient time marksNOT_RUN_BUDGET.
+
+Outputs: quality/suite.json lists status/commands/attempts; each successful
+attempt has quality.json, quality_artifacts/{documents.json,*.tokens.jsonl,
+*.worker.json}, stdout.log, checkpoint.json. quality/summary.json pools only
+accepted whole chunks. Every format is COMPLETE only after all3 chunks pass;
+partial entries are explicitly INCOMPLETE and cannot stand in for fulltest.
+Pool NLL/KL by scored token count, PPL=exp(pooled NLL), deltaPPL against the
+same-format native. Do not average per-window/chunk PPL or treat token-level
+variation as independent system runs. Raw windows remain paired through the
+original source_doc_key/global offsets in documents.json.

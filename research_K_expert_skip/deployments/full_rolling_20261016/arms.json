@@ -1,0 +1,67 @@
+{
+  "purpose": "Complete test B8 seven-arm subset, not ten-arm matrix; native+dense, reduced k=6, matched gate/marginal mid and high. Shared per-format native-only tuning.",
+  "sources": {
+    "configs/quality_pareto.json": "d78dee23f02f8c51a495d170997fc0b245de36abaf5b2744ecbc1ddf38cb95f7",
+    "configs/matched_gate_controls.json": "7afcae891f57f075b8030a0822e2919c0e4479a617d14aea832b62d871cb18e2"
+  },
+  "arms": [
+    {
+      "name": "native",
+      "spec": null
+    },
+    {
+      "name": "dense",
+      "spec": {
+        "mode": "dense",
+        "backend": "triton"
+      }
+    },
+    {
+      "name": "global_j2",
+      "spec": {
+        "mode": "global_native",
+        "drop_j": 2,
+        "count_routes": false,
+        "backend": "triton"
+      }
+    },
+    {
+      "name": "gate_mid",
+      "spec": {
+        "mode": "gate",
+        "gate_threshold": 0.1,
+        "mass_budget": 0.2,
+        "backend": "triton"
+      }
+    },
+    {
+      "name": "gate_high",
+      "spec": {
+        "mode": "gate",
+        "gate_threshold": 0.15,
+        "mass_budget": 0.3,
+        "backend": "triton"
+      }
+    },
+    {
+      "name": "marginal_mid",
+      "spec": {
+        "mode": "marginal",
+        "tail_rank": 4,
+        "gate_threshold": 0.1,
+        "mass_budget": 0.2,
+        "backend": "triton"
+      }
+    },
+    {
+      "name": "marginal_high",
+      "spec": {
+        "mode": "marginal",
+        "tail_rank": 4,
+        "gate_threshold": 0.15,
+        "mass_budget": 0.3,
+        "backend": "triton"
+      }
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "status": "READY",
+  "schema": "wikitext_decode_rolling_v1",
+  "created_unix": 1792110977.313726,
+  "split": "test",
+  "source_manifest": {
+    "path": "/Users/zhaozhenyu/Desktop/\u6bd5\u4e1a\u8bbe\u8ba1/research_K_expert_skip/datasets/wikitext2_serving_r01/manifest.json",
+    "sha256": "ad17677fbf4eef0e83d7f3f63a2b14c188685f05c3d8a5d71fbce815afb46905"
+  },
+  "source_parquet": {
+    "path": "/Users/zhaozhenyu/Desktop/\u6bd5\u4e1a\u8bbe\u8ba1/research_B_tiered_combine/runs/inputs_wikitext2_r01/test.parquet",
+    "sha256": "5f1bea067869d04849c0f975a2b29c4ff47d867f484f5010ea5e861eab246d91",
+    "rows": 4358
+  },
+  "text_construction": {
+    "method": "Exact consecutive token-ID windows copied from source manifest; no retokenization"
+  },
+  "tokenizer": {
+    "backend_sha256": "86dc2bc14a5e164802493bbd01314b6d09dd75d31217863e863a4dc24f0ed160",
+    "vocabulary_sha256": "612b8ad23b4b2bd0f4cdb94da38e9187b410bde0b0a4d09afb6ee642dc16df21",
+    "special_token_ids": {
+      "bos_token_id": 50279,
+      "eos_token_id": 50279,
+      "pad_token_id": 50280,
+      "unk_token_id": null
+    },
+    "all_special_ids": [
+      50279,
+      50280
+    ],
+    "sha256": "f5b286f4eeb057955db00dcadb960eac2ccbd12b575b4b4b6bc60de419c3badb",
+    "class": "GPTNeoXTokenizer",
+    "name_or_path": "../research_C_format_sched/datasets/serving_olmoe_r01/tokenizer"
+  },
+  "tokenization": {
+    "calls": 0,
+    "method": "copy source token IDs"
+  },
+  "token_stream": {
+    "tokens": 98432,
+    "sha256": "4163d1d475c7eb18302f749bd118c9b07ed588a8c858ee8c4e8d21789465f951",
+    "hash_encoding": "canonical JSON integer array"
+  },
+  "context_prefix_tokens": 128,
+  "engine_prompt_tokens": 127,
+  "max_scored_tokens": 128,
+  "windows_file": {
+    "path": "windows.jsonl",
+    "rows": 768,
+    "sha256": "0c6f18be20ec1f663986a22b3cd0c6b90279b81f9d65e232d5203bd70373d485"
+  },
+  "coverage": {
+    "excluded_initial_span": [
+      0,
+      128
+    ],
+    "scored_span": [
+      128,
+      98432
+    ],
+    "scored_tokens": 98304,
+    "scored_spans_overlap": false,
+    "scored_spans_have_gaps": false,
+    "last_window_scored_tokens": 128,
+    "tail_policy": "Retain short tail and incomplete cohort; complete chunk is only part of full test"
+  },
+  "scope": "Contiguous chunk of complete test; rolling teacher-forced decode P128/S<=128, context resets per window; union of all three chunks is required for full test",
+  "statistical_unit": "Consecutive windows of one ordered test stream, not independent articles/runs; chunks are restart boundaries only",
+  "prefill_bridge": "token at score_start-1 is emitted by prefill and excluded; every score_start:score_stop prediction uses decode",
+  "standard_protocol_equivalence_claimed": false,
+  "derived_chunk": {
+    "manifest_path_from_root": "datasets/wikitext2_rolling_olmoe_r01/test/manifest.json",
+    "manifest_sha256": "4e7dbd20fa7193f61252e7a2825e833b2d02ae001071822caa5e0897a9c5197c",
+    "windows_sha256": "d300e7460f88237d0af90779efd2ac46bdd50153123ebd75b6c5fabe023a36df",
+    "token_stream_sha256": "2bf56e98e6ae20b505528c1cc2415ca4b38457c169c769a9dc7c85640c026f1d",
+    "global_scored_span": [
+      128,
+      98432
+    ],
+    "window_range": [
+      0,
+      768
+    ],
+    "cohort_range": [
+      0,
+      96
+    ],
+    "original_cohort_batch": 8,
+    "chunk_index": 0,
+    "chunks": 3,
+    "identity_note": "Runtime keys/local offsets rebased to chunk stream; source_* fields preserve original keys/global offsets. Exact IDs; no decode/encode."
+  }
+}

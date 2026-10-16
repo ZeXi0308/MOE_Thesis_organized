@@ -1,0 +1,241 @@
+{
+  "schema": 1,
+  "status": "PLANNED",
+  "created_unix": 1792113390.6399903,
+  "args": {
+    "root": "/root/autodl-tmp/research_K_expert_skip",
+    "model": "/root/autodl-tmp/moe-research-20261002/model",
+    "family": "hellaswag",
+    "arms": [
+      "native",
+      "dense",
+      "global_j1",
+      "global_j2",
+      "global_j4",
+      "gate_low",
+      "gate_high",
+      "marginal_low",
+      "marginal_mid",
+      "marginal_high"
+    ],
+    "budget_seconds": 3570,
+    "output": "/root/autodl-tmp/research_K_expert_skip/deployments/task_quality_full_mc_20261016/remote_cpu_plan/hellaswag",
+    "outer_run_dir": null,
+    "plan_only": true,
+    "data_dir": "/root/autodl-tmp/research_K_expert_skip/datasets/task_eval_r02",
+    "prompts": "/root/autodl-tmp/research_K_expert_skip/datasets/free_generation_validation_r01/prompts.jsonl",
+    "arms_file": "/root/autodl-tmp/research_K_expert_skip/configs/quality_pareto.json",
+    "formats": [
+      "bf16"
+    ],
+    "tasks": [
+      "hellaswag"
+    ],
+    "limit": null,
+    "free_limit": 200,
+    "prompt_tokens": 128,
+    "batch": 8,
+    "max_tokens": 256,
+    "max_model_len": 4096,
+    "seed": 1701,
+    "gpu_memory_utilization": 0.35,
+    "job_timeout": 3560,
+    "per_arm_isolation": false
+  },
+  "inputs": {
+    "arms_file": "/root/autodl-tmp/research_K_expert_skip/configs/quality_pareto.json",
+    "arms_sha256": "d78dee23f02f8c51a495d170997fc0b245de36abaf5b2744ecbc1ddf38cb95f7",
+    "model_config": {
+      "path": "/root/autodl-tmp/moe-research-20261002/model/config.json",
+      "sha256": "42ea6f5fe31e9243290ba3c348a4ad615b88a6fbc6e10544e21a87b6dff5da6c",
+      "model_type": "olmoe"
+    },
+    "dataset_source": {
+      "path": "/root/autodl-tmp/research_K_expert_skip/datasets/task_eval_r02/source.json",
+      "sha256": "7eef60d58b2660e3669fd384ea403ff9811be95ef97d1259dd3c33aa7fc78214"
+    },
+    "prompts": {
+      "path": "/root/autodl-tmp/research_K_expert_skip/datasets/free_generation_validation_r01/prompts.jsonl",
+      "sha256": "cae0ba4ca7030c74cc9a5f7602cbebb1039c70d9f63ce23af0a7a7fa9bd24f2d"
+    },
+    "full_context_lengths": {
+      "path": "/root/autodl-tmp/research_K_expert_skip/datasets/task_eval_r02/context_lengths_olmoe_full.json",
+      "sha256": "ba50209e4b17e5f5366eb56bc9b0488a1b82f166ea44968c5ac5d0fc7afd7755"
+    },
+    "deployment_entry": {
+      "path": "/root/autodl-tmp/research_K_expert_skip/deployments/task_quality_full_mc_20261016/run_full_mc.py",
+      "sha256": "deb29946a39964ac0a9098ac5670ea68b2622473fe6d471f16ca200e710c4246"
+    }
+  },
+  "planning_warnings": [],
+  "budget_seconds": 3570,
+  "job_timeout_seconds": 3560,
+  "jobs": [
+    {
+      "id": "bf16.hellaswag.all_arms",
+      "format": "bf16",
+      "unit": "hellaswag",
+      "arms": [
+        "native",
+        "dense",
+        "global_j1",
+        "global_j2",
+        "global_j4",
+        "gate_low",
+        "gate_high",
+        "marginal_low",
+        "marginal_mid",
+        "marginal_high"
+      ],
+      "command": [
+        "/root/autodl-tmp/research_C_format_sched/tools_venv/bin/python",
+        "/root/autodl-tmp/research_K_expert_skip/code/eval_tasks.py",
+        "standard",
+        "--model",
+        "/root/autodl-tmp/moe-research-20261002/model",
+        "--output",
+        "/root/autodl-tmp/research_K_expert_skip/deployments/task_quality_full_mc_20261016/remote_cpu_plan/hellaswag/bf16.hellaswag.all_arms",
+        "--arms-file",
+        "/root/autodl-tmp/research_K_expert_skip/deployments/task_quality_full_mc_20261016/remote_cpu_plan/hellaswag/arms/all_arms.json",
+        "--batch",
+        "8",
+        "--max-tokens",
+        "256",
+        "--max-model-len",
+        "4096",
+        "--dtype",
+        "bfloat16",
+        "--gpu-memory-utilization",
+        "0.35",
+        "--seed",
+        "1701",
+        "--data-dir",
+        "/root/autodl-tmp/research_K_expert_skip/datasets/task_eval_r02",
+        "--tasks",
+        "hellaswag"
+      ],
+      "output": "/root/autodl-tmp/research_K_expert_skip/deployments/task_quality_full_mc_20261016/remote_cpu_plan/hellaswag/bf16.hellaswag.all_arms",
+      "log": "/root/autodl-tmp/research_K_expert_skip/deployments/task_quality_full_mc_20261016/remote_cpu_plan/hellaswag/bf16.hellaswag.all_arms.log",
+      "status": "NOT_STARTED"
+    }
+  ],
+  "arm_files": {
+    "all_arms": {
+      "purpose": "Full-population prefill MC identity control; explicit selected arm set",
+      "arms": [
+        {
+          "name": "native",
+          "spec": null
+        },
+        {
+          "name": "dense",
+          "spec": {
+            "mode": "dense",
+            "backend": "triton"
+          }
+        },
+        {
+          "name": "global_j1",
+          "spec": {
+            "mode": "global_native",
+            "drop_j": 1,
+            "count_routes": false,
+            "backend": "triton"
+          }
+        },
+        {
+          "name": "global_j2",
+          "spec": {
+            "mode": "global_native",
+            "drop_j": 2,
+            "count_routes": false,
+            "backend": "triton"
+          }
+        },
+        {
+          "name": "global_j4",
+          "spec": {
+            "mode": "global_native",
+            "drop_j": 4,
+            "count_routes": false,
+            "backend": "triton"
+          }
+        },
+        {
+          "name": "gate_low",
+          "spec": {
+            "mode": "gate",
+            "gate_threshold": 0.05,
+            "mass_budget": 0.1,
+            "backend": "triton"
+          }
+        },
+        {
+          "name": "gate_high",
+          "spec": {
+            "mode": "gate",
+            "gate_threshold": 0.15,
+            "mass_budget": 0.3,
+            "backend": "triton"
+          }
+        },
+        {
+          "name": "marginal_low",
+          "spec": {
+            "mode": "marginal",
+            "tail_rank": 4,
+            "gate_threshold": 0.05,
+            "mass_budget": 0.1,
+            "backend": "triton"
+          }
+        },
+        {
+          "name": "marginal_mid",
+          "spec": {
+            "mode": "marginal",
+            "tail_rank": 4,
+            "gate_threshold": 0.1,
+            "mass_budget": 0.2,
+            "backend": "triton"
+          }
+        },
+        {
+          "name": "marginal_high",
+          "spec": {
+            "mode": "marginal",
+            "tail_rank": 4,
+            "gate_threshold": 0.15,
+            "mass_budget": 0.3,
+            "backend": "triton"
+          }
+        }
+      ]
+    }
+  },
+  "semantics": {
+    "formats": "Same local BF16 checkpoint; fp8 means online weight quantization. Model dtype and auto KV remain BF16.",
+    "mc": "Official MMLU5-shot/HellaSwag0-shot/ARC-c0-shot prompt loglikelihood. All arms have zero decode and are prefill identity controls, not evidence of decode quality preservation.",
+    "generation": "No generation task/free job is run. max_tokens256 is an unused common CLI setting for MC.",
+    "limit": "No --limit; every selected arm evaluates the full chosen family. The arm subset is recorded separately and is not called a full ten-arm matrix.",
+    "failure": "Keep all raw files and completed arms. One family per fresh output permits independent family reruns without repeating successful families; no automatic retry or partial-arm reuse.",
+    "native_reuse": "Shares native within each job's complete supplied arm sequence (five by default). No automatic score reuse or arm selection. Per-arm isolation explicitly repeats native.",
+    "memory": "Eager existing runners; no CUDA graph or timing claims. Startup and all jobs consume the outer GPU budget.",
+    "statistics": "Same seed1701 and official samples/prompts. Existing runner checks native/candidate response identity. Sample stderr is not independent system-run uncertainty."
+  },
+  "expected_documents_per_arm": 10042,
+  "expected_requests_per_arm": 40168,
+  "exact_selected_arms": [
+    "native",
+    "dense",
+    "global_j1",
+    "global_j2",
+    "global_j4",
+    "gate_low",
+    "gate_high",
+    "marginal_low",
+    "marginal_mid",
+    "marginal_high"
+  ],
+  "full_ten_arm_matrix": true,
+  "total_document_arm_evaluations": 100420
+}

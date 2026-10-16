@@ -1,0 +1,87 @@
+状态：LOCAL_ONLY，未提交 GPU、未上传，未修改 live code/configs。
+用途：OLMoE BF16 完整 GSM8K 5-shot；所有 1319 道 test 题、seed1701。
+本目录只封装已有 run_task_quality 的计划、外锁校验与有预算的执行函数；
+只保留 GSM8K job，不重复执行 free generation 或 MC 身份对照。
+
+参数与臂：
+  同 r08b：B8，max_model_len4096，max_tokens256，GPU memory .35，
+  greedy、EOS/官方 task stop strings 开启、无 chat template、eager Triton；
+  所有臂共用同一个真实 BF16 checkpoint、一次模型加载和全量 native 参照。
+  现有 r06 BF16 native tuned_configs 继续供所有臂共用，无候选特调。
+  native + dense；完整保留 matched_gate_controls 原八臂的全部参数。
+  固定新增一档温和预算的三个 matched controls：
+    gate_m05: tau=.05, m=.05，无 rank/count 限制；
+    tail_gate_m05: tau=.05, m=.05, tail_rank=4，无 count 限制；
+    marginal_m05: tau=.05, m=.05, tail_rank=4, singleton count 限制。
+  tail_rank=4 为零基 rank，OLMoE top8 的第5–8位。沿用模型默认归一化语义。
+  固定顺序：native、dense、m05三臂、原mid三臂、原high三臂。
+  这是 11 臂的一个固定全量任务配置，不是参数网格；m05 未获 GPU 质量验证。
+  原八臂含 native/dense，新增三臂后共 14509 次完成，输出上限 3714304 token。
+  此批不含 global_j1/j2/j4 的完整 GSM8K；不能把已有16题分数称为全量证据。
+
+CPU 计划（已执行并通过）：
+  在 research_K_expert_skip 下：
+    PYTHONDONTWRITEBYTECODE=1 python3 \
+      deployments/task_quality_full_20261016/run_full_gsm8k.py \
+      --plan-only --output deployments/task_quality_full_20261016/cpu_plan
+  cpu_plan/suite.json 保存现有 runner 生成的一个 GSM8K job；命令无 --limit。
+  该输出目录已存在，重新计划需换一个新目录。
+  本机没有远端模型目录，只有 model_config unresolved 的明确警告；不加载权重。
+  已核对原8臂完全相同、11臂集合、B8/256、limit=None、1319题/臂及预算。
+  完整CPU请求检查来源 datasets/task_eval_r02/context_lengths_olmoe_full.json：
+  GSM8K 1319题，5shot/seed1701，最长1390+256=1646，0超4096；不截断、不筛样本。
+  wrapper 校验该记录/数据源身份，执行成功后再检查每臂两种 extraction filter
+  各1319个实际指标，缺少任何完整人口即记 INCOMPLETE。
+
+准确 GPU 命令（仅准备；由主会话先复制此 deployment 目录并安排独占锁时段）：
+  cd /root/autodl-tmp/research_K_expert_skip
+  env HF_HUB_OFFLINE=1 HF_DATASETS_OFFLINE=1 TRANSFORMERS_OFFLINE=1 \
+      VLLM_ENABLE_V1_MULTIPROCESSING=0 TOKENIZERS_PARALLELISM=false \
+      VLLM_TUNED_CONFIG_FOLDER=/root/autodl-tmp/research_K_expert_skip/runs/characterize_r06/native_tuning/tuned_configs \
+      /root/miniconda3/bin/python code/run_locked.py \
+      --name olmoe_bf16_gsm8k_full_r01 --wait-seconds 21600 --timeout 7140 -- \
+      /root/autodl-tmp/research_C_format_sched/tools_venv/bin/python \
+      deployments/task_quality_full_20261016/run_full_gsm8k.py \
+      --root /root/autodl-tmp/research_K_expert_skip \
+      --model /root/autodl-tmp/moe-research-20261002/model \
+      --outer-run-dir runs/olmoe_bf16_gsm8k_full_r01 \
+      --output runs/olmoe_bf16_gsm8k_full_r01/quality
+  不能与现有 RUNNING/WAITING 本课题任务并发注册；沿用主会话的串行交接。
+  run_locked 保留15小时总账、GPU PID检查、已有锁及模型环境设置。
+  数据源/完整长度记录已在远端 K；不得改写其它项目文件。
+
+预算与估计（来自 r08b，非性能结论/非完成保证）：
+  实测 r08b GSM8K：10臂×16题，整个 job 134.197738s；仅一次模型启动。
+  log 中10个 generate_until 终点的显示速率折算合计约45.988450s，
+  显示速率有取整，包含实际调度/预填充/生成等，不能解释为纯 decode 时间。
+  160条实际输出平均94.1375 token；已有 gate/tail-matched 新臂未测。
+  按同样每题成本估计11臂×1319题的生成阶段：
+    45.988450 * (1319/16) * (11/10) = 4170.290s = 69.50min。
+  启动只计一次；加CPU请求构造/评分/写盘及速度波动，可规划约70–100min。
+  这是从16题外推的估计，长题、终止率、rank_gate新形状/JIT可能改变用时。
+  同均值预计约1365841输出token；若输出普遍接近256上限，按token线性
+  缩放的诊断估计约189min，说明2小时不保证全11臂完成；该线性式不是模型。
+  不以减少题目/输出cap/跳过臂来凑预算，不将未完成当成功。
+
+  job timeout7070s，suite budget7080s，外层 timeout7140s；外层另有最多30s
+  SIGTERM清理等待，在两小时额度内留出收尾余量。启动/JIT/评分均占额度。
+  超时后已有 per-arm results、summary accepted entries、逐批 raw_outputs、
+  worker计数文件和日志保留；suite 标 TIMEOUT/INCOMPLETE，未完成臂不给精度。
+  现有 eval_tasks 不支持从题号中途恢复；如需接续须另开明确新运行，
+  保持原失败/部分输出，不能覆盖或把同一次运行的请求当系统独立重复。
+
+来源：
+  runs/task_quality_pilot_r08b/quality/suite.json（GSM job起止134.197738s）
+  runs/task_quality_pilot_r08b/quality/bf16.gsm8k.all_arms.log
+    SHA256 dc70ba4e3358269210e5e8843e63c0ddf120959115073c6f59f69e853cbc51ee
+  runs/task_quality_pilot_r08b/quality/bf16.gsm8k.all_arms/raw_outputs.jsonl
+  configs/matched_gate_controls.json（精确SHA与原参数来源见本目录 arms.json）
+  datasets/task_eval_r02/context_lengths_olmoe_full.json
+    SHA256 ba50209e4b17e5f5366eb56bc9b0488a1b82f166ea44968c5ac5d0fc7afd7755
+
+终态拉回后汇总（目录不存在时执行）：
+  python3 code/summarize_task_quality.py \
+    --suite runs/olmoe_bf16_gsm8k_full_r01/quality/suite.json \
+    --output-dir figures/task_quality_full_olmoe_bf16_r01
+  原始 strict-match / flexible-extract 均保留，报告每题配对人口和原始样本值；
+  不把 task sample stderr 当成独立运行置信区间。超时臂保留缺失状态。

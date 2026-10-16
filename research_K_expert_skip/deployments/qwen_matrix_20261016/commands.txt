@@ -1,0 +1,91 @@
+LOCAL ONLY — no GPU submission, remote deployment or chain change.
+
+Target: Qwen/Qwen3-30B-A3B@ad44e777bcd18fa416d9da3bd8f70d33ebb85d39
+K-owned model path:
+  /root/autodl-tmp/research_K_expert_skip/models/qwen3_bf16_ad44e777
+This target must contain all 16 SHA-verified shards and pinned small assets,
+including tokenizer/index, before execution. The downloader's READY receipt is
+not a model-load or GPU-fit result. The driver never downloads or modifies C.
+
+Official config: E=128, k=8, hidden=2048, routed I=768 (not dense I=6144),
+48 MoE layers, first layer 0, no shared experts, norm_topk_prob=True. The exact
+config SHA must match 2850ddb3bf7aecad20b611e2d44f3077fc8193f4827c93beddd4c02ad63c2297.
+The input compatibility record confirms 64 different 128-token bench prefixes
+(shortest source 279 tokens), and 32 paired validation articles (shortest 1105).
+The 64 benchmark windows come from 60 articles, not 64 independent articles.
+code/model_registry.py was absent locally; use the existing tune_moe geometry
+resolver and exact official config, without introducing another registry.
+
+Each format has a separate 8-stage run:
+  1. Native eager routes, real B=1/2/4/8/16/32/64, 16 decode trace steps.
+  2. Native-only Triton tune, layer0, 3 events/B, 5 rounds, 10 replays/sample,
+     256 MiB eviction, existing 8-point grid + stock. All arms share this result.
+  3–4. Strict dense and marginal exact-bucket eager/graph checks, actual and
+       capture B=1/2/4/8/16/32/64. Keep native/dense identity and cross-mode
+       output/counter equality. No padded-batch equivalence claim.
+  5–7. B=1/8/32, same 32 articles, prefix128 + 32 real decode scores/article,
+       full quality_pareto ten arms. Full-vocabulary native||policy KL/PPL.
+  8. Graph performance 7 B x 9 default arms = 63 paired cells; prefix128,
+     2048 generated tokens, 2047 measured decode steps, warmup >=3 seconds,
+     one run/cell; counter-free performance plus identical-output counter pass.
+
+Format semantics: BF16 checkpoint for both; --quantization fp8 requests actual
+online W8A8. Model dtype and auto KV remain BF16. Each format captures its own
+native routes and tunes its own dtype-specific file; never share BF16/FP8 tune.
+No task-accuracy or complete-split PPL claim; those are separately planned.
+
+Both formats and all policies use the same provisional .85 GPU memory ratio.
+On the measured 94.97-GiB device this is about80.72GiB. BF16 tensor payload is
+56.87GiB; B64*(128+2048) BF16 GQA KV payload is12.75GiB, leaving about11.10GiB
+before graph/workspace/activation/layout/fragmentation. Actual fit, FP8 online
+conversion peak, exact-bucket parity, and full-context KV capacity are untested.
+No automatic memory-ratio increase or batch/population reduction on failure.
+
+One format per shared-lock job, outer7200s / internal7170s. Stage caps:
+trace600, tune900, graph_dense1200, graph_marginal900,
+quality_b1=900, quality_b8=600, quality_b32=600, bench6600 seconds.
+These are ceilings, not additive reservations or completion estimates. Every
+stage uses min(cap, remaining total minus cleanup10s). Qwen timing is unknown.
+Failure artifacts/logs stay; later dependent stages are NOT_RUN_DEPENDENCY.
+Eager quality batches depend only on tuning and may continue after graph failure.
+The 63-cell matrix requires both strict graph checks. Any failed or unrun stage
+makes the run INCOMPLETE. Energy windows under3s remain diagnostic. Single runs
+and paired article windows do not supply independent system-run uncertainty.
+
+CPU plans, from project root (no weights required; no output run created):
+
+PYTHONDONTWRITEBYTECODE=1 python3 deployments/qwen_matrix_20261016/code/run_qwen_matrix.py \
+  --format bf16 --output runs/qwen_bf16_matrix_r01 --plan-only
+PYTHONDONTWRITEBYTECODE=1 python3 deployments/qwen_matrix_20261016/code/run_qwen_matrix.py \
+  --format fp8 --output runs/qwen_fp8_matrix_r01 --plan-only
+
+The saved bf16_plan.json/fp8_plan.json use this local host's interpreter/paths;
+regenerate on the server before execution. Missing weights are allowed only for
+plan-only; missing/different actual config blocks execution. No CUDA imports in
+CPU planning. Required shared collection code is unchanged. The new entry and
+config remain in this deployment directory; do not overwrite DeepSeek staged
+files or live code while a predecessor depends on them.
+
+After checkpoint completion, deployment and main-session resource scheduling,
+run these as separate locked jobs, not concurrent jobs or an automatic chain:
+
+cd /root/autodl-tmp/research_K_expert_skip
+env HF_HUB_OFFLINE=1 HF_DATASETS_OFFLINE=1 TRANSFORMERS_OFFLINE=1 \
+  VLLM_ENABLE_V1_MULTIPROCESSING=0 TOKENIZERS_PARALLELISM=false \
+  /root/miniconda3/bin/python code/run_locked.py \
+  --name qwen_bf16_matrix_r01 --wait-seconds 21600 --timeout 7200 -- \
+  /root/miniconda3/bin/python deployments/qwen_matrix_20261016/code/run_qwen_matrix.py \
+  --format bf16 --output runs/qwen_bf16_matrix_r01 --budget-seconds 7170
+
+cd /root/autodl-tmp/research_K_expert_skip
+env HF_HUB_OFFLINE=1 HF_DATASETS_OFFLINE=1 TRANSFORMERS_OFFLINE=1 \
+  VLLM_ENABLE_V1_MULTIPROCESSING=0 TOKENIZERS_PARALLELISM=false \
+  /root/miniconda3/bin/python code/run_locked.py \
+  --name qwen_fp8_matrix_r01 --wait-seconds 21600 --timeout 7200 -- \
+  /root/miniconda3/bin/python deployments/qwen_matrix_20261016/code/run_qwen_matrix.py \
+  --format fp8 --output runs/qwen_fp8_matrix_r01 --budget-seconds 7170
+
+The existing controller enforces the overall GPU ledger. These commands are
+prepared only; neither has been submitted. Do not infer four hours have been
+allocated. Preserve failed run directories and choose a fresh name if the main
+session later prepares an explicit recovery.

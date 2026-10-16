@@ -1,0 +1,30 @@
+LOCAL ONLY: this handoff has not been started or uploaded by this subtask.
+The prior after_r09.py remains unchanged and is not the intended entry point.
+
+Reviewed startup command, for the parent to execute if approved:
+
+nohup /root/miniconda3/bin/python /root/autodl-tmp/research_K_expert_skip/deployments/deepseek_matrix_20261016/after_r09b.py --root /root/autodl-tmp/research_K_expert_skip > /root/autodl-tmp/research_K_expert_skip/deployments/deepseek_matrix_20261016/handoff_r09b.log 2>&1 < /dev/null &
+
+Wait for olmoe_fp8_matrix_r09b COMPLETE, run_resume.py and controller exit,
+all seven recorded stages COMPLETE/exit0, bench/status COMPLETE, and terminal
+SHA receipts. The padded diagnostic may have observed different native outputs;
+its COMPLETE stage means the diagnostic ran, not padded equality. Both seven-B
+un-padded graph checks must themselves have passed through the existing runner.
+
+Only then add the pinned DS driver/config (existing targets are rejected), run
+deepseek_bf16_matrix_r01, and after its complete eight stages and process exit,
+run deepseek_fp8_matrix_r01. Every job uses unchanged run_locked.py with wait21600,
+timeout7200 and internal7170, including the shared LOCK_NB and cumulative15h
+guards. A failed/missing stage, source SHA change, duplicate name or other active
+K run records STOPPED without retry. No process is killed by this handoff.
+
+The two DS graph stages explicitly use batches/capture sizes 1,2,4,8,16,32,64
+through live code/smoke_graph.py. Native/dense identity in both execution modes
+and strict eager/graph output/counter parity remain required. This claims no
+padded-batch equivalence. Dense/marginal caps900/600 are upper limits, not timing
+predictions; all other stage settings and the total budget are unchanged.
+
+PID identity and exit handling are unchanged from after_r09.py: Linux boot_id,
+PID and /proc start_ticks distinguish a reused PID; ambiguous initial identity
+stops. Own controllers are reaped. Receipt is handoff_r09b.json; the common CPU
+handoff.lock prevents concurrently running old/new handoffs.

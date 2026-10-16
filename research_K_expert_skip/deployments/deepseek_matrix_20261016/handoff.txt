@@ -1,0 +1,32 @@
+LOCAL ONLY. after_r09.py has not been started or uploaded by this subtask.
+The observed r09 ended FAILED/INCOMPLETE, so this exact handoff will STOPPED
+before deployment or submission. It must not be redirected to a replacement
+predecessor without an explicit reviewed update.
+
+After a successful predecessor is established and the parent approves startup:
+
+nohup /root/miniconda3/bin/python /root/autodl-tmp/research_K_expert_skip/deployments/deepseek_matrix_20261016/after_r09.py --root /root/autodl-tmp/research_K_expert_skip > /root/autodl-tmp/research_K_expert_skip/deployments/deepseek_matrix_20261016/handoff.log 2>&1 < /dev/null &
+
+This command is shown for review, not executed. The fixed predecessor in this
+version remains olmoe_fp8_matrix_r09. A CPU singleton flock and exclusive
+handoff.json prevent duplicate starts; an existing receipt is never overwritten.
+Only code/run_deepseek_matrix.py and configs/deepseek_matrix.json are deployed,
+using pinned SHA256 and exclusive creation. Existing destinations are rejected.
+The summarize_task_quality.py file in this staging directory is not deployed.
+
+Each submitted job uses the unchanged run_locked.py: wait21600, timeout7200,
+internal budget7170, existing nonblocking shared lock and cumulative15h guard.
+Successful terminal status, all required stages COMPLETE, bench/status COMPLETE,
+and their terminal SHA records are required before advancing. No retry or kill.
+
+Linux /proc boot_id + PID + stat start_ticks bind each observed controller and
+worker. A later different start_ticks means the original process exited; the
+unrelated reused PID is not signalled or awaited. On first observation a live
+PID must match the expected script/run argv and recorded launch time; ambiguous
+identity stops. Absent or Z/X processes are exited; own controllers are also
+reaped through Popen.wait(). COMPLETE alone never permits the next submission.
+
+CPU checks used temporary fake terminal records and stubbed Popen: successful
+r09 -> BF16 -> FP8 order; failed r09 submits/deploys nothing; duplicate name and
+payload SHA changes rejected; bound PID reuse recognized without signalling.
+These checks do not claim real GPU completion or deployment.

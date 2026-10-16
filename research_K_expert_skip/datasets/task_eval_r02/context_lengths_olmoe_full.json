@@ -1,0 +1,411 @@
+{
+  "schema_version": 1,
+  "status": "FULL_INPUT_LENGTHS_CHECKED",
+  "checked_on": "2026-10-16",
+  "scope": "Complete official evaluation split for all four task families with limit=None and seed1701. CPU request construction/tokenization only; no model weights loaded or GPU used, no prompts emitted, and no task/model/runtime code changed. This validates input context lengths under the recorded protocol, not task accuracy or inference execution.",
+  "dataset_source": {
+    "local_path": "datasets/task_eval_r02/source.json",
+    "sha256": "7eef60d58b2660e3669fd384ea403ff9811be95ef97d1259dd3c33aa7fc78214",
+    "status": "READY",
+    "repositories": {
+      "Rowan/hellaswag": {
+        "revision": "218ec52e09a7e7462a5400043bb9a69a41d06b76",
+        "url": "https://huggingface.co/datasets/Rowan/hellaswag/tree/218ec52e09a7e7462a5400043bb9a69a41d06b76"
+      },
+      "allenai/ai2_arc": {
+        "revision": "210d026faf9955653af8916fad021475a3f00453",
+        "url": "https://huggingface.co/datasets/allenai/ai2_arc/tree/210d026faf9955653af8916fad021475a3f00453"
+      },
+      "cais/mmlu": {
+        "revision": "c30699e8356da336a370243923dbaf21066bb9fe",
+        "url": "https://huggingface.co/datasets/cais/mmlu/tree/c30699e8356da336a370243923dbaf21066bb9fe"
+      },
+      "openai/gsm8k": {
+        "revision": "740312add88f781978c0658806c59bc2815b9866",
+        "url": "https://huggingface.co/datasets/openai/gsm8k/tree/740312add88f781978c0658806c59bc2815b9866"
+      }
+    },
+    "task_definitions_sha256": "599b046241ef5db9fce9ddf14f90c8fa29a25823e5c5df205ae69b9eb63359bd",
+    "dataset_fingerprints_checked_by": "eval_tasks.load_tasks against source.task_info"
+  },
+  "tokenizer": {
+    "checkpoint_repo": "allenai/OLMoE-1B-7B-0924-Instruct",
+    "checkpoint_revision": "7f1c97f440f06ce36705e4f2b843edb5925f4498",
+    "class": "GPTNeoXTokenizer",
+    "bos_token_id": 50279,
+    "eos_token_id": 50279,
+    "model_path": "/root/autodl-tmp/moe-research-20261002/model",
+    "files": {
+      "config.json": {
+        "bytes": 759,
+        "sha256": "42ea6f5fe31e9243290ba3c348a4ad615b88a6fbc6e10544e21a87b6dff5da6c"
+      },
+      "tokenizer.json": {
+        "bytes": 2115598,
+        "sha256": "b1fb1517c84c6d516ff43adcebe7a1986ce7ed3e2533dc2c22b40337d2d24167"
+      },
+      "tokenizer_config.json": {
+        "bytes": 5986,
+        "sha256": "d3079f9c26a02fd28ee8d9bdfea4e96da7f5e803e06707ec8d1511acaaac7864"
+      },
+      "special_tokens_map.json": {
+        "bytes": 433,
+        "sha256": "cf22141a130514760f6280166b8d1c9a56610578188aad0790eb6eaf6ea1eb08"
+      }
+    },
+    "versions": {
+      "lm_eval": "0.4.13",
+      "transformers": "5.17.0",
+      "tokenizers": "0.23.2",
+      "datasets": "5.1.0"
+    }
+  },
+  "actual_cpu_calls": {
+    "interpreter": "/root/autodl-tmp/research_C_format_sched/tools_venv/bin/python",
+    "remote_workdir": "/root/autodl-tmp/research_K_expert_skip",
+    "environment": {
+      "CUDA_VISIBLE_DEVICES": "",
+      "OMP_NUM_THREADS": "2",
+      "TOKENIZERS_PARALLELISM": "false",
+      "HF_HUB_OFFLINE": "1",
+      "HF_DATASETS_OFFLINE": "1",
+      "TRANSFORMERS_OFFLINE": "1",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "load": "eval_tasks.data_environment(..., offline=True); read_source; definition_fingerprint equality; load_tasks([mmlu,gsm8k,hellaswag,arc_challenge], source, data_dir)",
+    "requests": "Each task: set_fewshot_seed(1701); set num_fewshot to family value; generate_until generation_kwargs updated with max_gen_toks=256,do_sample=False,temperature=0; build_all_requests(limit=None, rank=0, world_size=1, cache_requests=False, rewrite_requests_cache=False, system_instruction=None, apply_chat_template=False, fewshot_as_multiturn=False, chat_template=None, tokenizer_name=\"\").",
+    "tokenization": "Same-checkpoint AutoTokenizer.from_pretrained(local_files_only=True,trust_remote_code=False), configure_pad_token with AutoConfig. Execute the installed VLLM.tok_encode method body with original _add_special_kwargs and has_bos_prefix helpers, add_bos_token=None and tokenizer BOS/EOS prefix. Only this method was extracted via AST to avoid importing LLM/CUDA libraries; no model object was constructed. MC length uses context+continuation exactly as current guard; GSM8K uses prompt plus requested generation cap.",
+    "harness_adapter_path": "/root/autodl-tmp/research_C_format_sched/tools_venv/lib/python3.12/site-packages/lm_eval/models/vllm_causallms.py",
+    "harness_adapter_sha256": "a8552f4e522175f422ad2229813a8a725c0504ad7b8e758c504e3e09911e5c89",
+    "request_sha256": "bc11df249df3fd8826774ccb451129ca969613403b03e4e4e99aeb2b032a83f6",
+    "task_loader_path": "/root/autodl-tmp/research_K_expert_skip/code/eval_tasks.py",
+    "task_loader_sha256": "68727704aa7b66b3a73fbd00d9d1fdb73c6d1bb9461815707b6020094797ea37",
+    "temporary_script_sha256": "9933187a6ae906a20a2fb15108592bfb931435fcc9dcf4845659dccfd3b96f35",
+    "raw_log_sha256": "c20a7c31396e597c22aaf3feb97c73c973952fc8e19dd4c6f0eb3ad23b42e13b",
+    "process": "Python PID54232 completed and exited; CPU-only environment was set before imports."
+  },
+  "families": {
+    "mmlu": {
+      "documents": 14042,
+      "requests": 56168,
+      "min_input_tokens": 255,
+      "median_input_tokens": 509.0,
+      "p90_input_tokens_nearest_rank": 1603,
+      "p95_input_tokens_nearest_rank": 1705,
+      "p99_input_tokens_nearest_rank": 2727,
+      "max_input_tokens": 3166,
+      "generation_cap_values": [
+        0
+      ],
+      "over_requests": 0,
+      "over_documents": 0,
+      "max_request": {
+        "task": "mmlu_high_school_european_history",
+        "doc_id": 34,
+        "request_index": 0,
+        "input_tokens": 3166,
+        "generation_cap": 0,
+        "allowed_input_tokens": 4095,
+        "over": false
+      },
+      "longest_requests": [
+        {
+          "task": "mmlu_high_school_european_history",
+          "doc_id": 34,
+          "request_index": 0,
+          "input_tokens": 3166,
+          "generation_cap": 0,
+          "allowed_input_tokens": 4095,
+          "over": false
+        },
+        {
+          "task": "mmlu_high_school_european_history",
+          "doc_id": 34,
+          "request_index": 1,
+          "input_tokens": 3166,
+          "generation_cap": 0,
+          "allowed_input_tokens": 4095,
+          "over": false
+        },
+        {
+          "task": "mmlu_high_school_european_history",
+          "doc_id": 34,
+          "request_index": 2,
+          "input_tokens": 3166,
+          "generation_cap": 0,
+          "allowed_input_tokens": 4095,
+          "over": false
+        },
+        {
+          "task": "mmlu_high_school_european_history",
+          "doc_id": 34,
+          "request_index": 3,
+          "input_tokens": 3166,
+          "generation_cap": 0,
+          "allowed_input_tokens": 4095,
+          "over": false
+        },
+        {
+          "task": "mmlu_high_school_european_history",
+          "doc_id": 136,
+          "request_index": 0,
+          "input_tokens": 3149,
+          "generation_cap": 0,
+          "allowed_input_tokens": 4095,
+          "over": false
+        }
+      ]
+    },
+    "gsm8k": {
+      "documents": 1319,
+      "requests": 1319,
+      "min_input_tokens": 571,
+      "median_input_tokens": 844,
+      "p90_input_tokens_nearest_rank": 1020,
+      "p95_input_tokens_nearest_rank": 1067,
+      "p99_input_tokens_nearest_rank": 1174,
+      "max_input_tokens": 1390,
+      "generation_cap_values": [
+        256
+      ],
+      "over_requests": 0,
+      "over_documents": 0,
+      "max_request": {
+        "task": "gsm8k",
+        "doc_id": 404,
+        "request_index": 0,
+        "input_tokens": 1390,
+        "generation_cap": 256,
+        "allowed_input_tokens": 3840,
+        "over": false
+      },
+      "longest_requests": [
+        {
+          "task": "gsm8k",
+          "doc_id": 404,
+          "request_index": 0,
+          "input_tokens": 1390,
+          "generation_cap": 256,
+          "allowed_input_tokens": 3840,
+          "over": false
+        },
+        {
+          "task": "gsm8k",
+          "doc_id": 1009,
+          "request_index": 0,
+          "input_tokens": 1287,
+          "generation_cap": 256,
+          "allowed_input_tokens": 3840,
+          "over": false
+        },
+        {
+          "task": "gsm8k",
+          "doc_id": 1310,
+          "request_index": 0,
+          "input_tokens": 1277,
+          "generation_cap": 256,
+          "allowed_input_tokens": 3840,
+          "over": false
+        },
+        {
+          "task": "gsm8k",
+          "doc_id": 138,
+          "request_index": 0,
+          "input_tokens": 1242,
+          "generation_cap": 256,
+          "allowed_input_tokens": 3840,
+          "over": false
+        },
+        {
+          "task": "gsm8k",
+          "doc_id": 33,
+          "request_index": 0,
+          "input_tokens": 1240,
+          "generation_cap": 256,
+          "allowed_input_tokens": 3840,
+          "over": false
+        }
+      ]
+    },
+    "hellaswag": {
+      "documents": 10042,
+      "requests": 40168,
+      "min_input_tokens": 17,
+      "median_input_tokens": 88.0,
+      "p90_input_tokens_nearest_rank": 114,
+      "p95_input_tokens_nearest_rank": 119,
+      "p99_input_tokens_nearest_rank": 126,
+      "max_input_tokens": 148,
+      "generation_cap_values": [
+        0
+      ],
+      "over_requests": 0,
+      "over_documents": 0,
+      "max_request": {
+        "task": "hellaswag",
+        "doc_id": 7644,
+        "request_index": 3,
+        "input_tokens": 148,
+        "generation_cap": 0,
+        "allowed_input_tokens": 4095,
+        "over": false
+      },
+      "longest_requests": [
+        {
+          "task": "hellaswag",
+          "doc_id": 7644,
+          "request_index": 3,
+          "input_tokens": 148,
+          "generation_cap": 0,
+          "allowed_input_tokens": 4095,
+          "over": false
+        },
+        {
+          "task": "hellaswag",
+          "doc_id": 7644,
+          "request_index": 2,
+          "input_tokens": 142,
+          "generation_cap": 0,
+          "allowed_input_tokens": 4095,
+          "over": false
+        },
+        {
+          "task": "hellaswag",
+          "doc_id": 3946,
+          "request_index": 1,
+          "input_tokens": 141,
+          "generation_cap": 0,
+          "allowed_input_tokens": 4095,
+          "over": false
+        },
+        {
+          "task": "hellaswag",
+          "doc_id": 3946,
+          "request_index": 0,
+          "input_tokens": 140,
+          "generation_cap": 0,
+          "allowed_input_tokens": 4095,
+          "over": false
+        },
+        {
+          "task": "hellaswag",
+          "doc_id": 6213,
+          "request_index": 1,
+          "input_tokens": 140,
+          "generation_cap": 0,
+          "allowed_input_tokens": 4095,
+          "over": false
+        }
+      ]
+    },
+    "arc_challenge": {
+      "documents": 1172,
+      "requests": 4687,
+      "min_input_tokens": 10,
+      "median_input_tokens": 33,
+      "p90_input_tokens_nearest_rank": 60,
+      "p95_input_tokens_nearest_rank": 71,
+      "p99_input_tokens_nearest_rank": 97,
+      "max_input_tokens": 171,
+      "generation_cap_values": [
+        0
+      ],
+      "over_requests": 0,
+      "over_documents": 0,
+      "max_request": {
+        "task": "arc_challenge",
+        "doc_id": 231,
+        "request_index": 0,
+        "input_tokens": 171,
+        "generation_cap": 0,
+        "allowed_input_tokens": 4095,
+        "over": false
+      },
+      "longest_requests": [
+        {
+          "task": "arc_challenge",
+          "doc_id": 231,
+          "request_index": 0,
+          "input_tokens": 171,
+          "generation_cap": 0,
+          "allowed_input_tokens": 4095,
+          "over": false
+        },
+        {
+          "task": "arc_challenge",
+          "doc_id": 231,
+          "request_index": 1,
+          "input_tokens": 171,
+          "generation_cap": 0,
+          "allowed_input_tokens": 4095,
+          "over": false
+        },
+        {
+          "task": "arc_challenge",
+          "doc_id": 231,
+          "request_index": 2,
+          "input_tokens": 171,
+          "generation_cap": 0,
+          "allowed_input_tokens": 4095,
+          "over": false
+        },
+        {
+          "task": "arc_challenge",
+          "doc_id": 231,
+          "request_index": 3,
+          "input_tokens": 171,
+          "generation_cap": 0,
+          "allowed_input_tokens": 4095,
+          "over": false
+        },
+        {
+          "task": "arc_challenge",
+          "doc_id": 269,
+          "request_index": 3,
+          "input_tokens": 149,
+          "generation_cap": 0,
+          "allowed_input_tokens": 4095,
+          "over": false
+        }
+      ]
+    }
+  },
+  "mmlu_subject_count": 57,
+  "professional_law": {
+    "documents": 1534,
+    "requests": 6136,
+    "max_input_tokens": 2128,
+    "over_requests": 0,
+    "over_documents": 0
+  },
+  "overflow_tasks": {},
+  "overflow_documents": [],
+  "result": "0 over-limit requests among all 102342 requests from 26575 documents. Current max_model_len=4096 early guards do not reject this recorded full-task workload. Keep current context and task definitions; no truncation patch or sample filtering is needed for these inputs.",
+  "official_harness_context_behavior": {
+    "mmlu_hellaswag_arc": "VLLM._loglikelihood_tokens sets max_cxt_len=max_length-1 and uses (context_enc+continuation_enc)[-max_cxt_len:] (installed lines 666,688-697); current ObservedVLLM guard is stricter than parent for requests that exceed this bound.",
+    "gsm8k": "VLLM.generate_until calls maybe_truncate with max_model_len and max_gen_toks; default truncation_side=left (installed lines 90,607-612).",
+    "scope_boundary": "The complete recorded seed1701 protocol is checked. A different seed, prompt template, shot count, tokenizer or generation cap can change lengths and is not covered. If another protocol has overlength inputs, preserve official harness left-truncation and record original/effective lengths rather than silently excluding samples or enlarging the model context."
+  },
+  "protocol": {
+    "seed": 1701,
+    "limit_per_task_leaf": null,
+    "shots": {
+      "mmlu": 5,
+      "gsm8k": 5,
+      "hellaswag": 0,
+      "arc_challenge": 0
+    },
+    "apply_chat_template": false,
+    "max_model_len": 4096,
+    "generation_max_tokens": 256,
+    "mc_max_context_and_continuation_tokens": 4095,
+    "gsm8k_max_prompt_tokens": 3840
+  },
+  "totals": {
+    "documents": 26575,
+    "requests": 102342,
+    "over_requests": 0,
+    "over_documents": 0
+  },
+  "length_statistics": "MC lengths include context plus answer continuation exactly as the current early guard; GSM8K lengths are prompt only and generation_cap=256 is checked separately. Percentiles are nearest-rank over requests; repeated answer-choice requests are not independent documents or system runs. longest_requests reports task/doc_id/request_index only, never prompt text."
+}

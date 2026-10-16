@@ -1,0 +1,47 @@
+LOCAL_ONLY delivery. No download, remote deployment, or GPU work was executed here.
+
+Entry: resume_qwen.py. Deploy this file together with pinned_files.json,
+source_inventory.json and fixed_placement.json in this same directory. It reuses
+the existing K code/prepare_deepseek_mirror.py strict Range/full-SHA helper.
+
+Read-only live plan (stdout JSON; inspect space_ok and filesystems):
+CUDA_VISIBLE_DEVICES='' /root/miniconda3/bin/python /root/autodl-tmp/research_K_expert_skip/deployments/qwen_partial_resume_20261016/resume_qwen.py --plan-only --root /root/autodl-tmp/research_K_expert_skip --destination /root/autodl-tmp/research_K_expert_skip/models/qwen3_bf16_ad44e777 --fixed-placement /root/autodl-tmp/research_K_expert_skip/deployments/qwen_partial_resume_20261016/fixed_placement.json --c-reservation append
+
+Execute only in the CPU download window chosen by the main session, with an
+external finite wall-clock timeout. This command does not schedule that window:
+CUDA_VISIBLE_DEVICES='' /root/miniconda3/bin/python /root/autodl-tmp/research_K_expert_skip/deployments/qwen_partial_resume_20261016/resume_qwen.py --execute --root /root/autodl-tmp/research_K_expert_skip --destination /root/autodl-tmp/research_K_expert_skip/models/qwen3_bf16_ad44e777 --fixed-placement /root/autodl-tmp/research_K_expert_skip/deployments/qwen_partial_resume_20261016/fixed_placement.json --c-reservation append --max-workers 2 --chunk-mib 64 --retries 2
+
+The plan checks source process identity/stopped state, current FD offsets,
+sequential HTTP implementation, prefix layout, official fixed file metadata,
+small-asset SHA256, and current filesystem budgets. To avoid reading 24 GB of
+weights during GPU timing, full weight SHA scans are deferred to execution.
+Execution verifies complete source shards before isolated FICLONE, resumes only
+K-owned partials, and requires each final whole-file SHA256 before READY. No C
+write, signal, partial hardlink, migration, or adopt_partial call is used.
+
+Fixed placement: shards 9/16 on /tmp rootfs (10 GiB reserve); shard 15 on /dev/shm
+(20 GiB reserve), with its existing 52,428,800-byte prefix copied across devices;
+all other files on persistent K/models (20 GiB reserve + 2 GiB experiment output
+reservation). C's full future append allocation is reserved on persistent disk,
+including its unstarted shards 9/16. The model directory receives three symlinks
+only after all complete shard hashes succeed. /tmp and /dev/shm assets are not
+durable checkpoint storage and must remain present while the model is used.
+
+fixed_inventory_plan.json is an estimate from the supplied stat observations,
+not an executed live plan. With 256 MiB overhead allowance per filesystem, its
+remaining margin above each reserve is persistent 470,730,368 bytes (0.4384 GiB),
+rootfs 2,835,271,432 bytes (2.6406 GiB), shm 1,893,771,288 bytes (1.7637 GiB).
+Live execution refreshes free space before writing, during chunks, and before
+READY. --c-reservation paused is hypothetical plan-only and rejected for execute.
+
+Receipts: K/runs/qwen_partial_resume_YYYYMMDD_HHMMSS_PID/source.json, with
+STARTING/DOWNLOADING/READY or FAILED and completed shard entries. Errors leave K
+partials in place. SIGTERM/SIGINT stop transfer and preserve the failure receipt;
+the outer owner should allow current network reads time to return before SIGKILL.
+The K-only qwen_partial_download.lock is nonblocking. No GPU lock is acquired.
+READY proves checkpoint file identity, not successful model loading.
+
+Local CPU checks: AST/--help, the 16 pinned HF/ModelScope SHA and size mapping,
+tokenizer receipt SHA, and arithmetic plan checks passed. Synthetic isolated-copy
+and prefix-layout checks were previously run; Linux FICLONE evidence is the main
+session's separate reflink_probe.json. No local result is called a live download.

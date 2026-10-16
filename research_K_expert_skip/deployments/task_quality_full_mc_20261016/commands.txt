@@ -1,0 +1,113 @@
+LOCAL CPU PREPARATION ONLY — no GPU submission, deployment, or resource allocation.
+
+Full official MC evaluation population, OLMoE BF16, seed1701, B8, maxlen4096:
+  MMLU:       5-shot, 57 subjects / 14042 documents / 56168 choice requests.
+  HellaSwag:  0-shot, validation10042 documents / 40168 choice requests.
+  ARC-c:      0-shot, test1172 documents / 4687 choice requests.
+The source datasets and task-definition identity come from datasets/task_eval_r02.
+context_lengths_olmoe_full.json already constructed this full protocol on CPU:
+0 overlength requests; maximum context+continuation3166/148/171 respectively,
+below the existing4095 MC input guard. No model-context enlargement, filtering,
+or truncation is introduced. This script does not rebuild the harness.
+
+IMPORTANT INTERPRETATION: official MC loglikelihood runs prefill only, with no
+decode intervention. These are task baseline / prefill identity controls, not
+evidence that skipping preserves decode task accuracy. The adapter validates
+zero decode/mixed events, identical sample/prompt hashes and native/candidate
+loglikelihood identity. Full GSM8K generation has its separate unchanged11-arm
+entry. Natural free generation and full rolling PPL are also separate.
+
+Default exact ten arms from configs/quality_pareto.json:
+native dense global_j1 global_j2 global_j4 gate_low gate_high
+marginal_low marginal_mid marginal_high.
+Optional --arms must be unique and start with native. Exact selected specs and
+source SHA are recorded; a subset is explicitly not a full ten-arm matrix.
+There is no --limit option. Selecting fewer arms never reduces the population.
+
+Estimated wall minutes / variable output GiB, from actual r08b logs and files:
+                   all10       example3(native,dense,marginal_high)    native
+MMLU             107.53/2.882           32.59/0.842                    11.18/0.276
+HellaSwag         20.06/1.270            6.45/0.365                     2.55/0.119
+ARC-c              3.56/0.144            1.45/0.041                     0.84/0.013
+All three         131.15/4.296          40.49/1.248                    14.57/0.408
+
+These are estimates, not measurements, bounds, confidence intervals or an
+allocation. See cost_estimate.json for per-arm raw timestamps, request-loop
+throughput, actual byte counts, source SHA and formula. r08b family wall was
+630.902/96.827/88.633s, but these include31–35s pre-evaluation startup plus
+repeated harness overhead. Do not multiply whole pilot wall by population.
+The model scales requests at the median warm request-loop throughput and keeps
+the measured per-arm residual fixed. MMLU context/subject composition and CPU
+request construction may increase full-run cost beyond this estimate. Hella
+and ARC use only16-document timing pilots. Disk estimates also depend on full
+sample text lengths; add metadata/logs, shared-filesystem variability, and any
+retained failed attempt. Ten-arm output needs more than the quoted4.3GiB alone.
+Root decides full10/explicit subset and budgets within the remaining15h ledger.
+
+The thin entry invokes existing run_task_quality.build_plan/execute and
+eval_tasks.py standard; no new evaluation implementation. One family per run
+means a successful family need not be redone if another fails. Each family
+loads once and executes the selected arms serially with the same model/data.
+The common unused max_tokens256 setting is retained for compatibility; MC
+discarded one-token logprob responses are not natural generated completions.
+
+CPU plan examples from project root; use fresh output directories:
+
+PYTHONDONTWRITEBYTECODE=1 python3 deployments/task_quality_full_mc_20261016/run_full_mc.py \
+  --family mmlu --budget-seconds 10770 --output /tmp/k_full_mc_mmlu --plan-only
+PYTHONDONTWRITEBYTECODE=1 python3 deployments/task_quality_full_mc_20261016/run_full_mc.py \
+  --family hellaswag --budget-seconds 3570 --output /tmp/k_full_mc_hella --plan-only
+PYTHONDONTWRITEBYTECODE=1 python3 deployments/task_quality_full_mc_20261016/run_full_mc.py \
+  --family arc_challenge --budget-seconds 870 --output /tmp/k_full_mc_arc --plan-only
+
+To plan an explicit subset, add e.g.
+  --arms native dense marginal_high
+or
+  --arms native
+Neither is selected by default or proposed as a completed ten-arm result.
+Internal budget is explicit, at most14370s; family child cap is internal minus10s,
+outer timeout must be at least internal+30s. Saved cpu_plan/* contain full10.
+
+MAIN SESSION ONLY, conditional examples after choosing budgets and deploying
+this new directory when safe. Do not run these three jobs concurrently. The
+tools_venv interpreter is required for the prepared lm_eval0.4.13 environment.
+
+cd /root/autodl-tmp/research_K_expert_skip
+env HF_HUB_OFFLINE=1 HF_DATASETS_OFFLINE=1 TRANSFORMERS_OFFLINE=1 \
+  VLLM_ENABLE_V1_MULTIPROCESSING=0 TOKENIZERS_PARALLELISM=false \
+  /root/miniconda3/bin/python code/run_locked.py \
+  --name olmoe_full_mmlu_r01 --wait-seconds 21600 --timeout 10800 -- \
+  /root/autodl-tmp/research_C_format_sched/tools_venv/bin/python \
+  deployments/task_quality_full_mc_20261016/run_full_mc.py \
+  --family mmlu --budget-seconds 10770 --outer-run-dir runs/olmoe_full_mmlu_r01 \
+  --output runs/olmoe_full_mmlu_r01/quality
+
+cd /root/autodl-tmp/research_K_expert_skip
+env HF_HUB_OFFLINE=1 HF_DATASETS_OFFLINE=1 TRANSFORMERS_OFFLINE=1 \
+  VLLM_ENABLE_V1_MULTIPROCESSING=0 TOKENIZERS_PARALLELISM=false \
+  /root/miniconda3/bin/python code/run_locked.py \
+  --name olmoe_full_hellaswag_r01 --wait-seconds 21600 --timeout 3600 -- \
+  /root/autodl-tmp/research_C_format_sched/tools_venv/bin/python \
+  deployments/task_quality_full_mc_20261016/run_full_mc.py \
+  --family hellaswag --budget-seconds 3570 --outer-run-dir runs/olmoe_full_hellaswag_r01 \
+  --output runs/olmoe_full_hellaswag_r01/quality
+
+cd /root/autodl-tmp/research_K_expert_skip
+env HF_HUB_OFFLINE=1 HF_DATASETS_OFFLINE=1 TRANSFORMERS_OFFLINE=1 \
+  VLLM_ENABLE_V1_MULTIPROCESSING=0 TOKENIZERS_PARALLELISM=false \
+  /root/miniconda3/bin/python code/run_locked.py \
+  --name olmoe_full_arc_r01 --wait-seconds 21600 --timeout 900 -- \
+  /root/autodl-tmp/research_C_format_sched/tools_venv/bin/python \
+  deployments/task_quality_full_mc_20261016/run_full_mc.py \
+  --family arc_challenge --budget-seconds 870 --outer-run-dir runs/olmoe_full_arc_r01 \
+  --output runs/olmoe_full_arc_r01/quality
+
+All raw per-sample result JSON, worker snapshots, raw_outputs.jsonl, summaries
+and stdout remain. Timeout/identity mismatch/exception is not successful full
+evaluation. Completed arms are retained; uncompleted arms are not assigned0.
+A retry uses a fresh outer name/output, preserves the earlier attempt, and runs
+only the chosen failed family; it does not automatically reuse incomplete arms.
+On successful completion the wrapper checks every selected arm, full metric
+denominators, 57/1 leaf populations, raw unique document counts and shot counts.
+The existing summarize_task_quality.py can summarize these suites afterward;
+its MC control_only scope must remain visible in tables.

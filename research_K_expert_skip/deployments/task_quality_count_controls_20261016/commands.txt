@@ -1,0 +1,124 @@
+状态：LOCAL_PREPARED，尚未部署新core、未提交GPU；仅本目录的新文件。
+此14臂入口是未来完整GSM计划的替代选择；旧task_quality_full_20261016的
+11臂入口保留历史且未运行，不是默认两批都跑。主会话选择实际预算/时段。
+
+协议与策略
+  OLMoE BF16，官方GSM8K完整test 1319题/臂，5-shot，seed1701，B8，
+  output cap256，max_model_len4096，gpu_memory_utilization .35。
+  原生EOS/任务stop、greedy、无chat template；策略仅真实decode生效，
+  首预测为prefill。不传--limit、不筛题、不为了预算降低cap或省略臂。
+  一次模型加载，共用完整native参照和r06 BF16 native tuned_configs。
+
+  显式读取冻结的新配置：
+    deployments/singleton_ablation_20261016/arms_task_quality.json
+    SHA256 7e81ca78fd1c7932a509c56f84d1733a79d91138d56e29cb332b727c9e2b92f5
+  固定14臂：native，dense，global_j1/j2/j4，
+    gate_m05 / marginal_m05 / marginal_m05_count_off，
+    gate_mid / marginal_mid / marginal_mid_count_off，
+    gate_high / marginal_high / marginal_high_count_off。
+  m05=(tau.05,m.05)，mid=(.10,.20)，high=(.15,.30)，tail_rank4。
+  count on/off均为mode=marginal，仅require_singleton true/false不同，
+  gate/mass边界及其余语义相同；不使用旧半开rank_gate近似tail对照。
+  global三臂为原生top-(k-j)，任务计数开启；gate三臂无rank/count约束。
+  这是固定14臂完整任务选择，不是预期必获支持的新参数扫描。
+
+实际导入与部署条件
+  必需新core：deployments/singleton_ablation_20261016/code/expert_skip.py
+  SHA256 fb9ed78cf942c21b6e5c160dfece6169e8319326163a19cfa73f7ca862ab5d31
+  原skip_worker无需改动，其skip_set_policy直接调用SkipConfig(**spec)。
+  本入口不复制code树、不修改harness、不在执行时使用局部PYTHONPATH overlay。
+  --execute先核验root/code/expert_skip.py SHA及实际import.__file__；旧core
+  即拒绝。子进程继续执行root/code/eval_tasks.py，PYTHONPATH固定root/code，
+  VLLM_ENABLE_V1_MULTIPROCESSING=0；evaluator与实际worker读取同一已部署core。
+  --plan-only可显式import staged payload验证schema，写PENDING_DEPLOYMENT，
+  这不是远端worker验证。新count-off Triton/CUDA尚未运行，需主会话安排已有
+  singleton_ablation GPU检查后再解释全量质量；本入口不自动提交前置作业。
+
+  必须等已提交DS全链全部结束、实际worker/controller退出且无K活动请求，
+  再由root同步本目录及singleton_ablation的core/config，备份原core后部署。
+  以下仅为届时的部署命令；当前DS运行/候锁期间不得执行：
+
+    cd /root/autodl-tmp/research_K_expert_skip
+    /root/miniconda3/bin/python - <<'PY'
+    from pathlib import Path
+    import hashlib,json
+    stage=Path('deployments/task_quality_count_controls_20261016')
+    source=json.loads((stage/'sources.json').read_text())['policy_payload']
+    payload=Path(source['path']).read_bytes()
+    assert hashlib.sha256(payload).hexdigest()==source['sha256']
+    live=Path('code/expert_skip.py')
+    old=live.read_bytes()
+    if hashlib.sha256(old).hexdigest()!=source['sha256']:
+        with (stage/'expert_skip.before.py').open('xb') as backup:
+            backup.write(old)
+        temporary=live.with_name('expert_skip.py.count_controls.tmp')
+        with temporary.open('xb') as target:
+            target.write(payload)
+        temporary.replace(live)
+    assert hashlib.sha256(live.read_bytes()).hexdigest()==source['sha256']
+    print('Expected count-control core installed; this command does not run GPU')
+    PY
+
+  保持core在整次任务中不变；部署后新运行器会重复核验来源。备份采用独占创建，
+  已有备份时人工核对，不覆盖原记录。其他已提交模型/格式阶段无需本新core，
+  本目录不部署它们、不改旧配置、不重启链。
+
+本地CPU计划（已实际执行）
+  从research_K_expert_skip运行：
+    PYTHONDONTWRITEBYTECODE=1 python3 \
+      deployments/task_quality_count_controls_20261016/run_full_gsm8k.py \
+      --plan-only --output deployments/task_quality_count_controls_20261016/cpu_plan
+  现有cpu_plan不能覆盖；复核时使用新的输出目录。
+  计划为一个GSM job、14臂、18466次完成，原runner生成的子命令无--limit。
+  本机没有/root/autodl-tmp下的模型，model_config unresolved明确保留；
+  live core仍旧版，因此计划明确PENDING_DEPLOYMENT。未导入torch/vLLM或重建
+  远端harness请求。数据来源沿用已真实CPU构造的完整context_lengths记录：
+  1319题，最长1390+256=1646，0超4096。执行时重新核对模型config与数据源SHA。
+
+准确GPU命令（只准备，部署检查完成后由root提交）
+  cd /root/autodl-tmp/research_K_expert_skip
+  env HF_HUB_OFFLINE=1 HF_DATASETS_OFFLINE=1 TRANSFORMERS_OFFLINE=1 \
+      VLLM_ENABLE_V1_MULTIPROCESSING=0 TOKENIZERS_PARALLELISM=false \
+      VLLM_TUNED_CONFIG_FOLDER=/root/autodl-tmp/research_K_expert_skip/runs/characterize_r06/native_tuning/tuned_configs \
+      /root/miniconda3/bin/python code/run_locked.py \
+      --name olmoe_bf16_gsm8k_count_controls_full_r01 --wait-seconds 21600 --timeout 7140 -- \
+      /root/autodl-tmp/research_C_format_sched/tools_venv/bin/python \
+      deployments/task_quality_count_controls_20261016/run_full_gsm8k.py --execute \
+      --root /root/autodl-tmp/research_K_expert_skip \
+      --model /root/autodl-tmp/moe-research-20261002/model \
+      --budget-seconds 7080 --job-timeout 7070 \
+      --outer-run-dir runs/olmoe_bf16_gsm8k_count_controls_full_r01 \
+      --output runs/olmoe_bf16_gsm8k_count_controls_full_r01/quality
+
+  --budget-seconds与--job-timeout均可显式改变：job<=suite-5秒，outer至少
+  suite+30秒；示例留60秒外层余量。原run_locked的锁和当前作业超时仍生效。
+  不假定run_locked自动执行跨任务15小时总账；root按已用GPU时间核算总预算，
+  不与现有K请求并发注册。新目录名必须唯一，不能覆盖部分或失败运行。
+
+成本（cost_estimate.json保留来源和精确计算，非完成保证）
+  r08b十臂×16题job=134.197738秒；十次generate_until进度终点显示速率
+  折算合计45.988450秒，显示速率有取整，不能解释为纯decode时长。
+  14臂全量生成阶段线性外推：45.988450*(1319/16)*(14/10)
+    =5307.641986秒=88.46分钟。
+  加一次pilot残余开销88.209288秒，粗估89.93分钟；完整请求构造、JIT、
+  评分、I/O及未测count-off轨迹可能改变成本，2小时不保证完整。
+  pilot平均输出94.1375 token，预计1738343输出token；总cap4727296。
+  若输出普遍达到cap，仅按token线性缩放的诊断值约240.56分钟，非运行预测。
+  当前pilot输出2716490字节，按人口/臂线性约313.52MB（.292GiB）；
+  由于结果含prompt/样本及worker日志，预留至少1GiB，仅为存储规划。
+
+完成/失败口径
+  成功必须14臂顺序齐全，每臂strict-match/flexible-extract各1319指标，
+  原始n-samples original=effective=1319、5shot/seed/cap一致，每filter
+  原始doc_id精确覆盖0..1318且无重复，raw_outputs每臂也为1319条。
+  现有eval_tasks逐臂核对native/candidate的doc/prompt/target身份，dense
+  额外核对native输出身份；此入口不重写harness或答案抽取。
+  超时/失败保留summary accepted entries、每臂results、raw_outputs、
+  worker计数及日志；不完整臂不报全量准确率，suite保持INCOMPLETE。
+  不自动分臂恢复/重试、不扩大预算、不删题、不把未运行当0。
+  本次是一个配对任务运行，请求级stderr不是系统独立重复的不确定性。
+
+完成回传后的现有汇总入口（新输出目录）
+  python3 code/summarize_task_quality.py \
+    --suite runs/olmoe_bf16_gsm8k_count_controls_full_r01/quality/suite.json \
+    --output-dir figures/task_quality_count_controls_full_r01

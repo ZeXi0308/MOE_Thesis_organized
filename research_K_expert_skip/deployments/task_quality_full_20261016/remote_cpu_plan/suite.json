@@ -1,0 +1,233 @@
+{
+  "schema": 1,
+  "status": "PLANNED",
+  "created_unix": 1792109434.4753861,
+  "args": {
+    "root": "/root/autodl-tmp/research_K_expert_skip",
+    "model": "/root/autodl-tmp/moe-research-20261002/model",
+    "output": "/root/autodl-tmp/research_K_expert_skip/deployments/task_quality_full_20261016/remote_cpu_plan",
+    "outer_run_dir": null,
+    "plan_only": true,
+    "data_dir": "/root/autodl-tmp/research_K_expert_skip/datasets/task_eval_r02",
+    "prompts": "/root/autodl-tmp/research_K_expert_skip/datasets/free_generation_validation_r01/prompts.jsonl",
+    "arms_file": "/root/autodl-tmp/research_K_expert_skip/deployments/task_quality_full_20261016/arms.json",
+    "formats": [
+      "bf16"
+    ],
+    "tasks": [
+      "gsm8k"
+    ],
+    "limit": null,
+    "free_limit": 200,
+    "prompt_tokens": 128,
+    "batch": 8,
+    "max_tokens": 256,
+    "max_model_len": 4096,
+    "gpu_memory_utilization": 0.35,
+    "seed": 1701,
+    "budget_seconds": 7080,
+    "job_timeout": 7070,
+    "per_arm_isolation": false
+  },
+  "inputs": {
+    "arms_file": "/root/autodl-tmp/research_K_expert_skip/deployments/task_quality_full_20261016/arms.json",
+    "arms_sha256": "68c1b83be07fcf94e1e95f6e6ee855b626d48d64b5334030daf518111a0697c6",
+    "model_config": {
+      "path": "/root/autodl-tmp/moe-research-20261002/model/config.json",
+      "sha256": "42ea6f5fe31e9243290ba3c348a4ad615b88a6fbc6e10544e21a87b6dff5da6c",
+      "model_type": "olmoe"
+    },
+    "dataset_source": {
+      "path": "/root/autodl-tmp/research_K_expert_skip/datasets/task_eval_r02/source.json",
+      "sha256": "7eef60d58b2660e3669fd384ea403ff9811be95ef97d1259dd3c33aa7fc78214"
+    },
+    "prompts": {
+      "path": "/root/autodl-tmp/research_K_expert_skip/datasets/free_generation_validation_r01/prompts.jsonl",
+      "sha256": "cae0ba4ca7030c74cc9a5f7602cbebb1039c70d9f63ce23af0a7a7fa9bd24f2d"
+    },
+    "full_context_lengths": {
+      "path": "/root/autodl-tmp/research_K_expert_skip/datasets/task_eval_r02/context_lengths_olmoe_full.json",
+      "sha256": "ba50209e4b17e5f5366eb56bc9b0488a1b82f166ea44968c5ac5d0fc7afd7755"
+    },
+    "deployment_entry": {
+      "path": "/root/autodl-tmp/research_K_expert_skip/deployments/task_quality_full_20261016/run_full_gsm8k.py",
+      "sha256": "6df2d39631ff25e5e99c9c9b96d82e3d2f7be0ad4e6fe7833d1af656c5815799"
+    }
+  },
+  "planning_warnings": [],
+  "budget_seconds": 7080,
+  "job_timeout_seconds": 7070,
+  "jobs": [
+    {
+      "id": "bf16.gsm8k.all_arms",
+      "format": "bf16",
+      "unit": "gsm8k",
+      "arms": [
+        "native",
+        "dense",
+        "gate_m05",
+        "tail_gate_m05",
+        "marginal_m05",
+        "gate_mid",
+        "tail_gate_mid",
+        "marginal_mid",
+        "gate_high",
+        "tail_gate_high",
+        "marginal_high"
+      ],
+      "command": [
+        "/root/miniconda3/bin/python",
+        "/root/autodl-tmp/research_K_expert_skip/code/eval_tasks.py",
+        "standard",
+        "--model",
+        "/root/autodl-tmp/moe-research-20261002/model",
+        "--output",
+        "/root/autodl-tmp/research_K_expert_skip/deployments/task_quality_full_20261016/remote_cpu_plan/bf16.gsm8k.all_arms",
+        "--arms-file",
+        "/root/autodl-tmp/research_K_expert_skip/deployments/task_quality_full_20261016/remote_cpu_plan/arms/all_arms.json",
+        "--batch",
+        "8",
+        "--max-tokens",
+        "256",
+        "--max-model-len",
+        "4096",
+        "--dtype",
+        "bfloat16",
+        "--gpu-memory-utilization",
+        "0.35",
+        "--seed",
+        "1701",
+        "--data-dir",
+        "/root/autodl-tmp/research_K_expert_skip/datasets/task_eval_r02",
+        "--tasks",
+        "gsm8k"
+      ],
+      "output": "/root/autodl-tmp/research_K_expert_skip/deployments/task_quality_full_20261016/remote_cpu_plan/bf16.gsm8k.all_arms",
+      "log": "/root/autodl-tmp/research_K_expert_skip/deployments/task_quality_full_20261016/remote_cpu_plan/bf16.gsm8k.all_arms.log",
+      "status": "NOT_STARTED"
+    }
+  ],
+  "arm_files": {
+    "all_arms": {
+      "purpose": "Full GSM8K: retain all eight matched_gate_controls arms, add one fixed mild mass-budget point with matched gate/rank/count controls. No parameter scan.",
+      "arms": [
+        {
+          "name": "native",
+          "spec": null
+        },
+        {
+          "name": "dense",
+          "spec": {
+            "mode": "dense",
+            "backend": "triton"
+          }
+        },
+        {
+          "name": "gate_m05",
+          "spec": {
+            "mode": "gate",
+            "gate_threshold": 0.05,
+            "mass_budget": 0.05,
+            "backend": "triton"
+          }
+        },
+        {
+          "name": "tail_gate_m05",
+          "spec": {
+            "mode": "rank_gate",
+            "tail_rank": 4,
+            "rank_end": null,
+            "gate_min": 0.0,
+            "gate_threshold": 0.05,
+            "mass_budget": 0.05,
+            "backend": "triton"
+          }
+        },
+        {
+          "name": "marginal_m05",
+          "spec": {
+            "mode": "marginal",
+            "tail_rank": 4,
+            "gate_threshold": 0.05,
+            "mass_budget": 0.05,
+            "backend": "triton"
+          }
+        },
+        {
+          "name": "gate_mid",
+          "spec": {
+            "mode": "gate",
+            "gate_threshold": 0.1,
+            "mass_budget": 0.2,
+            "backend": "triton"
+          }
+        },
+        {
+          "name": "tail_gate_mid",
+          "spec": {
+            "mode": "rank_gate",
+            "tail_rank": 4,
+            "rank_end": null,
+            "gate_min": 0.0,
+            "gate_threshold": 0.1,
+            "mass_budget": 0.2,
+            "backend": "triton"
+          }
+        },
+        {
+          "name": "marginal_mid",
+          "spec": {
+            "mode": "marginal",
+            "tail_rank": 4,
+            "gate_threshold": 0.1,
+            "mass_budget": 0.2,
+            "backend": "triton"
+          }
+        },
+        {
+          "name": "gate_high",
+          "spec": {
+            "mode": "gate",
+            "gate_threshold": 0.15,
+            "mass_budget": 0.3,
+            "backend": "triton"
+          }
+        },
+        {
+          "name": "tail_gate_high",
+          "spec": {
+            "mode": "rank_gate",
+            "tail_rank": 4,
+            "rank_end": null,
+            "gate_min": 0.0,
+            "gate_threshold": 0.15,
+            "mass_budget": 0.3,
+            "backend": "triton"
+          }
+        },
+        {
+          "name": "marginal_high",
+          "spec": {
+            "mode": "marginal",
+            "tail_rank": 4,
+            "gate_threshold": 0.15,
+            "mass_budget": 0.3,
+            "backend": "triton"
+          }
+        }
+      ]
+    }
+  },
+  "semantics": {
+    "formats": "Same local BF16 checkpoint; fp8 means online weight quantization. Model dtype and auto KV remain BF16.",
+    "mc": "MMLU 5-shot, HellaSwag 0-shot, ARC-c 0-shot are prefill loglikelihood identity controls, not decode-quality evidence.",
+    "generation": "Only full official GSM8K 5-shot, 1319 test questions per arm, seed1701, no chat template, greedy, natural EOS/task stop strings, output cap256; first prediction is prefill.",
+    "limit": "No task --limit is passed. All arms use the complete same 1319-question population; no filtering or subsampling for budget.",
+    "failure": "7070s job timeout within 7080s suite budget; timed-out raw outputs and accepted complete arms remain. The incomplete arm is not assigned an accuracy. A new run is required for continuation; no automatic rerun or sample reduction.",
+    "native_reuse": "One model load and one full native reference shared by all 11 arms. Dense checks identical generated responses; every candidate checks identical document/prompt/target signatures.",
+    "memory": "Eager existing runners; no CUDA graph or timing claims. Startup and all jobs consume the outer GPU budget.",
+    "statistics": "Single run, paired document-level task accuracy; strict-match and flexible-extract retained separately, sample stderr is not a system-run CI."
+  },
+  "expected_documents_per_arm": 1319,
+  "total_planned_completions": 14509
+}

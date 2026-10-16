@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "purpose": "Full GSM8K: retain all eight matched_gate_controls arms, add one fixed mild mass-budget point with matched gate/rank/count controls. No parameter scan.",
+  "source": {
+    "path": "configs/matched_gate_controls.json",
+    "sha256": "7afcae891f57f075b8030a0822e2919c0e4479a617d14aea832b62d871cb18e2"
+  },
+  "order": "native, dense identity, matched m=.05 triple, existing mid triple, existing high triple; fixed before execution",
+  "arms": [
+    {
+      "name": "native",
+      "spec": null
+    },
+    {
+      "name": "dense",
+      "spec": {
+        "mode": "dense",
+        "backend": "triton"
+      }
+    },
+    {
+      "name": "gate_m05",
+      "spec": {
+        "mode": "gate",
+        "gate_threshold": 0.05,
+        "mass_budget": 0.05,
+        "backend": "triton"
+      }
+    },
+    {
+      "name": "tail_gate_m05",
+      "spec": {
+        "mode": "rank_gate",
+        "tail_rank": 4,
+        "rank_end": null,
+        "gate_min": 0.0,
+        "gate_threshold": 0.05,
+        "mass_budget": 0.05,
+        "backend": "triton"
+      }
+    },
+    {
+      "name": "marginal_m05",
+      "spec": {
+        "mode": "marginal",
+        "tail_rank": 4,
+        "gate_threshold": 0.05,
+        "mass_budget": 0.05,
+        "backend": "triton"
+      }
+    },
+    {
+      "name": "gate_mid",
+      "spec": {
+        "mode": "gate",
+        "gate_threshold": 0.1,
+        "mass_budget": 0.2,
+        "backend": "triton"
+      }
+    },
+    {
+      "name": "tail_gate_mid",
+      "spec": {
+        "mode": "rank_gate",
+        "tail_rank": 4,
+        "rank_end": null,
+        "gate_min": 0.0,
+        "gate_threshold": 0.1,
+        "mass_budget": 0.2,
+        "backend": "triton"
+      }
+    },
+    {
+      "name": "marginal_mid",
+      "spec": {
+        "mode": "marginal",
+        "tail_rank": 4,
+        "gate_threshold": 0.1,
+        "mass_budget": 0.2,
+        "backend": "triton"
+      }
+    },
+    {
+      "name": "gate_high",
+      "spec": {
+        "mode": "gate",
+        "gate_threshold": 0.15,
+        "mass_budget": 0.3,
+        "backend": "triton"
+      }
+    },
+    {
+      "name": "tail_gate_high",
+      "spec": {
+        "mode": "rank_gate",
+        "tail_rank": 4,
+        "rank_end": null,
+        "gate_min": 0.0,
+        "gate_threshold": 0.15,
+        "mass_budget": 0.3,
+        "backend": "triton"
+      }
+    },
+    {
+      "name": "marginal_high",
+      "spec": {
+        "mode": "marginal",
+        "tail_rank": 4,
+        "gate_threshold": 0.15,
+        "mass_budget": 0.3,
+        "backend": "triton"
+      }
+    }
+  ]
+}

@@ -1,0 +1,131 @@
+test_dense_identity_and_reject_invalid_input (test_expert_skip.PolicySemantics.test_dense_identity_and_reject_invalid_input) ... ok
+test_global_exact_decrement_and_model_renorm_false (test_expert_skip.PolicySemantics.test_global_exact_decrement_and_model_renorm_false) ... ok
+test_randomized_budget_singleton_and_scale_invariants (test_expert_skip.PolicySemantics.test_randomized_budget_singleton_and_scale_invariants) ... ok
+test_shared_tail_consumes_no_marginal_budget (test_expert_skip.PolicySemantics.test_shared_tail_consumes_no_marginal_budget) ... ok
+test_ties_keep_first_slot_and_never_remove_last_expert (test_expert_skip.PolicySemantics.test_ties_keep_first_slot_and_never_remove_last_expert) ... ok
+test_unsorted_weights_rank_budget_and_scaled_renormalization (test_expert_skip.PolicySemantics.test_unsorted_weights_rank_budget_and_scaled_renormalization) ... ok
+test_torch_randomized_reference_and_counters (test_expert_skip.TorchParity.test_torch_randomized_reference_and_counters) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 1.049s
+
+OK
+WARNING 10-16 03:19:22 [fused_moe.py:1107] Using default MoE config. Performance might be sub-optimal! Config file not found at /root/miniconda3/lib/python3.12/site-packages/vllm/model_executor/layers/fused_moe/configs/E=64,N=128,device_name=NVIDIA_RTX_PRO_6000_Blackwell_Server_Edition.json
+PASS 15
+INFO 10-16 03:19:32 [api_utils.py:273] non-default args: {'dtype': 'bfloat16', 'seed': 1701, 'max_model_len': 512, 'moe_backend': 'triton', 'enable_prefix_caching': False, 'gpu_memory_utilization': 0.35, 'max_num_batched_tokens': 512, 'max_num_seqs': 8, 'disable_log_stats': True, 'enforce_eager': True, 'compilation_config': {'mode': <CompilationMode.NONE: 0>, 'debug_dump_path': None, 'cache_dir': '', 'compile_cache_save_format': 'binary', 'backend': 'inductor', 'custom_ops': [], 'ir_enable_torch_wrap': None, 'splitting_ops': None, 'compile_mm_encoder': False, 'cudagraph_mm_encoder': False, 'encoder_cudagraph_token_budgets': [], 'encoder_cudagraph_max_vision_items_per_batch': 0, 'encoder_cudagraph_max_frames_per_batch': None, 'compile_sizes': None, 'compile_ranges_endpoints': None, 'inductor_compile_config': {'enable_auto_functionalized_v2': False, 'size_asserts': False, 'alignment_asserts': False, 'scalar_asserts': False, 'combo_kernels': True, 'benchmark_combo_kernel': True}, 'inductor_passes': {}, 'cudagraph_mode': <CUDAGraphMode.NONE: 0>, 'cudagraph_num_of_warmups': 0, 'cudagraph_capture_sizes': None, 'cudagraph_copy_inputs': False, 'cudagraph_specialize_lora': True, 'use_inductor_graph_partition': None, 'pass_config': {}, 'max_cudagraph_capture_size': None, 'dynamic_shapes_config': {'type': <DynamicShapesType.BACKED: 'backed'>, 'evaluate_guards': False, 'assume_32_bit_indexing': False}, 'local_cache_dir': None, 'fast_moe_cold_start': None, 'static_all_moe_layers': []}, 'worker_cls': 'skip_worker.ExpertSkipWorker', 'model': '/root/autodl-tmp/moe-research-20261002/model'}
+INFO 10-16 03:19:32 [model.py:623] Resolved architecture: OlmoeForCausalLM
+INFO 10-16 03:19:32 [model.py:1788] Using max model len 512
+INFO 10-16 03:19:32 [scheduler.py:252] Chunked prefill is enabled with max_num_batched_tokens=512.
+INFO 10-16 03:19:32 [vllm.py:1109] Asynchronous scheduling is enabled.
+WARNING 10-16 03:19:32 [vllm.py:1163] Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none
+WARNING 10-16 03:19:32 [vllm.py:1213] Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored.
+INFO 10-16 03:19:32 [kernel.py:295] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['vllm_c', 'native'], fused_add_rms_norm=['vllm_c', 'native'])
+INFO 10-16 03:19:32 [vllm.py:1392] Cudagraph is disabled under eager mode
+INFO 10-16 03:19:32 [compilation.py:329] Enabled custom fusions: norm_quant, act_quant
+(EngineCore pid=9715) INFO 10-16 03:19:32 [core.py:116] Initializing a V1 LLM engine (v0.26.0) with config: model='/root/autodl-tmp/moe-research-20261002/model', speculative_config=None, tokenizer='/root/autodl-tmp/moe-research-20261002/model', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, tokenizer_revision=None, trust_remote_code=False, dtype=torch.bfloat16, max_seq_len=512, download_dir=None, load_format=auto, tensor_parallel_size=1, pipeline_parallel_size=1, data_parallel_size=1, decode_context_parallel_size=1, dcp_comm_backend=ag_rs, disable_custom_all_reduce=False, quantization=None, quantization_config=None, enforce_eager=True, enable_return_routed_experts=False, kv_cache_dtype=auto, device_config=cuda, structured_outputs_config=StructuredOutputsConfig(backend='auto', disable_any_whitespace=False, disable_additional_properties=False, reasoning_parser='', reasoning_parser_plugin='', enable_in_reasoning=False), observability_config=ObservabilityConfig(show_hidden_metrics_for_version=None, otlp_traces_endpoint=None, collect_detailed_traces=None, kv_cache_metrics=False, kv_cache_metrics_sample=0.01, cudagraph_metrics=False, enable_layerwise_nvtx_tracing=False, enable_mfu_metrics=False, enable_mm_processor_stats=False, enable_logging_iteration_details=False, jit_monitor_mode='warn', jit_monitor_verbose=False), seed=1701, served_model_name=/root/autodl-tmp/moe-research-20261002/model, enable_prefix_caching=False, enable_chunked_prefill=True, pooler_config=None, compilation_config={'mode': <CompilationMode.NONE: 0>, 'debug_dump_path': None, 'cache_dir': '', 'compile_cache_save_format': 'binary', 'backend': 'inductor', 'custom_ops': ['all'], 'ir_enable_torch_wrap': False, 'splitting_ops': [], 'compile_mm_encoder': False, 'cudagraph_mm_encoder': False, 'encoder_cudagraph_token_budgets': [], 'encoder_cudagraph_max_vision_items_per_batch': 0, 'encoder_cudagraph_max_frames_per_batch': None, 'compile_sizes': [], 'compile_ranges_endpoints': [512], 'inductor_compile_config': {'enable_auto_functionalized_v2': False, 'size_asserts': False, 'alignment_asserts': False, 'scalar_asserts': False, 'combo_kernels': True, 'benchmark_combo_kernel': True}, 'inductor_passes': {}, 'cudagraph_mode': <CUDAGraphMode.NONE: 0>, 'cudagraph_num_of_warmups': 0, 'cudagraph_capture_sizes': [], 'cudagraph_copy_inputs': False, 'cudagraph_specialize_lora': True, 'use_inductor_graph_partition': False, 'pass_config': {'fuse_norm_quant': True, 'fuse_act_quant': True, 'fuse_attn_quant': False, 'enable_sp': False, 'fuse_gemm_comms': False, 'fuse_allreduce_rms': False, 'enable_qk_norm_rope_fusion': False, 'fuse_rope_kvcache_cat_mla': False, 'fuse_act_padding': False, 'fuse_qk_norm_rope_kvcache': False}, 'max_cudagraph_capture_size': 0, 'dynamic_shapes_config': {'type': <DynamicShapesType.BACKED: 'backed'>, 'evaluate_guards': False, 'assume_32_bit_indexing': False}, 'local_cache_dir': None, 'fast_moe_cold_start': False, 'static_all_moe_layers': []}, kernel_config=KernelConfig(ir_op_priority=IrOpPriorityConfig(rms_norm=['vllm_c', 'native'], fused_add_rms_norm=['vllm_c', 'native']), enable_flashinfer_autotune=True, enable_cutedsl_warmup=True, enable_bf16x3_router_gemm=False, moe_backend='triton', linear_backend='auto')
+(EngineCore pid=9715) INFO 10-16 03:19:33 [parallel_state.py:1615] world_size=1 rank=0 local_rank=0 distributed_init_method=tcp://172.17.0.6:56133 backend=nccl
+(EngineCore pid=9715) INFO 10-16 03:19:33 [parallel_state.py:1946] rank 0 in world size 1 is assigned as DP rank 0, PP rank 0, PCP rank 0, TP rank 0, EP rank 0, EPLB rank N/A
+(EngineCore pid=9715) INFO 10-16 03:19:34 [topk_topp_sampler.py:39] FlashInfer top-p/top-k sampling disabled via VLLM_USE_FLASHINFER_SAMPLER=0.
+(EngineCore pid=9715) INFO 10-16 03:19:34 [gpu_model_runner.py:5250] Starting to load model /root/autodl-tmp/moe-research-20261002/model...
+(EngineCore pid=9715) Failed to get device capability: SM 12.x requires CUDA >= 12.9.
+(EngineCore pid=9715) Failed to get device capability: SM 12.x requires CUDA >= 12.9.
+(EngineCore pid=9715) INFO 10-16 03:19:35 [cuda.py:482] Using FLASH_ATTN attention backend out of potential backends: ['FLASH_ATTN', 'FLASHINFER', 'TRITON_ATTN', 'FLEX_ATTENTION'].
+(EngineCore pid=9715) INFO 10-16 03:19:35 [flash_attn.py:776] Using FlashAttention version 2
+(EngineCore pid=9715) INFO 10-16 03:19:35 [unquantized.py:270] Using TRITON Unquantized MoE backend out of potential backends: ['FlashInfer TRTLLM', 'FlashInfer CUTLASS', 'TRITON', 'BATCHED_TRITON'].
+(EngineCore pid=9715) INFO 10-16 03:19:35 [weight_utils.py:869] Filesystem type for checkpoints: XFS. Checkpoint size: 12.89 GiB. Available RAM: 659.87 GiB.
+(EngineCore pid=9715) INFO 10-16 03:19:35 [weight_utils.py:892] Auto-prefetch is disabled because the filesystem (XFS) is not a recognized network FS (NFS/Lustre). If you want to force prefetching, start vLLM with --safetensors-load-strategy=prefetch.
+(EngineCore pid=9715) Loading safetensors checkpoint shards:   0% Completed | 0/3 [00:00<?, ?it/s]
+(EngineCore pid=9715) Loading safetensors checkpoint shards:  33% Completed | 1/3 [00:01<00:02,  1.47s/it]
+(EngineCore pid=9715) Loading safetensors checkpoint shards:  67% Completed | 2/3 [00:03<00:01,  1.52s/it]
+(EngineCore pid=9715) Loading safetensors checkpoint shards: 100% Completed | 3/3 [00:04<00:00,  1.37s/it]
+(EngineCore pid=9715) Loading safetensors checkpoint shards: 100% Completed | 3/3 [00:04<00:00,  1.40s/it]
+(EngineCore pid=9715) 
+(EngineCore pid=9715) INFO 10-16 03:19:39 [default_loader.py:430] Loading weights took 4.30 seconds
+(EngineCore pid=9715) INFO 10-16 03:19:39 [unquantized.py:374] Using MoEPrepareAndFinalizeNoDPEPModular
+(EngineCore pid=9715) INFO 10-16 03:19:39 [unquantized.py:375] Using TritonExperts MoE backend
+(EngineCore pid=9715) INFO 10-16 03:19:40 [gpu_model_runner.py:5347] Model loading took 12.89 GiB memory and 4.923243 seconds
+(EngineCore pid=9715) WARNING 10-16 03:19:40 [fused_moe.py:1107] Using default MoE config. Performance might be sub-optimal! Config file not found at /root/miniconda3/lib/python3.12/site-packages/vllm/model_executor/layers/fused_moe/configs/E=64,N=1024,device_name=NVIDIA_RTX_PRO_6000_Blackwell_Server_Edition.json
+(EngineCore pid=9715) INFO 10-16 03:19:47 [gpu_worker.py:560] Available KV cache memory: 20.12 GiB
+(EngineCore pid=9715) INFO 10-16 03:19:47 [kv_cache_utils.py:2177] GPU KV cache size: 164,848 tokens
+(EngineCore pid=9715) INFO 10-16 03:19:47 [kv_cache_utils.py:2178] Maximum concurrency for 512 tokens per request: 321.97x
+(EngineCore pid=9715) INFO 10-16 03:19:47 [kernel_warmup.py:65] Warming up ll_bf16 router GEMM kernels.
+(EngineCore pid=9715) INFO 10-16 03:19:55 [cutedsl_warmup.py:101] Skipping CuTeDSL warmup because no compile units were requested.
+(EngineCore pid=9715) INFO 10-16 03:19:55 [gpu_worker.py:857] Free memory on device (94.43/94.97 GiB) on startup. Desired GPU memory utilization is (0.35, 33.24 GiB). Actual usage is 12.89 GiB for weight, 0.06 GiB for peak activation, 0.17 GiB for non-torch memory, and 0.0 GiB for CUDAGraph memory. Replace gpu_memory_utilization config with `--kv-cache-memory=21449787290` (19.98 GiB) to fit into requested memory, or `--kv-cache-memory=87147638272` (81.16 GiB) to fully utilize gpu memory. Current kv cache memory in use is 20.12 GiB.
+(EngineCore pid=9715) INFO 10-16 03:19:55 [jit_monitor.py:79] Kernel JIT monitor activated; monitored JIT compilations during inference will use mode=warn.
+(EngineCore pid=9715) INFO 10-16 03:19:55 [core.py:347] init engine (profile, create kv cache, warmup model) took 15.47 s
+(EngineCore pid=9715) WARNING 10-16 03:19:55 [vllm.py:1163] Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none
+(EngineCore pid=9715) WARNING 10-16 03:19:55 [vllm.py:1213] Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored.
+(EngineCore pid=9715) INFO 10-16 03:19:55 [kernel.py:295] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['vllm_c', 'native'], fused_add_rms_norm=['vllm_c', 'native'])
+(EngineCore pid=9715) INFO 10-16 03:19:55 [vllm.py:1392] Cudagraph is disabled under eager mode
+[transformers] Ignoring clean_up_tokenization_spaces=True for BPE tokenizer CachedGPTNeoXTokenizer. The clean_up_tokenization post-processing step is designed for WordPiece tokenizers and is destructive for BPE (it strips spaces before punctuation). Set clean_up_tokenization_spaces=False to suppress this warning, or set clean_up_tokenization_spaces_for_bpe_even_though_it_will_corrupt_output=True to force cleanup anyway.
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [dump_input.py:72] Dumping input data for V1 LLM engine (v0.26.0) with config: model='/root/autodl-tmp/moe-research-20261002/model', speculative_config=None, tokenizer='/root/autodl-tmp/moe-research-20261002/model', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, tokenizer_revision=None, trust_remote_code=False, dtype=torch.bfloat16, max_seq_len=512, download_dir=None, load_format=auto, tensor_parallel_size=1, pipeline_parallel_size=1, data_parallel_size=1, decode_context_parallel_size=1, dcp_comm_backend=ag_rs, disable_custom_all_reduce=False, quantization=None, quantization_config=None, enforce_eager=True, enable_return_routed_experts=False, kv_cache_dtype=auto, device_config=cuda, structured_outputs_config=StructuredOutputsConfig(backend='auto', disable_any_whitespace=False, disable_additional_properties=False, reasoning_parser='', reasoning_parser_plugin='', enable_in_reasoning=False), observability_config=ObservabilityConfig(show_hidden_metrics_for_version=None, otlp_traces_endpoint=None, collect_detailed_traces=None, kv_cache_metrics=False, kv_cache_metrics_sample=0.01, cudagraph_metrics=False, enable_layerwise_nvtx_tracing=False, enable_mfu_metrics=False, enable_mm_processor_stats=False, enable_logging_iteration_details=False, jit_monitor_mode='warn', jit_monitor_verbose=False), seed=1701, served_model_name=/root/autodl-tmp/moe-research-20261002/model, enable_prefix_caching=False, enable_chunked_prefill=True, pooler_config=None, compilation_config={'mode': <CompilationMode.NONE: 0>, 'debug_dump_path': None, 'cache_dir': '', 'compile_cache_save_format': 'binary', 'backend': 'inductor', 'custom_ops': ['all'], 'ir_enable_torch_wrap': False, 'splitting_ops': [], 'compile_mm_encoder': False, 'cudagraph_mm_encoder': False, 'encoder_cudagraph_token_budgets': [], 'encoder_cudagraph_max_vision_items_per_batch': 0, 'encoder_cudagraph_max_frames_per_batch': None, 'compile_sizes': [], 'compile_ranges_endpoints': [512], 'inductor_compile_config': {'enable_auto_functionalized_v2': False, 'size_asserts': False, 'alignment_asserts': False, 'scalar_asserts': False, 'combo_kernels': True, 'benchmark_combo_kernel': True}, 'inductor_passes': {}, 'cudagraph_mode': <CUDAGraphMode.NONE: 0>, 'cudagraph_num_of_warmups': 0, 'cudagraph_capture_sizes': [], 'cudagraph_copy_inputs': False, 'cudagraph_specialize_lora': True, 'use_inductor_graph_partition': False, 'pass_config': {'fuse_norm_quant': True, 'fuse_act_quant': True, 'fuse_attn_quant': False, 'enable_sp': False, 'fuse_gemm_comms': False, 'fuse_allreduce_rms': False, 'enable_qk_norm_rope_fusion': False, 'fuse_rope_kvcache_cat_mla': False, 'fuse_act_padding': False, 'fuse_qk_norm_rope_kvcache': False}, 'max_cudagraph_capture_size': 0, 'dynamic_shapes_config': {'type': <DynamicShapesType.BACKED: 'backed'>, 'evaluate_guards': False, 'assume_32_bit_indexing': False}, 'local_cache_dir': None, 'fast_moe_cold_start': False, 'static_all_moe_layers': ['model.layers.0.mlp.experts', 'model.layers.1.mlp.experts', 'model.layers.2.mlp.experts', 'model.layers.3.mlp.experts', 'model.layers.4.mlp.experts', 'model.layers.5.mlp.experts', 'model.layers.6.mlp.experts', 'model.layers.7.mlp.experts', 'model.layers.8.mlp.experts', 'model.layers.9.mlp.experts', 'model.layers.10.mlp.experts', 'model.layers.11.mlp.experts', 'model.layers.12.mlp.experts', 'model.layers.13.mlp.experts', 'model.layers.14.mlp.experts', 'model.layers.15.mlp.experts']}, kernel_config=KernelConfig(ir_op_priority=IrOpPriorityConfig(rms_norm=['vllm_c', 'native'], fused_add_rms_norm=['vllm_c', 'native']), enable_flashinfer_autotune=True, enable_cutedsl_warmup=True, enable_bf16x3_router_gemm=False, moe_backend='triton', linear_backend='auto'), 
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [dump_input.py:79] Dumping scheduler output for model execution: SchedulerOutput(scheduled_new_reqs=[NewRequestData(req_id=2-9cf62168,prompt_token_ids_len=14,prefill_token_ids_len=None,mm_features=[],sampling_params=SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.0, top_p=1.0, top_k=0, min_p=0.0, seed=None, stop=[], stop_token_ids=[], bad_words=[], thinking_token_budget=None, include_stop_str_in_output=False, ignore_eos=False, max_tokens=1, min_tokens=0, logprobs=None, prompt_logprobs=0, skip_special_tokens=True, spaces_between_special_tokens=True, structured_outputs=None, extra_args=None),block_ids=([2],),num_computed_tokens=0,lora_request=None,prompt_embeds_shape=None), NewRequestData(req_id=3-88ab11b4,prompt_token_ids_len=16,prefill_token_ids_len=None,mm_features=[],sampling_params=SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.0, top_p=1.0, top_k=0, min_p=0.0, seed=None, stop=[], stop_token_ids=[], bad_words=[], thinking_token_budget=None, include_stop_str_in_output=False, ignore_eos=False, max_tokens=1, min_tokens=0, logprobs=None, prompt_logprobs=0, skip_special_tokens=True, spaces_between_special_tokens=True, structured_outputs=None, extra_args=None),block_ids=([1],),num_computed_tokens=0,lora_request=None,prompt_embeds_shape=None)], scheduled_cached_reqs=CachedRequestData(req_ids=[],resumed_req_ids=set(),new_token_ids_lens=[],all_token_ids_lens={},new_block_ids=[],num_computed_tokens=[],num_output_tokens=[]), num_scheduled_tokens={2-9cf62168: 14, 3-88ab11b4: 16}, total_num_scheduled_tokens=30, scheduled_spec_decode_tokens={}, scheduled_encoder_inputs={}, num_common_prefix_blocks=[0], finished_req_ids=[], free_encoder_mm_hashes=[], scheduled_encoder_input_stats=null, preempted_req_ids=[], has_structured_output_requests=false, pending_structured_output_tokens=false, num_invalid_spec_tokens=null, kv_connector_metadata=null, ec_connector_metadata=null, new_block_ids_to_zero=null, kv_cache_block_copies=null, num_spec_tokens_to_schedule=0)
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332] EngineCore encountered a fatal error.
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332] Traceback (most recent call last):
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332]   File "/root/miniconda3/lib/python3.12/site-packages/vllm/v1/engine/core.py", line 1323, in run_engine_core
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332]     engine_core.run_busy_loop()
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332]   File "/root/miniconda3/lib/python3.12/site-packages/vllm/v1/engine/core.py", line 1364, in run_busy_loop
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332]     self._process_engine_step()
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332]   File "/root/miniconda3/lib/python3.12/site-packages/vllm/v1/engine/core.py", line 1403, in _process_engine_step
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332]     outputs, model_executed = self.step_fn()
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332]                               ^^^^^^^^^^^^^^
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332]   File "/root/miniconda3/lib/python3.12/site-packages/vllm/v1/engine/core.py", line 647, in step_with_batch_queue
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332]     exec_future = self.model_executor.execute_model(
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332]                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332]   File "/root/miniconda3/lib/python3.12/site-packages/vllm/v1/executor/uniproc_executor.py", line 120, in execute_model
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332]     output.result()
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332]   File "/root/miniconda3/lib/python3.12/concurrent/futures/_base.py", line 449, in result
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332]     return self.__get_result()
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332]            ^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332]   File "/root/miniconda3/lib/python3.12/concurrent/futures/_base.py", line 401, in __get_result
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332]     raise self._exception
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332]   File "/root/miniconda3/lib/python3.12/site-packages/vllm/v1/executor/uniproc_executor.py", line 98, in collective_rpc
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332]     result = run_method(self.driver_worker, method, args, kwargs)
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332]              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332]   File "/root/miniconda3/lib/python3.12/site-packages/vllm/v1/serial_utils.py", line 510, in run_method
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332]     return func(*args, **kwargs)
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332]            ^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332]   File "/root/miniconda3/lib/python3.12/site-packages/vllm/v1/worker/worker_base.py", line 351, in execute_model
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332]     return self.worker.execute_model(scheduler_output)
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332]   File "/root/autodl-tmp/research_K_expert_skip/code/skip_worker.py", line 118, in execute_model
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332]     result=super().execute_model(scheduler_output)
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332]   File "/root/miniconda3/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332]     return func(*args, **kwargs)
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332]            ^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332]   File "/root/miniconda3/lib/python3.12/site-packages/vllm/v1/worker/gpu_worker.py", line 1147, in execute_model
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332]     output = self.model_runner.execute_model(
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332]              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332]   File "/root/miniconda3/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332]     return func(*args, **kwargs)
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332]            ^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332]   File "/root/miniconda3/lib/python3.12/site-packages/vllm/v1/worker/gpu_model_runner.py", line 4429, in execute_model
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332]     logits = self.model.compute_logits(sample_hidden_states)
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332]              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332]   File "/root/autodl-tmp/research_K_expert_skip/code/logits_capture.py", line 27, in wrapped
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332]     if p.shape!=q.shape:raise RuntimeError('logit shape/order mismatch')
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332]                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=9715) ERROR 10-16 03:19:56 [core.py:1332] RuntimeError: logit shape/order mismatch
+Traceback (most recent call last):
+  File "/root/autodl-tmp/research_K_expert_skip/code/smoke_model.py", line 52, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/root/autodl-tmp/research_K_expert_skip/code/smoke_model.py", line 24, in main
+    results=llm.generate(prompts,SamplingParams(temperature=0,max_tokens=1,prompt_logprobs=0),use_tqdm=False)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/vllm/entrypoints/llm.py", line 465, in generate
+    return self._run_completion(
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/vllm/entrypoints/offline_utils.py", line 349, in _run_completion
+    return self._run_engine(use_tqdm=use_tqdm, output_type=output_type)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/vllm/entrypoints/offline_utils.py", line 595, in _run_engine
+    step_outputs = self.llm_engine.step()
+                   ^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/vllm/v1/engine/llm_engine.py", line 304, in step
+    outputs = self.engine_core.get_output()
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/vllm/v1/engine/core_client.py", line 856, in get_output
+    raise self._format_exception(outputs) from None
+vllm.v1.engine.exceptions.EngineDeadError: EngineCore encountered an issue. See stack trace (above) for the root cause.

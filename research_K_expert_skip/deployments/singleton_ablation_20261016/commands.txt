@@ -1,0 +1,65 @@
+LOCAL_ONLY / NOT_DEPLOYED / CUDA_UNTESTED
+
+Only this new deployment directory was written. Existing code/configs, prior
+deployments, and already-submitted DeepSeek sources remain unchanged.
+
+Runtime change: code/expert_skip.py adds SkipConfig.require_singleton: bool=True.
+It affects mode=marginal only. False removes the counts[e]==1 eligibility clause
+in the Python reference, torch, fused-small Triton and multi-launch Triton paths.
+Actual gate rank, inclusive gate<=tau, inclusive mass<=budget, weakest-first budget
+order, rank-zero protection, model-default renormalization, padding/no-input and
+counter semantics stay the same. rank_gate retains its existing half-open upper
+bound for T1. Old configs omit the new field and retain count-on behavior.
+
+No worker patch is needed: both current worker classes already pass spec through
+SkipConfig(**spec), and snapshots retain the serialized flag. A captured CUDA graph
+must use a fixed config; changing this Python flag after capture is not supported.
+Count-off may spend the same budget on shared slots instead of other singleton
+slots. Slots removed and distinct expert bytes saved need not match; the existing
+before/after distinct counters remain the measurement, not a per-slot shortcut.
+
+arms.json: 8 explicit arms: native, dense, three marginal count-on/off pairs.
+arms_task_quality.json: 14 arms, additionally unchanged native top-(k-j) j1/j2/j4
+and gate m05/mid/high controls. Every listed arm is intended to run on the same
+population. m05=(tau .05,m .05), mid=(.10,.20), high=(.15,.30), tail_rank=4.
+OLMoE/Qwen k=8 and DeepSeek-V2-Lite k=6 retain their native expert counts and
+normalization. Native reduced-k count_routes=false follows the existing schema;
+the existing quality resolver sets counting true without changing native routing.
+
+Local CPU evidence (cpu_check.txt): 24 tests collected, 21 passed and 3 CUDA tests
+skipped. Nine focused tests cover default compatibility, strict boolean input,
+exact gate/mass boundaries, shared experts, real gate ordering, model-scaled
+renormalization, padding/zero-active/no-input, config pairing, and kernel signature
+matching. The remaining CPU tests reuse the original unchanged test_expert_skip.py
+after explicitly binding its imports to this payload. No computed result is from
+the old core by accident. The 8/14-arm files pass existing quality parser/resolver.
+
+Offline compilation is NOT performed on local macOS (Triton unavailable). The
+copied compile_policy_offline.py includes REQUIRE_SINGLETON for both policy kernels
+and --require-singleton true false. offline_plan.json records 96 logical cases /336
+compile requests (including legacy rank_gate, k6/k8, empty B, counter/active toggles
+and both renorm values); AST signatures match. This is a plan, not compile success.
+
+Once connection and environment are re-established, optional CPU-only SM120 compile:
+CUDA_VISIBLE_DEVICES='' /root/miniconda3/bin/python /root/autodl-tmp/research_K_expert_skip/deployments/singleton_ablation_20261016/code/compile_policy_offline.py --source /root/autodl-tmp/research_K_expert_skip/deployments/singleton_ablation_20261016/code/expert_skip.py --output /root/autodl-tmp/research_K_expert_skip/runs/singleton_offline_compile_r01 --batches 0 4 --topologies 64:8 --modes marginal --renorm false true --require-singleton true false
+
+Minimal GPU validation, only after the main session checks the current boot,
+processes, GPU availability and cumulative budget, with a new unique run name:
+/root/miniconda3/bin/python /root/autodl-tmp/research_K_expert_skip/code/run_locked.py --name singleton_ablation_smoke_r01 --timeout 300 --wait-seconds 21600 --root /root/autodl-tmp/research_K_expert_skip -- env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/root/autodl-tmp/research_K_expert_skip/deployments/singleton_ablation_20261016/code:/root/autodl-tmp/research_K_expert_skip/code /root/miniconda3/bin/python /root/autodl-tmp/research_K_expert_skip/deployments/singleton_ablation_20261016/code/verify_singleton.py --cuda
+
+That adds both Triton backends versus the reference for count-on/off, inclusive
+boundaries, both renorm choices, counted/uncounted execution, CUDA-graph active-B
+replay and empty input, plus the old CUDA regression tests. It is policy numerical
+validation, not full-model quality, service latency, or physical byte evidence.
+No GPU job or CPU compile was submitted by this task.
+
+For future isolated model runs without replacing live code, use
+PYTHONPATH=<this payload>/code:<K>/code python -m quality_decode (or -m eval_tasks).
+Do not invoke python <K>/code/quality_decode.py with only PYTHONPATH overridden:
+its script directory can take precedence and import the old core. Verify each
+parent/worker installation record's core source path/SHA before interpreting a run.
+Alternatively the main session can explicitly deploy the single runtime core only
+after existing jobs exit. The compiler helper is needed only for offline compile.
+
+Runtime core SHA256: fb9ed78cf942c21b6e5c160dfece6169e8319326163a19cfa73f7ca862ab5d31
+14-arm SHA256: 7e81ca78fd1c7932a509c56f84d1733a79d91138d56e29cb332b727c9e2b92f5

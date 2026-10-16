@@ -1,0 +1,343 @@
+{
+  "status": "PASS",
+  "scope": "CPU tokenizer/input compatibility only; no model inference or GPU execution",
+  "created_unix": 1792100097.374072,
+  "packages": {
+    "transformers": "5.20.0",
+    "tokenizers": "0.23.3"
+  },
+  "add_special_tokens": true,
+  "prefix_tokens": 128,
+  "quality_required_tokens": 257,
+  "models": {
+    "deepseek_v2_lite_604d5664": {
+      "source": {
+        "path": "research_K_expert_skip/ref_july/tokenizers/deepseek_v2_lite_604d5664/source.json",
+        "sha256": "3d14048aaceb202355af6e8ef033539158ee20a35be0fc8494da84d90e31a79a"
+      },
+      "tokenizer": {
+        "backend_sha256": "f8b3e9273b30e64e3b9aec6bee2a7a35686e8459e071ca14dfe97fda2c53d440",
+        "vocabulary_sha256": "91bc2dedc877a31053eb9bc37a35ffdeb77b52c9b45288d2e8f27054d09f26f8",
+        "special_token_ids": {
+          "bos_token_id": 100000,
+          "eos_token_id": 100001,
+          "pad_token_id": 100001,
+          "unk_token_id": null
+        },
+        "all_special_ids": [
+          100000,
+          100001
+        ],
+        "sha256": "3a4ec43fcc128e2bfe386a6e5a23f59692392491cd047d98b8bd61fbf8cf5b2d",
+        "class": "TokenizersBackend",
+        "name_or_path": "research_K_expert_skip/ref_july/tokenizers/deepseek_v2_lite_604d5664"
+      },
+      "inputs": {
+        "bench64": {
+          "status": "PASS",
+          "path": "research_K_expert_skip/datasets/wikitext2_serving_r01/validation_bench64.jsonl",
+          "sha256": "9aa606ddc0cc502ca41a002ad41bc25149d93bda16d15567709d2de0c020e1bc",
+          "rows": 64,
+          "distinct_prefix128": 64,
+          "token_lengths_min": 281,
+          "token_lengths_max": 393,
+          "minimum_tokens": 128,
+          "short_rows": [],
+          "duplicate_prefixes": [],
+          "prefixes_sha256": "4e4d48a1032c5481e6cb354e4e1c1c6934b3ef947dc5952766a8c6eca16d05b1"
+        },
+        "free200": {
+          "status": "PASS",
+          "path": "research_K_expert_skip/datasets/free_generation_validation_r01/prompts.jsonl",
+          "sha256": "cae0ba4ca7030c74cc9a5f7602cbebb1039c70d9f63ce23af0a7a7fa9bd24f2d",
+          "rows": 200,
+          "distinct_prefix128": 200,
+          "token_lengths_min": 263,
+          "token_lengths_max": 349,
+          "minimum_tokens": 128,
+          "short_rows": [],
+          "duplicate_prefixes": [],
+          "prefixes_sha256": "bbfd35581ceb913005225bc2acb0972f74467c9a9243f819642f9b0267ecba55"
+        },
+        "validation_quality32": {
+          "status": "PASS",
+          "path": "research_K_expert_skip/datasets/wikitext2_serving_r01/validation_quality32.jsonl",
+          "sha256": "cb0d20cb5972bb2d3bde43c6e039eb5f20f12064dd99a879f5cd65819b756064",
+          "rows": 32,
+          "distinct_prefix128": 32,
+          "token_lengths_min": 1137,
+          "token_lengths_max": 14589,
+          "minimum_tokens": 257,
+          "short_rows": [],
+          "duplicate_prefixes": [],
+          "prefixes_sha256": "a7cc0abcd500203975eb25a9b526917bf61d5cdf281fae64cd2d057a518c0ef2"
+        },
+        "test_quality32": {
+          "status": "PASS",
+          "path": "research_K_expert_skip/datasets/wikitext2_serving_r01/test_quality32.jsonl",
+          "sha256": "415641584f35c261169632ad996b006f8741154152b1070b562c1b36747b6ccc",
+          "rows": 32,
+          "distinct_prefix128": 32,
+          "token_lengths_min": 296,
+          "token_lengths_max": 13977,
+          "minimum_tokens": 257,
+          "short_rows": [],
+          "duplicate_prefixes": [],
+          "prefixes_sha256": "5912e97e3d76c7358c679e4da49df9f612f8e8127c393751f3c3b4c413b54685"
+        }
+      },
+      "rolling": {
+        "validation": {
+          "manifest": "research_K_expert_skip/datasets/wikitext2_rolling_deepseek_v2_lite_604d5664/validation/manifest.json",
+          "manifest_sha256": "3dcd9bb8659f9b5473da7427a22011a24e7c5b780832df8a6b25721c7e32bc25",
+          "windows": 2133,
+          "source_tokens": 273071,
+          "scored_tokens": 272943,
+          "tail_scored_tokens": 47,
+          "coverage": {
+            "excluded_initial_span": [
+              0,
+              128
+            ],
+            "scored_span": [
+              128,
+              273071
+            ],
+            "scored_tokens": 272943,
+            "scored_spans_overlap": false,
+            "scored_spans_have_gaps": false,
+            "last_window_scored_tokens": 47,
+            "tail_policy": "score the final short window without padding; never drop incomplete batches"
+          },
+          "tokenizer_identity_matches": true
+        },
+        "test": {
+          "manifest": "research_K_expert_skip/datasets/wikitext2_rolling_deepseek_v2_lite_604d5664/test/manifest.json",
+          "manifest_sha256": "b1e8a0bad8e4f59aa0d71e9abd91a9307e62fa30c4c98d2bf4309094cf88cdb2",
+          "windows": 2430,
+          "source_tokens": 311125,
+          "scored_tokens": 310997,
+          "tail_scored_tokens": 85,
+          "coverage": {
+            "excluded_initial_span": [
+              0,
+              128
+            ],
+            "scored_span": [
+              128,
+              311125
+            ],
+            "scored_tokens": 310997,
+            "scored_spans_overlap": false,
+            "scored_spans_have_gaps": false,
+            "last_window_scored_tokens": 85,
+            "tail_policy": "score the final short window without padding; never drop incomplete batches"
+          },
+          "tokenizer_identity_matches": true
+        }
+      },
+      "remote_cpu_verification": {
+        "status": "PASS",
+        "local_and_remote_semantic_identity_equal": true,
+        "all_input_lengths_and_prefix_ids_equal": true,
+        "tokenizer_files_equal": true,
+        "path": "/dev/shm/research_K_expert_skip/deepseek_v2_lite_604d5664",
+        "tokenizer": {
+          "backend_sha256": "f8b3e9273b30e64e3b9aec6bee2a7a35686e8459e071ca14dfe97fda2c53d440",
+          "vocabulary_sha256": "91bc2dedc877a31053eb9bc37a35ffdeb77b52c9b45288d2e8f27054d09f26f8",
+          "special_token_ids": {
+            "bos_token_id": 100000,
+            "eos_token_id": 100001,
+            "pad_token_id": 100001,
+            "unk_token_id": null
+          },
+          "all_special_ids": [
+            100000,
+            100001
+          ],
+          "sha256": "3a4ec43fcc128e2bfe386a6e5a23f59692392491cd047d98b8bd61fbf8cf5b2d",
+          "class": "TokenizersBackend"
+        }
+      }
+    },
+    "qwen3_bf16_ad44e777": {
+      "source": {
+        "path": "research_K_expert_skip/ref_july/tokenizers/qwen3_bf16_ad44e777/source.json",
+        "sha256": "ac11711c714983f97d4dcbb509ffa96500d162a5bdefc9fa87be8f76567ed154"
+      },
+      "tokenizer": {
+        "backend_sha256": "54c6b212118b62395ff290c0fe82ef0f84b465d4a71333035f43ffd847f46c94",
+        "vocabulary_sha256": "f488fa45d324a8bc64c84f0e27b47223872d550f2a6900564f77dfa67ca5ff4d",
+        "special_token_ids": {
+          "bos_token_id": null,
+          "eos_token_id": 151645,
+          "pad_token_id": 151643,
+          "unk_token_id": null
+        },
+        "all_special_ids": [
+          151643,
+          151644,
+          151645,
+          151646,
+          151647,
+          151648,
+          151649,
+          151650,
+          151651,
+          151652,
+          151653,
+          151654,
+          151655,
+          151656
+        ],
+        "sha256": "ba6cbf6f76bc292b37b805067625068f1b86215bea952d124728fdb89c667d5d",
+        "class": "Qwen2Tokenizer",
+        "name_or_path": "research_K_expert_skip/ref_july/tokenizers/qwen3_bf16_ad44e777"
+      },
+      "inputs": {
+        "bench64": {
+          "status": "PASS",
+          "path": "research_K_expert_skip/datasets/wikitext2_serving_r01/validation_bench64.jsonl",
+          "sha256": "9aa606ddc0cc502ca41a002ad41bc25149d93bda16d15567709d2de0c020e1bc",
+          "rows": 64,
+          "distinct_prefix128": 64,
+          "token_lengths_min": 279,
+          "token_lengths_max": 386,
+          "minimum_tokens": 128,
+          "short_rows": [],
+          "duplicate_prefixes": [],
+          "prefixes_sha256": "66b67b95bb5aba203bfdfe5f8eee38408937e370937a0e655bc98dfd14ac8402"
+        },
+        "free200": {
+          "status": "PASS",
+          "path": "research_K_expert_skip/datasets/free_generation_validation_r01/prompts.jsonl",
+          "sha256": "cae0ba4ca7030c74cc9a5f7602cbebb1039c70d9f63ce23af0a7a7fa9bd24f2d",
+          "rows": 200,
+          "distinct_prefix128": 200,
+          "token_lengths_min": 265,
+          "token_lengths_max": 351,
+          "minimum_tokens": 128,
+          "short_rows": [],
+          "duplicate_prefixes": [],
+          "prefixes_sha256": "824a99ae9022127194833440860891b3e0048eaa66c64a3a3928c6f1d4b15833"
+        },
+        "validation_quality32": {
+          "status": "PASS",
+          "path": "research_K_expert_skip/datasets/wikitext2_serving_r01/validation_quality32.jsonl",
+          "sha256": "cb0d20cb5972bb2d3bde43c6e039eb5f20f12064dd99a879f5cd65819b756064",
+          "rows": 32,
+          "distinct_prefix128": 32,
+          "token_lengths_min": 1105,
+          "token_lengths_max": 14126,
+          "minimum_tokens": 257,
+          "short_rows": [],
+          "duplicate_prefixes": [],
+          "prefixes_sha256": "5da0144e8383a034db5e8050a81373b38289dbc24703e5fe6e84761271fea69b"
+        },
+        "test_quality32": {
+          "status": "PASS",
+          "path": "research_K_expert_skip/datasets/wikitext2_serving_r01/test_quality32.jsonl",
+          "sha256": "415641584f35c261169632ad996b006f8741154152b1070b562c1b36747b6ccc",
+          "rows": 32,
+          "distinct_prefix128": 32,
+          "token_lengths_min": 283,
+          "token_lengths_max": 13681,
+          "minimum_tokens": 257,
+          "short_rows": [],
+          "duplicate_prefixes": [],
+          "prefixes_sha256": "c0a62a9c80fa5639d63ccd07bbb742eab8f2c7f79aff4e0446773f2b04723b96"
+        }
+      },
+      "rolling": {
+        "validation": {
+          "manifest": "research_K_expert_skip/datasets/wikitext2_rolling_qwen3_bf16_ad44e777/validation/manifest.json",
+          "manifest_sha256": "c6a8c06e2d34b4149e63fb460464a90599004fe890c26c10c93099eb7e9b88c6",
+          "windows": 2049,
+          "source_tokens": 262337,
+          "scored_tokens": 262209,
+          "tail_scored_tokens": 65,
+          "coverage": {
+            "excluded_initial_span": [
+              0,
+              128
+            ],
+            "scored_span": [
+              128,
+              262337
+            ],
+            "scored_tokens": 262209,
+            "scored_spans_overlap": false,
+            "scored_spans_have_gaps": false,
+            "last_window_scored_tokens": 65,
+            "tail_policy": "score the final short window without padding; never drop incomplete batches"
+          },
+          "tokenizer_identity_matches": true
+        },
+        "test": {
+          "manifest": "research_K_expert_skip/datasets/wikitext2_rolling_qwen3_bf16_ad44e777/test/manifest.json",
+          "manifest_sha256": "4e53b5b1e507fc613f955ac1eeed08fbe6603c051e9d7d7486cc20ac736b4ef3",
+          "windows": 2336,
+          "source_tokens": 299078,
+          "scored_tokens": 298950,
+          "tail_scored_tokens": 70,
+          "coverage": {
+            "excluded_initial_span": [
+              0,
+              128
+            ],
+            "scored_span": [
+              128,
+              299078
+            ],
+            "scored_tokens": 298950,
+            "scored_spans_overlap": false,
+            "scored_spans_have_gaps": false,
+            "last_window_scored_tokens": 70,
+            "tail_policy": "score the final short window without padding; never drop incomplete batches"
+          },
+          "tokenizer_identity_matches": true
+        }
+      },
+      "remote_cpu_verification": {
+        "status": "PASS",
+        "local_and_remote_semantic_identity_equal": true,
+        "all_input_lengths_and_prefix_ids_equal": true,
+        "tokenizer_files_equal": true,
+        "path": "/tmp/k_qwen_tokenizer_cpu_ad44e777",
+        "tokenizer": {
+          "backend_sha256": "54c6b212118b62395ff290c0fe82ef0f84b465d4a71333035f43ffd847f46c94",
+          "vocabulary_sha256": "f488fa45d324a8bc64c84f0e27b47223872d550f2a6900564f77dfa67ca5ff4d",
+          "special_token_ids": {
+            "bos_token_id": null,
+            "eos_token_id": 151645,
+            "pad_token_id": 151643,
+            "unk_token_id": null
+          },
+          "all_special_ids": [
+            151643,
+            151644,
+            151645,
+            151646,
+            151647,
+            151648,
+            151649,
+            151650,
+            151651,
+            151652,
+            151653,
+            151654,
+            151655,
+            151656
+          ],
+          "sha256": "ba6cbf6f76bc292b37b805067625068f1b86215bea952d124728fdb89c667d5d",
+          "class": "Qwen2Tokenizer"
+        }
+      },
+      "remote_checkpoint_caveat": "Original read-only C checkpoint currently lacks tokenizer.json/tokenizer_config.json/vocab.json and fails offline AutoTokenizer. Proven-original full small files are provided in K ref directory; remote CPU check used temporary /tmp tokenizer-only staging. Checkpoint weights/model-load not verified here."
+    }
+  },
+  "remote_cpu_packages": {
+    "transformers": "5.17.0",
+    "tokenizers": "0.23.2"
+  }
+}

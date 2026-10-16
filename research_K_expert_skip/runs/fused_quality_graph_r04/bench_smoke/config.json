@@ -1,0 +1,93 @@
+{
+  "args": {
+    "model": "/root/autodl-tmp/moe-research-20261002/model",
+    "prompts": "/root/autodl-tmp/research_B_tiered_combine/runs/quality_articles_r02/validation.jsonl",
+    "output_dir": "runs/fused_quality_graph_r04/bench_smoke",
+    "arms_file": "/root/autodl-tmp/research_K_expert_skip/configs/default_arms.json",
+    "arms": [
+      "native",
+      "global_j4",
+      "marginal_mid"
+    ],
+    "batches": [
+      1,
+      8
+    ],
+    "repeats": 1,
+    "newtokens": 8,
+    "prompt_tokens": 32,
+    "prompt_offset": 0,
+    "warmup_seconds": 0.0,
+    "warmup_tokens": 16,
+    "dtype": "bfloat16",
+    "quantization": null,
+    "max_model_len": 1024,
+    "gpu_memory_utilization": 0.65,
+    "backend": "triton",
+    "seed": 1701,
+    "nvml_device": "0",
+    "no_energy": false,
+    "traceonly": false,
+    "trace_steps": 4,
+    "capture_traces": true,
+    "dense_counter_check": false,
+    "execution": "eager",
+    "graph_counter_pass": false
+  },
+  "arms": [
+    {
+      "name": "native",
+      "spec": null
+    },
+    {
+      "name": "global_j4",
+      "spec": {
+        "mode": "global_native",
+        "drop_j": 4,
+        "count_routes": false,
+        "backend": "triton"
+      }
+    },
+    {
+      "name": "marginal_mid",
+      "spec": {
+        "mode": "marginal",
+        "tail_rank": 4,
+        "gate_threshold": 0.1,
+        "mass_budget": 0.2,
+        "backend": "triton"
+      }
+    }
+  ],
+  "model_kwargs": {
+    "model": "/root/autodl-tmp/moe-research-20261002/model",
+    "dtype": "bfloat16",
+    "tensor_parallel_size": 1,
+    "enforce_eager": true,
+    "compilation_config": {
+      "mode": 0,
+      "cudagraph_mode": "NONE"
+    },
+    "worker_cls": "skip_worker.ExpertSkipWorker",
+    "moe_backend": "triton",
+    "enable_prefix_caching": false,
+    "enable_chunked_prefill": false,
+    "async_scheduling": false,
+    "max_model_len": 1024,
+    "max_num_seqs": 8,
+    "max_num_batched_tokens": 1024,
+    "gpu_memory_utilization": 0.65,
+    "seed": 1701,
+    "disable_log_stats": true
+  },
+  "vllm_version": "0.26.0",
+  "source_sha256": {
+    "bench_decode.py": "a7553b85dcdd79c05bdeb3cfa8debeeb72e94bb25d19020ce3f306d36e8416ea",
+    "skip_worker.py": "f7ed261ecfe41bc148a8ffc0e43bad928b9c4674ee495a029dbd8eb431555349",
+    "skip_graph_worker.py": "3b835728bfa87bcc982fc4900f4bc104d79ed441358120046a0629bb7c03e0e1",
+    "expert_skip.py": "eba9f38a969cc8b4bb073f35894be8506eea6e5e5550b0b3539254ca76f97253",
+    "power.py": "0966aa6d14b91cb718baeec2ccbdcab61d19eca7a3a686b6bd7b114eddfe6071"
+  },
+  "generation_semantics": "greedy, ignore_eos=true, fixed output length; no natural quality claim",
+  "byte_semantics": "device policy counters report logical distinct expert weight footprint, not measured DRAM bytes"
+}

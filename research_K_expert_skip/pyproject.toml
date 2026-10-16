@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "marginal-expert-skip"
+version = "0.1.3"
+description = "Batch marginal-cost-aware expert skipping for vLLM 0.26"
+requires-python = ">=3.10"
+
+[project.optional-dependencies]
+rolling = ["transformers", "pyarrow"]
+
+[project.scripts]
+k-expert-skip-bench = "bench_decode:main"
+k-expert-skip-quality = "quality_decode:main"
+k-expert-skip-graph = "bench_graph:main"
+k-expert-skip-generate = "free_generate:main"
+k-expert-skip-eval = "eval_tasks:main"
+k-expert-skip-prepare-rolling = "prepare_wikitext_rolling:main"
+k-expert-skip-tune = "tune_moe:main"
+
+[tool.setuptools]
+package-dir = {"" = "code", "k_expert_skip_configs" = "configs"}
+packages = ["k_expert_skip_configs"]
+py-modules = ["expert_skip", "skip_worker", "skip_graph_worker", "teacher_force", "quality_decode", "bench_decode", "bench_graph", "free_generate", "eval_tasks", "power", "logits_capture", "analyze_routes", "microbench_policy", "runtime_paths", "prepare_wikitext_rolling", "tune_moe"]
+
+[tool.setuptools.package-data]
+k_expert_skip_configs = ["*.json"]

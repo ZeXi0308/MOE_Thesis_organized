@@ -1,0 +1,71 @@
+LOCAL_ONLY: this directory prepares a later CPU download; nothing was deployed,
+downloaded, released, moved, or run on the GPU by this implementation task.
+
+Live read-only plan, using actual current free space:
+CUDA_VISIBLE_DEVICES='' /root/miniconda3/bin/python /root/autodl-tmp/research_K_expert_skip/deployments/qwen_after_deepseek_20261016/resume_qwen.py --plan-only --root /root/autodl-tmp/research_K_expert_skip --destination /root/autodl-tmp/research_K_expert_skip/models/qwen3_bf16_ad44e777
+
+Explicit later execution, only after the owner chooses a CPU I/O window:
+CUDA_VISIBLE_DEVICES='' timeout --signal=TERM --kill-after=120s 7200s /root/miniconda3/bin/python /root/autodl-tmp/research_K_expert_skip/deployments/qwen_after_deepseek_20261016/resume_qwen.py --execute --root /root/autodl-tmp/research_K_expert_skip --destination /root/autodl-tmp/research_K_expert_skip/models/qwen3_bf16_ad44e777 --max-workers 2 --chunk-mib 64 --retries 2
+
+The 7200-second CPU bound is an explicit suggested run cap, not a throughput
+prediction or GPU usage. The entry acquires only K's qwen_partial_download.lock
+nonblockingly and refuses active K run status/controller/worker records. The main
+session must separately confirm GPU processes and all required DeepSeek work have
+finished before authorizing any DS storage release. This script never releases DS.
+After the reported SSH connection refusal, old WAITING/status files do not prove
+either completion or reboot. Before any execution or DS release, the owner must
+reconnect and verify the current boot ID, actual controller/worker/GPU processes,
+and every required volatile /dev/shm and rootfs model file. Do not resubmit from
+the stale status alone. The entry still binds any C prefix writer to the verified
+boot/start-ticks identity and uses actual current filesystem free space.
+
+Placement is fixed by filename, not a general scheduler:
+  * Every currently complete C shard: verify official whole-file SHA256 and retain
+    the source dev/ino/size/mtime, then create a read-only-use symlink in K/models.
+    Six were complete at the recorded observation; this count is not hardcoded.
+  * Missing shards 9 and 16: K-owned files under
+    /tmp/research_K_expert_skip/qwen3_bf16_ad44e777/.
+  * All other missing shards: K-owned files under
+    /dev/shm/research_K_expert_skip/qwen3_bf16_ad44e777/.
+  * Existing partials are reused. Eligible C HTTP prefixes are ordinarily copied
+    into independent K files, never hardlinked, reflinked, moved, or modified.
+    Interrupted prefix copies and network appends retain resumable K partials.
+
+The budget charges each missing shard's entire remaining private size, including
+not-yet-copied C prefixes. It retains persistent/shm20GiB, rootfs10GiB, persistent
+experiment output2GiB, overhead256MiB on every filesystem, and persistent C future
+append capacity >=17,424,291,144 bytes (or larger if currently required). No reserve
+relaxation option exists. Current free is refreshed after source hashing, before
+copy/download, periodically during transfer, and before READY. Guard failures save
+the last measured budget in the new attempt receipt.
+
+capacity_plan.json is conditional arithmetic from supplied observations. With the
+current 52,428,800-byte Qwen prefix retained, releasing 31,413,626,576 bytes of DS
+RAM weights would give margins above reserve of 8,591,059,640 persistent,
+2,801,086,216 rootfs and 5,310,190,208 shm bytes. The entry never adds hypothetical
+free space: if actual space is insufficient it refuses execution. If C completes
+more official shards independently, verified read-only reuse may avoid DS release.
+
+DS's four weight files are reproducibly identified in the existing fixed-revision
+source receipt, including original LFS SHA256 and fixed ModelScope URLs, copied
+into capacity_plan.json for this storage decision. Redownload is possible while
+those sources remain available; its availability and elapsed time are not promised.
+Deleting the only RAM copy remains a separate owner decision, not part of this CLI.
+
+Dependencies already present on the remote K checkout: code/prepare_deepseek_mirror.py
+(strict bounded HTTP Range + whole-file SHA verification), and the unchanged
+deployments/qwen_partial_resume_20261016/{resume_qwen.py,pinned_files.json,
+source_inventory.json}. The earlier script is imported solely for source parsing,
+prefix identity, and tokenizer verification, and its SHA256 is pinned. Its old
+reflink execution is never called. No existing deployment file is modified.
+
+Each started transfer gets a new runs/qwen_after_deepseek_YYYYMMDD_HHMMSS_PID/source.json
+with statuses and errors; old failed attempts remain untouched. READY requires all
+16 official full-shard identities and small assets; it does not claim model-load
+validation. Keep C linked shards, rootfs files, and volatile RAM files present while
+using the checkpoint. Existing K/C source conflicts are refused, never overwritten.
+
+Local CPU checks: syntax/help; pinned DS shard-size sum; conditional capacity
+arithmetic; real interrupted ordinary-copy/resume on synthetic bytes with unchanged
+source and different inode; dynamic budget charges un-copied prefixes and rejects
+insufficient actual free. No live plan, network transfer, or GPU was run here.

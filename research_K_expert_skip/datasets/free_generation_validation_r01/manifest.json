@@ -1,0 +1,109 @@
+{
+  "status": "READY",
+  "source_articles": {
+    "path": "/root/autodl-tmp/research_K_expert_skip/datasets/wikitext2_serving_r01/validation_articles.jsonl",
+    "sha256": "f4a73a97354fa28a00200e08ab2b855dcd0396c749ce9e902e34767dac3099ca"
+  },
+  "exclusions": [
+    {
+      "path": "/root/autodl-tmp/research_K_expert_skip/datasets/wikitext2_serving_r01/validation_quality32.jsonl",
+      "sha256": "cb0d20cb5972bb2d3bde43c6e039eb5f20f12064dd99a879f5cd65819b756064"
+    },
+    {
+      "path": "/root/autodl-tmp/research_K_expert_skip/datasets/wikitext2_serving_r01/test_articles.jsonl",
+      "sha256": "7d0bcfc82df920db3c92e12ba2d9901ae702bf659e4274397a8e28815b69c67c"
+    }
+  ],
+  "source_manifest": {
+    "path": "/root/autodl-tmp/research_K_expert_skip/datasets/wikitext2_serving_r01/manifest.json",
+    "sha256": "ad17677fbf4eef0e83d7f3f63a2b14c188685f05c3d8a5d71fbce815afb46905"
+  },
+  "preparation_script": {
+    "path": "/root/autodl-tmp/research_K_expert_skip/code/prepare_free_prompts.py",
+    "sha256": "2a5c1637da1ea848dbaa1888e5466cc27b9127774e1b6187e37cae350ae5ba02"
+  },
+  "output": {
+    "path": "/root/autodl-tmp/research_K_expert_skip/datasets/free_generation_validation_r01/prompts.jsonl",
+    "sha256": "cae0ba4ca7030c74cc9a5f7602cbebb1039c70d9f63ce23af0a7a7fa9bd24f2d",
+    "records": 200
+  },
+  "source_article_count_before_exclusion": 60,
+  "eligible_source_articles": 28,
+  "selected_source_articles": 28,
+  "selected_source_splits": [
+    "validation"
+  ],
+  "records_by_source_article": {
+    "validation_032": 8,
+    "validation_033": 7,
+    "validation_034": 8,
+    "validation_035": 8,
+    "validation_036": 8,
+    "validation_037": 5,
+    "validation_038": 8,
+    "validation_039": 8,
+    "validation_040": 8,
+    "validation_041": 8,
+    "validation_042": 8,
+    "validation_043": 7,
+    "validation_044": 8,
+    "validation_045": 6,
+    "validation_046": 8,
+    "validation_047": 8,
+    "validation_048": 7,
+    "validation_049": 3,
+    "validation_050": 7,
+    "validation_051": 8,
+    "validation_052": 5,
+    "validation_053": 7,
+    "validation_054": 7,
+    "validation_055": 7,
+    "validation_056": 7,
+    "validation_057": 7,
+    "validation_058": 7,
+    "validation_059": 7
+  },
+  "eligible_nonoverlapping_full_windows": 426,
+  "window_words": 256,
+  "prompt_tokens": 128,
+  "unique_actual_prefixes": 200,
+  "rejected": {},
+  "tokenizer": {
+    "path": "/root/autodl-tmp/moe-research-20261002/model",
+    "local_files_only": true,
+    "add_special_tokens": true,
+    "files": [
+      {
+        "path": "/root/autodl-tmp/moe-research-20261002/model/tokenizer.json",
+        "sha256": "b1fb1517c84c6d516ff43adcebe7a1986ce7ed3e2533dc2c22b40337d2d24167"
+      },
+      {
+        "path": "/root/autodl-tmp/moe-research-20261002/model/tokenizer_config.json",
+        "sha256": "d3079f9c26a02fd28ee8d9bdfea4e96da7f5e803e06707ec8d1511acaaac7864"
+      },
+      {
+        "path": "/root/autodl-tmp/moe-research-20261002/model/special_tokens_map.json",
+        "sha256": "cf22141a130514760f6280166b8d1c9a56610578188aad0790eb6eaf6ea1eb08"
+      }
+    ]
+  },
+  "selection": "Deterministic round-robin by nonoverlapping window index, then original article order; skip duplicate actual token prefixes.",
+  "scope": "Exploratory natural continuation, EOS/limit/failure/length and repetition description. No reference-answer accuracy score.",
+  "dependence": "Records sharing source_article_id are not independent articles. Generation may naturally repeat despite distinct prompts.",
+  "exclusion_check": "Selected article IDs and full-text SHA256 are disjoint from every supplied exclusion file.",
+  "recommended_generation": {
+    "limit": 200,
+    "prompt_tokens": 128,
+    "max_tokens": 256,
+    "ignore_eos": false
+  },
+  "runner_input_check": {
+    "script": "free_generate.read_prompts + tokenize_prompts",
+    "records": 200,
+    "prompt_tokens": 128,
+    "require_distinct": true,
+    "actual_prefix_hashes_match_prepared": true,
+    "source_fields_preserved": true,
+    "generation_executed": false
+  }
+}

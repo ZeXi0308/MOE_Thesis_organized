@@ -1,0 +1,65 @@
+LOCAL_ONLY：恢复入口已准备，尚未提交GPU。整目录部署到K同名deployments目录；
+不修改或覆盖r09结果。所有命令由主会话安排已有锁和串行运行。
+
+复用来源 runs/olmoe_fp8_matrix_r09：
+  外层FAILED、stages INCOMPLETE是两项padded graph验证失败，不能改成成功。
+  native_traces/native_tuning/quality_b1/quality_b8/quality_b32均COMPLETE。
+  入口校验原SHA256.json中的必要文件哈希、终态和controller/worker退出；
+  复用七B真实trace、FP8 W8A8专用调优及三个1024-token/32文档/10臂质量结果。
+  三B都成功时没有任何质量重跑命令。若原某B未成功，仅该B进入补跑计划。
+  成功质量只由原source SHA/status引用，不在r09b伪造新结果文件。
+
+新阶段按序运行：
+  1. native padded B3->4/B5->8：spec=null、no-count-routes，两个独立真实模型执行。
+     strict smoke输出仍为PASS或FAILED。只有两子执行均PASS且严格失败仅来自
+     eager/graph输出差异时，诊断wrapper记DIAGNOSTIC_COMPLETE/DIFFERENT，
+     native_padded_parity_passed=false。该状态表示差异已测，绝不是parity PASS。
+     子执行、阶段、输入或其他错误不冒充有效诊断，均失败并阻断后续graph验证。
+  2. dense七B(1,2,4,8,16,32,64)无padding：独立eager/graph/native_eager/native_graph。
+     同模式native/dense输出身份、跨模式输出与计数一致均为严格断言。
+  3. marginal_high七B无padding：tail_rank4/tau.15/m.30，严格输出/计数验证。
+  仅2/3都PASS放行F6、rolling和完整bench；任何失败保留原证据，不放宽断言。
+  4. F6：E64/k8，B1/8/32/64，100repetitions；含thread CPU与captured GPU时间。
+  5. 原validation前9个rolling窗口：B8+不足一批B1，每窗128 scored tokens；10臂。
+  6. validation真实末窗口：原始[252416,252481)的65个scored tokens，B1；10臂。
+     rolling_tail/只复制原窗口193个token IDs(128上下文+65 scored)，不decode/encode；
+     本地offset重置但manifest保留原全局offset、doc_key和source SHA。不是全split PPL。
+  7. 完整63格：七B×九策略，P128/N2048/maxlen2304/repeat1/warmup3s，BF16 dtype、
+     FP8在线W8A8、同.35显存总预算；全部用r09专用FP8 tuned_configs，保持r07协议。
+     NVML纯decode积分每窗>=3s才支撑稳态J/token；短窗保留诊断标签。
+
+源码：本目录smoke_graph.py是review后的固定副本
+  SHA256 94290a172a2afca4f11cf75acfd3cc94fa38de02e8baf2f1219d678604164a88
+  新CLI保留默认B3/B5及所有原断言。run_resume复用code/run_olmoe_fp8_r09.py
+  的阶段执行/timeout/依赖逻辑；不重写调优、质量或benchmark实现。
+
+CPU计划（已通过；stdout可保存新文件）：
+  PYTHONDONTWRITEBYTECODE=1 python3 \
+    deployments/olmoe_fp8_matrix_r09b_20261016/run_resume.py --plan-only
+  本地cpu_plan.json已验证20份必要原始文件SHA、五个复用阶段、七个新阶段。
+  临时逻辑fixture检查原生输出相同、实际差异和子执行失败三条分支；
+  默认padded失败不会被改写为PASS，两项无padding验证仍是bench硬依赖。
+  help/语法、真实65-token尾窗loader、完整63格参数均通过CPU检查。
+  未运行新的GPU验证，七B无padding一致性仍必须真实通过，不能提前宣称。
+
+准确候锁命令（主会话部署后执行一次）：
+  cd /root/autodl-tmp/research_K_expert_skip
+  env HF_HUB_OFFLINE=1 HF_DATASETS_OFFLINE=1 TRANSFORMERS_OFFLINE=1 \
+      VLLM_ENABLE_V1_MULTIPROCESSING=0 TOKENIZERS_PARALLELISM=false \
+      /root/miniconda3/bin/python code/run_locked.py \
+      --name olmoe_fp8_matrix_r09b --wait-seconds 21600 --timeout 7200 -- \
+      /root/miniconda3/bin/python \
+      deployments/olmoe_fp8_matrix_r09b_20261016/run_resume.py \
+      --root /root/autodl-tmp/research_K_expert_skip \
+      --output runs/olmoe_fp8_matrix_r09b
+
+预算：外层7200s/driver7170s；每stage cap被剩余总预算限制，预留10s清理。
+  native诊断240s、dense450s、marginal360s、F6 90s、rolling9 240s、tail180s、
+  bench6000s是各自上限，不相加承诺。任何失败或未运行导致总状态INCOMPLETE。
+  F6或rolling失败保留并使总状态不完整，但不擅自阻断由两graph硬门槛决定的
+  独立性能测量；不会把失败阶段算成功。bench必须COMPLETE且63配对格齐全。
+  r07 BF16矩阵4118.8s仅作预算参考；FP8整矩阵未实测，不承诺完成时长。
+  不重启r09、不自动重试、不改外层15小时总账；超时保留部分结果和原始日志。
+
+scope：本次可通过的是固定七B无padding矩阵；B3/B5 padded分支的旧失败和新
+原生差异仍独立保留。不能从无padding通过推导任意动态batch/padding正确。

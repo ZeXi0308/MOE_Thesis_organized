@@ -1,0 +1,91 @@
+{
+  "status": "ESTIMATE_NOT_MEASUREMENT_OF_FULL_SPLIT",
+  "time_sources": {
+    "fp8_b1": {
+      "path": "runs/olmoe_fp8_matrix_r09/quality_b1.json",
+      "sha256": "49e2a116e0aef6c385d09ae855450553b5c9ca58c42d60f13dab22b3b3c381e8",
+      "stage_status": "COMPLETE",
+      "stage_elapsed_seconds": 182.4416778087616,
+      "summary_wall_seconds": 181.65688133239746,
+      "arms": 10,
+      "scored_tokens_per_arm": 1024
+    },
+    "fp8_b8": {
+      "path": "runs/olmoe_fp8_matrix_r09/quality_b8.json",
+      "sha256": "855a19585ddf2a93cf4743c32de1a9012eefc5b3c5c35d65d68654062b9a4055",
+      "stage_status": "COMPLETE",
+      "stage_elapsed_seconds": 50.675004720687866,
+      "summary_wall_seconds": 49.94576072692871,
+      "arms": 10,
+      "scored_tokens_per_arm": 1024
+    },
+    "fp8_b32": {
+      "path": "runs/olmoe_fp8_matrix_r09/quality_b32.json",
+      "sha256": "ebc6fc898a373ba9ba2dfc243433109bf9b930a8e05d445d47f8e4b165b4b522",
+      "stage_status": "COMPLETE",
+      "stage_elapsed_seconds": 35.29533505439758,
+      "summary_wall_seconds": 34.53364276885986,
+      "arms": 10,
+      "scored_tokens_per_arm": 1024
+    },
+    "bf16_b8": {
+      "path": "runs/characterize_r06/quality_b8.json",
+      "sha256": "1e1f0be27ce3ab69d9f87f7ed35db0d21875666d27c914247f57d53e92057e03",
+      "status": "PASS",
+      "summary_wall_seconds": 108.18023085594177,
+      "arms": 26,
+      "scored_tokens_per_arm": 1024
+    }
+  },
+  "time_model": {
+    "method": "Post-init wall scaled by scored-token-arm count plus three 25s startups/format; B8 central service domain, not replacing B1/8/32 paired-article F3. Existing source scores32/context128; new scores128/context128..255, so extrapolation is uncertain.",
+    "fp8_post_init_seconds": 26.601889,
+    "bf16_post_init_seconds": 82.148798,
+    "fp8_engine_init_log_timestamp_Asia_Shanghai": "2026-10-16 08:11:02",
+    "bf16_engine_init_log_timestamp_Asia_Shanghai": "2026-10-16 04:57:20",
+    "startup_seconds_per_chunk_assumption": 25,
+    "estimated_fp8_seconds": 5323.194197680274,
+    "estimated_bf16_seconds": 6308.404139226714,
+    "estimated_combined_gpu_hours": 3.2309995380297187,
+    "outer_timeout_seconds": 14400,
+    "internal_budget_seconds": 14370,
+    "chunk_timeout_seconds": 2700,
+    "failure": "No population reduction. Preserve unfinished attempt; explicit next invocation reuses only complete SHA-matching chunks and restarts an unfinished chunk. Further invocation requires a newly allocated lock/budget and counts against total ledger."
+  },
+  "storage_estimate": {
+    "method": "R09 B8 actual mean token-record and worker-file bytes scaled to full seven-arm population. Does not claim fixed-size future records.",
+    "source_token_jsonl_bytes": 5158531,
+    "source_token_records": 10560,
+    "source_worker_json_bytes": 2306341,
+    "source_worker_files": 40,
+    "target_token_records_per_format": 2035999,
+    "target_worker_files_per_format": 1981,
+    "estimated_bytes_per_format": 1108801458.2398674,
+    "recommended_free_gib": 4,
+    "note": "Allow roughly1.1\u20131.3GB/format, plus logs/summaries/checkpoints and retained failed attempts; exact SHA hashing is CPU/I/O and consumes outer wall time."
+  },
+  "memory": {
+    "reference_cpu_bytes_b8": 207654912,
+    "reference_max_mib": 2048,
+    "gpu_memory_utilization_both_formats": 0.35,
+    "model_dtype": "bfloat16",
+    "kv_dtype": "auto\u2192BF16",
+    "weight_formats": [
+      "BF16",
+      "same-checkpoint online FP8 W8A8"
+    ],
+    "scope": "Existing eager quality runner, no TPOT/energy comparison; model max context263. Full GPU path not yet run."
+  },
+  "cpu_validation": {
+    "status": "PASS",
+    "checks": [
+      "all2255 exact source-ID windows; score[128,288730) once",
+      "same283 original B8 cohorts split96/96/91, retainingB6 and90token tail",
+      "six CLI commands use no limit",
+      "complete chunk population validation and checkpoint SHA mutation rejection",
+      "token-weighted merge and partial status fixture"
+    ],
+    "fixture_location": "/private/tmp/check_full_rolling_cpu.py",
+    "gpu_run": false
+  }
+}

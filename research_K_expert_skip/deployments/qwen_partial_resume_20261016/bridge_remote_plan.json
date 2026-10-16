@@ -1,0 +1,64 @@
+{
+  "state": "PLAN_ONLY",
+  "source_sha256": {
+    "/root/autodl-tmp/research_K_expert_skip/deployments/qwen_partial_resume_20261016/after_r09b_before_deepseek.py": "db4391e5f2213f6c562fce81173e1a67029e13b48a87a2ec14919764a3092474",
+    "/root/autodl-tmp/research_K_expert_skip/deployments/deepseek_matrix_20261016/after_r09b.py": "5c8baea5b2bb227dfe60179edcfecb57dddbc9898ac08384840704c688ac7dd7",
+    "/root/autodl-tmp/research_K_expert_skip/deployments/qwen_partial_resume_20261016/resume_qwen.py": "1ffa0f610c2531ecd1fd5c5f88067bcc846759cffbec344e71070c4b2c39d010",
+    "/root/autodl-tmp/research_K_expert_skip/deployments/qwen_partial_resume_20261016/fixed_placement.json": "3a0780b3557d11f44c8be959b6124338922c9c3f8afe98927a64502492735c92",
+    "/root/autodl-tmp/research_K_expert_skip/deployments/qwen_partial_resume_20261016/compact_r07.py": "27d45c0cd81539bfbdedf1e5a1cd1442c2bd6284342ffd478a58eb9a31a5860c"
+  },
+  "download_command": [
+    "/root/miniconda3/bin/python",
+    "/root/autodl-tmp/research_K_expert_skip/deployments/qwen_partial_resume_20261016/resume_qwen.py",
+    "--execute",
+    "--root",
+    "/root/autodl-tmp/research_K_expert_skip",
+    "--destination",
+    "/root/autodl-tmp/research_K_expert_skip/models/qwen3_bf16_ad44e777",
+    "--fixed-placement",
+    "/root/autodl-tmp/research_K_expert_skip/deployments/qwen_partial_resume_20261016/fixed_placement.json",
+    "--c-reservation",
+    "append",
+    "--max-workers",
+    "2",
+    "--chunk-mib",
+    "64",
+    "--retries",
+    "2"
+  ],
+  "compact_commands": [
+    [
+      "/root/miniconda3/bin/python",
+      "/root/autodl-tmp/research_K_expert_skip/deployments/qwen_partial_resume_20261016/compact_r07.py",
+      "--prepare",
+      "--root",
+      "/root/autodl-tmp/research_K_expert_skip",
+      "--archive",
+      "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_bf16_matrix_r07/archived_performance.tgz"
+    ],
+    [
+      "/root/miniconda3/bin/python",
+      "/root/autodl-tmp/research_K_expert_skip/deployments/qwen_partial_resume_20261016/compact_r07.py",
+      "--compact",
+      "--root",
+      "/root/autodl-tmp/research_K_expert_skip",
+      "--archive",
+      "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_bf16_matrix_r07/archived_performance.tgz"
+    ]
+  ],
+  "compact_total_timeout_seconds": 300,
+  "download_timeout_seconds": 3600,
+  "download_environment": {
+    "CUDA_VISIBLE_DEVICES": "",
+    "OMP_NUM_THREADS": "2"
+  },
+  "prerequisites": [
+    "original PID64317 exited AND original receipt STOPPED",
+    "original DS CPU handoff.lock acquired; no DS targets/live payload",
+    "r09b successful terminal SHA plus actual controller/worker exit",
+    "no other active K run"
+  ],
+  "next": "original handoff(root, dsstage, python, save); download failure/timeout does not cancel DS",
+  "signals": "Only owned Qwen process group; never signal DS",
+  "gpu_or_remote_action": false
+}

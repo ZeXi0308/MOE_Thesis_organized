@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "checked_on": "2026-10-16",
+  "models": {
+    "olmoe": {
+      "repo": "allenai/OLMoE-1B-7B-0924-Instruct",
+      "revision": "7f1c97f440f06ce36705e4f2b843edb5925f4498",
+      "path": "/root/autodl-tmp/moe-research-20261002/model",
+      "experts": 64,
+      "top_k": 8,
+      "layers": 16,
+      "hidden_size": 2048,
+      "expert_intermediate_size": 1024,
+      "runtime_renormalize": false,
+      "bf16_routed_weight_bytes_per_expert": 12582912,
+      "source": "runs/olmoe_model_smoke_r02/model_smoke.json installation; existing checkpoint identity from research_C_format_sched/runs/olmoe_checkpoint",
+      "status": "complete_checkpoint_and_native_model_smoke_passed"
+    },
+    "qwen3": {
+      "repo": "Qwen/Qwen3-30B-A3B",
+      "revision": "ad44e777bcd18fa416d9da3bd8f70d33ebb85d39",
+      "path": "/root/autodl-tmp/research_C_format_sched/checkpoints/qwen3_bf16_ad44e777",
+      "experts": 128,
+      "top_k": 8,
+      "layers": 48,
+      "hidden_size": 2048,
+      "expert_intermediate_size": 768,
+      "status": "other_project_active_download_reused_read_only_when_complete",
+      "source": "research_C_format_sched/configs/models.json; checkpoint completeness and hashes must be checked before use"
+    },
+    "deepseek_v2_lite": {
+      "repo": "deepseek-ai/DeepSeek-V2-Lite",
+      "revision": "604d5664dddd88a0433dbae533b7fe9472482de0",
+      "path": "/root/autodl-tmp/research_K_expert_skip/models/deepseek_v2_lite_604d5664",
+      "experts": 64,
+      "top_k": 6,
+      "layers": 27,
+      "moe_layers": 26,
+      "shared_experts": 2,
+      "first_k_dense_replace": 1,
+      "hidden_size": 2048,
+      "expert_intermediate_size": 1408,
+      "config_norm_topk_prob": false,
+      "status": "downloading_pinned_checkpoint_config_already_read",
+      "source": "https://huggingface.co/deepseek-ai/DeepSeek-V2-Lite/blob/604d5664dddd88a0433dbae533b7fe9472482de0/config.json",
+      "note": "E/k=64/6=10.67 for routed experts, not the E=256/k=8 illustrative DeepSeek-V3 shape. Shared experts are excluded from skipping and reported separately."
+    }
+  },
+  "formats_on_pro6000": [
+    "bf16",
+    "fp8_from_same_bf16_checkpoint_via_vllm_online_quantization"
+  ],
+  "format_comparison_contract": "Performance and quality within a format load the same checkpoint and identical quantization mode; no extra norm rescaling is introduced. Actual installed tensor sizes, routing normalization and backend are recorded per run.",
+  "second_gpu": {
+    "requested": "RTX 5090",
+    "connection_status": "user_confirmed_unavailable_2026-10-16",
+    "decision": "Proceed with the available PRO6000 BF16/FP8 main comparison; 5090 replication is unavailable, not pending approval."
+  }
+}
