@@ -1,0 +1,1133 @@
+{
+  "status": "PASS",
+  "started_unix": 1792111413.7853932,
+  "args": {
+    "model": "/root/autodl-tmp/moe-research-20261002/model",
+    "articles": null,
+    "tokenized_windows": "/root/autodl-tmp/research_K_expert_skip/deployments/olmoe_fp8_matrix_r09b_20261016/rolling_tail/manifest.json",
+    "output": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09b/quality_rolling_tail.json",
+    "batch": 8,
+    "tokens": 32,
+    "prefix_tokens": 128,
+    "limit_docs": 32,
+    "limit_windows": null,
+    "arms": null,
+    "arms_file": "/root/autodl-tmp/research_K_expert_skip/configs/quality_pareto.json",
+    "gate_threshold": 0.15,
+    "tail_rank": 4,
+    "policy_backend": "torch",
+    "dtype": "bfloat16",
+    "quantization": "fp8",
+    "gpu_memory_utilization": 0.35,
+    "reference_max_mib": 2048,
+    "seed": 1701,
+    "trust_remote_code": false,
+    "identity_tolerance": 1e-06
+  },
+  "arms": [
+    {
+      "name": "native",
+      "spec": null
+    },
+    {
+      "name": "dense",
+      "spec": {
+        "mode": "dense",
+        "drop_j": 1,
+        "tail_rank": 4,
+        "gate_threshold": 0.05,
+        "mass_budget": 1.0,
+        "backend": "triton",
+        "rank_end": null,
+        "gate_min": 0.0
+      }
+    },
+    {
+      "name": "global_j1",
+      "spec": {
+        "mode": "global_native",
+        "drop_j": 1,
+        "backend": "triton",
+        "count_routes": true
+      }
+    },
+    {
+      "name": "global_j2",
+      "spec": {
+        "mode": "global_native",
+        "drop_j": 2,
+        "backend": "triton",
+        "count_routes": true
+      }
+    },
+    {
+      "name": "global_j4",
+      "spec": {
+        "mode": "global_native",
+        "drop_j": 4,
+        "backend": "triton",
+        "count_routes": true
+      }
+    },
+    {
+      "name": "gate_low",
+      "spec": {
+        "mode": "gate",
+        "drop_j": 1,
+        "tail_rank": 4,
+        "gate_threshold": 0.05,
+        "mass_budget": 0.1,
+        "backend": "triton",
+        "rank_end": null,
+        "gate_min": 0.0
+      }
+    },
+    {
+      "name": "gate_high",
+      "spec": {
+        "mode": "gate",
+        "drop_j": 1,
+        "tail_rank": 4,
+        "gate_threshold": 0.15,
+        "mass_budget": 0.3,
+        "backend": "triton",
+        "rank_end": null,
+        "gate_min": 0.0
+      }
+    },
+    {
+      "name": "marginal_low",
+      "spec": {
+        "mode": "marginal",
+        "drop_j": 1,
+        "tail_rank": 4,
+        "gate_threshold": 0.05,
+        "mass_budget": 0.1,
+        "backend": "triton",
+        "rank_end": null,
+        "gate_min": 0.0
+      }
+    },
+    {
+      "name": "marginal_mid",
+      "spec": {
+        "mode": "marginal",
+        "drop_j": 1,
+        "tail_rank": 4,
+        "gate_threshold": 0.1,
+        "mass_budget": 0.2,
+        "backend": "triton",
+        "rank_end": null,
+        "gate_min": 0.0
+      }
+    },
+    {
+      "name": "marginal_high",
+      "spec": {
+        "mode": "marginal",
+        "drop_j": 1,
+        "tail_rank": 4,
+        "gate_threshold": 0.15,
+        "mass_budget": 0.3,
+        "backend": "triton",
+        "rank_end": null,
+        "gate_min": 0.0
+      }
+    }
+  ],
+  "batches": [
+    {
+      "group": "batch0000",
+      "arm": "native",
+      "spec": null,
+      "valid": true,
+      "actual_batch": 1,
+      "scored_tokens_per_window": 65,
+      "engine_prompt_tokens": 127,
+      "quality": {
+        "tokens": 65,
+        "documents": 1,
+        "mean_nll": 2.4403727119951957,
+        "ppl": 11.477317679684372,
+        "mean_kl": 0.0,
+        "max_kl": 0.0,
+        "min_kl": 0.0,
+        "mean_nll_delta": 0.0
+      },
+      "per_document": {
+        "bfcf3ded382791cf6307cee552fcb982eae9d55d4393b9adb0b0b1c69b0330a0:128:193": {
+          "tokens": 65,
+          "documents": 1,
+          "mean_nll": 2.4403727119951957,
+          "ppl": 11.477317679684372,
+          "mean_kl": 0.0,
+          "max_kl": 0.0,
+          "min_kl": 0.0,
+          "mean_nll_delta": 0.0
+        }
+      },
+      "prefill_prediction": {
+        "tokens": 1,
+        "documents": 1,
+        "mean_nll": 3.8086495399475098,
+        "ppl": 45.08950615513399,
+        "mean_kl": 0.0,
+        "max_kl": 0.0,
+        "min_kl": 0.0,
+        "mean_nll_delta": 0.0
+      },
+      "policy_counter_file": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09b/quality_rolling_tail_artifacts/batch0000.native.worker.json",
+      "token_file": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09b/quality_rolling_tail_artifacts/batch0000.native.tokens.jsonl",
+      "policy_counters": null
+    },
+    {
+      "group": "batch0000",
+      "arm": "dense",
+      "spec": {
+        "mode": "dense",
+        "drop_j": 1,
+        "tail_rank": 4,
+        "gate_threshold": 0.05,
+        "mass_budget": 1.0,
+        "backend": "triton",
+        "rank_end": null,
+        "gate_min": 0.0
+      },
+      "valid": true,
+      "actual_batch": 1,
+      "scored_tokens_per_window": 65,
+      "engine_prompt_tokens": 127,
+      "quality": {
+        "tokens": 65,
+        "documents": 1,
+        "mean_nll": 2.4403727119951957,
+        "ppl": 11.477317679684372,
+        "mean_kl": 0.0,
+        "max_kl": 0.0,
+        "min_kl": 0.0,
+        "mean_nll_delta": 0.0
+      },
+      "per_document": {
+        "bfcf3ded382791cf6307cee552fcb982eae9d55d4393b9adb0b0b1c69b0330a0:128:193": {
+          "tokens": 65,
+          "documents": 1,
+          "mean_nll": 2.4403727119951957,
+          "ppl": 11.477317679684372,
+          "mean_kl": 0.0,
+          "max_kl": 0.0,
+          "min_kl": 0.0,
+          "mean_nll_delta": 0.0
+        }
+      },
+      "prefill_prediction": {
+        "tokens": 1,
+        "documents": 1,
+        "mean_nll": 3.8086495399475098,
+        "ppl": 45.08950615513399,
+        "mean_kl": 0.0,
+        "max_kl": 0.0,
+        "min_kl": 0.0,
+        "mean_nll_delta": 0.0
+      },
+      "policy_counter_file": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09b/quality_rolling_tail_artifacts/batch0000.dense.worker.json",
+      "token_file": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09b/quality_rolling_tail_artifacts/batch0000.dense.tokens.jsonl",
+      "policy_counters": {
+        "events": 1040.0,
+        "tokens": 1040.0,
+        "slots_before": 8320.0,
+        "slots_after": 8320.0,
+        "skipped_slots": 0.0,
+        "singleton_slots_before": 8320.0,
+        "distinct_before": 8320.0,
+        "distinct_after": 8320.0,
+        "removed_gate_mass_sum": 0.0,
+        "logical_weight_bytes_before": 52344980480.0,
+        "logical_weight_bytes_after": 52344980480.0,
+        "tokens_with_skips": 0.0,
+        "removed_gate_mass_max": 0.0
+      }
+    },
+    {
+      "group": "batch0000",
+      "arm": "global_j1",
+      "spec": {
+        "mode": "global_native",
+        "drop_j": 1,
+        "backend": "triton",
+        "count_routes": true
+      },
+      "valid": true,
+      "actual_batch": 1,
+      "scored_tokens_per_window": 65,
+      "engine_prompt_tokens": 127,
+      "quality": {
+        "tokens": 65,
+        "documents": 1,
+        "mean_nll": 2.402282736838746,
+        "ppl": 11.048368133577636,
+        "mean_kl": 0.03158875309905292,
+        "max_kl": 0.18862485885620117,
+        "min_kl": 9.142662747763097e-06,
+        "mean_nll_delta": -0.03808997515644968
+      },
+      "per_document": {
+        "bfcf3ded382791cf6307cee552fcb982eae9d55d4393b9adb0b0b1c69b0330a0:128:193": {
+          "tokens": 65,
+          "documents": 1,
+          "mean_nll": 2.402282736838746,
+          "ppl": 11.048368133577636,
+          "mean_kl": 0.03158875309905292,
+          "max_kl": 0.18862485885620117,
+          "min_kl": 9.142662747763097e-06,
+          "mean_nll_delta": -0.03808997515644968
+        }
+      },
+      "prefill_prediction": {
+        "tokens": 1,
+        "documents": 1,
+        "mean_nll": 3.8086495399475098,
+        "ppl": 45.08950615513399,
+        "mean_kl": 0.0,
+        "max_kl": 0.0,
+        "min_kl": 0.0,
+        "mean_nll_delta": 0.0
+      },
+      "policy_counter_file": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09b/quality_rolling_tail_artifacts/batch0000.global_j1.worker.json",
+      "token_file": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09b/quality_rolling_tail_artifacts/batch0000.global_j1.tokens.jsonl",
+      "policy_counters": {
+        "events": 1040.0,
+        "tokens": 1040.0,
+        "slots_before": 7280.0,
+        "slots_after": 7280.0,
+        "skipped_slots": null,
+        "singleton_slots_before": 7280.0,
+        "distinct_before": 7280.0,
+        "distinct_after": 7280.0,
+        "removed_gate_mass_sum": null,
+        "logical_weight_bytes_before": 45801857920.0,
+        "logical_weight_bytes_after": 45801857920.0,
+        "tokens_with_skips": null,
+        "removed_gate_mass_max": null
+      }
+    },
+    {
+      "group": "batch0000",
+      "arm": "global_j2",
+      "spec": {
+        "mode": "global_native",
+        "drop_j": 2,
+        "backend": "triton",
+        "count_routes": true
+      },
+      "valid": true,
+      "actual_batch": 1,
+      "scored_tokens_per_window": 65,
+      "engine_prompt_tokens": 127,
+      "quality": {
+        "tokens": 65,
+        "documents": 1,
+        "mean_nll": 2.4744658131201644,
+        "ppl": 11.875361756003677,
+        "mean_kl": 0.06945835032680546,
+        "max_kl": 0.40387022495269775,
+        "min_kl": 4.749179424834438e-05,
+        "mean_nll_delta": 0.03409310112496874
+      },
+      "per_document": {
+        "bfcf3ded382791cf6307cee552fcb982eae9d55d4393b9adb0b0b1c69b0330a0:128:193": {
+          "tokens": 65,
+          "documents": 1,
+          "mean_nll": 2.4744658131201644,
+          "ppl": 11.875361756003677,
+          "mean_kl": 0.06945835032680546,
+          "max_kl": 0.40387022495269775,
+          "min_kl": 4.749179424834438e-05,
+          "mean_nll_delta": 0.03409310112496874
+        }
+      },
+      "prefill_prediction": {
+        "tokens": 1,
+        "documents": 1,
+        "mean_nll": 3.8086495399475098,
+        "ppl": 45.08950615513399,
+        "mean_kl": 0.0,
+        "max_kl": 0.0,
+        "min_kl": 0.0,
+        "mean_nll_delta": 0.0
+      },
+      "policy_counter_file": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09b/quality_rolling_tail_artifacts/batch0000.global_j2.worker.json",
+      "token_file": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09b/quality_rolling_tail_artifacts/batch0000.global_j2.tokens.jsonl",
+      "policy_counters": {
+        "events": 1040.0,
+        "tokens": 1040.0,
+        "slots_before": 6240.0,
+        "slots_after": 6240.0,
+        "skipped_slots": null,
+        "singleton_slots_before": 6240.0,
+        "distinct_before": 6240.0,
+        "distinct_after": 6240.0,
+        "removed_gate_mass_sum": null,
+        "logical_weight_bytes_before": 39258735360.0,
+        "logical_weight_bytes_after": 39258735360.0,
+        "tokens_with_skips": null,
+        "removed_gate_mass_max": null
+      }
+    },
+    {
+      "group": "batch0000",
+      "arm": "global_j4",
+      "spec": {
+        "mode": "global_native",
+        "drop_j": 4,
+        "backend": "triton",
+        "count_routes": true
+      },
+      "valid": true,
+      "actual_batch": 1,
+      "scored_tokens_per_window": 65,
+      "engine_prompt_tokens": 127,
+      "quality": {
+        "tokens": 65,
+        "documents": 1,
+        "mean_nll": 2.5961324442081746,
+        "ppl": 13.411766842510087,
+        "mean_kl": 0.3177257694906215,
+        "max_kl": 1.3060708045959473,
+        "min_kl": 9.84264916041866e-05,
+        "mean_nll_delta": 0.15575973221297879
+      },
+      "per_document": {
+        "bfcf3ded382791cf6307cee552fcb982eae9d55d4393b9adb0b0b1c69b0330a0:128:193": {
+          "tokens": 65,
+          "documents": 1,
+          "mean_nll": 2.5961324442081746,
+          "ppl": 13.411766842510087,
+          "mean_kl": 0.3177257694906215,
+          "max_kl": 1.3060708045959473,
+          "min_kl": 9.84264916041866e-05,
+          "mean_nll_delta": 0.15575973221297879
+        }
+      },
+      "prefill_prediction": {
+        "tokens": 1,
+        "documents": 1,
+        "mean_nll": 3.8086495399475098,
+        "ppl": 45.08950615513399,
+        "mean_kl": 0.0,
+        "max_kl": 0.0,
+        "min_kl": 0.0,
+        "mean_nll_delta": 0.0
+      },
+      "policy_counter_file": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09b/quality_rolling_tail_artifacts/batch0000.global_j4.worker.json",
+      "token_file": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09b/quality_rolling_tail_artifacts/batch0000.global_j4.tokens.jsonl",
+      "policy_counters": {
+        "events": 1040.0,
+        "tokens": 1040.0,
+        "slots_before": 4160.0,
+        "slots_after": 4160.0,
+        "skipped_slots": null,
+        "singleton_slots_before": 4160.0,
+        "distinct_before": 4160.0,
+        "distinct_after": 4160.0,
+        "removed_gate_mass_sum": null,
+        "logical_weight_bytes_before": 26172490240.0,
+        "logical_weight_bytes_after": 26172490240.0,
+        "tokens_with_skips": null,
+        "removed_gate_mass_max": null
+      }
+    },
+    {
+      "group": "batch0000",
+      "arm": "gate_low",
+      "spec": {
+        "mode": "gate",
+        "drop_j": 1,
+        "tail_rank": 4,
+        "gate_threshold": 0.05,
+        "mass_budget": 0.1,
+        "backend": "triton",
+        "rank_end": null,
+        "gate_min": 0.0
+      },
+      "valid": true,
+      "actual_batch": 1,
+      "scored_tokens_per_window": 65,
+      "engine_prompt_tokens": 127,
+      "quality": {
+        "tokens": 65,
+        "documents": 1,
+        "mean_nll": 2.4060986785802996,
+        "ppl": 11.090608605047008,
+        "mean_kl": 0.011451572453125454,
+        "max_kl": 0.07888606190681458,
+        "min_kl": 5.565625997405732e-06,
+        "mean_nll_delta": -0.0342740334148962
+      },
+      "per_document": {
+        "bfcf3ded382791cf6307cee552fcb982eae9d55d4393b9adb0b0b1c69b0330a0:128:193": {
+          "tokens": 65,
+          "documents": 1,
+          "mean_nll": 2.4060986785802996,
+          "ppl": 11.090608605047008,
+          "mean_kl": 0.011451572453125454,
+          "max_kl": 0.07888606190681458,
+          "min_kl": 5.565625997405732e-06,
+          "mean_nll_delta": -0.0342740334148962
+        }
+      },
+      "prefill_prediction": {
+        "tokens": 1,
+        "documents": 1,
+        "mean_nll": 3.8086495399475098,
+        "ppl": 45.08950615513399,
+        "mean_kl": 0.0,
+        "max_kl": 0.0,
+        "min_kl": 0.0,
+        "mean_nll_delta": 0.0
+      },
+      "policy_counter_file": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09b/quality_rolling_tail_artifacts/batch0000.gate_low.worker.json",
+      "token_file": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09b/quality_rolling_tail_artifacts/batch0000.gate_low.tokens.jsonl",
+      "policy_counters": {
+        "events": 1040.0,
+        "tokens": 1040.0,
+        "slots_before": 8320.0,
+        "slots_after": 8212.0,
+        "skipped_slots": 108.0,
+        "singleton_slots_before": 8320.0,
+        "distinct_before": 8320.0,
+        "distinct_after": 8212.0,
+        "removed_gate_mass_sum": 4.729551101103425,
+        "logical_weight_bytes_before": 52344980480.0,
+        "logical_weight_bytes_after": 51665502368.0,
+        "tokens_with_skips": 81.0,
+        "removed_gate_mass_max": 0.09948001801967621
+      }
+    },
+    {
+      "group": "batch0000",
+      "arm": "gate_high",
+      "spec": {
+        "mode": "gate",
+        "drop_j": 1,
+        "tail_rank": 4,
+        "gate_threshold": 0.15,
+        "mass_budget": 0.3,
+        "backend": "triton",
+        "rank_end": null,
+        "gate_min": 0.0
+      },
+      "valid": true,
+      "actual_batch": 1,
+      "scored_tokens_per_window": 65,
+      "engine_prompt_tokens": 127,
+      "quality": {
+        "tokens": 65,
+        "documents": 1,
+        "mean_nll": 2.4393881765655423,
+        "ppl": 11.466023414505749,
+        "mean_kl": 0.17961781468441657,
+        "max_kl": 1.292134404182434,
+        "min_kl": 9.933106048265472e-05,
+        "mean_nll_delta": -0.0009845354296535683
+      },
+      "per_document": {
+        "bfcf3ded382791cf6307cee552fcb982eae9d55d4393b9adb0b0b1c69b0330a0:128:193": {
+          "tokens": 65,
+          "documents": 1,
+          "mean_nll": 2.4393881765655423,
+          "ppl": 11.466023414505749,
+          "mean_kl": 0.17961781468441657,
+          "max_kl": 1.292134404182434,
+          "min_kl": 9.933106048265472e-05,
+          "mean_nll_delta": -0.0009845354296535683
+        }
+      },
+      "prefill_prediction": {
+        "tokens": 1,
+        "documents": 1,
+        "mean_nll": 3.8086495399475098,
+        "ppl": 45.08950615513399,
+        "mean_kl": 0.0,
+        "max_kl": 0.0,
+        "min_kl": 0.0,
+        "mean_nll_delta": 0.0
+      },
+      "policy_counter_file": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09b/quality_rolling_tail_artifacts/batch0000.gate_high.worker.json",
+      "token_file": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09b/quality_rolling_tail_artifacts/batch0000.gate_high.tokens.jsonl",
+      "policy_counters": {
+        "events": 1040.0,
+        "tokens": 1040.0,
+        "slots_before": 8320.0,
+        "slots_after": 5024.0,
+        "skipped_slots": 3296.0,
+        "singleton_slots_before": 8320.0,
+        "distinct_before": 8320.0,
+        "distinct_after": 5024.0,
+        "removed_gate_mass_sum": 260.59319001436234,
+        "logical_weight_bytes_before": 52344980480.0,
+        "logical_weight_bytes_after": 31608315136.0,
+        "tokens_with_skips": 1040.0,
+        "removed_gate_mass_max": 0.29989153146743774
+      }
+    },
+    {
+      "group": "batch0000",
+      "arm": "marginal_low",
+      "spec": {
+        "mode": "marginal",
+        "drop_j": 1,
+        "tail_rank": 4,
+        "gate_threshold": 0.05,
+        "mass_budget": 0.1,
+        "backend": "triton",
+        "rank_end": null,
+        "gate_min": 0.0
+      },
+      "valid": true,
+      "actual_batch": 1,
+      "scored_tokens_per_window": 65,
+      "engine_prompt_tokens": 127,
+      "quality": {
+        "tokens": 65,
+        "documents": 1,
+        "mean_nll": 2.4060986785802996,
+        "ppl": 11.090608605047008,
+        "mean_kl": 0.011451572453125454,
+        "max_kl": 0.07888606190681458,
+        "min_kl": 5.565625997405732e-06,
+        "mean_nll_delta": -0.0342740334148962
+      },
+      "per_document": {
+        "bfcf3ded382791cf6307cee552fcb982eae9d55d4393b9adb0b0b1c69b0330a0:128:193": {
+          "tokens": 65,
+          "documents": 1,
+          "mean_nll": 2.4060986785802996,
+          "ppl": 11.090608605047008,
+          "mean_kl": 0.011451572453125454,
+          "max_kl": 0.07888606190681458,
+          "min_kl": 5.565625997405732e-06,
+          "mean_nll_delta": -0.0342740334148962
+        }
+      },
+      "prefill_prediction": {
+        "tokens": 1,
+        "documents": 1,
+        "mean_nll": 3.8086495399475098,
+        "ppl": 45.08950615513399,
+        "mean_kl": 0.0,
+        "max_kl": 0.0,
+        "min_kl": 0.0,
+        "mean_nll_delta": 0.0
+      },
+      "policy_counter_file": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09b/quality_rolling_tail_artifacts/batch0000.marginal_low.worker.json",
+      "token_file": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09b/quality_rolling_tail_artifacts/batch0000.marginal_low.tokens.jsonl",
+      "policy_counters": {
+        "events": 1040.0,
+        "tokens": 1040.0,
+        "slots_before": 8320.0,
+        "slots_after": 8212.0,
+        "skipped_slots": 108.0,
+        "singleton_slots_before": 8320.0,
+        "distinct_before": 8320.0,
+        "distinct_after": 8212.0,
+        "removed_gate_mass_sum": 4.729551101103425,
+        "logical_weight_bytes_before": 52344980480.0,
+        "logical_weight_bytes_after": 51665502368.0,
+        "tokens_with_skips": 81.0,
+        "removed_gate_mass_max": 0.09948001801967621
+      }
+    },
+    {
+      "group": "batch0000",
+      "arm": "marginal_mid",
+      "spec": {
+        "mode": "marginal",
+        "drop_j": 1,
+        "tail_rank": 4,
+        "gate_threshold": 0.1,
+        "mass_budget": 0.2,
+        "backend": "triton",
+        "rank_end": null,
+        "gate_min": 0.0
+      },
+      "valid": true,
+      "actual_batch": 1,
+      "scored_tokens_per_window": 65,
+      "engine_prompt_tokens": 127,
+      "quality": {
+        "tokens": 65,
+        "documents": 1,
+        "mean_nll": 2.488095327400459,
+        "ppl": 12.038325202233537,
+        "mean_kl": 0.08540364804682143,
+        "max_kl": 0.7188577055931091,
+        "min_kl": 3.948010999010876e-05,
+        "mean_nll_delta": 0.04772261540526345
+      },
+      "per_document": {
+        "bfcf3ded382791cf6307cee552fcb982eae9d55d4393b9adb0b0b1c69b0330a0:128:193": {
+          "tokens": 65,
+          "documents": 1,
+          "mean_nll": 2.488095327400459,
+          "ppl": 12.038325202233537,
+          "mean_kl": 0.08540364804682143,
+          "max_kl": 0.7188577055931091,
+          "min_kl": 3.948010999010876e-05,
+          "mean_nll_delta": 0.04772261540526345
+        }
+      },
+      "prefill_prediction": {
+        "tokens": 1,
+        "documents": 1,
+        "mean_nll": 3.8086495399475098,
+        "ppl": 45.08950615513399,
+        "mean_kl": 0.0,
+        "max_kl": 0.0,
+        "min_kl": 0.0,
+        "mean_nll_delta": 0.0
+      },
+      "policy_counter_file": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09b/quality_rolling_tail_artifacts/batch0000.marginal_mid.worker.json",
+      "token_file": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09b/quality_rolling_tail_artifacts/batch0000.marginal_mid.tokens.jsonl",
+      "policy_counters": {
+        "events": 1040.0,
+        "tokens": 1040.0,
+        "slots_before": 8320.0,
+        "slots_after": 6152.0,
+        "skipped_slots": 2168.0,
+        "singleton_slots_before": 8320.0,
+        "distinct_before": 8320.0,
+        "distinct_after": 6152.0,
+        "removed_gate_mass_sum": 157.7156241349876,
+        "logical_weight_bytes_before": 52344980480.0,
+        "logical_weight_bytes_after": 38705086528.0,
+        "tokens_with_skips": 1026.0,
+        "removed_gate_mass_max": 0.199826180934906
+      }
+    },
+    {
+      "group": "batch0000",
+      "arm": "marginal_high",
+      "spec": {
+        "mode": "marginal",
+        "drop_j": 1,
+        "tail_rank": 4,
+        "gate_threshold": 0.15,
+        "mass_budget": 0.3,
+        "backend": "triton",
+        "rank_end": null,
+        "gate_min": 0.0
+      },
+      "valid": true,
+      "actual_batch": 1,
+      "scored_tokens_per_window": 65,
+      "engine_prompt_tokens": 127,
+      "quality": {
+        "tokens": 65,
+        "documents": 1,
+        "mean_nll": 2.4033147472171827,
+        "ppl": 11.059776049687693,
+        "mean_kl": 0.18485447180803302,
+        "max_kl": 1.180945873260498,
+        "min_kl": 5.6269756896654144e-05,
+        "mean_nll_delta": -0.037057964778012736
+      },
+      "per_document": {
+        "bfcf3ded382791cf6307cee552fcb982eae9d55d4393b9adb0b0b1c69b0330a0:128:193": {
+          "tokens": 65,
+          "documents": 1,
+          "mean_nll": 2.4033147472171827,
+          "ppl": 11.059776049687693,
+          "mean_kl": 0.18485447180803302,
+          "max_kl": 1.180945873260498,
+          "min_kl": 5.6269756896654144e-05,
+          "mean_nll_delta": -0.037057964778012736
+        }
+      },
+      "prefill_prediction": {
+        "tokens": 1,
+        "documents": 1,
+        "mean_nll": 3.8086495399475098,
+        "ppl": 45.08950615513399,
+        "mean_kl": 0.0,
+        "max_kl": 0.0,
+        "min_kl": 0.0,
+        "mean_nll_delta": 0.0
+      },
+      "policy_counter_file": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09b/quality_rolling_tail_artifacts/batch0000.marginal_high.worker.json",
+      "token_file": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09b/quality_rolling_tail_artifacts/batch0000.marginal_high.tokens.jsonl",
+      "policy_counters": {
+        "events": 1040.0,
+        "tokens": 1040.0,
+        "slots_before": 8320.0,
+        "slots_after": 5030.0,
+        "skipped_slots": 3290.0,
+        "singleton_slots_before": 8320.0,
+        "distinct_before": 8320.0,
+        "distinct_after": 5030.0,
+        "removed_gate_mass_sum": 260.39800150692463,
+        "logical_weight_bytes_before": 52344980480.0,
+        "logical_weight_bytes_after": 31646063920.0,
+        "tokens_with_skips": 1040.0,
+        "removed_gate_mass_max": 0.2999463975429535
+      }
+    }
+  ],
+  "arm_source": {
+    "path": "/root/autodl-tmp/research_K_expert_skip/configs/quality_pareto.json",
+    "sha256": "d78dee23f02f8c51a495d170997fc0b245de36abaf5b2744ecbc1ddf38cb95f7",
+    "payload": {
+      "schema_version": 1,
+      "purpose": "Same policy parameters and native reduced-k execution as default_arms.json; dense identity/counters added for common-trajectory logical-byte denominator.",
+      "counting": "Quality execution forces native reduced-k counters on; no latency claim.",
+      "arms": [
+        {
+          "name": "native",
+          "spec": null
+        },
+        {
+          "name": "dense",
+          "spec": {
+            "mode": "dense",
+            "backend": "triton"
+          }
+        },
+        {
+          "name": "global_j1",
+          "spec": {
+            "mode": "global_native",
+            "drop_j": 1,
+            "count_routes": false,
+            "backend": "triton"
+          }
+        },
+        {
+          "name": "global_j2",
+          "spec": {
+            "mode": "global_native",
+            "drop_j": 2,
+            "count_routes": false,
+            "backend": "triton"
+          }
+        },
+        {
+          "name": "global_j4",
+          "spec": {
+            "mode": "global_native",
+            "drop_j": 4,
+            "count_routes": false,
+            "backend": "triton"
+          }
+        },
+        {
+          "name": "gate_low",
+          "spec": {
+            "mode": "gate",
+            "gate_threshold": 0.05,
+            "mass_budget": 0.1,
+            "backend": "triton"
+          }
+        },
+        {
+          "name": "gate_high",
+          "spec": {
+            "mode": "gate",
+            "gate_threshold": 0.15,
+            "mass_budget": 0.3,
+            "backend": "triton"
+          }
+        },
+        {
+          "name": "marginal_low",
+          "spec": {
+            "mode": "marginal",
+            "tail_rank": 4,
+            "gate_threshold": 0.05,
+            "mass_budget": 0.1,
+            "backend": "triton"
+          }
+        },
+        {
+          "name": "marginal_mid",
+          "spec": {
+            "mode": "marginal",
+            "tail_rank": 4,
+            "gate_threshold": 0.1,
+            "mass_budget": 0.2,
+            "backend": "triton"
+          }
+        },
+        {
+          "name": "marginal_high",
+          "spec": {
+            "mode": "marginal",
+            "tail_rank": 4,
+            "gate_threshold": 0.15,
+            "mass_budget": 0.3,
+            "backend": "triton"
+          }
+        }
+      ]
+    }
+  },
+  "scope": "One exact final validation rolling window, with rebased local offsets for path verification only; not full-split PPL",
+  "aggregation": "exp(sum token NLL / scored decode tokens); position zero excluded",
+  "kl_direction": "KL(native || policy), full vocabulary, before forcing mask",
+  "normalization": "preserve each installed router's renormalize flag and routing scale; decision gate fractions are normalized separately",
+  "runtime_contract": {
+    "vllm": "0.26.0",
+    "VLLM_ENABLE_V1_MULTIPROCESSING": "0",
+    "async_scheduling": false
+  },
+  "preflight_tokenizer_identity": {
+    "backend_sha256": "86dc2bc14a5e164802493bbd01314b6d09dd75d31217863e863a4dc24f0ed160",
+    "vocabulary_sha256": "612b8ad23b4b2bd0f4cdb94da38e9187b410bde0b0a4d09afb6ee642dc16df21",
+    "special_token_ids": {
+      "bos_token_id": 50279,
+      "eos_token_id": 50279,
+      "pad_token_id": 50280,
+      "unk_token_id": null
+    },
+    "all_special_ids": [
+      50279,
+      50280
+    ],
+    "sha256": "f5b286f4eeb057955db00dcadb960eac2ccbd12b575b4b4b6bc60de419c3badb",
+    "class": "GPTNeoXTokenizer",
+    "name_or_path": "/root/autodl-tmp/moe-research-20261002/model"
+  },
+  "rolling_input": {
+    "schema": "wikitext_decode_rolling_v1",
+    "tokenizer": {
+      "backend_sha256": "86dc2bc14a5e164802493bbd01314b6d09dd75d31217863e863a4dc24f0ed160",
+      "vocabulary_sha256": "612b8ad23b4b2bd0f4cdb94da38e9187b410bde0b0a4d09afb6ee642dc16df21",
+      "special_token_ids": {
+        "bos_token_id": 50279,
+        "eos_token_id": 50279,
+        "pad_token_id": 50280,
+        "unk_token_id": null
+      },
+      "all_special_ids": [
+        50279,
+        50280
+      ],
+      "sha256": "f5b286f4eeb057955db00dcadb960eac2ccbd12b575b4b4b6bc60de419c3badb",
+      "class": "GPTNeoXTokenizer",
+      "name_or_path": "../research_C_format_sched/datasets/serving_olmoe_r01/tokenizer"
+    },
+    "tokenization": {
+      "add_special_tokens": false,
+      "truncation": false,
+      "calls": 1,
+      "packages": {
+        "transformers": "5.20.0",
+        "tokenizers": "0.23.3",
+        "pyarrow": "26.0.0"
+      }
+    },
+    "context_prefix_tokens": 128,
+    "engine_prompt_tokens": 127,
+    "max_scored_tokens": 128,
+    "statistical_unit": "windows of one ordered split token stream; not independent articles or system repetitions",
+    "prefill_bridge": "token at score_start-1 is emitted by prefill and excluded; every score_start:score_stop prediction uses decode",
+    "standard_protocol_equivalence_claimed": false,
+    "status": "READY",
+    "split": "validation_tail",
+    "token_stream": {
+      "tokens": 193,
+      "sha256": "bfcf3ded382791cf6307cee552fcb982eae9d55d4393b9adb0b0b1c69b0330a0",
+      "hash_encoding": "canonical JSON integer array"
+    },
+    "windows_file": {
+      "path": "windows.jsonl",
+      "rows": 1,
+      "sha256": "aed06478db7acc981937782d2b1d2ca381147a37c0acf5337d851d17a8bcc857"
+    },
+    "coverage": {
+      "excluded_initial_span": [
+        0,
+        128
+      ],
+      "scored_span": [
+        128,
+        193
+      ],
+      "scored_tokens": 65,
+      "scored_spans_overlap": false,
+      "scored_spans_have_gaps": false,
+      "last_window_scored_tokens": 65,
+      "tail_policy": "exact original final short window, no padding or truncation"
+    },
+    "scope": "One exact final validation rolling window, with rebased local offsets for path verification only; not full-split PPL",
+    "derivation": {
+      "source_manifest": "datasets/wikitext2_rolling_olmoe_r01/validation/manifest.json",
+      "source_manifest_sha256": "b9f5cdc438c06f912b769d02de36010c805d71b0ac20c8a3655277d8f5f75198",
+      "source_windows_sha256": "fb5ac6c59976906166d239c2a89091114de1e3dd70dc3af2fb86cf671da647f6",
+      "original_token_stream": {
+        "tokens": 252481,
+        "sha256": "5476221ef57af2d5119db1abafaa4e94bc9e5a2f8f8eb6ff3c4e2abca3b262ef",
+        "hash_encoding": "canonical JSON integer array"
+      },
+      "original_window_index": 1971,
+      "original_doc_key": "5476221ef57af2d5119db1abafaa4e94bc9e5a2f8f8eb6ff3c4e2abca3b262ef:252416:252481",
+      "original_context_start_token": 252288,
+      "original_score_start_token": 252416,
+      "original_score_stop_token": 252481,
+      "operation": "token_ids copied unchanged; local offsets rebased by original_context_start_token; original global offsets retained here"
+    }
+  },
+  "statistical_unit": "windows of one ordered split token stream; not independent articles or system repetitions",
+  "per_document_field_unit": "rolling window, not independent article",
+  "context_definition": "P-1 engine prompt + one excluded prefill bridge; scored context lengths P..P+S-1",
+  "runtime_tokenizer_identity": {
+    "backend_sha256": "86dc2bc14a5e164802493bbd01314b6d09dd75d31217863e863a4dc24f0ed160",
+    "vocabulary_sha256": "612b8ad23b4b2bd0f4cdb94da38e9187b410bde0b0a4d09afb6ee642dc16df21",
+    "special_token_ids": {
+      "bos_token_id": 50279,
+      "eos_token_id": 50279,
+      "pad_token_id": 50280,
+      "unk_token_id": null
+    },
+    "all_special_ids": [
+      50279,
+      50280
+    ],
+    "sha256": "f5b286f4eeb057955db00dcadb960eac2ccbd12b575b4b4b6bc60de419c3badb",
+    "class": "TokenizerPoolCachedGPTNeoXTokenizer",
+    "name_or_path": "/root/autodl-tmp/moe-research-20261002/model"
+  },
+  "selection": {
+    "input_kind": "wikitext_decode_rolling_v1",
+    "source_manifest": "/root/autodl-tmp/research_K_expert_skip/deployments/olmoe_fp8_matrix_r09b_20261016/rolling_tail/manifest.json",
+    "source_manifest_sha256": "f84882e78841a77b86c8cc1d193e880c8d7e5ed08cc652d528f6e56c51fd180f",
+    "available_windows": 1,
+    "selected_windows": 1,
+    "selected_scored_span": [
+      128,
+      193
+    ],
+    "selected_scored_tokens": 65,
+    "unselected_suffix_tokens": 0,
+    "complete_split_after_initial_context": true,
+    "dropped_incomplete_batch_windows": 0,
+    "statistical_unit": "rolling window, not independent article"
+  },
+  "selected_documents": 1,
+  "selected_splits": [
+    "validation_tail"
+  ],
+  "quality_by_arm": {
+    "native": {
+      "tokens": 65,
+      "documents": 1,
+      "mean_nll": 2.4403727119951957,
+      "ppl": 11.477317679684372,
+      "mean_kl": 0.0,
+      "mean_nll_delta": 0.0,
+      "max_kl": 0.0,
+      "min_kl": 0.0
+    },
+    "dense": {
+      "tokens": 65,
+      "documents": 1,
+      "mean_nll": 2.4403727119951957,
+      "ppl": 11.477317679684372,
+      "mean_kl": 0.0,
+      "mean_nll_delta": 0.0,
+      "max_kl": 0.0,
+      "min_kl": 0.0
+    },
+    "global_j1": {
+      "tokens": 65,
+      "documents": 1,
+      "mean_nll": 2.402282736838746,
+      "ppl": 11.048368133577636,
+      "mean_kl": 0.03158875309905292,
+      "mean_nll_delta": -0.03808997515644968,
+      "max_kl": 0.18862485885620117,
+      "min_kl": 9.142662747763097e-06
+    },
+    "global_j2": {
+      "tokens": 65,
+      "documents": 1,
+      "mean_nll": 2.4744658131201644,
+      "ppl": 11.875361756003677,
+      "mean_kl": 0.06945835032680546,
+      "mean_nll_delta": 0.03409310112496874,
+      "max_kl": 0.40387022495269775,
+      "min_kl": 4.749179424834438e-05
+    },
+    "global_j4": {
+      "tokens": 65,
+      "documents": 1,
+      "mean_nll": 2.5961324442081746,
+      "ppl": 13.411766842510087,
+      "mean_kl": 0.3177257694906215,
+      "mean_nll_delta": 0.15575973221297879,
+      "max_kl": 1.3060708045959473,
+      "min_kl": 9.84264916041866e-05
+    },
+    "gate_low": {
+      "tokens": 65,
+      "documents": 1,
+      "mean_nll": 2.4060986785802996,
+      "ppl": 11.090608605047008,
+      "mean_kl": 0.011451572453125454,
+      "mean_nll_delta": -0.0342740334148962,
+      "max_kl": 0.07888606190681458,
+      "min_kl": 5.565625997405732e-06
+    },
+    "gate_high": {
+      "tokens": 65,
+      "documents": 1,
+      "mean_nll": 2.4393881765655423,
+      "ppl": 11.466023414505749,
+      "mean_kl": 0.17961781468441657,
+      "mean_nll_delta": -0.0009845354296535683,
+      "max_kl": 1.292134404182434,
+      "min_kl": 9.933106048265472e-05
+    },
+    "marginal_low": {
+      "tokens": 65,
+      "documents": 1,
+      "mean_nll": 2.4060986785802996,
+      "ppl": 11.090608605047008,
+      "mean_kl": 0.011451572453125454,
+      "mean_nll_delta": -0.0342740334148962,
+      "max_kl": 0.07888606190681458,
+      "min_kl": 5.565625997405732e-06
+    },
+    "marginal_mid": {
+      "tokens": 65,
+      "documents": 1,
+      "mean_nll": 2.488095327400459,
+      "ppl": 12.038325202233537,
+      "mean_kl": 0.08540364804682143,
+      "mean_nll_delta": 0.04772261540526345,
+      "max_kl": 0.7188577055931091,
+      "min_kl": 3.948010999010876e-05
+    },
+    "marginal_high": {
+      "tokens": 65,
+      "documents": 1,
+      "mean_nll": 2.4033147472171827,
+      "ppl": 11.059776049687693,
+      "mean_kl": 0.18485447180803302,
+      "mean_nll_delta": -0.037057964778012736,
+      "max_kl": 1.180945873260498,
+      "min_kl": 5.6269756896654144e-05
+    }
+  },
+  "rolling_coverage_verified": {
+    "selected_scored_tokens_per_arm": 65,
+    "selected_source_span": [
+      128,
+      193
+    ],
+    "complete_split_after_initial_context": true,
+    "all_scored_predictions_decode": true,
+    "actual_batch_distribution": {
+      "1": 1
+    }
+  },
+  "completed_unix": 1792111447.592504
+}

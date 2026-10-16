@@ -1,0 +1,559 @@
+{
+  "primary_fit_file": "/Users/zhaozhenyu/Desktop/毕业设计/research_S_moe_specdec/runs/kernel_cost_fit_r03/kernel_cost_fit.json",
+  "primary_fit_sha256": "2dfe30600bfaf267841c94ff5c9cc09da7f40aebe83cd029f504ab38f716e7d0",
+  "fit_batches": [
+    1,
+    4,
+    16,
+    64
+  ],
+  "test_batches": [
+    2,
+    8,
+    32
+  ],
+  "domains": {
+    "161b773f87964cc5": {
+      "domain": {
+        "selected_weights_sha256": "3b2eb56ed050ad8e1a89a7f450591a38493ed600c5cfc6ab79c10664fb36b280",
+        "weight_layer": 0,
+        "shape": {
+          "experts": 64,
+          "top_k": 8,
+          "hidden": 2048,
+          "intermediate": 1024
+        },
+        "bytes_per_expert": 12582912,
+        "gpu": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+        "compute_capability": [
+          12,
+          0
+        ],
+        "vllm": "0.26.0",
+        "triton": "3.6.0",
+        "entrypoint": "FusedMoEKernel.apply",
+        "experts_class": "TritonExperts",
+        "prepare_finalize_class": "MoEPrepareAndFinalizeNoDPEPModular",
+        "kernel_source_hashes": {
+          "vllm.model_executor.layers.fused_moe.modular_kernel.FusedMoEKernel": "f78ae626babfd69f3c6ba37eef9c8f5186f28cd9064f566e341ca0c9e0fdb9b9",
+          "vllm.model_executor.layers.fused_moe.experts.triton_moe.TritonExperts": "e937fff3bca81b822e7737bea618dd8acbf359182476a366fe5110c1850d0507",
+          "vllm.model_executor.layers.fused_moe.prepare_finalize.no_dp_ep.MoEPrepareAndFinalizeNoDPEPModular": "80d185e8d519da8ff7266fe37554640465672f54426f1bebd0131d62f4f67ec3"
+        },
+        "cache_policy": "turnover",
+        "cache_turnover_bytes": 268435456,
+        "execution_mode": "eager",
+        "route_kind": "measured_histogram_synthetic_cooccurrence",
+        "input_source": "synthetic_unit_RMS_normal",
+        "topk_weight_source": "uniform_normalized"
+      },
+      "snapshot_count": 154,
+      "actual_S": {
+        "count": 154,
+        "min": 1,
+        "median": 11.5,
+        "max": 148
+      },
+      "actual_D": {
+        "count": 154,
+        "min": 8,
+        "median": 44.5,
+        "max": 64
+      },
+      "fit_count": 88,
+      "test_count": 66,
+      "resolved_tile_count": 5,
+      "identification": {
+        "calibration_active_terms": {
+          "D_term": 88
+        },
+        "test_active_terms": {
+          "D_term": 66
+        },
+        "interpretation": "max form may select a boundary; inactive coefficients are not identified by this data",
+        "inactive_b_interval_ms_per_slot": [
+          0,
+          0.004095402377913395
+        ],
+        "flat_r_interval": [
+          0,
+          0.43243243243243246
+        ],
+        "interval_boundary": "holding fitted a and c fixed, every b in this interval gives identical calibration predictions; not a confidence interval"
+      },
+      "fits_by_timing_scope": {
+        "cuda_event_ms_median": {
+          "calibration_batches_planned": [
+            1,
+            4,
+            16,
+            64
+          ],
+          "test_batches_planned": [
+            2,
+            8,
+            32
+          ],
+          "calibration_batches_observed": [
+            1,
+            4,
+            16,
+            64
+          ],
+          "test_batches_observed": [
+            2,
+            8,
+            32
+          ],
+          "calibration_batches_unmeasured": [],
+          "test_batches_unmeasured": [],
+          "calibration_snapshot_count": 88,
+          "test_snapshot_count": 66,
+          "outside_split_snapshot_count": 0,
+          "parameters": {
+            "a_ms_per_distinct_expert": 0.009470617998924725,
+            "b_ms_per_token_slot": 0.0,
+            "c_ms": 0.15326137515169716,
+            "r_token_to_expert_ratio": 0.0,
+            "fit_sse_ms2": 0.08992181397921917,
+            "candidate_kind": "pure_D",
+            "ratio_grid": {
+              "count": 860,
+              "minimum": 0.0,
+              "maximum": 8.0,
+              "construction": "calibration-only log grid plus observed D/S breakpoints and pure-S boundary"
+            },
+            "calibration_active_terms": {
+              "D_term": 88
+            },
+            "parameter_interpretation": "Effective nonnegative coefficients. A branch never active on calibration is not separately identified; the ratio is selected on a finite grid, not claimed to be a continuous global optimum."
+          },
+          "status": "fit_available",
+          "calibration_measured_ranges": {
+            "distinct_experts": [
+              8,
+              64
+            ],
+            "tokens": [
+              1,
+              148
+            ]
+          },
+          "calibration_metrics": {
+            "status": "measured_descriptive_error",
+            "snapshot_count": 88,
+            "mae_ms": 0.016859989149463028,
+            "rmse_ms": 0.031966213338748765,
+            "mean_signed_error_ms": -1.766263902812749e-17,
+            "mape_percent": 3.5120528745206423,
+            "median_absolute_percentage_error": 2.531492787896119,
+            "maximum_absolute_percentage_error": 22.004401475051615,
+            "worst_relative_point": {
+              "case_id": "b16-g6-q0",
+              "source_file": "/Users/zhaozhenyu/Desktop/毕业设计/research_S_moe_specdec/runs/olmoe_kernel_r03/measurements.jsonl",
+              "source_line": 105,
+              "batch": 16,
+              "gamma": 6,
+              "tokens": 16,
+              "distinct_experts": 54,
+              "observed_ms": 0.8521952003240585,
+              "predicted_ms": 0.6646747470936323,
+              "signed_error_ms": -0.1875204532304262,
+              "relative_error": -0.22004401475051616
+            },
+            "worst_absolute_point": {
+              "case_id": "b16-g5-q2",
+              "source_file": "/Users/zhaozhenyu/Desktop/毕业设计/research_S_moe_specdec/runs/olmoe_kernel_r03/measurements.jsonl",
+              "source_line": 104,
+              "batch": 16,
+              "gamma": 5,
+              "tokens": 36,
+              "distinct_experts": 61,
+              "observed_ms": 0.9221087992191315,
+              "predicted_ms": 0.7309690730861054,
+              "signed_error_ms": -0.1911397261330261,
+              "relative_error": -0.20728543778661343
+            },
+            "uncertainty": "No independent-system confidence interval; within-snapshot raw repetitions retained."
+          },
+          "test_metrics": {
+            "status": "measured_descriptive_error",
+            "snapshot_count": 66,
+            "mae_ms": 0.012730861492936493,
+            "rmse_ms": 0.015470165176679125,
+            "mean_signed_error_ms": 0.003402330421274903,
+            "mape_percent": 2.345059683615649,
+            "median_absolute_percentage_error": 2.1563805115467414,
+            "maximum_absolute_percentage_error": 5.763006682429076,
+            "worst_relative_point": {
+              "case_id": "b2-g5-q1",
+              "source_file": "/Users/zhaozhenyu/Desktop/毕业设计/research_S_moe_specdec/runs/olmoe_kernel_r03/measurements.jsonl",
+              "source_line": 37,
+              "batch": 2,
+              "gamma": 5,
+              "tokens": 2,
+              "distinct_experts": 15,
+              "observed_ms": 0.3133808016777039,
+              "predicted_ms": 0.295320645135568,
+              "signed_error_ms": -0.018060156542135886,
+              "relative_error": -0.05763006682429076
+            },
+            "worst_absolute_point": {
+              "case_id": "b32-g4-q2",
+              "source_file": "/Users/zhaozhenyu/Desktop/毕业设计/research_S_moe_specdec/runs/olmoe_kernel_r03/measurements.jsonl",
+              "source_line": 123,
+              "batch": 32,
+              "gamma": 4,
+              "tokens": 44,
+              "distinct_experts": 63,
+              "observed_ms": 0.7187487989664078,
+              "predicted_ms": 0.7499103090839548,
+              "signed_error_ms": 0.031161510117547087,
+              "relative_error": 0.04335521695807868
+            },
+            "uncertainty": "No independent-system confidence interval; within-snapshot raw repetitions retained."
+          },
+          "next_action": "Use held-out residuals versus actual S, D and per-expert load imbalance to decide whether alignment/launch terms need refinement; retain the same route and kernel family."
+        },
+        "wall_ms_median": {
+          "calibration_batches_planned": [
+            1,
+            4,
+            16,
+            64
+          ],
+          "test_batches_planned": [
+            2,
+            8,
+            32
+          ],
+          "calibration_batches_observed": [
+            1,
+            4,
+            16,
+            64
+          ],
+          "test_batches_observed": [
+            2,
+            8,
+            32
+          ],
+          "calibration_batches_unmeasured": [],
+          "test_batches_unmeasured": [],
+          "calibration_snapshot_count": 88,
+          "test_snapshot_count": 66,
+          "outside_split_snapshot_count": 0,
+          "parameters": {
+            "a_ms_per_distinct_expert": 0.009507723245055603,
+            "b_ms_per_token_slot": 0.0,
+            "c_ms": 0.164701781277683,
+            "r_token_to_expert_ratio": 0.0,
+            "fit_sse_ms2": 0.11528376978936719,
+            "candidate_kind": "pure_D",
+            "ratio_grid": {
+              "count": 860,
+              "minimum": 0.0,
+              "maximum": 8.0,
+              "construction": "calibration-only log grid plus observed D/S breakpoints and pure-S boundary"
+            },
+            "calibration_active_terms": {
+              "D_term": 88
+            },
+            "parameter_interpretation": "Effective nonnegative coefficients. A branch never active on calibration is not separately identified; the ratio is selected on a finite grid, not claimed to be a continuous global optimum."
+          },
+          "status": "fit_available",
+          "calibration_measured_ranges": {
+            "distinct_experts": [
+              8,
+              64
+            ],
+            "tokens": [
+              1,
+              148
+            ]
+          },
+          "calibration_metrics": {
+            "status": "measured_descriptive_error",
+            "snapshot_count": 88,
+            "mae_ms": 0.017945296808611073,
+            "rmse_ms": 0.03619451392843308,
+            "mean_signed_error_ms": -3.4063660982817304e-17,
+            "mape_percent": 3.4955466923744427,
+            "median_absolute_percentage_error": 2.56257228063443,
+            "maximum_absolute_percentage_error": 24.266819478970458,
+            "worst_relative_point": {
+              "case_id": "b16-g6-q0",
+              "source_file": "/Users/zhaozhenyu/Desktop/毕业设计/research_S_moe_specdec/runs/olmoe_kernel_r03/measurements.jsonl",
+              "source_line": 105,
+              "batch": 16,
+              "gamma": 6,
+              "tokens": 16,
+              "distinct_experts": 54,
+              "observed_ms": 0.8954052,
+              "predicted_ms": 0.6781188365106856,
+              "signed_error_ms": -0.2172863634893144,
+              "relative_error": -0.24266819478970458
+            },
+            "worst_absolute_point": {
+              "case_id": "b16-g5-q2",
+              "source_file": "/Users/zhaozhenyu/Desktop/毕业设计/research_S_moe_specdec/runs/olmoe_kernel_r03/measurements.jsonl",
+              "source_line": 104,
+              "batch": 16,
+              "gamma": 5,
+              "tokens": 36,
+              "distinct_experts": 61,
+              "observed_ms": 0.964556,
+              "predicted_ms": 0.7446728992260748,
+              "signed_error_ms": -0.21988310077392514,
+              "relative_error": -0.22796302213031192
+            },
+            "uncertainty": "No independent-system confidence interval; within-snapshot raw repetitions retained."
+          },
+          "test_metrics": {
+            "status": "measured_descriptive_error",
+            "snapshot_count": 66,
+            "mae_ms": 0.013399972332047703,
+            "rmse_ms": 0.01637359308337438,
+            "mean_signed_error_ms": 0.003946724702252318,
+            "mape_percent": 2.395198396793453,
+            "median_absolute_percentage_error": 2.2896980570976977,
+            "maximum_absolute_percentage_error": 5.895471283071467,
+            "worst_relative_point": {
+              "case_id": "b2-g5-q1",
+              "source_file": "/Users/zhaozhenyu/Desktop/毕业设计/research_S_moe_specdec/runs/olmoe_kernel_r03/measurements.jsonl",
+              "source_line": 37,
+              "batch": 2,
+              "gamma": 5,
+              "tokens": 2,
+              "distinct_experts": 15,
+              "observed_ms": 0.3265705,
+              "predicted_ms": 0.3073176299535171,
+              "signed_error_ms": -0.019252870046482906,
+              "relative_error": -0.05895471283071468
+            },
+            "worst_absolute_point": {
+              "case_id": "b32-g4-q2",
+              "source_file": "/Users/zhaozhenyu/Desktop/毕业设计/research_S_moe_specdec/runs/olmoe_kernel_r03/measurements.jsonl",
+              "source_line": 123,
+              "batch": 32,
+              "gamma": 4,
+              "tokens": 44,
+              "distinct_experts": 63,
+              "observed_ms": 0.730348,
+              "predicted_ms": 0.763688345716186,
+              "signed_error_ms": 0.03334034571618605,
+              "relative_error": 0.04564994456914519
+            },
+            "uncertainty": "No independent-system confidence interval; within-snapshot raw repetitions retained."
+          },
+          "next_action": "Use held-out residuals versus actual S, D and per-expert load imbalance to decide whether alignment/launch terms need refinement; retain the same route and kernel family."
+        },
+        "profile_kernel_sum_ms": {
+          "calibration_batches_planned": [
+            1,
+            4,
+            16,
+            64
+          ],
+          "test_batches_planned": [
+            2,
+            8,
+            32
+          ],
+          "calibration_batches_observed": [
+            1,
+            4,
+            16,
+            64
+          ],
+          "test_batches_observed": [
+            2,
+            8,
+            32
+          ],
+          "calibration_batches_unmeasured": [],
+          "test_batches_unmeasured": [],
+          "calibration_snapshot_count": 88,
+          "test_snapshot_count": 66,
+          "outside_split_snapshot_count": 0,
+          "parameters": {
+            "a_ms_per_distinct_expert": 0.008768444118697582,
+            "b_ms_per_token_slot": 0.003833475492400366,
+            "c_ms": 0.0,
+            "r_token_to_expert_ratio": 0.4371899325019329,
+            "fit_sse_ms2": 0.010195754673308948,
+            "candidate_kind": "max_D_S",
+            "ratio_grid": {
+              "count": 860,
+              "minimum": 0.0,
+              "maximum": 8.0,
+              "construction": "calibration-only log grid plus observed D/S breakpoints and pure-S boundary"
+            },
+            "calibration_active_terms": {
+              "D_term": 87,
+              "S_term": 1
+            },
+            "parameter_interpretation": "Effective nonnegative coefficients. A branch never active on calibration is not separately identified; the ratio is selected on a finite grid, not claimed to be a continuous global optimum."
+          },
+          "status": "fit_available",
+          "calibration_measured_ranges": {
+            "distinct_experts": [
+              8,
+              64
+            ],
+            "tokens": [
+              1,
+              148
+            ]
+          },
+          "calibration_metrics": {
+            "status": "measured_descriptive_error",
+            "snapshot_count": 88,
+            "mae_ms": 0.00798686349307945,
+            "rmse_ms": 0.01076386773238732,
+            "mean_signed_error_ms": 0.002711938202952934,
+            "mape_percent": 9.523473290702478,
+            "median_absolute_percentage_error": 1.3435392031177902,
+            "maximum_absolute_percentage_error": 59.317631046060995,
+            "worst_relative_point": {
+              "case_id": "b1-g2-q1",
+              "source_file": "/Users/zhaozhenyu/Desktop/毕业设计/research_S_moe_specdec/runs/olmoe_kernel_r03/measurements.jsonl",
+              "source_line": 6,
+              "batch": 1,
+              "gamma": 2,
+              "tokens": 1,
+              "distinct_experts": 8,
+              "observed_ms": 0.04403,
+              "predicted_ms": 0.07014755294958065,
+              "signed_error_ms": 0.026117552949580652,
+              "relative_error": 0.5931763104606099
+            },
+            "worst_absolute_point": {
+              "case_id": "b1-g2-q1",
+              "source_file": "/Users/zhaozhenyu/Desktop/毕业设计/research_S_moe_specdec/runs/olmoe_kernel_r03/measurements.jsonl",
+              "source_line": 6,
+              "batch": 1,
+              "gamma": 2,
+              "tokens": 1,
+              "distinct_experts": 8,
+              "observed_ms": 0.04403,
+              "predicted_ms": 0.07014755294958065,
+              "signed_error_ms": 0.026117552949580652,
+              "relative_error": 0.5931763104606099
+            },
+            "uncertainty": "No independent-system confidence interval; within-snapshot raw repetitions retained."
+          },
+          "test_metrics": {
+            "status": "measured_descriptive_error",
+            "snapshot_count": 66,
+            "mae_ms": 0.002433199739973978,
+            "rmse_ms": 0.003120152002591591,
+            "mean_signed_error_ms": 0.00011088890256979169,
+            "mape_percent": 0.8571970180715766,
+            "median_absolute_percentage_error": 0.5505541393851253,
+            "maximum_absolute_percentage_error": 4.139103659676272,
+            "worst_relative_point": {
+              "case_id": "b2-g1-q2",
+              "source_file": "/Users/zhaozhenyu/Desktop/毕业设计/research_S_moe_specdec/runs/olmoe_kernel_r03/measurements.jsonl",
+              "source_line": 26,
+              "batch": 2,
+              "gamma": 1,
+              "tokens": 3,
+              "distinct_experts": 20,
+              "observed_ms": 0.182941,
+              "predicted_ms": 0.17536888237395162,
+              "signed_error_ms": -0.007572117626048369,
+              "relative_error": -0.04139103659676272
+            },
+            "worst_absolute_point": {
+              "case_id": "b2-g1-q2",
+              "source_file": "/Users/zhaozhenyu/Desktop/毕业设计/research_S_moe_specdec/runs/olmoe_kernel_r03/measurements.jsonl",
+              "source_line": 26,
+              "batch": 2,
+              "gamma": 1,
+              "tokens": 3,
+              "distinct_experts": 20,
+              "observed_ms": 0.182941,
+              "predicted_ms": 0.17536888237395162,
+              "signed_error_ms": -0.007572117626048369,
+              "relative_error": -0.04139103659676272
+            },
+            "uncertainty": "No independent-system confidence interval; within-snapshot raw repetitions retained."
+          },
+          "next_action": "Use held-out residuals versus actual S, D and per-expert load imbalance to decide whether alignment/launch terms need refinement; retain the same route and kernel family."
+        }
+      },
+      "timing_descriptions": {
+        "event_ms": {
+          "count": 154,
+          "min": 0.206836798787117,
+          "median": 0.5712975963950158,
+          "max": 0.9221087992191315
+        },
+        "wall_ms": {
+          "count": 154,
+          "min": 0.2182865,
+          "median": 0.584154625,
+          "max": 0.964556
+        },
+        "profile_kernel_sum_ms": {
+          "count": 154,
+          "min": 0.04403,
+          "median": 0.388407,
+          "max": 0.574427
+        },
+        "wall_over_event": {
+          "count": 154,
+          "min": 1.01522605353281,
+          "median": 1.0223651775309697,
+          "max": 1.0596653961316047
+        },
+        "profile_over_event": {
+          "count": 154,
+          "min": 0.1957303859775624,
+          "median": 0.6736286591215459,
+          "max": 0.7730352026702701
+        }
+      },
+      "profile_cache_metadata_counts": {
+        "False": 154
+      },
+      "profile_target_boundary": "one separately profiled call per case; not the five-repeat timing median and not an independent system repeat"
+    }
+  },
+  "model_comparison_rule": "all models fit the same calibration snapshots, equal weights, squared-error objective; holdout is untouched",
+  "legacy_profile_no_turnover_assertion": true,
+  "boundaries": [
+    "Single real BF16 OLMoE expert layer; synthetic unit-RMS normal activations.",
+    "Top-k weights are uniform unless supplied; route ID replay may be exact or histogram-realized, as grouped below.",
+    "Histogram replay preserves expert counts and D but loses token co-occurrence and rank ordering.",
+    "CUDA-event time is a stream interval including possible host launch gaps; it is not a sum of GPU kernel durations.",
+    "No router, attention, drafter, scheduler, end-to-end latency or task quality is modeled.",
+    "a, b and c are effective local cost coefficients; a is not a direct HBM-bandwidth measurement.",
+    "Cache turnover is a controlled unrelated-buffer operation, not an exact reconstruction of layer-to-layer cache state.",
+    "Repeat/call timings share a process and snapshot; errors are descriptive, with no independent-system confidence interval.",
+    "The max-form is a hypothesis, not an established causal decomposition; residual structure can reflect omitted load imbalance, alignment, and launch effects.",
+    "Predictions use measured D; this holdout tests D,S-to-time cost, not the independent route-occupancy prediction of D.",
+    "Profiler sums come from separate calls with their own cache metadata; event/profile gaps cannot isolate host launch time. The legacy r03 profiler did not repeat turnover when explicitly asserted by the analysis flag.",
+    "Tile residual summaries are descriptive, not a causal attribution or a newly selected kernel configuration.",
+    "An inactive S branch does not establish zero compute cost; the fitted intercept is for this layer/timing boundary, not full-model c0."
+  ],
+  "analysis_code_sha256": "991dc1c83e686c7ecb7144d6a2d607ebf441368a472b61993d474a7df4510921",
+  "figures": [
+    "kernel_cost_validation_161b773f.pdf",
+    "kernel_cost_validation_161b773f.tex",
+    "kernel_cost_validation_161b773f.png",
+    "kernel_cost_validation_161b773f.svg",
+    "kernel_cost_residuals_161b773f.pdf",
+    "kernel_cost_residuals_161b773f.tex",
+    "kernel_cost_residuals_161b773f.png",
+    "kernel_cost_residuals_161b773f.svg",
+    "kernel_timing_scopes_161b773f.pdf",
+    "kernel_timing_scopes_161b773f.tex",
+    "kernel_timing_scopes_161b773f.png",
+    "kernel_timing_scopes_161b773f.svg",
+    "kernel_parameter_identification_161b773f.pdf",
+    "kernel_parameter_identification_161b773f.tex",
+    "kernel_parameter_identification_161b773f.png",
+    "kernel_parameter_identification_161b773f.svg"
+  ]
+}

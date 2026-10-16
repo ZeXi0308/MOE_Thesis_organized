@@ -1,0 +1,242 @@
+{
+  "schema_version": 1,
+  "checked_on": "2026-10-16",
+  "models": {
+    "olmoe": {
+      "repo": "allenai/OLMoE-1B-7B-0924-Instruct",
+      "revision": "7f1c97f440f06ce36705e4f2b843edb5925f4498",
+      "path": "/root/autodl-tmp/moe-research-20261002/model",
+      "experts": 64,
+      "top_k": 8,
+      "layers": 16,
+      "hidden_size": 2048,
+      "expert_intermediate_size": 1024,
+      "runtime_renormalize": false,
+      "bf16_routed_weight_bytes_per_expert": 12582912,
+      "source": "runs/olmoe_model_smoke_r02/model_smoke.json installation; existing checkpoint identity from research_C_format_sched/runs/olmoe_checkpoint",
+      "status": "complete_checkpoint_and_native_model_smoke_passed",
+      "memory_plan": {
+        "status": "planned_unprofiled_for_target_workload",
+        "gpu_memory_utilization": {
+          "bf16": 0.35,
+          "fp8": 0.35
+        },
+        "estimated_budget_gib": 33.2395,
+        "bf16_checkpoint_tensor_payload_bytes": 13838323712,
+        "bf16_checkpoint_tensor_payload_gib": 12.887943,
+        "checkpoint_payload_semantics": "Safetensors index total_size, all model tensors, not shard/header bytes and not measured runtime residency.",
+        "fp8_runtime_weight_bytes": null,
+        "fp8_weight_status": "Online quantization of the same BF16 checkpoint; retained BF16 tensors, scales, padding, backend conversion and peak allocations must be profiled, not assumed to equal half the checkpoint.",
+        "kv_estimate": {
+          "status": "analytic_payload_only_unprofiled",
+          "kind": "MHA, separate K and V",
+          "geometry": {
+            "attention_layers": 16,
+            "kv_heads": 16,
+            "head_dim": 128,
+            "separate_k_and_v": true
+          },
+          "cache_dtype": "bfloat16",
+          "dtype_bytes": 2,
+          "bytes_per_token_all_attention_layers": 131072,
+          "target_cached_tokens": 139264,
+          "payload_bytes": 18253611008,
+          "payload_gib": 17.0,
+          "formula": "2(K,V) * 16 layers * 16 KV heads * 128 head_dim * 2 bytes * 139264 tokens"
+        },
+        "bf16_payload_plus_target_kv_gib": 29.887943,
+        "remaining_budget_before_runtime_overheads_gib": 3.351557,
+        "rationale": "0.35 fits the BF16 index payload plus estimated target KV with about 3.35 GiB left for runtime allocations. r05 eager at a shorter context exposed about 20.05 GiB KV capacity under 0.35; the longer target and graphs remain unprofiled, so this is not a capacity guarantee. This 0.35 value is provisional for 2176-token contexts and must be revisited if the energy pilot requires longer outputs.",
+        "sources": [
+          {
+            "path": "../research_C_format_sched/runs/checkpoint_probe/olmoe_bf16/model.safetensors.index.json",
+            "sha256": "0e2e1e0d8d357ac7af817cff28410c3dbad398f060c517a433e4076b2aae5579",
+            "field": "metadata.total_size"
+          },
+          {
+            "path": "../research_C_format_sched/runs/checkpoint_probe/olmoe_bf16/config.json",
+            "sha256": "42ea6f5fe31e9243290ba3c348a4ad615b88a6fbc6e10544e21a87b6dff5da6c"
+          }
+        ]
+      }
+    },
+    "qwen3": {
+      "repo": "Qwen/Qwen3-30B-A3B",
+      "revision": "ad44e777bcd18fa416d9da3bd8f70d33ebb85d39",
+      "path": "/root/autodl-tmp/research_C_format_sched/checkpoints/qwen3_bf16_ad44e777",
+      "experts": 128,
+      "top_k": 8,
+      "layers": 48,
+      "hidden_size": 2048,
+      "expert_intermediate_size": 768,
+      "status": "other_project_active_download_reused_read_only_when_complete",
+      "source": "research_C_format_sched/configs/models.json; checkpoint completeness and hashes must be checked before use",
+      "memory_plan": {
+        "status": "planned_unprofiled_for_target_workload",
+        "gpu_memory_utilization": {
+          "bf16": 0.85,
+          "fp8": 0.85
+        },
+        "estimated_budget_gib": 80.7245,
+        "bf16_checkpoint_tensor_payload_bytes": 61064245248,
+        "bf16_checkpoint_tensor_payload_gib": 56.87051,
+        "checkpoint_payload_semantics": "Safetensors index total_size, all model tensors, not shard/header bytes and not measured runtime residency.",
+        "fp8_runtime_weight_bytes": null,
+        "fp8_weight_status": "Online quantization of the same BF16 checkpoint; retained BF16 tensors, scales, padding, backend conversion and peak allocations must be profiled, not assumed to equal half the checkpoint.",
+        "kv_estimate": {
+          "status": "analytic_payload_only_unprofiled",
+          "kind": "GQA, separate K and V",
+          "geometry": {
+            "attention_layers": 48,
+            "kv_heads": 4,
+            "head_dim": 128,
+            "separate_k_and_v": true
+          },
+          "cache_dtype": "bfloat16",
+          "dtype_bytes": 2,
+          "bytes_per_token_all_attention_layers": 98304,
+          "target_cached_tokens": 139264,
+          "payload_bytes": 13690208256,
+          "payload_gib": 12.75,
+          "formula": "2(K,V) * 48 layers * 4 KV heads * 128 head_dim * 2 bytes * 139264 tokens"
+        },
+        "bf16_payload_plus_target_kv_gib": 69.62051,
+        "remaining_budget_before_runtime_overheads_gib": 11.10399,
+        "rationale": "0.35 cannot hold the 56.87 GiB BF16 tensor payload alone. 0.85 leaves about 11.10 GiB after that payload and 12.75 GiB target KV for startup, activations, graph pools and backend workspaces; these allocations and online-FP8 conversion peaks still require profiling.",
+        "sources": [
+          {
+            "path": "../research_C_format_sched/runs/checkpoint_probe/qwen3_bf16/model.safetensors.index.json",
+            "sha256": "df0d481ec595c55a0ba58426d517390c6214a566ec4ff1c8fc4bbce9f57b3c24",
+            "field": "metadata.total_size"
+          },
+          {
+            "path": "../research_C_format_sched/runs/checkpoint_probe/qwen3_bf16/config.json",
+            "sha256": "2850ddb3bf7aecad20b611e2d44f3077fc8193f4827c93beddd4c02ad63c2297"
+          }
+        ]
+      },
+      "bf16_routed_weight_bytes_per_expert": 9437184
+    },
+    "deepseek_v2_lite": {
+      "repo": "deepseek-ai/DeepSeek-V2-Lite",
+      "revision": "604d5664dddd88a0433dbae533b7fe9472482de0",
+      "path": "/dev/shm/research_K_expert_skip/deepseek_v2_lite_604d5664",
+      "experts": 64,
+      "top_k": 6,
+      "layers": 27,
+      "moe_layers": 26,
+      "shared_experts": 2,
+      "first_k_dense_replace": 1,
+      "hidden_size": 2048,
+      "expert_intermediate_size": 1408,
+      "config_norm_topk_prob": false,
+      "status": "downloading_pinned_checkpoint_to_volatile_ram_staging_not_load_ready",
+      "source": "https://huggingface.co/deepseek-ai/DeepSeek-V2-Lite/blob/604d5664dddd88a0433dbae533b7fe9472482de0/config.json",
+      "note": "E/k=64/6=10.67 for routed experts, not the E=256/k=8 illustrative DeepSeek-V3 shape. Shared experts are excluded from skipping and reported separately.",
+      "memory_plan": {
+        "status": "planned_unprofiled_for_target_workload",
+        "gpu_memory_utilization": {
+          "bf16": 0.55,
+          "fp8": 0.55
+        },
+        "estimated_budget_gib": 52.2335,
+        "bf16_checkpoint_tensor_payload_bytes": 31412968448,
+        "bf16_checkpoint_tensor_payload_gib": 29.255607,
+        "checkpoint_payload_semantics": "Safetensors index total_size, all model tensors, not shard/header bytes and not measured runtime residency.",
+        "fp8_runtime_weight_bytes": null,
+        "fp8_weight_status": "Online quantization of the same BF16 checkpoint; retained BF16 tensors, scales, padding, backend conversion and peak allocations must be profiled, not assumed to equal half the checkpoint.",
+        "kv_estimate": {
+          "status": "analytic_payload_only_unprofiled",
+          "kind": "MLA compressed latent plus RoPE key, one cache head",
+          "geometry": {
+            "attention_layers": 27,
+            "kv_heads": 1,
+            "kv_lora_rank": 512,
+            "qk_rope_head_dim": 64,
+            "cached_head_size": 576,
+            "separate_k_and_v": false
+          },
+          "cache_dtype": "bfloat16",
+          "dtype_bytes": 2,
+          "bytes_per_token_all_attention_layers": 31104,
+          "target_cached_tokens": 139264,
+          "payload_bytes": 4331667456,
+          "payload_gib": 4.034179688,
+          "formula": "27 layers * 1 latent head * (512 latent + 64 RoPE) * 2 bytes * 139264 tokens; no extra K/V factor"
+        },
+        "bf16_payload_plus_target_kv_gib": 33.289786,
+        "remaining_budget_before_runtime_overheads_gib": 18.943714,
+        "rationale": "0.55 reserves about 18.94 GiB beyond the 29.26 GiB BF16 tensor payload and 4.03 GiB compressed MLA KV estimate. This intentionally leaves room for unprofiled MLA prefill temporaries, backend-derived weights, graph pools and other runtime allocations; it is not a tuned minimum.",
+        "sources": [
+          {
+            "path": "ref_july/deepseek_v2_lite_604d5664/model.safetensors.index.json",
+            "sha256": "d2cdb2f325f6682cf3ad1ad2526a9f979d857390b579380c0331d975136e0acf",
+            "field": "metadata.total_size"
+          },
+          {
+            "url": "https://huggingface.co/deepseek-ai/DeepSeek-V2-Lite/raw/604d5664dddd88a0433dbae533b7fe9472482de0/config.json",
+            "sha256": "f346286b0f1c8b044252fd54cb4fa78b9fab6472a6e8bebb9edfe03d414ea03d"
+          },
+          {
+            "path": "ref_july/deepseek_v2_lite_604d5664/index_source.json",
+            "note": "Official ModelScope index; all four mirrored weight SHA256 match pinned HF source."
+          }
+        ]
+      },
+      "bf16_routed_weight_bytes_per_expert": 17301504,
+      "storage": {
+        "kind": "tmpfs_ram_staging",
+        "volatile": true,
+        "persistence_note": "Checkpoint payload may disappear after reboot or container shutdown; verify complete shards and hashes before model startup.",
+        "persistent_metadata_dir": "/root/autodl-tmp/research_K_expert_skip/models/deepseek_v2_lite_604d5664",
+        "persistent_metadata_scope": "small config/index/tokenizer assets and metadata only; do not assume a complete persistent weight checkpoint",
+        "persistent_source_and_migration_dir": "/root/autodl-tmp/research_K_expert_skip/runs/deepseek_source_shm_r03",
+        "download_receipt": "/root/autodl-tmp/research_K_expert_skip/runs/deepseek_mirror_20261016_045110_30370/source.json"
+      }
+    }
+  },
+  "formats_on_pro6000": [
+    "bf16",
+    "fp8_from_same_bf16_checkpoint_via_vllm_online_quantization"
+  ],
+  "format_comparison_contract": "Performance and quality within a format load the same checkpoint and identical quantization mode; no extra norm rescaling is introduced. Actual installed tensor sizes, routing normalization and backend are recorded per run.",
+  "second_gpu": {
+    "requested": "RTX 5090",
+    "connection_status": "user_confirmed_unavailable_2026-10-16",
+    "decision": "Proceed with the available PRO6000 BF16/FP8 main comparison; 5090 replication is unavailable, not pending approval."
+  },
+  "memory_planning_contract": {
+    "status": "planned_unprofiled; recommendations are metadata, not runner defaults or a launch instruction",
+    "gpu": "NVIDIA RTX PRO 6000 Blackwell Server Edition, nominal 96 GB",
+    "planning_total_memory_gib_approx": 94.97,
+    "planning_total_memory_source": "runs/graph_resume_r05/stdout.log: vLLM reports 94.97 GiB total and 33.24 GiB requested at utilization 0.35; rounded runtime denominator is used instead of equating nominal 96 GB with 96 GiB.",
+    "target_workload": {
+      "tensor_parallel_size": 1,
+      "concurrent_requests": 64,
+      "prefix_tokens_per_request": 128,
+      "max_output_tokens_per_request": 2048,
+      "max_context_tokens_per_request": 2176,
+      "total_cached_tokens": 139264,
+      "required_max_model_len_at_least": 2176,
+      "max_num_seqs": 64,
+      "assume_prefix_sharing": false
+    },
+    "format_budget_policy": "For each model, BF16 and FP8 use the same total gpu_memory_utilization budget; this does not force identical KV capacity. If profiling requires a budget change, apply it to both formats and every compared policy.",
+    "kv_dtype_policy": "With dtype=bfloat16 and kv_cache_dtype=auto, vLLM resolves the cache to bfloat16 even when weights use online FP8; no KV compression is assumed from weight quantization.",
+    "estimate_boundaries": [
+      "KV counts include every attention layer, including DeepSeek layer0 whose MLP is dense; DeepSeek uses the compressed MLA cache, not expanded per-head K/V.",
+      "Estimates exclude runtime weight-layout changes, graph pools, activations/logits, MLA prefill expansion, backend workspaces, allocator fragmentation, page tables, and spare KV blocks.",
+      "KV payload is before block rounding and backend padding. 2176 tokens is divisible by block sizes 16/32/64/128; other cache block sizes require per-request rounding.",
+      "Checkpoint payload plus KV is an accounting estimate, not a proven fit. Online-FP8 load/conversion peaks and actual usable memory remain unprofiled.",
+      "Verify loaded model, KV blocks, peak memory, free device memory and graph capture under the exact launch arguments. vLLM startup profiling determines whether all 64 target contexts fit without preemption.",
+      "Existing runner memory and max_model_len defaults are unchanged; these recommendations require explicit launch arguments.",
+      "Longer outputs require recalculating 64 * (prefix_tokens + output_tokens) and per-request page rounding. In particular, OLMoE 0.35 is provisional for this scenario, not a final memory constraint."
+    ],
+    "mla_cache_sources": [
+      "https://raw.githubusercontent.com/vllm-project/vllm/v0.26.0/vllm/model_executor/layers/attention/mla_attention.py",
+      "https://raw.githubusercontent.com/vllm-project/vllm/v0.26.0/vllm/v1/kv_cache_interface.py",
+      "https://raw.githubusercontent.com/vllm-project/vllm/v0.26.0/vllm/utils/torch_utils.py"
+    ],
+    "target_scope": "This static scenario covers only B=64 with prefix128 + output2048. It does not freeze output length or final memory fractions. The graph pilot will set a common energy-measurement length targeting at least 3 seconds; if output exceeds 2048, recompute KV and profile again before fixing budgets."
+  }
+}

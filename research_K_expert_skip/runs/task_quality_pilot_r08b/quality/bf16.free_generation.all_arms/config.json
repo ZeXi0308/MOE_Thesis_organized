@@ -1,0 +1,257 @@
+{
+  "args": {
+    "model": "/root/autodl-tmp/moe-research-20261002/model",
+    "output": "/root/autodl-tmp/research_K_expert_skip/runs/task_quality_pilot_r08b/quality/bf16.free_generation.all_arms",
+    "arms_file": "/root/autodl-tmp/research_K_expert_skip/runs/task_quality_pilot_r08b/quality/arms/all_arms.json",
+    "batch": 8,
+    "max_tokens": 256,
+    "max_model_len": 4096,
+    "dtype": "bfloat16",
+    "quantization": null,
+    "gpu_memory_utilization": 0.35,
+    "seed": 1701,
+    "trust_remote_code": false,
+    "prompts": "/root/autodl-tmp/research_K_expert_skip/datasets/free_generation_validation_r01/prompts.jsonl",
+    "limit": 200,
+    "prompt_tokens": 128,
+    "temperature": 0.0,
+    "top_p": 1.0
+  },
+  "model_kwargs": {
+    "model": "/root/autodl-tmp/moe-research-20261002/model",
+    "dtype": "bfloat16",
+    "quantization": null,
+    "trust_remote_code": false,
+    "tensor_parallel_size": 1,
+    "enforce_eager": true,
+    "compilation_config": {
+      "mode": 0,
+      "cudagraph_mode": "NONE"
+    },
+    "worker_cls": "skip_worker.ExpertSkipWorker",
+    "moe_backend": "triton",
+    "enable_prefix_caching": false,
+    "enable_chunked_prefill": false,
+    "async_scheduling": false,
+    "max_model_len": 4096,
+    "max_num_seqs": 8,
+    "max_num_batched_tokens": 32768,
+    "gpu_memory_utilization": 0.35,
+    "seed": 1701,
+    "disable_log_stats": true
+  },
+  "versions": {
+    "vllm": "0.26.0"
+  },
+  "arm_source": {
+    "path": "/root/autodl-tmp/research_K_expert_skip/runs/task_quality_pilot_r08b/quality/arms/all_arms.json",
+    "sha256": "67670e4716f1e2b3b532f971e68360f53ddf7a79dabc8d7deaffe341e0a711af",
+    "payload": {
+      "purpose": "Same policy parameters and native reduced-k execution as default_arms.json; dense identity/counters added for common-trajectory logical-byte denominator.",
+      "arms": [
+        {
+          "name": "native",
+          "spec": null
+        },
+        {
+          "name": "dense",
+          "spec": {
+            "mode": "dense",
+            "backend": "triton"
+          }
+        },
+        {
+          "name": "global_j1",
+          "spec": {
+            "mode": "global_native",
+            "drop_j": 1,
+            "count_routes": false,
+            "backend": "triton"
+          }
+        },
+        {
+          "name": "global_j2",
+          "spec": {
+            "mode": "global_native",
+            "drop_j": 2,
+            "count_routes": false,
+            "backend": "triton"
+          }
+        },
+        {
+          "name": "global_j4",
+          "spec": {
+            "mode": "global_native",
+            "drop_j": 4,
+            "count_routes": false,
+            "backend": "triton"
+          }
+        },
+        {
+          "name": "gate_low",
+          "spec": {
+            "mode": "gate",
+            "gate_threshold": 0.05,
+            "mass_budget": 0.1,
+            "backend": "triton"
+          }
+        },
+        {
+          "name": "gate_high",
+          "spec": {
+            "mode": "gate",
+            "gate_threshold": 0.15,
+            "mass_budget": 0.3,
+            "backend": "triton"
+          }
+        },
+        {
+          "name": "marginal_low",
+          "spec": {
+            "mode": "marginal",
+            "tail_rank": 4,
+            "gate_threshold": 0.05,
+            "mass_budget": 0.1,
+            "backend": "triton"
+          }
+        },
+        {
+          "name": "marginal_mid",
+          "spec": {
+            "mode": "marginal",
+            "tail_rank": 4,
+            "gate_threshold": 0.1,
+            "mass_budget": 0.2,
+            "backend": "triton"
+          }
+        },
+        {
+          "name": "marginal_high",
+          "spec": {
+            "mode": "marginal",
+            "tail_rank": 4,
+            "gate_threshold": 0.15,
+            "mass_budget": 0.3,
+            "backend": "triton"
+          }
+        }
+      ]
+    }
+  },
+  "arms": [
+    [
+      "native",
+      null
+    ],
+    [
+      "dense",
+      {
+        "mode": "dense",
+        "drop_j": 1,
+        "tail_rank": 4,
+        "gate_threshold": 0.05,
+        "mass_budget": 1.0,
+        "backend": "triton",
+        "rank_end": null,
+        "gate_min": 0.0
+      }
+    ],
+    [
+      "global_j1",
+      {
+        "mode": "global_native",
+        "drop_j": 1,
+        "count_routes": false,
+        "backend": "triton"
+      }
+    ],
+    [
+      "global_j2",
+      {
+        "mode": "global_native",
+        "drop_j": 2,
+        "count_routes": false,
+        "backend": "triton"
+      }
+    ],
+    [
+      "global_j4",
+      {
+        "mode": "global_native",
+        "drop_j": 4,
+        "count_routes": false,
+        "backend": "triton"
+      }
+    ],
+    [
+      "gate_low",
+      {
+        "mode": "gate",
+        "drop_j": 1,
+        "tail_rank": 4,
+        "gate_threshold": 0.05,
+        "mass_budget": 0.1,
+        "backend": "triton",
+        "rank_end": null,
+        "gate_min": 0.0
+      }
+    ],
+    [
+      "gate_high",
+      {
+        "mode": "gate",
+        "drop_j": 1,
+        "tail_rank": 4,
+        "gate_threshold": 0.15,
+        "mass_budget": 0.3,
+        "backend": "triton",
+        "rank_end": null,
+        "gate_min": 0.0
+      }
+    ],
+    [
+      "marginal_low",
+      {
+        "mode": "marginal",
+        "drop_j": 1,
+        "tail_rank": 4,
+        "gate_threshold": 0.05,
+        "mass_budget": 0.1,
+        "backend": "triton",
+        "rank_end": null,
+        "gate_min": 0.0
+      }
+    ],
+    [
+      "marginal_mid",
+      {
+        "mode": "marginal",
+        "drop_j": 1,
+        "tail_rank": 4,
+        "gate_threshold": 0.1,
+        "mass_budget": 0.2,
+        "backend": "triton",
+        "rank_end": null,
+        "gate_min": 0.0
+      }
+    ],
+    [
+      "marginal_high",
+      {
+        "mode": "marginal",
+        "drop_j": 1,
+        "tail_rank": 4,
+        "gate_threshold": 0.15,
+        "mass_budget": 0.3,
+        "backend": "triton",
+        "rank_end": null,
+        "gate_min": 0.0
+      }
+    ]
+  ],
+  "target_prompts": 200,
+  "exploratory_subset": false,
+  "prompt_file_sha256": "cae0ba4ca7030c74cc9a5f7602cbebb1039c70d9f63ce23af0a7a7fa9bd24f2d",
+  "semantics": "Raw prompt completion, no implicit chat template; EOS enabled; first predicted token is prefill. Natural variable output length and decode batch.",
+  "normalization": "preserve model router defaults; logical route bytes are not measured DRAM traffic"
+}

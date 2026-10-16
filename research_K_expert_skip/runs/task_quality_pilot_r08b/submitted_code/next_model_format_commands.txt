@@ -1,0 +1,219 @@
+OLMoE FP8 / DeepSeek-V2-Lite BF16+FP8 / Qwen3-30B-A3B BF16+FP8 接续命令
+本地编写于 2026-10-16；未部署、未提交 GPU；下载完成与GPU加载通过分别记录。
+
+执行顺序：当前 r07 终态 → 已安排的任务/自然生成 r08 → 从下面选一个模型/格式。
+主会话在现有作业终态后统一同步新代码/configs/data；不能向运行中的 livecode 覆盖。
+以下 GPU 命令均经过既有 run_locked.py，每次只提交一个组合，不启动五组合循环。
+run_stage_r06.py 的阶段顺序可复用，但该旧 driver 硬编码 OLMoE BF16 路径、r05 traces，
+并自动再跑 FP8/旧 graph pilot；不要直接把它用于新模型。本清单复用其实际阶段入口。
+
+固定资源与当前依赖
+- OLMoE: /root/autodl-tmp/moe-research-20261002/model
+  固定 7f1c97f440f06ce36705e4f2b843edb5925f4498；BF16/FP8 同预算 .35。
+  已有 r06 在线 FP8 load、B1/B8 短 bench/身份结果；FP8专用原生调优和graph身份尚未运行。
+- DeepSeek: /dev/shm/research_K_expert_skip/deepseek_v2_lite_604d5664
+  固定 604d5664dddd88a0433dbae533b7fe9472482de0；BF16/FP8 同预算 .55。
+  已准备就绪：最新 runs/deepseek_mirror_20261016_045110_30370/source.json 为 WEIGHTS_COMPLETE，
+  4/4片逐SHA匹配原HF固定revision，小资产无缺失/大小异常，下载PID已退出；GPU模型加载未运行。
+  RAM 易失，重启/容器重建后不能沿用此前存在性。persistent models/ 仅小metadata，
+  不能把 persistent 路径当完整checkpoint。首MoE层=1，k=6，shared experts不进入调优/跳过。
+- Qwen checkpoint 原件: /root/autodl-tmp/research_C_format_sched/checkpoints/qwen3_bf16_ad44e777
+  固定 ad44e777bcd18fa416d9da3bd8f70d33ebb85d39；BF16/FP8 同预算 .85。
+  依赖 C 自有下载最终完成且16片与其固定source的size/SHA核对完成；这里只读复用。
+  C 目录缺 tokenizer 的处理见下一段 K runtime view；禁止向 C 补文件、覆盖或终止其下载。
+  首MoE层=0，k=8，专家宽768，不能拿 dense intermediate_size=6144 调优。
+
+以上 .35/.55/.85 是未profile的初始总显存预算，沿用 configs/models.json；同模型两格式及
+所有比较臂相同预算。实际 vLLM profiling 决定是否容纳权重、KV、MLA workspace和graph池。
+若必须改预算，改变该模型两格式全部比较，不只给有利的一臂加显存。
+96GB卡实际可见约94.97GiB。已有 B64×(prefix128+output2048) KV payload估计：
+OLMoE 17GiB、Qwen 12.75GiB、DeepSeek compressed MLA 4.034GiB；均不含runtime overhead。
+FP8权重不自动减半BF16 KV；更长输出要重新估计/profile。
+
+0. Qwen CPU-only K runtime view（仅在 C 已完成且固定分片hash已核对后执行）
+此段不获取GPU、不下载，不写C；复制K内已验证的小tokenizer/config，权重只建符号链接。
+K tokenizer 来源：ref_july/tokenizers/qwen3_bf16_ad44e777/source.json，已固定官方rev核对。
+view 已存在则停下，复用先前完整view或给新的K目录名；此命令不覆盖已有view。
+
+cd /root/autodl-tmp/research_K_expert_skip
+/root/miniconda3/bin/python - <<'PY'
+import hashlib, json, shutil
+from pathlib import Path
+source = Path('/root/autodl-tmp/research_C_format_sched/checkpoints/qwen3_bf16_ad44e777')
+tokenizer = Path('/root/autodl-tmp/research_K_expert_skip/ref_july/tokenizers/qwen3_bf16_ad44e777')
+view = Path('/root/autodl-tmp/research_K_expert_skip/models/qwen3_bf16_ad44e777_runtime')
+index = source / 'model.safetensors.index.json'
+assert hashlib.sha256(index.read_bytes()).hexdigest() == 'df0d481ec595c55a0ba58426d517390c6214a566ec4ff1c8fc4bbce9f57b3c24'
+shards = sorted(set(json.loads(index.read_text())['weight_map'].values()))
+assert len(shards) == 16 and all(Path(name).name == name for name in shards)
+missing = [name for name in shards if not (source / name).is_file()]
+assert not missing, ('checkpoint not complete; do not start GPU', missing)
+assets = json.loads((tokenizer / 'source.json').read_text())
+assert assets['revision'] == 'ad44e777bcd18fa416d9da3bd8f70d33ebb85d39'
+assert all((tokenizer / name).is_file() for name in assets['files'])
+view.mkdir(parents=True, exist_ok=False)
+for name in assets['files']:
+    shutil.copy2(tokenizer / name, view / name)
+shutil.copy2(tokenizer / 'source.json', view / 'tokenizer_source.json')
+for name in ['model.safetensors.index.json', *shards]:
+    (view / name).symlink_to(source / name)
+if (source / 'generation_config.json').is_file():
+    (view / 'generation_config.json').symlink_to(source / 'generation_config.json')
+(view / 'checkpoint_view.json').write_text(json.dumps({'checkpoint_source': str(source),
+    'tokenizer_source': str(tokenizer), 'revision': assets['revision'],
+    'weights': 'read-only reuse through symlinks; final shard SHA completion is an external prerequisite'}, indent=2))
+print(view)
+PY
+
+1. 在 bash 中先设置公共环境，然后只选下面五个选择块中的一个
+
+export K_ROOT=/root/autodl-tmp/research_K_expert_skip
+export K_PY=/root/miniconda3/bin/python
+cd "$K_ROOT"
+export HF_HUB_OFFLINE=1 HF_DATASETS_OFFLINE=1 TRANSFORMERS_OFFLINE=1
+export VLLM_ENABLE_V1_MULTIPROCESSING=0 TOKENIZERS_PARALLELISM=false
+export VLLM_USE_FLASHINFER_SAMPLER=0
+
+# 选择 A：OLMoE FP8，首次接通总超时20分钟。
+export K_LABEL=olmoe_fp8 K_FORMAT=fp8 K_MEM=0.35 K_CAP_SECONDS=1200
+export K_MODEL=/root/autodl-tmp/moe-research-20261002/model
+export K_ROLLING=datasets/wikitext2_rolling_olmoe_r01/validation/manifest.json
+
+# 选择 B：DeepSeek BF16，4片已完整；首次接通总超时30分钟，仍需RAM目录存续。
+export K_LABEL=deepseek_bf16 K_FORMAT=bf16 K_MEM=0.55 K_CAP_SECONDS=1800
+export K_MODEL=/dev/shm/research_K_expert_skip/deepseek_v2_lite_604d5664
+export K_ROLLING=datasets/wikitext2_rolling_deepseek_v2_lite_604d5664/validation/manifest.json
+
+# 选择 C：DeepSeek FP8，同一checkpoint和 .55 总预算，首次接通总超时30分钟。
+export K_LABEL=deepseek_fp8 K_FORMAT=fp8 K_MEM=0.55 K_CAP_SECONDS=1800
+export K_MODEL=/dev/shm/research_K_expert_skip/deepseek_v2_lite_604d5664
+export K_ROLLING=datasets/wikitext2_rolling_deepseek_v2_lite_604d5664/validation/manifest.json
+
+# 选择 D：Qwen BF16，K runtime view已完成，首次接通总超时40分钟。
+export K_LABEL=qwen3_bf16 K_FORMAT=bf16 K_MEM=0.85 K_CAP_SECONDS=2400
+export K_MODEL=/root/autodl-tmp/research_K_expert_skip/models/qwen3_bf16_ad44e777_runtime
+export K_ROLLING=datasets/wikitext2_rolling_qwen3_bf16_ad44e777/validation/manifest.json
+
+# 选择 E：Qwen FP8，同一K view和 .85 总预算，首次接通总超时40分钟。
+export K_LABEL=qwen3_fp8 K_FORMAT=fp8 K_MEM=0.85 K_CAP_SECONDS=2400
+export K_MODEL=/root/autodl-tmp/research_K_expert_skip/models/qwen3_bf16_ad44e777_runtime
+export K_ROLLING=datasets/wikitext2_rolling_qwen3_bf16_ad44e777/validation/manifest.json
+
+2. 首次接通：选定一个组合后运行这个共享命令
+不修改全局调优文件；此组合新输出目录保存自己的trace和原生调优配置。
+七B各16真实decode steps，仅作初始调优trace，不声称充分的F1/iid统计。
+quality9窗=1152 scored tokens/arm；B8一组+B1一组，明确只是路径pilot。
+短eager bench=3B×3臂=9格，32输出、无能耗；不是稳态TPOT/能耗主结果。
+五组合首接通总上限9600秒（2小时40分），不是承诺耗时，也不包含后续正式矩阵/PPL。
+run_locked还会检查此前RUNNING记录、GPU进程、共享锁与15小时剩余总预算；余额不够不提交。
+
+export K_NAME="${K_LABEL}_connect_r01"
+export K_OUT="$K_ROOT/runs/$K_NAME"
+"$K_PY" code/run_locked.py --name "$K_NAME" --timeout "$K_CAP_SECONDS" -- bash -c '
+set -euo pipefail
+cd "$K_ROOT"
+k_quant=()
+if [ "$K_FORMAT" = fp8 ]; then k_quant=(--quantization fp8); fi
+unset VLLM_TUNED_CONFIG_FOLDER
+mkdir -p "$K_OUT/stage_logs"
+
+"$K_PY" code/bench_decode.py --model "$K_MODEL" "${k_quant[@]}" --dtype bfloat16 \
+  --prompts datasets/wikitext2_serving_r01/validation_bench64.jsonl \
+  --output-dir "$K_OUT/native_traces" --arms native --batches 1 2 4 8 16 32 64 \
+  --traceonly --trace-steps 16 --newtokens 2 --prompt-tokens 128 --max-model-len 512 \
+  --repeats 1 --warmup-seconds 0 --gpu-memory-utilization "$K_MEM" --no-energy \
+  > "$K_OUT/stage_logs/01_native_trace.log" 2>&1
+
+"$K_PY" code/tune_moe.py --model "$K_MODEL" --quantization "$K_FORMAT" \
+  --traces "$K_OUT"/native_traces/trace_native_b*/snapshot.json \
+  --output-dir "$K_OUT/native_tuning" --batches 1 2 4 8 16 32 64 \
+  --events-per-batch 3 --rounds 5 --replays-per-sample 10 --evict-mib 256 \
+  > "$K_OUT/stage_logs/02_native_tuning.log" 2>&1
+export VLLM_TUNED_CONFIG_FOLDER="$K_OUT/native_tuning/tuned_configs"
+
+"$K_PY" code/smoke_graph.py --model "$K_MODEL" "${k_quant[@]}" --dtype bfloat16 \
+  --gpu-memory-utilization "$K_MEM" --output "$K_OUT/graph_dense.json" \
+  --spec-json "{\"mode\":\"dense\",\"backend\":\"triton\"}" \
+  > "$K_OUT/stage_logs/03_graph_dense.log" 2>&1
+"$K_PY" code/smoke_graph.py --model "$K_MODEL" "${k_quant[@]}" --dtype bfloat16 \
+  --gpu-memory-utilization "$K_MEM" --output "$K_OUT/graph_marginal.json" \
+  --spec-json "{\"mode\":\"marginal\",\"tail_rank\":4,\"gate_threshold\":0.15,\"mass_budget\":0.30,\"backend\":\"triton\"}" \
+  > "$K_OUT/stage_logs/04_graph_marginal.log" 2>&1
+
+"$K_PY" code/quality_decode.py --model "$K_MODEL" "${k_quant[@]}" --dtype bfloat16 \
+  --tokenized-windows "$K_ROLLING" --output "$K_OUT/quality_rolling_pilot.json" \
+  --batch 8 --limit-windows 9 --arms-file configs/quality_pareto.json \
+  --gpu-memory-utilization "$K_MEM" --reference-max-mib 2048 \
+  > "$K_OUT/stage_logs/05_quality_rolling.log" 2>&1
+
+"$K_PY" code/bench_decode.py --model "$K_MODEL" "${k_quant[@]}" --dtype bfloat16 \
+  --prompts datasets/wikitext2_serving_r01/validation_bench64.jsonl \
+  --output-dir "$K_OUT/eager_pilot" --arms-file configs/default_arms.json \
+  --arms native global_j4 marginal_mid --batches 1 8 32 --repeats 1 \
+  --newtokens 32 --prompt-tokens 128 --max-model-len 512 --warmup-seconds 1 \
+  --gpu-memory-utilization "$K_MEM" --no-energy \
+  > "$K_OUT/stage_logs/06_eager_pilot.log" 2>&1
+'
+
+接通结果的检查范围（已有脚本会检查，而非新增测试框架）：
+- native trace来自该模型/格式的真实select_experts且forward完成；不拿OLMoE或BF16 trace替代。
+- tune只用原生路线、真实该层权重、合成BF16 activation；首MoE层自动0/1/0。
+  FP8调用官方在线转换；BF16和FP8各自产生对应dtype文件，各自所有比较臂共同使用该文件。
+  tuning不包含router、DeepSeek shared experts、全模型service；不是service speedup。
+- graph_dense检查native/dense输出身份、eager/graph输出计数身份；graph_marginal检查相同
+  marginal_high规格的eager/graph身份；B3->bucket4、B5->bucket8排除padding计数。
+  此处没有单独证明global_native graph路径；下面性能入口对其做performance/count输出身份配对。
+- rolling检查tokenizer语义身份、每个计分位置decode、全部指定窗口token覆盖。新模型真实路径
+  及短尾执行尚未GPU验证；9窗pilot不覆盖整个split最后的短尾，完整入口会保留短尾和不足B。
+- eager pilot的native/global_native计数来自独立同输出重放，候选质量另测；无稳态收益宣称。
+
+3. 接通后性能入口：同一个组合、同一个调优目录，独立新run，单次上限30分钟
+该入口复用 bench_graph（内部调用 bench_decode），3臂×3B×1运行重复=9性能格，
+每臂性能/计数分进程；输出token哈希一致才合并。2048输出用于观察>=3秒纯decode能耗窗，
+实际window<3秒仍仅诊断。这里1次运行不是确认级重复；后续重复数由实际运行波动与余额决定。
+首轮不自动扩63格，不自动串行执行全部五组合。若首次profile失败或窗口不够长，先用该模型
+两格式共同的新显存/输出长度设定修正，再比较；不得把不足3秒窗口塞进稳态F4。
+
+export K_TUNED="$K_ROOT/runs/${K_LABEL}_connect_r01/native_tuning/tuned_configs"
+export K_PERF_NAME="${K_LABEL}_graph_pilot_r01"
+"$K_PY" code/run_locked.py --name "$K_PERF_NAME" --timeout 1800 -- bash -c '
+set -euo pipefail
+cd "$K_ROOT"
+k_quant=()
+if [ "$K_FORMAT" = fp8 ]; then k_quant=(--quantization fp8); fi
+export VLLM_TUNED_CONFIG_FOLDER="$K_TUNED"
+"$K_PY" code/bench_graph.py --model "$K_MODEL" "${k_quant[@]}" --dtype bfloat16 \
+  --prompts datasets/wikitext2_serving_r01/validation_bench64.jsonl \
+  --output-dir "$K_ROOT/runs/$K_PERF_NAME/graph_pilot" --arms-file configs/default_arms.json \
+  --arms native global_j4 marginal_mid --batches 1 8 32 --repeats 1 --newtokens 2048 \
+  --prompt-tokens 128 --max-model-len 2304 --warmup-seconds 3 \
+  --gpu-memory-utilization "$K_MEM"
+'
+
+4. 完整rolling质量入口：接通后按pilot耗时估算全split成本，再给单次最多7200秒的余额内预算
+下面没有 --limit-windows，会评估validation全部窗口、十臂全部scored tokens；不是小窗口结果。
+三模型统一B32、CPU参考logit上限4096MiB，减少完整split的比较组数；此处每请求129输出，
+Qwen参考缓存约2393MiB、DeepSeek约1613MiB（包含excluded bridge），均在该预算内。
+这是完整P128 rolling的单B质量锚点；B1/8/32的F3仍使用共同32篇配对文章协议，不能用
+此B32锚点替代三B质量—字节比较。首接通的B8九窗pilot保持不变。
+完整输出保留每窗NLL/KL与原始token行，不把window/token当独立文章或系统重复；上下文长度
+P=128起、到255，按每128个scored tokens重置。不得直接称其他标准上下文协议等价。
+
+export K_TUNED="$K_ROOT/runs/${K_LABEL}_connect_r01/native_tuning/tuned_configs"
+export K_QUALITY_NAME="${K_LABEL}_rolling_validation_r01"
+"$K_PY" code/run_locked.py --name "$K_QUALITY_NAME" --timeout 7200 -- bash -c '
+set -euo pipefail
+cd "$K_ROOT"
+k_quant=()
+if [ "$K_FORMAT" = fp8 ]; then k_quant=(--quantization fp8); fi
+export VLLM_TUNED_CONFIG_FOLDER="$K_TUNED"
+"$K_PY" code/quality_decode.py --model "$K_MODEL" "${k_quant[@]}" --dtype bfloat16 \
+  --tokenized-windows "$K_ROLLING" --output "$K_ROOT/runs/$K_QUALITY_NAME/quality.json" \
+  --batch 32 --arms-file configs/quality_pareto.json --gpu-memory-utilization "$K_MEM" \
+  --reference-max-mib 4096
+'
+
+留出test入口：保持已选定配置，把K_ROLLING末尾 validation/manifest.json 换成 test/manifest.json，
+并把K_QUALITY_NAME换成 ${K_LABEL}_rolling_test_r01 后运行同一命令。不能用test再选阈值/调参。
+7200秒是上限，不是剩余预算承诺：主线程依据pilot均值与当前已持卡时长决定是否执行全十臂
+完整split，run_locked不允许超过15小时总余额。这里没有自动提交或排队任何作业。

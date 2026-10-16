@@ -1,0 +1,571 @@
+{
+  "status": "COMPLETE",
+  "output": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09b",
+  "budget_seconds": 7170,
+  "config": {
+    "schema_version": 1,
+    "purpose": "Resume the exact seven-batch FP8 matrix using successful r09 traces/tuning/quality; retain padded failures and validate no-padding graph paths before performance.",
+    "deployment_status_at_preparation": "LOCAL_ONLY; requires terminated r09, full source SHA manifest, and main-session deployment",
+    "model": "/root/autodl-tmp/moe-research-20261002/model",
+    "dtype": "bfloat16",
+    "quantization": "fp8",
+    "format_semantics": "vLLM online FP8 MoE W8A8 quantizes expert weights and MoE GEMM activations; outer model dtype and auto KV remain BF16. Effects are not attributed only to weight compression.",
+    "gpu_memory_utilization": 0.35,
+    "outer_timeout_seconds": 7200,
+    "maximum_internal_budget_seconds": 7170,
+    "batches": [
+      1,
+      2,
+      4,
+      8,
+      16,
+      32,
+      64
+    ],
+    "performance_arms": "configs/default_arms.json",
+    "quality_arms": "configs/quality_pareto.json",
+    "prompts": "datasets/wikitext2_serving_r01/validation_bench64.jsonl",
+    "articles": "datasets/wikitext2_serving_r01/validation_quality32.jsonl",
+    "rolling_manifest": "datasets/wikitext2_rolling_olmoe_r01/validation/manifest.json",
+    "trace": {
+      "steps": 16,
+      "max_model_len": 512
+    },
+    "tuning": {
+      "events_per_batch": 3,
+      "rounds": 5,
+      "replays_per_sample": 10,
+      "evict_mib": 256
+    },
+    "quality": {
+      "batches": [
+        1,
+        8,
+        32
+      ],
+      "documents": 32,
+      "decode_tokens": 32,
+      "prefix_tokens": 128,
+      "reference_max_mib": 2048
+    },
+    "performance": {
+      "repeats": 1,
+      "prompt_tokens": 128,
+      "newtokens": 2048,
+      "max_model_len": 2304,
+      "warmup_seconds": 3,
+      "expected_cells": 63
+    },
+    "microbench": {
+      "experts": 64,
+      "top_k": 8,
+      "batches": [
+        1,
+        8,
+        32,
+        64
+      ],
+      "repetitions": 100
+    },
+    "rolling_path": {
+      "batch": 8,
+      "limit_windows": 9
+    },
+    "stage_timeout_seconds": {
+      "native_traces": 240,
+      "native_tuning": 480,
+      "graph_dense": 450,
+      "graph_marginal": 360,
+      "microbench_policy": 90,
+      "rolling_path": 240,
+      "quality_b1": 360,
+      "quality_b8": 300,
+      "quality_b32": 300,
+      "bench_graph": 6000,
+      "native_padded_diagnostic": 240,
+      "rolling_tail": 180
+    },
+    "time_policy": "Per-stage caps are bounded by the remaining total budget, with 10 seconds reserved for cleanup; timeouts and unrun stages remain explicit. The r07 BF16 matrix took 4118.8 seconds; FP8 duration remains unmeasured.",
+    "dependency_policy": "FP8 traces -> FP8 native tuning -> both graph identity checks -> full 63-cell graph benchmark. Eager quality needs tuning but not graph success; quality failures do not suppress independent later quality or benchmark stages. Any failed or unrun stage prevents overall COMPLETE.",
+    "tuning_policy": "Unset inherited VLLM_TUNED_CONFIG_FOLDER for trace/tuning; all later model stages share this run's FP8 native_tuning/tuned_configs. Never use BF16 tuning for FP8.",
+    "comparison": "Same checkpoint, P128, N2048, maxlen2304 and .35 total memory budget as r07; nine performance arms and all ten quality arms remain unchanged.",
+    "energy": "Use the existing separate NVML decode integral; each actual window must be >=3 seconds for the energy claim. Shorter windows remain diagnostic in the existing runner; no fixed-length assumption replaces that check.",
+    "f6_scope": "Synthetic E64/k8 routing policy overhead with counters, including warmed eager thread CPU and captured device timing; not an FP8 expert-GEMM or service result.",
+    "rolling_scope": "Original first nine validation windows plus a separate exact final real 65-token window; path checks only, not full-split PPL.",
+    "statistics": "Validation exploration and one fresh performance run per arm; tokens/steps are not independent system repetitions. Natural task quality is handled by the separate task suite.",
+    "source_run": "runs/olmoe_fp8_matrix_r09"
+  },
+  "stages": [
+    {
+      "name": "native_padded_diagnostic",
+      "command": [
+        "/root/miniconda3/bin/python",
+        "/root/autodl-tmp/research_K_expert_skip/deployments/olmoe_fp8_matrix_r09b_20261016/run_resume.py",
+        "--native-padded-diagnostic",
+        "--root",
+        "/root/autodl-tmp/research_K_expert_skip",
+        "--output",
+        "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09b/native_padded_diagnostic.json"
+      ],
+      "dependencies": [],
+      "timeout_cap_seconds": 240,
+      "tuned_config_folder": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09/native_tuning/tuned_configs",
+      "artifact": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09b/native_padded_diagnostic.json",
+      "expected_artifact_status": "DIAGNOSTIC_COMPLETE",
+      "log": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09b/stage_logs/native_padded_diagnostic.log",
+      "status": "COMPLETE",
+      "started_unix": 1792111130.8101125,
+      "ended_unix": 1792111182.097503,
+      "exit_code": 0,
+      "remaining_budget_at_start_seconds": 7169.745082464069,
+      "timeout_seconds": 240,
+      "pid": 68144
+    },
+    {
+      "name": "graph_dense",
+      "command": [
+        "/root/miniconda3/bin/python",
+        "/root/autodl-tmp/research_K_expert_skip/deployments/olmoe_fp8_matrix_r09b_20261016/smoke_graph.py",
+        "--model",
+        "/root/autodl-tmp/moe-research-20261002/model",
+        "--dtype",
+        "bfloat16",
+        "--quantization",
+        "fp8",
+        "--gpu-memory-utilization",
+        "0.35",
+        "--output",
+        "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09b/graph_dense.json",
+        "--spec-json",
+        "{\"mode\": \"dense\", \"backend\": \"triton\"}",
+        "--batches",
+        "1",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "dependencies": [
+        "native_padded_diagnostic"
+      ],
+      "timeout_cap_seconds": 450,
+      "tuned_config_folder": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09/native_tuning/tuned_configs",
+      "artifact": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09b/graph_dense.json",
+      "expected_artifact_status": "PASS",
+      "log": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09b/stage_logs/graph_dense.log",
+      "status": "COMPLETE",
+      "started_unix": 1792111182.1002991,
+      "ended_unix": 1792111287.1104782,
+      "exit_code": 0,
+      "remaining_budget_at_start_seconds": 7118.454898171127,
+      "timeout_seconds": 450,
+      "pid": 68402
+    },
+    {
+      "name": "graph_marginal",
+      "command": [
+        "/root/miniconda3/bin/python",
+        "/root/autodl-tmp/research_K_expert_skip/deployments/olmoe_fp8_matrix_r09b_20261016/smoke_graph.py",
+        "--model",
+        "/root/autodl-tmp/moe-research-20261002/model",
+        "--dtype",
+        "bfloat16",
+        "--quantization",
+        "fp8",
+        "--gpu-memory-utilization",
+        "0.35",
+        "--output",
+        "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09b/graph_marginal.json",
+        "--spec-json",
+        "{\"mode\": \"marginal\", \"tail_rank\": 4, \"gate_threshold\": 0.15, \"mass_budget\": 0.3, \"backend\": \"triton\"}",
+        "--batches",
+        "1",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "dependencies": [
+        "native_padded_diagnostic"
+      ],
+      "timeout_cap_seconds": 360,
+      "tuned_config_folder": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09/native_tuning/tuned_configs",
+      "artifact": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09b/graph_marginal.json",
+      "expected_artifact_status": "PASS",
+      "log": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09b/stage_logs/graph_marginal.log",
+      "status": "COMPLETE",
+      "started_unix": 1792111287.1109438,
+      "ended_unix": 1792111341.4446561,
+      "exit_code": 0,
+      "remaining_budget_at_start_seconds": 7013.444251034409,
+      "timeout_seconds": 360,
+      "pid": 68980
+    },
+    {
+      "name": "microbench_policy",
+      "command": [
+        "/root/miniconda3/bin/python",
+        "/root/autodl-tmp/research_K_expert_skip/code/microbench_policy.py",
+        "--output",
+        "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09b/microbench_policy.json",
+        "--experts",
+        "64",
+        "--top-k",
+        "8",
+        "--batches",
+        "1",
+        "8",
+        "32",
+        "64",
+        "--repetitions",
+        "100"
+      ],
+      "dependencies": [
+        "graph_dense",
+        "graph_marginal"
+      ],
+      "timeout_cap_seconds": 90,
+      "tuned_config_folder": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09/native_tuning/tuned_configs",
+      "artifact": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09b/microbench_policy.json",
+      "expected_artifact_status": "PASS",
+      "log": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09b/stage_logs/microbench_policy.log",
+      "status": "COMPLETE",
+      "started_unix": 1792111341.4451268,
+      "ended_unix": 1792111346.8700414,
+      "exit_code": 0,
+      "remaining_budget_at_start_seconds": 6959.110068235546,
+      "timeout_seconds": 90,
+      "pid": 69247
+    },
+    {
+      "name": "rolling_path",
+      "command": [
+        "/root/miniconda3/bin/python",
+        "/root/autodl-tmp/research_K_expert_skip/code/quality_decode.py",
+        "--model",
+        "/root/autodl-tmp/moe-research-20261002/model",
+        "--dtype",
+        "bfloat16",
+        "--quantization",
+        "fp8",
+        "--gpu-memory-utilization",
+        "0.35",
+        "--arms-file",
+        "/root/autodl-tmp/research_K_expert_skip/configs/quality_pareto.json",
+        "--reference-max-mib",
+        "2048",
+        "--tokenized-windows",
+        "/root/autodl-tmp/research_K_expert_skip/datasets/wikitext2_rolling_olmoe_r01/validation/manifest.json",
+        "--batch",
+        "8",
+        "--limit-windows",
+        "9",
+        "--output",
+        "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09b/quality_rolling_path.json"
+      ],
+      "dependencies": [
+        "graph_dense",
+        "graph_marginal"
+      ],
+      "timeout_cap_seconds": 240,
+      "tuned_config_folder": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09/native_tuning/tuned_configs",
+      "artifact": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09b/quality_rolling_path.json",
+      "expected_artifact_status": "PASS",
+      "log": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09b/stage_logs/rolling_path.log",
+      "status": "COMPLETE",
+      "started_unix": 1792111346.8717046,
+      "ended_unix": 1792111413.737501,
+      "exit_code": 0,
+      "remaining_budget_at_start_seconds": 6953.68349436298,
+      "timeout_seconds": 240,
+      "pid": 69271
+    },
+    {
+      "name": "rolling_tail",
+      "command": [
+        "/root/miniconda3/bin/python",
+        "/root/autodl-tmp/research_K_expert_skip/code/quality_decode.py",
+        "--model",
+        "/root/autodl-tmp/moe-research-20261002/model",
+        "--dtype",
+        "bfloat16",
+        "--quantization",
+        "fp8",
+        "--gpu-memory-utilization",
+        "0.35",
+        "--arms-file",
+        "/root/autodl-tmp/research_K_expert_skip/configs/quality_pareto.json",
+        "--reference-max-mib",
+        "2048",
+        "--tokenized-windows",
+        "/root/autodl-tmp/research_K_expert_skip/deployments/olmoe_fp8_matrix_r09b_20261016/rolling_tail/manifest.json",
+        "--batch",
+        "8",
+        "--output",
+        "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09b/quality_rolling_tail.json"
+      ],
+      "dependencies": [
+        "graph_dense",
+        "graph_marginal"
+      ],
+      "timeout_cap_seconds": 180,
+      "tuned_config_folder": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09/native_tuning/tuned_configs",
+      "artifact": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09b/quality_rolling_tail.json",
+      "expected_artifact_status": "PASS",
+      "log": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09b/stage_logs/rolling_tail.log",
+      "status": "COMPLETE",
+      "started_unix": 1792111413.7380157,
+      "ended_unix": 1792111448.184857,
+      "exit_code": 0,
+      "remaining_budget_at_start_seconds": 6886.817179001868,
+      "timeout_seconds": 180,
+      "pid": 69416
+    },
+    {
+      "name": "bench_graph",
+      "command": [
+        "/root/miniconda3/bin/python",
+        "/root/autodl-tmp/research_K_expert_skip/code/bench_graph.py",
+        "--model",
+        "/root/autodl-tmp/moe-research-20261002/model",
+        "--dtype",
+        "bfloat16",
+        "--quantization",
+        "fp8",
+        "--gpu-memory-utilization",
+        "0.35",
+        "--prompts",
+        "/root/autodl-tmp/research_K_expert_skip/datasets/wikitext2_serving_r01/validation_bench64.jsonl",
+        "--output-dir",
+        "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09b/bench",
+        "--arms-file",
+        "/root/autodl-tmp/research_K_expert_skip/configs/default_arms.json",
+        "--batches",
+        "1",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "--repeats",
+        "1",
+        "--newtokens",
+        "2048",
+        "--prompt-tokens",
+        "128",
+        "--max-model-len",
+        "2304",
+        "--warmup-seconds",
+        "3"
+      ],
+      "dependencies": [
+        "graph_dense",
+        "graph_marginal"
+      ],
+      "timeout_cap_seconds": 6000,
+      "tuned_config_folder": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09/native_tuning/tuned_configs",
+      "artifact": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09b/bench/status.json",
+      "expected_artifact_status": "COMPLETE",
+      "log": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09b/stage_logs/bench_graph.log",
+      "status": "COMPLETE",
+      "started_unix": 1792111448.1855028,
+      "ended_unix": 1792114724.4620483,
+      "exit_code": 0,
+      "remaining_budget_at_start_seconds": 6852.369692061096,
+      "timeout_seconds": 6000,
+      "pid": 69547
+    }
+  ],
+  "trace_files": [],
+  "environment": {
+    "HF_HUB_OFFLINE": "1",
+    "HF_DATASETS_OFFLINE": "1",
+    "TRANSFORMERS_OFFLINE": "1",
+    "VLLM_ENABLE_V1_MULTIPROCESSING": "0",
+    "TOKENIZERS_PARALLELISM": "false",
+    "VLLM_USE_FLASHINFER_SAMPLER": "0"
+  },
+  "input_files": {
+    "performance_arms": {
+      "path": "/root/autodl-tmp/research_K_expert_skip/configs/default_arms.json",
+      "sha256": "dd6863bcc61383dad21d4c08434f61a6c988391f862be2a9464c13bddae25f95"
+    },
+    "quality_arms": {
+      "path": "/root/autodl-tmp/research_K_expert_skip/configs/quality_pareto.json",
+      "sha256": "d78dee23f02f8c51a495d170997fc0b245de36abaf5b2744ecbc1ddf38cb95f7"
+    },
+    "prompts": {
+      "path": "/root/autodl-tmp/research_K_expert_skip/datasets/wikitext2_serving_r01/validation_bench64.jsonl",
+      "sha256": "9aa606ddc0cc502ca41a002ad41bc25149d93bda16d15567709d2de0c020e1bc"
+    },
+    "articles": {
+      "path": "/root/autodl-tmp/research_K_expert_skip/datasets/wikitext2_serving_r01/validation_quality32.jsonl",
+      "sha256": "cb0d20cb5972bb2d3bde43c6e039eb5f20f12064dd99a879f5cd65819b756064"
+    },
+    "rolling_manifest": {
+      "path": "/root/autodl-tmp/research_K_expert_skip/datasets/wikitext2_rolling_olmoe_r01/validation/manifest.json",
+      "sha256": "b9f5cdc438c06f912b769d02de36010c805d71b0ac20c8a3655277d8f5f75198"
+    },
+    "tail_manifest": {
+      "path": "/root/autodl-tmp/research_K_expert_skip/deployments/olmoe_fp8_matrix_r09b_20261016/rolling_tail/manifest.json",
+      "sha256": "f84882e78841a77b86c8cc1d193e880c8d7e5ed08cc652d528f6e56c51fd180f"
+    },
+    "smoke_graph": {
+      "path": "/root/autodl-tmp/research_K_expert_skip/deployments/olmoe_fp8_matrix_r09b_20261016/smoke_graph.py",
+      "sha256": "94290a172a2afca4f11cf75acfd3cc94fa38de02e8baf2f1219d678604164a88"
+    }
+  },
+  "reuse": {
+    "source_run": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09",
+    "state": "FAILED",
+    "stages_status": "INCOMPLETE",
+    "source_manifest": {
+      "path": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09/SHA256.json",
+      "sha256": "6a472ea97ba074687ae4876b04ecac09fb5c04a275d91f5b8fcfa9373c96e192"
+    },
+    "files": {
+      "status.json": {
+        "path": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09/status.json",
+        "sha256": "32eaba4fe69cec1de60d7136f51eaa6d0154e25b114c4bd8141f0e2ede2808ce",
+        "status": "FAILED"
+      },
+      "stages.json": {
+        "path": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09/stages.json",
+        "sha256": "537fb1e5cf8f6b10f013c4edec772825a26252db26fb0a600e120865fd38a43e",
+        "status": "INCOMPLETE"
+      },
+      "native_traces/status.json": {
+        "path": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09/native_traces/status.json",
+        "sha256": "25610b6cad80f4fe1957b80d23a87469586972c7f2c7ccef966fe499f557841f",
+        "status": "COMPLETE"
+      },
+      "native_traces/trace_native_b1/snapshot.json": {
+        "path": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09/native_traces/trace_native_b1/snapshot.json",
+        "sha256": "da258766840e6994eb9674b6097b0c358625c085192806cb214dd8bb835fbb59",
+        "status": null
+      },
+      "native_traces/trace_native_b2/snapshot.json": {
+        "path": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09/native_traces/trace_native_b2/snapshot.json",
+        "sha256": "ed86205bea884564bcb42731d6660473093aac30faa035504dab8302fc9d7495",
+        "status": null
+      },
+      "native_traces/trace_native_b4/snapshot.json": {
+        "path": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09/native_traces/trace_native_b4/snapshot.json",
+        "sha256": "52507ab4eaf64b4fd9830f0479cd8035c2b3375c56017f60a4b92187a4364d5e",
+        "status": null
+      },
+      "native_traces/trace_native_b8/snapshot.json": {
+        "path": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09/native_traces/trace_native_b8/snapshot.json",
+        "sha256": "f1c7060108d0b1ef8fffe2d532cc0be4c0c69e5e12b310e7016bf55005e78438",
+        "status": null
+      },
+      "native_traces/trace_native_b16/snapshot.json": {
+        "path": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09/native_traces/trace_native_b16/snapshot.json",
+        "sha256": "eee331dfe41b8ba44db958681183eb4506e57455505ea05c27333ab3096b9791",
+        "status": null
+      },
+      "native_traces/trace_native_b32/snapshot.json": {
+        "path": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09/native_traces/trace_native_b32/snapshot.json",
+        "sha256": "ff61ee824f3e1924091325db5c973e965d34afc82dfa959721228b4ea23ba923",
+        "status": null
+      },
+      "native_traces/trace_native_b64/snapshot.json": {
+        "path": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09/native_traces/trace_native_b64/snapshot.json",
+        "sha256": "c3e9cbf9d94001fde8279dd41bb26d86c0b71c0eeef5949e54c71946643749a0",
+        "status": null
+      },
+      "native_tuning/summary.json": {
+        "path": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09/native_tuning/summary.json",
+        "sha256": "47909cba48e236106a94a8b76b05577077f698f43e65ccb1dec026d6b57351cf",
+        "status": "PASS"
+      },
+      "native_tuning/plan.json": {
+        "path": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09/native_tuning/plan.json",
+        "sha256": "43f38d86dd7f66f6c821da318b280af9086db56164c415cedd60354db902d05d",
+        "status": "PREPARING"
+      },
+      "native_tuning/weights.json": {
+        "path": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09/native_tuning/weights.json",
+        "sha256": "776b93bab3b205f4a70bfd54dfc4bf73ba6275965e21d29fa4723c35746daf10",
+        "status": null
+      },
+      "native_tuning/fp8_conversion.json": {
+        "path": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09/native_tuning/fp8_conversion.json",
+        "sha256": "484fa6d3b23b98b21fa4eaf208fbf9fcd206a8be373f623cd98b2bd3f8b6a31e",
+        "status": null
+      },
+      "native_tuning/tuned_configs/E=64,N=1024,device_name=NVIDIA_RTX_PRO_6000_Blackwell_Server_Edition,dtype=fp8_w8a8.json": {
+        "path": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09/native_tuning/tuned_configs/E=64,N=1024,device_name=NVIDIA_RTX_PRO_6000_Blackwell_Server_Edition,dtype=fp8_w8a8.json",
+        "sha256": "a6fdab16a81e9bef309722d18573194be7acacf27f22492fd2639df98b3cf153",
+        "status": null
+      },
+      "graph_dense.json": {
+        "path": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09/graph_dense.json",
+        "sha256": "c3cec766b9e38a9d8255885bc90f6a51e3f19ec5c283e696175680bdef3139fb",
+        "status": "FAILED"
+      },
+      "graph_marginal.json": {
+        "path": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09/graph_marginal.json",
+        "sha256": "e4be34285ea95b781955f5253271cd56f6bd0012d93a53fe4cc0eff0ae0d5642",
+        "status": "FAILED"
+      },
+      "quality_b1.json": {
+        "path": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09/quality_b1.json",
+        "sha256": "49e2a116e0aef6c385d09ae855450553b5c9ca58c42d60f13dab22b3b3c381e8",
+        "status": "PASS"
+      },
+      "quality_b8.json": {
+        "path": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09/quality_b8.json",
+        "sha256": "855a19585ddf2a93cf4743c32de1a9012eefc5b3c5c35d65d68654062b9a4055",
+        "status": "PASS"
+      },
+      "quality_b32.json": {
+        "path": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09/quality_b32.json",
+        "sha256": "ebc6fc898a373ba9ba2dfc243433109bf9b930a8e05d445d47f8e4b165b4b522",
+        "status": "PASS"
+      }
+    },
+    "reused_stages": [
+      "native_traces",
+      "native_tuning",
+      "quality_b1",
+      "quality_b8",
+      "quality_b32"
+    ],
+    "prior_padded_failures_preserved": {
+      "graph_dense": {
+        "status": "FAILED",
+        "error": "AssertionError: eager/graph deterministic outputs differ",
+        "artifact": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09/graph_dense.json"
+      },
+      "graph_marginal": {
+        "status": "FAILED",
+        "error": "AssertionError: ('slots_after', 1879.0, 1880.0)",
+        "artifact": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09/graph_marginal.json"
+      }
+    },
+    "quality_to_run": [],
+    "warnings": []
+  },
+  "scope": "Complete fixed seven-B online-FP8 matrix only after exact no-padding parity. Prior padded failures remain unresolved and are not overwritten.",
+  "diagnostic_policy": "Native padded output difference is measured and kept as strict FAILED; DIAGNOSTIC_COMPLETE means both executions succeeded, not parity passed. Other diagnostic failures block graph verification.",
+  "quality_policy": "Every accepted r09 quality B is reused by original SHA/status. Only unsuccessful or absent B is rescheduled, never a successful one.",
+  "config_source": {
+    "path": "/root/autodl-tmp/research_K_expert_skip/deployments/olmoe_fp8_matrix_r09b_20261016/r09b.json",
+    "sha256": "0cbf0eb6a6cec02535ea8dbe2fdb9c342fa5e352712151834a60f1c5e003bfee"
+  },
+  "outer_run": {
+    "status_file": "/root/autodl-tmp/research_K_expert_skip/runs/olmoe_fp8_matrix_r09b/status.json",
+    "controller_pid": 63659,
+    "lock_path": "/root/autodl-tmp/moe-research-gpu.lock",
+    "outer_timeout_s": 7200
+  },
+  "started_unix": 1792111130.809742,
+  "ended_unix": 1792114724.4637578,
+  "elapsed_seconds": 3593.9085663743317
+}

@@ -1,0 +1,525 @@
+{
+  "schema": 1,
+  "status": "COMPLETE",
+  "created_unix": 1792106476.3210819,
+  "args": {
+    "root": "/root/autodl-tmp/research_K_expert_skip",
+    "model": "/root/autodl-tmp/moe-research-20261002/model",
+    "data_dir": "/root/autodl-tmp/research_K_expert_skip/datasets/task_eval_r02",
+    "prompts": "/root/autodl-tmp/research_K_expert_skip/datasets/free_generation_validation_r01/prompts.jsonl",
+    "output": "/root/autodl-tmp/research_K_expert_skip/runs/task_quality_pilot_r08b/quality",
+    "outer_run_dir": "/root/autodl-tmp/research_K_expert_skip/runs/task_quality_pilot_r08b",
+    "arms_file": "/root/autodl-tmp/research_K_expert_skip/configs/quality_pareto.json",
+    "formats": [
+      "bf16"
+    ],
+    "tasks": [
+      "gsm8k",
+      "mmlu",
+      "hellaswag",
+      "arc_challenge"
+    ],
+    "limit": 16,
+    "free_limit": 200,
+    "prompt_tokens": 128,
+    "batch": 8,
+    "max_tokens": 256,
+    "max_model_len": 4096,
+    "gpu_memory_utilization": 0.35,
+    "seed": 1701,
+    "budget_seconds": 3600,
+    "job_timeout": 1500,
+    "per_arm_isolation": false,
+    "plan_only": false
+  },
+  "inputs": {
+    "arms_file": "/root/autodl-tmp/research_K_expert_skip/configs/quality_pareto.json",
+    "arms_sha256": "d78dee23f02f8c51a495d170997fc0b245de36abaf5b2744ecbc1ddf38cb95f7",
+    "model_config": {
+      "path": "/root/autodl-tmp/moe-research-20261002/model/config.json",
+      "sha256": "42ea6f5fe31e9243290ba3c348a4ad615b88a6fbc6e10544e21a87b6dff5da6c"
+    },
+    "dataset_source": {
+      "path": "/root/autodl-tmp/research_K_expert_skip/datasets/task_eval_r02/source.json",
+      "sha256": "7eef60d58b2660e3669fd384ea403ff9811be95ef97d1259dd3c33aa7fc78214"
+    },
+    "prompts": {
+      "path": "/root/autodl-tmp/research_K_expert_skip/datasets/free_generation_validation_r01/prompts.jsonl",
+      "sha256": "cae0ba4ca7030c74cc9a5f7602cbebb1039c70d9f63ce23af0a7a7fa9bd24f2d"
+    }
+  },
+  "planning_warnings": [],
+  "budget_seconds": 3600,
+  "job_timeout_seconds": 1500,
+  "jobs": [
+    {
+      "id": "bf16.free_generation.all_arms",
+      "format": "bf16",
+      "unit": "free_generation",
+      "arms": [
+        "native",
+        "dense",
+        "global_j1",
+        "global_j2",
+        "global_j4",
+        "gate_low",
+        "gate_high",
+        "marginal_low",
+        "marginal_mid",
+        "marginal_high"
+      ],
+      "command": [
+        "/root/autodl-tmp/research_C_format_sched/tools_venv/bin/python",
+        "/root/autodl-tmp/research_K_expert_skip/code/free_generate.py",
+        "--model",
+        "/root/autodl-tmp/moe-research-20261002/model",
+        "--output",
+        "/root/autodl-tmp/research_K_expert_skip/runs/task_quality_pilot_r08b/quality/bf16.free_generation.all_arms",
+        "--arms-file",
+        "/root/autodl-tmp/research_K_expert_skip/runs/task_quality_pilot_r08b/quality/arms/all_arms.json",
+        "--batch",
+        "8",
+        "--max-tokens",
+        "256",
+        "--max-model-len",
+        "4096",
+        "--dtype",
+        "bfloat16",
+        "--gpu-memory-utilization",
+        "0.35",
+        "--seed",
+        "1701",
+        "--prompts",
+        "/root/autodl-tmp/research_K_expert_skip/datasets/free_generation_validation_r01/prompts.jsonl",
+        "--limit",
+        "200",
+        "--prompt-tokens",
+        "128",
+        "--temperature",
+        "0",
+        "--top-p",
+        "1"
+      ],
+      "output": "/root/autodl-tmp/research_K_expert_skip/runs/task_quality_pilot_r08b/quality/bf16.free_generation.all_arms",
+      "log": "/root/autodl-tmp/research_K_expert_skip/runs/task_quality_pilot_r08b/quality/bf16.free_generation.all_arms.log",
+      "status": "COMPLETE",
+      "started_unix": 1792106476.322291,
+      "timeout_s": 1500,
+      "pid": 52786,
+      "exit_code": 0,
+      "ended_unix": 1792107353.3068173,
+      "runner_summary": {
+        "status": "COMPLETE",
+        "path": "/root/autodl-tmp/research_K_expert_skip/runs/task_quality_pilot_r08b/quality/bf16.free_generation.all_arms/summary.json",
+        "arms": {
+          "native": "COMPLETE",
+          "dense": "COMPLETE",
+          "global_j1": "COMPLETE",
+          "global_j2": "COMPLETE",
+          "global_j4": "COMPLETE",
+          "gate_low": "COMPLETE",
+          "gate_high": "COMPLETE",
+          "marginal_low": "COMPLETE",
+          "marginal_mid": "COMPLETE",
+          "marginal_high": "COMPLETE"
+        },
+        "error": null
+      }
+    },
+    {
+      "id": "bf16.gsm8k.all_arms",
+      "format": "bf16",
+      "unit": "gsm8k",
+      "arms": [
+        "native",
+        "dense",
+        "global_j1",
+        "global_j2",
+        "global_j4",
+        "gate_low",
+        "gate_high",
+        "marginal_low",
+        "marginal_mid",
+        "marginal_high"
+      ],
+      "command": [
+        "/root/autodl-tmp/research_C_format_sched/tools_venv/bin/python",
+        "/root/autodl-tmp/research_K_expert_skip/code/eval_tasks.py",
+        "standard",
+        "--model",
+        "/root/autodl-tmp/moe-research-20261002/model",
+        "--output",
+        "/root/autodl-tmp/research_K_expert_skip/runs/task_quality_pilot_r08b/quality/bf16.gsm8k.all_arms",
+        "--arms-file",
+        "/root/autodl-tmp/research_K_expert_skip/runs/task_quality_pilot_r08b/quality/arms/all_arms.json",
+        "--batch",
+        "8",
+        "--max-tokens",
+        "256",
+        "--max-model-len",
+        "4096",
+        "--dtype",
+        "bfloat16",
+        "--gpu-memory-utilization",
+        "0.35",
+        "--seed",
+        "1701",
+        "--data-dir",
+        "/root/autodl-tmp/research_K_expert_skip/datasets/task_eval_r02",
+        "--tasks",
+        "gsm8k",
+        "--limit",
+        "16"
+      ],
+      "output": "/root/autodl-tmp/research_K_expert_skip/runs/task_quality_pilot_r08b/quality/bf16.gsm8k.all_arms",
+      "log": "/root/autodl-tmp/research_K_expert_skip/runs/task_quality_pilot_r08b/quality/bf16.gsm8k.all_arms.log",
+      "status": "COMPLETE",
+      "started_unix": 1792107353.3110886,
+      "timeout_s": 1500,
+      "pid": 53427,
+      "exit_code": 0,
+      "ended_unix": 1792107487.5088267,
+      "runner_summary": {
+        "status": "COMPLETE",
+        "path": "/root/autodl-tmp/research_K_expert_skip/runs/task_quality_pilot_r08b/quality/bf16.gsm8k.all_arms/summary.json",
+        "arms": {
+          "native": "COMPLETE",
+          "dense": "COMPLETE",
+          "global_j1": "COMPLETE",
+          "global_j2": "COMPLETE",
+          "global_j4": "COMPLETE",
+          "gate_low": "COMPLETE",
+          "gate_high": "COMPLETE",
+          "marginal_low": "COMPLETE",
+          "marginal_mid": "COMPLETE",
+          "marginal_high": "COMPLETE"
+        },
+        "error": null
+      }
+    },
+    {
+      "id": "bf16.mmlu.all_arms",
+      "format": "bf16",
+      "unit": "mmlu",
+      "arms": [
+        "native",
+        "dense",
+        "global_j1",
+        "global_j2",
+        "global_j4",
+        "gate_low",
+        "gate_high",
+        "marginal_low",
+        "marginal_mid",
+        "marginal_high"
+      ],
+      "command": [
+        "/root/autodl-tmp/research_C_format_sched/tools_venv/bin/python",
+        "/root/autodl-tmp/research_K_expert_skip/code/eval_tasks.py",
+        "standard",
+        "--model",
+        "/root/autodl-tmp/moe-research-20261002/model",
+        "--output",
+        "/root/autodl-tmp/research_K_expert_skip/runs/task_quality_pilot_r08b/quality/bf16.mmlu.all_arms",
+        "--arms-file",
+        "/root/autodl-tmp/research_K_expert_skip/runs/task_quality_pilot_r08b/quality/arms/all_arms.json",
+        "--batch",
+        "8",
+        "--max-tokens",
+        "256",
+        "--max-model-len",
+        "4096",
+        "--dtype",
+        "bfloat16",
+        "--gpu-memory-utilization",
+        "0.35",
+        "--seed",
+        "1701",
+        "--data-dir",
+        "/root/autodl-tmp/research_K_expert_skip/datasets/task_eval_r02",
+        "--tasks",
+        "mmlu",
+        "--limit",
+        "16"
+      ],
+      "output": "/root/autodl-tmp/research_K_expert_skip/runs/task_quality_pilot_r08b/quality/bf16.mmlu.all_arms",
+      "log": "/root/autodl-tmp/research_K_expert_skip/runs/task_quality_pilot_r08b/quality/bf16.mmlu.all_arms.log",
+      "status": "COMPLETE",
+      "started_unix": 1792107487.5106902,
+      "timeout_s": 1500,
+      "pid": 53907,
+      "exit_code": 0,
+      "ended_unix": 1792108118.412313,
+      "runner_summary": {
+        "status": "COMPLETE",
+        "path": "/root/autodl-tmp/research_K_expert_skip/runs/task_quality_pilot_r08b/quality/bf16.mmlu.all_arms/summary.json",
+        "arms": {
+          "native": "COMPLETE",
+          "dense": "COMPLETE",
+          "global_j1": "COMPLETE",
+          "global_j2": "COMPLETE",
+          "global_j4": "COMPLETE",
+          "gate_low": "COMPLETE",
+          "gate_high": "COMPLETE",
+          "marginal_low": "COMPLETE",
+          "marginal_mid": "COMPLETE",
+          "marginal_high": "COMPLETE"
+        },
+        "error": null
+      }
+    },
+    {
+      "id": "bf16.hellaswag.all_arms",
+      "format": "bf16",
+      "unit": "hellaswag",
+      "arms": [
+        "native",
+        "dense",
+        "global_j1",
+        "global_j2",
+        "global_j4",
+        "gate_low",
+        "gate_high",
+        "marginal_low",
+        "marginal_mid",
+        "marginal_high"
+      ],
+      "command": [
+        "/root/autodl-tmp/research_C_format_sched/tools_venv/bin/python",
+        "/root/autodl-tmp/research_K_expert_skip/code/eval_tasks.py",
+        "standard",
+        "--model",
+        "/root/autodl-tmp/moe-research-20261002/model",
+        "--output",
+        "/root/autodl-tmp/research_K_expert_skip/runs/task_quality_pilot_r08b/quality/bf16.hellaswag.all_arms",
+        "--arms-file",
+        "/root/autodl-tmp/research_K_expert_skip/runs/task_quality_pilot_r08b/quality/arms/all_arms.json",
+        "--batch",
+        "8",
+        "--max-tokens",
+        "256",
+        "--max-model-len",
+        "4096",
+        "--dtype",
+        "bfloat16",
+        "--gpu-memory-utilization",
+        "0.35",
+        "--seed",
+        "1701",
+        "--data-dir",
+        "/root/autodl-tmp/research_K_expert_skip/datasets/task_eval_r02",
+        "--tasks",
+        "hellaswag",
+        "--limit",
+        "16"
+      ],
+      "output": "/root/autodl-tmp/research_K_expert_skip/runs/task_quality_pilot_r08b/quality/bf16.hellaswag.all_arms",
+      "log": "/root/autodl-tmp/research_K_expert_skip/runs/task_quality_pilot_r08b/quality/bf16.hellaswag.all_arms.log",
+      "status": "COMPLETE",
+      "started_unix": 1792108118.4150982,
+      "timeout_s": 1500,
+      "pid": 55023,
+      "exit_code": 0,
+      "ended_unix": 1792108215.242467,
+      "runner_summary": {
+        "status": "COMPLETE",
+        "path": "/root/autodl-tmp/research_K_expert_skip/runs/task_quality_pilot_r08b/quality/bf16.hellaswag.all_arms/summary.json",
+        "arms": {
+          "native": "COMPLETE",
+          "dense": "COMPLETE",
+          "global_j1": "COMPLETE",
+          "global_j2": "COMPLETE",
+          "global_j4": "COMPLETE",
+          "gate_low": "COMPLETE",
+          "gate_high": "COMPLETE",
+          "marginal_low": "COMPLETE",
+          "marginal_mid": "COMPLETE",
+          "marginal_high": "COMPLETE"
+        },
+        "error": null
+      }
+    },
+    {
+      "id": "bf16.arc_challenge.all_arms",
+      "format": "bf16",
+      "unit": "arc_challenge",
+      "arms": [
+        "native",
+        "dense",
+        "global_j1",
+        "global_j2",
+        "global_j4",
+        "gate_low",
+        "gate_high",
+        "marginal_low",
+        "marginal_mid",
+        "marginal_high"
+      ],
+      "command": [
+        "/root/autodl-tmp/research_C_format_sched/tools_venv/bin/python",
+        "/root/autodl-tmp/research_K_expert_skip/code/eval_tasks.py",
+        "standard",
+        "--model",
+        "/root/autodl-tmp/moe-research-20261002/model",
+        "--output",
+        "/root/autodl-tmp/research_K_expert_skip/runs/task_quality_pilot_r08b/quality/bf16.arc_challenge.all_arms",
+        "--arms-file",
+        "/root/autodl-tmp/research_K_expert_skip/runs/task_quality_pilot_r08b/quality/arms/all_arms.json",
+        "--batch",
+        "8",
+        "--max-tokens",
+        "256",
+        "--max-model-len",
+        "4096",
+        "--dtype",
+        "bfloat16",
+        "--gpu-memory-utilization",
+        "0.35",
+        "--seed",
+        "1701",
+        "--data-dir",
+        "/root/autodl-tmp/research_K_expert_skip/datasets/task_eval_r02",
+        "--tasks",
+        "arc_challenge",
+        "--limit",
+        "16"
+      ],
+      "output": "/root/autodl-tmp/research_K_expert_skip/runs/task_quality_pilot_r08b/quality/bf16.arc_challenge.all_arms",
+      "log": "/root/autodl-tmp/research_K_expert_skip/runs/task_quality_pilot_r08b/quality/bf16.arc_challenge.all_arms.log",
+      "status": "COMPLETE",
+      "started_unix": 1792108215.2436502,
+      "timeout_s": 1500,
+      "pid": 55456,
+      "exit_code": 0,
+      "ended_unix": 1792108303.877069,
+      "runner_summary": {
+        "status": "COMPLETE",
+        "path": "/root/autodl-tmp/research_K_expert_skip/runs/task_quality_pilot_r08b/quality/bf16.arc_challenge.all_arms/summary.json",
+        "arms": {
+          "native": "COMPLETE",
+          "dense": "COMPLETE",
+          "global_j1": "COMPLETE",
+          "global_j2": "COMPLETE",
+          "global_j4": "COMPLETE",
+          "gate_low": "COMPLETE",
+          "gate_high": "COMPLETE",
+          "marginal_low": "COMPLETE",
+          "marginal_mid": "COMPLETE",
+          "marginal_high": "COMPLETE"
+        },
+        "error": null
+      }
+    }
+  ],
+  "arm_files": {
+    "all_arms": {
+      "purpose": "Same policy parameters and native reduced-k execution as default_arms.json; dense identity/counters added for common-trajectory logical-byte denominator.",
+      "arms": [
+        {
+          "name": "native",
+          "spec": null
+        },
+        {
+          "name": "dense",
+          "spec": {
+            "mode": "dense",
+            "backend": "triton"
+          }
+        },
+        {
+          "name": "global_j1",
+          "spec": {
+            "mode": "global_native",
+            "drop_j": 1,
+            "count_routes": false,
+            "backend": "triton"
+          }
+        },
+        {
+          "name": "global_j2",
+          "spec": {
+            "mode": "global_native",
+            "drop_j": 2,
+            "count_routes": false,
+            "backend": "triton"
+          }
+        },
+        {
+          "name": "global_j4",
+          "spec": {
+            "mode": "global_native",
+            "drop_j": 4,
+            "count_routes": false,
+            "backend": "triton"
+          }
+        },
+        {
+          "name": "gate_low",
+          "spec": {
+            "mode": "gate",
+            "gate_threshold": 0.05,
+            "mass_budget": 0.1,
+            "backend": "triton"
+          }
+        },
+        {
+          "name": "gate_high",
+          "spec": {
+            "mode": "gate",
+            "gate_threshold": 0.15,
+            "mass_budget": 0.3,
+            "backend": "triton"
+          }
+        },
+        {
+          "name": "marginal_low",
+          "spec": {
+            "mode": "marginal",
+            "tail_rank": 4,
+            "gate_threshold": 0.05,
+            "mass_budget": 0.1,
+            "backend": "triton"
+          }
+        },
+        {
+          "name": "marginal_mid",
+          "spec": {
+            "mode": "marginal",
+            "tail_rank": 4,
+            "gate_threshold": 0.1,
+            "mass_budget": 0.2,
+            "backend": "triton"
+          }
+        },
+        {
+          "name": "marginal_high",
+          "spec": {
+            "mode": "marginal",
+            "tail_rank": 4,
+            "gate_threshold": 0.15,
+            "mass_budget": 0.3,
+            "backend": "triton"
+          }
+        }
+      ]
+    }
+  },
+  "semantics": {
+    "formats": "Same local BF16 checkpoint; fp8 means online weight quantization. Model dtype and auto KV remain BF16.",
+    "mc": "MMLU 5-shot, HellaSwag 0-shot, ARC-c 0-shot are prefill loglikelihood identity controls, not decode-quality evidence.",
+    "generation": "GSM8K official 5-shot and 200 natural free completions exercise decode; EOS remains enabled, max_tokens is a cap.",
+    "limit": "Task --limit applies independently to every leaf, including each MMLU subject; pilot subsets are exploratory.",
+    "failure": "A failed job preserves partial files; later independent families still run within budget. Arms not reached by the existing runner are NOT_RUN, never inferred successful.",
+    "native_reuse": "Shares native within each job's complete supplied arm sequence (five by default). No automatic score reuse or arm selection. Per-arm isolation explicitly repeats native.",
+    "memory": "Eager existing runners; no CUDA graph or timing claims. Startup and all jobs consume the outer GPU budget."
+  },
+  "outer_run": {
+    "status_file": "/root/autodl-tmp/research_K_expert_skip/runs/task_quality_pilot_r08b/status.json",
+    "controller_pid": 52744,
+    "lock_path": "/root/autodl-tmp/moe-research-gpu.lock",
+    "outer_timeout_s": 3630
+  },
+  "started_unix": 1792106476.3220377,
+  "ended_unix": 1792108303.8791823,
+  "elapsed_seconds": 1827.5571463815868
+}

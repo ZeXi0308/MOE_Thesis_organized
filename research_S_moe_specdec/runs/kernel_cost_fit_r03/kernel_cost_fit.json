@@ -1,0 +1,215 @@
+{
+  "schema_version": 1,
+  "model": "T_ms=max(a*D,b*S)+c; a,b,c>=0",
+  "status": "measured_inputs_analyzed",
+  "metric": "cuda_event_ms_median",
+  "input_files": [
+    {
+      "path": "/Users/zhaozhenyu/Desktop/毕业设计/research_S_moe_specdec/runs/olmoe_kernel_r03/measurements.jsonl",
+      "sha256": "8f069dc1c71e5bae974610b20fbb45f2d669cbae1ab3d8a3926b24154bc3b526"
+    }
+  ],
+  "ignored_input_records": [],
+  "fit_batches": [
+    1,
+    4,
+    16,
+    64
+  ],
+  "test_batches": [
+    2,
+    8,
+    32
+  ],
+  "fit_unit": "one snapshot's median of repeat means; each snapshot weighted equally",
+  "coefficient_units": {
+    "a": "ms/distinct expert",
+    "b": "ms/actual token slot",
+    "c": "ms"
+  },
+  "snapshot_count": 154,
+  "domains": {
+    "161b773f87964cc5": {
+      "domain": {
+        "selected_weights_sha256": "3b2eb56ed050ad8e1a89a7f450591a38493ed600c5cfc6ab79c10664fb36b280",
+        "weight_layer": 0,
+        "shape": {
+          "experts": 64,
+          "top_k": 8,
+          "hidden": 2048,
+          "intermediate": 1024
+        },
+        "bytes_per_expert": 12582912,
+        "gpu": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+        "compute_capability": [
+          12,
+          0
+        ],
+        "vllm": "0.26.0",
+        "triton": "3.6.0",
+        "entrypoint": "FusedMoEKernel.apply",
+        "experts_class": "TritonExperts",
+        "prepare_finalize_class": "MoEPrepareAndFinalizeNoDPEPModular",
+        "kernel_source_hashes": {
+          "vllm.model_executor.layers.fused_moe.modular_kernel.FusedMoEKernel": "f78ae626babfd69f3c6ba37eef9c8f5186f28cd9064f566e341ca0c9e0fdb9b9",
+          "vllm.model_executor.layers.fused_moe.experts.triton_moe.TritonExperts": "e937fff3bca81b822e7737bea618dd8acbf359182476a366fe5110c1850d0507",
+          "vllm.model_executor.layers.fused_moe.prepare_finalize.no_dp_ep.MoEPrepareAndFinalizeNoDPEPModular": "80d185e8d519da8ff7266fe37554640465672f54426f1bebd0131d62f4f67ec3"
+        },
+        "cache_policy": "turnover",
+        "cache_turnover_bytes": 268435456,
+        "execution_mode": "eager",
+        "route_kind": "measured_histogram_synthetic_cooccurrence",
+        "input_source": "synthetic_unit_RMS_normal",
+        "topk_weight_source": "uniform_normalized"
+      },
+      "calibration_batches_planned": [
+        1,
+        4,
+        16,
+        64
+      ],
+      "test_batches_planned": [
+        2,
+        8,
+        32
+      ],
+      "calibration_batches_observed": [
+        1,
+        4,
+        16,
+        64
+      ],
+      "test_batches_observed": [
+        2,
+        8,
+        32
+      ],
+      "calibration_batches_unmeasured": [],
+      "test_batches_unmeasured": [],
+      "calibration_snapshot_count": 88,
+      "test_snapshot_count": 66,
+      "outside_split_snapshot_count": 0,
+      "parameters": {
+        "a_ms_per_distinct_expert": 0.009470617998924725,
+        "b_ms_per_token_slot": 0.0,
+        "c_ms": 0.15326137515169716,
+        "r_token_to_expert_ratio": 0.0,
+        "fit_sse_ms2": 0.08992181397921917,
+        "candidate_kind": "pure_D",
+        "ratio_grid": {
+          "count": 860,
+          "minimum": 0.0,
+          "maximum": 8.0,
+          "construction": "calibration-only log grid plus observed D/S breakpoints and pure-S boundary"
+        },
+        "calibration_active_terms": {
+          "D_term": 88
+        },
+        "parameter_interpretation": "Effective nonnegative coefficients. A branch never active on calibration is not separately identified; the ratio is selected on a finite grid, not claimed to be a continuous global optimum."
+      },
+      "status": "fit_available",
+      "calibration_measured_ranges": {
+        "distinct_experts": [
+          8,
+          64
+        ],
+        "tokens": [
+          1,
+          148
+        ]
+      },
+      "calibration_metrics": {
+        "status": "measured_descriptive_error",
+        "snapshot_count": 88,
+        "mae_ms": 0.016859989149463028,
+        "rmse_ms": 0.031966213338748765,
+        "mean_signed_error_ms": -1.766263902812749e-17,
+        "mape_percent": 3.5120528745206423,
+        "median_absolute_percentage_error": 2.531492787896119,
+        "maximum_absolute_percentage_error": 22.004401475051615,
+        "worst_relative_point": {
+          "case_id": "b16-g6-q0",
+          "source_file": "/Users/zhaozhenyu/Desktop/毕业设计/research_S_moe_specdec/runs/olmoe_kernel_r03/measurements.jsonl",
+          "source_line": 105,
+          "batch": 16,
+          "gamma": 6,
+          "tokens": 16,
+          "distinct_experts": 54,
+          "observed_ms": 0.8521952003240585,
+          "predicted_ms": 0.6646747470936323,
+          "signed_error_ms": -0.1875204532304262,
+          "relative_error": -0.22004401475051616
+        },
+        "worst_absolute_point": {
+          "case_id": "b16-g5-q2",
+          "source_file": "/Users/zhaozhenyu/Desktop/毕业设计/research_S_moe_specdec/runs/olmoe_kernel_r03/measurements.jsonl",
+          "source_line": 104,
+          "batch": 16,
+          "gamma": 5,
+          "tokens": 36,
+          "distinct_experts": 61,
+          "observed_ms": 0.9221087992191315,
+          "predicted_ms": 0.7309690730861054,
+          "signed_error_ms": -0.1911397261330261,
+          "relative_error": -0.20728543778661343
+        },
+        "uncertainty": "No independent-system confidence interval; within-snapshot raw repetitions retained."
+      },
+      "test_metrics": {
+        "status": "measured_descriptive_error",
+        "snapshot_count": 66,
+        "mae_ms": 0.012730861492936493,
+        "rmse_ms": 0.015470165176679125,
+        "mean_signed_error_ms": 0.003402330421274903,
+        "mape_percent": 2.345059683615649,
+        "median_absolute_percentage_error": 2.1563805115467414,
+        "maximum_absolute_percentage_error": 5.763006682429076,
+        "worst_relative_point": {
+          "case_id": "b2-g5-q1",
+          "source_file": "/Users/zhaozhenyu/Desktop/毕业设计/research_S_moe_specdec/runs/olmoe_kernel_r03/measurements.jsonl",
+          "source_line": 37,
+          "batch": 2,
+          "gamma": 5,
+          "tokens": 2,
+          "distinct_experts": 15,
+          "observed_ms": 0.3133808016777039,
+          "predicted_ms": 0.295320645135568,
+          "signed_error_ms": -0.018060156542135886,
+          "relative_error": -0.05763006682429076
+        },
+        "worst_absolute_point": {
+          "case_id": "b32-g4-q2",
+          "source_file": "/Users/zhaozhenyu/Desktop/毕业设计/research_S_moe_specdec/runs/olmoe_kernel_r03/measurements.jsonl",
+          "source_line": 123,
+          "batch": 32,
+          "gamma": 4,
+          "tokens": 44,
+          "distinct_experts": 63,
+          "observed_ms": 0.7187487989664078,
+          "predicted_ms": 0.7499103090839548,
+          "signed_error_ms": 0.031161510117547087,
+          "relative_error": 0.04335521695807868
+        },
+        "uncertainty": "No independent-system confidence interval; within-snapshot raw repetitions retained."
+      },
+      "next_action": "Use held-out residuals versus actual S, D and per-expert load imbalance to decide whether alignment/launch terms need refinement; retain the same route and kernel family."
+    }
+  },
+  "boundaries": [
+    "Single real BF16 OLMoE expert layer; synthetic unit-RMS normal activations.",
+    "Top-k weights are uniform unless supplied; route ID replay may be exact or histogram-realized, as grouped below.",
+    "Histogram replay preserves expert counts and D but loses token co-occurrence and rank ordering.",
+    "CUDA-event time is a stream interval including possible host launch gaps; it is not a sum of GPU kernel durations.",
+    "No router, attention, drafter, scheduler, end-to-end latency or task quality is modeled.",
+    "a, b and c are effective local cost coefficients; a is not a direct HBM-bandwidth measurement.",
+    "Cache turnover is a controlled unrelated-buffer operation, not an exact reconstruction of layer-to-layer cache state.",
+    "Repeat/call timings share a process and snapshot; errors are descriptive, with no independent-system confidence interval.",
+    "The max-form is a hypothesis, not an established causal decomposition; residual structure can reflect omitted load imbalance, alignment, and launch effects.",
+    "Predictions use measured D; this holdout tests D,S-to-time cost, not the independent route-occupancy prediction of D."
+  ],
+  "data_leakage_rule": "Test batches do not choose ratio grid, coefficients or domain fitting decisions.",
+  "plots": {
+    "status": "not_requested",
+    "files": []
+  }
+}

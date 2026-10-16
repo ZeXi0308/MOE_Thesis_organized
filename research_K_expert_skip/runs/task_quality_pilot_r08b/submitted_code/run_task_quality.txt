@@ -1,0 +1,90 @@
+Task quality suite (OLMoE, local checkpoint; no automatic downloads)
+
+run_task_quality.py invokes the existing free_generate.py and eval_tasks.py
+standard runners. Default: 200 distinct natural completions, official MMLU
+5-shot, GSM8K 5-shot, HellaSwag 0-shot and ARC-c 0-shot, with the five arms in
+configs/quality_eval_arms.json. Each family has one process and a shared native
+reference. A failed family retains its outputs/log and later families continue
+within budget. Arms not reached after a runner failure are not successful runs.
+--per-arm-isolation is explicitly more expensive: native-only plus one native
+and candidate pair per supplied candidate for each family. There is no automatic
+retry or arm selection.
+
+Explicit --arms-file accepts the same validated object-with-arms or arms-list
+format as the existing runners, with unique safe names and valid policy specs.
+The first entry must be {"name":"native","spec":null}. All supplied arms run
+in their original order; none are selected or removed automatically. Defaults
+remain the five quality_eval_arms.json arms. For the existing full ten-arm
+GSM8K/free-generation Pareto, pass --arms-file configs/quality_pareto.json
+--tasks gsm8k. For native-only official MC scores, a file containing
+[{"name":"native","spec":null}] is valid; pass --tasks mmlu hellaswag
+arc_challenge and omit --limit for full documents. The suite still includes its
+requested free-generation population. MC metrics remain prefill identity scores,
+not evidence about decode interventions; native-only does not fabricate results
+for absent candidate arms or reuse scores across formats.
+
+Use the Python environment that provides vLLM 0.26.0 and lm_eval 0.4.13. The
+suite uses its own sys.executable for child commands. From the project root:
+
+  PY=$(command -v python)
+  MODEL=/path/to/the/existing/unquantized/OLMoE/checkpoint
+  NAME=task_quality_bf16_pilot_$(date -u +%Y%m%d_%H%M%S)
+  "$PY" code/run_locked.py --root "$PWD" --name "$NAME" --timeout 1830 -- \
+    "$PY" code/run_task_quality.py --root "$PWD" --model "$MODEL" \
+    --data-dir datasets/task_eval_r02 \
+    --prompts datasets/free_generation_validation_r01/prompts.jsonl \
+    --outer-run-dir "runs/$NAME" --output "runs/$NAME/quality" \
+    --formats bf16 --tasks gsm8k mmlu hellaswag arc_challenge \
+    --limit 16 --free-limit 16 --batch 8 --max-tokens 256 \
+    --budget-seconds 1800 --job-timeout 480
+
+This is an exploratory pilot. --limit 16 means 16 documents PER MMLU subject,
+not 16 MMLU documents total. If time expires the manifest remains INCOMPLETE;
+do not interpret the completed subset as full task quality. Actual token counts
+and wall time in this pilot determine the next allocation. Dataset cache and
+task-definition fingerprints are checked by the existing runner.
+
+For a second format, use the same MODEL and a new NAME with --formats fp8.
+This requests online FP8 weights while model dtype/auto KV remain BF16.
+--formats bf16 fp8 runs both sequentially, each with its own native reference.
+
+For full task evaluation: omit --limit and --free-limit; set a new NAME and a
+budget justified by pilot speed. One possible upper window is outer --timeout
+14400, inner --budget-seconds 14370 --job-timeout 10800. This is a bound, not a
+completion prediction. The outer controller also enforces the shared 15-hour
+budget. Startup/model loading, unsuccessful jobs and cleanup consume that time.
+Each process uses eager execution, natural EOS, no forced generation length.
+max_tokens=256 is the recorded protocol cap, not a promise of 256 useful tokens.
+
+Unmeasured planning scale: full input population is 14,042 MMLU, 10,042
+HellaSwag, 1,172 ARC-c and 1,319 GSM8K documents per arm plus 200 free prompts.
+Full five-arm work is hours rather than a short smoke test. MMLU may dominate:
+if its measured prompt workload is about 56M tokens/arm, five arms require
+about 280M prompt tokens/format. At a hypothetical 20k--100k prompt tokens/s,
+that component alone takes about 0.8--3.9 hours; these rates are assumptions,
+not measurements. Two formats can exceed a four-hour lock window. Recompute
+from pilot throughput and output lengths before committing the full budget.
+
+MMLU/HellaSwag/ARC-c standard metrics exercise prompt loglikelihood only, so
+they are identity controls for this decode-only intervention. Official GSM8K
+generation and free completion test decode. A separately chosen cost-saving
+protocol could run full native MC scores plus all-five-arm identity pilots,
+then explicitly label candidate MC scores as reused native controls. Reuse
+requires the same checkpoint, weight format, prompts, task revisions, seed and
+runtime configuration, zero decode/mixed policy events and matching responses;
+it must not be described as measured full candidate accuracy. This script does
+not do that reuse automatically. Native references never cross BF16/FP8 formats.
+
+CPU plan-only (no external lock/model load; a separate new output directory):
+
+  "$PY" code/run_task_quality.py --root "$PWD" --model "$MODEL" \
+    --data-dir datasets/task_eval_r02 \
+    --prompts datasets/free_generation_validation_r01/prompts.jsonl \
+    --output /tmp/task_quality_plan_UNIQUE --formats bf16 fp8 \
+    --limit 16 --free-limit 16 --budget-seconds 1800 --plan-only
+
+Plans preserve commands, arm specifications and input hashes in suite.json;
+unavailable remote paths are labelled unresolved on the planning host. This
+does not prove checkpoint completeness, dataset cache availability or GPU
+compatibility. Actual execution requires direct launch by run_locked.py, its
+inherited lock descriptor, and at least 30 seconds outer cleanup headroom.

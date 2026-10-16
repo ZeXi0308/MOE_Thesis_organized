@@ -1,0 +1,144 @@
+SOURCE /root/miniconda3/lib/python3.12/site-packages/vllm/v1/cudagraph_dispatcher.py SHA256 51f632753af729aeee6ce4a802d9d74b64f22eef02a524f36e2a24b07ef0cf63
+SOURCE /root/miniconda3/lib/python3.12/site-packages/vllm/config/compilation.py SHA256 267f4ca04fdcd2f0cf55c334782dd498c8051b9500ad088673d79518fc712db0
+1350:        assert "none" in self.custom_ops
+1351:        return f"+{op}" in self.custom_ops
+1352:
+1353:    def resolve_cudagraph_mode_and_sizes(
+1354:        self,
+1355:        min_cg_support: "AttentionCGSupport",
+1356:        min_cg_attn_backend: str | None,
+1357:        uniform_decode_query_len: int = 1,
+1358:        use_v2_model_runner: bool = False,
+1359:        tensor_parallel_size: int = 1,
+1360:        kv_cache_config: "KVCacheConfig | None" = None,
+1361:        max_num_reqs: int | None = None,
+1362:        is_profiling: bool = False,
+1363:    ) -> CUDAGraphMode:
+1364:        from vllm.v1.attention.backend import AttentionCGSupport
+1365:
+1366:        cudagraph_mode = self.cudagraph_mode
+1367:        if cudagraph_mode is None or cudagraph_mode == CUDAGraphMode.NONE:
+1368:            self.cudagraph_mode = CUDAGraphMode.NONE
+1369:            return CUDAGraphMode.NONE
+1370:
+1371:        # Check cudagraph for mixed batch is supported
+1372:        if (
+1373:            cudagraph_mode.mixed_mode() == CUDAGraphMode.FULL
+1422:                cudagraph_mode = CUDAGraphMode.NONE
+1423:            logger.warning(msg)
+1424:
+1425:        # check that if we are doing spec-decode + decode full-cudagraphs it is
+1426:        # supported
+1427:        if (
+1428:            cudagraph_mode.decode_mode() == CUDAGraphMode.FULL
+1429:            and uniform_decode_query_len > 1
+1430:            and min_cg_support.value < AttentionCGSupport.UNIFORM_BATCH.value
+1431:        ):
+1432:            msg = (
+1433:                f"CUDAGraphMode.{cudagraph_mode.name} is not supported"
+1434:                f" with spec-decode for attention backend "
+1435:                f"{min_cg_attn_backend} (support: {min_cg_support})"
+1436:            )
+1437:            if self.splitting_ops_contain_attention():
+1438:                msg += "; setting cudagraph_mode=PIECEWISE"
+1439:                cudagraph_mode = CUDAGraphMode.PIECEWISE
+1440:            else:
+1441:                msg += "; setting cudagraph_mode=NONE"
+1442:                cudagraph_mode = CUDAGraphMode.NONE
+1443:            logger.warning(msg)
+1444:
+1445:        # double check that we can support full cudagraph if they are requested
+1452:                f"CUDAGraphMode.{cudagraph_mode.name} is not "
+1453:                f"supported with {min_cg_attn_backend} backend ("
+1454:                f"support:{min_cg_support}) "
+1455:                "; please try cudagraph_mode=PIECEWISE, "
+1456:                "and make sure compilation mode is VLLM_COMPILE"
+1457:            )
+1458:
+1459:        # MRV1 adjusts cudagraph sizes to be a multiple of uniform_decode_query_len
+1460:        # to avoid: https://github.com/vllm-project/vllm/issues/28207 and temp-fix:
+1461:        # https://github.com/vllm-project/vllm/issues/28207#issuecomment-3504004536
+1462:        # Will be removed in the near future when we have separate cudagraph capture
+1463:        # sizes for decode and mixed prefill-decode.
+1464:        # MRV2 handles cudagraph capture sizing in cudagraph_utils.py
+1465:        # and doesn't need below: https://github.com/vllm-project/vllm/pull/45953
+1466:        if (
+1467:            not use_v2_model_runner
+1468:            and cudagraph_mode.decode_mode() == CUDAGraphMode.FULL
+1469:            and uniform_decode_query_len > 1
+1470:        ):
+1471:            self.adjust_cudagraph_sizes_for_spec_decode(
+1472:                uniform_decode_query_len,
+1473:                tensor_parallel_size,
+1474:            )
+1475:
+1476:        # For Mamba models with FULL decode cudagraphs, each decode
+1477:        # sequence needs one Mamba cache block. The decode cudagraph
+1478:        # dispatcher already caps batch sizes at max_num_seqs, so we just
+1479:        # need to verify that enough blocks exist. Raising here instead
+1480:        # of silently capping cudagraph_capture_sizes avoids unintended
+1481:        # restrictions on PIECEWISE (prefill) cudagraphs.
+1482:        # See: https://github.com/vllm-project/vllm/issues/34094
+1483:        if (
+1484:            kv_cache_config is not None
+1485:            and max_num_reqs is not None
+1486:            and cudagraph_mode.has_full_cudagraphs()
+1487:            and not is_profiling
+1488:            and kv_cache_config.has_mamba_layers
+1497:                "gpu_memory_utilization."
+1498:            )
+1499:
+1500:        self.cudagraph_mode = cudagraph_mode
+1501:        return cudagraph_mode
+1502:
+1503:    def adjust_cudagraph_sizes_for_spec_decode(
+1504:        self, uniform_decode_query_len: int, tensor_parallel_size: int
+1505:    ):
+1506:        multiple_of = uniform_decode_query_len
+1507:        if tensor_parallel_size > 1 and self.pass_config.enable_sp:
+1508:            multiple_of = max(uniform_decode_query_len, tensor_parallel_size)
+1509:            if (
+1510:                multiple_of % uniform_decode_query_len != 0
+1511:                or multiple_of % tensor_parallel_size != 0
+1512:            ):
+1513:                raise ValueError(
+1514:                    f"Can't determine cudagraph shapes that are both a "
+1515:                    f"multiple of {uniform_decode_query_len} "
+1516:                    f"(num_speculative_tokens + 1) required by spec-decode "
+1517:                    f"and {tensor_parallel_size} (tensor_parallel_size) "
+1518:                    f"required by sequence parallelism please adjust "
+1519:                    f"num_speculative_tokens or disable sequence parallelism"
+1520:                )
+1521:
+1522:        if not self.cudagraph_capture_sizes or multiple_of <= 1:
+1523:            return
+1524:
+1525:        assert self.max_cudagraph_capture_size is not None
+1526:        rounded_sizes = sorted(
+1527:            set(
+1528:                round_up(size, multiple_of)
+1529:                for size in self.cudagraph_capture_sizes
+1530:                if round_up(size, multiple_of) <= self.max_cudagraph_capture_size
+1531:            )
+1535:            # if one valid but would be round_down use that
+1536:            rounded_sizes = [multiple_of]
+1537:
+1538:        if len(rounded_sizes) == 0:
+1539:            raise ValueError(
+1540:                f"No valid cudagraph sizes after rounding to multiple of {multiple_of} "
+1541:                f"(num_speculative_tokens + 1 or tp if sequence parallelism is enabled)"
+1542:                f" please adjust num_speculative_tokens ({uniform_decode_query_len - 1}"
+1543:                f") or max_cudagraph_capture_size ({self.max_cudagraph_capture_size})"
+1544:                f" or cudagraph_capture_sizes ({self.cudagraph_capture_sizes})"
+1545:            )
+1546:
+1547:        self.max_cudagraph_capture_size = rounded_sizes[-1]
+1548:        self.cudagraph_capture_sizes = rounded_sizes
+1549:
+1550:    def get_compile_ranges(self) -> list[Range]:
+1551:        """Get the compile ranges for the compilation config."""
+1552:        if self.compile_ranges_endpoints is None:
+1553:            return []
+1554:        endpoints = sorted(set(self.compile_ranges_endpoints))
+1555:        return [Range(s + 1, e) for s, e in zip([0] + endpoints[:-1], endpoints)]
+

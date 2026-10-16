@@ -1,0 +1,291 @@
+{
+  "resolved_at": "2026-10-15T19:55:30.942727+00:00",
+  "source": {
+    "schema_version": 1,
+    "purpose": "Native dense neural draft candidate for the existing OLMoE-0924 target; metadata/tokenizer verified, runtime not tested.",
+    "repo_id": "allenai/OLMo-1B-0724-hf",
+    "revision": "d7cbab742d80589e714b1a2d7f838dcd21cbe143",
+    "method": "draft_model",
+    "target_repo_id": "allenai/OLMoE-1B-7B-0924-Instruct",
+    "target_revision": "7f1c97f440f06ce36705e4f2b843edb5925f4498",
+    "files": [
+      {
+        "path": ".gitattributes",
+        "bytes": 1519,
+        "git_blob_sha1": "a6344aac8c09253b3b630fb776ae94478aa0275b"
+      },
+      {
+        "path": "README.md",
+        "bytes": 17125,
+        "git_blob_sha1": "b432dd4c97ea6e268654a700b745a87fafe47105"
+      },
+      {
+        "path": "config.json",
+        "bytes": 609,
+        "git_blob_sha1": "44a9d711d25bb69161bce576b89cbb3ec3ef4d6c"
+      },
+      {
+        "path": "generation_config.json",
+        "bytes": 115,
+        "git_blob_sha1": "87396a6e474a274ae6434e8872ca35ba516d90af"
+      },
+      {
+        "path": "model-00001-of-00002.safetensors",
+        "bytes": 4707070632,
+        "git_blob_sha1": "b1fa39d8b4789ae3ecb2e72f13b2c3e0ae6c0c19",
+        "sha256": "0c3e846f50db22b38cd06e3628b0bfe10f814e01217a5ac837dd2aa39ae18121"
+      },
+      {
+        "path": "model-00002-of-00002.safetensors",
+        "bytes": 412090496,
+        "git_blob_sha1": "10cdc7d8c6729b06f3916d3a2f7b47a1b6897ed2",
+        "sha256": "0b45bdac8c7291f3b566d201ba39560d7d1696bbe43a6a0b50666c052c5b42a1"
+      },
+      {
+        "path": "model.safetensors.index.json",
+        "bytes": 9252,
+        "git_blob_sha1": "84cbda948fad36753c1aa2f138e3fb50c92c82aa"
+      },
+      {
+        "path": "special_tokens_map.json",
+        "bytes": 65,
+        "git_blob_sha1": "3e1d70c16f2640555ba8fd31d3ecd1c63425c6a2"
+      },
+      {
+        "path": "tokenizer.json",
+        "bytes": 2115417,
+        "git_blob_sha1": "d861718426ec675fc9a629e91c30a3a427ff31bc"
+      },
+      {
+        "path": "tokenizer_config.json",
+        "bytes": 5372,
+        "git_blob_sha1": "00797e612182918e8fd07c15fc58321399cce6d8"
+      }
+    ],
+    "total_repository_bytes": 5121310602,
+    "weights_bytes_on_disk": 5119161128,
+    "disk_weight_dtype": "float32",
+    "runtime_dtype": "bfloat16 (inherits target dtype in vLLM SpeculativeConfig)",
+    "expected_config": {
+      "architectures": [
+        "OlmoForCausalLM"
+      ],
+      "model_type": "olmo",
+      "vocab_size": 50304,
+      "eos_token_id": 50279,
+      "pad_token_id": 1,
+      "hidden_size": 2048,
+      "num_hidden_layers": 16,
+      "num_attention_heads": 16,
+      "num_key_value_heads": 16,
+      "intermediate_size": 8192,
+      "max_position_embeddings": 4096,
+      "torch_dtype": "float32",
+      "clip_qkv": 8.0,
+      "tie_word_embeddings": false
+    },
+    "expected_target_config": {
+      "architectures": [
+        "OlmoeForCausalLM"
+      ],
+      "model_type": "olmoe",
+      "vocab_size": 50304,
+      "eos_token_id": 50279,
+      "pad_token_id": 1,
+      "hidden_size": 2048,
+      "num_hidden_layers": 16,
+      "num_experts": 64,
+      "num_experts_per_tok": 8,
+      "max_position_embeddings": 4096,
+      "torch_dtype": "bfloat16"
+    },
+    "tokenizer_verification": {
+      "checked_on": "2026-10-16",
+      "draft_tokenizer_bytes": 2115417,
+      "draft_tokenizer_sha256": "a094266ac6c4982efba277bc251349a5a6d6ad37efb39a2a90f53d8be2a40a40",
+      "target_tokenizer_bytes": 2115598,
+      "target_tokenizer_sha256": "b1fb1517c84c6d516ff43adcebe7a1986ce7ed3e2533dc2c22b40337d2d24167",
+      "base_vocab_entries": 50280,
+      "base_token_to_id_equal": true,
+      "bpe_merges_equal": true,
+      "normalizer_equal": true,
+      "pre_tokenizer_equal": true,
+      "decoder_equal": true,
+      "post_processor_equal": true,
+      "all_28_draft_added_tokens_match_target": true,
+      "target_only_added_token": {
+        "id": 50280,
+        "content": "<pad>"
+      },
+      "boundary": "This proves the ordinary token mapping, not identical tokenizer JSON or special-token sets. Preserve target chat template; check real prompt IDs do not use target-only padding as content. Model output/embedding dimensions are 50304 in both configs; padding slots are not 50304 lexical entries."
+    },
+    "vllm_0_26_path": {
+      "runner": "GPUModelRunner.uses_draft_model() -> DraftModelProposer -> get_model(draft config)",
+      "draft_backend": "OlmoForCausalLM is registered as TransformersForCausalLM in v0.26.0; automatic model backend selection must remain enabled.",
+      "target_backend": "OlmoeForCausalLM target retains its normal target execution path.",
+      "constraints": [
+        "Target and draft tensor_parallel_size must match (1 here).",
+        "Same-vocabulary path checks config vocab_size; independent token-ID comparison was performed above.",
+        "Ordinary draft model does not share embeddings or lm_head with target; it runs its own forward passes.",
+        "HF draft uses FP32 files but vLLM draft config inherits the BF16 target dtype.",
+        "Actual native initialization, accept/reject behavior, draft KV allocation and throughput remain untested."
+      ],
+      "speculative_config_example": {
+        "method": "draft_model",
+        "model": "allenai/OLMo-1B-0724-hf",
+        "revision": "d7cbab742d80589e714b1a2d7f838dcd21cbe143",
+        "num_speculative_tokens": 3,
+        "draft_tensor_parallel_size": 1,
+        "use_heterogeneous_vocab": false
+      }
+    },
+    "resource_estimate": {
+      "bf16_weight_bytes_approx": 2560000000,
+      "draft_kv_bytes_per_resident_token_bf16": 131072,
+      "kv_formula": "2(K,V)*16 layers*16 KV heads*128 head_dim*2 bytes = 128 KiB/token; e.g. 64 requests x 384 resident tokens = 3 GiB. Allocation/padding/runtime workspace add overhead.",
+      "expected_benefit": "Not assumed. A full 16-layer dense drafter adds substantial work; acceptance and total cost must be measured."
+    },
+    "alternative_checked": {
+      "repo_id": "allenai/OLMo-1B-hf",
+      "revision": "aee7752d9c08ee4775e9b0091426d8410e8f6a89",
+      "model_context_limit": 2048,
+      "approx_disk_bytes": 4710000000,
+      "reason_not_selected": "Older 2048-context model leaves no output room for a complete 2048-token prompt; 0724 provides 4096 and is the single chosen candidate."
+    },
+    "download_draft_py_extension": {
+      "current_status": "Implemented in code/download_olmo_draft.py, reusing download_draft.py inventory/transfer/hash functions; the existing EAGLE path is unchanged.",
+      "reusable": "The inventory, immutable revision, byte/hash checks, bounded project/models output and resumable downloads are generic and reusable.",
+      "implemented_checks": "The independent draft_model entry compares base token IDs and normalized tokenizer components, verifies pinned Olmo config and target config, records FP32 stored dtype versus BF16 runtime, and requires no EAGLE vocabulary mappings. The fixed source manifest is capped at 6 GiB and reconciled with pinned HF metadata.",
+      "command": "python code/download_olmo_draft.py --endpoint https://hf-mirror.com --target-path /root/autodl-tmp/moe-research-20261002/model",
+      "local_recheck": "python code/download_olmo_draft.py --check-only --target-path /root/autodl-tmp/moe-research-20261002/model"
+    },
+    "sources": {
+      "hf_commit": "https://huggingface.co/allenai/OLMo-1B-0724-hf/commit/d7cbab742d80589e714b1a2d7f838dcd21cbe143",
+      "hf_metadata": "https://huggingface.co/api/models/allenai/OLMo-1B-0724-hf/revision/d7cbab742d80589e714b1a2d7f838dcd21cbe143?blobs=true",
+      "draft_config": "https://huggingface.co/allenai/OLMo-1B-0724-hf/blob/d7cbab742d80589e714b1a2d7f838dcd21cbe143/config.json",
+      "draft_tokenizer": "https://huggingface.co/allenai/OLMo-1B-0724-hf/resolve/d7cbab742d80589e714b1a2d7f838dcd21cbe143/tokenizer.json",
+      "target_tokenizer": "https://huggingface.co/allenai/OLMoE-1B-7B-0924-Instruct/resolve/7f1c97f440f06ce36705e4f2b843edb5925f4498/tokenizer.json",
+      "vllm_proposer": "https://github.com/vllm-project/vllm/blob/v0.26.0/vllm/v1/spec_decode/draft_model.py",
+      "vllm_registry": "https://github.com/vllm-project/vllm/blob/v0.26.0/vllm/model_executor/models/registry.py#L641-L647",
+      "vllm_config": "https://github.com/vllm-project/vllm/blob/v0.26.0/vllm/config/speculative.py"
+    }
+  },
+  "source_manifest_sha256": "7eab0dd4e3e677a3a775fec73fdf20c42c497d8eedd13210cf18406b0944b5f3",
+  "endpoint": "https://hf-mirror.com",
+  "expected_total_bytes": 5121310602,
+  "draft_path": "/root/autodl-tmp/research_S_moe_specdec/models/olmo_1b_0724_draft/d7cbab742d80589e714b1a2d7f838dcd21cbe143/draft",
+  "files": [
+    {
+      "name": ".gitattributes",
+      "size": 1519,
+      "sha256": null,
+      "git_blob_sha1": "a6344aac8c09253b3b630fb776ae94478aa0275b",
+      "repo_id": "allenai/OLMo-1B-0724-hf",
+      "revision": "d7cbab742d80589e714b1a2d7f838dcd21cbe143",
+      "url": "https://hf-mirror.com/allenai/OLMo-1B-0724-hf/resolve/d7cbab742d80589e714b1a2d7f838dcd21cbe143/.gitattributes",
+      "verified_sha256": "11ad7efa24975ee4b0c3c3a38ed18737f0658a5f75a0a96787b576a78a023361",
+      "status": "verified"
+    },
+    {
+      "name": "README.md",
+      "size": 17125,
+      "sha256": null,
+      "git_blob_sha1": "b432dd4c97ea6e268654a700b745a87fafe47105",
+      "repo_id": "allenai/OLMo-1B-0724-hf",
+      "revision": "d7cbab742d80589e714b1a2d7f838dcd21cbe143",
+      "url": "https://hf-mirror.com/allenai/OLMo-1B-0724-hf/resolve/d7cbab742d80589e714b1a2d7f838dcd21cbe143/README.md",
+      "verified_sha256": "764beaba9aaf73406c0c4e1976f1ad7d5b6f13289813be6f84bb6d63808f0cb0",
+      "status": "verified"
+    },
+    {
+      "name": "config.json",
+      "size": 609,
+      "sha256": null,
+      "git_blob_sha1": "44a9d711d25bb69161bce576b89cbb3ec3ef4d6c",
+      "repo_id": "allenai/OLMo-1B-0724-hf",
+      "revision": "d7cbab742d80589e714b1a2d7f838dcd21cbe143",
+      "url": "https://hf-mirror.com/allenai/OLMo-1B-0724-hf/resolve/d7cbab742d80589e714b1a2d7f838dcd21cbe143/config.json",
+      "verified_sha256": "d40e08d04a0efefe634158b8585412cb333b8019966c3f788bdae49074ce634e",
+      "status": "verified"
+    },
+    {
+      "name": "generation_config.json",
+      "size": 115,
+      "sha256": null,
+      "git_blob_sha1": "87396a6e474a274ae6434e8872ca35ba516d90af",
+      "repo_id": "allenai/OLMo-1B-0724-hf",
+      "revision": "d7cbab742d80589e714b1a2d7f838dcd21cbe143",
+      "url": "https://hf-mirror.com/allenai/OLMo-1B-0724-hf/resolve/d7cbab742d80589e714b1a2d7f838dcd21cbe143/generation_config.json",
+      "verified_sha256": "e9a6fc6755330e6da09ba04b1137c4db0744faafc0fa609ff378fd6989518295",
+      "status": "verified"
+    },
+    {
+      "name": "model-00001-of-00002.safetensors",
+      "size": 4707070632,
+      "sha256": "0c3e846f50db22b38cd06e3628b0bfe10f814e01217a5ac837dd2aa39ae18121",
+      "git_blob_sha1": null,
+      "repo_id": "allenai/OLMo-1B-0724-hf",
+      "revision": "d7cbab742d80589e714b1a2d7f838dcd21cbe143",
+      "url": "https://hf-mirror.com/allenai/OLMo-1B-0724-hf/resolve/d7cbab742d80589e714b1a2d7f838dcd21cbe143/model-00001-of-00002.safetensors",
+      "verified_sha256": "0c3e846f50db22b38cd06e3628b0bfe10f814e01217a5ac837dd2aa39ae18121",
+      "status": "verified"
+    },
+    {
+      "name": "model-00002-of-00002.safetensors",
+      "size": 412090496,
+      "sha256": "0b45bdac8c7291f3b566d201ba39560d7d1696bbe43a6a0b50666c052c5b42a1",
+      "git_blob_sha1": null,
+      "repo_id": "allenai/OLMo-1B-0724-hf",
+      "revision": "d7cbab742d80589e714b1a2d7f838dcd21cbe143",
+      "url": "https://hf-mirror.com/allenai/OLMo-1B-0724-hf/resolve/d7cbab742d80589e714b1a2d7f838dcd21cbe143/model-00002-of-00002.safetensors",
+      "verified_sha256": "0b45bdac8c7291f3b566d201ba39560d7d1696bbe43a6a0b50666c052c5b42a1",
+      "status": "verified"
+    },
+    {
+      "name": "model.safetensors.index.json",
+      "size": 9252,
+      "sha256": null,
+      "git_blob_sha1": "84cbda948fad36753c1aa2f138e3fb50c92c82aa",
+      "repo_id": "allenai/OLMo-1B-0724-hf",
+      "revision": "d7cbab742d80589e714b1a2d7f838dcd21cbe143",
+      "url": "https://hf-mirror.com/allenai/OLMo-1B-0724-hf/resolve/d7cbab742d80589e714b1a2d7f838dcd21cbe143/model.safetensors.index.json",
+      "verified_sha256": "fef1fef6deb95bc610ad6feda0063c91e0a766ed1e4610e26d6d2c7a9f14de33",
+      "status": "verified"
+    },
+    {
+      "name": "special_tokens_map.json",
+      "size": 65,
+      "sha256": null,
+      "git_blob_sha1": "3e1d70c16f2640555ba8fd31d3ecd1c63425c6a2",
+      "repo_id": "allenai/OLMo-1B-0724-hf",
+      "revision": "d7cbab742d80589e714b1a2d7f838dcd21cbe143",
+      "url": "https://hf-mirror.com/allenai/OLMo-1B-0724-hf/resolve/d7cbab742d80589e714b1a2d7f838dcd21cbe143/special_tokens_map.json",
+      "verified_sha256": "b77491e270c6fcc5b2ecf22370f7318a6a18d3cabea09ba7bab92e9bf12656c2",
+      "status": "verified"
+    },
+    {
+      "name": "tokenizer.json",
+      "size": 2115417,
+      "sha256": null,
+      "git_blob_sha1": "d861718426ec675fc9a629e91c30a3a427ff31bc",
+      "repo_id": "allenai/OLMo-1B-0724-hf",
+      "revision": "d7cbab742d80589e714b1a2d7f838dcd21cbe143",
+      "url": "https://hf-mirror.com/allenai/OLMo-1B-0724-hf/resolve/d7cbab742d80589e714b1a2d7f838dcd21cbe143/tokenizer.json",
+      "verified_sha256": "a094266ac6c4982efba277bc251349a5a6d6ad37efb39a2a90f53d8be2a40a40",
+      "status": "verified"
+    },
+    {
+      "name": "tokenizer_config.json",
+      "size": 5372,
+      "sha256": null,
+      "git_blob_sha1": "00797e612182918e8fd07c15fc58321399cce6d8",
+      "repo_id": "allenai/OLMo-1B-0724-hf",
+      "revision": "d7cbab742d80589e714b1a2d7f838dcd21cbe143",
+      "url": "https://hf-mirror.com/allenai/OLMo-1B-0724-hf/resolve/d7cbab742d80589e714b1a2d7f838dcd21cbe143/tokenizer_config.json",
+      "verified_sha256": "78a839c7851f14f9fb30e664c2b46166dc0628f2900679e5ec160656f702edff",
+      "status": "verified"
+    }
+  ],
+  "status": "complete",
+  "compatibility_status": "structural_checks_passed_with_pad_caveat"
+}

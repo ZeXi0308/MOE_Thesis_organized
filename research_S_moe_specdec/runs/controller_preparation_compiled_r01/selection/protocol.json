@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "purpose": "Choose implementable controller baselines on calibration runs; evaluate the frozen choices on separate runs.",
+  "batches": [
+    1,
+    4,
+    16,
+    64
+  ],
+  "candidate_gammas": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "objective": {
+    "metric": "measured_request_mean_effective_tpot_ms",
+    "definition": "Per request: time from first to last emitted output token divided by output_tokens-1; average over the complete measured request population in each run.",
+    "run_aggregation": "median",
+    "batch_weights": {
+      "1": 0.25,
+      "4": 0.25,
+      "16": 0.25,
+      "64": 0.25
+    },
+    "across_batch_aggregation": "weighted arithmetic mean of per-batch run-median effective TPOT",
+    "direction": "minimize"
+  },
+  "selection": {
+    "input_policy_family": "static direct drafting only: proposal_budget equals gamma",
+    "require_complete_candidate_grid": true,
+    "tie_break": "lower gamma; threshold ties then use the smaller threshold",
+    "static": "One gamma shared by every batch in the declared domain",
+    "native_unrestricted": "Choose one gamma for each calibrated B, without monotonicity constraints; gamma=0 is allowed",
+    "native_threshold": "Choose one positive active gamma and one cutoff t; use active gamma for B<=t and 0 for B>t",
+    "threshold_candidates": [
+      0,
+      1,
+      4,
+      16,
+      64
+    ],
+    "native_engine_max_gamma": 7,
+    "unmeasured_runtime_batch_mapping": "carry forward the gamma from the largest calibrated B not exceeding current B; no performance claim for these intermediate B values"
+  },
+  "evaluation": {
+    "must_execute_frozen_native_tables": true,
+    "selection_source_files_must_be_disjoint_from_evaluation": true,
+    "raw_run_values_must_be_retained": true,
+    "selection_scores_are_not_policy_measurements": true,
+    "posthoc_per_batch_oracle": "Diagnostic only; cannot be called the best single static gamma or measured deployable policy",
+    "step_splicing": "Never combine best future-informed steps from different trajectories into claimed implementable performance",
+    "postproposal_dense_mode": "Optional execution-cost ablation only; it is not the primary native batch-disable baseline"
+  }
+}

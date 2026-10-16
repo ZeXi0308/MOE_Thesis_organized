@@ -1,0 +1,1655 @@
+{
+  "input_run": "runs/olmoe_compiled_routes_r01",
+  "analysis_code_sha256": "538b0a2bc8c2619cf9309fda98246089adf42d63c6b377af6de1c9b4ff4ffb0d",
+  "aggregation": "equal decode layer-step weights; no independent confidence intervals",
+  "validation_all_passed": true,
+  "boundaries": [
+    "Instrumented route diagnostic, not performance data. Each case uses 64 unique requests with 32 output tokens, wave admission, engine max_num_seqs=32, 16 MoE layers.",
+    "D means weight every decode layer-step equally. S/P means use the same weighting (16 layers per step); shrinking active batches near completion are retained. Prefill is excluded from plotted means but included in integrity checks.",
+    "Steps, layers and waves within one condition are correlated observations, not independent system repeats. No confidence interval is estimated.",
+    "S covers every scheduled verification row, including subsequently rejected draft rows. P covers every model-forward row including CUDA Graph padding; it excludes expert GEMM tile padding.",
+    "Physical D denotes the union of experts selected by all P model-forward rows. Selected parameter storage is not measured HBM traffic; padding expert increments alone do not establish a wall-time penalty.",
+    "Runtime mode comes from the actual forward_context dispatch. Graph capture versus replay was not individually instrumented.",
+    "enable_return_routed_experts adds native writes, D2H and CPU slot storage. The plugin adds GPU histogram/copies and deferred drain. Do not use diagnostic timing as trace-off performance.",
+    "For this OLMoE configuration both route-on and route-off default to V1. The native flag and plugin do not explicitly alter its graph dispatch or capture sizes. On other default-V2 architectures the native flag can instead force V1.",
+    "V1 FULL decode graph configuration rounds shared capture sizes up to multiples of gamma+1. Mixed/piecewise dispatch reuses the same table, so gamma=4 and S=1 can dispatch PIECEWISE with P=5.",
+    "Applying P rules to a trace-off run requires the same resolved runner, backend, graph sizes, gamma, and batch structure. This diagnostic uses max_num_seqs=32; the planned performance matrix uses 64. Neither physical D nor time transfers without matched evidence."
+  ],
+  "source_notes": {
+    "remote_sources_read_only": [
+      {
+        "path": "/root/miniconda3/lib/python3.12/site-packages/vllm/config/compilation.py",
+        "sha256": "267f4ca04fdcd2f0cf55c334782dd498c8051b9500ad088673d79518fc712db0",
+        "lines": "1459-1474,1503-1548",
+        "finding": "V1 FULL decode rounds shared capture sizes to gamma+1 multiples"
+      },
+      {
+        "path": "/root/miniconda3/lib/python3.12/site-packages/vllm/v1/cudagraph_dispatcher.py",
+        "sha256": "51f632753af729aeee6ce4a802d9d74b64f22eef02a524f36e2a24b07ef0cf63",
+        "lines": "82-91,132-155,166-231,302-318",
+        "finding": "S maps to next capture P; uniform full key preferred, relaxed piecewise key otherwise"
+      }
+    ],
+    "local_sources": [
+      {
+        "path": "runs/environment_20261016/source/vllm/config/vllm.py",
+        "lines": "68-77,550-622,819-835,955-975,2188-2190",
+        "finding": "OLMoE defaults V1; route flag can disable default V2 elsewhere; dynamic-SD graph override is unrelated to this fixed ngram config",
+        "sha256": "d4c31282c664c91bee81267a2134a9609d16c33e88cc40e0f020256346510a87"
+      },
+      {
+        "path": "runs/environment_20261016/source/v1/worker/gpu_model_runner.py",
+        "lines": "858,3857-3975,4059-4075,4346-4398,7115-7128,7637",
+        "finding": "uniform decode length gamma+1, graph descriptor P passed to preprocessing and forward; padding slot -1 masks KV writes, not MoE rows",
+        "sha256": "81b7627fbe81f7aaa2f77b4bf085faa353c69d03662ebfe369536a9773bb70d0"
+      },
+      {
+        "path": "runs/olmoe_compiled_routes_r01/source/vllm_s_plugin.py",
+        "lines": "416-458,806-845",
+        "finding": "reads existing forward mode/P and captures buffer after target forward; does not change graph keys",
+        "sha256": "cb957c73929bb271ac5d8185ad5471f0a99436eee4894077ed500eccad48ac10"
+      }
+    ]
+  },
+  "cases": [
+    {
+      "file": "gamma0/routes-b1.json",
+      "sha256": "5fca9a81ad97b8fccc08ff297cea3908510bb7a6bba31aa1922ecc0e33dd8cf2",
+      "population": 64,
+      "unique_sources": 64,
+      "all_32_outputs": true,
+      "counts": {
+        "episodes": 64,
+        "steps": 2048,
+        "valid_records": 32768,
+        "physical_records": 32768,
+        "prefill_padded_steps": 34
+      },
+      "phase_steps": {
+        "prefill": 64,
+        "decode": 1984
+      },
+      "runtime_modes": [
+        {
+          "phase": "decode",
+          "mode": "FULL",
+          "steps": 1984
+        },
+        {
+          "phase": "prefill",
+          "mode": "NONE",
+          "steps": 27
+        },
+        {
+          "phase": "prefill",
+          "mode": "PIECEWISE",
+          "steps": 37
+        }
+      ],
+      "decode_S_range": [
+        1,
+        1
+      ],
+      "decode_P_range": [
+        1,
+        1
+      ],
+      "decode_valid_D_mean": 8,
+      "decode_physical_D_mean": 8,
+      "decode_layer_rows": 31744,
+      "padded_decode_layer_rows": 0,
+      "padding_adds_experts_rows": 0,
+      "new_D_mean_all_decode": 0,
+      "new_D_mean_padded_decode": 0,
+      "new_D_max": 0,
+      "S_P_counts_decode": [
+        {
+          "S": 1,
+          "P": 1,
+          "steps": 1984
+        }
+      ],
+      "mapping_bytes_per_expert": [
+        12582912.0
+      ],
+      "bytes_basis": [
+        "expert_shaped_local_parameters_including_scales"
+      ],
+      "errors": [],
+      "padded_examples": [],
+      "gamma": 0,
+      "batch": 1,
+      "engine_max_num_seqs": 32,
+      "trace_complete": true,
+      "validation_error_count": 0,
+      "decode_S_mean": 1,
+      "decode_P_mean": 1,
+      "decode_padding_rows_mean": 0,
+      "decode_actual_B_range": [
+        1,
+        1
+      ],
+      "decode_actual_B_mean": 1,
+      "decode_step_gamma_counts": {
+        "0": 1984
+      },
+      "decode_runtime_mode_counts": {
+        "FULL": 1984
+      },
+      "decode_padded_step_fraction": 0.0,
+      "decode_physical_to_valid_D_ratio_of_means": 1.0,
+      "decode_P_to_S_ratio_of_means": 1.0,
+      "native_layer_mapping": [
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.0.mlp.experts",
+          "native_layer_id": 0,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.1.mlp.experts",
+          "native_layer_id": 1,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.2.mlp.experts",
+          "native_layer_id": 2,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.3.mlp.experts",
+          "native_layer_id": 3,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.4.mlp.experts",
+          "native_layer_id": 4,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.5.mlp.experts",
+          "native_layer_id": 5,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.6.mlp.experts",
+          "native_layer_id": 6,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.7.mlp.experts",
+          "native_layer_id": 7,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.8.mlp.experts",
+          "native_layer_id": 8,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.9.mlp.experts",
+          "native_layer_id": 9,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.10.mlp.experts",
+          "native_layer_id": 10,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.11.mlp.experts",
+          "native_layer_id": 11,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.12.mlp.experts",
+          "native_layer_id": 12,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.13.mlp.experts",
+          "native_layer_id": 13,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.14.mlp.experts",
+          "native_layer_id": 14,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.15.mlp.experts",
+          "native_layer_id": 15,
+          "num_experts": 64
+        }
+      ]
+    },
+    {
+      "file": "gamma0/routes-b32.json",
+      "sha256": "20fa6211a8c3b69d35ed61cc44070fe7da86b9880e568b1133ad7580a444aacd",
+      "population": 64,
+      "unique_sources": 64,
+      "all_32_outputs": true,
+      "counts": {
+        "episodes": 2,
+        "steps": 64,
+        "valid_records": 1024,
+        "physical_records": 1024
+      },
+      "phase_steps": {
+        "prefill": 2,
+        "decode": 62
+      },
+      "runtime_modes": [
+        {
+          "phase": "decode",
+          "mode": "FULL",
+          "steps": 62
+        },
+        {
+          "phase": "prefill",
+          "mode": "NONE",
+          "steps": 2
+        }
+      ],
+      "decode_S_range": [
+        32,
+        32
+      ],
+      "decode_P_range": [
+        32,
+        32
+      ],
+      "decode_valid_D_mean": 59.46975806451613,
+      "decode_physical_D_mean": 59.46975806451613,
+      "decode_layer_rows": 992,
+      "padded_decode_layer_rows": 0,
+      "padding_adds_experts_rows": 0,
+      "new_D_mean_all_decode": 0,
+      "new_D_mean_padded_decode": 0,
+      "new_D_max": 0,
+      "S_P_counts_decode": [
+        {
+          "S": 32,
+          "P": 32,
+          "steps": 62
+        }
+      ],
+      "mapping_bytes_per_expert": [
+        12582912.0
+      ],
+      "bytes_basis": [
+        "expert_shaped_local_parameters_including_scales"
+      ],
+      "errors": [],
+      "padded_examples": [],
+      "gamma": 0,
+      "batch": 32,
+      "engine_max_num_seqs": 32,
+      "trace_complete": true,
+      "validation_error_count": 0,
+      "decode_S_mean": 32,
+      "decode_P_mean": 32,
+      "decode_padding_rows_mean": 0,
+      "decode_actual_B_range": [
+        32,
+        32
+      ],
+      "decode_actual_B_mean": 32,
+      "decode_step_gamma_counts": {
+        "0": 62
+      },
+      "decode_runtime_mode_counts": {
+        "FULL": 62
+      },
+      "decode_padded_step_fraction": 0.0,
+      "decode_physical_to_valid_D_ratio_of_means": 1.0,
+      "decode_P_to_S_ratio_of_means": 1.0,
+      "native_layer_mapping": [
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.0.mlp.experts",
+          "native_layer_id": 0,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.1.mlp.experts",
+          "native_layer_id": 1,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.2.mlp.experts",
+          "native_layer_id": 2,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.3.mlp.experts",
+          "native_layer_id": 3,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.4.mlp.experts",
+          "native_layer_id": 4,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.5.mlp.experts",
+          "native_layer_id": 5,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.6.mlp.experts",
+          "native_layer_id": 6,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.7.mlp.experts",
+          "native_layer_id": 7,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.8.mlp.experts",
+          "native_layer_id": 8,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.9.mlp.experts",
+          "native_layer_id": 9,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.10.mlp.experts",
+          "native_layer_id": 10,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.11.mlp.experts",
+          "native_layer_id": 11,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.12.mlp.experts",
+          "native_layer_id": 12,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.13.mlp.experts",
+          "native_layer_id": 13,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.14.mlp.experts",
+          "native_layer_id": 14,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.15.mlp.experts",
+          "native_layer_id": 15,
+          "num_experts": 64
+        }
+      ]
+    },
+    {
+      "file": "gamma0/routes-b8.json",
+      "sha256": "e5256b4e585441515fda8c60f7821bc63219844fb908fd9778d3e723dd23e71a",
+      "population": 64,
+      "unique_sources": 64,
+      "all_32_outputs": true,
+      "counts": {
+        "episodes": 8,
+        "steps": 256,
+        "valid_records": 4096,
+        "physical_records": 4096
+      },
+      "phase_steps": {
+        "prefill": 8,
+        "decode": 248
+      },
+      "runtime_modes": [
+        {
+          "phase": "decode",
+          "mode": "FULL",
+          "steps": 248
+        },
+        {
+          "phase": "prefill",
+          "mode": "NONE",
+          "steps": 8
+        }
+      ],
+      "decode_S_range": [
+        8,
+        8
+      ],
+      "decode_P_range": [
+        8,
+        8
+      ],
+      "decode_valid_D_mean": 38.05594758064516,
+      "decode_physical_D_mean": 38.05594758064516,
+      "decode_layer_rows": 3968,
+      "padded_decode_layer_rows": 0,
+      "padding_adds_experts_rows": 0,
+      "new_D_mean_all_decode": 0,
+      "new_D_mean_padded_decode": 0,
+      "new_D_max": 0,
+      "S_P_counts_decode": [
+        {
+          "S": 8,
+          "P": 8,
+          "steps": 248
+        }
+      ],
+      "mapping_bytes_per_expert": [
+        12582912.0
+      ],
+      "bytes_basis": [
+        "expert_shaped_local_parameters_including_scales"
+      ],
+      "errors": [],
+      "padded_examples": [],
+      "gamma": 0,
+      "batch": 8,
+      "engine_max_num_seqs": 32,
+      "trace_complete": true,
+      "validation_error_count": 0,
+      "decode_S_mean": 8,
+      "decode_P_mean": 8,
+      "decode_padding_rows_mean": 0,
+      "decode_actual_B_range": [
+        8,
+        8
+      ],
+      "decode_actual_B_mean": 8,
+      "decode_step_gamma_counts": {
+        "0": 248
+      },
+      "decode_runtime_mode_counts": {
+        "FULL": 248
+      },
+      "decode_padded_step_fraction": 0.0,
+      "decode_physical_to_valid_D_ratio_of_means": 1.0,
+      "decode_P_to_S_ratio_of_means": 1.0,
+      "native_layer_mapping": [
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.0.mlp.experts",
+          "native_layer_id": 0,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.1.mlp.experts",
+          "native_layer_id": 1,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.2.mlp.experts",
+          "native_layer_id": 2,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.3.mlp.experts",
+          "native_layer_id": 3,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.4.mlp.experts",
+          "native_layer_id": 4,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.5.mlp.experts",
+          "native_layer_id": 5,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.6.mlp.experts",
+          "native_layer_id": 6,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.7.mlp.experts",
+          "native_layer_id": 7,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.8.mlp.experts",
+          "native_layer_id": 8,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.9.mlp.experts",
+          "native_layer_id": 9,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.10.mlp.experts",
+          "native_layer_id": 10,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.11.mlp.experts",
+          "native_layer_id": 11,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.12.mlp.experts",
+          "native_layer_id": 12,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.13.mlp.experts",
+          "native_layer_id": 13,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.14.mlp.experts",
+          "native_layer_id": 14,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.15.mlp.experts",
+          "native_layer_id": 15,
+          "num_experts": 64
+        }
+      ]
+    },
+    {
+      "file": "gamma4/routes-b1.json",
+      "sha256": "4191289fd248ee9388d66f2bdbd47abaf6c58acbb49cdc4eaa84f6da11321644",
+      "population": 64,
+      "unique_sources": 64,
+      "all_32_outputs": true,
+      "counts": {
+        "episodes": 64,
+        "steps": 1811,
+        "valid_records": 28976,
+        "physical_records": 28976,
+        "prefill_padded_steps": 61,
+        "decode_padded_steps": 1569
+      },
+      "phase_steps": {
+        "prefill": 64,
+        "decode": 1747
+      },
+      "runtime_modes": [
+        {
+          "phase": "decode",
+          "mode": "FULL",
+          "steps": 178
+        },
+        {
+          "phase": "decode",
+          "mode": "PIECEWISE",
+          "steps": 1569
+        },
+        {
+          "phase": "prefill",
+          "mode": "PIECEWISE",
+          "steps": 64
+        }
+      ],
+      "decode_S_range": [
+        1,
+        5
+      ],
+      "decode_P_range": [
+        5,
+        5
+      ],
+      "decode_valid_D_mean": 9.621028906697195,
+      "decode_physical_D_mean": 26.72985832856325,
+      "decode_layer_rows": 27952,
+      "padded_decode_layer_rows": 25104,
+      "padding_adds_experts_rows": 25104,
+      "new_D_mean_all_decode": 17.108829421866055,
+      "new_D_mean_padded_decode": 19.049792861695348,
+      "new_D_max": 30,
+      "S_P_counts_decode": [
+        {
+          "S": 1,
+          "P": 5,
+          "steps": 1569
+        },
+        {
+          "S": 5,
+          "P": 5,
+          "steps": 178
+        }
+      ],
+      "mapping_bytes_per_expert": [
+        12582912.0
+      ],
+      "bytes_basis": [
+        "expert_shaped_local_parameters_including_scales"
+      ],
+      "errors": [],
+      "padded_examples": [
+        {
+          "episode": "routes-b1-w0",
+          "step": 1,
+          "layer": "model.layers.12.mlp.experts",
+          "S": 1,
+          "P": 5,
+          "valid_D": 8,
+          "physical_D": 25,
+          "new_experts": [
+            5,
+            6,
+            9,
+            17,
+            19,
+            23,
+            30,
+            35,
+            37,
+            38,
+            43,
+            50,
+            51,
+            53,
+            54,
+            58,
+            59
+          ],
+          "mode": "PIECEWISE"
+        },
+        {
+          "episode": "routes-b1-w0",
+          "step": 1,
+          "layer": "model.layers.2.mlp.experts",
+          "S": 1,
+          "P": 5,
+          "valid_D": 8,
+          "physical_D": 26,
+          "new_experts": [
+            2,
+            6,
+            21,
+            25,
+            27,
+            28,
+            29,
+            30,
+            31,
+            33,
+            36,
+            37,
+            42,
+            45,
+            51,
+            52,
+            55,
+            60
+          ],
+          "mode": "PIECEWISE"
+        },
+        {
+          "episode": "routes-b1-w0",
+          "step": 1,
+          "layer": "model.layers.7.mlp.experts",
+          "S": 1,
+          "P": 5,
+          "valid_D": 8,
+          "physical_D": 23,
+          "new_experts": [
+            2,
+            7,
+            12,
+            16,
+            21,
+            26,
+            33,
+            35,
+            37,
+            39,
+            45,
+            46,
+            48,
+            58,
+            63
+          ],
+          "mode": "PIECEWISE"
+        }
+      ],
+      "gamma": 4,
+      "batch": 1,
+      "engine_max_num_seqs": 32,
+      "trace_complete": true,
+      "validation_error_count": 0,
+      "decode_S_mean": 1.4075558099599312,
+      "decode_P_mean": 5,
+      "decode_padding_rows_mean": 3.5924441900400685,
+      "decode_actual_B_range": [
+        1,
+        1
+      ],
+      "decode_actual_B_mean": 1,
+      "decode_step_gamma_counts": {
+        "0": 1569,
+        "4": 178
+      },
+      "decode_runtime_mode_counts": {
+        "FULL": 178,
+        "PIECEWISE": 1569
+      },
+      "decode_padded_step_fraction": 0.8981110475100171,
+      "decode_physical_to_valid_D_ratio_of_means": 2.7782744016034093,
+      "decode_P_to_S_ratio_of_means": 3.5522570150467674,
+      "native_layer_mapping": [
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.0.mlp.experts",
+          "native_layer_id": 0,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.1.mlp.experts",
+          "native_layer_id": 1,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.2.mlp.experts",
+          "native_layer_id": 2,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.3.mlp.experts",
+          "native_layer_id": 3,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.4.mlp.experts",
+          "native_layer_id": 4,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.5.mlp.experts",
+          "native_layer_id": 5,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.6.mlp.experts",
+          "native_layer_id": 6,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.7.mlp.experts",
+          "native_layer_id": 7,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.8.mlp.experts",
+          "native_layer_id": 8,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.9.mlp.experts",
+          "native_layer_id": 9,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.10.mlp.experts",
+          "native_layer_id": 10,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.11.mlp.experts",
+          "native_layer_id": 11,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.12.mlp.experts",
+          "native_layer_id": 12,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.13.mlp.experts",
+          "native_layer_id": 13,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.14.mlp.experts",
+          "native_layer_id": 14,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.15.mlp.experts",
+          "native_layer_id": 15,
+          "num_experts": 64
+        }
+      ]
+    },
+    {
+      "file": "gamma4/routes-b32.json",
+      "sha256": "646ff796fb7ba9f508fdea989781e5d40789b5f12b1e400b72d4b705bdf0c362",
+      "population": 64,
+      "unique_sources": 64,
+      "all_32_outputs": true,
+      "counts": {
+        "episodes": 2,
+        "steps": 64,
+        "valid_records": 1024,
+        "physical_records": 1024,
+        "decode_padded_steps": 54
+      },
+      "phase_steps": {
+        "prefill": 2,
+        "decode": 62
+      },
+      "runtime_modes": [
+        {
+          "phase": "decode",
+          "mode": "PIECEWISE",
+          "steps": 62
+        },
+        {
+          "phase": "prefill",
+          "mode": "NONE",
+          "steps": 2
+        }
+      ],
+      "decode_S_range": [
+        12,
+        64
+      ],
+      "decode_P_range": [
+        20,
+        65
+      ],
+      "decode_valid_D_mean": 59.27116935483871,
+      "decode_physical_D_mean": 60.90221774193548,
+      "decode_layer_rows": 992,
+      "padded_decode_layer_rows": 864,
+      "padding_adds_experts_rows": 584,
+      "new_D_mean_all_decode": 1.6310483870967742,
+      "new_D_mean_padded_decode": 1.8726851851851851,
+      "new_D_max": 19,
+      "S_P_counts_decode": [
+        {
+          "S": 12,
+          "P": 20,
+          "steps": 2
+        },
+        {
+          "S": 17,
+          "P": 20,
+          "steps": 1
+        },
+        {
+          "S": 20,
+          "P": 20,
+          "steps": 2
+        },
+        {
+          "S": 22,
+          "P": 25,
+          "steps": 1
+        },
+        {
+          "S": 23,
+          "P": 25,
+          "steps": 1
+        },
+        {
+          "S": 27,
+          "P": 35,
+          "steps": 2
+        },
+        {
+          "S": 28,
+          "P": 35,
+          "steps": 2
+        },
+        {
+          "S": 30,
+          "P": 35,
+          "steps": 2
+        },
+        {
+          "S": 32,
+          "P": 35,
+          "steps": 4
+        },
+        {
+          "S": 34,
+          "P": 35,
+          "steps": 1
+        },
+        {
+          "S": 36,
+          "P": 40,
+          "steps": 4
+        },
+        {
+          "S": 37,
+          "P": 40,
+          "steps": 1
+        },
+        {
+          "S": 38,
+          "P": 40,
+          "steps": 1
+        },
+        {
+          "S": 39,
+          "P": 40,
+          "steps": 2
+        },
+        {
+          "S": 40,
+          "P": 40,
+          "steps": 4
+        },
+        {
+          "S": 41,
+          "P": 50,
+          "steps": 2
+        },
+        {
+          "S": 43,
+          "P": 50,
+          "steps": 2
+        },
+        {
+          "S": 44,
+          "P": 50,
+          "steps": 6
+        },
+        {
+          "S": 45,
+          "P": 50,
+          "steps": 1
+        },
+        {
+          "S": 48,
+          "P": 50,
+          "steps": 7
+        },
+        {
+          "S": 50,
+          "P": 50,
+          "steps": 1
+        },
+        {
+          "S": 51,
+          "P": 60,
+          "steps": 1
+        },
+        {
+          "S": 52,
+          "P": 60,
+          "steps": 6
+        },
+        {
+          "S": 56,
+          "P": 60,
+          "steps": 3
+        },
+        {
+          "S": 59,
+          "P": 60,
+          "steps": 1
+        },
+        {
+          "S": 60,
+          "P": 60,
+          "steps": 1
+        },
+        {
+          "S": 64,
+          "P": 65,
+          "steps": 1
+        }
+      ],
+      "mapping_bytes_per_expert": [
+        12582912.0
+      ],
+      "bytes_basis": [
+        "expert_shaped_local_parameters_including_scales"
+      ],
+      "errors": [],
+      "padded_examples": [
+        {
+          "episode": "routes-b32-w0",
+          "step": 1,
+          "layer": "model.layers.12.mlp.experts",
+          "S": 36,
+          "P": 40,
+          "valid_D": 58,
+          "physical_D": 62,
+          "new_experts": [
+            17,
+            50,
+            52,
+            53
+          ],
+          "mode": "PIECEWISE"
+        },
+        {
+          "episode": "routes-b32-w0",
+          "step": 1,
+          "layer": "model.layers.2.mlp.experts",
+          "S": 36,
+          "P": 40,
+          "valid_D": 57,
+          "physical_D": 59,
+          "new_experts": [
+            3,
+            29
+          ],
+          "mode": "PIECEWISE"
+        },
+        {
+          "episode": "routes-b32-w0",
+          "step": 1,
+          "layer": "model.layers.7.mlp.experts",
+          "S": 36,
+          "P": 40,
+          "valid_D": 56,
+          "physical_D": 59,
+          "new_experts": [
+            12,
+            16,
+            33
+          ],
+          "mode": "PIECEWISE"
+        }
+      ],
+      "gamma": 4,
+      "batch": 32,
+      "engine_max_num_seqs": 32,
+      "trace_complete": true,
+      "validation_error_count": 0,
+      "decode_S_mean": 40.193548387096776,
+      "decode_P_mean": 44.354838709677416,
+      "decode_padding_rows_mean": 4.161290322580645,
+      "decode_actual_B_range": [
+        8,
+        32
+      ],
+      "decode_actual_B_mean": 28.06451612903226,
+      "decode_step_gamma_counts": {
+        "0": 4,
+        "4": 58
+      },
+      "decode_runtime_mode_counts": {
+        "PIECEWISE": 62
+      },
+      "decode_padded_step_fraction": 0.8709677419354839,
+      "decode_physical_to_valid_D_ratio_of_means": 1.0275184108032722,
+      "decode_P_to_S_ratio_of_means": 1.1035313001605136,
+      "native_layer_mapping": [
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.0.mlp.experts",
+          "native_layer_id": 0,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.1.mlp.experts",
+          "native_layer_id": 1,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.2.mlp.experts",
+          "native_layer_id": 2,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.3.mlp.experts",
+          "native_layer_id": 3,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.4.mlp.experts",
+          "native_layer_id": 4,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.5.mlp.experts",
+          "native_layer_id": 5,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.6.mlp.experts",
+          "native_layer_id": 6,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.7.mlp.experts",
+          "native_layer_id": 7,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.8.mlp.experts",
+          "native_layer_id": 8,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.9.mlp.experts",
+          "native_layer_id": 9,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.10.mlp.experts",
+          "native_layer_id": 10,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.11.mlp.experts",
+          "native_layer_id": 11,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.12.mlp.experts",
+          "native_layer_id": 12,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.13.mlp.experts",
+          "native_layer_id": 13,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.14.mlp.experts",
+          "native_layer_id": 14,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.15.mlp.experts",
+          "native_layer_id": 15,
+          "num_experts": 64
+        }
+      ]
+    },
+    {
+      "file": "gamma4/routes-b8.json",
+      "sha256": "87da278e711734ed3f87bc2191c8fbb48de5dd483357dcf8410715786c420dc2",
+      "population": 64,
+      "unique_sources": 64,
+      "all_32_outputs": true,
+      "counts": {
+        "episodes": 8,
+        "steps": 256,
+        "valid_records": 4096,
+        "physical_records": 4096,
+        "decode_padded_steps": 224
+      },
+      "phase_steps": {
+        "prefill": 8,
+        "decode": 248
+      },
+      "runtime_modes": [
+        {
+          "phase": "decode",
+          "mode": "PIECEWISE",
+          "steps": 248
+        },
+        {
+          "phase": "prefill",
+          "mode": "NONE",
+          "steps": 8
+        }
+      ],
+      "decode_S_range": [
+        1,
+        24
+      ],
+      "decode_P_range": [
+        5,
+        25
+      ],
+      "decode_valid_D_mean": 38.90877016129032,
+      "decode_physical_D_mean": 46.36290322580645,
+      "decode_layer_rows": 3968,
+      "padded_decode_layer_rows": 3584,
+      "padding_adds_experts_rows": 3556,
+      "new_D_mean_all_decode": 7.454133064516129,
+      "new_D_mean_padded_decode": 8.252790178571429,
+      "new_D_max": 23,
+      "S_P_counts_decode": [
+        {
+          "S": 1,
+          "P": 5,
+          "steps": 2
+        },
+        {
+          "S": 2,
+          "P": 5,
+          "steps": 3
+        },
+        {
+          "S": 3,
+          "P": 5,
+          "steps": 10
+        },
+        {
+          "S": 4,
+          "P": 5,
+          "steps": 7
+        },
+        {
+          "S": 5,
+          "P": 5,
+          "steps": 8
+        },
+        {
+          "S": 6,
+          "P": 10,
+          "steps": 12
+        },
+        {
+          "S": 7,
+          "P": 10,
+          "steps": 11
+        },
+        {
+          "S": 8,
+          "P": 10,
+          "steps": 74
+        },
+        {
+          "S": 9,
+          "P": 10,
+          "steps": 1
+        },
+        {
+          "S": 10,
+          "P": 10,
+          "steps": 10
+        },
+        {
+          "S": 11,
+          "P": 20,
+          "steps": 6
+        },
+        {
+          "S": 12,
+          "P": 20,
+          "steps": 64
+        },
+        {
+          "S": 14,
+          "P": 20,
+          "steps": 1
+        },
+        {
+          "S": 15,
+          "P": 20,
+          "steps": 3
+        },
+        {
+          "S": 16,
+          "P": 20,
+          "steps": 26
+        },
+        {
+          "S": 19,
+          "P": 20,
+          "steps": 1
+        },
+        {
+          "S": 20,
+          "P": 20,
+          "steps": 6
+        },
+        {
+          "S": 24,
+          "P": 25,
+          "steps": 3
+        }
+      ],
+      "mapping_bytes_per_expert": [
+        12582912.0
+      ],
+      "bytes_basis": [
+        "expert_shaped_local_parameters_including_scales"
+      ],
+      "errors": [],
+      "padded_examples": [
+        {
+          "episode": "routes-b8-w0",
+          "step": 1,
+          "layer": "model.layers.12.mlp.experts",
+          "S": 8,
+          "P": 10,
+          "valid_D": 38,
+          "physical_D": 40,
+          "new_experts": [
+            37,
+            41
+          ],
+          "mode": "PIECEWISE"
+        },
+        {
+          "episode": "routes-b8-w0",
+          "step": 1,
+          "layer": "model.layers.2.mlp.experts",
+          "S": 8,
+          "P": 10,
+          "valid_D": 27,
+          "physical_D": 33,
+          "new_experts": [
+            13,
+            27,
+            30,
+            34,
+            36,
+            37
+          ],
+          "mode": "PIECEWISE"
+        },
+        {
+          "episode": "routes-b8-w0",
+          "step": 1,
+          "layer": "model.layers.7.mlp.experts",
+          "S": 8,
+          "P": 10,
+          "valid_D": 30,
+          "physical_D": 36,
+          "new_experts": [
+            2,
+            7,
+            9,
+            12,
+            33,
+            59
+          ],
+          "mode": "PIECEWISE"
+        }
+      ],
+      "gamma": 4,
+      "batch": 8,
+      "engine_max_num_seqs": 32,
+      "trace_complete": true,
+      "validation_error_count": 0,
+      "decode_S_mean": 9.983870967741936,
+      "decode_P_mean": 13.891129032258064,
+      "decode_padding_rows_mean": 3.907258064516129,
+      "decode_actual_B_range": [
+        1,
+        8
+      ],
+      "decode_actual_B_mean": 7.016129032258065,
+      "decode_step_gamma_counts": {
+        "0": 117,
+        "4": 131
+      },
+      "decode_runtime_mode_counts": {
+        "PIECEWISE": 248
+      },
+      "decode_padded_step_fraction": 0.9032258064516129,
+      "decode_physical_to_valid_D_ratio_of_means": 1.1915797655288556,
+      "decode_P_to_S_ratio_of_means": 1.3913570274636509,
+      "native_layer_mapping": [
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.0.mlp.experts",
+          "native_layer_id": 0,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.1.mlp.experts",
+          "native_layer_id": 1,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.2.mlp.experts",
+          "native_layer_id": 2,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.3.mlp.experts",
+          "native_layer_id": 3,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.4.mlp.experts",
+          "native_layer_id": 4,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.5.mlp.experts",
+          "native_layer_id": 5,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.6.mlp.experts",
+          "native_layer_id": 6,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.7.mlp.experts",
+          "native_layer_id": 7,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.8.mlp.experts",
+          "native_layer_id": 8,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.9.mlp.experts",
+          "native_layer_id": 9,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.10.mlp.experts",
+          "native_layer_id": 10,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.11.mlp.experts",
+          "native_layer_id": 11,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.12.mlp.experts",
+          "native_layer_id": 12,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.13.mlp.experts",
+          "native_layer_id": 13,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.14.mlp.experts",
+          "native_layer_id": 14,
+          "num_experts": 64
+        },
+        {
+          "bytes_basis": "expert_shaped_local_parameters_including_scales",
+          "bytes_per_expert": 12582912.0,
+          "layer": "model.layers.15.mlp.experts",
+          "native_layer_id": 15,
+          "num_experts": 64
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,542 @@
+{
+  "schema_version": 1,
+  "status": "cpu_resource_plan_candidates_pending_realized_KV_allocation_and_smoke",
+  "created_utc": "2026-10-16T02:04:18.261044+00:00",
+  "cpu_only": true,
+  "tokenizer_rescan_performed": false,
+  "gpu_execution_performed": false,
+  "fresh_remote_source_read_succeeded": false,
+  "connection_boundary": "One existing-socket read attempt returned connection reset. Parent confirmed direct endpoint connection refused and requested no further agent reconnect attempts. No inference about remote experiment state.",
+  "population_manifest": "runs/auxiliary_population_preparation_r01/manifest.json",
+  "population_manifest_sha256": "3a68c08ddea5b9b0bceec8b113d190307eae4f4543f820f8e32d1460707570ea",
+  "formula": "KV bytes/token/model = 2(K,V) * layers * KV_heads * head_dim * 2(BF16); request resident token slots = ceil((complete_prompt_tokens + 128 + 7) / block_size) * block_size; sum all 64 requests and all target/draft layers.",
+  "assumptions": {
+    "tensor_parallel_size": 1,
+    "engine_context": 4096,
+    "output_tokens": 128,
+    "draft_budget": 7,
+    "lookahead_padding": 7,
+    "batches_supported_by_this_envelope": [
+      1,
+      4,
+      16,
+      64
+    ],
+    "kv_cache_dtype": "bfloat16",
+    "attention_scope": "full attention; no sliding-window/MLA/KV-sharing savings assumed",
+    "prefix_sharing_savings_assumed": false,
+    "block_sizes_evaluated": [
+      16,
+      32,
+      64
+    ],
+    "actual_backend_block_size": "pending remote configured-engine/source confirmation",
+    "transient_pool_null_block_and_workspace": "not included in static live-payload estimate; candidate budget includes several GiB of margin"
+  },
+  "models": {
+    "olmoe_target": {
+      "layers": 16,
+      "kv_heads": 16,
+      "head_dim": 128,
+      "head_dim_basis": "hidden_size / num_attention_heads from exact local config whose bytes match remote scan SHA256",
+      "runtime_kv_dtype_assumption": "bfloat16, 2 bytes (auto cache dtype and no separate draft KV override)",
+      "stored_config_dtype": "bfloat16",
+      "kv_bytes_per_resident_token": 131072,
+      "metadata_source": "/Users/zhaozhenyu/Desktop/毕业设计/MoE_Scheduling_20261002/model/config.json",
+      "observed_config_sha256_from_completed_cpu_scan": "42ea6f5fe31e9243290ba3c348a4ad615b88a6fbc6e10544e21a87b6dff5da6c",
+      "fresh_remote_config_read": false,
+      "local_config_sha256": "42ea6f5fe31e9243290ba3c348a4ad615b88a6fbc6e10544e21a87b6dff5da6c",
+      "local_exact_config_matches_remote_scan": true
+    },
+    "olmo_draft": {
+      "layers": 16,
+      "kv_heads": 16,
+      "head_dim": 128,
+      "head_dim_basis": "hidden_size / num_attention_heads; model attention implementation still requires remote confirmation",
+      "runtime_kv_dtype_assumption": "bfloat16, 2 bytes (auto cache dtype and no separate draft KV override)",
+      "stored_config_dtype": "float32",
+      "kv_bytes_per_resident_token": 131072,
+      "metadata_source": "configs/olmo_dense_draft.json",
+      "observed_config_sha256_from_completed_cpu_scan": "d40e08d04a0efefe634158b8585412cb333b8019966c3f788bdae49074ce634e",
+      "fresh_remote_config_read": false
+    },
+    "qwen3_awq_target": {
+      "layers": 48,
+      "kv_heads": 4,
+      "head_dim": 128,
+      "head_dim_basis": "explicit pinned head_dim",
+      "runtime_kv_dtype_assumption": "bfloat16, 2 bytes (auto cache dtype and no separate draft KV override)",
+      "stored_config_dtype": null,
+      "kv_bytes_per_resident_token": 98304,
+      "metadata_source": "configs/qwen3_awq_target.json",
+      "observed_config_sha256_from_completed_cpu_scan": "773d59a032d09ac9b89ea19b980dd7f18b154eb24d1e2d5acfb59c305004cda8",
+      "fresh_remote_config_read": false
+    },
+    "qwen3_eagle3_draft": {
+      "layers": 1,
+      "kv_heads": 4,
+      "head_dim": 128,
+      "head_dim_basis": "explicit pinned head_dim",
+      "runtime_kv_dtype_assumption": "bfloat16, 2 bytes (auto cache dtype and no separate draft KV override)",
+      "stored_config_dtype": null,
+      "kv_bytes_per_resident_token": 2048,
+      "metadata_source": "configs/draft_sources.json",
+      "observed_config_sha256_from_completed_cpu_scan": "342fde55eea6e019aa7d211bbc8dddc2d46c2395affd5a91a25ac57aff71529f",
+      "fresh_remote_config_read": false
+    },
+    "granite3b_target": {
+      "layers": 32,
+      "kv_heads": 8,
+      "head_dim": 64,
+      "head_dim_basis": "hidden_size / num_attention_heads; model attention implementation still requires remote confirmation",
+      "runtime_kv_dtype_assumption": "bfloat16, 2 bytes (auto cache dtype and no separate draft KV override)",
+      "stored_config_dtype": "bfloat16",
+      "kv_bytes_per_resident_token": 65536,
+      "metadata_source": "configs/granite3b_target_source.json",
+      "observed_config_sha256_from_completed_cpu_scan": "e9b47e65b30085a17c611d7805bf86d2f13ee0179803b496b0dd45126089f655",
+      "fresh_remote_config_read": false
+    },
+    "granite1b_draft": {
+      "layers": 24,
+      "kv_heads": 8,
+      "head_dim": 64,
+      "head_dim_basis": "hidden_size / num_attention_heads; model attention implementation still requires remote confirmation",
+      "runtime_kv_dtype_assumption": "bfloat16, 2 bytes (auto cache dtype and no separate draft KV override)",
+      "stored_config_dtype": "bfloat16",
+      "kv_bytes_per_resident_token": 49152,
+      "metadata_source": "configs/granite3b_target_source.json",
+      "observed_config_sha256_from_completed_cpu_scan": "25af0a4e4e85b781fa22c7cab240cda31714254a9d3d0f2f67e079693e1dd614",
+      "fresh_remote_config_read": false
+    }
+  },
+  "population_estimates": [
+    {
+      "family": "olmoe",
+      "task": "lcc",
+      "split": "development",
+      "requests": 64,
+      "prompt_tokens_min": 1275,
+      "prompt_tokens_max": 3059,
+      "prompt_tokens_sum": 144790,
+      "rounded_resident_token_slots_by_block_size": {
+        "16": 153856,
+        "32": 154304,
+        "64": 155264
+      },
+      "target_only_kv_gib_by_block_size": {
+        "16": 18.78125,
+        "32": 18.8359375,
+        "64": 18.953125
+      },
+      "target_plus_neural_draft_kv_gib_by_block_size": {
+        "16": 37.5625,
+        "32": 37.671875,
+        "64": 37.90625
+      }
+    },
+    {
+      "family": "olmoe",
+      "task": "lcc",
+      "split": "heldout",
+      "requests": 64,
+      "prompt_tokens_min": 1458,
+      "prompt_tokens_max": 3058,
+      "prompt_tokens_sum": 143723,
+      "rounded_resident_token_slots_by_block_size": {
+        "16": 152832,
+        "32": 153408,
+        "64": 154560
+      },
+      "target_only_kv_gib_by_block_size": {
+        "16": 18.65625,
+        "32": 18.7265625,
+        "64": 18.8671875
+      },
+      "target_plus_neural_draft_kv_gib_by_block_size": {
+        "16": 37.3125,
+        "32": 37.453125,
+        "64": 37.734375
+      }
+    },
+    {
+      "family": "olmoe",
+      "task": "multi_news",
+      "split": "development",
+      "requests": 64,
+      "prompt_tokens_min": 616,
+      "prompt_tokens_max": 3168,
+      "prompt_tokens_sum": 109852,
+      "rounded_resident_token_slots_by_block_size": {
+        "16": 118944,
+        "32": 119616,
+        "64": 120640
+      },
+      "target_only_kv_gib_by_block_size": {
+        "16": 14.51953125,
+        "32": 14.6015625,
+        "64": 14.7265625
+      },
+      "target_plus_neural_draft_kv_gib_by_block_size": {
+        "16": 29.0390625,
+        "32": 29.203125,
+        "64": 29.453125
+      }
+    },
+    {
+      "family": "olmoe",
+      "task": "multi_news",
+      "split": "heldout",
+      "requests": 64,
+      "prompt_tokens_min": 165,
+      "prompt_tokens_max": 3019,
+      "prompt_tokens_sum": 116562,
+      "rounded_resident_token_slots_by_block_size": {
+        "16": 125712,
+        "32": 126304,
+        "64": 127424
+      },
+      "target_only_kv_gib_by_block_size": {
+        "16": 15.345703125,
+        "32": 15.41796875,
+        "64": 15.5546875
+      },
+      "target_plus_neural_draft_kv_gib_by_block_size": {
+        "16": 30.69140625,
+        "32": 30.8359375,
+        "64": 31.109375
+      }
+    },
+    {
+      "family": "qwen3_awq",
+      "task": "lcc",
+      "split": "development",
+      "requests": 64,
+      "prompt_tokens_min": 1017,
+      "prompt_tokens_max": 2838,
+      "prompt_tokens_sum": 118405,
+      "rounded_resident_token_slots_by_block_size": {
+        "16": 127504,
+        "32": 127968,
+        "64": 129152
+      },
+      "target_only_kv_gib_by_block_size": {
+        "16": 11.67333984375,
+        "32": 11.7158203125,
+        "64": 11.82421875
+      },
+      "target_plus_neural_draft_kv_gib_by_block_size": {
+        "16": 11.916534423828125,
+        "32": 11.95989990234375,
+        "64": 12.070556640625
+      }
+    },
+    {
+      "family": "qwen3_awq",
+      "task": "lcc",
+      "split": "heldout",
+      "requests": 64,
+      "prompt_tokens_min": 1203,
+      "prompt_tokens_max": 2612,
+      "prompt_tokens_sum": 116409,
+      "rounded_resident_token_slots_by_block_size": {
+        "16": 125488,
+        "32": 126048,
+        "64": 127040
+      },
+      "target_only_kv_gib_by_block_size": {
+        "16": 11.48876953125,
+        "32": 11.5400390625,
+        "64": 11.630859375
+      },
+      "target_plus_neural_draft_kv_gib_by_block_size": {
+        "16": 11.728118896484375,
+        "32": 11.78045654296875,
+        "64": 11.8731689453125
+      }
+    },
+    {
+      "family": "qwen3_awq",
+      "task": "multi_news",
+      "split": "development",
+      "requests": 64,
+      "prompt_tokens_min": 567,
+      "prompt_tokens_max": 2988,
+      "prompt_tokens_sum": 104547,
+      "rounded_resident_token_slots_by_block_size": {
+        "16": 113632,
+        "32": 114080,
+        "64": 115072
+      },
+      "target_only_kv_gib_by_block_size": {
+        "16": 10.4033203125,
+        "32": 10.4443359375,
+        "64": 10.53515625
+      },
+      "target_plus_neural_draft_kv_gib_by_block_size": {
+        "16": 10.62005615234375,
+        "32": 10.66192626953125,
+        "64": 10.754638671875
+      }
+    },
+    {
+      "family": "qwen3_awq",
+      "task": "multi_news",
+      "split": "heldout",
+      "requests": 64,
+      "prompt_tokens_min": 154,
+      "prompt_tokens_max": 2842,
+      "prompt_tokens_sum": 110975,
+      "rounded_resident_token_slots_by_block_size": {
+        "16": 120128,
+        "32": 120704,
+        "64": 121664
+      },
+      "target_only_kv_gib_by_block_size": {
+        "16": 10.998046875,
+        "32": 11.05078125,
+        "64": 11.138671875
+      },
+      "target_plus_neural_draft_kv_gib_by_block_size": {
+        "16": 11.2271728515625,
+        "32": 11.281005859375,
+        "64": 11.3707275390625
+      }
+    },
+    {
+      "family": "granite3b",
+      "task": "lcc",
+      "split": "development",
+      "requests": 64,
+      "prompt_tokens_min": 1029,
+      "prompt_tokens_max": 2931,
+      "prompt_tokens_sum": 132306,
+      "rounded_resident_token_slots_by_block_size": {
+        "16": 141408,
+        "32": 141856,
+        "64": 142976
+      },
+      "target_only_kv_gib_by_block_size": {
+        "16": 8.630859375,
+        "32": 8.658203125,
+        "64": 8.7265625
+      },
+      "target_plus_neural_draft_kv_gib_by_block_size": {
+        "16": 15.10400390625,
+        "32": 15.15185546875,
+        "64": 15.271484375
+      }
+    },
+    {
+      "family": "granite3b",
+      "task": "lcc",
+      "split": "heldout",
+      "requests": 64,
+      "prompt_tokens_min": 1361,
+      "prompt_tokens_max": 2950,
+      "prompt_tokens_sum": 130680,
+      "rounded_resident_token_slots_by_block_size": {
+        "16": 139808,
+        "32": 140288,
+        "64": 141184
+      },
+      "target_only_kv_gib_by_block_size": {
+        "16": 8.533203125,
+        "32": 8.5625,
+        "64": 8.6171875
+      },
+      "target_plus_neural_draft_kv_gib_by_block_size": {
+        "16": 14.93310546875,
+        "32": 14.984375,
+        "64": 15.080078125
+      }
+    },
+    {
+      "family": "granite3b",
+      "task": "multi_news",
+      "split": "development",
+      "requests": 64,
+      "prompt_tokens_min": 718,
+      "prompt_tokens_max": 3542,
+      "prompt_tokens_sum": 127420,
+      "rounded_resident_token_slots_by_block_size": {
+        "16": 136512,
+        "32": 137024,
+        "64": 138112
+      },
+      "target_only_kv_gib_by_block_size": {
+        "16": 8.33203125,
+        "32": 8.36328125,
+        "64": 8.4296875
+      },
+      "target_plus_neural_draft_kv_gib_by_block_size": {
+        "16": 14.5810546875,
+        "32": 14.6357421875,
+        "64": 14.751953125
+      }
+    },
+    {
+      "family": "granite3b",
+      "task": "multi_news",
+      "split": "heldout",
+      "requests": 64,
+      "prompt_tokens_min": 157,
+      "prompt_tokens_max": 3572,
+      "prompt_tokens_sum": 134906,
+      "rounded_resident_token_slots_by_block_size": {
+        "16": 144032,
+        "32": 144640,
+        "64": 145472
+      },
+      "target_only_kv_gib_by_block_size": {
+        "16": 8.791015625,
+        "32": 8.828125,
+        "64": 8.87890625
+      },
+      "target_plus_neural_draft_kv_gib_by_block_size": {
+        "16": 15.38427734375,
+        "32": 15.44921875,
+        "64": 15.5380859375
+      }
+    }
+  ],
+  "recommendations": {
+    "olmoe": {
+      "candidate_fixed_kv_gib": 48,
+      "candidate_fixed_kv_bytes": 51539607552,
+      "status": "candidate_supported_by_exact_target_config_and_pinned_draft_metadata_pending_realized_KV_allocation_and_smoke",
+      "same_budget_for_ngram_and_neural": true,
+      "max_selected_population_pair_kv_gib_by_block_size": {
+        "16": 37.5625,
+        "32": 37.671875,
+        "64": 37.90625
+      },
+      "remaining_kv_budget_after_block64_static_estimate_gib": 10.09375,
+      "weight_storage_or_loading_proxy_gib": 15.27379516080022,
+      "97GiB_minus_budget_minus_weight_proxy_gib": 33.72620483919978,
+      "planning_balance_is_not_measured_free_memory": true
+    },
+    "qwen3_awq": {
+      "candidate_fixed_kv_gib": 24,
+      "candidate_fixed_kv_bytes": 25769803776,
+      "status": "provisional_from_pinned_metadata_pending_remote_and_smoke",
+      "same_budget_for_ngram_and_neural": true,
+      "max_selected_population_pair_kv_gib_by_block_size": {
+        "16": 11.916534423828125,
+        "32": 11.95989990234375,
+        "64": 12.070556640625
+      },
+      "remaining_kv_budget_after_block64_static_estimate_gib": 11.929443359375,
+      "weight_storage_or_loading_proxy_gib": 15.817546010017395,
+      "97GiB_minus_budget_minus_weight_proxy_gib": 57.182453989982605,
+      "planning_balance_is_not_measured_free_memory": true
+    },
+    "granite3b": {
+      "candidate_fixed_kv_gib": 24,
+      "candidate_fixed_kv_bytes": 25769803776,
+      "status": "provisional_from_pinned_metadata_pending_remote_and_smoke",
+      "same_budget_for_ngram_and_neural": true,
+      "max_selected_population_pair_kv_gib_by_block_size": {
+        "16": 15.38427734375,
+        "32": 15.44921875,
+        "64": 15.5380859375
+      },
+      "remaining_kv_budget_after_block64_static_estimate_gib": 8.4619140625,
+      "weight_storage_or_loading_proxy_gib": 8.630463682115078,
+      "97GiB_minus_budget_minus_weight_proxy_gib": 64.36953631788492,
+      "planning_balance_is_not_measured_free_memory": true
+    }
+  },
+  "workload_provenance": {
+    "configs/lcc_olmoe_common128.json": {
+      "sha256": "9c09ace306e11e0c614f7f80e13ea90eb9cce027f02ee0ea0bd46a16ba38099b",
+      "source_indices_sha256": "b918c5be64c5ff743201252ea164fb88ae0e562a4eb9efed46b4749ab0fd5027",
+      "records": 128
+    },
+    "configs/multi_news_olmoe_common128.json": {
+      "sha256": "c400859597e7469ef59586b8947c7360c76201d5b77c5364aa0c78c71da3d750",
+      "source_indices_sha256": "5c47aac82c607d0d54ea82df01f70634a8c3f5ec8740b200d5e2f28b1dbe13ed",
+      "records": 128
+    },
+    "configs/lcc_qwen3_awq_common128.json": {
+      "sha256": "118bd30608675ce03fa40f5bd0a0af6496b926b9d3acea94cc891a73d2ae2be1",
+      "source_indices_sha256": "b918c5be64c5ff743201252ea164fb88ae0e562a4eb9efed46b4749ab0fd5027",
+      "records": 128
+    },
+    "configs/multi_news_qwen3_awq_common128.json": {
+      "sha256": "5c5641ac0700b1b9bdfa21fd5c844056eb969983817d36ac2767e78246061594",
+      "source_indices_sha256": "5c47aac82c607d0d54ea82df01f70634a8c3f5ec8740b200d5e2f28b1dbe13ed",
+      "records": 128
+    },
+    "configs/lcc_granite3b_common128.json": {
+      "sha256": "6837630aa36e878003ead37273ec083b464f0443ead76c5c5ab7425ace2e72f4",
+      "source_indices_sha256": "b918c5be64c5ff743201252ea164fb88ae0e562a4eb9efed46b4749ab0fd5027",
+      "records": 128
+    },
+    "configs/multi_news_granite3b_common128.json": {
+      "sha256": "8edc1cbac76019c9864b8a11d93a128dd2968bca4bcae38e64e5d0482da308dc",
+      "source_indices_sha256": "5c47aac82c607d0d54ea82df01f70634a8c3f5ec8740b200d5e2f28b1dbe13ed",
+      "records": 128
+    }
+  },
+  "metadata_provenance": {
+    "configs/olmo_dense_draft.json": "7eab0dd4e3e677a3a775fec73fdf20c42c497d8eedd13210cf18406b0944b5f3",
+    "configs/qwen3_awq_target.json": "2e65cd113b79c67306c870fcef114233793224411af9357ef52c961580f4413d",
+    "configs/draft_sources.json": "0d7da237afd9bbff2a56d903188625f5cabbaa9927f7d0a7a8b078ceeb1fd91a",
+    "configs/granite3b_target_source.json": "7ab47ab30dce849cbea52aea1fa5660b2a6efd4cae7274054ed5e730f32f07f8",
+    "/Users/zhaozhenyu/Desktop/毕业设计/MoE_Scheduling_20261002/model/config.json": "42ea6f5fe31e9243290ba3c348a4ad615b88a6fbc6e10544e21a87b6dff5da6c"
+  },
+  "installed_source_snapshot_evidence": [
+    {
+      "path": "runs/environment_20261016/source/vllm/v1/worker/gpu_worker.py",
+      "sha256": "28ac3f85aca3f68f18ac51cb5915e4d7ebe316c4ff3c021f1c2c5d3b90daca56",
+      "lines": "448-480",
+      "finding": "Explicit kv_cache_memory_bytes is returned as the worker KV budget; model profile_run still occurs, and gpu_memory_utilization does not determine this explicit allocation."
+    },
+    {
+      "path": "runs/environment_20261016/source/v1/worker/gpu_model_runner.py",
+      "sha256": "81b7627fbe81f7aaa2f77b4bf085faa353c69d03662ebfe369536a9773bb70d0",
+      "lines": "7718-7755",
+      "finding": "KV specs are collected from registered attention layers in the shared static forward context; explicitly KV-sharing layers are skipped."
+    },
+    {
+      "path": "runs/environment_20261016/source/v1/spec_decode/llm_base_proposer.py",
+      "sha256": "5dde99fc7f1ede581f7c1624e5c4c01746a8ca6b1847ad9adcea4d5602118674",
+      "lines": "1276-1324",
+      "finding": "Draft config retains the base cache/compilation config, unless a draft KV dtype override is present."
+    },
+    {
+      "path": "runs/environment_20261016/source/v1/spec_decode/draft_model.py",
+      "sha256": "6b884f49a75f01d1aa6b2d27159b63fa27f7ba7f0518d2810d1a5b565e14f026",
+      "lines": "81-115",
+      "finding": "Independent draft replaces model config, uses draft_model prefix, and does not share target embeddings/lm_head."
+    },
+    {
+      "path": "runs/environment_20261016/source/vllm/v1/core/kv_cache_utils.py",
+      "sha256": "6add6f1d60634b0819833675d86be4adf00c13fe5d0a1605074353b55d3e2d39",
+      "lines": "1036-1050,1368-1389,1749-1758",
+      "finding": "Uniform full-attention types with different layer sizes use one shared block count; per-layer allocation uses that layer page size. Target/draft layer sizes add, not an independent KV cap for each."
+    },
+    {
+      "path": "runs/environment_20261016/source/v1/core/sched/scheduler.py",
+      "sha256": "2ed2a550b6558b2495eda845a97ae38bcf0225027b9e25fbf00fc3880c1d3941",
+      "lines": "236-253",
+      "finding": "EAGLE and ordinary draft_model set num_lookahead_tokens to num_speculative_tokens; ngram does not acquire its own neural KV cache."
+    },
+    {
+      "path": "runs/environment_20261016/source/config/speculative.py",
+      "sha256": "b0ccd70e399723d3720ed1178242f5becf0fe1bf6e4756972691114435db5bcf",
+      "lines": "123-125,843",
+      "finding": "Draft KV dtype inherits target unless overridden; draft model dtype inherits target."
+    }
+  ],
+  "boundaries": [
+    "OLMoE target config is an exact local copy matching the completed remote CPU-scan SHA256. The other five models use pinned local architecture metadata plus observed remote config fingerprints. No new remote config/source read succeeded; realized backend block sizes, KV groups/tensors, startup allocation/peak and B64 admission/preemption remain unmeasured for this new workload/context.",
+    "The 64 development and 64 held-out requests are separate waves, never simultaneous populations of128. The sum-of-per-request envelope deliberately retains all prompts plus all128 output tokens and7 lookahead; earlier request completion/prefix reuse can reduce live use.",
+    "Recommended fixed KV caps are identical for ngram and neural within each family, not an equal-total-resident-memory claim. Neural sources add weight/KV/workspace and graph state.",
+    "Budgets target these frozen selected populations. They do not guarantee64 arbitrary max-length4096 requests or all requests at the filtering cap.",
+    "The weight values are size/loading proxies: OLMoE prior target loading report12.89GiB plus half FP32 OLMo files; Qwen AWQ/EAGLE and Granite use stored tensor-file bytes. Packed/converted weights, CUDA graphs, prefill activations, allocator reservations and other processes are not measured by these proxies.",
+    "97GiB accounting is a nominal planning envelope, not a current NVML-free-memory or peak-allocation observation. Existing torch allocated_bytes is not NVML resident, peak, or total weight residency.",
+    "One actual longest-population B64/G7 smoke per family/source must still confirm cache capacity, no unexpected admission/preemption and memory safety before claiming operational feasibility. No configuration or queue was changed."
+  ],
+  "recommendation_scope": "Use OLMoE48GiB, Qwen3 AWQ24GiB, Granite3B24GiB for both draft sources within each family, with new independent common128 workload domains. Candidates for frozen populations; not a startup success or full-device capacity proof."
+}

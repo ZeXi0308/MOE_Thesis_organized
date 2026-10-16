@@ -1,0 +1,21 @@
+Reproduce: python3 research_S_moe_specdec/runs/compiled_route_summary_r01/analyze.py
+
+Instrumented route diagnostic, not performance data. Each case uses 64 unique requests with 32 output tokens, wave admission, engine max_num_seqs=32, 16 MoE layers.
+
+D means weight every decode layer-step equally. S/P means use the same weighting (16 layers per step); shrinking active batches near completion are retained. Prefill is excluded from plotted means but included in integrity checks.
+
+Steps, layers and waves within one condition are correlated observations, not independent system repeats. No confidence interval is estimated.
+
+S covers every scheduled verification row, including subsequently rejected draft rows. P covers every model-forward row including CUDA Graph padding; it excludes expert GEMM tile padding.
+
+Physical D denotes the union of experts selected by all P model-forward rows. Selected parameter storage is not measured HBM traffic; padding expert increments alone do not establish a wall-time penalty.
+
+Runtime mode comes from the actual forward_context dispatch. Graph capture versus replay was not individually instrumented.
+
+enable_return_routed_experts adds native writes, D2H and CPU slot storage. The plugin adds GPU histogram/copies and deferred drain. Do not use diagnostic timing as trace-off performance.
+
+For this OLMoE configuration both route-on and route-off default to V1. The native flag and plugin do not explicitly alter its graph dispatch or capture sizes. On other default-V2 architectures the native flag can instead force V1.
+
+V1 FULL decode graph configuration rounds shared capture sizes up to multiples of gamma+1. Mixed/piecewise dispatch reuses the same table, so gamma=4 and S=1 can dispatch PIECEWISE with P=5.
+
+Applying P rules to a trace-off run requires the same resolved runner, backend, graph sizes, gamma, and batch structure. This diagnostic uses max_num_seqs=32; the planned performance matrix uses 64. Neither physical D nor time transfers without matched evidence.
